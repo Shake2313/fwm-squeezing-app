@@ -106,14 +106,14 @@ K_VEC = 2 * np.pi / WAVELENGTH_D1_85RB
 OMEGA_D1 = 2 * np.pi * NU_D1_85RB
 
 # Cell + beam geometry (Sim et al. 2025).
-# Pump diameter 530 μm → 1/e² waist 265 μm; probe diameter 330 μm → 165 μm.
+# Beam waists: pump w₀ = 530 μm, probe w₀ = 330 μm, quoted as 1/e² radius in [2].
 # Polarisations: pump and probe orthogonal at the PBS. The 4-level effective
 # model averages over Zeeman m-substates so it does not resolve the σ⁺/σ⁻ split
 # explicitly; the orthogonal-polarisation geometry is reflected only through
 # the independent powers/waists of the two channels.
 L_CELL  = 12.5e-3
-W_PUMP  = 530e-6 / 2
-W_PROBE = 330e-6 / 2
+W_PUMP  = 530e-6
+W_PROBE = 330e-6
 P_PUMP, P_PROBE = 600e-3, 10e-6
 T_CELL = 394.15
 

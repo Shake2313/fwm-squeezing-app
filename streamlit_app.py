@@ -12,6 +12,8 @@ one-photon detuning (OPD) or any cell parameter triggers one cached recompute.
 """
 
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
 import matplotlib.pyplot as plt
 import streamlit as st
 
@@ -214,14 +216,8 @@ with st.expander("Sim et al. (2025) optimum — reference values"):
 | Probe-seed power | 8 µW (squeezing run) | ✅ |
 | Optical loss after cell | 5.5 % | ✅ (loss) |
 | Cell length | 12.5 mm | fixed |
-| Pump / seed waist | 530 / 330 µm (1/e² **radius**) | fixed geometry |
+| Pump / seed waist w₀ | 530 / 330 µm (1/e² radius) | fixed geometry |
 | Measured result | gain ≈ 15, IDS −7.8 dB | — |
-
-⚠️ **Beam-size convention:** the paper quotes 530 / 330 µm as the **1/e² radius**
-(beam waist w₀), whereas this build currently treats them as the **diameter**
-(`W_PUMP`/`W_PROBE` = 265 / 165 µm — a factor-2 smaller waist, i.e. 4× higher
-intensity, 2× higher Rabi frequency). Aligning to the paper means setting
-`W_PUMP = 530e-6`, `W_PROBE = 330e-6` in `fwm_obe.py`.
 
 ℹ️ **Line-strength factor** is a model calibration knob (effective |d|²
 rescaling), not a tabulated paper value, so the preset leaves it as-is. Tune it
@@ -243,8 +239,8 @@ with st.expander("Derived quantities"):
 | Detection η = QE·(1−loss) | {spec['eta']:.4f} |
 | Operating probe detuning | {op['probe_GHz']:.4f} GHz |
 
-Fixed: cell L = {fwm.L_CELL*1e3:.1f} mm · pump Ø {2*fwm.W_PUMP*1e6:.0f} µm ·
-seed Ø {2*fwm.W_PROBE*1e6:.0f} µm · QE {fwm.QE_DETECTOR*100:.2f}% ·
+Fixed: cell L = {fwm.L_CELL*1e3:.1f} mm · pump w₀ {fwm.W_PUMP*1e6:.0f} µm ·
+seed w₀ {fwm.W_PROBE*1e6:.0f} µm · QE {fwm.QE_DETECTOR*100:.2f}% ·
 responsivity {fwm.RESPONSIVITY_AW} A/W @ 795 nm · pump⊥probe at PBS.
         """
     )
