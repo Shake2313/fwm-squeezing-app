@@ -60,13 +60,7 @@ Fixed geom: cell L=12.5 mm, QE 90.47 %, responsivity 0.58 A/W @ 795 nm, pump⊥p
 
 ## Deploy
 
-- **Vercel ✗** — serverless, no persistent server, Streamlit can't run.
-- **Streamlit Community Cloud ✓** (easiest), or Render/Railway/Fly/Cloud Run via Docker.
+- **Streamlit Community Cloud** (easiest), or Render/Railway/Fly/Cloud Run via Docker.
 - Free tier = weak CPU → 6 s recompute slower. Real bottleneck = CPU, not host.
 - Git remote: `github.com/Shake2313/fwm-squeezing-app` (private). gh acct `Shake2313`.
-  **Repo name ≠ folder name** — repo stays `fwm-squeezing-app` after folder → GABES.
-
-## Rename safe
-
-No absolute paths. `fwm_obe.py` uses `__file__`, app uses relative import. Folder rename
-GABES does not break code or git (git tracks by remote URL, not folder name).
+  Repo name ≠ folder name.
