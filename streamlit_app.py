@@ -81,31 +81,59 @@ def delta_axis_mhz(spectrum):
 # ----------------------------------------------------------------------
 st.sidebar.title("Controls")
 
+# Slider state lives in st.session_state so the preset button can overwrite it.
+DEFAULTS = dict(opd=0.9, tpd=0.0, temp_c=121.0, pump_mw=600.0,
+                probe_uw=10.0, loss_pct=0.0, ls=0.05)
+for _k, _v in DEFAULTS.items():
+    st.session_state.setdefault(_k, _v)
+
+# 85Rb conditions optimised for squeezing in Sim, Kim & Moon,
+# Sci. Rep. 15, 7727 (2025): T = 121 °C, Δ ≈ 0.9 GHz, δ = −8 MHz, pump 600 mW,
+# probe-seed 8 µW (Fig. 3 squeezing run), optical loss ≈ 5.5 %. Gain ≈ 15,
+# measured IDS −7.8 dB.  (Line-strength is a model calibration knob, not a
+# paper value, so the preset leaves it untouched.)
+OPTIMAL_85RB = dict(opd=0.9, tpd=-8.0, temp_c=121.0, pump_mw=600.0,
+                    probe_uw=8.0, loss_pct=5.5)
+
+
+def _apply_optimal():
+    st.session_state.update(OPTIMAL_85RB)
+
+
+st.sidebar.button(
+    "⚡ Sim et al. 85Rb optimum", on_click=_apply_optimal,
+    use_container_width=True,
+    help="One click → squeezing-optimised 85Rb conditions from "
+         "Sim, Kim & Moon, Sci. Rep. 15, 7727 (2025): "
+         "Δ = 0.9 GHz, δ = −8 MHz, T = 121 °C, pump 600 mW, seed 8 µW, loss 5.5 %.",
+)
+
 st.sidebar.subheader("Detunings")
 opd_ghz = st.sidebar.slider(
     "OPD — one-photon detuning Δ  [GHz]",
-    min_value=-1.0, max_value=3.0, value=0.9, step=0.1,
+    min_value=-1.0, max_value=3.0, step=0.1, key="opd",
     help="ω_pump = ω(F=2→F'=3) + Δ.  Sets where the pump sits and recomputes the spectrum.",
 )
 tpd_mhz = st.sidebar.slider(
     "TPD — two-photon detuning δ  [MHz]",
-    min_value=-TPD_LIMIT_MHZ, max_value=TPD_LIMIT_MHZ, value=0.0, step=1.0,
+    min_value=-TPD_LIMIT_MHZ, max_value=TPD_LIMIT_MHZ, step=1.0, key="tpd",
     help="ω_seed = ω_pump − ν_HF + δ.  Navigates the curve instantly (no recompute).",
 )
 
 st.sidebar.subheader("Cell & beams")
-T_C = st.sidebar.slider("Temperature  [°C]", 60.0, 150.0, 121.0, 1.0)
-P_pump_mW = st.sidebar.slider("Pump power  [mW]", 50.0, 1200.0, 600.0, 10.0)
-P_probe_uW = st.sidebar.slider("Seed / probe power  [µW]", 1.0, 200.0, 10.0, 1.0)
+T_C = st.sidebar.slider("Temperature  [°C]", 60.0, 150.0, step=1.0, key="temp_c")
+P_pump_mW = st.sidebar.slider("Pump power  [mW]", 50.0, 1200.0, step=10.0, key="pump_mw")
+P_probe_uW = st.sidebar.slider("Seed / probe power  [µW]", 1.0, 200.0, step=1.0, key="probe_uw")
 
 st.sidebar.subheader("Detection & scaling")
-loss_pct = st.sidebar.slider("Loss after cell  [%]", 0.0, 50.0, 0.0, 0.5,
+loss_pct = st.sidebar.slider("Loss after cell  [%]", 0.0, 50.0, step=0.5, key="loss_pct",
                              help="Folds into η = QE × (1 − loss).")
 line_strength = st.sidebar.slider(
-    "Line-strength factor", 0.01, 1.0, 0.05, 0.01,
-    help="Effective |d|² rescaling (Clebsch-Gordan lumping). Tune to match measured gain.",
+    "Line-strength factor", 0.01, 1.0, step=0.01, key="ls",
+    help="Effective |d|² rescaling (Clebsch-Gordan lumping). Calibration knob — "
+         "tune to reproduce the paper's gain ≈ 15; not a tabulated paper value.",
 )
-resolution = st.sidebar.selectbox("Resolution", list(RESOLUTION.keys()), index=1)
+resolution = st.sidebar.selectbox("Resolution", list(RESOLUTION.keys()), index=1, key="res")
 
 T_K = T_C + 273.15
 res = RESOLUTION[resolution]
@@ -168,8 +196,39 @@ st.pyplot(fig)
 
 
 # ----------------------------------------------------------------------
-# Derived quantities + optional full scan
+# Reference optimum + derived quantities + optional full scan
 # ----------------------------------------------------------------------
+with st.expander("Sim et al. (2025) optimum — reference values"):
+    st.markdown(
+        """
+**Source:** G. Sim, H. Kim, H. S. Moon, *Sci. Rep.* **15**, 7727 (2025).
+85Rb conditions optimised for intensity-difference squeezing — the
+**⚡ Sim et al. 85Rb optimum** button loads the sliders below.
+
+| Parameter | Paper value | Slider |
+|---|---|---|
+| One-photon detuning Δ | ≈ 0.9 GHz | ✅ |
+| Two-photon detuning δ | −8 MHz | ✅ |
+| Cell temperature | 121 °C | ✅ |
+| Pump power | 600 mW | ✅ |
+| Probe-seed power | 8 µW (squeezing run) | ✅ |
+| Optical loss after cell | 5.5 % | ✅ (loss) |
+| Cell length | 12.5 mm | fixed |
+| Pump / seed waist | 530 / 330 µm (1/e² **radius**) | fixed geometry |
+| Measured result | gain ≈ 15, IDS −7.8 dB | — |
+
+⚠️ **Beam-size convention:** the paper quotes 530 / 330 µm as the **1/e² radius**
+(beam waist w₀), whereas this build currently treats them as the **diameter**
+(`W_PUMP`/`W_PROBE` = 265 / 165 µm — a factor-2 smaller waist, i.e. 4× higher
+intensity, 2× higher Rabi frequency). Aligning to the paper means setting
+`W_PUMP = 530e-6`, `W_PROBE = 330e-6` in `fwm_obe.py`.
+
+ℹ️ **Line-strength factor** is a model calibration knob (effective |d|²
+rescaling), not a tabulated paper value, so the preset leaves it as-is. Tune it
+until the on-resonance gain matches the paper's ≈ 15.
+        """
+    )
+
 with st.expander("Derived quantities"):
     st.markdown(
         f"""
