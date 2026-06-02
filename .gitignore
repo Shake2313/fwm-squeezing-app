@@ -4,3 +4,5 @@ __pycache__/
 .streamlit/secrets.toml
 st.log
 .venv/
+.claude/
+references/

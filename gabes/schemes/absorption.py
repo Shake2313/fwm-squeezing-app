@@ -18,13 +18,16 @@ the Doppler width and the 85Rb number density (hence the absorption scale).
 """
 import numpy as np
 
-from .. import atoms, constants, doppler, observables
+from .. import atoms, constants, doppler, hyperfine, observables
 from ..constants import GAMMA, K_VEC, OMEGA_D1
 from .. import core
 from .base import ParamSpec, Preset, Scheme
 
 PROBE_RABI = 1e-3              # weak probe, in units of Γ
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
+
+# numpy ≥ 2.0 renamed np.trapz → np.trapezoid; support both.
+_trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 
 
 _TABLE_STEP = GAMMA / 30.0          # Δ_eff sampling for the Doppler χ̄ table
@@ -112,6 +115,67 @@ def _window_fwhm(x, y, ic):
     return float(x[j] - x[i])
 
 
+def _hyperfine_alpha(scan, params):
+    """
+    Realistic 85Rb D1 absorption coefficient α(scan) [1/m]: an incoherent sum of
+    the four hyperfine transitions (Fg∈{2,3}→Fe∈{2,3}), each a Doppler-broadened
+    Voigt placed at its line-center detuning, weighted by the validated
+    Clebsch-Gordan strength C_F² and ground population p_F, with self-broadening.
+
+    The Voigt *shape* is produced once by the OBE Doppler kernel (a genuine OBE
+    solve — no analytic wofz) on a fine grid, normalised to unit area, then
+    shifted/scaled per line. The per-line integrated absorption reproduces the
+    lab-validated AutoOD scaling:
+        ∫α_F dδ = π · k · p_F · C_F² · |d|² · N / (ε₀ℏ) / (2(2I+1)).
+
+    Returns (alpha, components, info) where `components` maps (Fg,Fe)→α_F(scan)
+    and `info` carries N, Γ_eff, σ_v, Doppler FWHM for the readout.
+    """
+    T = params["temp_c"] + 273.15
+    doppler_on = params.get("doppler", "on") == "on"
+    ls = params.get("line_strength", 1.0)
+
+    N = hyperfine.number_density(T)
+    gamma_eff = hyperfine.self_broadened_gamma(N)
+    atom = atoms.two_level(gamma=gamma_eff)
+
+    def build_H0(_s):
+        H = np.zeros((2, 2), dtype=complex)
+        H[0, 1] = H[1, 0] = PROBE_RABI * GAMMA / 2
+        return H
+
+    sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
+    dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
+    width = dopp_fwhm if doppler_on else gamma_eff
+
+    shifts = {k: 2 * np.pi * v for k, v in hyperfine.LINE_SHIFT_HZ.items()}
+    smin, smax = min(shifts.values()), max(shifts.values())
+
+    # One unit-area Voigt shape on a fine grid covering (scan − shift) ± wings.
+    lo = scan.min() - smax - 12 * width
+    hi = scan.max() - smin + 12 * width
+    grid = np.linspace(lo, hi, int((hi - lo) / (width / 40.0)) + 2)
+    chi = _solve_chi_avg(atom, build_H0, (1, 0), grid, params, h_dep=False)
+    shape, _ = observables.absorption_coefficient(chi, K_VEC, 1.0, line_strength=1.0)
+    S_unit = shape / _trapz(shape, grid)          # ∫ S_unit dδ = 1
+
+    # Absolute per-line integrated absorption (AutoOD normalisation).
+    K = (np.pi * K_VEC * hyperfine.DIPOLE_SQ * N
+         / (constants.HBAR * constants.EPS_0) / hyperfine.N_GROUND_SUBLEVELS)
+
+    alpha = np.zeros_like(scan)
+    components = {}
+    for (Fg, Fe) in hyperfine.TRANSITIONS:
+        I_line = ls * K * hyperfine.GROUND_POP[Fg] * hyperfine.CF2[(Fg, Fe)]
+        line = I_line * np.interp(scan - shifts[(Fg, Fe)], grid, S_unit,
+                                  left=0.0, right=0.0)
+        alpha += line
+        components[(Fg, Fe)] = line
+
+    info = dict(N=N, gamma_eff=gamma_eff, sigma_v=sigma_v, dopp_fwhm=dopp_fwhm)
+    return alpha, components, info
+
+
 # =========================================================
 # OD — 2-level Doppler-broadened absorption
 # =========================================================
@@ -119,27 +183,112 @@ class ODScheme(Scheme):
     name = "od"
     cluster = "A — Absorption"
     title = "Optical absorption (OD)"
-    caption = ("Weak-probe absorption of a 2-level transition. Doppler-broadened "
-               "Voigt line in a warm vapor; the natural-linewidth Lorentzian when "
-               "Doppler is off.")
+    caption = ("Weak-probe absorption. The full 85Rb D1 four-line hyperfine "
+               "spectrum (validated against the lab AutoOD calculator), or a single "
+               "bare 2-level Voigt. Doppler-broadened in a warm vapor; natural-"
+               "linewidth Lorentzian when Doppler is off.")
 
     def param_schema(self):
         return [
+            ParamSpec("model", "Absorption model", "Model", "85Rb D1 hyperfine",
+                      choices=("85Rb D1 hyperfine", "single 2-level"),
+                      help="Hyperfine: the full 85Rb D1 four-line spectrum (CG "
+                      "strengths, ground populations, self-broadening) validated "
+                      "against the lab AutoOD calculator. Single: one bare 2-level "
+                      "Voigt — the validation backbone the Λ schemes reduce to."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 50.0, 20.0, 200.0, 1.0, "°C",
                       help="Sets the 85Rb density (absorption scale) and Doppler width."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0, 0.5, 200.0, 0.5, "mm"),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
-                      0.01, 2.0, 0.01, "", help="Effective |d|² calibration knob "
-                      "(=1.0 reproduces the textbook 3λ²/2π cross-section)."),
+                      0.01, 2.0, 0.01, "", help="Effective |d|² calibration knob. Single: "
+                      "=1.0 reproduces the textbook 3λ²/2π cross-section. Hyperfine: "
+                      "=1.0 reproduces the validated AutoOD absolute scale."),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", "on",
                       choices=("on", "off"), advanced=True),
         ]
 
     def presets(self):
-        return [Preset("Warm Rb cell (50 °C)",
-                       values=dict(temp_c=50.0, cell_mm=75.0), icon="🔥")]
+        return [
+            Preset("85Rb D1 cell (90 °C, 12.5 mm)",
+                   values=dict(model="85Rb D1 hyperfine", temp_c=90.0, cell_mm=12.5),
+                   icon="🧪", help="AutoOD-validated warm-cell spectrum."),
+            Preset("Single line (cold)",
+                   values=dict(model="single 2-level", temp_c=25.0, cell_mm=3.0,
+                               doppler="off"), icon="📏"),
+        ]
 
-    def compute(self, params):
+    # ---- hyperfine (validated full-D1) ----
+    def _compute_hyperfine(self, params):
+        T = params["temp_c"] + 273.15
+        sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
+        dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
+        N = hyperfine.number_density(T)
+        gamma_eff = hyperfine.self_broadened_gamma(N)
+        width = dopp_fwhm if params["doppler"] == "on" else gamma_eff
+
+        shifts = np.array([2 * np.pi * v for v in hyperfine.LINE_SHIFT_HZ.values()])
+        margin = max(2 * np.pi * 1.5e9, 6 * width)
+        lo, hi = shifts.min() - margin, shifts.max() + margin
+        n = int(np.clip((hi - lo) / (width / 8.0), 1201, 8000))
+        scan = np.linspace(lo, hi, n)
+
+        alpha, components, info = _hyperfine_alpha(scan, params)
+        return dict(model="hyperfine", scan=scan, alpha=alpha,
+                    components={f"{Fg}-{Fe}": v for (Fg, Fe), v in components.items()},
+                    L=params["cell_mm"] * 1e-3, T=T, **info)
+
+    def _observables_hyperfine(self, raw, params):
+        import matplotlib.pyplot as plt
+        x = raw["scan"] / (2 * np.pi) / 1e9                      # GHz
+        alpha = raw["alpha"]
+        OD = observables.optical_density(alpha, raw["L"])
+        T_trans = observables.transmission(alpha, raw["L"])
+
+        fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+        axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
+        axT.set_ylabel("Transmission")
+        axT.set_ylim(-0.02, 1.04)
+        axT.set_title(f"85Rb D1 hyperfine:  T = {params['temp_c']:.0f} °C,  "
+                      f"L = {params['cell_mm']:.1f} mm,  Doppler {params['doppler']}")
+        axOD.plot(x, OD, color="#d62728", lw=1.6)
+        axOD.set_ylabel("Optical density  (−log₁₀T)")
+        axOD.set_xlabel("Detuning  [GHz]  (ref: 87Rb F=2→F′=2)")
+        for (Fg, Fe), sh in hyperfine.LINE_SHIFT_HZ.items():
+            for a in (axT, axOD):
+                a.axvline(sh / 1e9, color="gray", ls=":", lw=0.7)
+            axOD.annotate(f"{Fg}→{Fe}′", (sh / 1e9, 0), xytext=(0, 2),
+                          textcoords="offset points", ha="center", va="bottom",
+                          fontsize=7, color="gray")
+        fig.tight_layout()
+
+        sb_mhz = (raw["gamma_eff"] - GAMMA) / (2 * np.pi) / 1e6
+        metrics = [
+            dict(label="Peak OD", value=f"{np.nanmax(OD):.3f}",
+                 help="Largest −log₁₀(T) across the four-line spectrum."),
+            dict(label="Min transmission", value=f"{np.nanmin(T_trans):.3e}"),
+            dict(label="Doppler FWHM", value=f"{raw['dopp_fwhm']/(2*np.pi)/1e6:.0f} MHz",
+                 help="Gaussian (Doppler) width of each hyperfine line."),
+        ]
+        rows = "".join(
+            f"| {Fg}→{Fe}′ | {hyperfine.LINE_SHIFT_HZ[(Fg, Fe)]/1e9:.3f} | "
+            f"{hyperfine.GROUND_POP[Fg]*hyperfine.CF2[(Fg, Fe)]:.4f} |\n"
+            for (Fg, Fe) in hyperfine.TRANSITIONS)
+        derived = (
+            f"| Quantity | Value |\n|---|---|\n"
+            f"| N(85Rb), pure cell | {raw['N']:.3e} /m³ |\n"
+            f"| σ_v (1-D) | {raw['sigma_v']:.1f} m/s |\n"
+            f"| Doppler FWHM | {raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz |\n"
+            f"| Γ_eff/2π (self-broadened) | {raw['gamma_eff']/(2*np.pi)/1e6:.3f} MHz "
+            f"(+{sb_mhz:.3f}) |\n"
+            f"| Natural Γ/2π | {GAMMA_MHZ:.3f} MHz |\n"
+        )
+        lines = ("| Line | Center [GHz] | p_F·C_F² |\n|---|---|---|\n" + rows)
+        return dict(metrics=metrics, figure=fig, tables=[
+            {"title": "Derived quantities", "markdown": derived},
+            {"title": "Hyperfine lines (relative strength)", "markdown": lines}])
+
+    # ---- single bare 2-level line (validation backbone) ----
+    def _compute_single(self, params):
         T = params["temp_c"] + 273.15
         sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
         dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
@@ -155,11 +304,11 @@ class ODScheme(Scheme):
 
         chi_bar = _solve_chi_avg(atom, build_H0, (1, 0), scan, params, h_dep=False)
         N = atoms.rb85_density(T)
-        return dict(scan=scan, chi_bar=chi_bar, N=N, T=T,
+        return dict(model="single", scan=scan, chi_bar=chi_bar, N=N, T=T,
                     L=params["cell_mm"] * 1e-3, ls=params["line_strength"],
                     sigma_v=sigma_v, dopp_fwhm=dopp_fwhm)
 
-    def observables(self, raw, params):
+    def _observables_single(self, raw, params):
         import matplotlib.pyplot as plt
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, _ = observables.absorption_coefficient(
@@ -171,8 +320,8 @@ class ODScheme(Scheme):
         axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
         axT.set_ylabel("Transmission")
         axT.set_ylim(-0.02, 1.02)
-        axT.set_title(f"T = {params['temp_c']:.0f} °C,  L = {params['cell_mm']:.0f} mm,  "
-                      f"Doppler {params['doppler']}")
+        axT.set_title(f"Single 2-level:  T = {params['temp_c']:.0f} °C,  "
+                      f"L = {params['cell_mm']:.0f} mm,  Doppler {params['doppler']}")
         axOD.plot(x, OD, color="#d62728", lw=1.8)
         axOD.set_ylabel("Optical density  (−log₁₀T)")
         axOD.set_xlabel("Probe detuning  [MHz]")
@@ -197,6 +346,16 @@ class ODScheme(Scheme):
         )
         return dict(metrics=metrics, figure=fig,
                     tables=[{"title": "Derived quantities", "markdown": derived}])
+
+    def compute(self, params):
+        if params.get("model", "85Rb D1 hyperfine") == "single 2-level":
+            return self._compute_single(params)
+        return self._compute_hyperfine(params)
+
+    def observables(self, raw, params):
+        if raw.get("model") == "single":
+            return self._observables_single(raw, params)
+        return self._observables_hyperfine(raw, params)
 
 
 # =========================================================

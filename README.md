@@ -9,7 +9,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD** | Doppler-broadened (Voigt) absorption / transmission |
+| A — Absorption | **OD** | 85Rb D1 four-line hyperfine spectrum (AutoOD-validated) or single 2-level Voigt |
 | A | **EIT** | transparency window + dispersion (slow light) |
 | A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
 | A | **CPT** | sub-natural dark resonance |
@@ -30,6 +30,9 @@ and two-time correlations (Mollow, g²(τ)) would need new engine layers.
   - `doppler.py` — Maxwell velocity grid, Δ_eff axis, Doppler average.
   - `atoms.py` — `AtomModel` (level scheme as data) + factories
     (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`) + Rb85 vapor density.
+  - `hyperfine.py` — 85Rb D1 hyperfine line table (4 transitions + shifts), CG
+    line strengths C_F², ground populations p_F, self-broadening Γ(N), and the
+    pure-85Rb CRC density — the data/scaling for the AutoOD-validated full-D1 OD.
   - `zeeman.py` — hand-rolled Clebsch-Gordan + `zeeman_manifold(F_g, F_e)` builder
     (σ±/π couplings, CG-branched decay) for the magneto-optics schemes.
   - `observables.py` — gain, squeezing, twin-beam coincidence, absorption / OD / dispersion.
@@ -59,7 +62,7 @@ streamlit run"). FWM CLI backend: `python fwm_obe.py`.
 
 ```
 python tests/test_regression.py      # FWM bit-identical to the pre-refactor baseline
-python tests/test_absorption.py      # OD width, AT split = Ω_c, EIT/CPT transparency
+python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, AT split = Ω_c, EIT/CPT
 python tests/test_sas.py             # Voigt background, Lamb dip, crossover
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
 python tests/test_coincidence.py     # twin-beam photon-pair statistics
@@ -100,6 +103,16 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 5. **Twin-beam coincidence is the ideal (lossless) parametric estimate** from the
    gain (n=G_s−1, g²_sc=2+1/n, R=g²_sc²/4>1), valid in the gain region — like the
    squeezing panel, propagation loss is not modelled with quantum Langevin noise.
+6. **OD has two models.** Default = the **85Rb D1 hyperfine** spectrum (4 lines,
+   CG strengths, ground populations, self-broadening), validated against the lab
+   AutoOD calculator (`references/AutoOD/`) — reproduces its transmission to <0.1 %.
+   It uses a **pure-85Rb cell** density from the CRC vapor pressure
+   (`hyperfine.number_density`), *distinct* from `atoms.rb85_density` (Steck,
+   natural abundance) that the other schemes use — this is what matches AutoOD's
+   absolute scale. The **single 2-level** model is the bare-Voigt validation
+   backbone the Λ schemes reduce to (and what the analytic FWHM tests use). The
+   x-axis origin is AutoOD's 87Rb F=2→F′=2 marker, so GABES overlays the lab tool
+   and its CSV data directly. Lineshape is the OBE Doppler kernel — no scipy/wofz.
 
 ## Speed (why the architecture)
 
