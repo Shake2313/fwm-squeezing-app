@@ -1,0 +1,26 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">GABES mark v3 dark</title>
+  <desc id="desc">A dark-background compact vector mark for GABES.</desc>
+  <defs>
+    <linearGradient id="transitionCyan" x1="76" y1="164" x2="128" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+    <linearGradient id="transitionWarm" x1="116" y1="164" x2="170" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M168 55C152 44 132 40 112 45C70 55 43 92 46 134C49 179 85 211 131 210C160 209 184 195 200 173" stroke="#F8FAFC" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M140 128H204" stroke="#F8FAFC" stroke-width="20" stroke-linecap="round"/>
+  <path d="M204 128V86" stroke="#F8FAFC" stroke-width="20" stroke-linecap="round"/>
+
+  <path d="M68 88H128" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round"/>
+  <path d="M104 168H164" stroke="#F8FAFC" stroke-width="10" stroke-linecap="round"/>
+  <path d="M86 162L126 94" stroke="url(#transitionCyan)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M124 162L164 94" stroke="url(#transitionWarm)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="68" cy="88" r="6" fill="#F8FAFC"/>
+  <circle cx="164" cy="168" r="6" fill="#F8FAFC"/>
+</svg>

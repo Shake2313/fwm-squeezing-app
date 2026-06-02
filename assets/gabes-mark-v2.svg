@@ -1,0 +1,26 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">GABES mark v2</title>
+  <desc id="desc">A compact vector mark for GABES, combining a G-shaped solver ring with an atomic transition scheme.</desc>
+  <defs>
+    <linearGradient id="transitionA" x1="82" y1="160" x2="128" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0284C7"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <linearGradient id="transitionB" x1="120" y1="160" x2="166" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F97316"/>
+      <stop offset="1" stop-color="#F43F5E"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M160 51A78 78 0 1 0 173 153" stroke="#101827" stroke-width="20" stroke-linecap="round"/>
+  <path d="M138 128H203" stroke="#101827" stroke-width="20" stroke-linecap="round"/>
+  <path d="M203 128V89" stroke="#101827" stroke-width="20" stroke-linecap="round"/>
+
+  <line x1="69" y1="88" x2="126" y2="88" stroke="#101827" stroke-width="10" stroke-linecap="round"/>
+  <line x1="106" y1="166" x2="163" y2="166" stroke="#101827" stroke-width="10" stroke-linecap="round"/>
+  <path d="M85 160L123 94" stroke="url(#transitionA)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M124 160L162 94" stroke="url(#transitionB)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <circle cx="69" cy="88" r="6" fill="#101827"/>
+  <circle cx="163" cy="166" r="6" fill="#101827"/>
+</svg>

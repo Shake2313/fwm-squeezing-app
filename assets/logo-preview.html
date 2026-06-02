@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GABES Logo Preview</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #dbe5ef;
+      --paper: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      width: min(1120px, calc(100vw - 48px));
+      margin: 44px auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.2;
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 24px;
+    }
+
+    .panel.dark {
+      background: #0f172a;
+      border-color: #1e293b;
+    }
+
+    .label {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .dark .label {
+      color: #94a3b8;
+    }
+
+    .logo {
+      display: block;
+      width: min(100%, 880px);
+      height: auto;
+    }
+
+    .marks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .mark {
+      width: 112px;
+      height: 112px;
+    }
+
+    .mark.small {
+      width: 48px;
+      height: 48px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>GABES Logo Preview</h1>
+    <p>Working comparison page for the simplified G-shaped atomic transition direction.</p>
+
+    <section class="grid">
+      <div class="panel">
+        <div class="label">v3 primary</div>
+        <img class="logo" src="gabes-logo-v3.svg" alt="GABES logo v3">
+      </div>
+
+      <div class="panel">
+        <div class="label">v3 mark scaling</div>
+        <div class="marks">
+          <img class="mark" src="gabes-mark-v3.svg" alt="GABES mark v3">
+          <img class="mark small" src="gabes-mark-v3.svg" alt="GABES mark v3 small">
+          <img class="mark" src="gabes-mark-v3-mono.svg" alt="GABES monochrome mark v3">
+          <img class="mark small" src="gabes-mark-v3-mono.svg" alt="GABES monochrome mark v3 small">
+        </div>
+      </div>
+
+      <div class="panel dark">
+        <div class="label">v3 primary on dark</div>
+        <img class="logo" src="gabes-logo-v3-dark.svg" alt="GABES logo v3 on dark">
+      </div>
+
+      <div class="panel">
+        <div class="label">v2 comparison</div>
+        <img class="logo" src="gabes-logo-v2.svg" alt="GABES logo v2">
+      </div>
+    </section>
+  </main>
+</body>
+</html>

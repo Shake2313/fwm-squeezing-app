@@ -1,0 +1,56 @@
+<svg width="960" height="232" viewBox="0 0 960 232" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">GABES logo v3 dark</title>
+  <desc id="desc">A dark-background vector logo for GABES, with a G-shaped solver mark and a compact atomic transition motif.</desc>
+  <defs>
+    <linearGradient id="transitionCyan" x1="78" y1="150" x2="126" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#67E8F9"/>
+    </linearGradient>
+    <linearGradient id="transitionWarm" x1="118" y1="154" x2="170" y2="76" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FB923C"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <linearGradient id="spectralAccent" x1="300" y1="151" x2="620" y2="151" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="0.52" stop-color="#60A5FA"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+    <style>
+      .ink { stroke: #F8FAFC; }
+      .word {
+        fill: #F8FAFC;
+        font-family: "IBM Plex Sans", "Inter", "Segoe UI", Arial, sans-serif;
+        font-size: 86px;
+        font-weight: 760;
+        letter-spacing: 0;
+      }
+      .tagline {
+        fill: #CBD5E1;
+        font-family: "IBM Plex Sans", "Inter", "Segoe UI", Arial, sans-serif;
+        font-size: 21px;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(34 18)">
+    <path d="M155 52C140 42 121 39 102 44C64 54 40 88 43 128C46 171 80 200 123 199C150 198 173 185 188 164" class="ink" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M132 124H194" class="ink" stroke-width="18" stroke-linecap="round"/>
+    <path d="M194 124V84" class="ink" stroke-width="18" stroke-linecap="round"/>
+
+    <path d="M68 84H124" class="ink" stroke-width="8.5" stroke-linecap="round"/>
+    <path d="M102 158H158" class="ink" stroke-width="8.5" stroke-linecap="round"/>
+    <path d="M84 153L122 89" stroke="url(#transitionCyan)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M120 153L158 89" stroke="url(#transitionWarm)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="68" cy="84" r="4.8" fill="#F8FAFC"/>
+    <circle cx="158" cy="158" r="4.8" fill="#F8FAFC"/>
+  </g>
+
+  <g transform="translate(300 56)">
+    <text x="0" y="80" class="word">GABES</text>
+    <path d="M5 101H150C164 101 169 91 177 91C188 91 190 118 202 118C213 118 217 101 231 101H342" stroke="url(#spectralAccent)" stroke-width="4.75" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="4" y="143" class="tagline">Generic Atomic Bloch Equation Solver</text>
+  </g>
+</svg>

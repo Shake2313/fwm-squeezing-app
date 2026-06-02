@@ -17,11 +17,16 @@ import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
 import matplotlib.pyplot as plt
 import streamlit as st
+from pathlib import Path
 
 from gabes import schemes
 
+APP_DIR = Path(__file__).resolve().parent
+LOGO_SVG = (APP_DIR / "assets" / "gabes-logo-v3.svg").read_text(encoding="utf-8")
+ICON_SVG = (APP_DIR / "assets" / "gabes-mark-v3.svg").read_text(encoding="utf-8")
+
 st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
-                   page_icon="🔬", layout="wide")
+                   page_icon=ICON_SVG, layout="wide")
 
 
 # ----------------------------------------------------------------------
@@ -55,8 +60,7 @@ def _render_param(container, scheme_name, sp):
 # ----------------------------------------------------------------------
 # Sidebar — scheme selection
 # ----------------------------------------------------------------------
-st.sidebar.title("GABES")
-st.sidebar.caption("Generic Atomic Bloch Equation Solver")
+st.sidebar.image(LOGO_SVG, width=230)
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
