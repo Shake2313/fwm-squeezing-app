@@ -1,14 +1,48 @@
-# GABES — General Atomic Bloch Equation Solver
+# GABES — Generic Atomic Bloch Equation Solver
 
-Name aspirational. Current impl = **85Rb D1 double-Λ four-wave-mixing** density-matrix
-model. Output: seed/probe gain G_s + intensity-difference squeezing dB. Streamlit front.
+Ensemble optical-Bloch-equation solver for warm-vapor / cold-atom spectroscopy,
+with a **scheme-driven** Streamlit front-end: pick a physics scheme in the
+sidebar and it declares its own controls and plots. Started as a single 85Rb D1
+double-Λ four-wave-mixing model (now one scheme among several).
 
-## What
+## Schemes (current)
 
-- `fwm_obe.py` — physics backend. Steady-state OBE, 4-level (|F=2⟩,|F=3⟩,|F'=2⟩,|F'=3⟩),
-  3-mode sideband expansion, Doppler average → χ̄ matrix → Maxwell-Bloch 2×2 propagation
-  → G_s, G_c, squeezing. CLI `main()` plots a spectrum.
-- `streamlit_app.py` — interactive UI. Sliders + "⚡ Sim et al. 85Rb optimum" preset button.
+| Cluster | Scheme | Output |
+|---|---|---|
+| A — Absorption | **OD** | Doppler-broadened (Voigt) absorption / transmission |
+| A | **EIT** | transparency window + dispersion (slow light) |
+| A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
+| A | **CPT** | sub-natural dark resonance |
+| B — Sub-Doppler | **SAS** | saturated absorption: Lamb dip + crossover (hole-burning) |
+| C — Magneto-optics | **Hanle / EIA / NMOR** | zero-field dip / peak / polarization rotation vs B (Zeeman manifold) |
+| D — Wave mixing | **FWM** | seed/probe gain G_s, intensity-difference squeezing, twin-beam coincidence |
+
+Roadmap (parking lot): slow-light / group-index readout, Raman gain, higher-order
+wave mixing, Bell-Bloom magnetometry, multi-isotope; time-domain (STIRAP, Ramsey)
+and two-time correlations (Mollow, g²(τ)) would need new engine layers.
+
+## Layout
+
+- `gabes/` — the package:
+  - `constants.py` — physical constants + 85Rb D1 line data + `rabi_freq`.
+  - `core.py` — physics-agnostic engine: super-operators, Liouvillian, the 3-mode
+    Floquet solver, the single-mode steady-state solver, 2×2 matrix exp.
+  - `doppler.py` — Maxwell velocity grid, Δ_eff axis, Doppler average.
+  - `atoms.py` — `AtomModel` (level scheme as data) + factories
+    (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`) + Rb85 vapor density.
+  - `zeeman.py` — hand-rolled Clebsch-Gordan + `zeeman_manifold(F_g, F_e)` builder
+    (σ±/π couplings, CG-branched decay) for the magneto-optics schemes.
+  - `observables.py` — gain, squeezing, twin-beam coincidence, absorption / OD / dispersion.
+  - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
+    `absorption.py` (OD/EIT/AT/CPT), `sas.py`, `magneto.py` (Hanle/EIA/NMOR),
+    `fwm.py`, `__init__.py` (registry).
+- `streamlit_app.py` — generic UI. Renders only the selected scheme's
+  `param_schema()`; caches the heavy solve on `recompute` knobs only (so
+  navigate-only knobs like the FWM two-photon detuning update instantly).
+- `fwm_obe.py` — backward-compat shim re-exporting the FWM API and the
+  `python fwm_obe.py` CLI (physics now lives in `gabes/`).
+- `tests/` — regression + physics validation; `baseline_focused.npz` is the
+  frozen pre-refactor FWM anchor.
 - `requirements.txt` — streamlit, numpy, matplotlib.
 - `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper.
 
@@ -18,10 +52,29 @@ model. Output: seed/probe gain G_s + intensity-difference squeezing dB. Streamli
 streamlit run streamlit_app.py
 ```
 
-**Trap**: `python streamlit_app.py` does NOT work (no server, prints "run it with streamlit run").
-CLI backend: `python fwm_obe.py`.
+**Trap**: `python streamlit_app.py` does NOT work (no server, prints "run it with
+streamlit run"). FWM CLI backend: `python fwm_obe.py`.
 
-## Conventions (must-know, not obvious from numbers)
+## Tests
+
+```
+python tests/test_regression.py      # FWM bit-identical to the pre-refactor baseline
+python tests/test_absorption.py      # OD width, AT split = Ω_c, EIT/CPT transparency
+python tests/test_sas.py             # Voigt background, Lamb dip, crossover
+python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
+python tests/test_coincidence.py     # twin-beam photon-pair statistics
+python tests/test_schemes_render.py  # every registered scheme computes + renders
+```
+(or `pytest tests/`)
+
+## Adding a scheme
+
+Subclass `gabes.schemes.base.Scheme` — declare `param_schema()`, `compute(params)`,
+`observables(raw, params)` (and optionally `presets`, `info`, `extra_views`) — then
+add an instance to the list in `gabes/schemes/__init__.py`. No UI edits: the
+sidebar controls and the plots follow `param_schema()` and the observables dict.
+
+## FWM conventions (must-know, not obvious from numbers)
 
 - Levels: g₁=F=2, g₂=F=3, e₂=F'=2, e₃=F'=3.
 - OPD Δ (one-photon): ω_pump = ω(F=2→F'=3) + Δ.
@@ -31,24 +84,32 @@ CLI backend: `python fwm_obe.py`.
 
 ## Traps
 
-1. **LINE_STRENGTH_FACTOR = calibration knob, NOT physical.** Effective |d|² rescaling
-   (Clebsch-Gordan lumping). `fwm_obe.py` default = 1.0. App default = 0.05.
-2. **Gain is exponentially sensitive at high density.** At paper optimum T=121°C
-   (N≈1.3e19/m³) linear Maxwell-Bloch gives nonsense (G~1e25) at ls=1.0. Drop ls (~0.05)
-   or lower T. Model has no pump depletion / saturation → knife-edge near resonance.
-3. **Must sum BOTH Raman branches.** Single (−) branch changes result materially
-   (off-resonant (+) tail sets background absorption the exponential gain feels).
-   `compute_spectrum(..., branches=BRANCHES)`.
+1. **LINE_STRENGTH_FACTOR = calibration knob.** Effective |d|² rescaling
+   (Clebsch-Gordan lumping). The package default is 1.0, which reproduces the
+   textbook 3λ²/2π resonant cross-section for the 2-level OD scheme. The FWM app
+   uses 0.05 (see trap 2). Absorption schemes leave it at 1.0.
+2. **FWM gain is exponentially sensitive at high density.** At paper optimum
+   T=121 °C linear Maxwell-Bloch gives nonsense (G~1e25) at ls=1.0. Drop ls (~0.05)
+   or lower T. The model has no pump depletion / saturation → knife-edge near resonance.
+3. **FWM must sum BOTH Raman branches.** Single (−) branch changes the result
+   materially (the off-resonant (+) tail sets the background absorption the
+   exponential gain feels). `compute_spectrum(..., branches=BRANCHES)`.
+4. **Rb is very absorbing — absorption schemes use short cells.** ls=1.0 is the
+   true cross-section, so on-resonance OD saturates in a cm-scale cell; the
+   OD/EIT/AT/CPT defaults use mm-scale cells / moderate T to keep features visible.
+5. **Twin-beam coincidence is the ideal (lossless) parametric estimate** from the
+   gain (n=G_s−1, g²_sc=2+1/n, R=g²_sc²/4>1), valid in the gain region — like the
+   squeezing panel, propagation loss is not modelled with quantum Langevin noise.
 
 ## Speed (why the architecture)
 
-- L₀(Δ_eff) = L₀_base − Δ_eff·S_v (only excited diagonal shifts with velocity).
-  → all velocities stacked, one batched `np.linalg.solve`. 1180 Python loop → 1 call.
-- R(δ, Δ_eff) table is **T- and Δ-independent** (T → Maxwell weights only; Δ → axis offset).
-- Full −8…12 GHz scan ~227 s. App focused window ~6 s/recompute, `st.cache_data`.
-  TPD slider = instant (navigates cached curve, no recompute).
+- L₀(Δ_eff) = L₀_base − Δ_eff·S_v (only the excited diagonal shifts with velocity).
+  → all velocities stacked, one batched `np.linalg.solve`.
+- The χ̄(δ, Δ_eff) table is **T- and Δ-independent** (T → Maxwell weights only; Δ → axis offset).
+- Full FWM −8…12 GHz scan ~227 s. App focused window ~6 s/recompute, `st.cache_data`.
+  TPD slider = instant (navigates the cached curve, no recompute).
 
-## Sim et al. 85Rb optimum (the ⚡ button)
+## Sim et al. 85Rb optimum (the ⚡ button, FWM scheme)
 
 G. Sim, H. Kim, H. S. Moon, Sci. Rep. **15**, 7727 (2025). 85Rb squeezing-optimal:
 
