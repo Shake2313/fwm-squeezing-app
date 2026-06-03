@@ -101,9 +101,11 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 2. **FWM gain is exponentially sensitive at high density.** At paper optimum
    T=121 °C linear Maxwell-Bloch gives nonsense (G~1e25) at ls=1.0. Drop ls (~0.05)
    or lower T. The model has no pump depletion / saturation → knife-edge near resonance.
-3. **FWM must sum BOTH Raman branches.** Single (−) branch changes the result
-   materially (the off-resonant (+) tail sets the background absorption the
-   exponential gain feels). `compute_spectrum(..., branches=BRANCHES)`.
+3. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
+   The Sim et al. 85Rb operating point uses the standard red-detuned seed on the
+   (−) Raman branch. Compute `branch=-1` and `branch=+1` independently; do not add
+   their χ matrices into one 2×2 propagation matrix. The old branch-summed model
+   created artificial high-gain extrema (for example near +70 MHz TPD).
 4. **Rb is very absorbing — absorption schemes use short cells.** ls=1.0 is the
    true cross-section, so on-resonance OD saturates in a cm-scale cell; the
    OD/EIT/AT/CPT defaults use mm-scale cells / moderate T to keep features visible.
@@ -140,6 +142,18 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 - The χ̄(δ, Δ_eff) table is **T- and Δ-independent** (T → Maxwell weights only; Δ → axis offset).
 - Full FWM −8…12 GHz scan ~227 s. App focused window ~6 s/recompute, `st.cache_data`.
   TPD slider = instant (navigates the cached curve, no recompute).
+
+## FWM future physics work
+
+- Add longitudinal phase mismatch `Δk_z` to the probe/conjugate propagation
+  matrix. Sim et al. use a finite pump-probe angle, and Turnbull et al. show that
+  phase mismatch controls the gain/absorption tradeoff for squeezed twin beams.
+- Add explicit loss/noise physics rather than folding everything into a scalar
+  detection efficiency: propagation loss with Langevin noise, seed excess noise,
+  pump scattering, and EOM residual carrier/sideband multimode noise.
+- Benchmark the cost/benefit of those additions before making them default. Record
+  runtime slowdown, shift in optimum TPD, gain match to Sim et al. (~15), and IDS
+  accuracy improvement versus the current single-branch model.
 
 ## Sim et al. 85Rb optimum (the ⚡ button, FWM scheme)
 

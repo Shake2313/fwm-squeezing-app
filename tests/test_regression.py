@@ -1,6 +1,6 @@
 """
 Phase-0 regression: the refactored gabes FWM scheme must reproduce the frozen
-known-good baseline captured from the pre-refactor fwm_obe.py.
+single-branch FWM baseline.
 
     python tests/test_regression.py      # or: pytest tests/test_regression.py
 
@@ -34,7 +34,7 @@ def _spectrum(cfg):
         line_strength=cfg["line_strength"], loss_frac=cfg["loss_frac"],
         coarse_points=121, fine_points=0,
         scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
-        velocity_step=5.0, velocity_cutoff=3.0, branches=fwm.BRANCHES,
+        velocity_step=5.0, velocity_cutoff=3.0, branch=-1,
     )
 
 
@@ -48,6 +48,20 @@ def test_regression():
                 f"{name}/{key} drifted from baseline"
 
 
+def test_branch_summation_rejected():
+    center = fwm.branch_center_GHz(0.9, -1)
+    try:
+        fwm.compute_spectrum(
+            0.9, coarse_points=3, fine_points=0,
+            scan_min=center - 0.01, scan_max=center + 0.01,
+            velocity_step=20.0, velocity_cutoff=1.0, branches=fwm.BRANCHES)
+    except ValueError as exc:
+        assert "separate probe/conjugate mode pairs" in str(exc)
+    else:
+        raise AssertionError("multi-branch susceptibility summation must fail")
+
+
 if __name__ == "__main__":
     test_regression()
+    test_branch_summation_rejected()
     print("Phase-0 regression OK - gabes FWM reproduces the baseline.")

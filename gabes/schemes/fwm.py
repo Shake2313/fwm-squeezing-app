@@ -51,6 +51,7 @@ VELOCITY_STEP_MPS = 1.0
 VELOCITY_CUTOFF_SIGMA = 3.0
 DELTA_GHZ_LIST = [0.9]
 BRANCHES = (-1, +1)
+DEFAULT_BRANCH = -1
 
 
 # =========================================================
@@ -161,7 +162,8 @@ def branch_center_GHz(Delta_GHz, branch):
 
 
 def probe_scan_axis_GHz(Delta_GHz, coarse_points=None, fine_points=None,
-                        window_mhz=None, scan_min=None, scan_max=None):
+                        window_mhz=None, scan_min=None, scan_max=None,
+                        branches=BRANCHES):
     """Probe-frequency scan axis [GHz], referenced to the 85Rb F=2 → F'=3 line."""
     coarse_points = SCAN_COARSE_POINTS if coarse_points is None else coarse_points
     fine_points = SCAN_FINE_POINTS if fine_points is None else fine_points
@@ -172,7 +174,7 @@ def probe_scan_axis_GHz(Delta_GHz, coarse_points=None, fine_points=None,
     coarse = np.linspace(scan_min, scan_max, coarse_points)
     half_window = window_mhz * 1e-3
     parts = [coarse]
-    for branch in BRANCHES:
+    for branch in branches:
         center = branch_center_GHz(Delta_GHz, branch)
         fmin = max(scan_min, center - half_window)
         fmax = min(scan_max, center + half_window)
@@ -188,6 +190,25 @@ def two_photon_detuning_from_probe_scan(probe_GHz, Delta_GHz, branch):
     return 2 * np.pi * delta_Hz
 
 
+def _single_branch(branch, branches):
+    """Resolve one physical FWM channel; do not merge distinct Raman branches."""
+    if branches is None:
+        if branch not in BRANCHES:
+            raise ValueError(f"branch must be one of {BRANCHES}, got {branch}")
+        return branch
+
+    branches = tuple(branches)
+    if len(branches) != 1:
+        raise ValueError(
+            "FWM Raman branches are separate probe/conjugate mode pairs; "
+            "compute them one at a time instead of summing susceptibilities."
+        )
+    only = branches[0]
+    if only not in BRANCHES:
+        raise ValueError(f"branch must be one of {BRANCHES}, got {only}")
+    return only
+
+
 # =========================================================
 # High-level spectrum  (one call → gain + squeezing curves)
 # =========================================================
@@ -198,8 +219,9 @@ def compute_spectrum(D_GHz, *,
                      coarse_points=None, fine_points=None, window_mhz=None,
                      scan_min=None, scan_max=None,
                      velocity_step=None, velocity_cutoff=None,
-                     branches=BRANCHES):
+                     branch=DEFAULT_BRANCH, branches=None):
     """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README)."""
+    branch = _single_branch(branch, branches)
     if line_strength is None:
         line_strength = constants.LINE_STRENGTH_FACTOR
     eta = qe * (1.0 - loss_frac)
@@ -214,7 +236,8 @@ def compute_spectrum(D_GHz, *,
     Delta = 2 * np.pi * D_GHz * 1e9
 
     probe_axis_GHz = probe_scan_axis_GHz(
-        D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max)
+        D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max,
+        branches=(branch,))
     velocity_step = VELOCITY_STEP_MPS if velocity_step is None else velocity_step
     velocity_cutoff = VELOCITY_CUTOFF_SIGMA if velocity_cutoff is None else velocity_cutoff
     v_grid, weights = doppler.velocity_grid(
@@ -226,14 +249,13 @@ def compute_spectrum(D_GHz, *,
     chi_sc_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
     chi_cc_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
 
-    for branch in branches:
-        delta_axis = two_photon_detuning_from_probe_scan(probe_axis_GHz, D_GHz, branch)
-        ch_ss, ch_cs, ch_sc, ch_cc = chi_matrix_table(
-            Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch)
-        chi_ss_avg += doppler.doppler_average(ch_ss, Delta_eff_axis, Delta, v_grid, weights)
-        chi_cs_avg += doppler.doppler_average(ch_cs, Delta_eff_axis, Delta, v_grid, weights)
-        chi_sc_avg += doppler.doppler_average(ch_sc, Delta_eff_axis, Delta, v_grid, weights)
-        chi_cc_avg += doppler.doppler_average(ch_cc, Delta_eff_axis, Delta, v_grid, weights)
+    delta_axis = two_photon_detuning_from_probe_scan(probe_axis_GHz, D_GHz, branch)
+    ch_ss, ch_cs, ch_sc, ch_cc = chi_matrix_table(
+        Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch)
+    chi_ss_avg += doppler.doppler_average(ch_ss, Delta_eff_axis, Delta, v_grid, weights)
+    chi_cs_avg += doppler.doppler_average(ch_cs, Delta_eff_axis, Delta, v_grid, weights)
+    chi_sc_avg += doppler.doppler_average(ch_sc, Delta_eff_axis, Delta, v_grid, weights)
+    chi_cc_avg += doppler.doppler_average(ch_cc, Delta_eff_axis, Delta, v_grid, weights)
 
     G_s, G_c, _ = observables.gain_from_chi(
         chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
@@ -247,6 +269,7 @@ def compute_spectrum(D_GHz, *,
         "G_c": G_c,
         "S_dB": S_dB,
         "eta": eta,
+        "branch": branch,
         "N_atoms": N_atoms,
         "sigma_v": np.sqrt(constants.KB * T / constants.MASS_85RB),
         "n_velocity": v_grid.size,
@@ -354,7 +377,7 @@ class FWMScheme(Scheme):
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
             velocity_step=res["velocity_step"], velocity_cutoff=3.0,
-            branches=BRANCHES,
+            branch=DEFAULT_BRANCH,
         )
 
     def observables(self, raw, params):
@@ -475,17 +498,25 @@ class FWMScheme(Scheme):
         def _render_full(full):
             import matplotlib.pyplot as plt
             figF, (aG, aS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-            aG.plot(full["probe_axis_GHz"], full["G_s"], color="#1f77b4", lw=1.4)
+            styles = {
+                "minus": dict(color="#1f77b4", label="minus Raman branch"),
+                "plus": dict(color="#ff7f0e", label="plus Raman branch"),
+            }
+            for key, style in styles.items():
+                spec = full[key]
+                aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
+                aS.plot(spec["probe_axis_GHz"], spec["S_dB"], lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
             aG.set_ylabel("Seed / probe gain  $G_s$")
-            if np.nanmax(full["G_s"]) > 50:
+            if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
-            aS.plot(full["probe_axis_GHz"], full["S_dB"], color="#2ca02c", lw=1.4)
             aS.axhline(0.0, color="black", lw=0.6)
             aS.set_ylabel("Squeezing [dB]")
             aS.set_xlabel(r"Probe detuning from $F=2\to F'=3$  [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)
+            aG.legend(fontsize=9)
+            aS.legend(fontsize=9)
             figF.tight_layout()
             return figF
 
@@ -498,8 +529,13 @@ class FWMScheme(Scheme):
 
 
 def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct):
-    """Original wide −8…12 GHz scan with fine windows at both Raman lines."""
-    return compute_spectrum(
-        D_GHz, T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
+    """Wide scan with the two Raman channels calculated independently."""
+    common = dict(
+        T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
         line_strength=line_strength, loss_frac=loss_pct / 100.0,
         coarse_points=301, fine_points=401, velocity_step=2.0)
+    return {
+        "D_GHz": D_GHz,
+        "minus": compute_spectrum(D_GHz, branch=-1, **common),
+        "plus": compute_spectrum(D_GHz, branch=+1, **common),
+    }

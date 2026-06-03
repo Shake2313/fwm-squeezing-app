@@ -1,7 +1,8 @@
 """
-Capture a known-good FWM regression baseline from the CURRENT fwm_obe.py,
-BEFORE the gabes/ refactor. Run once; the resulting .npz is the frozen anchor
-that the refactored gabes FWM scheme must reproduce (see test_regression.py).
+Capture a known-good FWM regression baseline from the CURRENT single-branch
+FWM model. Run after intentional physics changes; the resulting .npz is the
+frozen anchor that the refactored gabes FWM scheme must reproduce
+(see test_regression.py).
 
     python tests/capture_baseline.py
 """
@@ -16,7 +17,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-import fwm_obe as fwm
+from gabes.schemes import fwm
 
 # Two focused configs mirroring the app's "Fast" focused_spectrum settings.
 WINDOW_GHZ = 0.55
@@ -35,7 +36,7 @@ def run(cfg):
         line_strength=cfg["line_strength"], loss_frac=cfg["loss_frac"],
         coarse_points=121, fine_points=0,
         scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
-        velocity_step=5.0, velocity_cutoff=3.0, branches=fwm.BRANCHES,
+        velocity_step=5.0, velocity_cutoff=3.0, branch=-1,
     )
 
 

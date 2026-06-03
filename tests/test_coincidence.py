@@ -37,7 +37,7 @@ def test_fwm_spectrum_nonclassical_in_gain_region():
     spec = fwm.compute_spectrum(
         0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05, loss_frac=0.055,
         coarse_points=121, fine_points=0, scan_min=center - 0.55, scan_max=center + 0.55,
-        velocity_step=5.0, velocity_cutoff=3.0, branches=fwm.BRANCHES)
+        velocity_step=5.0, velocity_cutoff=3.0, branch=-1)
     c = observables.coincidence_stats(spec["G_s"], spec["G_c"])
     gain = spec["G_s"] > 1.0
     assert gain.any()                                       # there is a gain region
