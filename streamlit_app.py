@@ -15,15 +15,21 @@ Run with:
 """
 import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
-import matplotlib.pyplot as plt
 import streamlit as st
 from pathlib import Path
 
 from gabes import schemes
 
 APP_DIR = Path(__file__).resolve().parent
-LOGO_SVG = (APP_DIR / "assets" / "gabes-logo-v3.svg").read_text(encoding="utf-8")
-ICON_SVG = (APP_DIR / "assets" / "gabes-mark-v3.svg").read_text(encoding="utf-8")
+
+
+@st.cache_data(show_spinner=False)
+def _asset_text(filename):
+    return (APP_DIR / "assets" / filename).read_text(encoding="utf-8")
+
+
+LOGO_SVG = _asset_text("gabes-logo-v3.svg")
+ICON_SVG = _asset_text("gabes-mark-v3.svg")
 
 st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
@@ -42,6 +48,16 @@ def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
     scheme = schemes.get(scheme_name)
     view = next(v for v in scheme.extra_views() if v.key == view_key)
     return view.compute(dict(recompute_items))
+
+
+@st.cache_data(show_spinner=False, max_entries=64)
+def _cached_observables(scheme_name, raw, param_items, cache_version):
+    return schemes.get(scheme_name).observables(raw, dict(param_items))
+
+
+def _close_fig(fig):
+    import matplotlib.pyplot as plt
+    plt.close(fig)
 
 
 def _skey(scheme_name, pname):
@@ -109,7 +125,11 @@ recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
 cache_version = getattr(scheme, "cache_version", "1")
 with st.spinner("Solving Bloch equations…"):
     raw = _cached_compute(scheme.name, recompute_items, cache_version)
-view = scheme.observables(raw, params)
+param_items = tuple(sorted(params.items()))
+if getattr(scheme, "cache_observables", False):
+    view = _cached_observables(scheme.name, raw, param_items, cache_version)
+else:
+    view = scheme.observables(raw, params)
 
 
 # ----------------------------------------------------------------------
@@ -134,12 +154,12 @@ if metrics:
 fig = view.get("figure")
 if fig is not None:
     st.pyplot(fig)
-    plt.close(fig)
+    _close_fig(fig)
 
 for _title, _extra_fig in view.get("figures", []):
     st.subheader(_title)
     st.pyplot(_extra_fig)
-    plt.close(_extra_fig)
+    _close_fig(_extra_fig)
 
 
 # ----------------------------------------------------------------------
@@ -162,4 +182,4 @@ for view_def in scheme.extra_views():
                 data = _cached_extra(scheme.name, view_def.key, recompute_items, cache_version)
             extra_fig = view_def.render(data)
             st.pyplot(extra_fig)
-            plt.close(extra_fig)
+            _close_fig(extra_fig)

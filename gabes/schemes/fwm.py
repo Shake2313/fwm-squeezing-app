@@ -310,6 +310,7 @@ class FWMScheme(Scheme):
     cluster = "D — Wave mixing"
     title = "85Rb D1 double-Λ four-wave mixing"
     cache_version = "single-branch-fwm-v1"
+    cache_observables = True
     caption = ("Seed/probe gain and intensity-difference squeezing vs two-photon "
                "detuning. OPD and cell parameters recompute (cached); TPD navigates "
                "instantly.")
@@ -388,8 +389,9 @@ class FWMScheme(Scheme):
         op = operating_point(raw, tpd, branch=-1)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
 
-        plt.rcParams.update({"font.size": 11, "axes.grid": True, "grid.alpha": 0.3})
         fig, (axG, axS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+        for ax in (axG, axS):
+            ax.grid(alpha=0.3)
         axG.plot(d_axis, raw["G_s"], color="#1f77b4", lw=1.8)
         axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
         axG.axhline(1.0, color="black", lw=0.6)
@@ -441,6 +443,8 @@ class FWMScheme(Scheme):
         has_gain = bool(np.isfinite(g2sc_op))
 
         figC, (axN, axG2) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+        for ax in (axN, axG2):
+            ax.grid(alpha=0.3)
         axN.plot(d_axis, coinc["n_s"], color="#1f77b4", lw=1.6, label="signal $n_s = G_s-1$")
         axN.plot(d_axis, coinc["n_c"], color="#ff7f0e", lw=1.2, ls="--", label="conjugate $n_c = G_c$")
         axN.axvline(tpd, color="crimson", ls="--", lw=1.2)
@@ -499,6 +503,8 @@ class FWMScheme(Scheme):
         def _render_full(full):
             import matplotlib.pyplot as plt
             figF, (aG, aS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            for ax in (aG, aS):
+                ax.grid(alpha=0.3)
             styles = {
                 "minus": dict(color="#1f77b4", label="minus Raman branch"),
                 "plus": dict(color="#ff7f0e", label="plus Raman branch"),
