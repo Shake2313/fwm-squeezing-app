@@ -42,9 +42,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
     Doppler on, scan-independent H (OD): one fine χ̄(Δ_eff) table + interpolated
         Doppler average — decouples velocity sampling from the solve (accurate
         Voigt without millions of solves), mirroring the FWM Δ_eff trick.
-    Doppler on, scan-dependent H (Λ): per scan point, a local fine Δ_eff table
-        around s, then interpolated average. The Λ two-photon feature is
-        Doppler-free (exact); only the broad optical background is averaged.
+    Doppler on, scan-dependent H (Λ): per scan point, solve directly at the
+        Maxwell velocity classes. The Λ two-photon feature is Doppler-free
+        (exact); only the broad optical background is averaged.
     """
     e, g = probe_coh
     om_p = PROBE_RABI * GAMMA
@@ -65,24 +65,22 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
 
     T = params["temp_c"] + 273.15
     v, w = doppler.velocity_grid(T, dv=1.0, cutoff_sigma=4.0)
-    kvmax = K_VEC * np.abs(v).max()
 
     if not h_dep:
+        kvmax = K_VEC * np.abs(v).max()
         L0 = core.build_liouvillian(build_H0(0.0), atom)
         lo, hi = scan.min() - kvmax, scan.max() + kvmax
         deff = np.linspace(lo, hi, int((hi - lo) / _TABLE_STEP) + 2)
         rho = core.steady_state_batched(L0, deff, atom.S_v, n)
-        table = (rho[:, e, g] / om_p)[None, :]
-        return np.array([doppler.doppler_average(table, deff, s, v, w)[0] for s in scan])
+        table = rho[:, e, g] / om_p
+        return doppler.doppler_average_1d(table, deff, scan, v, w)
 
+    kv = K_VEC * v
     out = np.zeros(scan.size, dtype=complex)
     for i, s in enumerate(scan):
         L0 = core.build_liouvillian(build_H0(s), atom)
-        lo, hi = s - kvmax, s + kvmax
-        deff = np.linspace(lo, hi, int((hi - lo) / _TABLE_STEP) + 2)
-        rho = core.steady_state_batched(L0, deff, atom.S_v, n)
-        table = (rho[:, e, g] / om_p)[None, :]
-        out[i] = doppler.doppler_average(table, deff, s, v, w)[0]
+        rho = core.steady_state_batched(L0, s - kv, atom.S_v, n)
+        out[i] = ((rho[:, e, g] / om_p) * w).sum()
     return out
 
 

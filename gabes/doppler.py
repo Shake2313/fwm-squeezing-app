@@ -38,12 +38,47 @@ def doppler_average(chi_table, Delta_eff_axis, Delta, v_grid, weights,
     Σ_v weights(v) · χ_table[δ, Δ_eff = Δ − k·v] for every δ row.
     Linear interpolation along the Δ_eff axis.
     """
-    deff_v = Delta - k_vec * v_grid
-    idx_float = np.interp(deff_v, Delta_eff_axis, np.arange(Delta_eff_axis.size))
+    idx_lo, frac = interpolation_weights(Delta_eff_axis, Delta, v_grid, k_vec)
+    return apply_doppler_average(chi_table, idx_lo, frac, weights)
+
+
+def interpolation_weights(Delta_eff_axis, Delta, v_grid, k_vec=constants.K_VEC):
+    """
+    Lower indices and interpolation fractions for Delta_eff = Delta - k*v.
+
+    Current Delta_eff axes are uniformly sampled, so direct index arithmetic
+    avoids rebuilding an arange axis and calling np.interp for every average.
+    """
     n_de = Delta_eff_axis.size
+    step = (Delta_eff_axis[-1] - Delta_eff_axis[0]) / (n_de - 1)
+    deff_v = Delta - k_vec * v_grid
+    idx_float = (deff_v - Delta_eff_axis[0]) / step
+    idx_float = np.clip(idx_float, 0.0, n_de - 1)
     idx_lo = np.clip(np.floor(idx_float).astype(int), 0, n_de - 2)
-    frac = (idx_float - idx_lo).astype(chi_table.dtype)
+    frac = idx_float - idx_lo
+    return idx_lo, frac
+
+
+def apply_doppler_average(chi_table, idx_lo, frac, weights):
+    """Apply precomputed Doppler interpolation weights to every row of a table."""
+    frac = frac.astype(chi_table.dtype, copy=False)
     lo_part = chi_table[:, idx_lo]
     hi_part = chi_table[:, idx_lo + 1]
     interp = lo_part * (1 - frac)[None, :] + hi_part * frac[None, :]
+    return interp @ weights
+
+
+def doppler_average_1d(chi_axis, Delta_eff_axis, Delta_axis, v_grid, weights,
+                       k_vec=constants.K_VEC):
+    """
+    Doppler-average one chi(Delta_eff) table over many detuning samples at once.
+
+    This is the scan-independent-H path used by OD / bare Voigt calculations:
+    one fine Delta_eff table, many detunings, same velocity grid.
+    """
+    chi_axis = np.asarray(chi_axis)
+    idx_lo, frac = interpolation_weights(
+        Delta_eff_axis, np.asarray(Delta_axis)[:, None], v_grid[None, :], k_vec)
+    frac = frac.astype(chi_axis.dtype, copy=False)
+    interp = chi_axis[idx_lo] * (1 - frac) + chi_axis[idx_lo + 1] * frac
     return interp @ weights
