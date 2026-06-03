@@ -13,13 +13,13 @@ double-Λ four-wave-mixing model (now one scheme among several).
 | A | **EIT** | transparency window + dispersion (slow light) |
 | A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
 | A | **CPT** | sub-natural dark resonance |
-| B — Sub-Doppler | **SAS** | saturated absorption: Lamb dip + crossover (hole-burning) |
+| B — Sub-Doppler | **SAS** | saturated absorption for ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs (D1/D2) or natural Rb: Doppler-free Lamb dips + crossovers with **hyperfine optical pumping** (enhanced/inverted crossovers); generic Γ-unit hole-burning fallback |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | zero-field dip / peak / polarization rotation vs B (Zeeman manifold) |
 | D — Wave mixing | **FWM** | seed/probe gain G_s, intensity-difference squeezing, twin-beam coincidence |
 
 Roadmap (parking lot): slow-light / group-index readout, Raman gain, higher-order
-wave mixing, Bell-Bloom magnetometry, multi-isotope; time-domain (STIRAP, Ramsey)
-and two-time correlations (Mollow, g²(τ)) would need new engine layers.
+wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
+(STIRAP, Ramsey) and two-time correlations (Mollow, g²(τ)) would need new engine layers.
 
 ## Layout
 
@@ -35,9 +35,15 @@ and two-time correlations (Mollow, g²(τ)) would need new engine layers.
     pure-85Rb CRC density — the data/scaling for the AutoOD-validated full-D1 OD.
   - `zeeman.py` — hand-rolled Clebsch-Gordan + `zeeman_manifold(F_g, F_e)` builder
     (σ±/π couplings, CG-branched decay) for the magneto-optics schemes.
+  - `species.py` — alkali D-line data (⁸⁵Rb/⁸⁷Rb/¹³³Cs hyperfine A/B constants,
+    line-centre frequencies, masses, linewidths, abundances; Steck), Wigner-6j
+    (Racah) line strengths, Casimir hyperfine energies, Steck vapor density, and
+    the SAS hyperfine-manifold builder `build_manifold(iso, line)` (CG-branched
+    decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, twin-beam coincidence, absorption / OD / dispersion.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
-    `absorption.py` (OD/EIT/AT/CPT), `sas.py`, `magneto.py` (Hanle/EIA/NMOR),
+    `absorption.py` (OD/EIT/AT/CPT), `sas.py` (multilevel SAS on `species.py`),
+    `magneto.py` (Hanle/EIA/NMOR),
     `fwm.py`, `__init__.py` (registry).
 - `streamlit_app.py` — generic UI. Renders only the selected scheme's
   `param_schema()`; caches the heavy solve on `recompute` knobs only (so
@@ -63,7 +69,8 @@ streamlit run"). FWM CLI backend: `python fwm_obe.py`.
 ```
 python tests/test_regression.py      # FWM bit-identical to the pre-refactor baseline
 python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, AT split = Ω_c, EIT/CPT
-python tests/test_sas.py             # Voigt background, Lamb dip, crossover
+python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, generic
+
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
 python tests/test_coincidence.py     # twin-beam photon-pair statistics
 python tests/test_schemes_render.py  # every registered scheme computes + renders
@@ -113,6 +120,18 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
    backbone the Λ schemes reduce to (and what the analytic FWHM tests use). The
    x-axis origin is AutoOD's 87Rb F=2→F′=2 marker, so GABES overlays the lab tool
    and its CSV data directly. Lineshape is the OBE Doppler kernel — no scipy/wofz.
+7. **SAS line weight is `(2Fg+1)·line_strength`, not `line_strength`.** The
+   observable strength of a lumped Fg↔Fe hyperfine line — absorption per ground
+   atom *and* the spontaneous-emission branching — carries the ground degeneracy:
+   `T = (2Fg+1)(2Fe+1)(2Jg+1){6j}²`. One quantity drives the line weight, the
+   CG decay branching (→ hyperfine pumping) and (√T) the relative pump Rabi. It
+   reproduces the validated ⁸⁵Rb D1 `CF2` (`T = 9·CF2`) and the 49/25 F=3/F=2
+   manifold ratio. **Hyperfine pumping** (decay into the *other* ground state)
+   is what turns crossovers into enhanced/inverted transmission peaks — the
+   dominant feature of real alkali SAS; a single-ground model cannot make them.
+   A transit-time relaxation `γ_t` (atoms leaving the beam, an Advanced knob)
+   regularises the pumping: without it the dark ground state saturates, and a
+   smaller `γ_t` gives stronger inverted crossovers.
 
 ## Speed (why the architecture)
 
