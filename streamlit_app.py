@@ -33,12 +33,12 @@ st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
 # Cached compute layer (keyed on the scheme + its recompute knobs only)
 # ----------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
-def _cached_compute(scheme_name, recompute_items):
+def _cached_compute(scheme_name, recompute_items, cache_version):
     return schemes.get(scheme_name).compute(dict(recompute_items))
 
 
 @st.cache_data(show_spinner=False)
-def _cached_extra(scheme_name, view_key, recompute_items):
+def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
     scheme = schemes.get(scheme_name)
     view = next(v for v in scheme.extra_views() if v.key == view_key)
     return view.compute(dict(recompute_items))
@@ -106,8 +106,9 @@ if advanced:
 # Compute (cached) + observables
 # ----------------------------------------------------------------------
 recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
+cache_version = getattr(scheme, "cache_version", "1")
 with st.spinner("Solving Bloch equations…"):
-    raw = _cached_compute(scheme.name, recompute_items)
+    raw = _cached_compute(scheme.name, recompute_items, cache_version)
 view = scheme.observables(raw, params)
 
 
@@ -158,7 +159,7 @@ for view_def in scheme.extra_views():
         st.caption(view_def.description)
         if st.button("Run", key=f"run__{scheme.name}__{view_def.key}"):
             with st.spinner("Running…"):
-                data = _cached_extra(scheme.name, view_def.key, recompute_items)
+                data = _cached_extra(scheme.name, view_def.key, recompute_items, cache_version)
             extra_fig = view_def.render(data)
             st.pyplot(extra_fig)
             plt.close(extra_fig)

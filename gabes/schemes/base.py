@@ -61,6 +61,7 @@ class Scheme(ABC):
     cluster: str = ""
     title: str = ""
     caption: str = ""
+    cache_version: str = "1"
 
     @abstractmethod
     def param_schema(self) -> list:

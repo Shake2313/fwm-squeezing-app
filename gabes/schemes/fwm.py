@@ -309,6 +309,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "85Rb D1 double-Λ four-wave mixing"
+    cache_version = "single-branch-fwm-v1"
     caption = ("Seed/probe gain and intensity-difference squeezing vs two-photon "
                "detuning. OPD and cell parameters recompute (cached); TPD navigates "
                "instantly.")
