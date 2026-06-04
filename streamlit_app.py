@@ -129,6 +129,7 @@ if callable(_rec_fn):
     except Exception:
         _rec_sets = None
 if isinstance(_rec_sets, dict) and _rec_sets:
+    st.sidebar.subheader("Default")
     _cols = st.sidebar.columns(len(_rec_sets))
     for _col, _label in zip(_cols, _rec_sets):
         def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
@@ -136,7 +137,8 @@ if isinstance(_rec_sets, dict) and _rec_sets:
             sets = sc.recommended_defaults(cur) or {}
             for k, v in (sets.get(lbl) or {}).items():
                 st.session_state[_skey(sname, k)] = v
-        _col.button(_label, on_click=_apply_default, use_container_width=True)
+        _short = _label.replace(" default", "")
+        _col.button(_short, on_click=_apply_default, use_container_width=True)
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
 params = {}
