@@ -87,8 +87,15 @@ st.sidebar.caption(f"Cluster {scheme.cluster}")
 st.sidebar.divider()
 
 specs = scheme.param_schema()
-for sp in specs:                                   # seed defaults once
-    st.session_state.setdefault(_skey(scheme.name, sp.name), sp.default)
+defaults_version = getattr(scheme, "defaults_version", "1")
+defaults_key = _skey(scheme.name, "_defaults_version")
+if st.session_state.get(defaults_key) != defaults_version:
+    for sp in specs:
+        st.session_state[_skey(scheme.name, sp.name)] = sp.default
+    st.session_state[defaults_key] = defaults_version
+else:
+    for sp in specs:                               # seed defaults once
+        st.session_state.setdefault(_skey(scheme.name, sp.name), sp.default)
 
 # Presets — one click overwrites the relevant sliders.
 for preset in scheme.presets():

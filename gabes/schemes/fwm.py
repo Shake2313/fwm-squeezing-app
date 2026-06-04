@@ -323,6 +323,7 @@ class FWMScheme(Scheme):
     cluster = "D — Wave mixing"
     title = "85Rb D1 double-Λ four-wave mixing"
     cache_version = "cg-weighted-single-branch-fwm-v1"
+    defaults_version = "sim-defaults-v1"
     cache_observables = True
     caption = ("Seed/probe gain and intensity-difference squeezing vs two-photon "
                "detuning. OPD and cell parameters recompute (cached); TPD navigates "
@@ -333,16 +334,16 @@ class FWMScheme(Scheme):
             ParamSpec("opd", "OPD — one-photon detuning Δ", "Detunings", 0.9,
                       -1.0, 3.0, 0.1, "GHz",
                       help="ω_pump = ω(F=2→F'=3) + Δ. Sets where the pump sits; recomputes."),
-            ParamSpec("tpd", "TPD — two-photon detuning δ", "Detunings", 0.0,
+            ParamSpec("tpd", "TPD — two-photon detuning δ", "Detunings", -8.0,
                       -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ, 1.0, "MHz", recompute=False,
                       help="ω_seed = ω_pump − ν_HF + δ. Navigates the curve instantly (no recompute)."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 121.0,
                       60.0, 150.0, 1.0, "°C"),
             ParamSpec("pump_mw", "Pump power", "Cell & beams", 600.0,
                       50.0, 1200.0, 10.0, "mW"),
-            ParamSpec("probe_uw", "Seed / probe power", "Cell & beams", 10.0,
+            ParamSpec("probe_uw", "Seed / probe power", "Cell & beams", 8.0,
                       1.0, 200.0, 1.0, "µW"),
-            ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 0.0,
+            ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", help="Folds into η = QE × (1 − loss)."),
             ParamSpec("ls", "FWM coupling scale", "Detection & scaling", 0.05,
                       0.01, 1.0, 0.01, "",

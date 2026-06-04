@@ -62,6 +62,7 @@ class Scheme(ABC):
     title: str = ""
     caption: str = ""
     cache_version: str = "1"
+    defaults_version: str = "1"
 
     @abstractmethod
     def param_schema(self) -> list:
