@@ -52,6 +52,17 @@ def test_od_cold_natural_linewidth():
     assert 0.9 <= _fwhm(x, alpha) / GMHZ <= 1.1
 
 
+def test_od_ne_buffer_pressure_broadens_cold_linewidth():
+    od = ODScheme()
+    p_torr = 10.0
+    raw = od.compute(_params(
+        od, model="single 2-level", temp_c=25, cell_mm=3, doppler="off",
+        ne_pressure_torr=p_torr))
+    x, alpha, _, _ = _curve(raw)
+    expected_mhz = GMHZ + constants.NEON_BUFFER_BROADENING_MHZ_PER_TORR * p_torr
+    assert 0.93 <= _fwhm(x, alpha) / expected_mhz <= 1.07
+
+
 def test_od_doppler_voigt_width():
     od = ODScheme()
     raw = od.compute(_params(
@@ -130,6 +141,7 @@ def test_cpt_subnatural_dark_resonance():
 
 if __name__ == "__main__":
     test_od_cold_natural_linewidth()
+    test_od_ne_buffer_pressure_broadens_cold_linewidth()
     test_od_doppler_voigt_width()
     test_hyperfine_autood_absolute_scale()
     test_hyperfine_group_strength_ratio()

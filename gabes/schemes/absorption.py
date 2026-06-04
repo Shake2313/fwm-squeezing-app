@@ -33,6 +33,10 @@ _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 _TABLE_STEP = GAMMA / 30.0          # Δ_eff sampling for the Doppler χ̄ table
 
 
+def _ne_buffer_gamma(params):
+    return constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
+
+
 def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
     """
     χ̄(scan) = probe coherence ρ_eg / Ω_p, Doppler-averaged over the Maxwell
@@ -134,7 +138,8 @@ def _hyperfine_alpha(scan, params):
     ls = params.get("line_strength", 1.0)
 
     N = hyperfine.number_density(T)
-    gamma_eff = hyperfine.self_broadened_gamma(N)
+    buffer_gamma = _ne_buffer_gamma(params)
+    gamma_eff = hyperfine.self_broadened_gamma(N) + buffer_gamma
     atom = atoms.two_level(gamma=gamma_eff)
 
     def build_H0(_s):
@@ -170,7 +175,8 @@ def _hyperfine_alpha(scan, params):
         alpha += line
         components[(Fg, Fe)] = line
 
-    info = dict(N=N, gamma_eff=gamma_eff, sigma_v=sigma_v, dopp_fwhm=dopp_fwhm)
+    info = dict(N=N, gamma_eff=gamma_eff, buffer_gamma=buffer_gamma,
+                sigma_v=sigma_v, dopp_fwhm=dopp_fwhm)
     return alpha, components, info
 
 
@@ -203,6 +209,10 @@ class ODScheme(Scheme):
                       "=1.0 reproduces the validated AutoOD absolute scale."),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", "on",
                       choices=("on", "off"), advanced=True),
+            ParamSpec("ne_pressure_torr", "Ne buffer pressure", "Cell & beams", 0.0,
+                      0.0, 200.0, 1.0, "Torr", advanced=True,
+                      help="Fixed-neon pressure broadening only; pressure shift and "
+                      "Dicke narrowing are not included."),
         ]
 
     def presets(self):
@@ -221,7 +231,7 @@ class ODScheme(Scheme):
         sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
         dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
         N = hyperfine.number_density(T)
-        gamma_eff = hyperfine.self_broadened_gamma(N)
+        gamma_eff = hyperfine.self_broadened_gamma(N) + _ne_buffer_gamma(params)
         width = dopp_fwhm if params["doppler"] == "on" else gamma_eff
 
         shifts = np.array([2 * np.pi * v for v in hyperfine.LINE_SHIFT_HZ.values()])
@@ -259,7 +269,9 @@ class ODScheme(Scheme):
                           fontsize=7, color="gray")
         fig.tight_layout()
 
-        sb_mhz = (raw["gamma_eff"] - GAMMA) / (2 * np.pi) / 1e6
+        buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
+        self_gamma = raw["gamma_eff"] - GAMMA - raw.get("buffer_gamma", 0.0)
+        sb_mhz = self_gamma / (2 * np.pi) / 1e6
         metrics = [
             dict(label="Peak OD", value=f"{np.nanmax(OD):.3f}",
                  help="Largest −log₁₀(T) across the four-line spectrum."),
@@ -276,8 +288,10 @@ class ODScheme(Scheme):
             f"| N(85Rb), pure cell | {raw['N']:.3e} /m³ |\n"
             f"| σ_v (1-D) | {raw['sigma_v']:.1f} m/s |\n"
             f"| Doppler FWHM | {raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz |\n"
-            f"| Γ_eff/2π (self-broadened) | {raw['gamma_eff']/(2*np.pi)/1e6:.3f} MHz "
+            f"| Γ_eff/2π (self + Ne broadened) | {raw['gamma_eff']/(2*np.pi)/1e6:.3f} MHz "
             f"(+{sb_mhz:.3f}) |\n"
+            f"| Ne buffer pressure | {params.get('ne_pressure_torr', 0.0):.0f} Torr |\n"
+            f"| Ne broadening/2π | {buffer_mhz:.3f} MHz |\n"
             f"| Natural Γ/2π | {GAMMA_MHZ:.3f} MHz |\n"
         )
         lines = ("| Line | Center [GHz] | p_F·C_F² |\n|---|---|---|\n" + rows)
@@ -290,10 +304,13 @@ class ODScheme(Scheme):
         T = params["temp_c"] + 273.15
         sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
         dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
-        half = max(10 * GAMMA, 3.5 * dopp_fwhm) if params["doppler"] == "on" else 12 * GAMMA
+        buffer_gamma = _ne_buffer_gamma(params)
+        gamma_eff = GAMMA + buffer_gamma
+        half = (max(10 * gamma_eff, 3.5 * dopp_fwhm)
+                if params["doppler"] == "on" else 12 * gamma_eff)
         scan = np.linspace(-half, half, 601)
 
-        atom = atoms.two_level()
+        atom = atoms.two_level(gamma=gamma_eff)
 
         def build_H0(_s):
             H = np.zeros((2, 2), dtype=complex)
@@ -304,7 +321,8 @@ class ODScheme(Scheme):
         N = atoms.rb85_density(T)
         return dict(model="single", scan=scan, chi_bar=chi_bar, N=N, T=T,
                     L=params["cell_mm"] * 1e-3, ls=params["line_strength"],
-                    sigma_v=sigma_v, dopp_fwhm=dopp_fwhm)
+                    sigma_v=sigma_v, dopp_fwhm=dopp_fwhm,
+                    gamma_eff=gamma_eff, buffer_gamma=buffer_gamma)
 
     def _observables_single(self, raw, params):
         import matplotlib.pyplot as plt
@@ -328,6 +346,7 @@ class ODScheme(Scheme):
         fig.tight_layout()
 
         fwhm_mhz = _fwhm(x, OD)
+        buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         metrics = [
             dict(label="Peak OD", value=f"{np.nanmax(OD):.3f}",
                  help="On-line optical density −log₁₀(T)."),
@@ -337,6 +356,9 @@ class ODScheme(Scheme):
         ]
         derived = (
             f"| Quantity | Value |\n|---|---|\n"
+            f"| Ne buffer pressure | {params.get('ne_pressure_torr', 0.0):.0f} Torr |\n"
+            f"| Ne broadening/2π | {buffer_mhz:.3f} MHz |\n"
+            f"| Γ_eff/2π | {raw.get('gamma_eff', GAMMA)/(2*np.pi)/1e6:.3f} MHz |\n"
             f"| N(85Rb) | {raw['N']:.3e} /m³ |\n"
             f"| σ_v (1-D) | {raw['sigma_v']:.1f} m/s |\n"
             f"| Doppler FWHM | {raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz |\n"

@@ -46,6 +46,18 @@ OMEGA_D1 = 2 * np.pi * NU_D1_85RB
 GAMMA_GG_2PI = 100e3
 GAMMA_GG = 2 * np.pi * GAMMA_GG_2PI
 
+# ---- Simple buffer-gas broadening ----
+# Easy OD/SAS model: fixed Ne buffer gas adds homogeneous FWHM broadening only.
+# TODO: promote this to a gas/species/line coefficient table if more buffer
+# gases are exposed in the UI; pressure shifts can live in the same table.
+NEON_BUFFER_BROADENING_MHZ_PER_TORR = 3.91
+
+
+def neon_buffer_broadening(pressure_torr):
+    """Ne pressure broadening contribution to optical FWHM [rad/s]."""
+    pressure_torr = max(float(pressure_torr), 0.0)
+    return 2 * np.pi * NEON_BUFFER_BROADENING_MHZ_PER_TORR * 1e6 * pressure_torr
+
 
 def rabi_freq(power, waist):
     """I = 2P/(π w₀²),  Ω = Γ √(I / 2 I_sat).  rad/s."""
