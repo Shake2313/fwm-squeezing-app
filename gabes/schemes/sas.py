@@ -69,13 +69,13 @@ class SASScheme(Scheme):
                       help="Real alkali species overlay the full hyperfine "
                       "spectrum (Natural Rb overlays ⁸⁵Rb+⁸⁷Rb by abundance). "
                       "Generic = bare Γ-unit hole-burning model."),
-            ParamSpec("line", "Transition line", "Atomic", "D2",
+            ParamSpec("line", "Transition line", "Atomic", "D1",
                       choices=("D1", "D2"),
                       help="D1 (nP₁/₂) or D2 (nP₃/₂). Sets the excited hyperfine "
                       "manifold; ignored in Generic mode."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 25.0, 20.0, 200.0, 1.0, "°C",
                       help="Sets the vapor density (absorption scale) and Doppler width."),
-            ParamSpec("cell_mm", "Cell length", "Cell & beams", 75.0, 0.5, 200.0, 0.5, "mm",
+            ParamSpec("cell_mm", "Cell length", "Cell & beams", 50.0, 0.5, 200.0, 0.5, "mm",
                       recompute=False),
             ParamSpec("pump_rabi", "Pump Rabi Ω_pump", "Fields", 2.0,
                       0.1, 10.0, 0.1, "Γ", advanced=True,
