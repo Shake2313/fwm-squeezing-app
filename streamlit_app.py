@@ -30,6 +30,11 @@ def _asset_text(filename):
 
 LOGO_SVG = _asset_text("gabes-logo-v3.svg")
 ICON_SVG = _asset_text("gabes-mark-v3.svg")
+SIDEBAR_LOGO_SVG = LOGO_SVG.replace(
+    'width="960" height="232" viewBox="0 0 960 232"',
+    'width="738" height="232" viewBox="0 0 738 232"',
+    1,
+)
 
 st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
@@ -84,7 +89,7 @@ def _render_param(container, scheme_name, sp):
 # ----------------------------------------------------------------------
 # Sidebar — scheme selection
 # ----------------------------------------------------------------------
-st.sidebar.image(LOGO_SVG, width=230)
+st.sidebar.image(SIDEBAR_LOGO_SVG, width=230)
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
