@@ -148,11 +148,14 @@ def test_natural_rb_overlays_both_isotopes():
     assert species.RB85.label in labels and species.RB87.label in labels
 
 
-def test_recommended_defaults_per_line():
+def test_recommended_defaults_od_and_sas():
+    sets = SAS.recommended_defaults(dict(species=CS_KEY, line="D2"))
+    assert set(sets) == {"OD default", "SAS default"}
+    assert sets["OD default"]["pump_power_mw"] == 0.0          # OD = pump off
+    assert sets["SAS default"]["pump_power_mw"] > 0.0          # SAS = pump on
+    assert sets["OD default"]["temp_c"] == sets["SAS default"]["temp_c"]   # same cell/T
     d1 = SAS.recommended_defaults(dict(species=CS_KEY, line="D1"))
-    d2 = SAS.recommended_defaults(dict(species=CS_KEY, line="D2"))
-    assert "temp_c" in d1 and "cell_mm" in d1 and "pump_power_mw" in d1
-    assert d1 != d2                                   # genuinely per-transition
+    assert d1["SAS default"] != sets["SAS default"]            # genuinely per-line
 
 
 def test_observables_render_species():

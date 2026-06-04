@@ -101,11 +101,18 @@ class SASScheme(Scheme):
         ]
 
     def recommended_defaults(self, params):
-        """Per-(species, line) slider values for the UI 'Default' button."""
+        """Two labelled presets — 'OD default' (pump off) and 'SAS default' (pump
+        on) — for the current atom/line. Same temperature & cell; they differ only
+        in the pump power."""
         if params.get("species", "Rb (natural)") == GENERIC:
-            return dict(temp_c=50.0, cell_mm=10.0, pump_power_mw=0.5)
-        return species.recommended(params.get("species", "Rb (natural)"),
-                                   params.get("line", "D1"))
+            base, sas_power = dict(temp_c=50.0, cell_mm=10.0), 0.5
+        else:
+            rec = species.recommended(params.get("species", "Rb (natural)"),
+                                      params.get("line", "D1"))
+            base = dict(temp_c=rec["temp_c"], cell_mm=rec["cell_mm"])
+            sas_power = rec["pump_power_mw"]
+        return {"OD default": {**base, "pump_power_mw": 0.0},
+                "SAS default": {**base, "pump_power_mw": sas_power}}
 
     def info(self):
         return (

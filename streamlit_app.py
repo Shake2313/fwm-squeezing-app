@@ -118,26 +118,25 @@ for preset in scheme.presets():
     st.sidebar.button(f"{preset.icon} {preset.name}", on_click=_apply,
                       use_container_width=True, help=preset.help)
 
-# Context-aware "Default" button — snaps sliders to the recommended values for the
-# current selection (e.g. per atom/transition), if the scheme provides them.
-# Probed defensively so a scheme without the optional hook never breaks the app.
+# Context-aware default buttons — one per labelled preset the scheme offers for
+# the current selection (e.g. "OD default" / "SAS default"). Probed defensively so
+# a scheme without the optional hook never breaks the app.
 _rec_fn = getattr(scheme, "recommended_defaults", None)
-_has_recommended = False
+_rec_sets = None
 if callable(_rec_fn):
     try:
-        _has_recommended = _rec_fn(scheme.defaults()) is not None
+        _rec_sets = _rec_fn(scheme.defaults())
     except Exception:
-        _has_recommended = False
-if _has_recommended:
-    def _apply_default(sname=scheme.name, sc=scheme):
-        cur = {sp.name: st.session_state[_skey(sname, sp.name)] for sp in sc.param_schema()}
-        rec = sc.recommended_defaults(cur)
-        for k, v in (rec or {}).items():
-            st.session_state[_skey(sname, k)] = v
-    st.sidebar.button("↺ Default (this atom / line)", on_click=_apply_default,
-                      use_container_width=True,
-                      help="Reset temperature, cell length and pump power to the "
-                      "recommended values for the selected atom and transition.")
+        _rec_sets = None
+if isinstance(_rec_sets, dict) and _rec_sets:
+    _cols = st.sidebar.columns(len(_rec_sets))
+    for _col, _label in zip(_cols, _rec_sets):
+        def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
+            cur = {sp.name: st.session_state[_skey(sname, sp.name)] for sp in sc.param_schema()}
+            sets = sc.recommended_defaults(cur) or {}
+            for k, v in (sets.get(lbl) or {}).items():
+                st.session_state[_skey(sname, k)] = v
+        _col.button(_label, on_click=_apply_default, use_container_width=True)
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
 params = {}

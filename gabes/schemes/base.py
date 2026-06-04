@@ -73,8 +73,9 @@ class Scheme(ABC):
         return []
 
     def recommended_defaults(self, params: dict):
-        """Context-aware default slider values (e.g. per atom/line) for a UI
-        'Default' button, or None if the scheme has no such defaults."""
+        """Labelled default slider presets for the current selection, as an
+        ordered {button_label: {param_name: value}} dict — the UI renders one
+        button per entry. None if the scheme offers no such defaults."""
         return None
 
     def info(self):
