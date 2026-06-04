@@ -71,8 +71,9 @@ def _render_param(container, scheme_name, sp):
     if sp.choices is not None:
         return container.selectbox(label, list(sp.choices), key=key, help=help_)
     val = container.slider(label, sp.vmin, sp.vmax, step=sp.step, key=key, help=help_)
-    if sp.endpoints:
-        left, right = sp.endpoints
+    endpoints = getattr(sp, "endpoints", None)
+    if endpoints:
+        left, right = endpoints
         container.markdown(
             "<div style='display:flex;justify-content:space-between;margin-top:-12px;"
             f"font-size:0.72em;color:#888'><span>{left}</span><span>{right}</span></div>",
@@ -114,7 +115,15 @@ for preset in scheme.presets():
 
 # Context-aware "Default" button — snaps sliders to the recommended values for the
 # current selection (e.g. per atom/transition), if the scheme provides them.
-if type(scheme).recommended_defaults is not schemes.Scheme.recommended_defaults:
+# Probed defensively so a scheme without the optional hook never breaks the app.
+_rec_fn = getattr(scheme, "recommended_defaults", None)
+_has_recommended = False
+if callable(_rec_fn):
+    try:
+        _has_recommended = _rec_fn(scheme.defaults()) is not None
+    except Exception:
+        _has_recommended = False
+if _has_recommended:
     def _apply_default(sname=scheme.name, sc=scheme):
         cur = {sp.name: st.session_state[_skey(sname, sp.name)] for sp in sc.param_schema()}
         rec = sc.recommended_defaults(cur)
