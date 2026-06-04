@@ -63,7 +63,7 @@ class SASScheme(Scheme):
     def param_schema(self):
         return [
             ParamSpec("pump_power_mw", "Pump beam power", "Pump", 0.5, 0.0, 2.0, 0.01,
-                      "mW", endpoints=("◀ OD (pump off)", "SAS (pump on) ▶"),
+                      "mW", endpoints=("◀ OD", "SAS ▶"),
                       help="Counter-propagating saturating beam. Pull to 0 → linear "
                       "absorption (OD); raise → Doppler-free SAS features. Converted "
                       "to a Rabi frequency via the beam waist and I_sat (see About)."),
@@ -79,6 +79,10 @@ class SASScheme(Scheme):
                       help="Sets the vapor density (absorption scale) and Doppler width."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 75.0, 0.5, 200.0, 0.5, "mm",
                       recompute=False),
+            ParamSpec("ne_pressure_torr", "Ne buffer pressure", "Cell & beams", 0.0,
+                      0.0, 200.0, 1.0, "Torr", advanced=True,
+                      help="Fixed-neon pressure broadening only; pressure shift and "
+                      "Dicke narrowing are not included."),
             ParamSpec("waist_mm", "Pump beam waist (1/e²)", "Pump", 1.0, 0.1, 5.0, 0.05,
                       "mm", advanced=True, help="Sets the pump intensity I = 2P/(πw²) "
                       "for the power→Rabi conversion."),
@@ -154,11 +158,12 @@ class SASScheme(Scheme):
         T = params["temp_c"] + 273.15
         gt = 2 * np.pi * params["transit_khz"] * 1e3
         power, waist = params["pump_power_mw"], params["waist_mm"]
+        buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
 
         iso_ref = max(comps, key=lambda c: c[1])[0]
         nu_ref = iso_ref.line(line)[1]
 
-        built, omega_all, dopp_fwhm = [], [], 0.0
+        built, omega_all, dopp_fwhm, gamma_max = [], [], 0.0, 0.0
         for iso, weight in comps:
             man = species.build_manifold(iso, line, transit_rate=gt)
             offset = 2 * np.pi * (man.nu0 - nu_ref)
@@ -166,11 +171,14 @@ class SASScheme(Scheme):
             dopp_fwhm = max(dopp_fwhm, np.sqrt(8 * np.log(2)) * man.k_vec * sigma_v)
             N = species.number_density(iso, T) * weight
             Op = species.pump_rabi_from_power(power, waist, man.gamma)
-            built.append(dict(man=man, offset=offset, N=N, Op=Op, iso=iso))
+            gamma_eff = man.gamma + species.self_broadened_gamma(iso, N) + buffer_gamma
+            gamma_max = max(gamma_max, gamma_eff)
+            built.append(dict(man=man, offset=offset, N=N, Op=Op, iso=iso,
+                              gamma_eff=gamma_eff))
             omega_all.append(man.omega + offset)
         omega_all = np.concatenate(omega_all)
 
-        margin = 3.5 * dopp_fwhm
+        margin = max(3.5 * dopp_fwhm, 6.0 * gamma_max)
         scan = np.linspace(omega_all.min() - margin, omega_all.max() + margin,
                            int(params["scan_points"]))
 
@@ -188,15 +196,16 @@ class SASScheme(Scheme):
                                 f"{man.iso.label} {fg:g}→{fe:g}′"))
 
         return dict(mode="species", scan=scan, alpha_unit=alpha,
-                    dopp_fwhm=dopp_fwhm, markers=markers,
+                    dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
+                    gamma_eff_max=gamma_max, markers=markers,
                     species=params["species"], line=line)
 
     def _component_alpha(self, b, scan, T):
         """Σ_(Fg→Fe) A_t · ĝ_t(δ) for one isotope (1/m, line strength 1)."""
         man, offset, N, Op = b["man"], b["offset"], b["N"], b["Op"]
-        iso, gamma, k = b["iso"], man.gamma, man.k_vec
+        iso, k = b["iso"], man.k_vec
         ng = len(man.Fg)
-        gamma_eff = gamma + species.self_broadened_gamma(iso, N)
+        gamma_eff = b["gamma_eff"]
 
         v, wt = doppler.velocity_grid(T, mass=iso.mass, dv=1.0, cutoff_sigma=4.0)
         kv = k * v
@@ -244,7 +253,9 @@ class SASScheme(Scheme):
         else:
             n_exc, offsets = 1, np.array([0.0])
 
-        atom = atoms.sas_atom(n_exc)
+        buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
+        gamma_eff = GAMMA + buffer_gamma
+        atom = atoms.sas_atom(n_exc, gamma=gamma_eff)
         Op = species.pump_rabi_from_power(params["pump_power_mw"], params["waist_mm"], GAMMA)
         Hp = np.zeros((atom.n_levels, atom.n_levels), dtype=complex)
         for i, e in enumerate(atom.excited):
@@ -260,16 +271,16 @@ class SASScheme(Scheme):
         N = atoms.rb85_density(T)
 
         off_span = float(np.abs(offsets).max())
-        half = max(3.5 * dopp_fwhm, off_span + 0.4 * dopp_fwhm)
+        half = max(3.5 * dopp_fwhm, off_span + 0.4 * dopp_fwhm, 10 * gamma_eff)
         scan = np.linspace(-half, half, int(params["scan_points"]))
 
-        two_lvl = atoms.two_level()
+        two_lvl = atoms.two_level(gamma=gamma_eff)
         Hpr = np.zeros((2, 2), dtype=complex)
         Hpr[0, 1] = Hpr[1, 0] = PROBE_RABI * GAMMA / 2
         L0_probe = core.build_liouvillian(Hpr, two_lvl)
         kvmax = float(np.abs(kv).max())
         flo, fhi = scan.min() - kvmax - off_span, scan.max() + kvmax + off_span
-        fine = np.linspace(flo, fhi, int((fhi - flo) / (GAMMA / 20)) + 2)
+        fine = np.linspace(flo, fhi, int((fhi - flo) / (gamma_eff / 20)) + 2)
         rho_pr = core.steady_state_batched(L0_probe, fine, two_lvl.S_v, 2)
         chi_pr = rho_pr[:, 1, 0] / (PROBE_RABI * GAMMA)
         alpha_L, _ = observables.absorption_coefficient(chi_pr, K_VEC, N)
@@ -284,7 +295,8 @@ class SASScheme(Scheme):
             alpha[j] = float((wt * contrib).sum())
 
         return dict(mode="generic", scan=scan, alpha_unit=alpha,
-                    dopp_fwhm=dopp_fwhm, offsets=offsets, two=(n_exc == 2))
+                    dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
+                    gamma_eff=gamma_eff, offsets=offsets, two=(n_exc == 2))
 
     # =================================================================
     # observables  (dispatch)
@@ -302,6 +314,7 @@ class SASScheme(Scheme):
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
         dopp_mhz = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
+        buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         pump = params["pump_power_mw"]
         regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
 
@@ -329,6 +342,7 @@ class SASScheme(Scheme):
                  help=(f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz)."
                        if np.isfinite(sub_fwhm) else "Pump off → no sub-Doppler features.")),
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
+            dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
         ]
         rows = "".join(f"| {lbl} | {gx*1e3:.1f} |\n" for gx, lbl in raw["markers"])
         table = ("Hyperfine transitions (Lamb-dip centres); crossovers appear at the "
@@ -343,6 +357,7 @@ class SASScheme(Scheme):
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
         offs_mhz = raw["offsets"] / (2 * np.pi) / 1e6
+        buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
 
         fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
         axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
@@ -366,6 +381,7 @@ class SASScheme(Scheme):
             dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz"),
             dict(label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz"),
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
+            dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
         ]
         note = ("Two transitions: Lamb dips at ±splitting/2 and a **crossover** dip "
                 "at the midpoint (green)." if raw["two"]

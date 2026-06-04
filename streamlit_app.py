@@ -81,7 +81,7 @@ def _render_param(container, scheme_name, sp):
         left, right = endpoints
         container.markdown(
             "<div style='display:flex;justify-content:space-between;margin-top:-12px;"
-            f"font-size:0.72em;color:#888'><span>{left}</span><span>{right}</span></div>",
+            f"font-size:0.85em;color:#888'><span>{left}</span><span>{right}</span></div>",
             unsafe_allow_html=True)
     return val
 
