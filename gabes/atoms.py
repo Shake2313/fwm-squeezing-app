@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from . import constants
+from . import constants, hyperfine
 from .core import comm_super
 
 
@@ -78,16 +78,21 @@ def _double_lambda_rb85():
     """85Rb D1 4-level double-Λ: g₁=F2, g₂=F3, e₂=F'2, e₃=F'3 (indices 0,1,2,3)."""
     ground = (0, 1)
     excited = (2, 3)
-    rate = constants.GAMMA / 2
-    decay = tuple((e, g, rate) for e in excited for g in ground)
+    ground_F = {0: 2, 1: 3}
+    excited_F = {2: 2, 3: 3}
+    decay = []
+    for e in excited:
+        weights = {g: hyperfine.CF2[(ground_F[g], excited_F[e])] for g in ground}
+        total = sum(weights.values())
+        decay.extend((e, g, constants.GAMMA * weights[g] / total) for g in ground)
     dephasing = ((0, 1, constants.GAMMA_GG), (1, 0, constants.GAMMA_GG))
     return AtomModel(
         name="double_lambda_rb85",
         n_levels=4,
-        labels=("g1", "g2", "e2", "e3"),
+        labels=("F=2", "F=3", "F'=2", "F'=3"),
         ground=ground,
         excited=excited,
-        decay=decay,
+        decay=tuple(decay),
         dephasing=dephasing,
         doppler_levels=excited,
     )

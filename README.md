@@ -94,25 +94,29 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ## Traps
 
-1. **LINE_STRENGTH_FACTOR = calibration knob.** Effective |d|² rescaling
-   (Clebsch-Gordan lumping). The package default is 1.0, which reproduces the
-   textbook 3λ²/2π resonant cross-section for the 2-level OD scheme. The FWM app
-   uses 0.05 (see trap 2). Absorption schemes leave it at 1.0.
-2. **FWM gain is exponentially sensitive at high density.** At paper optimum
-   T=121 °C linear Maxwell-Bloch gives nonsense (G~1e25) at ls=1.0. Drop ls (~0.05)
-   or lower T. The model has no pump depletion / saturation → knife-edge near resonance.
-3. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
+Current FWM note: the 4-level FWM model now applies the real 85Rb D1 hyperfine
+`C_F^2` values `(10,35,35,28)/81` to Rabi couplings, polarization readout, and
+spontaneous-emission branching. The remaining app knob is a residual **FWM
+coupling scale**, not a literal line-strength constant; keep it near the
+calibrated regime (~0.05) until phase mismatch, loss/noise, pump depletion, and
+full Zeeman structure are included.
+
+1. **FWM gain is exponentially sensitive at high density.** At paper optimum
+   T=121 °C linear Maxwell-Bloch still over-amplifies if the residual coupling
+   scale is pushed to 1.0. Keep it near the calibrated regime (~0.05) unless you
+   are deliberately stress-testing the ideal model.
+2. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
    The Sim et al. 85Rb operating point uses the standard red-detuned seed on the
    (−) Raman branch. Compute `branch=-1` and `branch=+1` independently; do not add
    their χ matrices into one 2×2 propagation matrix. The old branch-summed model
    created artificial high-gain extrema (for example near +70 MHz TPD).
-4. **Rb is very absorbing — absorption schemes use short cells.** ls=1.0 is the
+3. **Rb is very absorbing — absorption schemes use short cells.** ls=1.0 is the
    true cross-section, so on-resonance OD saturates in a cm-scale cell; the
    OD/EIT/AT/CPT defaults use mm-scale cells / moderate T to keep features visible.
-5. **Twin-beam coincidence is the ideal (lossless) parametric estimate** from the
+4. **Twin-beam coincidence is the ideal (lossless) parametric estimate** from the
    gain (n=G_s−1, g²_sc=2+1/n, R=g²_sc²/4>1), valid in the gain region — like the
    squeezing panel, propagation loss is not modelled with quantum Langevin noise.
-6. **OD has two models.** Default = the **85Rb D1 hyperfine** spectrum (4 lines,
+5. **OD has two models.** Default = the **85Rb D1 hyperfine** spectrum (4 lines,
    CG strengths, ground populations, self-broadening), validated against the lab
    AutoOD calculator (`references/AutoOD/`) — reproduces its transmission to <0.1 %.
    It uses a **pure-85Rb cell** density from the CRC vapor pressure
@@ -122,7 +126,7 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
    backbone the Λ schemes reduce to (and what the analytic FWHM tests use). The
    x-axis origin is AutoOD's 87Rb F=2→F′=2 marker, so GABES overlays the lab tool
    and its CSV data directly. Lineshape is the OBE Doppler kernel — no scipy/wofz.
-7. **SAS line weight is `(2Fg+1)·line_strength`, not `line_strength`.** The
+6. **SAS line weight is `(2Fg+1)·line_strength`, not `line_strength`.** The
    observable strength of a lumped Fg↔Fe hyperfine line — absorption per ground
    atom *and* the spontaneous-emission branching — carries the ground degeneracy:
    `T = (2Fg+1)(2Fe+1)(2Jg+1){6j}²`. One quantity drives the line weight, the

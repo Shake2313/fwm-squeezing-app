@@ -12,7 +12,7 @@ the generic Streamlit front-end.
 """
 import numpy as np
 
-from .. import atoms, constants, doppler, observables
+from .. import atoms, constants, doppler, hyperfine, observables
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import build_liouvillian, comm_super, floquet_solve
 from .base import ExtraView, ParamSpec, Preset, Scheme
@@ -25,6 +25,13 @@ G1, G2, E2, E3 = 0, 1, 2, 3
 GROUND_STATES = (G1, G2)
 EXCITED_STATES = (E2, E3)
 N_LEVELS = ATOM.n_levels
+GROUND_F = {G1: 2, G2: 3}
+EXCITED_F = {E2: 2, E3: 3}
+TRANSITION_DIPOLE_SCALE = np.zeros((N_LEVELS, N_LEVELS), dtype=float)
+for _g in GROUND_STATES:
+    for _e in EXCITED_STATES:
+        TRANSITION_DIPOLE_SCALE[_g, _e] = np.sqrt(
+            3.0 * hyperfine.CF2[(GROUND_F[_g], EXCITED_F[_e])])
 
 # =========================================================
 # FWM experiment configuration (cell, beams, detection, scan)
@@ -59,13 +66,19 @@ DEFAULT_BRANCH = -1
 # =========================================================
 def _add_static_drive(H, ground, omega):
     for excited in EXCITED_STATES:
-        H[ground, excited] += omega / 2
-        H[excited, ground] += omega / 2
+        omega_ge = omega * TRANSITION_DIPOLE_SCALE[ground, excited]
+        H[ground, excited] += omega_ge / 2
+        H[excited, ground] += omega_ge / 2
 
 
 def _add_sideband_drive(H, ground, omega):
     for excited in EXCITED_STATES:
-        H[excited, ground] += omega / 2
+        H[excited, ground] += omega * TRANSITION_DIPOLE_SCALE[ground, excited] / 2
+
+
+def _polarization_coherence(rho, ground):
+    return sum(TRANSITION_DIPOLE_SCALE[ground, e] * rho[:, e, ground]
+               for e in EXCITED_STATES)
 
 
 def static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os, delta, branch):
@@ -134,8 +147,8 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         L0_1 = build_liouvillian(H0_1, ATOM)
         rho0_a, rhop_a = floquet_solve(
             L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis, ATOM.S_v, N_LEVELS)
-        probe_a = sum(rho0_a[:, e, probe_ground] for e in EXCITED_STATES)
-        conj_a = sum(rhop_a[:, e, conj_ground] for e in EXCITED_STATES)
+        probe_a = _polarization_coherence(rho0_a, probe_ground)
+        conj_a = _polarization_coherence(rhop_a, conj_ground)
         chi_ss[i] = probe_a / Os_ref
         chi_cs[i] = conj_a / Os_ref
 
@@ -144,8 +157,8 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         L0_2 = build_liouvillian(H0_2, ATOM)
         rho0_b, rhop_b = floquet_solve(
             L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis, ATOM.S_v, N_LEVELS)
-        probe_b = sum(rho0_b[:, e, probe_ground] for e in EXCITED_STATES)
-        conj_b = sum(rhop_b[:, e, conj_ground] for e in EXCITED_STATES)
+        probe_b = _polarization_coherence(rho0_b, probe_ground)
+        conj_b = _polarization_coherence(rhop_b, conj_ground)
         chi_sc[i] = probe_b / Oc_ref
         chi_cc[i] = conj_b / Oc_ref
 
@@ -309,7 +322,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "85Rb D1 double-Λ four-wave mixing"
-    cache_version = "single-branch-fwm-v1"
+    cache_version = "cg-weighted-single-branch-fwm-v1"
     cache_observables = True
     caption = ("Seed/probe gain and intensity-difference squeezing vs two-photon "
                "detuning. OPD and cell parameters recompute (cached); TPD navigates "
@@ -331,10 +344,10 @@ class FWMScheme(Scheme):
                       1.0, 200.0, 1.0, "µW"),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 0.0,
                       0.0, 50.0, 0.5, "%", help="Folds into η = QE × (1 − loss)."),
-            ParamSpec("ls", "Line-strength factor", "Detection & scaling", 0.05,
+            ParamSpec("ls", "FWM coupling scale", "Detection & scaling", 0.05,
                       0.01, 1.0, 0.01, "",
-                      help="Effective |d|² rescaling (Clebsch-Gordan lumping). "
-                           "Calibration knob — tune to reproduce gain ≈ 15."),
+                      help="Residual propagation-coupling scale after applying "
+                           "Rb85 D1 hyperfine Clebsch-Gordan strengths."),
             ParamSpec("resolution", "Resolution", "Numerics", "Balanced  (~6 s)",
                       choices=tuple(RESOLUTION.keys()), advanced=True),
         ]
