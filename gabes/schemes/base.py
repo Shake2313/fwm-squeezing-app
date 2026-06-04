@@ -36,6 +36,7 @@ class ParamSpec:
     help: str = ""
     choices: Optional[tuple] = None
     advanced: bool = False        # render inside an "Advanced" expander
+    endpoints: Optional[tuple] = None   # (left, right) caption under a slider
 
 
 @dataclass(frozen=True)
@@ -70,6 +71,11 @@ class Scheme(ABC):
 
     def presets(self) -> list:
         return []
+
+    def recommended_defaults(self, params: dict):
+        """Context-aware default slider values (e.g. per atom/line) for a UI
+        'Default' button, or None if the scheme has no such defaults."""
+        return None
 
     def info(self):
         return None

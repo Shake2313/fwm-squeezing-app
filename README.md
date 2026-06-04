@@ -9,11 +9,10 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD** | 85Rb D1 four-line hyperfine spectrum (AutoOD-validated) or single 2-level Voigt |
+| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
 | A | **EIT** | transparency window + dispersion (slow light) |
 | A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
 | A | **CPT** | sub-natural dark resonance |
-| B — Sub-Doppler | **SAS** | saturated absorption for ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs (D1/D2) or natural Rb: Doppler-free Lamb dips + crossovers with **hyperfine optical pumping** (enhanced/inverted crossovers); generic Γ-unit hole-burning fallback |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | zero-field dip / peak / polarization rotation vs B (Zeeman manifold) |
 | D — Wave mixing | **FWM** | seed/probe gain G_s, intensity-difference squeezing, twin-beam coincidence |
 
@@ -42,7 +41,8 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, twin-beam coincidence, absorption / OD / dispersion.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
-    `absorption.py` (OD/EIT/AT/CPT), `sas.py` (multilevel SAS on `species.py`),
+    `absorption.py` (EIT/AT/CPT + the unregistered `ODScheme` validation
+    primitive), `sas.py` (the merged **Absorption OD/SAS** scheme on `species.py`),
     `magneto.py` (Hanle/EIA/NMOR),
     `fwm.py`, `__init__.py` (registry).
 - `streamlit_app.py` — generic UI. Renders only the selected scheme's
@@ -116,16 +116,16 @@ full Zeeman structure are included.
 4. **Twin-beam coincidence is the ideal (lossless) parametric estimate** from the
    gain (n=G_s−1, g²_sc=2+1/n, R=g²_sc²/4>1), valid in the gain region — like the
    squeezing panel, propagation loss is not modelled with quantum Langevin noise.
-5. **OD has two models.** Default = the **85Rb D1 hyperfine** spectrum (4 lines,
-   CG strengths, ground populations, self-broadening), validated against the lab
-   AutoOD calculator (`references/AutoOD/`) — reproduces its transmission to <0.1 %.
-   It uses a **pure-85Rb cell** density from the CRC vapor pressure
-   (`hyperfine.number_density`), *distinct* from `atoms.rb85_density` (Steck,
-   natural abundance) that the other schemes use — this is what matches AutoOD's
-   absolute scale. The **single 2-level** model is the bare-Voigt validation
-   backbone the Λ schemes reduce to (and what the analytic FWHM tests use). The
-   x-axis origin is AutoOD's 87Rb F=2→F′=2 marker, so GABES overlays the lab tool
-   and its CSV data directly. Lineshape is the OBE Doppler kernel — no scipy/wofz.
+5. **OD is the pump-off limit of the Absorption (OD/SAS) scheme.** Pump power = 0
+   → linear Doppler-broadened absorption; raising it burns the SAS sub-Doppler
+   features on the *same* spectrum. For ⁸⁵Rb D1 the pump-off limit reproduces the
+   lab AutoOD calculator (`references/AutoOD/`) to <0.1 %: the absolute scale uses
+   the CRC vapor-pressure density (Rb) and the AutoOD C_F²·|d|² normalisation
+   (`species.line_integrated_alpha`, `species.cf2`/`reduced_dipole_sq`). The old
+   **single 2-level** OD model is kept as an internal validation primitive
+   (`schemes.absorption.ODScheme`, *no longer registered*) that the Λ schemes
+   reduce to and the analytic FWHM=Γ tests use. The probe is fixed weak; only the
+   **pump power [mW]** is a knob (→ Rabi via I=2P/πw² and I_sat).
 6. **SAS line weight is `(2Fg+1)·line_strength`, not `line_strength`.** The
    observable strength of a lumped Fg↔Fe hyperfine line — absorption per ground
    atom *and* the spontaneous-emission branching — carries the ground degeneracy:

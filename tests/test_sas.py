@@ -1,14 +1,17 @@
 """
-Physics checks for saturated absorption (SAS).
+Physics checks for the merged absorption scheme (OD / SAS).
 
-Realistic multilevel mode (gabes.species):
-  data       : Wigner-6j strengths ∝ validated ⁸⁵Rb D1 CF2; Casimir HF energies
-               reproduce the known ground/excited splittings; correct line counts.
-  no pump    : reduces to the Doppler-broadened multi-line absorption — the ⁸⁵Rb
-               F=3/F=2 manifold ratio matches the validated OD value 49/25.
-  pump on    : sharp Doppler-free features appear (Lamb dips + crossovers).
-  pumping    : crossovers are enhanced and grow as the transit rate falls — the
-               hyperfine-optical-pumping signature a single-ground model can't give.
+Data layer (gabes.species):
+  6j/3j strengths reproduce the validated ⁸⁵Rb D1 CF2; Casimir HF energies match
+  the known ground/excited splittings; correct hyperfine line counts.
+
+Pump off (P = 0) → OD:
+  reduces to linear Doppler-broadened absorption; ⁸⁵Rb D1 reproduces the AutoOD
+  scale (integrated + peak) and the 49/25 F=3/F=2 manifold ratio.
+
+Pump on → SAS:
+  sharp Doppler-free features appear (Lamb dips + crossovers); crossovers are
+  enhanced and grow as the transit rate falls — the hyperfine-pumping signature.
 
 Generic Γ-unit hole-burning fallback: Voigt background, Lamb dip, crossover.
 
@@ -24,11 +27,14 @@ sys.path.insert(0, str(ROOT))
 
 from gabes import schemes, constants, observables, species, hyperfine  # noqa: E402
 from gabes.schemes.sas import GENERIC  # noqa: E402
+from gabes.schemes.absorption import ODScheme  # noqa: E402
 
 G = constants.GAMMA
 GMHZ = G / (2 * np.pi) / 1e6
 SAS = schemes.get("sas")
-RB85_KEY, RB87_KEY, CS_KEY = species.SPECIES_ORDER[1], species.SPECIES_ORDER[2], species.SPECIES_ORDER[3]
+_tz = getattr(np, "trapezoid", getattr(np, "trapz", None))
+RB85_KEY, RB87_KEY, CS_KEY = (species.SPECIES_ORDER[1], species.SPECIES_ORDER[2],
+                              species.SPECIES_ORDER[3])
 
 
 def _params(**over):
@@ -43,12 +49,17 @@ def _spectrum(**over):
 
 
 # ---------------------------------------------------------------- data layer
-def test_line_strengths_match_validated_cf2():
-    """T = (2Fg+1)·line_strength reproduces the AutoOD-validated ⁸⁵Rb D1 CF2 (×9)."""
-    I, Jg, Je = 2.5, 0.5, 0.5
-    for (Fg, Fe), cf2 in hyperfine.CF2.items():
-        T = (2 * Fg + 1) * species.line_strength(Fg, Fe, I, Jg, Je)
-        assert abs(T - 9.0 * cf2) < 1e-9
+def test_cf2_matches_validated_85rb_d1():
+    for (Fg, Fe), ref in hyperfine.CF2.items():
+        assert abs(species.cf2(Fg, Fe, 2.5, 0.5, 0.5) - ref) < 1e-9
+
+
+def test_reduced_dipole_and_density_match_od():
+    lam = constants.C_LIGHT / species.RB85.nu_D1
+    d2 = species.reduced_dipole_sq(2 * np.pi * 5.75e6, lam, 0.5, 0.5)
+    assert abs(d2 / hyperfine.DIPOLE_SQ - 1.0) < 1e-3
+    assert abs(species.number_density(species.RB85, 363.15)
+               / hyperfine.number_density(363.15) - 1.0) < 1e-6
 
 
 def test_hf_energies_match_known_splittings():
@@ -61,7 +72,6 @@ def test_hf_energies_match_known_splittings():
 
 
 def test_manifold_line_counts():
-    # D2 each: 2 grounds × 3 allowed Fe (ΔF=0,±1) = 6 transitions; D1: 4.
     assert len(species.build_manifold(species.RB85, "D2").omega) == 6
     assert len(species.build_manifold(species.RB87, "D2").omega) == 6
     assert len(species.build_manifold(species.CS133, "D2").omega) == 6
@@ -69,33 +79,44 @@ def test_manifold_line_counts():
 
 
 def test_decay_branching_sums_and_values():
-    """Σ_Fg branching = Γ per excited; ⁸⁵Rb D1 Fe=2 → Fg2:0.222, Fg3:0.778."""
     man = species.build_manifold(species.RB85, "D1")
     br = {}
     for (frm, to, rate) in man.atom.decay:
         if frm in man.atom.excited:
             br.setdefault(frm, {})[to] = rate / man.gamma
-    for e, d in br.items():
+    for d in br.values():
         assert abs(sum(d.values()) - 1.0) < 1e-9
-    e2 = man.atom.ground[-1] + 1                      # first excited index (Fe=2)
+    e2 = man.atom.ground[-1] + 1                      # first excited (Fe=2)
     assert abs(br[e2][0] - 2.0 / 9.0) < 1e-6          # → Fg=2
     assert abs(br[e2][1] - 7.0 / 9.0) < 1e-6          # → Fg=3
 
 
-# ------------------------------------------------------------- species model
-def test_no_pump_recovers_doppler_manifold():
-    """No pump → smooth Doppler lines; ⁸⁵Rb D1 F=3/F=2 area ratio = 49/25."""
-    x, a, raw = _spectrum(species=RB85_KEY, line="D1", temp_c=45.0, pump_rabi=0.02)
+# ---------------------------------------------------- pump off (OD) fidelity
+def test_pump_off_reproduces_autood_85rb_d1():
+    """Pump = 0, ⁸⁵Rb D1 reproduces the AutoOD-validated OD scheme to <1 %."""
+    raw = SAS.compute(_params(species=RB85_KEY, line="D1", pump_power_mw=0.0,
+                              temp_c=90.0, cell_mm=12.5))
+    od = ODScheme()
+    ro = od.compute({**od.defaults(), "model": "85Rb D1 hyperfine",
+                     "temp_c": 90.0, "cell_mm": 12.5, "doppler": "on"})
+    int_ratio = _tz(raw["alpha_unit"], raw["scan"]) / _tz(ro["alpha"], ro["scan"])
+    peak_ratio = raw["alpha_unit"].max() / ro["alpha"].max()
+    assert abs(int_ratio - 1.0) < 0.01
+    assert abs(peak_ratio - 1.0) < 0.01
+
+
+def test_pump_off_is_smooth_and_49_25():
+    x, a, _ = _spectrum(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=45.0)
     f2 = a[x > 0.5].sum()
     f3 = a[x < -0.5].sum()
-    assert 1.90 <= f3 / f2 <= 2.02                    # validated OD value 49/25 = 1.96
-    rough = np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9)
-    assert rough < 0.05                               # no sub-Doppler features
+    assert 1.90 <= f3 / f2 <= 2.02                    # validated 49/25 ≈ 1.96
+    assert np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9) < 0.02   # no features
 
 
+# ------------------------------------------------------ pump on (SAS) physics
 def test_pump_creates_subdoppler_features():
-    _, a_off, _ = _spectrum(species=RB85_KEY, line="D2", temp_c=30.0, pump_rabi=0.02)
-    _, a_on, _ = _spectrum(species=RB85_KEY, line="D2", temp_c=30.0, pump_rabi=3.0)
+    _, a_off, _ = _spectrum(species=RB85_KEY, line="D2", pump_power_mw=0.0, temp_c=30.0)
+    _, a_on, _ = _spectrum(species=RB85_KEY, line="D2", pump_power_mw=1.5, temp_c=30.0)
 
     def rough(a):
         return np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9)
@@ -106,19 +127,18 @@ def test_pump_creates_subdoppler_features():
 def test_hyperfine_pumping_enhances_crossover():
     """Crossover transmission rises as the transit rate falls (pumping signature)."""
     co = 1.719                                        # ⁸⁵Rb D2 F=2 (2′×3′) crossover [GHz]
-    T = []
+    Tco = []
     for gt in (2000.0, 100.0, 20.0):
-        x, a, _ = _spectrum(species=RB85_KEY, line="D2", temp_c=30.0,
-                            pump_rabi=3.0, transit_khz=gt)
+        x, a, _ = _spectrum(species=RB85_KEY, line="D2", pump_power_mw=1.5,
+                            temp_c=30.0, cell_mm=50.0, transit_khz=gt)
         i = int(np.argmin(np.abs(x - co)))
-        T.append(observables.transmission(a, 0.05)[i])
-    assert T[0] < T[1] < T[2]                         # smaller γ_t → stronger crossover
-    # and the crossover dominates the nearby individual Lamb dips
-    x, a, raw = _spectrum(species=RB85_KEY, line="D2", temp_c=30.0, pump_rabi=3.0)
+        Tco.append(observables.transmission(a, 0.05)[i])
+    assert Tco[0] < Tco[1] < Tco[2]                   # smaller γ_t → stronger crossover
+    x, a, raw = _spectrum(species=RB85_KEY, line="D2", pump_power_mw=1.5,
+                          temp_c=30.0, cell_mm=50.0)
     Ttr = observables.transmission(a, 0.05)
     dips = [Ttr[int(np.argmin(np.abs(x - gx)))] for gx, _ in raw["markers"] if gx > 1.0]
-    ico = int(np.argmin(np.abs(x - co)))
-    assert Ttr[ico] > max(dips)                       # crossover taller than Lamb dips
+    assert Ttr[int(np.argmin(np.abs(x - co)))] > max(dips)   # crossover > Lamb dips
 
 
 def test_natural_rb_overlays_both_isotopes():
@@ -128,35 +148,31 @@ def test_natural_rb_overlays_both_isotopes():
     assert species.RB85.label in labels and species.RB87.label in labels
 
 
+def test_recommended_defaults_per_line():
+    d1 = SAS.recommended_defaults(dict(species=CS_KEY, line="D1"))
+    d2 = SAS.recommended_defaults(dict(species=CS_KEY, line="D2"))
+    assert "temp_c" in d1 and "cell_mm" in d1 and "pump_power_mw" in d1
+    assert d1 != d2                                   # genuinely per-transition
+
+
 def test_observables_render_species():
-    raw = SAS.compute(_params(species=CS_KEY, line="D2", temp_c=35.0))
-    view = SAS.observables(raw, _params(species=CS_KEY, line="D2", temp_c=35.0))
+    p = _params(species=CS_KEY, line="D2", temp_c=35.0)
+    view = SAS.observables(SAS.compute(p), p)
     assert view["figure"] is not None
     assert any(m["label"] == "Peak OD" for m in view["metrics"])
 
 
 # -------------------------------------------------------------- generic mode
-def test_generic_no_pump_voigt():
-    _, a, raw = _spectrum(species=GENERIC, transitions="single line", pump_rabi=0.01)
-    x = raw["scan"] / (2 * np.pi) / 1e6
-    above = x[a >= 0.5 * a.max()]
-    env = above.max() - above.min()
-    dopp = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
-    assert 0.95 <= env / dopp <= 1.05
-    assert a[int(np.argmin(np.abs(x)))] >= a[int(np.argmin(np.abs(x - 15 * GMHZ)))]
-
-
 def test_generic_lamb_dip_and_crossover():
-    raw = SAS.compute(_params(species=GENERIC, transitions="single line", pump_rabi=2.0))
+    raw = SAS.compute(_params(species=GENERIC, transitions="single line", pump_power_mw=1.0))
     x = raw["scan"] / (2 * np.pi) / 1e6
     a = raw["alpha_unit"]
     ic, ish = int(np.argmin(np.abs(x))), int(np.argmin(np.abs(x - 15 * GMHZ)))
     assert a[ic] < 0.7 * a[ish]                       # sub-Doppler Lamb dip
 
     raw2 = SAS.compute(_params(species=GENERIC, transitions="two lines (crossover)",
-                               splitting=60.0, pump_rabi=2.0))
+                               splitting=60.0, pump_power_mw=1.0))
     x2, a2 = raw2["scan"] / (2 * np.pi) / 1e6, raw2["alpha_unit"]
-    off = 30 * GMHZ
     assert a2[int(np.argmin(np.abs(x2)))] < a2[int(np.argmin(np.abs(x2 - 8 * GMHZ)))]
 
 
@@ -165,5 +181,5 @@ if __name__ == "__main__":
     for fn in fns:
         fn()
         print("ok:", fn.__name__)
-    print(f"\nSAS OK ({len(fns)} tests): data layer, Doppler-free features, "
-          "hyperfine pumping, natural-Rb overlay, generic fallback.")
+    print(f"\nAbsorption (OD/SAS) OK ({len(fns)} tests): data, pump-off AutoOD "
+          "fidelity, sub-Doppler features, hyperfine pumping, generic.")

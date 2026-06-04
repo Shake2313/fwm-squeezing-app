@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from gabes import schemes, observables, constants  # noqa: E402
+from gabes.schemes.absorption import ODScheme  # noqa: E402  (OD primitive: not registered)
 
 G = constants.GAMMA
 GMHZ = G / (2 * np.pi) / 1e6
@@ -45,14 +46,14 @@ def _params(scheme, **over):
 
 
 def test_od_cold_natural_linewidth():
-    od = schemes.get("od")
+    od = ODScheme()
     x, alpha, _, _ = _curve(od.compute(_params(
         od, model="single 2-level", temp_c=25, cell_mm=3, doppler="off")))
     assert 0.9 <= _fwhm(x, alpha) / GMHZ <= 1.1
 
 
 def test_od_doppler_voigt_width():
-    od = schemes.get("od")
+    od = ODScheme()
     raw = od.compute(_params(
         od, model="single 2-level", temp_c=50, cell_mm=10, doppler="on"))
     x, alpha, _, _ = _curve(raw)
@@ -67,7 +68,7 @@ _tz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 def test_hyperfine_autood_absolute_scale():
     """Full-D1 peak OD reproduces the lab-validated AutoOD value (≈0.318) at
     50 °C / 12.5 mm — pins the ported CG/density absolute scale."""
-    od = schemes.get("od")
+    od = ODScheme()
     raw = od.compute(_params(od, model="85Rb D1 hyperfine", temp_c=50, cell_mm=12.5))
     OD = observables.optical_density(raw["alpha"], raw["L"])
     assert 0.30 <= np.nanmax(OD) <= 0.33
@@ -76,7 +77,7 @@ def test_hyperfine_autood_absolute_scale():
 def test_hyperfine_group_strength_ratio():
     """Integrated absorption of the F=3 vs F=2 ground group = Σp_F·C_F² ratio
     = 49/25 ≈ 1.96 (validated relative line strengths), shape-independent."""
-    od = schemes.get("od")
+    od = ODScheme()
     raw = od.compute(_params(od, model="85Rb D1 hyperfine", temp_c=60, cell_mm=12.5))
     xg = raw["scan"] / (2 * np.pi) / 1e9                     # GHz
     a = raw["alpha"]

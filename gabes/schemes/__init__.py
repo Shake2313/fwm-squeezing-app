@@ -8,12 +8,14 @@ from .sas import SASScheme
 from .magneto import MagnetoScheme
 from .fwm import FWMScheme
 
+# SASScheme is the merged absorption scheme (OD at pump = 0, SAS with pump on),
+# so the standalone ODScheme is no longer registered — its class stays in
+# absorption.py as the single-2-level validation primitive the Λ tests use.
 _SCHEMES = [
-    ODScheme(),
+    SASScheme(),
     LambdaScheme("eit"),
     LambdaScheme("at"),
     LambdaScheme("cpt"),
-    SASScheme(),
     MagnetoScheme("hanle"),
     MagnetoScheme("eia"),
     MagnetoScheme("nmor"),

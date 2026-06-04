@@ -39,9 +39,14 @@ import numpy as np
 
 from . import constants
 from .atoms import AtomModel
+from .zeeman import clebsch_gordan
 
 MHZ = 2 * np.pi * 1e6          # MHz → rad/s
 _AMU = 1.660_539_066_60e-27    # kg
+_LG, _LE, _SE = 0, 1, 0.5      # alkali D line: nS → nP orbital, electron spin ½
+
+# Self-broadening coefficient β/2π = 0.69e-7 Hz·cm³ (Rb; AutoOD / hyperfine.py).
+BETA_SELF = 2 * np.pi * 0.69e-7 * 1e-6        # rad·s⁻¹·m³
 
 
 # =====================================================================
@@ -186,18 +191,115 @@ def _density_from_logP(log10_P_torr, T):
 
 def number_density(iso, T):
     """
-    *Elemental* atomic number density [/m³] at cell temperature T [K] from the
-    Steck vapor-pressure fit. This is the total (all-isotope) density; the
-    per-isotope share is applied by the caller via the species weight (abundance
-    for a natural cell, 1.0 for an isotopically pure cell).
+    *Elemental* atomic number density [/m³] at cell temperature T [K]. Total
+    (all-isotope) density; the per-isotope share is applied by the caller via the
+    species weight (abundance for a natural cell, 1.0 for an isotopically pure one).
+
+    Rb uses the CRC vapor pressure (solid below 39.30 °C, liquid above) — the same
+    fit the AutoOD-validated OD scheme uses, so the pump-off limit matches the lab
+    tool's absolute scale. Cs uses the Steck liquid-phase fit.
     """
     if iso.name.startswith("Rb"):
-        # Steck Rb (liquid, T > 312.46 K).
-        logP = 15.88253 - 4529.635 / T + 0.00058663 * T - 2.99138 * np.log10(T)
-        return _density_from_logP(logP, T)
-    # Steck Cs (liquid, T > 301.65 K).
+        P_pa = (10 ** (9.863 - 4215.0 / T) if T < 273.15 + 39.30
+                else 10 ** (9.318 - 4040.0 / T))
+        return P_pa / (constants.KB * T)
     logP = 8.22127 - 4006.048 / T - 0.00060194 * T - 0.19623 * np.log10(T)
     return _density_from_logP(logP, T)
+
+
+def self_broadened_gamma(iso, N):
+    """Self-broadened optical linewidth Γ_eff = Γ_nat + β·N [rad/s] (β: Rb value)."""
+    return BETA_SELF * N
+
+
+# =====================================================================
+# Absolute line strengths (AutoOD convention) and the pump-power map
+# =====================================================================
+def _wigner3j(j1, j2, j3, m1, m2, m3):
+    if abs(m1 + m2 + m3) > 1e-9:
+        return 0.0
+    return ((-1) ** int(round(j1 - j2 - m3)) / math.sqrt(2 * j3 + 1)
+            * clebsch_gordan(j1, m1, j2, m2, j3, -m3))
+
+
+def cf2(Fg, Fe, I, Jg, Je):
+    """
+    Relative hyperfine line strength C_F² in the AutoOD convention (validated:
+    reproduces hyperfine.CF2 for ⁸⁵Rb D1). Proportional to (2Fg+1)·line_strength
+    but computed the lab tool's way for exact absolute-scale agreement.
+    """
+    m_max = int(min(Fg, Fe))
+    cfsq = sum(_wigner3j(Fe, 1, Fg, m, 0, -m) ** 2 for m in range(-m_max, m_max + 1))
+    six1 = abs(wigner6j(Jg, Je, 1, Fe, Fg, I))
+    six2 = abs(wigner6j(_LG, _LE, 1, Je, Jg, _SE))
+    pref = (2 * Fg + 1) * (2 * Fe + 1) * (2 * Jg + 1) * (2 * Je + 1) * (2 * _LG + 1)
+    return pref * cfsq * six1 ** 2 * six2 ** 2
+
+
+def reduced_dipole_sq(gamma_nat, lam, Jg, Je):
+    """|⟨J‖er‖J′⟩|² [C²m²] from the natural linewidth (AutoOD d_func). The six2
+    L→J reduction here cancels the one inside C_F², so C_F²·d² is six2-free."""
+    six2 = abs(wigner6j(_LG, _LE, 1, Je, Jg, _SE))
+    num = 3 * constants.EPS_0 * constants.HBAR * lam ** 3 * gamma_nat
+    den = 8 * np.pi ** 2 * six2 ** 2 * (2 * Jg + 1) * (2 * _LG + 1)
+    return num / den
+
+
+def line_integrated_alpha(iso, line, N):
+    """
+    Per-transition integrated weak-probe absorption ∫α dδ [rad·s⁻¹·m⁻¹] at line
+    strength 1 (AutoOD normalisation): ∫α_t = π·k·p_F·C_F²·|d|²·N/(ε₀ℏ)/(2(2I+1)).
+    Returns a dict keyed by (Fg, Fe). Density N already carries the species weight.
+    """
+    Je, nu0, gamma_mhz, _, _ = iso.line(line)
+    I, Jg = iso.I, iso.Jg
+    lam = constants.C_LIGHT / nu0
+    k = 2 * np.pi / lam
+    gamma_nat = gamma_mhz * MHZ
+    d2 = reduced_dipole_sq(gamma_nat, lam, Jg, Je)
+    deg = {F: 2 * F + 1 for F in f_values(I, Jg)}
+    ptot = sum(deg.values())
+    K = np.pi * k * d2 * N / (constants.HBAR * constants.EPS_0) / (2 * (2 * I + 1))
+    out = {}
+    for Fg in f_values(I, Jg):
+        for Fe in f_values(I, Je):
+            S = cf2(Fg, Fe, I, Jg, Je)
+            if S > 1e-12:
+                out[(Fg, Fe)] = K * (deg[Fg] / ptot) * S
+    return out
+
+
+def pump_rabi_from_power(power_mw, waist_mm, gamma):
+    """
+    Pump Rabi Ω [rad/s] from beam power and 1/e² waist: I = 2P/(πw²),
+    Ω = Γ·√(I/2I_sat) with I_sat = 4.484 mW/cm² (the reference saturation
+    intensity; documented in the scheme About). Power 0 → Ω 0 → linear OD limit.
+    """
+    if power_mw <= 0:
+        return 0.0
+    w = waist_mm * 1e-3
+    I = 2 * (power_mw * 1e-3) / (np.pi * w ** 2)
+    return gamma * np.sqrt(I / (2 * constants.I_SAT))
+
+
+# Per-(species, line) recommended slider values for the "Default" button —
+# tuned so the pump-off Doppler dips are clearly visible (peak OD ~0.4–1).
+_RECOMMENDED = {
+    ("Rb (natural)", "D1"): dict(temp_c=40.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("Rb (natural)", "D2"): dict(temp_c=25.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("⁸⁵Rb", "D1"): dict(temp_c=40.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("⁸⁵Rb", "D2"): dict(temp_c=25.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("⁸⁷Rb", "D1"): dict(temp_c=45.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("⁸⁷Rb", "D2"): dict(temp_c=30.0, cell_mm=75.0, pump_power_mw=0.5),
+    ("¹³³Cs", "D1"): dict(temp_c=30.0, cell_mm=50.0, pump_power_mw=0.5),
+    ("¹³³Cs", "D2"): dict(temp_c=22.0, cell_mm=30.0, pump_power_mw=0.5),
+}
+
+
+def recommended(species_key, line):
+    """Recommended (temp_c, cell_mm, pump_power_mw) for a species/line, or a default."""
+    return _RECOMMENDED.get((species_key, line),
+                            dict(temp_c=30.0, cell_mm=50.0, pump_power_mw=0.5))
 
 
 # =====================================================================

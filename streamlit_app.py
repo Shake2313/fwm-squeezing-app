@@ -70,7 +70,14 @@ def _render_param(container, scheme_name, sp):
     help_ = sp.help or None
     if sp.choices is not None:
         return container.selectbox(label, list(sp.choices), key=key, help=help_)
-    return container.slider(label, sp.vmin, sp.vmax, step=sp.step, key=key, help=help_)
+    val = container.slider(label, sp.vmin, sp.vmax, step=sp.step, key=key, help=help_)
+    if sp.endpoints:
+        left, right = sp.endpoints
+        container.markdown(
+            "<div style='display:flex;justify-content:space-between;margin-top:-12px;"
+            f"font-size:0.72em;color:#888'><span>{left}</span><span>{right}</span></div>",
+            unsafe_allow_html=True)
+    return val
 
 
 # ----------------------------------------------------------------------
@@ -104,6 +111,19 @@ for preset in scheme.presets():
             st.session_state[_skey(sname, k)] = v
     st.sidebar.button(f"{preset.icon} {preset.name}", on_click=_apply,
                       use_container_width=True, help=preset.help)
+
+# Context-aware "Default" button — snaps sliders to the recommended values for the
+# current selection (e.g. per atom/transition), if the scheme provides them.
+if type(scheme).recommended_defaults is not schemes.Scheme.recommended_defaults:
+    def _apply_default(sname=scheme.name, sc=scheme):
+        cur = {sp.name: st.session_state[_skey(sname, sp.name)] for sp in sc.param_schema()}
+        rec = sc.recommended_defaults(cur)
+        for k, v in (rec or {}).items():
+            st.session_state[_skey(sname, k)] = v
+    st.sidebar.button("↺ Default (this atom / line)", on_click=_apply_default,
+                      use_container_width=True,
+                      help="Reset temperature, cell length and pump power to the "
+                      "recommended values for the selected atom and transition.")
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
 params = {}
