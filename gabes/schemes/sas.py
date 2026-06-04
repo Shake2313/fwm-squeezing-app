@@ -46,7 +46,7 @@ import numpy as np
 from .. import atoms, constants, doppler, observables, species
 from ..constants import GAMMA, K_VEC
 from .. import core
-from .base import ParamSpec, Preset, Scheme
+from .base import ParamSpec, Scheme
 
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
@@ -99,23 +99,8 @@ class SASScheme(Scheme):
                       401, 4001, 100, "", advanced=True),
         ]
 
-    def presets(self):
-        return [
-            Preset("Natural Rb D2 (Doppler-free)",
-                   values=dict(species="Rb (natural)", line="D2", temp_c=25.0,
-                               cell_mm=75.0, pump_rabi=2.0), icon="🧪",
-                   help="The classic textbook natural-Rb D2 saturated-absorption scan."),
-            Preset("⁸⁵Rb D2",
-                   values=dict(species="⁸⁵Rb", line="D2", temp_c=25.0,
-                               cell_mm=75.0, pump_rabi=2.0), icon="🎯"),
-            Preset("¹³³Cs D2",
-                   values=dict(species="¹³³Cs", line="D2", temp_c=22.0,
-                               cell_mm=30.0, pump_rabi=2.0), icon="🔶"),
-            Preset("Generic crossover",
-                   values=dict(species=GENERIC, transitions="two lines (crossover)",
-                               splitting=60.0, pump_rabi=2.0, temp_c=50.0,
-                               cell_mm=10.0), icon="✛"),
-        ]
+    # No presets: the Atomic-section species/line dropdowns (and the Advanced
+    # knobs for the generic mode) already cover every configuration directly.
 
     def info(self):
         return (
