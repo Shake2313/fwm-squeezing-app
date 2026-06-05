@@ -30,8 +30,12 @@ def _asset_text(filename):
     return (APP_DIR / "assets" / filename).read_text(encoding="utf-8")
 
 
-LOGO_SVG = _asset_text("gabes-logo-v3.svg")
-ICON_SVG = _asset_text("gabes-mark-v3.svg")
+THEME_BASE = (st.get_option("theme.base") or "light").lower()
+LOGO_ASSET = "gabes-logo-v3-dark.svg" if THEME_BASE == "dark" else "gabes-logo-v3.svg"
+ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v3.svg"
+
+LOGO_SVG = _asset_text(LOGO_ASSET)
+ICON_SVG = _asset_text(ICON_ASSET)
 SIDEBAR_LOGO_SVG = LOGO_SVG.replace(
     'width="960" height="232" viewBox="0 0 960 232"',
     'width="738" height="232" viewBox="0 0 738 232"',
@@ -86,13 +90,27 @@ def _inject_css():
   background: var(--gabes-bg);
 }
 
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewBlockContainer"],
+section.main > div,
+.main .block-container,
+.block-container {
+  padding-top: 0.85rem !important;
+  padding-bottom: 1.35rem !important;
+}
+
 [data-testid="stSidebar"] {
   background: #FBFDFF;
   border-right: 1px solid var(--gabes-border);
 }
 
+[data-testid="stSidebarContent"],
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0.85rem !important;
+}
+
 [data-testid="stSidebar"] [data-testid="stImage"] {
-  margin: 0.25rem 0 0.55rem;
+  margin: 0 0 0.45rem;
 }
 
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
@@ -138,19 +156,19 @@ div[data-testid="stButton"] > button:hover {
 }
 
 .gabes-header {
-  margin: 0 0 1.05rem;
-  padding: 0.95rem 1.05rem 1rem;
+  margin: 0 0 0.72rem;
+  padding: 0.68rem 0.78rem 0.78rem;
   background: var(--gabes-surface);
   border: 1px solid var(--gabes-border);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.035);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
 }
 
 .gabes-hairline {
-  height: 3px;
+  height: 2px;
   width: 100%;
   border-radius: 999px;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.55rem;
   background: linear-gradient(90deg, #22D3EE 0%, #2563EB 52%, #F43F5E 100%);
 }
 
@@ -158,20 +176,20 @@ div[data-testid="stButton"] > button:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.45rem;
-  margin-bottom: 0.42rem;
+  gap: 0.34rem;
+  margin-bottom: 0.34rem;
 }
 
 .gabes-badge {
   display: inline-flex;
   align-items: center;
-  min-height: 1.35rem;
-  padding: 0.14rem 0.48rem;
+  min-height: 1.2rem;
+  padding: 0.1rem 0.4rem;
   border-radius: 999px;
   border: 1px solid var(--gabes-border);
   background: #F8FAFC;
   color: var(--gabes-muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 650;
   line-height: 1;
 }
@@ -179,7 +197,7 @@ div[data-testid="stButton"] > button:hover {
 .gabes-header h1 {
   margin: 0;
   color: var(--gabes-ink);
-  font-size: clamp(1.75rem, 2.6vw, 2.55rem);
+  font-size: clamp(1.48rem, 2.25vw, 2.12rem);
   line-height: 1.12;
   font-weight: 760;
   letter-spacing: 0;
@@ -187,10 +205,10 @@ div[data-testid="stButton"] > button:hover {
 
 .gabes-header p {
   max-width: 68rem;
-  margin: 0.45rem 0 0;
+  margin: 0.34rem 0 0;
   color: var(--gabes-muted);
-  font-size: 0.98rem;
-  line-height: 1.5;
+  font-size: 0.91rem;
+  line-height: 1.42;
 }
 
 .gabes-group-header {
@@ -230,19 +248,25 @@ div[data-testid="stButton"] > button:hover {
   font-size: 0.78rem;
 }
 
+.gabes-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 0.42rem;
+}
+
 .gabes-metric-card {
-  min-height: 5.85rem;
-  padding: 0.7rem 0.8rem 0.72rem;
+  min-height: 4.45rem;
+  padding: 0.48rem 0.58rem 0.52rem;
   background: var(--gabes-surface);
   border: 1px solid var(--gabes-border);
   border-left: 3px solid var(--metric-color);
   border-radius: 8px;
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.035);
+  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.025);
 }
 
 .gabes-metric-kind {
   display: inline-flex;
-  padding: 0.08rem 0.38rem;
+  padding: 0.06rem 0.34rem;
   border-radius: 999px;
   background: var(--metric-bg);
   color: var(--metric-color);
@@ -254,7 +278,7 @@ div[data-testid="stButton"] > button:hover {
 }
 
 .gabes-metric-label {
-  margin-top: 0.4rem;
+  margin-top: 0.28rem;
   color: var(--gabes-muted);
   font-size: 0.78rem;
   line-height: 1.25;
@@ -262,17 +286,25 @@ div[data-testid="stButton"] > button:hover {
 }
 
 .gabes-metric-value {
-  margin-top: 0.16rem;
+  margin-top: 0.08rem;
   color: var(--gabes-ink);
-  font-size: clamp(1.05rem, 1.6vw, 1.42rem);
+  font-size: clamp(1.05rem, 1.45vw, 1.3rem);
   line-height: 1.15;
   font-weight: 760;
 }
 
 .gabes-metric-delta {
-  margin-top: 0.24rem;
+  margin-top: 0.12rem;
   color: var(--gabes-muted);
   font-size: 0.75rem;
+}
+
+.gabes-section-gap {
+  height: 0.42rem;
+}
+
+.gabes-plot-gap {
+  height: 0.56rem;
 }
 
 .stDataFrame, [data-testid="stTable"] {
@@ -380,7 +412,7 @@ def _render_scheme_header(scheme):
     )
 
 
-def _render_metric_card(container, metric):
+def _metric_card_html(metric):
     label = str(metric.get("label", ""))
     value = str(metric.get("value", ""))
     delta = metric.get("delta")
@@ -389,7 +421,7 @@ def _render_metric_card(container, metric):
     delta_html = ""
     if delta is not None:
         delta_html = f"<div class='gabes-metric-delta'>{escape(str(delta))}</div>"
-    container.markdown(
+    return (
         "<div class='gabes-metric-card' "
         f"title='{escape(str(help_text))}' "
         f"style='--metric-color:{style['color']};--metric-bg:{style['bg']}'>"
@@ -397,9 +429,13 @@ def _render_metric_card(container, metric):
         f"<div class='gabes-metric-label'>{escape(label)}</div>"
         f"<div class='gabes-metric-value'>{escape(value)}</div>"
         f"{delta_html}"
-        "</div>",
-        unsafe_allow_html=True,
+        "</div>"
     )
+
+
+def _render_metrics(metrics):
+    cards = "".join(_metric_card_html(metric) for metric in metrics)
+    st.markdown(f"<div class='gabes-metric-grid'>{cards}</div>", unsafe_allow_html=True)
 
 
 # ----------------------------------------------------------------------
@@ -497,9 +533,8 @@ _render_scheme_header(scheme)
 
 metrics = view.get("metrics", [])
 if metrics:
-    cols = st.columns(len(metrics))
-    for col, m in zip(cols, metrics):
-        _render_metric_card(col, m)
+    _render_metrics(metrics)
+    st.markdown("<div class='gabes-section-gap'></div>", unsafe_allow_html=True)
 
 fig = view.get("figure")
 if fig is not None:
@@ -508,6 +543,7 @@ if fig is not None:
     _close_fig(fig)
 
 for _title, _extra_fig in view.get("figures", []):
+    st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
     st.subheader(_title)
     apply_gabes_plot_style(_extra_fig)
     st.pyplot(_extra_fig)
@@ -533,6 +569,7 @@ for view_def in scheme.extra_views():
             with st.spinner("Running…"):
                 data = _cached_extra(scheme.name, view_def.key, recompute_items, cache_version)
             extra_fig = view_def.render(data)
+            st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
             apply_gabes_plot_style(extra_fig)
             st.pyplot(extra_fig)
             _close_fig(extra_fig)

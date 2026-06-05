@@ -76,5 +76,4 @@ def apply_gabes_plot_style(target):
             for text in legend.get_texts():
                 text.set_color(PALETTE["ink"])
 
-    fig.tight_layout()
     return target
