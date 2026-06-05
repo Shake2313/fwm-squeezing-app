@@ -384,23 +384,21 @@ class ODScheme(Scheme):
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
 
-    def __init__(self, mode):
-        self.mode = mode
-        self.name = mode
-        if mode == "eit":
-            self.title = "Electromagnetically induced transparency (EIT)"
-            self.caption = ("Λ system: a strong coupling field opens a transparency "
-                            "window for a weak probe at two-photon resonance.")
-        elif mode == "at":
-            self.title = "Autler-Townes splitting (AT)"
-            self.caption = ("Strong coupling dresses the excited state; the weak-probe "
-                            "absorption line splits into a doublet separated by ≈ Ω_c.")
-        else:
-            self.title = "Coherent population trapping (CPT)"
-            self.caption = ("Narrow two-photon (Raman) scan: atoms are pumped into a "
-                            "dark state, giving a sub-natural absorption dip.")
+    _TITLE = {
+        "eit": "Electromagnetically induced transparency (EIT)",
+        "at":  "Autler-Townes splitting (AT)",
+        "cpt": "Coherent population trapping (CPT)",
+    }
+    _CAPTION = {
+        "eit": ("Λ system: a strong coupling field opens a transparency "
+                "window for a weak probe at two-photon resonance."),
+        "at":  ("Strong coupling dresses the excited state; the weak-probe "
+                "absorption line splits into a doublet separated by ≈ Ω_c."),
+        "cpt": ("Narrow two-photon (Raman) scan: atoms are pumped into a "
+                "dark state, giving a sub-natural absorption dip."),
+    }
 
-    # Per-mode defaults chosen so the feature is unsaturated and clearly visible
+    # Per-regime defaults chosen so the feature is unsaturated and clearly visible
     # (Rb is very absorbing — ls=1.0 is the true cross-section, so cells are short).
     _DEF = {
         "eit": dict(oc=3.0, gg=0.01, temp=50.0, cell=15.0, dopp="on"),
@@ -408,13 +406,39 @@ class LambdaScheme(Scheme):
         "cpt": dict(oc=1.0, gg=0.005, temp=25.0, cell=3.0, dopp="off"),
     }
 
+    def __init__(self, mode=None):
+        self.mode = mode                       # None → merged EIT/AT/CPT dropdown entry
+        if mode is None:
+            self.name = "lambda"
+            self.title = "Λ coherence (EIT / AT / CPT)"
+            self.caption = ("One Λ system, three regimes of the same coupling field Ω_c: a "
+                            "weak coupling opens an EIT transparency window, a strong one "
+                            "splits the line into an Autler-Townes doublet, and a narrow "
+                            "two-photon scan reveals the CPT dark resonance.")
+        else:
+            self.name = mode
+            self.title = self._TITLE[mode]
+            self.caption = self._CAPTION[mode]
+
+    def _mode(self, params):
+        """Effective regime: pinned (alias instance) or the merged `view` knob."""
+        return self.mode or str(params.get("view", "eit")).lower()
+
     def param_schema(self):
-        d = self._DEF[self.mode]
-        return [
+        d = self._DEF[self.mode or "eit"]
+        specs = []
+        if self.mode is None:
+            specs.append(ParamSpec(
+                "view", "Regime", "Regime", "EIT", choices=("EIT", "AT", "CPT"),
+                help="EIT: weak-coupling transparency window. AT: strong-coupling "
+                     "doublet (split ≈ Ω_c). CPT: narrow two-photon dark resonance. "
+                     "One Λ engine — the presets set textbook values for each."))
+        specs += [
             ParamSpec("coupling_detuning", "Coupling detuning Δ_c", "Detunings", 0.0,
                       -10.0, 10.0, 0.1, "Γ"),
             ParamSpec("coupling_rabi", "Coupling Rabi Ω_c", "Fields", d["oc"],
-                      0.1, 20.0, 0.1, "Γ", help="Strong dressing field on g₂↔e."),
+                      0.1, 20.0, 0.1, "Γ", help="Strong dressing field on g₂↔e.",
+                      endpoints=("← weak: EIT", "strong: AT →")),
             ParamSpec("gamma_gg", "Ground dephasing γ_gg", "Atomic", d["gg"],
                       0.0, 0.5, 0.001, "Γ", help="Sets the EIT/CPT dark-resonance floor."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", d["temp"], 20.0, 200.0, 1.0, "°C"),
@@ -424,8 +448,21 @@ class LambdaScheme(Scheme):
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", d["dopp"],
                       choices=("on", "off"), advanced=True),
         ]
+        return specs
 
     def presets(self):
+        if self.mode is None:
+            return [
+                Preset("EIT window", icon="🪟", values=dict(
+                    view="EIT", coupling_rabi=3.0, gamma_gg=0.01,
+                    temp_c=50.0, cell_mm=15.0, doppler="on")),
+                Preset("AT doublet", icon="⛰️", values=dict(
+                    view="AT", coupling_rabi=8.0, gamma_gg=0.01,
+                    temp_c=25.0, cell_mm=3.0, doppler="off")),
+                Preset("CPT dark resonance", icon="🌑", values=dict(
+                    view="CPT", coupling_rabi=1.0, gamma_gg=0.005,
+                    temp_c=25.0, cell_mm=3.0, doppler="off")),
+            ]
         if self.mode == "eit":
             return [Preset("Vapor EIT", values=dict(coupling_rabi=3.0, gamma_gg=0.01,
                                                     temp_c=50.0, doppler="on"))]
@@ -436,13 +473,14 @@ class LambdaScheme(Scheme):
                        values=dict(coupling_rabi=1.0, gamma_gg=0.005, doppler="off"))]
 
     def _scan(self, params):
+        m = self._mode(params)
         Oc = params["coupling_rabi"]
         Dc = params["coupling_detuning"]
         gg = params["gamma_gg"]
-        if self.mode == "cpt":
+        if m == "cpt":
             dark = gg + Oc**2          # power-broadened dark width (Γ units)
             half = max(0.05, 12.0 * dark)
-        elif self.mode == "at":
+        elif m == "at":
             half = max(10.0, 3.0 * Oc)
         else:
             half = max(8.0, 4.0 * Oc)
@@ -469,6 +507,7 @@ class LambdaScheme(Scheme):
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
+        m = self._mode(params)
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, xphys = observables.absorption_coefficient(
             raw["chi_bar"], K_VEC, raw["N"], line_strength=raw["ls"])
@@ -479,7 +518,7 @@ class LambdaScheme(Scheme):
         axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
         axT.set_ylabel("Transmission")
         axT.set_ylim(-0.02, 1.02)
-        axT.set_title(f"{self.title.split('(')[0].strip()}:  Ω_c = {params['coupling_rabi']:.1f} Γ,  "
+        axT.set_title(f"{self._TITLE[m].split('(')[0].strip()}:  Ω_c = {params['coupling_rabi']:.1f} Γ,  "
                       f"γ_gg = {params['gamma_gg']:.3f} Γ,  Doppler {params['doppler']}")
         axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
         axD.set_ylabel("Re χ  (dispersion)")
@@ -489,11 +528,11 @@ class LambdaScheme(Scheme):
         fig.tight_layout()
 
         ic = int(np.argmin(np.abs(x - center)))
-        metrics = self._metrics(x, alpha, T_trans, xphys, ic, center, raw, params)
+        metrics = self._metrics(m, x, alpha, T_trans, xphys, ic, center, raw, params)
         return dict(metrics=metrics, figure=fig, tables=[])
 
-    def _metrics(self, x, alpha, T_trans, xphys, ic, center, raw, params):
-        if self.mode == "at":
+    def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
+        if mode == "at":
             # Two absorption maxima straddling the (transparent) two-photon resonance.
             left = x < center
             right = x > center
@@ -511,8 +550,8 @@ class LambdaScheme(Scheme):
         # EIT / CPT: transparency at two-photon resonance + dark-resonance width.
         win_fwhm = _window_fwhm(x, T_trans, ic)
         ng = observables.group_index(xphys, raw["scan"], OMEGA_D1)[ic]
-        unit = "kHz" if self.mode == "cpt" else "MHz"
-        scale = 1e3 if self.mode == "cpt" else 1.0
+        unit = "kHz" if mode == "cpt" else "MHz"
+        scale = 1e3 if mode == "cpt" else 1.0
         return [
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}",
                  help="Probe transmission at two-photon resonance (transparency)."),

@@ -8,25 +8,31 @@ from .sas import SASScheme
 from .magneto import MagnetoScheme
 from .fwm import FWMScheme
 
-# SASScheme is the merged absorption scheme (OD at pump = 0, SAS with pump on),
-# so the standalone ODScheme is no longer registered — its class stays in
-# absorption.py as the single-2-level validation primitive the Λ tests use.
+# Each dropdown entry is one engine cluster; same-engine schemes are merged behind
+# a single entry that carries an in-panel `view` selector + per-regime presets:
+#   SASScheme()     → OD / SAS         (pump power = 0 recovers OD)
+#   LambdaScheme()  → EIT / AT / CPT   (the coupling-Ω_c regimes of one Λ system)
+#   MagnetoScheme() → Hanle / EIA / NMOR  (transmission vs rotation readouts, one solve)
+# (ODScheme stays in absorption.py as the single-2-level validation primitive.)
 _SCHEMES = [
     SASScheme(),
-    LambdaScheme("eit"),
-    LambdaScheme("at"),
-    LambdaScheme("cpt"),
-    MagnetoScheme("hanle"),
-    MagnetoScheme("eia"),
-    MagnetoScheme("nmor"),
+    LambdaScheme(),
+    MagnetoScheme(),
     FWMScheme(),
 ]
 
-REGISTRY = {s.name: s for s in _SCHEMES}
+# Single-regime instances, resolvable by name for the physics tests and direct use,
+# but kept out of the dropdown — the merged entries above present them.
+_ALIASES = [
+    LambdaScheme("eit"), LambdaScheme("at"), LambdaScheme("cpt"),
+    MagnetoScheme("hanle"), MagnetoScheme("eia"), MagnetoScheme("nmor"),
+]
+
+REGISTRY = {s.name: s for s in (_SCHEMES + _ALIASES)}
 
 
 def all_schemes():
-    """Schemes in registration order."""
+    """Dropdown schemes in registration order (merged entries)."""
     return list(_SCHEMES)
 
 

@@ -48,15 +48,35 @@ class MagnetoScheme(Scheme):
                            "B = 0 — the atomic-magnetometer signal."),
     }
 
-    def __init__(self, mode):
-        self.mode = mode
-        self.name = mode
-        self.title = self._DEF[mode]["title"]
-        self.caption = self._DEF[mode]["desc"]
+    def __init__(self, mode=None):
+        self.mode = mode                       # None → merged Hanle/EIA/NMOR dropdown entry
+        if mode is None:
+            self.name = "magneto"
+            self.title = "Zeeman magneto-optics (Hanle / EIA / NMOR)"
+            self.caption = ("One linearly-polarised beam in a scanned magnetic field. Read "
+                            "the transmission for the Hanle dark-state dip (F_e ≤ F_g) or the "
+                            "EIA absorption peak (F_e = F_g+1), or the polarization rotation "
+                            "for the NMOR magnetometer signal — one solve, three readouts.")
+        else:
+            self.name = mode
+            self.title = self._DEF[mode]["title"]
+            self.caption = self._DEF[mode]["desc"]
+
+    def _mode(self, params):
+        """Effective scheme: pinned (alias instance) or the merged `view` knob."""
+        return self.mode or str(params.get("view", "hanle")).lower()
 
     def param_schema(self):
-        d = self._DEF[self.mode]
-        return [
+        d = self._DEF[self.mode or "hanle"]
+        specs = []
+        if self.mode is None:
+            specs.append(ParamSpec(
+                "view", "Readout", "Readout", "Hanle",
+                choices=("Hanle", "EIA", "NMOR"), recompute=False,
+                help="Hanle: transmission dip at B=0 (F_e ≤ F_g). EIA: transmission peak "
+                     "(F_e = F_g+1, sign flip). NMOR: polarization rotation — the same "
+                     "solve, dispersive readout. Use a preset to set the matching transition."))
+        specs += [
             ParamSpec("Fg", "Ground F_g", "Atomic", float(d["Fg"]), 1.0, 3.0, 1.0, ""),
             ParamSpec("Fe", "Excited F_e", "Atomic", float(d["Fe"]), 0.0, 4.0, 1.0, "",
                       help="Dipole-allowed needs |F_e − F_g| ≤ 1."),
@@ -77,8 +97,18 @@ class MagnetoScheme(Scheme):
                       choices=("on", "off"), advanced=True),
             ParamSpec("scan_points", "Scan points", "Numerics", 201, 51, 801, 50, "", advanced=True),
         ]
+        return specs
 
     def presets(self):
+        if self.mode is None:
+            return [
+                Preset("Hanle dip", icon="🧲", values=dict(
+                    view="Hanle", Fg=2.0, Fe=1.0, rabi=0.5, gamma_gg=0.005)),
+                Preset("EIA peak", icon="🧲", values=dict(
+                    view="EIA", Fg=1.0, Fe=2.0, rabi=0.5, gamma_gg=0.005)),
+                Preset("NMOR rotation", icon="🧲", values=dict(
+                    view="NMOR", Fg=2.0, Fe=1.0, rabi=0.5, gamma_gg=0.002)),
+            ]
         d = self._DEF[self.mode]
         return [Preset(f"{self.mode.upper()} default",
                        values=dict(Fg=float(d["Fg"]), Fe=float(d["Fe"]),
@@ -136,6 +166,7 @@ class MagnetoScheme(Scheme):
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
+        m = self._mode(params)
         if not raw["valid"]:
             fig, ax = plt.subplots(figsize=(8.5, 3.0))
             ax.text(0.5, 0.5, f"F_g={raw['Fg']}, F_e={raw['Fe']} not dipole-allowed "
@@ -154,7 +185,7 @@ class MagnetoScheme(Scheme):
         rotation = 0.25 * k * L * np.real(xphys_p - xphys_m)       # Faraday angle [rad]
         ic = int(np.argmin(np.abs(x)))
 
-        if self.mode == "nmor":
+        if m == "nmor":
             fig, ax = plt.subplots(figsize=(8.5, 4.6))
             ax.plot(x, rotation * 1e3, color="#9467bd", lw=1.8)
             ax.axhline(0, color="black", lw=0.6)
@@ -177,7 +208,7 @@ class MagnetoScheme(Scheme):
             axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
             axT.axvline(0, color="gray", ls=":", lw=0.8)
             axT.set_ylabel("Transmission")
-            axT.set_title(f"{self.mode.upper()}  F={raw['Fg']}→{raw['Fe']},  Ω={params['rabi']:.2f} Γ,  "
+            axT.set_title(f"{m.upper()}  F={raw['Fg']}→{raw['Fe']},  Ω={params['rabi']:.2f} Γ,  "
                           f"γ_gg={params['gamma_gg']:.3f} Γ")
             axA.plot(x, alpha * L / np.log(10), color="#d62728", lw=1.8)
             axA.axvline(0, color="gray", ls=":", lw=0.8)
@@ -192,6 +223,6 @@ class MagnetoScheme(Scheme):
                 dict(label="Zero-field feature", value=kind),
                 dict(label="Contrast vs baseline", value=f"{contrast*100:+.0f} %"),
             ]
-            note = ("Hanle: dark-state transparency dip at B=0." if self.mode == "hanle"
+            note = ("Hanle: dark-state transparency dip at B=0." if m == "hanle"
                     else "EIA: enhanced-absorption peak at B=0 (sign flip vs Hanle).")
         return dict(metrics=metrics, figure=fig, tables=[{"title": "Notes", "markdown": note}])
