@@ -90,6 +90,20 @@ def _inject_css():
   background: var(--gabes-bg);
 }
 
+[data-testid="stHeader"] {
+  height: 0 !important;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+
+[data-testid="stHeader"] > div,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.stDeployButton {
+  display: none !important;
+}
+
 [data-testid="stMainBlockContainer"],
 [data-testid="stAppViewBlockContainer"],
 section.main > div,
@@ -105,6 +119,12 @@ section.main > div,
 [data-testid="stSidebar"] {
   background: #FBFDFF;
   border-right: 1px solid var(--gabes-border);
+}
+
+[data-testid="stSidebarHeader"] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
 }
 
 [data-testid="stSidebarContent"],
@@ -243,13 +263,13 @@ div[data-testid="stButton"] > button:hover {
 
 .gabes-metric-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 0.42rem;
+  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+  gap: 0.32rem;
 }
 
 .gabes-metric-card {
-  min-height: 4.45rem;
-  padding: 0.48rem 0.58rem 0.52rem;
+  min-height: 3.35rem;
+  padding: 0.38rem 0.48rem 0.4rem;
   background: var(--gabes-surface);
   border: 1px solid var(--gabes-border);
   border-left: 3px solid var(--metric-color);
@@ -260,23 +280,26 @@ div[data-testid="stButton"] > button:hover {
 .gabes-metric-label {
   margin-top: 0;
   color: var(--gabes-muted);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   line-height: 1.25;
   font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .gabes-metric-value {
-  margin-top: 0.08rem;
+  margin-top: 0.04rem;
   color: var(--gabes-ink);
-  font-size: clamp(1.05rem, 1.45vw, 1.3rem);
+  font-size: clamp(0.95rem, 1.22vw, 1.12rem);
   line-height: 1.15;
   font-weight: 760;
 }
 
 .gabes-metric-delta {
-  margin-top: 0.12rem;
+  margin-top: 0.06rem;
   color: var(--gabes-muted);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
 }
 
 .gabes-section-gap {
