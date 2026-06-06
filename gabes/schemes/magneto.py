@@ -284,7 +284,6 @@ class MagnetoScheme(Scheme):
         return dict(
             line=LINE, isotope="87Rb", b_ut=b_ut, larmor=larmor,
             chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale, T=T,
-            L=params["cell_mm"] * 1e-3, ls=params["line_strength"],
             valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
             gamma=GAMMA_D1, k_vec=K_D1_RB87, dipole=_transition_dipole(Fg, Fe) if valid else 0.0,
             strength=strength, omega_rabi=Om, isat=D1_ISAT_MW_CM2,
@@ -320,11 +319,12 @@ class MagnetoScheme(Scheme):
                         figure=fig, tables=[])
 
         x = raw["b_ut"]
+        ls = params["line_strength"]
         xphys_p = observables.chi_phys(
-            raw["chi_p"], raw["N_eff"], dipole=raw["dipole"], line_strength=raw["ls"])
+            raw["chi_p"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
         xphys_m = observables.chi_phys(
-            raw["chi_m"], raw["N_eff"], dipole=raw["dipole"], line_strength=raw["ls"])
-        k, L = raw["k_vec"], raw["L"]
+            raw["chi_m"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
+        k, L = raw["k_vec"], params["cell_mm"] * 1e-3
         alpha = k * np.imag(xphys_p + xphys_m)
         T_trans = np.exp(-alpha * L)
         OD = alpha * L / np.log(10.0)
