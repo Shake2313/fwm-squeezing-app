@@ -96,7 +96,10 @@ section.main > div,
 .main .block-container,
 .block-container {
   padding-top: 0.85rem !important;
+  padding-left: clamp(0.75rem, 1vw, 1rem) !important;
+  padding-right: clamp(0.75rem, 1vw, 1rem) !important;
   padding-bottom: 1.35rem !important;
+  max-width: none !important;
 }
 
 [data-testid="stSidebar"] {
