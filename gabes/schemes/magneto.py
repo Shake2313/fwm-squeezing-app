@@ -104,6 +104,29 @@ def _transition_dipole(Fg, Fe):
     return math.sqrt(max(_transition_strength(Fg, Fe), 0.0) * d2_j)
 
 
+def _lorentz_fwhm(B, y):
+    """FWHM (in B units) of the zero-field Lorentzian feature.
+
+    A Lorentzian s(B) = s0 * hw^2 / (B^2 + hw^2) centred at B=0 gives
+    1/s = (1/(s0 hw^2)) B^2 + 1/s0, i.e. linear in B^2.  A least-squares
+    fit on the feature core (same-sign points >=20% of the peak, which
+    avoids the 1/s blow-up in the tails) returns the half-width hw.
+    """
+    base = 0.5 * (y[0] + y[-1])
+    s = y - base
+    ic = int(np.argmin(np.abs(B)))
+    s0 = s[ic]
+    if abs(s0) < 1e-30:
+        return float("nan")
+    core = (np.sign(s) == np.sign(s0)) & (np.abs(s) >= 0.2 * abs(s0))
+    if int(core.sum()) < 3:
+        return float("nan")
+    a, b = np.polyfit(B[core] ** 2, 1.0 / s[core], 1)
+    if a == 0 or b / a <= 0:
+        return float("nan")
+    return 2.0 * math.sqrt(b / a)
+
+
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
@@ -351,27 +374,36 @@ class MagnetoScheme(Scheme):
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
         else:
-            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-            axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-            axT.axvline(0, color="gray", ls=":", lw=0.8)
-            axT.set_ylabel("Transmission")
-            axT.set_title(title)
-            axA.plot(x, OD, color="#d62728", lw=1.8)
-            axA.axvline(0, color="gray", ls=":", lw=0.8)
-            axA.set_ylabel("Optical density")
-            axA.set_xlabel("Magnetic field B  [µT]")
-            fig.tight_layout()
             bg = 0.5 * (alpha[0] + alpha[-1])
-            contrast = (alpha[ic] - bg) / abs(bg) if bg != 0 else 0.0
             kind = "dip (transparency)" if alpha[ic] < bg else "peak (enhanced)"
+            fwhm = _lorentz_fwhm(x, alpha)
+            fwhm_str = f"{fwhm:.2f} µT" if fwhm == fwhm else "—"
+            if m == "hanle":
+                fig, ax = plt.subplots(figsize=(8.5, 4.6))
+                ax.plot(x, T_trans, color="#1f77b4", lw=1.8)
+                ax.axvline(0, color="gray", ls=":", lw=0.8)
+                ax.set_ylabel("Transmission")
+                ax.set_xlabel("Magnetic field B  [µT]")
+                ax.set_title(title)
+                fig.tight_layout()
+                note = "Hanle readout: a dark resonance appears as reduced absorption at B=0."
+            else:
+                fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+                axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+                axT.axvline(0, color="gray", ls=":", lw=0.8)
+                axT.set_ylabel("Transmission")
+                axT.set_title(title)
+                axA.plot(x, OD, color="#d62728", lw=1.8)
+                axA.axvline(0, color="gray", ls=":", lw=0.8)
+                axA.set_ylabel("Optical density")
+                axA.set_xlabel("Magnetic field B  [µT]")
+                fig.tight_layout()
+                note = "EIA readout: the practical D1 preset targets an enhanced absorption peak at B=0."
             metrics = [
                 dict(label="OD at B=0", value=f"{OD[ic]:.3f}"),
                 dict(label="Zero-field feature", value=kind),
-                dict(label="Contrast vs edge", value=f"{contrast*100:+.1f} %"),
+                dict(label="Linewidth (FWHM)", value=fwhm_str),
             ]
-            note = ("Hanle readout: a dark resonance appears as reduced absorption at B=0."
-                    if m == "hanle"
-                    else "EIA readout: the practical D1 preset targets an enhanced absorption peak at B=0.")
 
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         derived = (
