@@ -233,16 +233,6 @@ div[data-testid="stButton"] > button:hover {
   flex: 0 0 auto;
 }
 
-.gabes-group-pill {
-  margin-left: auto;
-  padding: 0.08rem 0.42rem;
-  border-radius: 999px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .gabes-endpoints {
   display: flex;
   justify-content: space-between;
@@ -267,21 +257,8 @@ div[data-testid="stButton"] > button:hover {
   box-shadow: 0 2px 9px rgba(15, 23, 42, 0.025);
 }
 
-.gabes-metric-kind {
-  display: inline-flex;
-  padding: 0.06rem 0.34rem;
-  border-radius: 999px;
-  background: var(--metric-bg);
-  color: var(--metric-color);
-  font-size: 0.62rem;
-  font-weight: 760;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .gabes-metric-label {
-  margin-top: 0.28rem;
+  margin-top: 0;
   color: var(--gabes-muted);
   font-size: 0.78rem;
   line-height: 1.25;
@@ -373,9 +350,6 @@ def _render_group_header(container, group):
         "<div class='gabes-group-header'>"
         f"<span class='gabes-group-dot' style='background:{style['color']}'></span>"
         f"<span>{escape(group)}</span>"
-        "<span class='gabes-group-pill' "
-        f"style='background:{style['bg']};color:{style['color']};'>"
-        f"{escape(style['label'])}</span>"
         "</div>",
         unsafe_allow_html=True,
     )
@@ -428,7 +402,6 @@ def _metric_card_html(metric):
         "<div class='gabes-metric-card' "
         f"title='{escape(str(help_text))}' "
         f"style='--metric-color:{style['color']};--metric-bg:{style['bg']}'>"
-        f"<span class='gabes-metric-kind'>{escape(style['kind'])}</span>"
         f"<div class='gabes-metric-label'>{escape(label)}</div>"
         f"<div class='gabes-metric-value'>{escape(value)}</div>"
         f"{delta_html}"
