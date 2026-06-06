@@ -462,7 +462,10 @@ else:
         st.session_state.setdefault(_skey(scheme.name, sp.name), sp.default)
 
 # Presets — one click overwrites the relevant sliders.
-for preset in scheme.presets():
+scheme_presets = scheme.presets()
+if scheme_presets and getattr(scheme, "presets_group", None):
+    _render_group_header(st.sidebar, scheme.presets_group)
+for preset in scheme_presets:
     def _apply(p=preset, sname=scheme.name):
         for k, v in p.values.items():
             st.session_state[_skey(sname, k)] = v
@@ -492,23 +495,28 @@ if isinstance(_rec_sets, dict) and _rec_sets:
         _col.button(_short, on_click=_apply_default, use_container_width=True)
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
+visible_specs = [sp for sp in specs if not getattr(sp, "hidden", False)]
 params = {}
 group_order = []
-for sp in specs:
+for sp in visible_specs:
     if not sp.advanced and sp.group not in group_order:
         group_order.append(sp.group)
 
 for g in group_order:
     _render_group_header(st.sidebar, g)
-    for sp in specs:
+    for sp in visible_specs:
         if sp.group == g and not sp.advanced:
             params[sp.name] = _render_param(st.sidebar, scheme.name, sp)
 
-advanced = [sp for sp in specs if sp.advanced]
+advanced = [sp for sp in visible_specs if sp.advanced]
 if advanced:
     exp = st.sidebar.expander("Advanced / numerics")
     for sp in advanced:
         params[sp.name] = _render_param(exp, scheme.name, sp)
+
+for sp in specs:
+    if getattr(sp, "hidden", False):
+        params[sp.name] = st.session_state[_skey(scheme.name, sp.name)]
 
 
 # ----------------------------------------------------------------------

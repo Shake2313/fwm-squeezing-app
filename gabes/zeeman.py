@@ -44,15 +44,21 @@ def clebsch_gordan(j1, m1, j2, m2, J, M):
     return pref * s
 
 
-def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0):
+def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
+                    transit_rate=0.0):
     """
     Build the (F_g ↔ F_e) Zeeman manifold as an AtomModel with extra attributes:
       m_ground, m_excited : magnetic quantum numbers per level index
       g_ratio             : excited/ground Landé g-factor ratio (excited Zeeman)
-      couplings[q]        : list of (ground_idx, excited_idx, CG) for q ∈ {−1,0,+1}
+      couplings[q]        : list of (ground_idx, excited_idx, CG) for q ∈ {-1,0,+1}
     Spontaneous emission is CG-branched (Γ·|CG|² per channel, Σ = Γ from each
     excited); ground-ground Zeeman coherences dephase at γ_gg. All excited levels
     are Doppler-shifted (optical line); ground Zeeman is Doppler-free.
+
+    `transit_rate` optionally adds isotropic population reload into the addressed
+    ground manifold. It is a compact warm-vapor approximation for atoms entering
+    and leaving the beam, useful for practical Hanle/EIA curves where optical
+    pumping would otherwise trap all population.
     """
     gamma = constants.GAMMA if gamma is None else gamma
     gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg
@@ -77,6 +83,12 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0):
                 continue
             decay.append((eidx, ig, gamma * cg * cg))   # emission |Fe m_e⟩→|Fg m_g⟩
             couplings[q].append((ig, eidx, cg))          # drive ground→excited, pol q
+
+    if transit_rate and transit_rate > 0:
+        p_ground = 1.0 / ng
+        for src in range(n):
+            for ig in ground:
+                decay.append((src, ig, transit_rate * p_ground))
 
     dephasing = tuple((i, j, gamma_gg) for i in ground for j in ground if i != j)
 

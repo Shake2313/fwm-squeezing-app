@@ -37,6 +37,7 @@ class ParamSpec:
     choices: Optional[tuple] = None
     advanced: bool = False        # render inside an "Advanced" expander
     endpoints: Optional[tuple] = None   # (left, right) caption under a slider
+    hidden: bool = False          # keep in params/session state, but do not render
 
 
 @dataclass(frozen=True)
