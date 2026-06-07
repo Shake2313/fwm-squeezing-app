@@ -150,7 +150,7 @@ def _halfwidth_from_center(B, y, frac=0.5):
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "polarized-two-region-v1"
+    cache_version = "polarized-two-region-v2"
     defaults_version = "polarized-two-region-v1"
 
     _DEF = {
@@ -536,7 +536,6 @@ class MagnetoScheme(Scheme):
         k, L = raw["k_vec"], params["cell_mm"] * 1e-3
         alpha = k * np.imag(xprobe)
         T_trans = np.exp(-alpha * L)
-        OD = alpha * L / np.log(10.0)
         rotation = 0.25 * k * L * np.real(xp - xm)
         ic = int(np.argmin(np.abs(x)))
         bg = 0.5 * (alpha[0] + alpha[-1])
@@ -571,18 +570,15 @@ class MagnetoScheme(Scheme):
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
         else:
-            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            fig, axT = plt.subplots(figsize=(8.5, 4.6))
             axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
             axT.axvline(0, color="gray", ls=":", lw=0.8)
             axT.set_ylabel("Transmission")
+            axT.set_xlabel("Magnetic field B  [uT]")
             axT.set_title(title)
-            axA.plot(x, OD, color="#d62728", lw=1.8)
-            axA.axvline(0, color="gray", ls=":", lw=0.8)
-            axA.set_ylabel("Optical density")
-            axA.set_xlabel("Magnetic field B  [uT]")
             fig.tight_layout()
             metrics = [
-                dict(label="OD at B=0", value=f"{OD[ic]:.3f}"),
+                dict(label="Transmission at B=0", value=f"{T_trans[ic]:.3f}"),
                 dict(label="Zero-field feature", value=feature),
                 dict(label="Feature FWHM", value=fwhm_str),
                 dict(label="Central width", value=central_str),
