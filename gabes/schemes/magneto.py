@@ -1,18 +1,10 @@
 """
-Cluster C - 87Rb D1 magneto-optics (Hanle / EIA / NMOR).
+Cluster C - 87Rb D1 magneto-optics.
 
-The practical default is the 87Rb D1 F_g=1 -> F_e=2 open transition, a
-laboratory Hanle-configuration EIA peak.  The solver keeps the compact Zeeman
-OBE engine, but the axes and atomic constants are now experimental:
-
-  * magnetic-field scan in microtesla, converted with Steck low-field g_F values
-  * 87Rb D1 frequency, linewidth, mass, dipole strength, and vapor density
-  * beam intensity in mW/cm^2, mapped through Steck's D1 saturation intensity
-  * optional Doppler averaging and transit/repopulation relaxation
-
-This is still a single-addressed-F manifold model, not a full two-ground-state
-open-transition propagation code.  It is designed to give a realistic, useful
-zero-field peak/dip shape with physically named knobs.
+One Hanle-configuration transmission engine now covers EIT-like dips and
+EIA/MIA-like peaks.  The zero-field feature sign is a result, not a readout
+selector: probe ellipticity, cell relaxation, residual transverse field, and
+the addressed Zeeman manifold decide the line shape.
 """
 import math
 
@@ -30,14 +22,18 @@ GAMMA_D1 = GAMMA_D1_MHZ * species.MHZ
 K_D1_RB87 = 2 * np.pi * NU_D1_RB87 / constants.C_LIGHT
 
 # Steck, Rubidium 87 D Line Data, Table 7: D1 far-detuned effective saturation
-# intensity for pi-polarized light.  The Hanle geometry uses transverse linear
-# light (sigma+ + sigma-), so this is an intensity scale rather than a claim that
-# every Zeeman subtransition has the same saturation intensity.
+# intensity for pi-polarized light.  The Hanle geometry uses transverse light,
+# so this is an intensity scale rather than a per-subtransition statement.
 D1_ISAT_MW_CM2 = 4.4876
 
 GJ_5S12 = 2.002_331_070
 GJ_5P12 = 0.666
 GI_RB87 = -0.000_995_141_4
+
+CELL_BUFFER = "Buffer gas cell"
+CELL_PARAFFIN = "Paraffin coated cell"
+SIGNAL_TRANSMISSION = "Transmission"
+SIGNAL_NMOR = "NMOR rotation"
 
 
 def _hyperfine_gf(I, J, F, gJ):
@@ -64,15 +60,7 @@ def _thermal_velocity_grid(T, mass, n_classes, cutoff_sigma=3.0):
 
 
 def _doppler_dilution(T, mass, k_vec, gamma, detuning, v, wt):
-    """
-    Correct the optical-depth scale for an intentionally coarse velocity grid.
-
-    The Zeeman solve can use ~20 velocity classes interactively, but the optical
-    Lorentzian is only a few m/s wide in velocity units.  Without this scalar
-    correction the v=0 class over-represents resonant atoms.  We match the coarse
-    scalar Lorentzian average to a fine-grid Voigt average at the selected laser
-    detuning.
-    """
+    """Match a coarse velocity quadrature to a fine-grid scalar Voigt average."""
     if v.size <= 1:
         return 1.0
     hwhm = gamma / 2.0
@@ -104,14 +92,22 @@ def _transition_dipole(Fg, Fe):
     return math.sqrt(max(_transition_strength(Fg, Fe), 0.0) * d2_j)
 
 
-def _lorentz_fwhm(B, y):
-    """FWHM (in B units) of the zero-field Lorentzian feature.
+def _qwp_drive_weights(theta_deg):
+    """Circular-basis drive weights, normalized to keep old linear scale.
 
-    A Lorentzian s(B) = s0 * hw^2 / (B^2 + hw^2) centred at B=0 gives
-    1/s = (1/(s0 hw^2)) B^2 + 1/s0, i.e. linear in B^2.  A least-squares
-    fit on the feature core (same-sign points >=20% of the peak, which
-    avoids the 1/s blow-up in the tails) returns the half-width hw.
+    theta=0 gives weights {+1: 1, -1: 1}; theta=45 gives one circular component.
     """
+    th = math.radians(float(theta_deg))
+    c, s = math.cos(th), math.sin(th)
+    ex = c * c + 1j * s * s
+    ey = (1 - 1j) * s * c
+    e_plus = (ex - 1j * ey) / math.sqrt(2.0)
+    e_minus = (ex + 1j * ey) / math.sqrt(2.0)
+    return {+1: math.sqrt(2.0) * e_plus, -1: math.sqrt(2.0) * e_minus}
+
+
+def _lorentz_fwhm(B, y):
+    """FWHM (in B units) of the zero-field Lorentzian-like feature."""
     base = 0.5 * (y[0] + y[-1])
     s = y - base
     ic = int(np.argmin(np.abs(B)))
@@ -127,21 +123,48 @@ def _lorentz_fwhm(B, y):
     return 2.0 * math.sqrt(b / a)
 
 
+def _halfwidth_from_center(B, y, frac=0.5):
+    """Half-width around zero for a central feature, robust to broad pedestal."""
+    B = np.asarray(B)
+    y = np.asarray(y)
+    ic = int(np.argmin(np.abs(B)))
+    bg = 0.5 * (y[0] + y[-1])
+    amp = y[ic] - bg
+    if abs(amp) < 1e-30:
+        return float("nan")
+    target = bg + frac * amp
+    right = np.arange(ic, y.size)
+    vals = (y[right] - target) * np.sign(amp)
+    below = np.where(vals <= 0)[0]
+    if below.size == 0 or below[0] == 0:
+        return float("nan")
+    j = right[below[0]]
+    i = j - 1
+    y0, y1 = y[i], y[j]
+    if y1 == y0:
+        return float(abs(B[j] - B[ic]))
+    t = (target - y0) / (y1 - y0)
+    return float(abs((B[i] + t * (B[j] - B[i])) - B[ic]))
+
+
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "2"
-    defaults_version = "2"
+    cache_version = "polarized-two-region-v1"
+    defaults_version = "polarized-two-region-v1"
 
     _DEF = {
-        "hanle": dict(view="Hanle", Fg=2, Fe=1, intensity=0.8, gg_khz=20.0,
-                      bmax=80.0, title="Hanle effect",
-                      desc="87Rb D1 dark Hanle resonance on F=2 -> F'=1."),
-        "eia": dict(view="EIA", Fg=1, Fe=2, intensity=2.0, gg_khz=30.0,
-                    bmax=120.0, title="Electromagnetically induced absorption (EIA)",
-                    desc="87Rb D1 bright Hanle/EIA peak on the open F=1 -> F'=2 transition."),
-        "nmor": dict(view="NMOR", Fg=2, Fe=1, intensity=0.7, gg_khz=10.0,
-                     bmax=80.0, title="Nonlinear magneto-optical rotation (NMOR)",
+        "hanle": dict(signal=SIGNAL_TRANSMISSION, cell=CELL_PARAFFIN, Fg=2, Fe=1,
+                      intensity=0.8, qwp=0.0, bmax=2.0,
+                      title="Hanle transmission",
+                      desc="87Rb D1 Hanle transmission with probe polarization."),
+        "eia": dict(signal=SIGNAL_TRANSMISSION, cell=CELL_PARAFFIN, Fg=2, Fe=1,
+                    intensity=0.8, qwp=45.0, bmax=2.0,
+                    title="Polarization-switched EIA/MIA",
+                    desc="87Rb D1 Hanle signal switched toward absorption by QWP angle."),
+        "nmor": dict(signal=SIGNAL_NMOR, cell=CELL_PARAFFIN, Fg=2, Fe=1,
+                     intensity=0.7, qwp=0.0, bmax=2.0,
+                     title="Nonlinear magneto-optical rotation (NMOR)",
                      desc="87Rb D1 polarization-rotation readout near zero magnetic field."),
     }
 
@@ -149,63 +172,88 @@ class MagnetoScheme(Scheme):
         self.mode = mode
         if mode is None:
             self.name = "magneto"
-            self.title = "Magneto-optics (Hanle/EIA/NMOR)"
-            self.caption = ("Practical 87Rb D1 Hanle-configuration magneto-optics. "
-                            "The default button simulates the D1 F=1 -> F'=2 EIA "
-                            "absorption peak with a real B-field axis, Steck atomic "
-                            "data, Doppler averaging, and transit relaxation.")
+            self.title = "Magneto-optics (polarized Hanle)"
+            self.caption = ("87Rb D1 Hanle-configuration transmission and NMOR. "
+                            "Probe QWP angle, residual transverse field, and cell "
+                            "relaxation decide whether the zero-field feature is "
+                            "EIT-like transparency or EIA/MIA-like absorption.")
         else:
             self.name = mode
             self.title = self._DEF[mode]["title"]
             self.caption = self._DEF[mode]["desc"]
 
-    def _mode(self, params):
-        """Effective readout: pinned alias instance or the merged hidden `view`."""
-        return self.mode or str(params.get("view", "EIA")).lower()
-
     def param_schema(self):
-        d = self._DEF[self.mode or "eia"]
-        specs = []
-        if self.mode is None:
-            specs.append(ParamSpec(
-                "view", "Readout", "Readout", d["view"],
-                choices=("Hanle", "EIA", "NMOR"), recompute=False,
-                help="Internal readout selected by the default buttons.",
-                hidden=True))
-        specs += [
+        d = self._DEF[self.mode or "hanle"]
+        specs = [
+            ParamSpec("signal_type", "Signal", "Readout", d["signal"],
+                      choices=(SIGNAL_TRANSMISSION, SIGNAL_NMOR),
+                      control="segmented", recompute=False,
+                      help="Transmission shows Hanle absorption/transparency; NMOR shows rotation."),
+            ParamSpec("cell_type", "Cell type", "Cell & beams", d["cell"],
+                      choices=(CELL_PARAFFIN, CELL_BUFFER), control="segmented",
+                      help="Choose the relaxation model and the cell-specific sliders."),
             ParamSpec("Fg", "Ground F_g", "Atomic", float(d["Fg"]), 1.0, 2.0, 1.0, "",
                       help="87Rb D1 ground hyperfine level."),
             ParamSpec("Fe", "Excited F'_e", "Atomic", float(d["Fe"]), 1.0, 2.0, 1.0, "",
                       help="87Rb D1 excited hyperfine level. |F'_e-F_g| <= 1."),
             ParamSpec("intensity_mw_cm2", "Beam intensity", "Fields", d["intensity"],
-                      0.01, 20.0, 0.05, "mW/cm²",
-                      help="Single linearly-polarized beam intensity. Converted with "
-                           f"Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm²."),
-            ParamSpec("b_max_ut", "B scan ±", "Fields", d["bmax"],
-                      1.0, 500.0, 1.0, "µT",
+                      0.01, 20.0, 0.05, "mW/cm^2",
+                      help=f"Converted with Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm^2."),
+            ParamSpec("qwp_deg", "Probe polarization (QWP angle)", "Fields", d["qwp"],
+                      0.0, 45.0, 0.5, "deg", endpoints=("linear", "circular"),
+                      help="0 deg is linear; 45 deg is circular. Absolute handedness is hidden."),
+            ParamSpec("b_max_ut", "B scan +/-", "Fields", d["bmax"],
+                      0.02, 500.0, 0.01, "uT",
                       help="Longitudinal magnetic-field scan range around zero."),
             ParamSpec("laser_detuning_mhz", "Laser detuning", "Detunings", 0.0,
                       -1000.0, 1000.0, 5.0, "MHz",
                       help="Detuning from the selected 87Rb D1 hyperfine transition."),
-            ParamSpec("ground_relax_khz", "Ground relaxation γg/2π", "Atomic", d["gg_khz"],
-                      0.1, 1000.0, 1.0, "kHz",
-                      help="Transit / wall / spin relaxation. Sets the zero-field width "
-                           "and repopulates the addressed ground manifold."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 25.0,
-                      20.0, 120.0, 1.0, "°C",
+                      20.0, 120.0, 1.0, "deg C",
                       help="Sets 87Rb vapor density and Doppler width."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0,
                       0.5, 200.0, 0.5, "mm", recompute=False),
+            ParamSpec("ne_pressure_torr", "Ne buffer pressure", "Cell & beams", 10.0,
+                      0.0, 200.0, 1.0, "Torr",
+                      visible_if={"cell_type": CELL_BUFFER},
+                      help="Simple Ne pressure broadening for buffer-gas mode."),
+            ParamSpec("buffer_ground_relax_khz", "Buffer ground relaxation", "Atomic", 3.0,
+                      0.1, 500.0, 0.5, "kHz",
+                      visible_if={"cell_type": CELL_BUFFER},
+                      help="Ground-state relaxation and repopulation in the beam."),
+            ParamSpec("collisional_depol_khz", "Collisional depolarization", "Atomic", 0.5,
+                      0.0, 200.0, 0.5, "kHz",
+                      visible_if={"cell_type": CELL_BUFFER},
+                      help="Extra ground-coherence loss from spin-destroying collisions."),
+            ParamSpec("transit_relax_khz", "Transit relaxation", "Atomic", 80.0,
+                      0.1, 1000.0, 1.0, "kHz",
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Atoms leaving the illuminated region; sets the broad pedestal."),
+            ParamSpec("dark_return_khz", "Dark-region return rate", "Atomic", 1.0,
+                      0.01, 100.0, 0.01, "kHz",
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Rate for wall-preserved atoms returning from the dark region."),
+            ParamSpec("wall_coherence_ms", "Wall coherence lifetime", "Atomic", 3.0,
+                      0.05, 200.0, 0.05, "ms",
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Long-lived ground coherence outside the beam."),
+            ParamSpec("residual_transverse_b_ut", "Residual transverse B", "Fields", 0.05,
+                      0.0, 5.0, 0.005, "uT",
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Weak transverse field that enables MIA/MIT-like switching."),
+            ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0.0,
+                      0.0, 180.0, 1.0, "deg",
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Azimuth of the residual transverse magnetic field."),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", recompute=False,
                       help="Experimental calibration knob for effective optical depth."),
             ParamSpec("doppler", "Doppler averaging", "Numerics", "on",
                       choices=("on", "off"), advanced=True,
-                      help="Coarse Maxwell-Boltzmann average. Keep on for the practical "
-                           "87Rb D1 peak; off is faster and closer to the textbook toy."),
-            ParamSpec("velocity_classes", "Velocity classes", "Numerics", 21,
-                      1, 81, 2, "", advanced=True),
-            ParamSpec("scan_points", "B scan points", "Numerics", 161,
+                      help="Coarse Maxwell-Boltzmann average for the light region."),
+            ParamSpec("velocity_classes", "Velocity classes", "Numerics", 9,
+                      1, 41, 2, "", advanced=True),
+            ParamSpec("scan_points", "B scan points", "Numerics", 121,
                       51, 401, 10, "", advanced=True),
         ]
         return specs
@@ -213,46 +261,53 @@ class MagnetoScheme(Scheme):
     def presets(self):
         if self.mode is None:
             return [
-                Preset("D1 Hanle dip", icon="🔻", values=dict(
-                    view="Hanle", Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8,
-                    ground_relax_khz=20.0, b_max_ut=80.0, temp_c=25.0,
-                    cell_mm=10.0, doppler="on")),
-                Preset("D1 EIA peak", icon="🔺", values=dict(
-                    view="EIA", Fg=1.0, Fe=2.0, intensity_mw_cm2=2.0,
-                    ground_relax_khz=30.0, b_max_ut=120.0, temp_c=25.0,
-                    cell_mm=10.0, doppler="on")),
-                Preset("D1 NMOR rotation", icon="🧭", values=dict(
-                    view="NMOR", Fg=2.0, Fe=1.0, intensity_mw_cm2=0.7,
-                    ground_relax_khz=10.0, b_max_ut=80.0, temp_c=25.0,
-                    cell_mm=10.0, doppler="on")),
+                Preset("Paraffin CPT dip", icon="DIP", values=dict(
+                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
+                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                    b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
+                    wall_coherence_ms=3.0, residual_transverse_b_ut=0.05,
+                    transverse_field_angle_deg=0.0, doppler="on")),
+                Preset("Paraffin MIA peak", icon="PEAK", values=dict(
+                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
+                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=45.0,
+                    b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
+                    wall_coherence_ms=3.0, residual_transverse_b_ut=0.08,
+                    transverse_field_angle_deg=0.0, doppler="on")),
+                Preset("Buffer Hanle", icon="BUF", values=dict(
+                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
+                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                    b_max_ut=80.0, ne_pressure_torr=20.0,
+                    buffer_ground_relax_khz=20.0, collisional_depol_khz=2.0,
+                    doppler="on")),
+                Preset("D1 NMOR", icon="ROT", values=dict(
+                    signal_type=SIGNAL_NMOR, cell_type=CELL_PARAFFIN,
+                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.7, qwp_deg=0.0,
+                    b_max_ut=2.0, transit_relax_khz=50.0, dark_return_khz=1.0,
+                    wall_coherence_ms=5.0, residual_transverse_b_ut=0.02,
+                    transverse_field_angle_deg=0.0, doppler="on")),
             ]
         d = self._DEF[self.mode]
-        icon = {"hanle": "🔻", "eia": "🔺", "nmor": "🧭"}[self.mode]
-        return [Preset(f"D1 {self.mode.upper()} default", icon=icon,
-                       values=dict(Fg=float(d["Fg"]), Fe=float(d["Fe"]),
-                                   intensity_mw_cm2=d["intensity"],
-                                   ground_relax_khz=d["gg_khz"],
-                                   b_max_ut=d["bmax"], temp_c=25.0,
-                                   cell_mm=10.0, doppler="on"))]
+        return [Preset(f"D1 {self.mode.upper()} default", icon=self.mode.upper(),
+                       values=dict(signal_type=d["signal"], cell_type=d["cell"],
+                                   Fg=float(d["Fg"]), Fe=float(d["Fe"]),
+                                   intensity_mw_cm2=d["intensity"], qwp_deg=d["qwp"],
+                                   b_max_ut=d["bmax"], doppler="on"))]
 
     def info(self):
         return (
-            "**87Rb D1 magneto-optics.** The practical EIA preset is the "
-            "Hanle-configuration D1 `F_g=1 -> F'_e=2` bright resonance.  The "
-            "Hamiltonian is still a compact single-addressed-F Zeeman manifold, "
-            "with transit/repopulation relaxation standing in for atoms entering "
-            "and leaving the laser beam.\n\n"
-            "Atomic constants are taken from Steck's *Rubidium 87 D Line Data*: "
-            "D1 centroid, natural linewidth, hyperfine strengths, dipole moment, "
-            "D1 saturation-intensity scale, and low-field Lande g-factors.  The "
-            "87Rb vapor density uses the same Steck/CRC vapor-pressure fit as "
-            "the OD/SAS data layer.\n\n"
+            "**87Rb D1 polarized Hanle model.** The transmission readout reports "
+            "whether the zero-field feature is EIT-like transparency, EIA/MIA-like "
+            "absorption, or a crossover.  Paraffin-coated cells use a two-region "
+            "light/dark OBE exchange model so wall-preserved ground coherence can "
+            "create a narrow Ramsey feature on a broad transit pedestal.\n\n"
             "**References**\n"
             "- D. A. Steck, *Rubidium 87 D Line Data*, http://steck.us/alkalidata.\n"
-            "- A. S. Zibrov and A. B. Matsko, induced absorption on the open "
-            "87Rb D1 `F_g=1 -> F_e=2` transition, arXiv:physics/0512199.\n"
-            "- D. V. Brazhnikov et al., high-contrast 87Rb D1 Hanle EIA, "
-            "*Laser Physics Letters* 11, 125702 (2014)."
+            "- H. J. Lee and H. S. Moon, magnetic-field-induced absorption in a "
+            "paraffin-coated rubidium vapor cell, *JOSA B* 30, 2301 (2013).\n"
+            "- H. S. Moon and H. J. Kim, Ramsey EIA to MIT transformation in a "
+            "paraffin-coated Rb vapor cell, *Optics Express* 22, 18604 (2014).\n"
+            "- H. Lee, Y. Yu, I. Bae, and H. S. Moon, nonlinear magneto-optical "
+            "effect in a paraffin-coated Rb vapor cell, CLEO-PR 2009 TUP5_38."
         )
 
     def compute(self, params):
@@ -265,23 +320,48 @@ class MagnetoScheme(Scheme):
 
         gFg = _hyperfine_gf(RB87.I, RB87.Jg, Fg, GJ_5S12) if Fg in Fg_allowed else 0.0
         gFe = _hyperfine_gf(RB87.I, JE_D1, Fe, GJ_5P12) if Fe in Fe_allowed else 0.0
-        gamma_g = 2 * np.pi * params["ground_relax_khz"] * 1e3
-        g_ratio = gFe / gFg if abs(gFg) > 1e-12 else 0.0
-        atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=GAMMA_D1, gamma_gg=gamma_g,
-                                       g_ratio=g_ratio, transit_rate=gamma_g)
-                if valid else None)
+
+        cell_type = params.get("cell_type", CELL_PARAFFIN)
+        buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
+        gamma_opt = GAMMA_D1 + (buffer_gamma if cell_type == CELL_BUFFER else 0.0)
+
+        if cell_type == CELL_BUFFER:
+            gamma_g = 2 * np.pi * (params["buffer_ground_relax_khz"]
+                                   + params["collisional_depol_khz"]) * 1e3
+            atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_g,
+                                           transit_rate=gamma_g)
+                    if valid else None)
+            atom_dark = None
+            gamma_out = gamma_in = gamma_wall = 0.0
+        else:
+            gamma_light = 2 * np.pi * params["transit_relax_khz"] * 1e3
+            gamma_out = gamma_light
+            gamma_in = 2 * np.pi * params["dark_return_khz"] * 1e3
+            gamma_wall = 1.0 / max(params["wall_coherence_ms"] * 1e-3, 1e-9)
+            atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_light,
+                                           transit_rate=0.0)
+                    if valid else None)
+            atom_dark = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_wall,
+                                                transit_rate=0.0)
+                         if valid else None)
 
         b_ut = np.linspace(-params["b_max_ut"], params["b_max_ut"],
                            int(params["scan_points"]))
-        b_t = b_ut * 1e-6
-        larmor = constants.MU_B * gFg * b_t / constants.HBAR
+        b_z = b_ut * 1e-6
+        b_perp = (params.get("residual_transverse_b_ut", 0.0) * 1e-6
+                  if cell_type == CELL_PARAFFIN else 0.0)
+        phi = math.radians(params.get("transverse_field_angle_deg", 0.0))
+        b_x = b_perp * math.cos(phi)
+        b_y = b_perp * math.sin(phi)
 
         T = params["temp_c"] + 273.15
         N = species.number_density(RB87, T)
         intensity = max(float(params["intensity_mw_cm2"]), 0.0)
         Om = GAMMA_D1 * math.sqrt(intensity / (2 * D1_ISAT_MW_CM2)) if intensity > 0 else 0.0
+        drive = _qwp_drive_weights(params["qwp_deg"])
         dL = 2 * np.pi * params["laser_detuning_mhz"] * 1e6
 
+        chi_probe = np.zeros(b_ut.size, dtype=complex)
         chi_p = np.zeros(b_ut.size, dtype=complex)
         chi_m = np.zeros(b_ut.size, dtype=complex)
         velocity_count = 1
@@ -289,53 +369,110 @@ class MagnetoScheme(Scheme):
         if valid and Om > 0:
             if params["doppler"] == "on":
                 v, wt = _thermal_velocity_grid(T, RB87.mass, params["velocity_classes"])
-                doppler_scale = _doppler_dilution(T, RB87.mass, K_D1_RB87, GAMMA_D1, dL, v, wt)
+                doppler_scale = _doppler_dilution(T, RB87.mass, K_D1_RB87,
+                                                  gamma_opt, dL, v, wt)
             else:
                 v, wt = np.array([0.0]), np.array([1.0])
             velocity_count = int(v.size)
             deff = dL - K_D1_RB87 * v
-            cpl_p, cpl_m = atom.couplings[+1], atom.couplings[-1]
-            for j, OmL in enumerate(larmor):
-                H = self._hamiltonian(atom, OmL, Om)
+            for j, bz in enumerate(b_z):
+                H = self._hamiltonian(atom, (b_x, b_y, bz), gFg, gFe, Om, drive)
                 L0 = core.build_liouvillian(H, atom)
-                rho = core.steady_state_batched(L0, deff, atom.S_v, atom.n_levels)
-                cp = sum(cg * rho[:, ei, gi] for gi, ei, cg in cpl_p) / Om
-                cm = sum(cg * rho[:, ei, gi] for gi, ei, cg in cpl_m) / Om
+                if cell_type == CELL_PARAFFIN:
+                    Hd = self._hamiltonian(atom_dark, (b_x, b_y, bz), gFg, gFe,
+                                           0.0, {+1: 0.0, -1: 0.0})
+                    Ld = core.build_liouvillian(Hd, atom_dark)
+                    rho_l, _ = self._steady_state_two_region(
+                        L0, Ld, deff, atom.S_v, atom.n_levels, gamma_out, gamma_in)
+                    rho = rho_l
+                else:
+                    rho = core.steady_state_batched(L0, deff, atom.S_v, atom.n_levels)
+
+                cp, cm, cprobe = self._coherences(atom, rho, Om, drive)
                 chi_p[j] = (cp * wt).sum()
                 chi_m[j] = (cm * wt).sum()
+                chi_probe[j] = (cprobe * wt).sum()
 
         return dict(
-            line=LINE, isotope="87Rb", b_ut=b_ut, larmor=larmor,
-            chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale, T=T,
-            valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
-            gamma=GAMMA_D1, k_vec=K_D1_RB87, dipole=_transition_dipole(Fg, Fe) if valid else 0.0,
+            line=LINE, isotope="87Rb", cell_type=cell_type, b_ut=b_ut,
+            chi_probe=chi_probe, chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale,
+            T=T, valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
+            gamma=gamma_opt, gamma_natural=GAMMA_D1, buffer_gamma=buffer_gamma,
+            gamma_out=gamma_out, gamma_in=gamma_in, gamma_wall=gamma_wall,
+            k_vec=K_D1_RB87, dipole=_transition_dipole(Fg, Fe) if valid else 0.0,
             strength=strength, omega_rabi=Om, isat=D1_ISAT_MW_CM2,
             velocity_count=velocity_count, doppler_scale=doppler_scale,
+            qwp_deg=params["qwp_deg"], b_perp_ut=b_perp * 1e6,
         )
 
     @staticmethod
-    def _hamiltonian(atom, OmL, Om):
+    def _hamiltonian(atom, b_vec_t, gFg, gFe, Om, drive):
         n = atom.n_levels
+        ng = len(atom.ground)
         H = np.zeros((n, n), dtype=complex)
-        for i in atom.ground:
-            H[i, i] = OmL * atom.m_ground[i]
-        for k, e in enumerate(atom.excited):
-            H[e, e] = atom.g_ratio * OmL * atom.m_excited[k]
+        bx, by, bz = b_vec_t
+        Fgx, Fgy, Fgz = zeeman.angular_momentum_matrices((ng - 1) / 2)
+        Fex, Fey, Fez = zeeman.angular_momentum_matrices((len(atom.excited) - 1) / 2)
+        ground_block = constants.MU_B * gFg / constants.HBAR * (bx * Fgx + by * Fgy + bz * Fgz)
+        excited_block = constants.MU_B * gFe / constants.HBAR * (bx * Fex + by * Fey + bz * Fez)
+        H[:ng, :ng] = ground_block
+        H[ng:, ng:] = excited_block
         for q in (+1, -1):
+            Omq = Om * drive.get(q, 0.0)
+            if abs(Omq) < 1e-30:
+                continue
             for gi, ei, cg in atom.couplings[q]:
-                H[gi, ei] += Om * cg / 2
-                H[ei, gi] += Om * cg / 2
+                H[ei, gi] += Omq * cg / 2
+                H[gi, ei] += np.conj(Omq) * cg / 2
         return H
+
+    @staticmethod
+    def _steady_state_two_region(L_light0, L_dark, deff, S_v, n_levels,
+                                 gamma_out, gamma_in):
+        n_vel = deff.size
+        M = n_levels * n_levels
+        eye = np.eye(M, dtype=complex)
+        A = np.zeros((n_vel, 2 * M, 2 * M), dtype=complex)
+        L_light = L_light0[None, :, :] - deff[:, None, None] * S_v[None, :, :]
+        A[:, :M, :M] = L_light - gamma_out * eye[None, :, :]
+        A[:, :M, M:] = gamma_in * eye[None, :, :]
+        A[:, M:, :M] = gamma_out * eye[None, :, :]
+        A[:, M:, M:] = L_dark[None, :, :] - gamma_in * eye[None, :, :]
+
+        A[:, 0, :] = 0
+        for state in range(n_levels):
+            idx = state * n_levels + state
+            A[:, 0, idx] = 1
+            A[:, 0, M + idx] = 1
+        rhs = np.zeros((n_vel, 2 * M, 1), dtype=complex)
+        rhs[:, 0, 0] = 1
+        sol = np.linalg.solve(A, rhs)[:, :, 0]
+        rho_l = sol[:, :M].reshape(n_vel, n_levels, n_levels)
+        rho_d = sol[:, M:].reshape(n_vel, n_levels, n_levels)
+        return rho_l, rho_d
+
+    @staticmethod
+    def _coherences(atom, rho, Om, drive):
+        p = np.zeros(rho.shape[0], dtype=complex)
+        m = np.zeros(rho.shape[0], dtype=complex)
+        for gi, ei, cg in atom.couplings[+1]:
+            p += cg * rho[:, ei, gi]
+        for gi, ei, cg in atom.couplings[-1]:
+            m += cg * rho[:, ei, gi]
+        cp = p / Om
+        cm = m / Om
+        cprobe = (np.conj(drive.get(+1, 0.0)) * p
+                  + np.conj(drive.get(-1, 0.0)) * m) / Om
+        return cp, cm, cprobe
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
 
-        m = self._mode(params)
         if not raw["valid"]:
             fig, ax = plt.subplots(figsize=(8.5, 3.0))
             ax.text(0.5, 0.5,
-                    f"87Rb D1 F_g={raw['Fg']}, F'_e={raw['Fe']} is not an allowed "
-                    f"addressed transition for this compact Zeeman model.",
+                    f"87Rb D1 F_g={raw['Fg']}, F'_e={raw['Fe']} is not allowed "
+                    f"for this compact Zeeman model.",
                     ha="center", va="center", wrap=True)
             ax.axis("off")
             return dict(metrics=[dict(label="Status", value="invalid transition")],
@@ -343,82 +480,90 @@ class MagnetoScheme(Scheme):
 
         x = raw["b_ut"]
         ls = params["line_strength"]
-        xphys_p = observables.chi_phys(
+        xprobe = observables.chi_phys(
+            raw["chi_probe"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
+        xp = observables.chi_phys(
             raw["chi_p"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
-        xphys_m = observables.chi_phys(
+        xm = observables.chi_phys(
             raw["chi_m"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
         k, L = raw["k_vec"], params["cell_mm"] * 1e-3
-        alpha = k * np.imag(xphys_p + xphys_m)
+        alpha = k * np.imag(xprobe)
         T_trans = np.exp(-alpha * L)
         OD = alpha * L / np.log(10.0)
-        rotation = 0.25 * k * L * np.real(xphys_p - xphys_m)
+        rotation = 0.25 * k * L * np.real(xp - xm)
         ic = int(np.argmin(np.abs(x)))
+        bg = 0.5 * (alpha[0] + alpha[-1])
+        amp = alpha[ic] - bg
+        if amp < -0.02 * max(abs(bg), abs(alpha[ic]), 1e-30):
+            feature = "EIT-like dip"
+        elif amp > 0.02 * max(abs(bg), abs(alpha[ic]), 1e-30):
+            feature = "EIA/MIA-like peak"
+        else:
+            feature = "crossover"
+        fwhm = _lorentz_fwhm(x, alpha)
+        central_hw = _halfwidth_from_center(x, alpha)
+        fwhm_str = f"{fwhm:.3f} uT" if fwhm == fwhm else "n/a"
+        central_str = f"{2*central_hw:.3f} uT" if central_hw == central_hw else "n/a"
 
-        title = (f"87Rb D1 {m.upper()}  F={raw['Fg']}→F'={raw['Fe']},  "
-                 f"I={params['intensity_mw_cm2']:.2f} mW/cm²,  "
-                 f"γg/2π={params['ground_relax_khz']:.0f} kHz")
-        if m == "nmor":
+        title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
+                 f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
+        if params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR:
             fig, ax = plt.subplots(figsize=(8.5, 4.6))
-            ax.plot(x, rotation * 1e3, color="#9467bd", lw=1.8)
+            ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
             ax.axhline(0, color="black", lw=0.6)
             ax.axvline(0, color="gray", ls=":", lw=0.8)
             ax.set_ylabel("Polarization rotation  [mrad]")
-            ax.set_xlabel("Magnetic field B  [µT]")
+            ax.set_xlabel("Magnetic field B  [uT]")
             ax.set_title(title)
             fig.tight_layout()
             slope = np.gradient(rotation, x)[ic]
             metrics = [
                 dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
-                dict(label="Slope dθ/dB", value=f"{slope*1e3:.2f} mrad/µT"),
+                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/uT"),
                 dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad"),
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
         else:
-            bg = 0.5 * (alpha[0] + alpha[-1])
-            kind = "dip (transparency)" if alpha[ic] < bg else "peak (enhanced)"
-            fwhm = _lorentz_fwhm(x, alpha)
-            fwhm_str = f"{fwhm:.2f} µT" if fwhm == fwhm else "—"
-            if m == "hanle":
-                fig, ax = plt.subplots(figsize=(8.5, 4.6))
-                ax.plot(x, T_trans, color="#1f77b4", lw=1.8)
-                ax.axvline(0, color="gray", ls=":", lw=0.8)
-                ax.set_ylabel("Transmission")
-                ax.set_xlabel("Magnetic field B  [µT]")
-                ax.set_title(title)
-                fig.tight_layout()
-                note = "Hanle readout: a dark resonance appears as reduced absorption at B=0."
-            else:
-                fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-                axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-                axT.axvline(0, color="gray", ls=":", lw=0.8)
-                axT.set_ylabel("Transmission")
-                axT.set_title(title)
-                axA.plot(x, OD, color="#d62728", lw=1.8)
-                axA.axvline(0, color="gray", ls=":", lw=0.8)
-                axA.set_ylabel("Optical density")
-                axA.set_xlabel("Magnetic field B  [µT]")
-                fig.tight_layout()
-                note = "EIA readout: the practical D1 preset targets an enhanced absorption peak at B=0."
+            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+            axT.axvline(0, color="gray", ls=":", lw=0.8)
+            axT.set_ylabel("Transmission")
+            axT.set_title(title)
+            axA.plot(x, OD, color="#d62728", lw=1.8)
+            axA.axvline(0, color="gray", ls=":", lw=0.8)
+            axA.set_ylabel("Optical density")
+            axA.set_xlabel("Magnetic field B  [uT]")
+            fig.tight_layout()
             metrics = [
                 dict(label="OD at B=0", value=f"{OD[ic]:.3f}"),
-                dict(label="Zero-field feature", value=kind),
-                dict(label="Linewidth (FWHM)", value=fwhm_str),
+                dict(label="Zero-field feature", value=feature),
+                dict(label="Feature FWHM", value=fwhm_str),
+                dict(label="Central width", value=central_str),
             ]
+            note = ("Transmission readout: feature sign is classified from absorption "
+                    "at B=0 relative to the scan wings.")
 
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
+        buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         derived = (
             "| Quantity | Value |\n|---|---|\n"
             f"| Isotope / line | {raw['isotope']} {raw['line']} |\n"
+            f"| Cell model | {raw['cell_type']} |\n"
             f"| Transition | F={raw['Fg']} -> F'={raw['Fe']} |\n"
             f"| Relative strength S_FF' | {raw['strength']:.4f} |\n"
             f"| g_F ground / excited | {raw['gFg']:.4f} / {raw['gFe']:.4f} |\n"
             f"| Ground Larmor scale | {larmor_hz_per_g/1e6:.3f} MHz/G |\n"
-            f"| Ω/Γ | {raw['omega_rabi']/raw['gamma']:.3f} |\n"
-            f"| Γ/2π | {raw['gamma']/(2*np.pi)/1e6:.4f} MHz |\n"
-            f"| I_sat(D1 scale) | {raw['isat']:.4f} mW/cm² |\n"
-            f"| N(87Rb) | {raw['N']:.3e} /m³ |\n"
+            f"| Omega/Gamma | {raw['omega_rabi']/raw['gamma_natural']:.3f} |\n"
+            f"| Gamma/2pi | {raw['gamma']/(2*np.pi)/1e6:.4f} MHz |\n"
+            f"| Ne broadening/2pi | {buffer_mhz:.3f} MHz |\n"
+            f"| I_sat(D1 scale) | {raw['isat']:.4f} mW/cm^2 |\n"
+            f"| Residual transverse B | {raw['b_perp_ut']:.4f} uT |\n"
+            f"| N(87Rb) | {raw['N']:.3e} /m^3 |\n"
             f"| Doppler OD scale | {raw['doppler_scale']:.3e} |\n"
             f"| Doppler classes | {raw['velocity_count']} |\n"
+            f"| Two-region gamma_out/2pi | {raw['gamma_out']/(2*np.pi)/1e3:.3f} kHz |\n"
+            f"| Two-region gamma_in/2pi | {raw['gamma_in']/(2*np.pi)/1e3:.3f} kHz |\n"
+            f"| Wall gamma/2pi | {raw['gamma_wall']/(2*np.pi):.3f} Hz |\n"
         )
         return dict(metrics=metrics, figure=fig, tables=[
             {"title": "Notes", "markdown": note},

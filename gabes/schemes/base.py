@@ -38,6 +38,8 @@ class ParamSpec:
     advanced: bool = False        # render inside an "Advanced" expander
     endpoints: Optional[tuple] = None   # (left, right) caption under a slider
     hidden: bool = False          # keep in params/session state, but do not render
+    control: str = "auto"         # auto / segmented
+    visible_if: Optional[dict] = None   # {param_name: allowed value(s)}
 
 
 @dataclass(frozen=True)

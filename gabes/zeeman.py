@@ -44,6 +44,27 @@ def clebsch_gordan(j1, m1, j2, m2, J, M):
     return pref * s
 
 
+def angular_momentum_matrices(F):
+    """Return (Fx, Fy, Fz) in the |F,m> basis ordered m=-F..F.
+
+    Matrices are dimensionless: H_B = omega_L * (Bxhat Fx + Byhat Fy + Bzhat Fz).
+    """
+    mvals = np.arange(-F, F + 1, 1, dtype=float)
+    n = mvals.size
+    Fp = np.zeros((n, n), dtype=complex)
+    for col, m in enumerate(mvals):
+        mp = m + 1
+        if mp > F:
+            continue
+        row = int(round(mp + F))
+        Fp[row, col] = math.sqrt(F * (F + 1) - m * mp)
+    Fm = Fp.conj().T
+    Fx = 0.5 * (Fp + Fm)
+    Fy = (Fp - Fm) / (2j)
+    Fz = np.diag(mvals.astype(complex))
+    return Fx, Fy, Fz
+
+
 def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
                     transit_rate=0.0):
     """

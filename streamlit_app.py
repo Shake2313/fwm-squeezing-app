@@ -382,6 +382,14 @@ def _render_param(container, scheme_name, sp):
     key = _skey(scheme_name, sp.name)
     label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
     help_ = sp.help or None
+    if getattr(sp, "control", "auto") == "segmented":
+        options = list(sp.choices or ())
+        if hasattr(container, "segmented_control"):
+            try:
+                return container.segmented_control(label, options, key=key, help=help_)
+            except TypeError:
+                pass
+        return container.radio(label, options, key=key, help=help_, horizontal=True)
     if sp.choices is not None:
         return container.selectbox(label, list(sp.choices), key=key, help=help_)
     val = container.slider(label, sp.vmin, sp.vmax, step=sp.step, key=key, help=help_)
@@ -393,6 +401,22 @@ def _render_param(container, scheme_name, sp):
             f"<span>{escape(str(left))}</span><span>{escape(str(right))}</span></div>",
             unsafe_allow_html=True)
     return val
+
+
+def _param_visible(scheme_name, sp):
+    if getattr(sp, "hidden", False):
+        return False
+    cond = getattr(sp, "visible_if", None)
+    if not cond:
+        return True
+    for pname, allowed in cond.items():
+        cur = st.session_state.get(_skey(scheme_name, pname))
+        if isinstance(allowed, (set, tuple, list)):
+            if cur not in allowed:
+                return False
+        elif cur != allowed:
+            return False
+    return True
 
 
 def _render_scheme_header(scheme):
@@ -495,7 +519,7 @@ if isinstance(_rec_sets, dict) and _rec_sets:
         _col.button(_short, on_click=_apply_default, use_container_width=True)
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
-visible_specs = [sp for sp in specs if not getattr(sp, "hidden", False)]
+visible_specs = [sp for sp in specs if _param_visible(scheme.name, sp)]
 params = {}
 group_order = []
 for sp in visible_specs:
@@ -515,7 +539,7 @@ if advanced:
         params[sp.name] = _render_param(exp, scheme.name, sp)
 
 for sp in specs:
-    if getattr(sp, "hidden", False):
+    if sp.name not in params:
         params[sp.name] = st.session_state[_skey(scheme.name, sp.name)]
 
 
