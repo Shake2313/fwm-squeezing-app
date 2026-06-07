@@ -285,14 +285,26 @@ class SASScheme(Scheme):
         chi_pr = rho_pr[:, 1, 0] / (PROBE_RABI * GAMMA)
         alpha_L, _ = observables.absorption_coefficient(chi_pr, K_VEC, N)
 
-        alpha = np.zeros(scan.size)
-        for j, D in enumerate(scan):
-            rho = core.steady_state_batched(L0_pump, D + kv, atom.S_v, atom.n_levels)
-            rho_gg = rho[:, 0, 0].real
-            contrib = np.zeros(v.size)
-            for i, e in enumerate(atom.excited):
-                contrib += (rho_gg - rho[:, e, e].real) * np.interp((D - kv) - offsets[i], fine, alpha_L)
-            alpha[j] = float((wt * contrib).sum())
+        # The pump H₀ is scan-independent — the scan enters only through the pump
+        # Δ_eff = D + k·v — so solve the pump populations ONCE on a fine Δ_eff
+        # table and interpolate, instead of re-solving the OBE at every scan
+        # point. Same Δ_eff-table trick the realistic species OD/SAS path uses;
+        # cuts the pump solves from (scan_points × velocity) down to one table.
+        ns, nv = scan.size, v.size
+        dlo, dhi = scan.min() + kv.min(), scan.max() + kv.max()
+        n_grid = int((dhi - dlo) / (gamma_eff / 8.0)) + 2
+        deff_p = np.linspace(dlo, dhi, n_grid)
+        pops = _pump_pops(L0_pump, deff_p, atom.S_v, atom.n_levels)   # (n_grid, n)
+
+        dgrid = (scan[:, None] + kv[None, :]).ravel()                 # pump Δ_eff
+        rho_gg = np.interp(dgrid, deff_p, pops[:, 0]).reshape(ns, nv)
+        probe_base = scan[:, None] - kv[None, :]
+        alpha = np.zeros(ns)
+        for i, e in enumerate(atom.excited):
+            pe = np.interp(dgrid, deff_p, pops[:, e]).reshape(ns, nv)
+            aL = np.interp((probe_base - offsets[i]).ravel(),
+                           fine, alpha_L).reshape(ns, nv)
+            alpha += ((rho_gg - pe) * aL * wt[None, :]).sum(axis=1)
 
         return dict(mode="generic", scan=scan, alpha_unit=alpha,
                     dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,

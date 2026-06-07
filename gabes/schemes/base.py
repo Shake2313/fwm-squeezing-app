@@ -67,6 +67,11 @@ class Scheme(ABC):
     caption: str = ""
     cache_version: str = "1"
     defaults_version: str = "1"
+    # Cache observables() on (raw, all params) so a rerun that changes nothing
+    # relevant (expander toggles, navigate-only knobs that don't move the
+    # readout) reuses the built figure instead of rebuilding it. Observables are
+    # pure and their return (metrics / figure / tables) is picklable.
+    cache_observables: bool = True
 
     @abstractmethod
     def param_schema(self) -> list:

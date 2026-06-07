@@ -8,7 +8,37 @@ in atoms.AtomModel; the experiment lives in schemes/.
 Ported from fwm_obe.py with the only change that the Hilbert-space dimension is
 derived from array shapes / passed explicitly instead of a module global.
 """
+from contextlib import nullcontext
+from functools import lru_cache
+
 import numpy as np
+
+try:
+    from threadpoolctl import threadpool_limits as _threadpool_limits
+except Exception:                                       # pragma: no cover
+    _threadpool_limits = None
+
+
+def blas_single_thread():
+    """Context manager limiting BLAS/LAPACK to one thread.
+
+    Every GABES solve is a large batch of *tiny* dense systems (M = n² ≤ 64).
+    For matrices this small the per-call LAPACK threading overhead outweighs any
+    parallelism, so a single thread is uniformly faster on the whole workload
+    (measured ~25-30% across FWM / Λ / magneto). Scope it around the heavy solve
+    so unrelated work is unaffected. No-op if threadpoolctl is unavailable.
+    """
+    if _threadpool_limits is None:
+        return nullcontext()
+    return _threadpool_limits(limits=1, user_api="blas")
+
+
+@lru_cache(maxsize=None)
+def _eye(n):
+    """Cached n×n complex identity. Read-only: callers must not mutate it."""
+    e = np.eye(n, dtype=complex)
+    e.flags.writeable = False
+    return e
 
 
 def comm_super(H):
@@ -17,7 +47,7 @@ def comm_super(H):
     Dimension is taken from H.shape (was a fixed module global before).
     """
     n = H.shape[0]
-    eye = np.eye(n, dtype=complex)
+    eye = _eye(n)
     return -1j * (np.kron(H, eye) - np.kron(eye, H.T))
 
 
@@ -43,7 +73,7 @@ def floquet_solve(L0_at_Deff_zero, Cp, Cm, Omega_beat, Delta_eff_axis,
     """
     n = Delta_eff_axis.size
     M = n_levels * n_levels
-    eye_rho = np.eye(M, dtype=complex)
+    eye_rho = _eye(M)
     trace_row = 0
 
     L0_batch = (L0_at_Deff_zero[None, :, :]
@@ -67,12 +97,12 @@ def floquet_solve(L0_at_Deff_zero, Cp, Cm, Omega_beat, Delta_eff_axis,
     for state in range(n_levels):
         A_eff[:, trace_row, state * n_levels + state] = 1
 
-    trace_rhs = np.zeros(M, dtype=complex)
-    trace_rhs[trace_row] = 1
-    rhs = np.broadcast_to(trace_rhs[:, None], (n, M, 1)).copy()
+    rhs = np.zeros((n, M, 1), dtype=complex)
+    rhs[:, trace_row, 0] = 1
     rho_0_vec = np.linalg.solve(A_eff, rhs)
-    cp_rho0 = np.einsum("ij,njk->nik", Cp, rho_0_vec)
-    rho_p1_vec = -np.linalg.solve(A_plus, cp_rho0)
+    # ρ₊₁ = −A₊⁻¹ (Cp ρ₀) = −(A₊⁻¹ Cp) ρ₀  (associativity): reuse the factor
+    # already solved for the +sideband feedback instead of a second linear solve.
+    rho_p1_vec = -(Ap_inv_Cp @ rho_0_vec)
 
     rho_0 = rho_0_vec[:, :, 0].reshape(n, n_levels, n_levels)
     rho_p1 = rho_p1_vec[:, :, 0].reshape(n, n_levels, n_levels)
@@ -101,6 +131,27 @@ def steady_state_batched(L0_at_Deff_zero, Delta_eff_axis, S_v, n_levels):
     rhs[:, 0, 0] = 1
     rho_vec = np.linalg.solve(A, rhs)
     return rho_vec[:, :, 0].reshape(n, n_levels, n_levels)
+
+
+def steady_state_from_liouvillian(L_batch, n_levels, trace_row=0):
+    """Steady state ρ (Lρ = 0, trace = 1) for a stack of Liouvillians.
+
+    `L_batch` has shape (..., M, M) with arbitrary leading batch dims (e.g.
+    scan × velocity); `np.linalg.solve` batches over all of them. This is the
+    generic engine the schemes use to collapse outer Python scan/B-field loops
+    into a single batched solve (each Liouvillian already carries whatever
+    Hamiltonian / velocity shift the caller folded in). `L_batch` is copied, not
+    mutated. Returns ρ reshaped to (..., n_levels, n_levels).
+    """
+    A = np.array(L_batch, dtype=complex)              # own copy (trace row edited)
+    M = n_levels * n_levels
+    A[..., trace_row, :] = 0
+    for state in range(n_levels):
+        A[..., trace_row, state * n_levels + state] = 1
+    rhs = np.zeros(A.shape[:-1] + (1,), dtype=complex)
+    rhs[..., trace_row, 0] = 1
+    rho_vec = np.linalg.solve(A, rhs)
+    return rho_vec[..., 0].reshape(A.shape[:-2] + (n_levels, n_levels))
 
 
 def matrix_exp_2x2(M, L):

@@ -68,9 +68,12 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
         return out
 
     T = params["temp_c"] + 273.15
-    v, w = doppler.velocity_grid(T, dv=1.0, cutoff_sigma=4.0)
 
     if not h_dep:
+        # OD: scan-independent H solved once on a fine Δ_eff table, then averaged.
+        # The solve cost is independent of the velocity grid, so keep it fine
+        # (dv = 1) — this path feeds the AutoOD-validated absolute scale.
+        v, w = doppler.velocity_grid(T, dv=1.0, cutoff_sigma=4.0)
         kvmax = K_VEC * np.abs(v).max()
         L0 = core.build_liouvillian(build_H0(0.0), atom)
         lo, hi = scan.min() - kvmax, scan.max() + kvmax
@@ -79,6 +82,14 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
         table = rho[:, e, g] / om_p
         return doppler.doppler_average_1d(table, deff, scan, v, w)
 
+    # Scan-dependent H (Λ): the two-photon feature is Doppler-free, so the optical
+    # background must be solved at the Maxwell classes per scan point — this path
+    # is solve-bound (scan_points × velocity classes linear solves). The Doppler-
+    # free feature is insensitive to velocity sampling and the broad optical
+    # background is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1)
+    # ~halves the solves while keeping transmission < 0.02% and the Re χ / group-
+    # index readout < 1% against the fine grid.
+    v, w = doppler.velocity_grid(T, dv=2.0, cutoff_sigma=4.0)
     kv = K_VEC * v
     out = np.zeros(scan.size, dtype=complex)
     for i, s in enumerate(scan):

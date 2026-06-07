@@ -10,11 +10,13 @@ only change is that shared engine pieces now come from gabes.core / .doppler /
 shim and the regression test can call them directly. `FWMScheme` wraps them for
 the generic Streamlit front-end.
 """
+from concurrent.futures import ThreadPoolExecutor
+
 import numpy as np
 
 from .. import atoms, constants, doppler, hyperfine, observables
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
-from ..core import build_liouvillian, comm_super, floquet_solve
+from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
 from .base import ExtraView, ParamSpec, Preset, Scheme
 
 # =========================================================
@@ -550,13 +552,22 @@ class FWMScheme(Scheme):
 
 
 def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct):
-    """Wide scan with the two Raman channels calculated independently."""
+    """Wide scan with the two Raman channels calculated independently.
+
+    The ∓ branches are independent pure solves, so run them concurrently. With
+    BLAS pinned to one thread per branch (see `core.blas_single_thread`) the two
+    threads occupy two cores instead of contending — roughly halves this view.
+    """
     common = dict(
         T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
         line_strength=line_strength, loss_frac=loss_pct / 100.0,
         coarse_points=301, fine_points=401, velocity_step=2.0)
-    return {
-        "D_GHz": D_GHz,
-        "minus": compute_spectrum(D_GHz, branch=-1, **common),
-        "plus": compute_spectrum(D_GHz, branch=+1, **common),
-    }
+
+    def _branch(b):
+        with blas_single_thread():
+            return compute_spectrum(D_GHz, branch=b, **common)
+
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        fut = {b: ex.submit(_branch, b) for b in (-1, +1)}
+        minus, plus = fut[-1].result(), fut[+1].result()
+    return {"D_GHz": D_GHz, "minus": minus, "plus": plus}

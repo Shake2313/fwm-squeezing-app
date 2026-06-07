@@ -375,23 +375,35 @@ class MagnetoScheme(Scheme):
                 v, wt = np.array([0.0]), np.array([1.0])
             velocity_count = int(v.size)
             deff = dL - K_D1_RB87 * v
-            for j, bz in enumerate(b_z):
-                H = self._hamiltonian(atom, (b_x, b_y, bz), gFg, gFe, Om, drive)
-                L0 = core.build_liouvillian(H, atom)
-                if cell_type == CELL_PARAFFIN:
-                    Hd = self._hamiltonian(atom_dark, (b_x, b_y, bz), gFg, gFe,
-                                           0.0, {+1: 0.0, -1: 0.0})
-                    Ld = core.build_liouvillian(Hd, atom_dark)
-                    rho_l, _ = self._steady_state_two_region(
-                        L0, Ld, deff, atom.S_v, atom.n_levels, gamma_out, gamma_in)
-                    rho = rho_l
-                else:
-                    rho = core.steady_state_batched(L0, deff, atom.S_v, atom.n_levels)
 
-                cp, cm, cprobe = self._coherences(atom, rho, Om, drive)
-                chi_p[j] = (cp * wt).sum()
-                chi_m[j] = (cm * wt).sum()
-                chi_probe[j] = (cprobe * wt).sum()
+            # H₀(bz) = H_xy + bz·H_z is affine in the longitudinal field, and
+            # comm_super is linear, so L0(bz) = C_xy + bz·C_z. Build the constant
+            # pieces once (no per-B-point kron) and form the whole B-scan stack of
+            # Liouvillians by a scalar broadcast, then solve the (B × velocity)
+            # batch in one call. Bit-for-bit the same matrices as the old loop.
+            H_xy = self._hamiltonian(atom, (b_x, b_y, 0.0), gFg, gFe, Om, drive)
+            H_z = self._hamiltonian(atom, (0.0, 0.0, 1.0), gFg, gFe, 0.0,
+                                    {+1: 0.0, -1: 0.0})
+            C_xy = core.build_liouvillian(H_xy, atom)
+            C_z = core.comm_super(H_z)                       # drive-free → reusable
+            L0_all = C_xy[None, :, :] + b_z[:, None, None] * C_z[None, :, :]
+
+            if cell_type == CELL_PARAFFIN:
+                Hd_xy = self._hamiltonian(atom_dark, (b_x, b_y, 0.0), gFg, gFe,
+                                          0.0, {+1: 0.0, -1: 0.0})
+                Cd_xy = core.build_liouvillian(Hd_xy, atom_dark)
+                Ld_all = Cd_xy[None, :, :] + b_z[:, None, None] * C_z[None, :, :]
+                rho = self._steady_state_two_region(
+                    L0_all, Ld_all, deff, atom.S_v, atom.n_levels,
+                    gamma_out, gamma_in)
+            else:
+                rho = self._steady_state_buffer(
+                    L0_all, deff, atom.S_v, atom.n_levels)
+
+            cp, cm, cprobe = self._coherences(atom, rho, Om, drive)   # (nB, nv)
+            chi_p = (cp * wt[None, :]).sum(axis=1)
+            chi_m = (cm * wt[None, :]).sum(axis=1)
+            chi_probe = (cprobe * wt[None, :]).sum(axis=1)
 
         return dict(
             line=LINE, isotope="87Rb", cell_type=cell_type, b_ut=b_ut,
@@ -427,38 +439,73 @@ class MagnetoScheme(Scheme):
         return H
 
     @staticmethod
-    def _steady_state_two_region(L_light0, L_dark, deff, S_v, n_levels,
+    def _steady_state_two_region(L_light0, L_dark0, deff, S_v, n_levels,
                                  gamma_out, gamma_in):
-        n_vel = deff.size
-        M = n_levels * n_levels
-        eye = np.eye(M, dtype=complex)
-        A = np.zeros((n_vel, 2 * M, 2 * M), dtype=complex)
-        L_light = L_light0[None, :, :] - deff[:, None, None] * S_v[None, :, :]
-        A[:, :M, :M] = L_light - gamma_out * eye[None, :, :]
-        A[:, :M, M:] = gamma_in * eye[None, :, :]
-        A[:, M:, :M] = gamma_out * eye[None, :, :]
-        A[:, M:, M:] = L_dark[None, :, :] - gamma_in * eye[None, :, :]
+        """Two-region (light/dark) steady state for a stack of B-field points.
 
-        A[:, 0, :] = 0
-        for state in range(n_levels):
-            idx = state * n_levels + state
-            A[:, 0, idx] = 1
-            A[:, 0, M + idx] = 1
-        rhs = np.zeros((n_vel, 2 * M, 1), dtype=complex)
-        rhs[:, 0, 0] = 1
-        sol = np.linalg.solve(A, rhs)[:, :, 0]
-        rho_l = sol[:, :M].reshape(n_vel, n_levels, n_levels)
-        rho_d = sol[:, M:].reshape(n_vel, n_levels, n_levels)
-        return rho_l, rho_d
+        L_light0, L_dark0: (nB, M, M) per-B Liouvillians. Only the light region
+        carries the optical Δ_eff (Doppler) shift; the dark region is field-
+        shifted but unlit. Solves the (B × velocity) batch in memory-bounded
+        chunks. Returns the in-beam ρ_light, shape (nB, nv, n_levels, n_levels).
+        """
+        nB = L_light0.shape[0]
+        nv = deff.size
+        M = n_levels * n_levels
+        eye = core._eye(M)
+        rho_l = np.empty((nB, nv, n_levels, n_levels), dtype=complex)
+        rows = max(1, int(9.0e6 // max(nv * (2 * M) ** 2, 1)))
+        for b0 in range(0, nB, rows):
+            sl = slice(b0, b0 + rows)
+            Ll = (L_light0[sl][:, None, :, :]
+                  - deff[None, :, None, None] * S_v[None, None, :, :])   # (nb,nv,M,M)
+            Ld = np.broadcast_to(L_dark0[sl][:, None, :, :], Ll.shape)   # unlit: no Δ_eff
+            nb = Ll.shape[0]
+            A = np.zeros((nb, nv, 2 * M, 2 * M), dtype=complex)
+            A[..., :M, :M] = Ll - gamma_out * eye
+            A[..., :M, M:] = gamma_in * eye
+            A[..., M:, :M] = gamma_out * eye
+            A[..., M:, M:] = Ld - gamma_in * eye
+            A[..., 0, :] = 0
+            for state in range(n_levels):
+                idx = state * n_levels + state
+                A[..., 0, idx] = 1
+                A[..., 0, M + idx] = 1
+            rhs = np.zeros((nb, nv, 2 * M, 1), dtype=complex)
+            rhs[..., 0, 0] = 1
+            sol = np.linalg.solve(A, rhs)[..., 0]
+            rho_l[sl] = sol[..., :M].reshape(nb, nv, n_levels, n_levels)
+        return rho_l
+
+    @staticmethod
+    def _steady_state_buffer(L0_all, deff, S_v, n_levels):
+        """Single-region steady state for a stack of B-field points.
+
+        L0_all: (nB, M, M). Solves the (B × velocity) batch in memory-bounded
+        chunks. Returns ρ, shape (nB, nv, n_levels, n_levels).
+        """
+        nB = L0_all.shape[0]
+        nv = deff.size
+        M = n_levels * n_levels
+        rho = np.empty((nB, nv, n_levels, n_levels), dtype=complex)
+        rows = max(1, int(1.2e7 // max(nv * M * M, 1)))
+        for b0 in range(0, nB, rows):
+            sl = slice(b0, b0 + rows)
+            A = (L0_all[sl][:, None, :, :]
+                 - deff[None, :, None, None] * S_v[None, None, :, :])
+            rho[sl] = core.steady_state_from_liouvillian(A, n_levels)
+        return rho
 
     @staticmethod
     def _coherences(atom, rho, Om, drive):
-        p = np.zeros(rho.shape[0], dtype=complex)
-        m = np.zeros(rho.shape[0], dtype=complex)
+        # rho leading dims are arbitrary ((nv,) or (nB, nv)); reduce the last two
+        # (Hilbert) axes via the polarization-resolved dipole couplings.
+        shape = rho.shape[:-2]
+        p = np.zeros(shape, dtype=complex)
+        m = np.zeros(shape, dtype=complex)
         for gi, ei, cg in atom.couplings[+1]:
-            p += cg * rho[:, ei, gi]
+            p += cg * rho[..., ei, gi]
         for gi, ei, cg in atom.couplings[-1]:
-            m += cg * rho[:, ei, gi]
+            m += cg * rho[..., ei, gi]
         cp = p / Om
         cm = m / Om
         cprobe = (np.conj(drive.get(+1, 0.0)) * p

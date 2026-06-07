@@ -20,6 +20,7 @@ from pathlib import Path
 from html import escape
 
 from gabes import schemes
+from gabes.core import blas_single_thread
 from gabes.plot_style import apply_gabes_plot_style
 
 APP_DIR = Path(__file__).resolve().parent
@@ -325,14 +326,16 @@ _inject_css()
 # ----------------------------------------------------------------------
 @st.cache_data(show_spinner=False)
 def _cached_compute(scheme_name, recompute_items, cache_version):
-    return schemes.get(scheme_name).compute(dict(recompute_items))
+    with blas_single_thread():
+        return schemes.get(scheme_name).compute(dict(recompute_items))
 
 
 @st.cache_data(show_spinner=False)
 def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
     scheme = schemes.get(scheme_name)
     view = next(v for v in scheme.extra_views() if v.key == view_key)
-    return view.compute(dict(recompute_items))
+    with blas_single_thread():
+        return view.compute(dict(recompute_items))
 
 
 @st.cache_data(show_spinner=False, max_entries=64)
