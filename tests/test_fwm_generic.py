@@ -140,6 +140,40 @@ def test_biphoton_ui_render_modes():
         assert view.get("metrics")
 
 
+def test_squeezing_hides_twin_beam_coincidence_figure():
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params["resolution"] = "Fast  (~3 s)"
+    raw = scheme.compute(params)
+    view = scheme.observables(raw, params)
+    assert view.get("figure") is not None
+    assert not view.get("figures", [])
+    assert all("Twin-beam coincidence" not in table["title"]
+               for table in view.get("tables", []))
+
+
+def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
+    scheme = fwm.FWMScheme()
+    defaults = scheme.recommended_defaults(scheme.defaults())
+    assert set(defaults) == {fwm.MODE_SEEDED, fwm.MODE_BIPHOTON}
+    assert defaults[fwm.MODE_SEEDED]["mode"] == fwm.MODE_SEEDED
+
+    cs_defaults = scheme.recommended_defaults(_params(
+        topology=fwm.TOPOLOGY_CS_BTW,
+        cs_channel=fwm.CS_CHANNEL_795,
+    ))[fwm.MODE_BIPHOTON]
+    assert cs_defaults["mode"] == fwm.MODE_BIPHOTON
+    assert cs_defaults["topology"] == fwm.TOPOLOGY_CS_BTW
+    assert cs_defaults["cs_channel"] == fwm.CS_CHANNEL_795
+    assert cs_defaults["biphoton_temp_c"] == 75.0
+
+    diamond_defaults = scheme.recommended_defaults(_params(
+        topology=fwm.TOPOLOGY_DIAMOND,
+    ))[fwm.MODE_BIPHOTON]
+    assert diamond_defaults["topology"] == fwm.TOPOLOGY_DIAMOND
+    assert diamond_defaults["diamond_idler_nm"] == 761.702
+
+
 def test_cs_btw_short_window_render_no_shape_error():
     scheme = fwm.FWMScheme()
     params = _params(
@@ -165,5 +199,7 @@ if __name__ == "__main__":
     test_rb87_telecom_preset_smoke()
     test_cs_btw_channels_have_different_widths()
     test_biphoton_ui_render_modes()
+    test_squeezing_hides_twin_beam_coincidence_figure()
+    test_fwm_default_buttons_are_squeezing_and_contextual_biphoton()
     test_cs_btw_short_window_render_no_shape_error()
     print("Generic SFWM / biphoton checks OK.")

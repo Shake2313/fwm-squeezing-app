@@ -53,7 +53,7 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 - `tests/` — regression + physics validation; `baseline_focused.npz` is the
   frozen pre-refactor FWM anchor.
 - `requirements.txt` — streamlit, numpy, matplotlib.
-- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper. The generic SFWM presets cite the Cs biphoton-temporal-waveform paper and the 87Rb telecom biphoton source paper from the app's Reference panel.
+- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper. The Biphoton defaults cite the Cs biphoton-temporal-waveform paper and the 87Rb telecom biphoton source paper from the app's Reference panel.
 
 ## Run
 
@@ -97,8 +97,8 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ### Generic SFWM / biphoton mode
 
-- Mode selector: **Seeded gain / squeezing** keeps the regression-anchored 85Rb
-  double-Λ model; **Spontaneous biphoton** switches to the generic SFWM source
+- Mode selector: **Squeezing** keeps the regression-anchored 85Rb
+  double-Λ model; **Biphoton** switches to the generic SFWM source
   estimate.
 - Topologies: `cascade_rb87_telecom` (87Rb 5S1/2-5P3/2-4D5/2, 780/1529 nm),
   `cascade_cs_btw` (133Cs 852-917 nm or 852-795 nm BTW comparison), and
@@ -182,7 +182,7 @@ full Zeeman structure are included.
   runtime slowdown, shift in optimum TPD, gain match to Sim et al. (~15), and IDS
   accuracy improvement versus the current single-branch model.
 
-## Sim et al. 85Rb optimum (the ⚡ button, FWM scheme)
+## Sim et al. 85Rb optimum (Squeezing default, FWM scheme)
 
 G. Sim, H. Kim, H. S. Moon, Sci. Rep. **15**, 7727 (2025). 85Rb squeezing-optimal:
 

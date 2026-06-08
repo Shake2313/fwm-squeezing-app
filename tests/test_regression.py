@@ -86,7 +86,7 @@ def test_fwm_uses_rb85_d1_hyperfine_strengths():
 def test_fwm_defaults_match_sim_preset():
     scheme = fwm.FWMScheme()
     defaults = scheme.defaults()
-    sim = scheme.presets()[0].values
+    sim = scheme.recommended_defaults(defaults)[fwm.MODE_SEEDED]
     for key in ("opd", "tpd", "temp_c", "pump_mw", "probe_uw", "loss_pct"):
         assert defaults[key] == sim[key]
 

@@ -71,8 +71,8 @@ DEFAULT_BRANCH = -1
 NM = 1e-9
 MHZ_ANG = 2 * np.pi * 1e6
 
-MODE_SEEDED = "Seeded gain / squeezing"
-MODE_BIPHOTON = "Spontaneous biphoton"
+MODE_SEEDED = "Squeezing"
+MODE_BIPHOTON = "Biphoton"
 
 TOPOLOGY_RB87_TELECOM = "cascade_rb87_telecom"
 TOPOLOGY_CS_BTW = "cascade_cs_btw"
@@ -744,13 +744,13 @@ RESOLUTION = {
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
-    title = "Four-wave mixing: gain and biphotons"
-    cache_version = "generic-sfwm-biphoton-v1"
-    defaults_version = "generic-sfwm-defaults-v1"
+    title = "Four-wave mixing (Squeezing / Biphoton)"
+    cache_version = "generic-sfwm-biphoton-v2"
+    defaults_version = "generic-sfwm-defaults-v2"
     cache_observables = True
-    caption = ("Seeded gain/squeezing for the legacy 85Rb double-Lambda system, "
-               "or spontaneous SFWM biphoton estimates for cascade and diamond "
-               "topologies.")
+    caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
+               "Biphoton shows generic SFWM source estimates for cascade and "
+               "diamond topologies.")
 
     def param_schema(self):
         seeded = {"mode": MODE_SEEDED}
@@ -761,7 +761,7 @@ class FWMScheme(Scheme):
             ParamSpec("mode", "Mode", "Mode", MODE_SEEDED,
                       choices=(MODE_SEEDED, MODE_BIPHOTON),
                       control="segmented",
-                      help="Seeded legacy gain/squeezing or spontaneous SFWM biphoton readout."),
+                      help="Legacy gain/squeezing or generic SFWM biphoton readout."),
             ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
                       choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
                       visible_if=biphoton,
@@ -839,46 +839,53 @@ class FWMScheme(Scheme):
         ]
 
     def presets(self):
-        return [
-            Preset(
-                "Sim et al. 85Rb optimum",
-                values=dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
-                            pump_mw=600.0, probe_uw=8.0, loss_pct=5.5, ls=0.05),
-                icon="FWM",
-                help="Seeded double-Lambda gain/squeezing conditions.",
-            ),
-            Preset(
-                "87Rb telecom biphoton",
-                values=dict(mode=MODE_BIPHOTON, topology=TOPOLOGY_RB87_TELECOM,
-                            biphoton_temp_c=90.0, biphoton_cell_mm=12.5,
-                            pump_biphoton_uw=10.0, coupling_mw=1.0,
-                            pump_detuning_mhz=0.0, coupling_detuning_mhz=0.0,
-                            signal_angle_deg=1.5, idler_angle_deg=1.5,
-                            signal_eff_pct=10.0, idler_eff_pct=10.0,
-                            dark_signal_cps=2000.0, dark_idler_cps=2000.0,
-                            coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
-                            timing_jitter_ns=0.55, tau_max_ns=12.0,
-                            biphoton_velocity_step=2.0),
-                icon="Rb",
-                help="Cascade 5S-5P-4D telecom-wavelength biphoton reference.",
-            ),
-            Preset(
-                "Cs BTW comparison",
-                values=dict(mode=MODE_BIPHOTON, topology=TOPOLOGY_CS_BTW,
-                            cs_channel=CS_CHANNEL_917, biphoton_temp_c=75.0,
-                            biphoton_cell_mm=12.5, pump_biphoton_uw=20.0,
-                            coupling_mw=1.0,
-                            pump_detuning_mhz=0.0, coupling_detuning_mhz=0.0,
-                            signal_angle_deg=1.5, idler_angle_deg=1.5,
-                            signal_eff_pct=10.0, idler_eff_pct=10.0,
-                            dark_signal_cps=2000.0, dark_idler_cps=2000.0,
-                            coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
-                            timing_jitter_ns=0.55, tau_max_ns=12.0,
-                            biphoton_velocity_step=2.0),
-                icon="Cs",
-                help="Cascade Cs velocity-class biphoton temporal waveform reference.",
-            ),
-        ]
+        return []
+
+    def recommended_defaults(self, params):
+        return {
+            MODE_SEEDED: self._squeezing_defaults(),
+            MODE_BIPHOTON: self._biphoton_defaults(params),
+        }
+
+    def _squeezing_defaults(self):
+        return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
+                    pump_mw=600.0, probe_uw=8.0, loss_pct=5.5, ls=0.05,
+                    resolution="Balanced  (~6 s)")
+
+    def _biphoton_defaults(self, params):
+        topology = params.get("topology", TOPOLOGY_RB87_TELECOM)
+        base = dict(
+            mode=MODE_BIPHOTON,
+            topology=topology,
+            biphoton_cell_mm=12.5,
+            pump_detuning_mhz=0.0,
+            coupling_detuning_mhz=0.0,
+            signal_angle_deg=1.5,
+            idler_angle_deg=1.5,
+            signal_eff_pct=10.0,
+            idler_eff_pct=10.0,
+            dark_signal_cps=2000.0,
+            dark_idler_cps=2000.0,
+            coincidence_window_ns=1.0,
+            filter_bandwidth_mhz=300.0,
+            timing_jitter_ns=0.55,
+            tau_max_ns=12.0,
+            biphoton_velocity_step=2.0,
+        )
+        if topology == TOPOLOGY_CS_BTW:
+            base.update(cs_channel=params.get("cs_channel", CS_CHANNEL_917),
+                        biphoton_temp_c=75.0, pump_biphoton_uw=20.0,
+                        coupling_mw=1.0)
+        elif topology == TOPOLOGY_DIAMOND:
+            base.update(biphoton_temp_c=60.0, pump_biphoton_uw=20.0,
+                        coupling_mw=1.0, signal_angle_deg=2.0,
+                        idler_angle_deg=2.0, diamond_pump_nm=780.0,
+                        diamond_coupling_nm=776.0, diamond_signal_nm=795.0,
+                        diamond_idler_nm=761.702)
+        else:
+            base.update(topology=TOPOLOGY_RB87_TELECOM, biphoton_temp_c=90.0,
+                        pump_biphoton_uw=10.0, coupling_mw=1.0)
+        return base
 
     def info(self):
         return (
@@ -895,7 +902,7 @@ class FWMScheme(Scheme):
             "| Phase matching | generic longitudinal Delta-k with sinc^2(Delta-k L / 2) |\n"
             "| 87Rb telecom source | calibrated to order 38,000 cps/mW and g2 peak ~44 |\n"
             "| Cs BTW channels | separate 852-917 nm and 852-795 nm temporal-width presets |\n\n"
-            "The spontaneous mode is a calibrated source estimate, not a full "
+            "Biphoton mode is a calibrated source estimate, not a full "
             "quantum-Langevin propagation model."
         )
 
@@ -974,64 +981,11 @@ class FWMScheme(Scheme):
             f"seed w₀ {W_PROBE*1e6:.0f} µm · QE {QE_DETECTOR*100:.2f}% · "
             f"responsivity {RESPONSIVITY_AW} A/W @ 795 nm · pump⊥probe at PBS."
         )
-        # ---- Twin-beam coincidence / correlations (ideal parametric) ----
-        coinc = observables.coincidence_stats(raw["G_s"], raw["G_c"])
-        ci = int(np.argmin(np.abs(d_axis - tpd)))      # nearest operating-point index
-        g2sc_op = coinc["g2_sc"][ci]
-        R_op = coinc["cauchy_schwarz"][ci]
-        ns_op = coinc["n_s"][ci]
-        nc_op = coinc["n_c"][ci]
-        has_gain = bool(np.isfinite(g2sc_op))
-
-        figC, (axN, axG2) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        for ax in (axN, axG2):
-            ax.grid(alpha=0.3)
-        axN.plot(d_axis, coinc["n_s"], color="#1f77b4", lw=1.6, label="signal $n_s = G_s-1$")
-        axN.plot(d_axis, coinc["n_c"], color="#ff7f0e", lw=1.2, ls="--", label="conjugate $n_c = G_c$")
-        axN.axvline(tpd, color="crimson", ls="--", lw=1.2)
-        axN.set_ylabel("Generated photons / mode")
-        axN.set_title("Twin-beam photon pairs (ideal parametric, gain region)")
-        axN.legend(fontsize=9)
-        axG2.plot(d_axis, coinc["g2_sc"], color="#2ca02c", lw=1.6)
-        axG2.axhline(2.0, color="black", lw=0.7, ls=":")
-        axG2.text(d_axis.min(), 2.05, "classical bound g²=2", fontsize=8, va="bottom")
-        axG2.axvline(tpd, color="crimson", ls="--", lw=1.2)
-        axG2.set_ylabel("Cross-correlation $g^{(2)}_{sc}(0)$")
-        axG2.set_xlabel("Two-photon detuning δ  [MHz]   (probe on the − Raman branch)")
-        axG2.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
-        axG2.set_ylim(1.8, 12)
-        figC.tight_layout()
-
-        if has_gain:
-            coinc_rows = (
-                f"| Generated photons/mode n_s = G_s−1 | {ns_op:.3f} |\n"
-                f"| Conjugate photons n_c = G_c | {nc_op:.3f} |\n"
-                f"| Cross-correlation g²_sc(0) = 2 + 1/n_s | {g2sc_op:.3f} |\n"
-                f"| Auto-correlation g²_ss = g²_cc | 2.000 (thermal each arm) |\n"
-                f"| Cauchy-Schwarz R = g²_sc²/(g²_ss g²_cc) | {R_op:.3f} |\n"
-                f"| Nonclassical (R > 1) | {'yes' if R_op > 1 else 'no'} |\n"
-            )
-        else:
-            coinc_rows = "| (no net gain at this δ — no photon pairs) | — |\n"
-        coinc_table = (
-            f"Ideal (lossless) twin-beam photon-pair statistics at the operating "
-            f"point (δ = {tpd:.0f} MHz), from the parametric gain — the spontaneous "
-            f"/ coincidence-counting regime:\n\n"
-            f"| Quantity | Value |\n|---|---|\n"
-            + coinc_rows +
-            "\ng²_sc > 2 (and R > 1) violates the classical Cauchy-Schwarz "
-            "inequality — the hallmark of FWM photon-pair correlations. g²_sc → 2 "
-            "at high gain, → large near threshold. Propagation loss is not modelled "
-            "here (as in the squeezing panel)."
-        )
-
         return {
             "metrics": metrics,
             "figure": fig,
-            "figures": [("Twin-beam coincidence / correlations", figC)],
             "tables": [
                 {"title": "Derived quantities", "markdown": derived},
-                {"title": "Twin-beam coincidence (spontaneous)", "markdown": coinc_table},
             ],
         }
 

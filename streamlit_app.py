@@ -571,7 +571,10 @@ if isinstance(_rec_sets, dict) and _rec_sets:
     _cols = st.sidebar.columns(len(_rec_sets))
     for _col, _label in zip(_cols, _rec_sets):
         def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
-            cur = {sp.name: st.session_state[_skey(sname, sp.name)] for sp in sc.param_schema()}
+            cur = {
+                sp.name: st.session_state.get(_skey(sname, sp.name), sp.default)
+                for sp in sc.param_schema()
+            }
             sets = sc.recommended_defaults(cur) or {}
             for k, v in (sets.get(lbl) or {}).items():
                 st.session_state[_skey(sname, k)] = v
