@@ -13,7 +13,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 | A | **EIT** | transparency window + dispersion (slow light) |
 | A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
 | A | **CPT** | sub-natural dark resonance |
-| C — Magneto-optics | **Hanle / EIA / NMOR** | zero-field dip / peak / polarization rotation vs B (Zeeman manifold) |
+| C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
 | D — Wave mixing | **FWM** | seed/probe gain G_s, intensity-difference squeezing, twin-beam coincidence |
 
 Roadmap (parking lot): slow-light / group-index readout, Raman gain, higher-order

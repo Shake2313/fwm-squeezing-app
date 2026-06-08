@@ -172,11 +172,15 @@ class MagnetoScheme(Scheme):
         self.mode = mode
         if mode is None:
             self.name = "magneto"
-            self.title = "Magneto-optics (polarized Hanle)"
-            self.caption = ("87Rb D1 Hanle-configuration transmission and NMOR. "
-                            "Probe QWP angle, residual transverse field, and cell "
-                            "relaxation decide whether the zero-field feature is "
-                            "EIT-like transparency or EIA/MIA-like absorption.")
+            self.title = "Magneto-optics (Hanle/MOR)"
+            self.caption = ("87Rb D1 near-zero-field readouts of the ground-state "
+                            "Zeeman manifold. Two distinct effects: the Hanle effect "
+                            "(zero-field transmission resonance from ground-state "
+                            "coherence) and magneto-optical rotation (MOR/NMOR, "
+                            "polarization-plane rotation). Probe QWP angle, residual "
+                            "transverse field, and cell relaxation decide whether the "
+                            "Hanle feature is EIT-like transparency or EIA/MIA-like "
+                            "absorption.")
         else:
             self.name = mode
             self.title = self._DEF[mode]["title"]
@@ -295,8 +299,12 @@ class MagnetoScheme(Scheme):
 
     def info(self):
         return (
-            "**87Rb D1 polarized Hanle model.** The transmission readout reports "
-            "whether the zero-field feature is EIT-like transparency, EIA/MIA-like "
+            "**87Rb D1 Hanle / magneto-optical-rotation model.** These are two "
+            "distinct effects of the ground-state Zeeman manifold near zero field: "
+            "the Hanle effect is a transmission resonance from ground-state "
+            "coherence, while magneto-optical rotation (MOR/NMOR) is a rotation of "
+            "the probe polarization plane. The transmission readout reports "
+            "whether the zero-field Hanle feature is EIT-like transparency, EIA/MIA-like "
             "absorption, or a crossover.  Paraffin-coated cells use a two-region "
             "light/dark OBE exchange model so wall-preserved ground coherence can "
             "create a narrow Ramsey feature on a broad transit pedestal.\n\n"
