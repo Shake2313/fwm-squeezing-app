@@ -595,20 +595,43 @@ if callable(_rec_fn):
 # A control flagged applies_defaults (e.g. FWM's Mode) already applies these sets
 # on selection, so the standalone "Default" buttons would just duplicate it.
 _mode_driven_defaults = any(getattr(sp, "applies_defaults", False) for sp in specs)
+def _apply_default_set(sname, sc, label):
+    cur = {
+        sp.name: st.session_state.get(_skey(sname, sp.name), sp.default)
+        for sp in sc.param_schema()
+    }
+    sets = sc.recommended_defaults(cur) or {}
+    for k, v in (sets.get(label) or {}).items():
+        st.session_state[_skey(sname, k)] = v
+
 if isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
-    _render_group_header(st.sidebar, "Default")
-    _cols = st.sidebar.columns(len(_rec_sets))
-    for _col, _label in zip(_cols, _rec_sets):
-        def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
-            cur = {
-                sp.name: st.session_state.get(_skey(sname, sp.name), sp.default)
-                for sp in sc.param_schema()
-            }
-            sets = sc.recommended_defaults(cur) or {}
-            for k, v in (sets.get(lbl) or {}).items():
-                st.session_state[_skey(sname, k)] = v
-        _short = _label.replace(" default", "")
-        _col.button(_short, on_click=_apply_default, use_container_width=True)
+    if getattr(scheme, "recommended_defaults_as_dropdown", False):
+        # Action-menu dropdown: picking a regime loads its full parameter set and
+        # the menu resets to the placeholder so the same regime can be re-applied.
+        _PLACEHOLDER = "Choose a default…"
+        _options = [_PLACEHOLDER] + list(_rec_sets)
+        _dkey = _skey(scheme.name, "_default_choice")
+        if st.session_state.get(_dkey) not in _options:
+            st.session_state[_dkey] = _PLACEHOLDER
+
+        def _apply_default_dropdown(sname=scheme.name, sc=scheme, dkey=_dkey, ph=_PLACEHOLDER):
+            label = st.session_state.get(dkey)
+            if label == ph:
+                return
+            _apply_default_set(sname, sc, label)
+            st.session_state[dkey] = ph
+
+        st.sidebar.selectbox("Default", _options, key=_dkey,
+                             on_change=_apply_default_dropdown,
+                             help="Load a ready-made regime's full parameter set.")
+    else:
+        _render_group_header(st.sidebar, "Default")
+        _cols = st.sidebar.columns(len(_rec_sets))
+        for _col, _label in zip(_cols, _rec_sets):
+            def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
+                _apply_default_set(sname, sc, lbl)
+            _short = _label.replace(" default", "")
+            _col.button(_short, on_click=_apply_default, use_container_width=True)
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
 visible_specs = [sp for sp in specs if _param_visible(scheme.name, sp)]

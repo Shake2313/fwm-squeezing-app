@@ -7,6 +7,7 @@ selector: probe ellipticity, cell relaxation, residual transverse field, and
 the addressed Zeeman manifold decide the line shape.
 """
 import math
+import re
 
 import numpy as np
 
@@ -34,6 +35,21 @@ CELL_BUFFER = "Buffer gas cell"
 CELL_PARAFFIN = "Paraffin coated cell"
 SIGNAL_TRANSMISSION = "Transmission"
 SIGNAL_NMOR = "NMOR rotation"
+
+
+def _transition_label(Fg, Fe):
+    """Human-readable 87Rb D1 transition label for the Atomic dropdown."""
+    return f"F={int(round(Fg))} → F'={int(round(Fe))}"
+
+
+# 87Rb D1: F_g ∈ {1,2}, F'_e ∈ {1,2}; all four satisfy |F'_e − F_g| ≤ 1.
+TRANSITION_CHOICES = tuple(_transition_label(g, e) for g in (1, 2) for e in (1, 2))
+
+
+def _parse_transition(label):
+    """(Fg, Fe) from a transition label, or None if it can't be parsed."""
+    nums = re.findall(r"\d+", str(label))
+    return (int(nums[0]), int(nums[1])) if len(nums) >= 2 else None
 
 
 def _hyperfine_gf(I, J, F, gJ):
@@ -151,7 +167,18 @@ class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
     cache_version = "polarized-two-region-v2"
-    defaults_version = "polarized-two-region-v1"
+    defaults_version = "polarized-two-region-v2"
+    # Render the readout-contextual default presets as a single dropdown (with an
+    # emoji per regime) instead of a row of buttons.
+    recommended_defaults_as_dropdown = True
+
+    _REGIME_EMOJI = {
+        "CPT dip": "🕳️",
+        "MIA peak": "⛰️",
+        "Buffer Hanle": "🌫️",
+        "Buffer LCA": "✖️",
+        "NMOR": "🧭",
+    }
 
     _DEF = {
         "hanle": dict(signal=SIGNAL_TRANSMISSION, cell=CELL_PARAFFIN, Fg=2, Fe=1,
@@ -196,10 +223,10 @@ class MagnetoScheme(Scheme):
             ParamSpec("cell_type", "Cell type", "Cell & beams", d["cell"],
                       choices=(CELL_PARAFFIN, CELL_BUFFER), control="segmented",
                       help="Choose the relaxation model and the cell-specific sliders."),
-            ParamSpec("Fg", "Ground F_g", "Atomic", float(d["Fg"]), 1.0, 2.0, 1.0, "",
-                      help="87Rb D1 ground hyperfine level."),
-            ParamSpec("Fe", "Excited F'_e", "Atomic", float(d["Fe"]), 1.0, 2.0, 1.0, "",
-                      help="87Rb D1 excited hyperfine level. |F'_e-F_g| <= 1."),
+            ParamSpec("transition", "Transition (F → F')", "Atomic",
+                      _transition_label(d["Fg"], d["Fe"]), choices=TRANSITION_CHOICES,
+                      help="87Rb D1 hyperfine transition F_g → F'_e "
+                           "(all four satisfy |F'_e − F_g| ≤ 1)."),
             ParamSpec("intensity_mw_cm2", "Beam intensity", "Fields", d["intensity"],
                       0.01, 20.0, 0.05, "mW/cm^2",
                       help=f"Converted with Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm^2."),
@@ -280,25 +307,25 @@ class MagnetoScheme(Scheme):
         SIGNAL_TRANSMISSION: {
             "CPT dip": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
-                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                transition=_transition_label(2, 1), intensity_mw_cm2=0.8, qwp_deg=0.0,
                 b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
                 wall_coherence_ms=3.0, residual_transverse_b_ut=0.05,
                 transverse_field_angle_deg=0.0, doppler="on"),
             "MIA peak": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
-                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=45.0,
+                transition=_transition_label(2, 1), intensity_mw_cm2=0.8, qwp_deg=45.0,
                 b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
                 wall_coherence_ms=3.0, residual_transverse_b_ut=0.08,
                 transverse_field_angle_deg=0.0, doppler="on"),
             "Buffer Hanle": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
-                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                transition=_transition_label(2, 1), intensity_mw_cm2=0.8, qwp_deg=0.0,
                 b_max_ut=80.0, ne_pressure_torr=20.0,
                 buffer_ground_relax_khz=20.0, collisional_depol_khz=2.0,
                 residual_transverse_b_ut=0.0, doppler="on"),
             "Buffer LCA": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
-                Fg=2.0, Fe=2.0, intensity_mw_cm2=0.2, qwp_deg=45.0,
+                transition=_transition_label(2, 2), intensity_mw_cm2=0.2, qwp_deg=45.0,
                 b_max_ut=2.0, ne_pressure_torr=20.0,
                 buffer_ground_relax_khz=5.0, collisional_depol_khz=0.5,
                 residual_transverse_b_ut=0.03, transverse_field_angle_deg=90.0,
@@ -307,7 +334,7 @@ class MagnetoScheme(Scheme):
         SIGNAL_NMOR: {
             "NMOR": dict(
                 signal_type=SIGNAL_NMOR, cell_type=CELL_PARAFFIN,
-                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.7, qwp_deg=0.0,
+                transition=_transition_label(2, 1), intensity_mw_cm2=0.7, qwp_deg=0.0,
                 b_max_ut=2.0, transit_relax_khz=50.0, dark_return_khz=1.0,
                 wall_coherence_ms=5.0, residual_transverse_b_ut=0.02,
                 transverse_field_angle_deg=0.0, doppler="on"),
@@ -323,7 +350,7 @@ class MagnetoScheme(Scheme):
         d = self._DEF[self.mode]
         return [Preset(f"D1 {self.mode.upper()} default", icon=self.mode.upper(),
                        values=dict(signal_type=d["signal"], cell_type=d["cell"],
-                                   Fg=float(d["Fg"]), Fe=float(d["Fe"]),
+                                   transition=_transition_label(d["Fg"], d["Fe"]),
                                    intensity_mw_cm2=d["intensity"], qwp_deg=d["qwp"],
                                    b_max_ut=d["bmax"], doppler="on"))]
 
@@ -336,7 +363,8 @@ class MagnetoScheme(Scheme):
             return None
         signal = params.get("signal_type", SIGNAL_TRANSMISSION)
         regimes = self._REGIMES.get(signal, self._REGIMES[SIGNAL_TRANSMISSION])
-        return {label: dict(values) for label, values in regimes.items()}
+        return {f"{self._REGIME_EMOJI.get(label, '•')} {label}": dict(values)
+                for label, values in regimes.items()}
 
     def info(self):
         return (
@@ -361,7 +389,13 @@ class MagnetoScheme(Scheme):
         )
 
     def compute(self, params):
-        Fg, Fe = int(round(params["Fg"])), int(round(params["Fe"]))
+        # The UI exposes a single transition dropdown; tests/aliases may still
+        # pass explicit Fg/Fe, which take priority.
+        if "Fg" in params and "Fe" in params:
+            Fg, Fe = int(round(params["Fg"])), int(round(params["Fe"]))
+        else:
+            parsed = _parse_transition(params.get("transition", _transition_label(2, 1)))
+            Fg, Fe = parsed if parsed else (2, 1)
         Fg_allowed = set(int(round(f)) for f in species.f_values(RB87.I, RB87.Jg))
         Fe_allowed = set(int(round(f)) for f in species.f_values(RB87.I, JE_D1))
         strength = _transition_strength(Fg, Fe) if (Fg in Fg_allowed and Fe in Fe_allowed) else 0.0
