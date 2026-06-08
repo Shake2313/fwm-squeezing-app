@@ -28,7 +28,8 @@ K = constants.K_VEC
 
 def _curve(raw):
     alpha, xp = observables.absorption_coefficient(
-        raw["chi_bar"], K, raw["N"], line_strength=raw["ls"])
+        raw["chi_bar"], raw.get("k_vec", K), raw["N"],
+        dipole=raw.get("dipole"), line_strength=raw["ls"])
     x = raw["scan"] / (2 * np.pi) / 1e6
     return x, alpha, observables.transmission(alpha, raw["L"]), xp
 
@@ -108,15 +109,19 @@ def test_hyperfine_self_broadening_monotone():
 def test_at_splitting_equals_coupling_rabi():
     at = schemes.get("at")
     for Oc in (6.0, 8.0, 12.0):
-        x, alpha, _, _ = _curve(at.compute(_params(at, coupling_rabi=Oc, doppler="off")))
+        Oc_mhz = Oc * GMHZ
+        x, alpha, _, _ = _curve(at.compute(_params(
+            at, coupling_rabi_mhz=Oc_mhz, doppler="off")))
         xl = x[x < 0][np.argmax(alpha[x < 0])]
         xr = x[x > 0][np.argmax(alpha[x > 0])]
-        assert abs((xr - xl) / (Oc * GMHZ) - 1.0) < 0.05
+        assert abs((xr - xl) / Oc_mhz - 1.0) < 0.05
 
 
 def test_eit_transparency():
     eit = schemes.get("eit")
-    raw = eit.compute(_params(eit, temp_c=25, cell_mm=3, doppler="off", coupling_rabi=3.0))
+    raw = eit.compute(_params(
+        eit, temp_c=25, cell_mm=3, doppler="off",
+        coupling_rabi_mhz=3.0 * GMHZ))
     x, _, T, _ = _curve(raw)
     ic = int(np.argmin(np.abs(x)))
     assert T[ic] > 0.8 and T[ic] > 10 * T.min()
@@ -139,6 +144,20 @@ def test_cpt_subnatural_dark_resonance():
     assert dark_fwhm_mhz < GMHZ             # sub-natural
 
 
+def test_lambda_regime_defaults_are_mode_driven():
+    sc = schemes.get("lambda")
+    sets = sc.recommended_defaults(sc.defaults())
+    assert set(sets) == {"EIT", "AT", "CPT"}
+    assert sets["EIT"]["view"] == "EIT"
+    assert sets["AT"]["view"] == "AT"
+    assert sets["CPT"]["view"] == "CPT"
+    assert sets["AT"]["coupling_rabi_mhz"] > sets["EIT"]["coupling_rabi_mhz"]
+    specs = {sp.name: sp for sp in sc.param_schema()}
+    assert specs["view"].control == "segmented"
+    assert specs["view"].applies_defaults
+    assert "coupling_rabi" not in specs and "gamma_gg" not in specs
+
+
 if __name__ == "__main__":
     test_od_cold_natural_linewidth()
     test_od_ne_buffer_pressure_broadens_cold_linewidth()
@@ -149,4 +168,5 @@ if __name__ == "__main__":
     test_at_splitting_equals_coupling_rabi()
     test_eit_transparency()
     test_cpt_subnatural_dark_resonance()
+    test_lambda_regime_defaults_are_mode_driven()
     print("Phase-1 absorption physics OK (OD 2-mode / hyperfine / AT/EIT/CPT).")

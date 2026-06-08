@@ -4,6 +4,7 @@ one entry here (no UI change). FWM today; AT/EIT/CPT/SAS/Hanle/… land next.
 """
 from .base import ExtraView, ParamSpec, Preset, Scheme
 from .absorption import ODScheme, LambdaScheme
+from .rydberg import RydbergEITScheme
 from .sas import SASScheme
 from .magneto import MagnetoScheme
 from .fwm import FWMScheme
@@ -12,11 +13,13 @@ from .fwm import FWMScheme
 # a single entry that carries an in-panel `view` selector + per-regime presets:
 #   SASScheme()     → OD / SAS         (pump power = 0 recovers OD)
 #   LambdaScheme()  → EIT / AT / CPT   (the coupling-Ω_c regimes of one Λ system)
+#   RydbergEITScheme() → cascade EIT / microwave AT electrometry
 #   MagnetoScheme() → Hanle / EIA / NMOR  (transmission vs rotation readouts, one solve)
 # (ODScheme stays in absorption.py as the single-2-level validation primitive.)
 _SCHEMES = [
     SASScheme(),
     LambdaScheme(),
+    RydbergEITScheme(),
     MagnetoScheme(),
     FWMScheme(),
 ]

@@ -18,13 +18,15 @@ the Doppler width and the 85Rb number density (hence the absorption scale).
 """
 import numpy as np
 
-from .. import atoms, constants, doppler, hyperfine, observables
+from .. import atoms, constants, doppler, hyperfine, observables, species
 from ..constants import GAMMA, K_VEC, OMEGA_D1
 from .. import core
 from .base import ParamSpec, Preset, Scheme
 
 PROBE_RABI = 1e-3              # weak probe, in units of Γ
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
+MHZ = 2 * np.pi * 1e6
+KHZ = 2 * np.pi * 1e3
 
 # numpy ≥ 2.0 renamed np.trapz → np.trapezoid; support both.
 _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))
@@ -37,7 +39,8 @@ def _ne_buffer_gamma(params):
     return constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
 
 
-def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
+def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
+                   probe_omega=None, k_vec=None, mass=None):
     """
     χ̄(scan) = probe coherence ρ_eg / Ω_p, Doppler-averaged over the Maxwell
     velocity distribution (single excited-state shift, co-propagating geometry).
@@ -51,7 +54,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
         (exact); only the broad optical background is averaged.
     """
     e, g = probe_coh
-    om_p = PROBE_RABI * GAMMA
+    om_p = PROBE_RABI * GAMMA if probe_omega is None else probe_omega
+    k_vec = K_VEC if k_vec is None else k_vec
+    mass = constants.MASS_85RB if mass is None else mass
     n = atom.n_levels
     doppler_on = params.get("doppler", "off") == "on"
 
@@ -73,14 +78,14 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
         # OD: scan-independent H solved once on a fine Δ_eff table, then averaged.
         # The solve cost is independent of the velocity grid, so keep it fine
         # (dv = 1) — this path feeds the AutoOD-validated absolute scale.
-        v, w = doppler.velocity_grid(T, dv=1.0, cutoff_sigma=4.0)
-        kvmax = K_VEC * np.abs(v).max()
+        v, w = doppler.velocity_grid(T, mass=mass, dv=1.0, cutoff_sigma=4.0)
+        kvmax = k_vec * np.abs(v).max()
         L0 = core.build_liouvillian(build_H0(0.0), atom)
         lo, hi = scan.min() - kvmax, scan.max() + kvmax
         deff = np.linspace(lo, hi, int((hi - lo) / _TABLE_STEP) + 2)
         rho = core.steady_state_batched(L0, deff, atom.S_v, n)
         table = rho[:, e, g] / om_p
-        return doppler.doppler_average_1d(table, deff, scan, v, w)
+        return doppler.doppler_average_1d(table, deff, scan, v, w, k_vec=k_vec)
 
     # Scan-dependent H (Λ): the two-photon feature is Doppler-free, so the optical
     # background must be solved at the Maxwell classes per scan point — this path
@@ -89,8 +94,8 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep):
     # background is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1)
     # ~halves the solves while keeping transmission < 0.02% and the Re χ / group-
     # index readout < 1% against the fine grid.
-    v, w = doppler.velocity_grid(T, dv=2.0, cutoff_sigma=4.0)
-    kv = K_VEC * v
+    v, w = doppler.velocity_grid(T, mass=mass, dv=2.0, cutoff_sigma=4.0)
+    kv = k_vec * v
     out = np.zeros(scan.size, dtype=complex)
     for i, s in enumerate(scan):
         L0 = core.build_liouvillian(build_H0(s), atom)
@@ -389,11 +394,53 @@ class ODScheme(Scheme):
         return self._observables_hyperfine(raw, params)
 
 
+LAMBDA_GENERIC = "Generic"
+
+
+def _medium_from_params(params, default_temp_c=50.0):
+    """Scalar D-line medium used by the Lambda/Rydberg linear readout models."""
+    T = float(params.get("temp_c", default_temp_c)) + 273.15
+    line = params.get("line", "D1")
+    key = params.get("species", "Rb (natural)")
+    if key == LAMBDA_GENERIC:
+        return dict(
+            key=key, label=key, line=line, T=T, N=atoms.rb85_density(T),
+            gamma=GAMMA, gamma_mhz=GAMMA_MHZ, k_vec=K_VEC, omega0=OMEGA_D1,
+            dipole=constants.DIPOLE_D1, mass=constants.MASS_85RB,
+        )
+
+    comps = species.SPECIES.get(key, species.SPECIES["Rb (natural)"])
+    iso_ref = max(comps, key=lambda item: item[1])[0]
+    Je, nu0, gamma_mhz, _, _ = iso_ref.line(line)
+    gamma = gamma_mhz * MHZ
+    lam = constants.C_LIGHT / nu0
+    total_weight = sum(weight for _, weight in comps)
+    N = sum(species.number_density(iso, T) * weight for iso, weight in comps)
+    mass = sum(iso.mass * weight for iso, weight in comps) / max(total_weight, 1e-30)
+    dipole = np.sqrt(species.reduced_dipole_sq(gamma, lam, iso_ref.Jg, Je))
+    return dict(
+        key=key, label=key, line=line, T=T, N=N, gamma=gamma,
+        gamma_mhz=gamma_mhz, k_vec=2 * np.pi / lam, omega0=2 * np.pi * nu0,
+        dipole=dipole, mass=mass,
+    )
+
+
+def _mkey(params, new_key, old_key, scale, default):
+    """Read a physical-unit key, with old Gamma-unit Lambda params as fallback."""
+    if new_key in params:
+        return float(params[new_key])
+    if old_key in params:
+        return float(params[old_key]) * scale
+    return default
+
+
 # =========================================================
 # Λ system — EIT / AT / CPT (one engine, three presentations)
 # =========================================================
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
+    cache_version = "physical-units-v1"
+    defaults_version = "physical-units-v1"
 
     _TITLE = {
         "eit": "Electromagnetically induced transparency (EIT)",
@@ -409,12 +456,14 @@ class LambdaScheme(Scheme):
                 "dark state, giving a sub-natural absorption dip."),
     }
 
-    # Per-regime defaults chosen so the feature is unsaturated and clearly visible
-    # (Rb is very absorbing — ls=1.0 is the true cross-section, so cells are short).
+    # Per-regime defaults converted from the old Gamma-unit controls into lab units.
     _DEF = {
-        "eit": dict(oc=3.0, gg=0.01, temp=50.0, cell=15.0, dopp="on"),
-        "at":  dict(oc=8.0, gg=0.01, temp=25.0, cell=3.0, dopp="off"),
-        "cpt": dict(oc=1.0, gg=0.005, temp=25.0, cell=3.0, dopp="off"),
+        "eit": dict(oc_mhz=3.0 * GAMMA_MHZ, gg_khz=0.01 * GAMMA_MHZ * 1e3,
+                    temp=50.0, cell=15.0, dopp="on"),
+        "at":  dict(oc_mhz=8.0 * GAMMA_MHZ, gg_khz=0.01 * GAMMA_MHZ * 1e3,
+                    temp=25.0, cell=3.0, dopp="off"),
+        "cpt": dict(oc_mhz=1.0 * GAMMA_MHZ, gg_khz=0.005 * GAMMA_MHZ * 1e3,
+                    temp=25.0, cell=3.0, dopp="off"),
     }
 
     def __init__(self, mode=None):
@@ -441,21 +490,30 @@ class LambdaScheme(Scheme):
         if self.mode is None:
             specs.append(ParamSpec(
                 "view", "Regime", "Regime", "EIT", choices=("EIT", "AT", "CPT"),
+                control="segmented", applies_defaults=True,
                 help="EIT: weak-coupling transparency window. AT: strong-coupling "
                      "doublet (split ≈ Ω_c). CPT: narrow two-photon dark resonance. "
                      "One Λ engine — the presets set textbook values for each."))
         specs += [
-            ParamSpec("coupling_detuning", "Coupling detuning Δ_c", "Detunings", 0.0,
-                      -10.0, 10.0, 0.1, "Γ"),
-            ParamSpec("coupling_rabi", "Coupling Rabi Ω_c", "Fields", d["oc"],
-                      0.1, 20.0, 0.1, "Γ", help="Strong dressing field on g₂↔e.",
-                      endpoints=("← weak: EIT", "strong: AT →")),
-            ParamSpec("gamma_gg", "Ground dephasing γ_gg", "Atomic", d["gg"],
-                      0.0, 0.5, 0.001, "Γ", help="Sets the EIT/CPT dark-resonance floor."),
+            ParamSpec("species", "Atom / isotope", "Atomic", "Rb (natural)",
+                      choices=tuple(species.SPECIES_ORDER) + (LAMBDA_GENERIC,),
+                      help="Scalar D-line medium. Natural Rb uses abundance-weighted density."),
+            ParamSpec("line", "Transition line", "Atomic", "D1",
+                      choices=("D1", "D2"),
+                      help="Sets linewidth, wavelength, Doppler scale and dipole moment."),
+            ParamSpec("coupling_detuning_mhz", "Coupling detuning", "Detunings", 0.0,
+                      -80.0, 80.0, 0.1, "MHz"),
+            ParamSpec("coupling_rabi_mhz", "Coupling Rabi", "Fields", d["oc_mhz"],
+                      0.1, 120.0, 0.1, "MHz",
+                      help="Strong dressing-field Rabi frequency on the second leg.",
+                      endpoints=("weak EIT", "strong AT")),
+            ParamSpec("ground_dephasing_khz", "Ground dephasing", "Atomic", d["gg_khz"],
+                      0.0, 2000.0, 1.0, "kHz",
+                      help="Ground-state coherence decay; sets the EIT/CPT linewidth floor."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", d["temp"], 20.0, 200.0, 1.0, "°C"),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", d["cell"], 0.5, 200.0, 0.5, "mm"),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
-                      0.01, 2.0, 0.01, ""),
+                      0.01, 2.0, 0.01, "", advanced=True),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", d["dopp"],
                       choices=("on", "off"), advanced=True),
         ]
@@ -463,65 +521,89 @@ class LambdaScheme(Scheme):
 
     def presets(self):
         if self.mode is None:
-            return [
-                Preset("EIT window", icon="🪟", values=dict(
-                    view="EIT", coupling_rabi=3.0, gamma_gg=0.01,
-                    temp_c=50.0, cell_mm=15.0, doppler="on")),
-                Preset("AT doublet", icon="⛰️", values=dict(
-                    view="AT", coupling_rabi=8.0, gamma_gg=0.01,
-                    temp_c=25.0, cell_mm=3.0, doppler="off")),
-                Preset("CPT dark resonance", icon="🌑", values=dict(
-                    view="CPT", coupling_rabi=1.0, gamma_gg=0.005,
-                    temp_c=25.0, cell_mm=3.0, doppler="off")),
-            ]
-        if self.mode == "eit":
-            return [Preset("Vapor EIT", values=dict(coupling_rabi=3.0, gamma_gg=0.01,
-                                                    temp_c=50.0, doppler="on"))]
-        if self.mode == "at":
-            return [Preset("Strong-coupling doublet",
-                           values=dict(coupling_rabi=8.0, gamma_gg=0.01, doppler="off"))]
-        return [Preset("Dark resonance",
-                       values=dict(coupling_rabi=1.0, gamma_gg=0.005, doppler="off"))]
+            return []
+        label = self._TITLE[self.mode].split("(")[-1].rstrip(")")
+        return [Preset(f"{label} default", values=self._default_values(self.mode))]
+
+    def _default_values(self, mode):
+        d = self._DEF[mode]
+        view = {"eit": "EIT", "at": "AT", "cpt": "CPT"}[mode]
+        return dict(
+            view=view, coupling_detuning_mhz=0.0,
+            coupling_rabi_mhz=d["oc_mhz"], ground_dephasing_khz=d["gg_khz"],
+            temp_c=d["temp"], cell_mm=d["cell"], doppler=d["dopp"],
+            line_strength=1.0,
+        )
+
+    def recommended_defaults(self, params):
+        if self.mode is not None:
+            return {self._TITLE[self.mode].split("(")[-1].rstrip(")"):
+                    self._default_values(self.mode)}
+        return {
+            "EIT": self._default_values("eit"),
+            "AT": self._default_values("at"),
+            "CPT": self._default_values("cpt"),
+        }
 
     def _scan(self, params):
         m = self._mode(params)
-        Oc = params["coupling_rabi"]
-        Dc = params["coupling_detuning"]
-        gg = params["gamma_gg"]
+        medium = _medium_from_params(params)
+        gamma_mhz = medium["gamma_mhz"]
+        Oc = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
+                   self._DEF[m]["oc_mhz"])
+        Dc = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
+        gg = _mkey(params, "ground_dephasing_khz", "gamma_gg", gamma_mhz * 1e3,
+                   self._DEF[m]["gg_khz"]) / (gamma_mhz * 1e3)
+        Oc_g = Oc / gamma_mhz
+        Dc_g = Dc / gamma_mhz
         if m == "cpt":
-            dark = gg + Oc**2          # power-broadened dark width (Γ units)
+            dark = gg + Oc_g**2          # power-broadened dark width (Gamma units)
             half = max(0.05, 12.0 * dark)
         elif m == "at":
-            half = max(10.0, 3.0 * Oc)
+            half = max(10.0, 3.0 * Oc_g)
         else:
-            half = max(8.0, 4.0 * Oc)
-        return (Dc + np.linspace(-half, half, 601)) * GAMMA
+            half = max(8.0, 4.0 * Oc_g)
+        return (Dc_g + np.linspace(-half, half, 601)) * medium["gamma"]
 
     def compute(self, params):
-        atom = atoms.lambda3(gamma_gg=params["gamma_gg"] * GAMMA)
-        Oc = params["coupling_rabi"] * GAMMA
-        Dc = params["coupling_detuning"] * GAMMA
+        medium = _medium_from_params(params)
+        gamma = medium["gamma"]
+        gamma_mhz = medium["gamma_mhz"]
+        Oc_mhz = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
+                       self._DEF[self._mode(params)]["oc_mhz"])
+        Dc_mhz = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
+        gg_khz = _mkey(params, "ground_dephasing_khz", "gamma_gg", gamma_mhz * 1e3,
+                       self._DEF[self._mode(params)]["gg_khz"])
+        atom = atoms.lambda3(gamma_gg=gg_khz * KHZ, gamma=gamma)
+        Oc = Oc_mhz * MHZ
+        Dc = Dc_mhz * MHZ
+        probe = PROBE_RABI * gamma
 
         def build_H0(s):
             H = np.zeros((3, 3), dtype=complex)
             H[1, 1] = Dc - s                      # two-photon detuning (Doppler-free)
-            H[0, 2] = H[2, 0] = PROBE_RABI * GAMMA / 2
+            H[0, 2] = H[2, 0] = probe / 2
             H[1, 2] = H[2, 1] = Oc / 2
             return H
 
         scan = self._scan(params)
-        chi_bar = _solve_chi_avg(atom, build_H0, (2, 0), scan, params, h_dep=True)
-        T = params["temp_c"] + 273.15
-        N = atoms.rb85_density(T)
-        return dict(scan=scan, chi_bar=chi_bar, N=N, T=T, Dc=Dc,
-                    L=params["cell_mm"] * 1e-3, ls=params["line_strength"])
+        chi_bar = _solve_chi_avg(
+            atom, build_H0, (2, 0), scan, params, h_dep=True,
+            probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"])
+        return dict(scan=scan, chi_bar=chi_bar, N=medium["N"], T=medium["T"], Dc=Dc,
+                    L=params["cell_mm"] * 1e-3, ls=params.get("line_strength", 1.0),
+                    gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],
+                    omega0=medium["omega0"], dipole=medium["dipole"],
+                    medium_label=medium["label"], line=medium["line"],
+                    coupling_rabi_mhz=Oc_mhz, ground_dephasing_khz=gg_khz)
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
         m = self._mode(params)
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, xphys = observables.absorption_coefficient(
-            raw["chi_bar"], K_VEC, raw["N"], line_strength=raw["ls"])
+            raw["chi_bar"], raw.get("k_vec", K_VEC), raw["N"],
+            dipole=raw.get("dipole"), line_strength=raw["ls"])
         T_trans = observables.transmission(alpha, raw["L"])
         center = raw["Dc"] / (2 * np.pi) / 1e6                   # two-photon resonance, MHz
 
@@ -529,10 +611,14 @@ class LambdaScheme(Scheme):
         axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
         axT.set_ylabel("Transmission")
         axT.set_ylim(-0.02, 1.02)
-        axT.set_title(f"{self._TITLE[m].split('(')[0].strip()}:  Ω_c = {params['coupling_rabi']:.1f} Γ,  "
-                      f"γ_gg = {params['gamma_gg']:.3f} Γ,  Doppler {params['doppler']}")
+        axT.set_title(
+            f"{self._TITLE[m].split('(')[0].strip()}: "
+            f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}, "
+            f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
+            f"gamma_gg = {raw['ground_dephasing_khz']:.1f} kHz, "
+            f"Doppler {params.get('doppler', 'off')}")
         axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
-        axD.set_ylabel("Re χ  (dispersion)")
+        axD.set_ylabel("Re chi  (dispersion)")
         axD.set_xlabel("Probe detuning  [MHz]")
         for a in (axT, axD):
             a.axvline(center, color="gray", ls=":", lw=0.8)
@@ -540,7 +626,16 @@ class LambdaScheme(Scheme):
 
         ic = int(np.argmin(np.abs(x - center)))
         metrics = self._metrics(m, x, alpha, T_trans, xphys, ic, center, raw, params)
-        return dict(metrics=metrics, figure=fig, tables=[])
+        derived = (
+            "| Quantity | Value |\n|---|---|\n"
+            f"| Medium | {raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')} |\n"
+            f"| Gamma/2pi | {raw.get('gamma_mhz', GAMMA_MHZ):.4f} MHz |\n"
+            f"| Omega_c/2pi | {raw['coupling_rabi_mhz']:.4f} MHz |\n"
+            f"| gamma_gg/2pi | {raw['ground_dephasing_khz']:.3f} kHz |\n"
+            f"| N | {raw['N']:.3e} /m^3 |\n"
+        )
+        return dict(metrics=metrics, figure=fig,
+                    tables=[{"title": "Derived quantities", "markdown": derived}])
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":
@@ -550,7 +645,8 @@ class LambdaScheme(Scheme):
             xl = x[left][np.argmax(alpha[left])] if left.any() else np.nan
             xr = x[right][np.argmax(alpha[right])] if right.any() else np.nan
             split = abs(xr - xl)
-            expected = params["coupling_rabi"] * GAMMA_MHZ      # Ω_c in MHz
+            expected = raw.get("coupling_rabi_mhz",
+                               params.get("coupling_rabi", 0.0) * GAMMA_MHZ)
             return [
                 dict(label="AT splitting", value=f"{split:.1f} MHz",
                      help="Separation of the two absorption maxima."),
@@ -560,7 +656,7 @@ class LambdaScheme(Scheme):
             ]
         # EIT / CPT: transparency at two-photon resonance + dark-resonance width.
         win_fwhm = _window_fwhm(x, T_trans, ic)
-        ng = observables.group_index(xphys, raw["scan"], OMEGA_D1)[ic]
+        ng = observables.group_index(xphys, raw["scan"], raw.get("omega0", OMEGA_D1))[ic]
         unit = "kHz" if mode == "cpt" else "MHz"
         scale = 1e3 if mode == "cpt" else 1.0
         return [

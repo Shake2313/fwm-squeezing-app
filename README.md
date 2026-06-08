@@ -10,9 +10,8 @@ double-Λ four-wave-mixing model (now one scheme among several).
 | Cluster | Scheme | Output |
 |---|---|---|
 | A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
-| A | **EIT** | transparency window + dispersion (slow light) |
-| A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
-| A | **CPT** | sub-natural dark resonance |
+| A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
+| A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT static spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; reference sensitivity numbers stay in internal tests |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
 | D — Wave mixing | **FWM** | legacy seeded 85Rb D1 double-Λ gain/squeezing, plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class BTW) |
 
@@ -41,8 +40,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
-    `absorption.py` (EIT/AT/CPT + the unregistered `ODScheme` validation
-    primitive), `sas.py` (the merged **Absorption OD/SAS** scheme on `species.py`),
+    `absorption.py` (Lambda EIT/AT/CPT + the unregistered `ODScheme` validation
+    primitive), `rydberg.py` (Rydberg-EIT electrometry), `sas.py`
+    (the merged **Absorption OD/SAS** scheme on `species.py`),
     `magneto.py` (Hanle/EIA/NMOR),
     `fwm.py`, `__init__.py` (registry).
 - `streamlit_app.py` — generic UI. Renders only the selected scheme's
@@ -53,7 +53,7 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 - `tests/` — regression + physics validation; `baseline_focused.npz` is the
   frozen pre-refactor FWM anchor.
 - `requirements.txt` — streamlit, numpy, matplotlib.
-- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper. The Biphoton defaults cite the Cs biphoton-temporal-waveform paper and the 87Rb telecom biphoton source paper from the app's Reference panel.
+- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper. The Rydberg-EIT scheme cites arXiv:2606.04354 for its 85Rb reference defaults; the Biphoton defaults cite the Cs biphoton-temporal-waveform paper and the 87Rb telecom biphoton source paper from the app's Reference panel.
 
 ## Run
 
@@ -68,7 +68,8 @@ streamlit run"). FWM CLI backend: `python fwm_obe.py`.
 
 ```
 python tests/test_regression.py      # FWM bit-identical to the pre-refactor baseline
-python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, AT split = Ω_c, EIT/CPT
+python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, Lambda AT/EIT/CPT
+python tests/test_rydberg_eit.py     # 85Rb Rydberg-EIT reference defaults, linewidth, RF AT split
 python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, generic
 
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
