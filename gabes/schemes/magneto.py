@@ -173,8 +173,8 @@ class MagnetoScheme(Scheme):
     recommended_defaults_as_dropdown = True
 
     _REGIME_EMOJI = {
-        "CPT dip": "🕳️",
-        "MIA peak": "⛰️",
+        "EIT dip": "🕳️",
+        "EIA peak": "⛰️",
         "Buffer Hanle": "🌫️",
         "Buffer LCA": "✖️",
         "NMOR": "🧭",
@@ -305,13 +305,13 @@ class MagnetoScheme(Scheme):
     # readout-contextual one-click default buttons (recommended_defaults).
     _REGIMES = {
         SIGNAL_TRANSMISSION: {
-            "CPT dip": dict(
+            "EIT dip": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
                 transition=_transition_label(2, 1), intensity_mw_cm2=0.8, qwp_deg=0.0,
                 b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
                 wall_coherence_ms=3.0, residual_transverse_b_ut=0.05,
                 transverse_field_angle_deg=0.0, doppler="on"),
-            "MIA peak": dict(
+            "EIA peak": dict(
                 signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
                 transition=_transition_label(2, 1), intensity_mw_cm2=0.8, qwp_deg=45.0,
                 b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,

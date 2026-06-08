@@ -606,20 +606,15 @@ def _apply_default_set(sname, sc, label):
 
 if isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
     if getattr(scheme, "recommended_defaults_as_dropdown", False):
-        # Action-menu dropdown: picking a regime loads its full parameter set and
-        # the menu resets to the placeholder so the same regime can be re-applied.
-        _PLACEHOLDER = "Choose a default…"
-        _options = [_PLACEHOLDER] + list(_rec_sets)
+        # Dropdown that keeps the chosen regime visible; picking one loads its
+        # full parameter set. Defaults to the first regime offered.
+        _options = list(_rec_sets)
         _dkey = _skey(scheme.name, "_default_choice")
         if st.session_state.get(_dkey) not in _options:
-            st.session_state[_dkey] = _PLACEHOLDER
+            st.session_state[_dkey] = _options[0]
 
-        def _apply_default_dropdown(sname=scheme.name, sc=scheme, dkey=_dkey, ph=_PLACEHOLDER):
-            label = st.session_state.get(dkey)
-            if label == ph:
-                return
-            _apply_default_set(sname, sc, label)
-            st.session_state[dkey] = ph
+        def _apply_default_dropdown(sname=scheme.name, sc=scheme, dkey=_dkey):
+            _apply_default_set(sname, sc, st.session_state.get(dkey))
 
         st.sidebar.selectbox("Default", _options, key=_dkey,
                              on_change=_apply_default_dropdown,
