@@ -44,6 +44,37 @@ def gain_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     return G_s, G_c, T
 
 
+def pump_depletion_saturation(G_s, G_c, P_pump, P_seed):
+    """
+    Energy-conservation (pump-depletion) saturation of the small-signal FWM gains.
+
+    The undepleted-pump linear propagation in `gain_from_chi` returns a
+    *small-signal* gain that, at high density, would extract more power than the
+    pump can physically supply (e.g. G_s·P_seed ≫ P_pump). Non-degenerate FWM is
+    a Manley-Rowe process — two pump photons create one signal + one conjugate
+    photon — so at full conversion the seeded signal adds at most half the pump
+    power and the generated conjugate the other half:
+
+        (G_s − 1)·P_seed → P_pump/2,    G_c·P_seed → P_pump/2   (high gain).
+
+    A smooth homogeneous-saturation form leaves the small-signal gain untouched
+    where (G−1)·P_seed ≪ P_pump and enforces the energy bound at high gain:
+
+        G_s_sat = 1 + (G_s−1) / (1 + (G_s−1)·P_seed / P_cap),   P_cap = P_pump/2
+        G_c_sat =      G_c    / (1 +  G_c   ·P_seed / P_cap)
+
+    so (G_s−1) and G_c saturate identically (preserving the twin-beam relation
+    G_c ≈ G_s − 1). Returns the saturated (G_s, G_c).
+    """
+    P_seed = max(float(P_seed), 1e-30)
+    P_cap = max(0.5 * float(P_pump), 1e-30)
+    gain_part = np.maximum(np.asarray(G_s, dtype=float) - 1.0, 0.0)
+    conj = np.maximum(np.asarray(G_c, dtype=float), 0.0)
+    G_s_sat = 1.0 + gain_part / (1.0 + gain_part * P_seed / P_cap)
+    G_c_sat = conj / (1.0 + conj * P_seed / P_cap)
+    return G_s_sat, G_c_sat
+
+
 def coincidence_stats(G_s, G_c):
     """
     Equal-time twin-beam (signal/conjugate) photon statistics for the FWM

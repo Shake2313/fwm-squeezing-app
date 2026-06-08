@@ -696,6 +696,13 @@ def compute_spectrum(D_GHz, *,
     G_s, G_c, _ = observables.gain_from_chi(
         chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         K_VEC, K_VEC, L_CELL, N_atoms, line_strength=line_strength)
+
+    # The propagation above is linear in the (undepleted) pump. At high density
+    # it overshoots the energy the pump can supply, so apply Manley-Rowe pump-
+    # depletion saturation. This is negligible in the validated regime and only
+    # caps the runaway when (G_s−1)·P_seed approaches P_pump/2.
+    G_s_smallsignal = G_s
+    G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
     S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, eta)
 
     return {
@@ -704,6 +711,8 @@ def compute_spectrum(D_GHz, *,
         "G_s": G_s,
         "G_c": G_c,
         "S_dB": S_dB,
+        "G_s_smallsignal_peak": float(np.nanmax(G_s_smallsignal)),
+        "pump_depletion_cap": 1.0 + 0.5 * P_pump / max(P_probe, 1e-30),
         "eta": eta,
         "branch": branch,
         "N_atoms": N_atoms,
@@ -893,6 +902,11 @@ class FWMScheme(Scheme):
             "**Seeded reference:** G. Sim, H. Kim, H. S. Moon, *Sci. Rep.* "
             "**15**, 7727 (2025). Legacy 85Rb D1 double-Lambda gain and "
             "intensity-difference squeezing remain regression-anchored.\n\n"
+            "The propagation is linear in the undepleted pump, so the bare gain "
+            "grows exponentially with density and would exceed the pump's energy "
+            "budget at high T. A Manley-Rowe pump-depletion saturation "
+            "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
+            "conservation bound; it is negligible in the validated regime.\n\n"
             "**Biphoton references:** Heewoo Kim, Hansol Jeong and Han Seb Moon, "
             "[*Quantum Sci. Technol.* 9, 045006 (2024)]"
             "(https://arxiv.org/abs/2402.06872); Hansol Jeong, Heewoo Kim and "
@@ -968,6 +982,9 @@ class FWMScheme(Scheme):
             dict(label="Conjugate gain  G_c", value=f"{op['G_c']:.2f}",
                  help="Generated conjugate power gain (drives the twin-beam squeezing)."),
         ]
+        cap = raw.get("pump_depletion_cap", float("inf"))
+        small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
+        depletion_limited = small_signal > 1.1 * cap
         derived = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| N(85Rb) | {raw['N_atoms']:.3e} /m³ |\n"
@@ -977,8 +994,14 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
+            f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
+            f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n\n"
-            f"Fixed: cell L = {L_CELL*1e3:.1f} mm · pump w₀ {W_PUMP*1e6:.0f} µm · "
+            + ("⚠️ **Pump-depletion limited:** the small-signal gain exceeds what "
+               "the pump can supply (Manley-Rowe), so the shown gain is capped by "
+               "energy conservation. Lower T / raise seed power to stay in the "
+               "linear regime.\n\n" if depletion_limited else "")
+            + f"Fixed: cell L = {L_CELL*1e3:.1f} mm · pump w₀ {W_PUMP*1e6:.0f} µm · "
             f"seed w₀ {W_PROBE*1e6:.0f} µm · QE {QE_DETECTOR*100:.2f}% · "
             f"responsivity {RESPONSIVITY_AW} A/W @ 795 nm · pump⊥probe at PBS."
         )
