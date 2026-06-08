@@ -563,7 +563,14 @@ _rec_fn = getattr(scheme, "recommended_defaults", None)
 _rec_sets = None
 if callable(_rec_fn):
     try:
-        _rec_sets = _rec_fn(scheme.defaults())
+        # Probe with the live selection (not static defaults) so a scheme can
+        # offer readout/mode-dependent default buttons (e.g. magneto shows
+        # transmission regimes vs an NMOR default). Keys are stable for SAS/FWM.
+        _live_params = {
+            sp.name: st.session_state.get(_skey(scheme.name, sp.name), sp.default)
+            for sp in scheme.param_schema()
+        }
+        _rec_sets = _rec_fn(_live_params)
     except Exception:
         _rec_sets = None
 if isinstance(_rec_sets, dict) and _rec_sets:

@@ -221,36 +221,49 @@ class MagnetoScheme(Scheme):
                       0.0, 200.0, 1.0, "Torr",
                       visible_if={"cell_type": CELL_BUFFER},
                       help="Simple Ne pressure broadening for buffer-gas mode."),
-            ParamSpec("buffer_ground_relax_khz", "Buffer ground relaxation", "Atomic", 3.0,
-                      0.1, 500.0, 0.5, "kHz",
-                      visible_if={"cell_type": CELL_BUFFER},
-                      help="Ground-state relaxation and repopulation in the beam."),
-            ParamSpec("collisional_depol_khz", "Collisional depolarization", "Atomic", 0.5,
-                      0.0, 200.0, 0.5, "kHz",
-                      visible_if={"cell_type": CELL_BUFFER},
-                      help="Extra ground-coherence loss from spin-destroying collisions."),
-            ParamSpec("transit_relax_khz", "Transit relaxation", "Atomic", 80.0,
-                      0.1, 1000.0, 1.0, "kHz",
-                      visible_if={"cell_type": CELL_PARAFFIN},
-                      help="Atoms leaving the illuminated region; sets the broad pedestal."),
-            ParamSpec("dark_return_khz", "Dark-region return rate", "Atomic", 1.0,
-                      0.01, 100.0, 0.01, "kHz",
-                      visible_if={"cell_type": CELL_PARAFFIN},
-                      help="Rate for wall-preserved atoms returning from the dark region."),
-            ParamSpec("wall_coherence_ms", "Wall coherence lifetime", "Atomic", 3.0,
+            # The headline cell-quality knob (paraffin): the anti-relaxation
+            # coating's ground-coherence lifetime. Kept primary, in the cell group.
+            ParamSpec("wall_coherence_ms", "Wall coherence lifetime", "Cell & beams", 3.0,
                       0.05, 200.0, 0.05, "ms",
                       visible_if={"cell_type": CELL_PARAFFIN},
-                      help="Long-lived ground coherence outside the beam."),
+                      help="Anti-relaxation coating quality (ground-coherence lifetime). "
+                           "The primary paraffin cell knob."),
+            # Microscopic relaxation rates below are consequences of the cell /
+            # beam (buffer pressure, coating, beam size), not independent dials.
+            # Kept as advanced overrides; the cell-property knobs set the regime.
+            ParamSpec("buffer_ground_relax_khz", "Buffer ground relaxation", "Atomic", 3.0,
+                      0.1, 500.0, 0.5, "kHz", advanced=True,
+                      visible_if={"cell_type": CELL_BUFFER},
+                      help="Ground-state relaxation rate. Physically set by Ne pressure "
+                           "and temperature; exposed here as an override."),
+            ParamSpec("collisional_depol_khz", "Collisional depolarization", "Atomic", 0.5,
+                      0.0, 200.0, 0.5, "kHz", advanced=True,
+                      visible_if={"cell_type": CELL_BUFFER},
+                      help="Spin-destruction ground-coherence loss; a buffer-gas "
+                           "consequence, exposed as an override."),
+            ParamSpec("transit_relax_khz", "Transit relaxation", "Atomic", 80.0,
+                      0.1, 1000.0, 1.0, "kHz", advanced=True,
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Atoms leaving the illuminated region; sets the broad "
+                           "pedestal. A beam-size / temperature consequence."),
+            ParamSpec("dark_return_khz", "Dark-region return rate", "Atomic", 1.0,
+                      0.01, 100.0, 0.01, "kHz", advanced=True,
+                      visible_if={"cell_type": CELL_PARAFFIN},
+                      help="Rate for wall-preserved atoms returning from the dark region."),
+            # Residual transverse field: a systematic (shielding leftover / shim-coil
+            # compensation), not a primary scan knob. Advanced — presets carry the
+            # values that switch EIT<->EIA and enable circular-light LCA.
             ParamSpec("residual_transverse_b_ut", "Residual transverse B", "Fields", 0.05,
-                      0.0, 5.0, 0.005, "uT",
+                      0.0, 5.0, 0.005, "uT", advanced=True,
                       help="Weak transverse field. Enables MIA/MIT-like switching and "
                            "the circular-light level-crossing absorption (LCA)."),
             ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0.0,
-                      0.0, 180.0, 1.0, "deg",
+                      0.0, 180.0, 1.0, "deg", advanced=True,
                       help="Azimuth of the residual transverse magnetic field."),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
-                      0.01, 2.0, 0.01, "", recompute=False,
-                      help="Experimental calibration knob for effective optical depth."),
+                      0.01, 2.0, 0.01, "", recompute=False, advanced=True,
+                      help="Calibration knob for effective optical depth (not a "
+                           "physical experimental variable)."),
             ParamSpec("doppler", "Doppler averaging", "Numerics", "on",
                       choices=("on", "off"), advanced=True,
                       help="Coarse Maxwell-Boltzmann average for the light region."),
@@ -261,47 +274,69 @@ class MagnetoScheme(Scheme):
         ]
         return specs
 
+    # Regime parameter sets, grouped by readout. The merged entry renders these as
+    # readout-contextual one-click default buttons (recommended_defaults).
+    _REGIMES = {
+        SIGNAL_TRANSMISSION: {
+            "CPT dip": dict(
+                signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
+                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
+                wall_coherence_ms=3.0, residual_transverse_b_ut=0.05,
+                transverse_field_angle_deg=0.0, doppler="on"),
+            "MIA peak": dict(
+                signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
+                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=45.0,
+                b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
+                wall_coherence_ms=3.0, residual_transverse_b_ut=0.08,
+                transverse_field_angle_deg=0.0, doppler="on"),
+            "Buffer Hanle": dict(
+                signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
+                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
+                b_max_ut=80.0, ne_pressure_torr=20.0,
+                buffer_ground_relax_khz=20.0, collisional_depol_khz=2.0,
+                residual_transverse_b_ut=0.0, doppler="on"),
+            "Buffer LCA": dict(
+                signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
+                Fg=2.0, Fe=2.0, intensity_mw_cm2=0.2, qwp_deg=45.0,
+                b_max_ut=2.0, ne_pressure_torr=20.0,
+                buffer_ground_relax_khz=5.0, collisional_depol_khz=0.5,
+                residual_transverse_b_ut=0.03, transverse_field_angle_deg=90.0,
+                doppler="on"),
+        },
+        SIGNAL_NMOR: {
+            "NMOR": dict(
+                signal_type=SIGNAL_NMOR, cell_type=CELL_PARAFFIN,
+                Fg=2.0, Fe=1.0, intensity_mw_cm2=0.7, qwp_deg=0.0,
+                b_max_ut=2.0, transit_relax_khz=50.0, dark_return_khz=1.0,
+                wall_coherence_ms=5.0, residual_transverse_b_ut=0.02,
+                transverse_field_angle_deg=0.0, doppler="on"),
+        },
+    }
+
     def presets(self):
+        # The merged Hanle/EIA/NMOR entry uses readout-contextual default buttons
+        # (recommended_defaults) instead of a flat preset wall; single-mode aliases
+        # keep one labelled preset for tests / direct use.
         if self.mode is None:
-            return [
-                Preset("Paraffin CPT dip", icon="DIP", values=dict(
-                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
-                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
-                    b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
-                    wall_coherence_ms=3.0, residual_transverse_b_ut=0.05,
-                    transverse_field_angle_deg=0.0, doppler="on")),
-                Preset("Paraffin MIA peak", icon="PEAK", values=dict(
-                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_PARAFFIN,
-                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=45.0,
-                    b_max_ut=2.0, transit_relax_khz=80.0, dark_return_khz=1.0,
-                    wall_coherence_ms=3.0, residual_transverse_b_ut=0.08,
-                    transverse_field_angle_deg=0.0, doppler="on")),
-                Preset("Buffer Hanle", icon="BUF", values=dict(
-                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
-                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
-                    b_max_ut=80.0, ne_pressure_torr=20.0,
-                    buffer_ground_relax_khz=20.0, collisional_depol_khz=2.0,
-                    residual_transverse_b_ut=0.0, doppler="on")),
-                Preset("Buffer LCA (circular)", icon="LCA", values=dict(
-                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
-                    Fg=2.0, Fe=2.0, intensity_mw_cm2=0.2, qwp_deg=45.0,
-                    b_max_ut=2.0, ne_pressure_torr=20.0,
-                    buffer_ground_relax_khz=5.0, collisional_depol_khz=0.5,
-                    residual_transverse_b_ut=0.03, transverse_field_angle_deg=90.0,
-                    doppler="on")),
-                Preset("D1 NMOR", icon="ROT", values=dict(
-                    signal_type=SIGNAL_NMOR, cell_type=CELL_PARAFFIN,
-                    Fg=2.0, Fe=1.0, intensity_mw_cm2=0.7, qwp_deg=0.0,
-                    b_max_ut=2.0, transit_relax_khz=50.0, dark_return_khz=1.0,
-                    wall_coherence_ms=5.0, residual_transverse_b_ut=0.02,
-                    transverse_field_angle_deg=0.0, doppler="on")),
-            ]
+            return []
         d = self._DEF[self.mode]
         return [Preset(f"D1 {self.mode.upper()} default", icon=self.mode.upper(),
                        values=dict(signal_type=d["signal"], cell_type=d["cell"],
                                    Fg=float(d["Fg"]), Fe=float(d["Fe"]),
                                    intensity_mw_cm2=d["intensity"], qwp_deg=d["qwp"],
                                    b_max_ut=d["bmax"], doppler="on"))]
+
+    def recommended_defaults(self, params):
+        # One-click defaults that follow the current Signal readout, so the readout
+        # selector doubles as the default chooser: Transmission offers the EIT/EIA
+        # regimes (paraffin CPT dip / MIA peak, buffer Hanle / LCA); NMOR offers the
+        # rotation default. Only the merged entry exposes these.
+        if self.mode is not None:
+            return None
+        signal = params.get("signal_type", SIGNAL_TRANSMISSION)
+        regimes = self._REGIMES.get(signal, self._REGIMES[SIGNAL_TRANSMISSION])
+        return {label: dict(values) for label, values in regimes.items()}
 
     def info(self):
         return (
