@@ -91,7 +91,16 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
     ground = tuple(range(ng))
     excited = tuple(range(ng, n))
 
-    decay = []
+    # Spontaneous emission as polarization-grouped jump operators Σ_q (q = m_e−m_g):
+    #   Σ_q = √Γ Σ ⟨Fg m_g; 1 q | Fe m_e⟩ |Fg m_g⟩⟨Fe m_e|.
+    # One operator per q (not one per channel) so that D[Σ_q] carries transfer of
+    # coherence: a ground Zeeman coherence |g⟩⟨g'| is refed from an excited
+    # coherence ρ_{ee'} sharing the same emitted-photon polarization. This is what
+    # turns cycling-type transitions into EIA/LCA. Σ_q^†Σ_q sums to Γ·P_excited, so
+    # excited decay and ground-population refilling are byte-identical to the old
+    # per-channel form; only the off-diagonal (TOC) gain is new.
+    sqrt_gamma = math.sqrt(gamma)
+    emission = {q: np.zeros((n, n), dtype=complex) for q in (-1, 0, 1)}
     couplings = {-1: [], 0: [], +1: []}
     for ie, m_e in enumerate(me):
         eidx = ng + ie
@@ -102,9 +111,11 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
             cg = clebsch_gordan(Fg, m_g, 1, q, Fe, m_e)
             if abs(cg) < 1e-14:
                 continue
-            decay.append((eidx, ig, gamma * cg * cg))   # emission |Fe m_e⟩→|Fg m_g⟩
+            emission[q][ig, eidx] = sqrt_gamma * cg      # |Fg m_g⟩⟨Fe m_e|
             couplings[q].append((ig, eidx, cg))          # drive ground→excited, pol q
+    emission_ops = tuple(emission[q] for q in (-1, 0, 1))
 
+    decay = []   # incoherent population reload only (transit through the beam)
     if transit_rate and transit_rate > 0:
         p_ground = 1.0 / ng
         for src in range(n):
@@ -118,6 +129,7 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
         labels=tuple(f"g{m:+d}" for m in mg) + tuple(f"e{m:+d}" for m in me),
         ground=ground, excited=excited,
         decay=tuple(decay), dephasing=dephasing, doppler_levels=excited,
+        emission_ops=emission_ops,
     )
     atom.m_ground = np.array(mg, dtype=float)
     atom.m_excited = np.array(me, dtype=float)

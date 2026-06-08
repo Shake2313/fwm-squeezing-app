@@ -26,9 +26,13 @@ class AtomModel:
     labels: tuple
     ground: tuple
     excited: tuple
-    decay: tuple          # spontaneous emission: (from_idx, to_idx, rate) tuples
+    decay: tuple          # incoherent rate channels (i->j, rate): population only
     dephasing: tuple      # coherence decay on ρ_{ij}: (i, j, rate) tuples
     doppler_levels: tuple  # diagonal entries shifted by Δ_eff (= excited states)
+    emission_ops: tuple = ()  # full n×n jump operators L; D[L] each. Use the
+                              # polarization-grouped Σ_q form to carry spontaneous-
+                              # emission transfer of coherence (TOC); a per-(i,j)
+                              # `decay` channel only refeeds populations.
 
     lindblad: np.ndarray = field(init=False, repr=False)
     S_v: np.ndarray = field(init=False, repr=False)
@@ -56,6 +60,12 @@ class AtomModel:
 
         for (i, j, rate) in self.decay:                  # decay i -> j
             L = np.sqrt(rate) * np.outer(kets[j], kets[i])   # |j⟩⟨i|
+            LdL = L.conj().T @ L
+            D += (np.kron(L, L.conj())
+                  - 0.5 * np.kron(LdL, eye)
+                  - 0.5 * np.kron(eye, LdL.T))
+
+        for L in self.emission_ops:                      # full jump operator L
             LdL = L.conj().T @ L
             D += (np.kron(L, L.conj())
                   - 0.5 * np.kron(LdL, eye)

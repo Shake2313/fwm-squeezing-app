@@ -32,12 +32,33 @@ def test_clebsch_gordan_known_values():
     assert abs(s - 1.0) < 1e-9
 
 
-def test_manifold_decay_normalised():
+def test_manifold_emission_normalised():
+    # Spontaneous emission now lives in polarization-grouped jump operators Σ_q.
+    # Σ_q^†Σ_q summed over q must give Γ on every excited level (total decay = Γ),
+    # and the per-channel `decay` list is reserved for incoherent transit reload.
     atom = zeeman.zeeman_manifold(2, 3)
     assert atom.n_levels == 12
+    assert atom.decay == ()                       # no transit_rate => no rate channels
+    T = sum(op.conj().T @ op for op in atom.emission_ops)
     for e in atom.excited:
-        tot = sum(r for (ei, gi, r) in atom.decay if ei == e)
-        assert abs(tot / GAMMA - 1.0) < 1e-9
+        assert abs(T[e, e].real / GAMMA - 1.0) < 1e-9
+        assert abs(T[e, e].imag) < 1e-12
+
+
+def test_manifold_emission_transfers_ground_coherence():
+    # The grouped Σ_q (unlike one jump per channel) must source a ground Zeeman
+    # coherence |g⟩⟨g'| from an excited coherence ρ_{ee'}. Check the dissipator has
+    # a nonzero matrix element coupling an excited coherence into a ground one.
+    atom = zeeman.zeeman_manifold(2, 1)
+    n = atom.n_levels
+    ng = len(atom.ground)
+    # pick two ground levels and the two excited levels reached from them by the
+    # same emitted polarization; their ground coherence must be fed by TOC.
+    g0, g1 = 0, 2                                  # m_g = -2, 0
+    e0, e1 = ng + 0, ng + 2                        # m_e = -1, +1  (q=+1 and q=+1)
+    src = atom.rho_index(e0, e1)                   # excited coherence ρ_{e0 e1}
+    dst = atom.rho_index(g0, g1)                   # ground coherence ρ_{g0 g1}
+    assert abs(atom.lindblad[dst, src]) > 1e-6
 
 
 def test_angular_momentum_commutator():
@@ -144,6 +165,41 @@ def test_buffer_mode_has_single_broad_hanle_and_ground_relaxation_broadens():
     assert raw_low["buffer_gamma"] == constants.neon_buffer_broadening(20.0)
     assert _feature_amp(x_l, a_l) < 0
     assert _central_halfwidth(x_h, a_h) > _central_halfwidth(x_l, a_l)
+
+
+def test_intrinsic_eia_on_cycling_transition():
+    # With transfer of coherence (grouped Σ_q emission), the open Fg=1->Fe=2
+    # (Fe=Fg+1) transition is EIA at linear pol / zero residual field, while the
+    # Fe<=Fg transitions stay EIT. (Lezama; arXiv physics/0512199.)
+    sc = schemes.get("magneto")
+    base = _fast_defaults(sc)
+    base.update(cell_type="Paraffin coated cell", qwp_deg=0.0,
+                residual_transverse_b_ut=0.0, b_max_ut=0.5, scan_points=201)
+    eia = dict(base, Fg=1.0, Fe=2.0)
+    eit = dict(base, Fg=2.0, Fe=1.0)
+    x_a, a_a, _ = _alpha_rot(sc.compute(eia), eia)
+    x_t, a_t, _ = _alpha_rot(sc.compute(eit), eit)
+    assert _feature_amp(x_a, a_a) > 0      # Fe=Fg+1 -> absorption peak (EIA)
+    assert _feature_amp(x_t, a_t) < 0      # Fe=Fg-1 -> transparency dip (EIT)
+
+
+def test_buffer_circular_lca_needs_transverse_field():
+    # Circular light orients the ground state along the beam, an eigenstate of the
+    # longitudinal B scan -> flat (no feature) without a transverse field. A small
+    # transverse residual field makes the orientation precess and gives a B=0
+    # level-crossing ABSORPTION peak (Yu, PRA 81, 023416).
+    sc = schemes.get("magneto")
+    base = _fast_defaults(sc)
+    base.update(cell_type="Buffer gas cell", Fg=2.0, Fe=2.0, qwp_deg=45.0,
+                b_max_ut=1.0, scan_points=201, ne_pressure_torr=20.0,
+                buffer_ground_relax_khz=5.0, collisional_depol_khz=0.5,
+                transverse_field_angle_deg=90.0)
+    flat = dict(base, residual_transverse_b_ut=0.0)
+    lca = dict(base, residual_transverse_b_ut=0.03)
+    x_f, a_f, _ = _alpha_rot(sc.compute(flat), flat)
+    x_l, a_l, _ = _alpha_rot(sc.compute(lca), lca)
+    assert abs(_feature_amp(x_f, a_f)) < 1e-6 * max(np.abs(a_f).max(), 1e-30)
+    assert _feature_amp(x_l, a_l) > 0
 
 
 def test_nmor_zero_crossing():

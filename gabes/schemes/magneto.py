@@ -243,11 +243,10 @@ class MagnetoScheme(Scheme):
                       help="Long-lived ground coherence outside the beam."),
             ParamSpec("residual_transverse_b_ut", "Residual transverse B", "Fields", 0.05,
                       0.0, 5.0, 0.005, "uT",
-                      visible_if={"cell_type": CELL_PARAFFIN},
-                      help="Weak transverse field that enables MIA/MIT-like switching."),
+                      help="Weak transverse field. Enables MIA/MIT-like switching and "
+                           "the circular-light level-crossing absorption (LCA)."),
             ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0.0,
                       0.0, 180.0, 1.0, "deg",
-                      visible_if={"cell_type": CELL_PARAFFIN},
                       help="Azimuth of the residual transverse magnetic field."),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", recompute=False,
@@ -282,6 +281,13 @@ class MagnetoScheme(Scheme):
                     Fg=2.0, Fe=1.0, intensity_mw_cm2=0.8, qwp_deg=0.0,
                     b_max_ut=80.0, ne_pressure_torr=20.0,
                     buffer_ground_relax_khz=20.0, collisional_depol_khz=2.0,
+                    residual_transverse_b_ut=0.0, doppler="on")),
+                Preset("Buffer LCA (circular)", icon="LCA", values=dict(
+                    signal_type=SIGNAL_TRANSMISSION, cell_type=CELL_BUFFER,
+                    Fg=2.0, Fe=2.0, intensity_mw_cm2=0.2, qwp_deg=45.0,
+                    b_max_ut=2.0, ne_pressure_torr=20.0,
+                    buffer_ground_relax_khz=5.0, collisional_depol_khz=0.5,
+                    residual_transverse_b_ut=0.03, transverse_field_angle_deg=90.0,
                     doppler="on")),
                 Preset("D1 NMOR", icon="ROT", values=dict(
                     signal_type=SIGNAL_NMOR, cell_type=CELL_PARAFFIN,
@@ -314,8 +320,9 @@ class MagnetoScheme(Scheme):
             "paraffin-coated rubidium vapor cell, *JOSA B* 30, 2301 (2013).\n"
             "- H. S. Moon and H. J. Kim, Ramsey EIA to MIT transformation in a "
             "paraffin-coated Rb vapor cell, *Optics Express* 22, 18604 (2014).\n"
-            "- H. Lee, Y. Yu, I. Bae, and H. S. Moon, nonlinear magneto-optical "
-            "effect in a paraffin-coated Rb vapor cell, CLEO-PR 2009 TUP5_38."
+            "- Y.-J. Yu, H. J. Lee, and H. S. Moon, level-crossing absorption "
+            "with narrow spectral width in Rb vapor with buffer gas, "
+            "*Phys. Rev. A* 81, 023416 (2010)."
         )
 
     def compute(self, params):
@@ -356,8 +363,13 @@ class MagnetoScheme(Scheme):
         b_ut = np.linspace(-params["b_max_ut"], params["b_max_ut"],
                            int(params["scan_points"]))
         b_z = b_ut * 1e-6
-        b_perp = (params.get("residual_transverse_b_ut", 0.0) * 1e-6
-                  if cell_type == CELL_PARAFFIN else 0.0)
+        # A real vapor cell always has a small residual transverse field (imperfect
+        # shielding); it enters the Zeeman Hamiltonian exactly like any field. It is
+        # essential for circular-light level-crossing absorption: σ± light orients
+        # the ground state along the beam (z), an eigenstate of the longitudinal B
+        # scan, so only a transverse component makes that orientation precess and
+        # produce a B=0 resonance. Buffer and paraffin cells share this physics.
+        b_perp = params.get("residual_transverse_b_ut", 0.0) * 1e-6
         phi = math.radians(params.get("transverse_field_angle_deg", 0.0))
         b_x = b_perp * math.cos(phi)
         b_y = b_perp * math.sin(phi)
