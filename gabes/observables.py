@@ -80,6 +80,111 @@ def coincidence_stats(G_s, G_c):
     }
 
 
+def _smooth_same(y, x, fwhm):
+    if fwhm is None or fwhm <= 0:
+        return y
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.size < 3:
+        return y
+    dx = float(np.median(np.diff(x)))
+    if dx <= 0:
+        return y
+    sigma = fwhm / 2.354820045
+    half = max(int(np.ceil(4.0 * sigma / dx)), 1)
+    grid = np.arange(-half, half + 1) * dx
+    kernel = np.exp(-0.5 * (grid / sigma) ** 2)
+    kernel /= np.sum(kernel)
+    return np.convolve(y, kernel, mode="same")
+
+
+def _fwhm(x, y):
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.size < 2 or not np.any(np.isfinite(y)):
+        return np.nan
+    peak = float(np.nanmax(y))
+    if peak <= 0:
+        return np.nan
+    half = 0.5 * peak
+    above = np.flatnonzero(y >= half)
+    if above.size == 0:
+        return np.nan
+    lo = int(above[0])
+    hi = int(above[-1])
+
+    def interp_edge(i0, i1):
+        if i0 < 0 or i1 >= x.size or y[i1] == y[i0]:
+            return x[max(min(i1, x.size - 1), 0)]
+        return x[i0] + (half - y[i0]) * (x[i1] - x[i0]) / (y[i1] - y[i0])
+
+    left = interp_edge(lo - 1, lo) if lo > 0 else x[lo]
+    right = interp_edge(hi, hi + 1) if hi < x.size - 1 else x[hi]
+    return float(max(right - left, 0.0))
+
+
+def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
+                   signal_eff=0.1, idler_eff=0.1,
+                   dark_signal_cps=0.0, dark_idler_cps=0.0,
+                   coincidence_window_ns=1.0, timing_jitter_ns=0.0,
+                   filter_bandwidth_mhz=None, source_bandwidth_mhz=300.0,
+                   target_g2_peak=None):
+    """
+    Reference-calibrated spontaneous-SFWM biphoton readout.
+
+    `waveform` is the complex velocity-class coherent sum. Rates are a calibrated
+    source estimate; detector efficiency, background/dark counts, timing jitter,
+    coincidence window and finite filter bandwidth are folded into the returned
+    count-rate and correlation observables.
+    """
+    tau_axis_ns = np.asarray(tau_axis_ns, dtype=float)
+    waveform = np.asarray(waveform, dtype=complex)
+    intensity = np.abs(waveform) ** 2
+    if np.nanmax(intensity) > 0:
+        intensity = intensity / np.nanmax(intensity)
+
+    if filter_bandwidth_mhz and filter_bandwidth_mhz > 0:
+        filter_transmission = min(1.0, float(filter_bandwidth_mhz)
+                                  / max(float(source_bandwidth_mhz), 1e-12))
+    else:
+        filter_transmission = 1.0
+    pair_rate = max(float(pair_rate_cps), 0.0) * filter_transmission
+
+    intensity = _smooth_same(intensity, tau_axis_ns, timing_jitter_ns)
+    if np.nanmax(intensity) > 0:
+        intensity = intensity / np.nanmax(intensity)
+
+    eta_s = np.clip(float(signal_eff), 0.0, 1.0)
+    eta_i = np.clip(float(idler_eff), 0.0, 1.0)
+    singles_signal = pair_rate * eta_s + max(float(dark_signal_cps), 0.0)
+    singles_idler = pair_rate * eta_i + max(float(dark_idler_cps), 0.0)
+    coincidence = pair_rate * eta_s * eta_i
+    accidental = singles_signal * singles_idler * max(float(coincidence_window_ns), 0.0) * 1e-9
+    raw_car = coincidence / max(accidental, 1e-30)
+    if target_g2_peak is not None:
+        car = min(raw_car, max(float(target_g2_peak) - 1.0, 0.0))
+    else:
+        car = raw_car
+    g2_tau = 1.0 + car * intensity
+    g2_peak = float(np.nanmax(g2_tau)) if g2_tau.size else np.nan
+    return {
+        "g2_SI_tau": g2_tau,
+        "tau_axis_ns": tau_axis_ns,
+        "fwhm_ns": _fwhm(tau_axis_ns, intensity),
+        "pair_rate_cps": pair_rate,
+        "singles_signal_cps": singles_signal,
+        "singles_idler_cps": singles_idler,
+        "coincidence_cps": coincidence,
+        "accidental_cps": accidental,
+        "CAR": car,
+        "heralding_signal": coincidence / max(singles_idler, 1e-30),
+        "heralding_idler": coincidence / max(singles_signal, 1e-30),
+        "cauchy_schwarz_R": g2_peak ** 2 / 4.0,
+        "g2_peak": g2_peak,
+        "filter_transmission": filter_transmission,
+    }
+
+
 def intensity_difference_squeezing_dB(G_s, G_c, eta):
     """
     Ideal twin-beam intensity-difference noise (lossless):

@@ -426,6 +426,8 @@ def _render_param(container, scheme_name, sp):
     key = _skey(scheme_name, sp.name)
     label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
     help_ = sp.help or None
+    has_state = key in st.session_state
+    current = st.session_state.get(key, sp.default)
     if getattr(sp, "control", "auto") == "segmented":
         options = list(sp.choices or ())
         if hasattr(container, "segmented_control"):
@@ -433,10 +435,24 @@ def _render_param(container, scheme_name, sp):
                 return container.segmented_control(label, options, key=key, help=help_)
             except TypeError:
                 pass
-        return container.radio(label, options, key=key, help=help_, horizontal=True)
+        if has_state:
+            return container.radio(label, options, key=key, help=help_,
+                                   horizontal=True)
+        idx = options.index(current) if current in options else 0
+        return container.radio(label, options, key=key, help=help_,
+                               horizontal=True, index=idx)
     if sp.choices is not None:
-        return container.selectbox(label, list(sp.choices), key=key, help=help_)
-    val = container.slider(label, sp.vmin, sp.vmax, step=sp.step, key=key, help=help_)
+        options = list(sp.choices)
+        if has_state:
+            return container.selectbox(label, options, key=key, help=help_)
+        idx = options.index(current) if current in options else 0
+        return container.selectbox(label, options, index=idx, key=key, help=help_)
+    if has_state:
+        val = container.slider(label, sp.vmin, sp.vmax, step=sp.step,
+                               key=key, help=help_)
+    else:
+        val = container.slider(label, sp.vmin, sp.vmax, value=current,
+                               step=sp.step, key=key, help=help_)
     endpoints = getattr(sp, "endpoints", None)
     if endpoints:
         left, right = endpoints

@@ -234,7 +234,8 @@ def test_invalid_transition_handled():
 
 if __name__ == "__main__":
     test_clebsch_gordan_known_values()
-    test_manifold_decay_normalised()
+    test_manifold_emission_normalised()
+    test_manifold_emission_transfers_ground_coherence()
     test_angular_momentum_commutator()
     test_default_is_87rb_d1_paraffin_polarized_hanle()
     test_paraffin_linear_qwp_gives_zero_field_dip()

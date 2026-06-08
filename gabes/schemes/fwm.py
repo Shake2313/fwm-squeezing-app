@@ -10,11 +10,13 @@ only change is that shared engine pieces now come from gabes.core / .doppler /
 shim and the regression test can call them directly. `FWMScheme` wraps them for
 the generic Streamlit front-end.
 """
+import math
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 
 import numpy as np
 
-from .. import atoms, constants, doppler, hyperfine, observables
+from .. import atoms, constants, doppler, hyperfine, observables, species
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
 from .base import ExtraView, ParamSpec, Preset, Scheme
@@ -62,6 +64,403 @@ DELTA_GHZ_LIST = [0.9]
 BRANCHES = (-1, +1)
 DEFAULT_BRANCH = -1
 
+
+# =========================================================
+# Generic SFWM / biphoton topology layer
+# =========================================================
+NM = 1e-9
+MHZ_ANG = 2 * np.pi * 1e6
+
+MODE_SEEDED = "Seeded gain / squeezing"
+MODE_BIPHOTON = "Spontaneous biphoton"
+
+TOPOLOGY_RB87_TELECOM = "cascade_rb87_telecom"
+TOPOLOGY_CS_BTW = "cascade_cs_btw"
+TOPOLOGY_DIAMOND = "diamond_generic"
+CS_CHANNEL_917 = "6D5/2: 852-917 nm"
+CS_CHANNEL_795 = "8S1/2: 852-795 nm"
+
+
+@dataclass(frozen=True)
+class LevelSpec:
+    """Lightweight FWM level metadata used by the generic topology layer."""
+    name: str
+    energy_hz: float
+    gamma_mhz: float = 0.0
+
+
+@dataclass(frozen=True)
+class FieldSpec:
+    """A driven or generated optical field in a four-wave-mixing topology."""
+    role: str
+    lower: int
+    upper: int
+    wavelength_nm: float
+    detuning_mhz: float = 0.0
+    rabi_mhz: float = 0.0
+    phase_sign: float = 1.0
+    direction: float = 1.0
+    angle_deg: float = 0.0
+
+    @property
+    def k(self):
+        return 2 * np.pi / (self.wavelength_nm * NM)
+
+    @property
+    def frequency_hz(self):
+        return constants.C_LIGHT / (self.wavelength_nm * NM)
+
+
+@dataclass(frozen=True)
+class TopologySpec:
+    """Generic SFWM topology; presets carry the reference-calibrated constants."""
+    name: str
+    label: str
+    family: str
+    isotope_name: str
+    levels: tuple
+    fields: tuple
+    signal_role: str
+    idler_role: str
+    default_temp_c: float
+    default_cell_mm: float
+    default_pump_uw: float
+    default_coupling_mw: float
+    pair_rate_cps_per_mw: float
+    emission_decay_ns: float
+    target_g2_peak: float | None = None
+    reference_fwhm_ns: float | None = None
+    reference_delta_k: float | None = None
+    notes: str = ""
+
+    @property
+    def isotope(self):
+        return species.ISOTOPES[self.isotope_name]
+
+    @property
+    def field_map(self):
+        return {f.role: f for f in self.fields}
+
+
+def _wavevector_nm(wavelength_nm):
+    return 2 * np.pi / (float(wavelength_nm) * NM)
+
+
+def _field_with(field, *, wavelength_nm=None, detuning_mhz=None, rabi_mhz=None,
+                angle_deg=None):
+    return FieldSpec(
+        role=field.role,
+        lower=field.lower,
+        upper=field.upper,
+        wavelength_nm=field.wavelength_nm if wavelength_nm is None else wavelength_nm,
+        detuning_mhz=field.detuning_mhz if detuning_mhz is None else detuning_mhz,
+        rabi_mhz=field.rabi_mhz if rabi_mhz is None else rabi_mhz,
+        phase_sign=field.phase_sign,
+        direction=field.direction,
+        angle_deg=field.angle_deg if angle_deg is None else angle_deg,
+    )
+
+
+def phase_mismatch(fields, *, signal_angle_deg=None, idler_angle_deg=None,
+                   reference_delta_k=0.0):
+    """Longitudinal four-field phase mismatch, with an optional reference offset."""
+    total = 0.0
+    for field in fields:
+        angle = field.angle_deg
+        if field.role == "signal" and signal_angle_deg is not None:
+            angle = signal_angle_deg
+        if field.role == "idler" and idler_angle_deg is not None:
+            angle = idler_angle_deg
+        total += field.phase_sign * field.k * math.cos(math.radians(angle))
+    return total - (reference_delta_k or 0.0)
+
+
+def phase_matching_weight(delta_k, L):
+    """sinc^2(delta_k L / 2), normalized to 1 at perfect phase matching."""
+    x = 0.5 * np.asarray(delta_k, dtype=float) * L
+    out = np.ones_like(x, dtype=float)
+    mask = np.abs(x) > 1e-12
+    out[mask] = (np.sin(x[mask]) / x[mask]) ** 2
+    return out
+
+
+def energy_mismatch_hz(fields):
+    signs = {"pump": 1.0, "coupling": 1.0, "signal": -1.0, "idler": -1.0}
+    return sum(signs.get(f.role, 0.0) * f.frequency_hz for f in fields)
+
+
+def _raw_delta_k(fields):
+    return phase_mismatch(fields, reference_delta_k=0.0)
+
+
+def _with_reference_delta_k(spec):
+    return TopologySpec(
+        name=spec.name,
+        label=spec.label,
+        family=spec.family,
+        isotope_name=spec.isotope_name,
+        levels=spec.levels,
+        fields=spec.fields,
+        signal_role=spec.signal_role,
+        idler_role=spec.idler_role,
+        default_temp_c=spec.default_temp_c,
+        default_cell_mm=spec.default_cell_mm,
+        default_pump_uw=spec.default_pump_uw,
+        default_coupling_mw=spec.default_coupling_mw,
+        pair_rate_cps_per_mw=spec.pair_rate_cps_per_mw,
+        emission_decay_ns=spec.emission_decay_ns,
+        target_g2_peak=spec.target_g2_peak,
+        reference_fwhm_ns=spec.reference_fwhm_ns,
+        reference_delta_k=_raw_delta_k(spec.fields),
+        notes=spec.notes,
+    )
+
+
+def _rb87_telecom_spec():
+    levels = (
+        LevelSpec("5S1/2(F=2)", 0.0, 0.0),
+        LevelSpec("5P3/2", constants.C_LIGHT / (780.24 * NM), 6.07),
+        LevelSpec("4D5/2", constants.C_LIGHT / (780.24 * NM)
+                  + constants.C_LIGHT / (1529.37 * NM), 0.66),
+        LevelSpec("5P3/2 collection", constants.C_LIGHT / (780.24 * NM), 6.07),
+    )
+    fields = (
+        FieldSpec("pump", 0, 1, 780.24, phase_sign=+1.0),
+        FieldSpec("coupling", 1, 2, 1529.37, phase_sign=-1.0, direction=-1.0),
+        FieldSpec("signal", 2, 3, 1529.37, phase_sign=-1.0, angle_deg=1.5),
+        FieldSpec("idler", 3, 0, 780.24, phase_sign=+1.0, angle_deg=1.5),
+    )
+    return _with_reference_delta_k(TopologySpec(
+        name=TOPOLOGY_RB87_TELECOM,
+        label="87Rb cascade telecom (5S-5P-4D)",
+        family="cascade",
+        isotope_name="Rb87",
+        levels=levels,
+        fields=fields,
+        signal_role="signal",
+        idler_role="idler",
+        default_temp_c=90.0,
+        default_cell_mm=12.5,
+        default_pump_uw=10.0,
+        default_coupling_mw=1.0,
+        pair_rate_cps_per_mw=38_000.0,
+        emission_decay_ns=0.52,
+        target_g2_peak=44.0,
+        reference_fwhm_ns=0.56,
+        notes=("Reference-calibrated cascade SFWM estimate for the telecom "
+               "biphoton source in hot 87Rb."),
+    ))
+
+
+def _cs_btw_spec(channel):
+    if channel == CS_CHANNEL_795:
+        upper = "8S1/2"
+        coupling_nm = 795.0
+        upper_gamma_mhz = 1.7
+        decay_ns = 1.35
+        label = "133Cs cascade BTW (852-795 nm)"
+    else:
+        upper = "6D5/2"
+        coupling_nm = 917.0
+        upper_gamma_mhz = 2.6
+        decay_ns = 4.1
+        label = "133Cs cascade BTW (852-917 nm)"
+    pump_nm = 852.35
+    levels = (
+        LevelSpec("6S1/2(F=4)", 0.0, 0.0),
+        LevelSpec("6P3/2(F'=5)", constants.C_LIGHT / (pump_nm * NM), 5.23),
+        LevelSpec(upper, constants.C_LIGHT / (pump_nm * NM)
+                  + constants.C_LIGHT / (coupling_nm * NM), upper_gamma_mhz),
+        LevelSpec("6P3/2 collection", constants.C_LIGHT / (pump_nm * NM), 5.23),
+    )
+    fields = (
+        FieldSpec("pump", 0, 1, pump_nm, phase_sign=+1.0),
+        FieldSpec("coupling", 1, 2, coupling_nm, phase_sign=-1.0, direction=-1.0),
+        FieldSpec("signal", 2, 3, coupling_nm, phase_sign=-1.0, angle_deg=1.5),
+        FieldSpec("idler", 3, 0, pump_nm, phase_sign=+1.0, angle_deg=1.5),
+    )
+    return _with_reference_delta_k(TopologySpec(
+        name=TOPOLOGY_CS_BTW,
+        label=label,
+        family="cascade",
+        isotope_name="Cs133",
+        levels=levels,
+        fields=fields,
+        signal_role="signal",
+        idler_role="idler",
+        default_temp_c=75.0,
+        default_cell_mm=12.5,
+        default_pump_uw=20.0,
+        default_coupling_mw=1.0,
+        pair_rate_cps_per_mw=12_000.0,
+        emission_decay_ns=decay_ns,
+        target_g2_peak=18.0,
+        reference_fwhm_ns=decay_ns * 0.42,
+        notes=("Velocity-class coherent-sum model for the Cs biphoton temporal "
+               "waveform comparison."),
+    ))
+
+
+def _diamond_generic_spec(params=None):
+    params = params or {}
+    pump_nm = float(params.get("diamond_pump_nm", 780.0))
+    coupling_nm = float(params.get("diamond_coupling_nm", 776.0))
+    signal_nm = float(params.get("diamond_signal_nm", 795.0))
+    idler_default = 1.0 / (1.0 / pump_nm + 1.0 / coupling_nm - 1.0 / signal_nm)
+    idler_nm = float(params.get("diamond_idler_nm", idler_default))
+    levels = (
+        LevelSpec("g", 0.0, 0.0),
+        LevelSpec("e1", constants.C_LIGHT / (pump_nm * NM), 6.0),
+        LevelSpec("e2", constants.C_LIGHT / (coupling_nm * NM), 6.0),
+        LevelSpec("u", constants.C_LIGHT / (pump_nm * NM)
+                  + constants.C_LIGHT / (coupling_nm * NM), 1.0),
+    )
+    fields = (
+        FieldSpec("pump", 0, 1, pump_nm, phase_sign=+1.0),
+        FieldSpec("coupling", 0, 2, coupling_nm, phase_sign=+1.0),
+        FieldSpec("signal", 3, 1, signal_nm, phase_sign=-1.0, angle_deg=2.0),
+        FieldSpec("idler", 3, 2, idler_nm, phase_sign=-1.0, angle_deg=2.0),
+    )
+    return _with_reference_delta_k(TopologySpec(
+        name=TOPOLOGY_DIAMOND,
+        label="Generic diamond four-level SFWM",
+        family="diamond",
+        isotope_name="Rb87",
+        levels=levels,
+        fields=fields,
+        signal_role="signal",
+        idler_role="idler",
+        default_temp_c=60.0,
+        default_cell_mm=12.5,
+        default_pump_uw=20.0,
+        default_coupling_mw=1.0,
+        pair_rate_cps_per_mw=5_000.0,
+        emission_decay_ns=8.0,
+        target_g2_peak=None,
+        reference_fwhm_ns=None,
+        notes=("Generic template only; not tied to a validated diamond reference "
+               "preset."),
+    ))
+
+
+def topology_from_params(params):
+    topo = params.get("topology", TOPOLOGY_RB87_TELECOM)
+    if topo == TOPOLOGY_CS_BTW:
+        return _cs_btw_spec(params.get("cs_channel", CS_CHANNEL_917))
+    if topo == TOPOLOGY_DIAMOND:
+        return _diamond_generic_spec(params)
+    return _rb87_telecom_spec()
+
+
+class GenericFWMSolver:
+    """Reference-calibrated V1 engine for generic SFWM biphoton estimates."""
+
+    def __init__(self, topology):
+        self.topology = topology
+
+    def _fields_from_params(self, params):
+        pump_rabi = params.get("pump_biphoton_uw", self.topology.default_pump_uw)
+        coupling_rabi = params.get("coupling_mw", self.topology.default_coupling_mw)
+        out = []
+        for field in self.topology.fields:
+            rabi = field.rabi_mhz
+            detuning = field.detuning_mhz
+            if field.role == "pump":
+                rabi = math.sqrt(max(pump_rabi, 0.0) / max(self.topology.default_pump_uw, 1e-12))
+                rabi *= 2.0
+                detuning = params.get("pump_detuning_mhz", 0.0)
+            elif field.role == "coupling":
+                rabi = math.sqrt(max(coupling_rabi, 0.0) / max(self.topology.default_coupling_mw, 1e-12))
+                rabi *= 12.0
+                detuning = params.get("coupling_detuning_mhz", 0.0)
+            out.append(_field_with(
+                field,
+                detuning_mhz=detuning,
+                rabi_mhz=rabi,
+                angle_deg=params.get(f"{field.role}_angle_deg", field.angle_deg),
+            ))
+        return tuple(out)
+
+    def compute_biphoton(self, params):
+        T = params.get("biphoton_temp_c", self.topology.default_temp_c) + 273.15
+        L = params.get("biphoton_cell_mm", self.topology.default_cell_mm) * 1e-3
+        fields = self._fields_from_params(params)
+        fmap = {f.role: f for f in fields}
+        iso = self.topology.isotope
+        v_step = params.get("biphoton_velocity_step", 2.0)
+        v_grid, weights = doppler.velocity_grid(T, dv=v_step, cutoff_sigma=3.0,
+                                                mass=iso.mass)
+        pump = fmap["pump"]
+        coupling = fmap["coupling"]
+        signal = fmap["signal"]
+        idler = fmap["idler"]
+        delta_k = phase_mismatch(
+            fields,
+            signal_angle_deg=signal.angle_deg,
+            idler_angle_deg=idler.angle_deg,
+            reference_delta_k=self.topology.reference_delta_k,
+        )
+        pm_weight = float(phase_matching_weight(np.array([delta_k]), L)[0])
+        density = species.number_density(iso, T)
+        pump_mw = params.get("pump_biphoton_uw", self.topology.default_pump_uw) * 1e-3
+        coupling_scale = max(params.get("coupling_mw", self.topology.default_coupling_mw),
+                             0.0) / max(self.topology.default_coupling_mw, 1e-12)
+        pair_rate = (self.topology.pair_rate_cps_per_mw * pump_mw
+                     * math.sqrt(max(coupling_scale, 0.0)) * pm_weight)
+        pair_rate *= math.sqrt(max(density, 1e-30)
+                               / max(species.number_density(iso, self.topology.default_temp_c + 273.15), 1e-30))
+
+        lower_gamma = max(self.topology.levels[1].gamma_mhz, 0.1) * MHZ_ANG
+        upper_gamma = max(self.topology.levels[2].gamma_mhz, 0.1) * MHZ_ANG
+        pump_det = params.get("pump_detuning_mhz", 0.0) * MHZ_ANG
+        two_det = (params.get("pump_detuning_mhz", 0.0)
+                   + params.get("coupling_detuning_mhz", 0.0)) * MHZ_ANG
+        lower = lower_gamma / 2.0 + 1j * (pump_det - pump.direction * pump.k * v_grid)
+        residual_k = pump.direction * pump.k + coupling.direction * coupling.k
+        upper = upper_gamma / 2.0 + 1j * (two_det - residual_k * v_grid)
+        drive = (pump.rabi_mhz * coupling.rabi_mhz) * (MHZ_ANG ** 2)
+        source_v = weights * drive / (lower * upper)
+        source_v *= math.sqrt(max(pm_weight, 0.0))
+
+        tau_axis_ns = np.linspace(0.0, params.get("tau_max_ns", 12.0), 481)
+        tau_s = tau_axis_ns * 1e-9
+        phase_k = abs(idler.k)
+        coherent = np.exp(1j * phase_k * v_grid[:, None] * tau_s[None, :])
+        psi_tau = (source_v[:, None] * coherent).sum(axis=0)
+        psi_tau *= np.exp(-tau_axis_ns / max(self.topology.emission_decay_ns, 1e-12))
+        if np.max(np.abs(psi_tau)) > 0:
+            psi_tau = psi_tau / np.max(np.abs(psi_tau))
+
+        angle_axis = np.linspace(max(idler.angle_deg - 4.0, 0.0),
+                                 idler.angle_deg + 4.0, 181)
+        angle_dk = np.array([
+            phase_mismatch(fields, idler_angle_deg=a,
+                           reference_delta_k=self.topology.reference_delta_k)
+            for a in angle_axis
+        ])
+        acceptance = phase_matching_weight(angle_dk, L)
+
+        return {
+            "kind": "biphoton",
+            "topology": self.topology,
+            "fields": fields,
+            "tau_axis_ns": tau_axis_ns,
+            "psi_tau": psi_tau,
+            "v_grid": v_grid,
+            "velocity_weights": weights,
+            "source_v": source_v,
+            "angle_axis_deg": angle_axis,
+            "phase_matching": acceptance,
+            "delta_k": float(delta_k),
+            "phase_match_weight": pm_weight,
+            "energy_mismatch_hz": float(energy_mismatch_hz(fields)),
+            "pair_rate_cps": float(pair_rate),
+            "density": float(density),
+            "temperature_K": float(T),
+            "cell_length_m": float(L),
+            "residual_two_photon_k": float(residual_k),
+            "notes": self.topology.notes,
+        }
 
 # =========================================================
 # Hamiltonians
@@ -323,66 +722,163 @@ RESOLUTION = {
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
-    title = "85Rb D1 double-Λ four-wave mixing"
-    cache_version = "cg-weighted-single-branch-fwm-v1"
-    defaults_version = "sim-defaults-v1"
+    title = "Four-wave mixing: gain and biphotons"
+    cache_version = "generic-sfwm-biphoton-v1"
+    defaults_version = "generic-sfwm-defaults-v1"
     cache_observables = True
-    caption = ("Seed/probe gain and intensity-difference squeezing vs two-photon "
-               "detuning. OPD and cell parameters recompute (cached); TPD navigates "
-               "instantly.")
+    caption = ("Seeded gain/squeezing for the legacy 85Rb double-Lambda system, "
+               "or spontaneous SFWM biphoton estimates for cascade and diamond "
+               "topologies.")
 
     def param_schema(self):
+        seeded = {"mode": MODE_SEEDED}
+        biphoton = {"mode": MODE_BIPHOTON}
+        cs_btw = {"mode": MODE_BIPHOTON, "topology": TOPOLOGY_CS_BTW}
+        diamond = {"mode": MODE_BIPHOTON, "topology": TOPOLOGY_DIAMOND}
         return [
+            ParamSpec("mode", "Mode", "Mode", MODE_SEEDED,
+                      choices=(MODE_SEEDED, MODE_BIPHOTON),
+                      control="segmented",
+                      help="Seeded legacy gain/squeezing or spontaneous SFWM biphoton readout."),
+            ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
+                      choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
+                      visible_if=biphoton,
+                      help="Level topology for the spontaneous biphoton source model."),
+            ParamSpec("cs_channel", "Cs BTW channel", "Model", CS_CHANNEL_917,
+                      choices=(CS_CHANNEL_917, CS_CHANNEL_795), visible_if=cs_btw,
+                      help="Selects the Cs cascade channel used for BTW comparison."),
             ParamSpec("opd", "OPD — one-photon detuning Δ", "Detunings", 0.9,
                       -1.0, 3.0, 0.1, "GHz",
+                      visible_if=seeded,
                       help="ω_pump = ω(F=2→F'=3) + Δ. Sets where the pump sits; recomputes."),
             ParamSpec("tpd", "TPD — two-photon detuning δ", "Detunings", -8.0,
                       -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ, 1.0, "MHz", recompute=False,
+                      visible_if=seeded,
                       help="ω_seed = ω_pump − ν_HF + δ. Navigates the curve instantly (no recompute)."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 121.0,
-                      60.0, 150.0, 1.0, "°C"),
+                      60.0, 150.0, 1.0, "°C", visible_if=seeded),
             ParamSpec("pump_mw", "Pump power", "Cell & beams", 600.0,
-                      50.0, 1200.0, 10.0, "mW"),
+                      50.0, 1200.0, 10.0, "mW", visible_if=seeded),
             ParamSpec("probe_uw", "Seed / probe power", "Cell & beams", 8.0,
-                      1.0, 200.0, 1.0, "µW"),
+                      1.0, 200.0, 1.0, "µW", visible_if=seeded),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
-                      0.0, 50.0, 0.5, "%", help="Folds into η = QE × (1 − loss)."),
+                      0.0, 50.0, 0.5, "%", visible_if=seeded,
+                      help="Folds into eta = QE x (1 - loss)."),
             ParamSpec("ls", "FWM coupling scale", "Detection & scaling", 0.05,
                       0.01, 1.0, 0.01, "",
+                      visible_if=seeded,
                       help="Residual propagation-coupling scale after applying "
                            "Rb85 D1 hyperfine Clebsch-Gordan strengths."),
+            ParamSpec("biphoton_temp_c", "Temperature", "Cell & beams", 90.0,
+                      30.0, 160.0, 1.0, "°C", visible_if=biphoton),
+            ParamSpec("biphoton_cell_mm", "Cell length", "Cell & beams", 12.5,
+                      1.0, 100.0, 0.5, "mm", visible_if=biphoton),
+            ParamSpec("pump_biphoton_uw", "Pump power", "Fields", 10.0,
+                      0.1, 200.0, 0.1, "µW", visible_if=biphoton),
+            ParamSpec("coupling_mw", "Coupling power scale", "Fields", 1.0,
+                      0.01, 50.0, 0.01, "mW", visible_if=biphoton),
+            ParamSpec("pump_detuning_mhz", "Pump detuning", "Detunings", 0.0,
+                      -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
+            ParamSpec("coupling_detuning_mhz", "Coupling detuning", "Detunings", 0.0,
+                      -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
+            ParamSpec("signal_angle_deg", "Signal angle", "Phase matching", 1.5,
+                      0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+            ParamSpec("idler_angle_deg", "Idler angle", "Phase matching", 1.5,
+                      0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+            ParamSpec("diamond_pump_nm", "Diamond pump wavelength", "Fields", 780.0,
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+            ParamSpec("diamond_coupling_nm", "Diamond coupling wavelength", "Fields", 776.0,
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+            ParamSpec("diamond_signal_nm", "Diamond signal wavelength", "Fields", 795.0,
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+            ParamSpec("diamond_idler_nm", "Diamond idler wavelength", "Fields", 761.702,
+                      300.0, 2500.0, 0.001, "nm", visible_if=diamond),
+            ParamSpec("signal_eff_pct", "Signal efficiency", "Detection & scaling", 10.0,
+                      0.1, 95.0, 0.1, "%", visible_if=biphoton),
+            ParamSpec("idler_eff_pct", "Idler efficiency", "Detection & scaling", 10.0,
+                      0.1, 95.0, 0.1, "%", visible_if=biphoton),
+            ParamSpec("dark_signal_cps", "Signal background", "Detection & scaling", 2000.0,
+                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton),
+            ParamSpec("dark_idler_cps", "Idler background", "Detection & scaling", 2000.0,
+                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton),
+            ParamSpec("coincidence_window_ns", "Coincidence window", "Detection & scaling", 1.0,
+                      0.01, 100.0, 0.01, "ns", visible_if=biphoton),
+            ParamSpec("timing_jitter_ns", "Timing jitter FWHM", "Detection & scaling", 0.42,
+                      0.0, 5.0, 0.01, "ns", visible_if=biphoton),
+            ParamSpec("filter_bandwidth_mhz", "Filter bandwidth", "Detection & scaling", 300.0,
+                      1.0, 5000.0, 1.0, "MHz", visible_if=biphoton),
+            ParamSpec("tau_max_ns", "Temporal window", "Numerics", 12.0,
+                      1.0, 100.0, 1.0, "ns", visible_if=biphoton, advanced=True),
+            ParamSpec("biphoton_velocity_step", "Velocity step", "Numerics", 2.0,
+                      0.5, 20.0, 0.5, "m/s", visible_if=biphoton, advanced=True),
             ParamSpec("resolution", "Resolution", "Numerics", "Balanced  (~6 s)",
-                      choices=tuple(RESOLUTION.keys()), advanced=True),
+                      choices=tuple(RESOLUTION.keys()), advanced=True,
+                      visible_if=seeded),
         ]
 
     def presets(self):
-        return [Preset(
-            "Sim et al. 85Rb optimum",
-            values=dict(opd=0.9, tpd=-8.0, temp_c=121.0, pump_mw=600.0,
-                        probe_uw=8.0, loss_pct=5.5),
-            help="One click → squeezing-optimised 85Rb conditions from Sim, Kim & "
-                 "Moon, Sci. Rep. 15, 7727 (2025): Δ = 0.9 GHz, δ = −8 MHz, "
-                 "T = 121 °C, pump 600 mW, seed 8 µW, loss 5.5 %.",
-        )]
+        return [
+            Preset(
+                "Sim et al. 85Rb optimum",
+                values=dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
+                            pump_mw=600.0, probe_uw=8.0, loss_pct=5.5, ls=0.05),
+                icon="FWM",
+                help="Seeded double-Lambda gain/squeezing conditions.",
+            ),
+            Preset(
+                "87Rb telecom biphoton",
+                values=dict(mode=MODE_BIPHOTON, topology=TOPOLOGY_RB87_TELECOM,
+                            biphoton_temp_c=90.0, biphoton_cell_mm=12.5,
+                            pump_biphoton_uw=10.0, coupling_mw=1.0,
+                            pump_detuning_mhz=0.0, coupling_detuning_mhz=0.0,
+                            signal_angle_deg=1.5, idler_angle_deg=1.5,
+                            signal_eff_pct=10.0, idler_eff_pct=10.0,
+                            dark_signal_cps=2000.0, dark_idler_cps=2000.0,
+                            coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
+                            timing_jitter_ns=0.42),
+                icon="Rb",
+                help="Cascade 5S-5P-4D telecom-wavelength biphoton reference.",
+            ),
+            Preset(
+                "Cs BTW comparison",
+                values=dict(mode=MODE_BIPHOTON, topology=TOPOLOGY_CS_BTW,
+                            cs_channel=CS_CHANNEL_917, biphoton_temp_c=75.0,
+                            biphoton_cell_mm=12.5, pump_biphoton_uw=20.0,
+                            coupling_mw=1.0,
+                            pump_detuning_mhz=0.0, coupling_detuning_mhz=0.0,
+                            signal_angle_deg=1.5, idler_angle_deg=1.5,
+                            signal_eff_pct=10.0, idler_eff_pct=10.0,
+                            dark_signal_cps=2000.0, dark_idler_cps=2000.0,
+                            coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
+                            timing_jitter_ns=0.42),
+                icon="Cs",
+                help="Cascade Cs velocity-class biphoton temporal waveform reference.",
+            ),
+        ]
 
     def info(self):
         return (
-            "**Source:** G. Sim, H. Kim, H. S. Moon, *Sci. Rep.* **15**, 7727 (2025).\n\n"
-            "| Parameter | Paper value | Slider |\n|---|---|---|\n"
-            "| One-photon detuning Δ | ≈ 0.9 GHz | ✅ |\n"
-            "| Two-photon detuning δ | −8 MHz | ✅ |\n"
-            "| Cell temperature | 121 °C | ✅ |\n"
-            "| Pump power | 600 mW | ✅ |\n"
-            "| Probe-seed power | 8 µW (squeezing run) | ✅ |\n"
-            "| Optical loss after cell | 5.5 % | ✅ (loss) |\n"
-            "| Cell length | 12.5 mm | fixed |\n"
-            "| Pump / seed waist w₀ | 530 / 330 µm (1/e² radius) | fixed |\n"
-            "| Measured result | gain ≈ 15, IDS −7.8 dB | — |\n\n"
-            "ℹ️ **Line-strength factor** is a model calibration knob, not a paper "
-            "value. Tune it until on-resonance gain matches the paper's ≈ 15."
+            "**Seeded reference:** G. Sim, H. Kim, H. S. Moon, *Sci. Rep.* "
+            "**15**, 7727 (2025). Legacy 85Rb D1 double-Lambda gain and "
+            "intensity-difference squeezing remain regression-anchored.\n\n"
+            "**Biphoton references:** Heewoo Kim, Hansol Jeong and Han Seb Moon, "
+            "[*Quantum Sci. Technol.* 9, 045006 (2024)]"
+            "(https://arxiv.org/abs/2402.06872); Hansol Jeong, Heewoo Kim and "
+            "Han Seb Moon, [*Advanced Quantum Technologies* 7, 2300108 (2024)]"
+            "(https://www.citedrive.com/en/discovery/highperformance-telecomwavelength-biphoton-source-from-a-hot-atomic-vapor-cell/).\n\n"
+            "| Biphoton reference quantity | V1 treatment |\n|---|---|\n"
+            "| Velocity-class coherent BTW | coherent sum over Maxwell velocity classes |\n"
+            "| Phase matching | generic longitudinal Delta-k with sinc^2(Delta-k L / 2) |\n"
+            "| 87Rb telecom source | calibrated to order 38,000 cps/mW and g2 peak ~44 |\n"
+            "| Cs BTW channels | separate 852-917 nm and 852-795 nm temporal-width presets |\n\n"
+            "The spontaneous mode is a calibrated source estimate, not a full "
+            "quantum-Langevin propagation model."
         )
 
     def compute(self, params):
+        if params.get("mode", MODE_SEEDED) == MODE_BIPHOTON:
+            topology = topology_from_params(params)
+            return GenericFWMSolver(topology).compute_biphoton(params)
         center = branch_center_GHz(params["opd"], -1)
         res = RESOLUTION[params["resolution"]]
         return compute_spectrum(
@@ -399,6 +895,11 @@ class FWMScheme(Scheme):
         )
 
     def observables(self, raw, params):
+        if raw.get("kind") == "biphoton":
+            return self._biphoton_observables(raw, params)
+        return self._seeded_observables(raw, params)
+
+    def _seeded_observables(self, raw, params):
         import matplotlib.pyplot as plt
 
         tpd = params["tpd"]
@@ -507,6 +1008,104 @@ class FWMScheme(Scheme):
             "tables": [
                 {"title": "Derived quantities", "markdown": derived},
                 {"title": "Twin-beam coincidence (spontaneous)", "markdown": coinc_table},
+            ],
+        }
+
+    def _biphoton_observables(self, raw, params):
+        import matplotlib.pyplot as plt
+
+        topo = raw["topology"]
+        stats = observables.biphoton_stats(
+            raw["tau_axis_ns"], raw["psi_tau"], raw["pair_rate_cps"],
+            signal_eff=params["signal_eff_pct"] / 100.0,
+            idler_eff=params["idler_eff_pct"] / 100.0,
+            dark_signal_cps=params["dark_signal_cps"],
+            dark_idler_cps=params["dark_idler_cps"],
+            coincidence_window_ns=params["coincidence_window_ns"],
+            timing_jitter_ns=params["timing_jitter_ns"],
+            filter_bandwidth_mhz=params["filter_bandwidth_mhz"],
+            source_bandwidth_mhz=300.0,
+            target_g2_peak=topo.target_g2_peak,
+        )
+
+        fig, (axG2, axPM) = plt.subplots(2, 1, figsize=(8.5, 6.4))
+        axG2.plot(stats["tau_axis_ns"], stats["g2_SI_tau"], color="#1f77b4", lw=1.8)
+        axG2.axhline(2.0, color="black", lw=0.7, ls=":")
+        axG2.set_ylabel(r"$g^{(2)}_{SI}(\tau)$")
+        axG2.set_title(f"{topo.label}: calibrated spontaneous SFWM estimate")
+        axG2.grid(alpha=0.3)
+
+        axPM.plot(raw["angle_axis_deg"], raw["phase_matching"], color="#2ca02c", lw=1.8)
+        axPM.axvline(params["idler_angle_deg"], color="crimson", lw=1.1, ls="--")
+        axPM.set_xlabel("Idler collection angle [deg]")
+        axPM.set_ylabel(r"$\mathrm{sinc}^2(\Delta k L / 2)$")
+        axPM.grid(alpha=0.3)
+        fig.tight_layout()
+
+        amp = np.abs(raw["source_v"])
+        amp = amp / np.nanmax(amp) if np.nanmax(amp) > 0 else amp
+        phase = np.unwrap(np.angle(raw["source_v"]))
+        figV, (axA, axP) = plt.subplots(2, 1, figsize=(8.5, 6.0), sharex=True)
+        axA.plot(raw["v_grid"], amp, color="#ff7f0e", lw=1.5)
+        axA.set_ylabel("Velocity source amplitude")
+        axA.grid(alpha=0.3)
+        axP.plot(raw["v_grid"], phase, color="#9467bd", lw=1.3)
+        axP.set_xlabel("Atomic velocity [m/s]")
+        axP.set_ylabel("Velocity source phase [rad]")
+        axP.grid(alpha=0.3)
+        figV.tight_layout()
+
+        metrics = [
+            dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}",
+                 help="Peak normalized signal-idler cross-correlation."),
+            dict(label="CAR", value=f"{stats['CAR']:.1f}",
+                 help="True coincidence divided by accidental coincidence."),
+            dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
+                 help="Reference-calibrated generated pair-rate estimate."),
+            dict(label="BTW FWHM", value=f"{stats['fwhm_ns']:.2f} ns",
+                 help="FWHM of the modeled biphoton temporal waveform."),
+            dict(label="Phase match", value=f"{raw['phase_match_weight']:.3f}",
+                 help="sinc^2 phase-matching collection weight."),
+        ]
+
+        field_rows = "".join(
+            f"| {f.role} | {raw['topology'].levels[f.lower].name} -> "
+            f"{raw['topology'].levels[f.upper].name} | {f.wavelength_nm:.2f} nm | "
+            f"{f.angle_deg:.2f} deg |\n"
+            for f in raw["fields"]
+        )
+        topology_table = (
+            f"| Quantity | Value |\n|---|---|\n"
+            f"| Topology | {topo.label} |\n"
+            f"| Family | {topo.family} |\n"
+            f"| Density | {raw['density']:.3e} /m^3 |\n"
+            f"| Cell length | {raw['cell_length_m']*1e3:.2f} mm |\n"
+            f"| Delta k | {raw['delta_k']:.3e} 1/m |\n"
+            f"| Energy mismatch | {raw['energy_mismatch_hz']/1e6:.3f} MHz |\n"
+            f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n\n"
+            f"| Field | Transition | Wavelength | Angle |\n|---|---|---:|---:|\n"
+            + field_rows
+        )
+        detection_table = (
+            "Calibrated source estimate with detector/background model:\n\n"
+            f"| Quantity | Value |\n|---|---|\n"
+            f"| Signal singles | {stats['singles_signal_cps']:.2f} cps |\n"
+            f"| Idler singles | {stats['singles_idler_cps']:.2f} cps |\n"
+            f"| True coincidence | {stats['coincidence_cps']:.3f} cps |\n"
+            f"| Accidental coincidence | {stats['accidental_cps']:.3e} cps |\n"
+            f"| Heralding signal | {stats['heralding_signal']:.3e} |\n"
+            f"| Heralding idler | {stats['heralding_idler']:.3e} |\n"
+            f"| Cauchy-Schwarz R | {stats['cauchy_schwarz_R']:.2f} |\n"
+            f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n\n"
+            f"{raw['notes']}"
+        )
+        return {
+            "metrics": metrics,
+            "figure": fig,
+            "figures": [("Velocity-class coherent source", figV)],
+            "tables": [
+                {"title": "Generic SFWM topology", "markdown": topology_table},
+                {"title": "Biphoton detection model", "markdown": detection_table},
             ],
         }
 

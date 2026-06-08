@@ -14,7 +14,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 | A | **AT** | Autler-Townes doublet (splitting = Ω_c) |
 | A | **CPT** | sub-natural dark resonance |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
-| D — Wave mixing | **FWM** | seed/probe gain G_s, intensity-difference squeezing, twin-beam coincidence |
+| D — Wave mixing | **FWM** | legacy seeded 85Rb D1 double-Λ gain/squeezing, plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class BTW) |
 
 Roadmap (parking lot): slow-light / group-index readout, Raman gain, higher-order
 wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
@@ -39,7 +39,7 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     (Racah) line strengths, Casimir hyperfine energies, Steck vapor density, and
     the SAS hyperfine-manifold builder `build_manifold(iso, line)` (CG-branched
     decay + transit-time relaxation).
-  - `observables.py` — gain, squeezing, twin-beam coincidence, absorption / OD / dispersion.
+  - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
     `absorption.py` (EIT/AT/CPT + the unregistered `ODScheme` validation
     primitive), `sas.py` (the merged **Absorption OD/SAS** scheme on `species.py`),
@@ -53,7 +53,7 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 - `tests/` — regression + physics validation; `baseline_focused.npz` is the
   frozen pre-refactor FWM anchor.
 - `requirements.txt` — streamlit, numpy, matplotlib.
-- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper.
+- `references/` — Sim et al. 2025 paper PDF + Steck Rb85 data + OE stabilization paper. The generic SFWM presets cite the Cs biphoton-temporal-waveform paper and the 87Rb telecom biphoton source paper from the app's Reference panel.
 
 ## Run
 
@@ -73,6 +73,7 @@ python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49
 
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
 python tests/test_coincidence.py     # twin-beam photon-pair statistics
+python tests/test_fwm_generic.py     # generic SFWM topology + biphoton detector model
 python tests/test_schemes_render.py  # every registered scheme computes + renders
 ```
 (or `pytest tests/`)
@@ -86,11 +87,33 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ## FWM conventions (must-know, not obvious from numbers)
 
+### Legacy seeded gain / squeezing
+
 - Levels: g₁=F=2, g₂=F=3, e₂=F'=2, e₃=F'=3.
 - OPD Δ (one-photon): ω_pump = ω(F=2→F'=3) + Δ.
 - TPD δ (two-photon): ω_seed = ω_pump − ν_HF + δ.   ν_HF = 3.0357 GHz.
 - Plot x-axis ref = **F=2→F'=3** line. (−) Raman branch = standard FWM seed, at Δ − ν_HF.
 - Beam waists W_PUMP=530 µm, W_PROBE=330 µm = **1/e² radius** (paper convention). Not diameter.
+
+### Generic SFWM / biphoton mode
+
+- Mode selector: **Seeded gain / squeezing** keeps the regression-anchored 85Rb
+  double-Λ model; **Spontaneous biphoton** switches to the generic SFWM source
+  estimate.
+- Topologies: `cascade_rb87_telecom` (87Rb 5S1/2-5P3/2-4D5/2, 780/1529 nm),
+  `cascade_cs_btw` (133Cs 852-917 nm or 852-795 nm BTW comparison), and
+  `diamond_generic` (four-level user-wavelength template; not a validated paper
+  preset).
+- Biphoton readout: `g²_SI(τ)`, FWHM, pair-rate estimate, singles, true and
+  accidental coincidences, CAR, heralding estimates, and Cauchy-Schwarz R.
+- The waveform is a coherent sum over Doppler velocity classes. Phase matching
+  uses a longitudinal Δk model with `sinc²(Δk L / 2)` collection weight.
+- Reference anchors: the 87Rb telecom source is calibrated to order
+  `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
+  the Cs BTW preset exposes the wavelength-dependent temporal-width change
+  reported for the 852-917 nm and 852-795 nm cascade channels.
+- V1 limitation: absolute pair rate is a **calibrated source estimate**, not a
+  full quantum-Langevin propagation/noise calculation.
 
 ## Traps
 
