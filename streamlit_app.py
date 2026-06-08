@@ -422,31 +422,50 @@ def _render_group_header(container, group):
     )
 
 
-def _render_param(container, scheme_name, sp):
+def _apply_recommended_defaults(scheme_name, scheme_obj, key):
+    """on_change for a control whose selection applies the matching
+    recommended_defaults set (so choosing it also resets that mode's knobs)."""
+    selection = st.session_state.get(key)
+    cur = {
+        sp.name: st.session_state.get(_skey(scheme_name, sp.name), sp.default)
+        for sp in scheme_obj.param_schema()
+    }
+    sets = scheme_obj.recommended_defaults(cur) or {}
+    for k, v in (sets.get(selection) or {}).items():
+        st.session_state[_skey(scheme_name, k)] = v
+
+
+def _render_param(container, scheme_name, sp, scheme_obj=None):
     key = _skey(scheme_name, sp.name)
     label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
     help_ = sp.help or None
     has_state = key in st.session_state
     current = st.session_state.get(key, sp.default)
+    on_change = None
+    if getattr(sp, "applies_defaults", False) and scheme_obj is not None:
+        on_change = lambda: _apply_recommended_defaults(scheme_name, scheme_obj, key)
     if getattr(sp, "control", "auto") == "segmented":
         options = list(sp.choices or ())
         if hasattr(container, "segmented_control"):
             try:
-                return container.segmented_control(label, options, key=key, help=help_)
+                return container.segmented_control(label, options, key=key,
+                                                   help=help_, on_change=on_change)
             except TypeError:
                 pass
         if has_state:
             return container.radio(label, options, key=key, help=help_,
-                                   horizontal=True)
+                                   horizontal=True, on_change=on_change)
         idx = options.index(current) if current in options else 0
         return container.radio(label, options, key=key, help=help_,
-                               horizontal=True, index=idx)
+                               horizontal=True, index=idx, on_change=on_change)
     if sp.choices is not None:
         options = list(sp.choices)
         if has_state:
-            return container.selectbox(label, options, key=key, help=help_)
+            return container.selectbox(label, options, key=key, help=help_,
+                                       on_change=on_change)
         idx = options.index(current) if current in options else 0
-        return container.selectbox(label, options, index=idx, key=key, help=help_)
+        return container.selectbox(label, options, index=idx, key=key, help=help_,
+                                   on_change=on_change)
     if has_state:
         val = container.slider(label, sp.vmin, sp.vmax, step=sp.step,
                                key=key, help=help_)
@@ -573,7 +592,10 @@ if callable(_rec_fn):
         _rec_sets = _rec_fn(_live_params)
     except Exception:
         _rec_sets = None
-if isinstance(_rec_sets, dict) and _rec_sets:
+# A control flagged applies_defaults (e.g. FWM's Mode) already applies these sets
+# on selection, so the standalone "Default" buttons would just duplicate it.
+_mode_driven_defaults = any(getattr(sp, "applies_defaults", False) for sp in specs)
+if isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
     _render_group_header(st.sidebar, "Default")
     _cols = st.sidebar.columns(len(_rec_sets))
     for _col, _label in zip(_cols, _rec_sets):
@@ -600,13 +622,13 @@ for g in group_order:
     _render_group_header(st.sidebar, g)
     for sp in visible_specs:
         if sp.group == g and not sp.advanced:
-            params[sp.name] = _render_param(st.sidebar, scheme.name, sp)
+            params[sp.name] = _render_param(st.sidebar, scheme.name, sp, scheme)
 
 advanced = [sp for sp in visible_specs if sp.advanced]
 if advanced:
     exp = st.sidebar.expander("Advanced / numerics")
     for sp in advanced:
-        params[sp.name] = _render_param(exp, scheme.name, sp)
+        params[sp.name] = _render_param(exp, scheme.name, sp, scheme)
 
 for sp in specs:
     if sp.name not in params:

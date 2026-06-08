@@ -760,8 +760,9 @@ class FWMScheme(Scheme):
         return [
             ParamSpec("mode", "Mode", "Mode", MODE_SEEDED,
                       choices=(MODE_SEEDED, MODE_BIPHOTON),
-                      control="segmented",
-                      help="Legacy gain/squeezing or generic SFWM biphoton readout."),
+                      control="segmented", applies_defaults=True,
+                      help="Pick the readout. Selecting a mode resets every knob "
+                           "to that mode's recommended default values."),
             ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
                       choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
                       visible_if=biphoton,

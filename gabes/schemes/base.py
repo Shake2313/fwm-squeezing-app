@@ -40,6 +40,9 @@ class ParamSpec:
     hidden: bool = False          # keep in params/session state, but do not render
     control: str = "auto"         # auto / segmented
     visible_if: Optional[dict] = None   # {param_name: allowed value(s)}
+    applies_defaults: bool = False      # choosing a value applies the scheme's
+                                        # recommended_defaults[value] set, and
+                                        # replaces the standalone "Default" buttons
 
 
 @dataclass(frozen=True)
