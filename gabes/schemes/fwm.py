@@ -130,6 +130,9 @@ class TopologySpec:
     emission_decay_ns: float
     target_g2_peak: float | None = None
     reference_fwhm_ns: float | None = None
+    reference_od: float | None = None
+    reference_bandwidth_mhz: float | None = None
+    reference_width_ratio: float | None = None
     reference_delta_k: float | None = None
     notes: str = ""
 
@@ -211,6 +214,9 @@ def _with_reference_delta_k(spec):
         emission_decay_ns=spec.emission_decay_ns,
         target_g2_peak=spec.target_g2_peak,
         reference_fwhm_ns=spec.reference_fwhm_ns,
+        reference_od=spec.reference_od,
+        reference_bandwidth_mhz=spec.reference_bandwidth_mhz,
+        reference_width_ratio=spec.reference_width_ratio,
         reference_delta_k=_raw_delta_k(spec.fields),
         notes=spec.notes,
     )
@@ -247,6 +253,8 @@ def _rb87_telecom_spec():
         emission_decay_ns=0.52,
         target_g2_peak=44.0,
         reference_fwhm_ns=0.56,
+        reference_od=112.0,
+        reference_bandwidth_mhz=300.0,
         notes=("Reference-calibrated cascade SFWM estimate for the telecom "
                "biphoton source in hot 87Rb."),
     ))
@@ -296,6 +304,8 @@ def _cs_btw_spec(channel):
         emission_decay_ns=decay_ns,
         target_g2_peak=18.0,
         reference_fwhm_ns=decay_ns * 0.42,
+        reference_od=10.0,
+        reference_width_ratio=3.0,
         notes=("Velocity-class coherent-sum model for the Cs biphoton temporal "
                "waveform comparison."),
     ))
@@ -338,6 +348,9 @@ def _diamond_generic_spec(params=None):
         emission_decay_ns=8.0,
         target_g2_peak=None,
         reference_fwhm_ns=None,
+        reference_od=None,
+        reference_bandwidth_mhz=None,
+        reference_width_ratio=None,
         notes=("Generic template only; not tied to a validated diamond reference "
                "preset."),
     ))
@@ -402,6 +415,13 @@ class GenericFWMSolver:
         )
         pm_weight = float(phase_matching_weight(np.array([delta_k]), L)[0])
         density = species.number_density(iso, T)
+        default_density = species.number_density(iso, self.topology.default_temp_c + 273.15)
+        if self.topology.reference_od is not None:
+            od_estimate = (self.topology.reference_od
+                           * density / max(default_density, 1e-30)
+                           * L / max(self.topology.default_cell_mm * 1e-3, 1e-30))
+        else:
+            od_estimate = np.nan
         pump_mw = params.get("pump_biphoton_uw", self.topology.default_pump_uw) * 1e-3
         coupling_scale = max(params.get("coupling_mw", self.topology.default_coupling_mw),
                              0.0) / max(self.topology.default_coupling_mw, 1e-12)
@@ -456,6 +476,8 @@ class GenericFWMSolver:
             "energy_mismatch_hz": float(energy_mismatch_hz(fields)),
             "pair_rate_cps": float(pair_rate),
             "density": float(density),
+            "od_estimate": float(od_estimate),
+            "source_bandwidth_mhz": float(self.topology.reference_bandwidth_mhz or 300.0),
             "temperature_K": float(T),
             "cell_length_m": float(L),
             "residual_two_photon_k": float(residual_k),
@@ -803,7 +825,7 @@ class FWMScheme(Scheme):
                       0.0, 100000.0, 100.0, "cps", visible_if=biphoton),
             ParamSpec("coincidence_window_ns", "Coincidence window", "Detection & scaling", 1.0,
                       0.01, 100.0, 0.01, "ns", visible_if=biphoton),
-            ParamSpec("timing_jitter_ns", "Timing jitter FWHM", "Detection & scaling", 0.42,
+            ParamSpec("timing_jitter_ns", "Timing jitter FWHM", "Detection & scaling", 0.55,
                       0.0, 5.0, 0.01, "ns", visible_if=biphoton),
             ParamSpec("filter_bandwidth_mhz", "Filter bandwidth", "Detection & scaling", 300.0,
                       1.0, 5000.0, 1.0, "MHz", visible_if=biphoton),
@@ -835,7 +857,8 @@ class FWMScheme(Scheme):
                             signal_eff_pct=10.0, idler_eff_pct=10.0,
                             dark_signal_cps=2000.0, dark_idler_cps=2000.0,
                             coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
-                            timing_jitter_ns=0.42),
+                            timing_jitter_ns=0.55, tau_max_ns=12.0,
+                            biphoton_velocity_step=2.0),
                 icon="Rb",
                 help="Cascade 5S-5P-4D telecom-wavelength biphoton reference.",
             ),
@@ -850,7 +873,8 @@ class FWMScheme(Scheme):
                             signal_eff_pct=10.0, idler_eff_pct=10.0,
                             dark_signal_cps=2000.0, dark_idler_cps=2000.0,
                             coincidence_window_ns=1.0, filter_bandwidth_mhz=300.0,
-                            timing_jitter_ns=0.42),
+                            timing_jitter_ns=0.55, tau_max_ns=12.0,
+                            biphoton_velocity_step=2.0),
                 icon="Cs",
                 help="Cascade Cs velocity-class biphoton temporal waveform reference.",
             ),
@@ -1024,7 +1048,7 @@ class FWMScheme(Scheme):
             coincidence_window_ns=params["coincidence_window_ns"],
             timing_jitter_ns=params["timing_jitter_ns"],
             filter_bandwidth_mhz=params["filter_bandwidth_mhz"],
-            source_bandwidth_mhz=300.0,
+            source_bandwidth_mhz=raw["source_bandwidth_mhz"],
             target_g2_peak=topo.target_g2_peak,
         )
 
@@ -1093,12 +1117,16 @@ class FWMScheme(Scheme):
             f"| Idler singles | {stats['singles_idler_cps']:.2f} cps |\n"
             f"| True coincidence | {stats['coincidence_cps']:.3f} cps |\n"
             f"| Accidental coincidence | {stats['accidental_cps']:.3e} cps |\n"
+            f"| Raw accidental before reference calibration | {stats['raw_accidental_cps']:.3e} cps |\n"
+            f"| Added unmodelled accidental/background | {stats['added_accidental_cps']:.3e} cps |\n"
+            f"| Raw g2 peak before reference calibration | {stats['raw_g2_peak']:.2f} |\n"
             f"| Heralding signal | {stats['heralding_signal']:.3e} |\n"
             f"| Heralding idler | {stats['heralding_idler']:.3e} |\n"
             f"| Cauchy-Schwarz R | {stats['cauchy_schwarz_R']:.2f} |\n"
             f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n\n"
             f"{raw['notes']}"
         )
+        validation_table = self._reference_validation_table(raw, params, stats)
         return {
             "metrics": metrics,
             "figure": fig,
@@ -1106,8 +1134,93 @@ class FWMScheme(Scheme):
             "tables": [
                 {"title": "Generic SFWM topology", "markdown": topology_table},
                 {"title": "Biphoton detection model", "markdown": detection_table},
+                {"title": "Reference validation (medium model)", "markdown": validation_table},
             ],
         }
+
+    def _reference_validation_table(self, raw, params, stats):
+        topo = raw["topology"]
+
+        def verdict(ok):
+            return "PASS" if ok else "CHECK"
+
+        def row(name, calc, ref, ok, note=""):
+            return f"| {name} | {calc} | {ref} | {verdict(ok)} | {note} |\n"
+
+        rows = []
+        if topo.name == TOPOLOGY_RB87_TELECOM:
+            pump_mw = max(params["pump_biphoton_uw"] * 1e-3, 1e-30)
+            rate_per_mw = stats["pair_rate_cps"] / pump_mw
+            rows.append(row(
+                "Pair rate / pump", f"{rate_per_mw:.0f} cps/mW",
+                "38000 cps/mW", abs(rate_per_mw / 38000.0 - 1.0) < 0.15,
+                "calibrated source-rate anchor"))
+            rows.append(row(
+                "g2 peak", f"{stats['g2_peak']:.2f} (raw {stats['raw_g2_peak']:.1f})",
+                "44(3)", abs(stats["g2_peak"] - 44.0) <= 3.0,
+                "uses explicit added-accidental calibration, not a noise first-principles result"))
+            rows.append(row(
+                "BTW FWHM", f"{stats['fwhm_ns']:.3f} ns",
+                "0.56(4) ns", abs(stats["fwhm_ns"] - 0.56) <= 0.04,
+                "detector jitter is part of this medium model"))
+            rows.append(row(
+                "OD estimate", f"{raw['od_estimate']:.1f}",
+                "112(3)", abs(raw["od_estimate"] - 112.0) <= 3.0,
+                "density/cell scaling from reference OD"))
+            rows.append(row(
+                "Bandwidth setting", f"{params['filter_bandwidth_mhz']:.0f} MHz",
+                "about 300 MHz", abs(params["filter_bandwidth_mhz"] - 300.0) <= 40.0,
+                "filter/source bandwidth check"))
+        elif topo.name == TOPOLOGY_CS_BTW:
+            other_channel = CS_CHANNEL_795 if params.get("cs_channel") == CS_CHANNEL_917 else CS_CHANNEL_917
+            other_params = dict(params)
+            other_params["cs_channel"] = other_channel
+            other_raw = GenericFWMSolver(topology_from_params(other_params)).compute_biphoton(other_params)
+            other_stats = observables.biphoton_stats(
+                other_raw["tau_axis_ns"], other_raw["psi_tau"], other_raw["pair_rate_cps"],
+                signal_eff=params["signal_eff_pct"] / 100.0,
+                idler_eff=params["idler_eff_pct"] / 100.0,
+                dark_signal_cps=params["dark_signal_cps"],
+                dark_idler_cps=params["dark_idler_cps"],
+                coincidence_window_ns=params["coincidence_window_ns"],
+                timing_jitter_ns=params["timing_jitter_ns"],
+                filter_bandwidth_mhz=params["filter_bandwidth_mhz"],
+                source_bandwidth_mhz=other_raw["source_bandwidth_mhz"],
+                target_g2_peak=other_raw["topology"].target_g2_peak,
+            )
+            ratio = max(stats["fwhm_ns"], other_stats["fwhm_ns"]) / max(
+                min(stats["fwhm_ns"], other_stats["fwhm_ns"]), 1e-30)
+            rows.append(row(
+                "BTW width ratio", f"{ratio:.2f}",
+                "about 3", abs(ratio - 3.0) <= 0.5,
+                "medium model only; full Cs BTW theory is not yet included"))
+            rows.append(row(
+                "OD estimate", f"{raw['od_estimate']:.1f}",
+                "about 10", abs(raw["od_estimate"] - 10.0) <= 2.0,
+                "density/cell scaling from reference note"))
+        else:
+            rows.append(row(
+                "Reference validation", "generic diamond template",
+                "no paper anchor", False,
+                "configure wavelengths manually; no validated default"))
+
+        rows.append(row(
+            "Phase matching", f"{raw['phase_match_weight']:.3f}",
+            "> 0.90", raw["phase_match_weight"] > 0.90,
+            "sinc^2(Delta k L / 2)"))
+        rows.append(row(
+            "Energy conservation", f"{raw['energy_mismatch_hz']/1e6:.3f} MHz",
+            "near 0 MHz", abs(raw["energy_mismatch_hz"]) < 1e6,
+            "wavelength bookkeeping"))
+
+        return (
+            "This table is the medium-complexity reference check. It verifies "
+            "bookkeeping, calibrated rate/OD anchors, detector-level g2 calibration, "
+            "and phase matching. It does not claim full quantum-Langevin noise or "
+            "full Cs BTW theory.\n\n"
+            "| Check | Calculated | Reference | Verdict | Note |\n|---|---:|---:|---|---|\n"
+            + "".join(rows)
+        )
 
     def extra_views(self):
         def _compute_full(params):

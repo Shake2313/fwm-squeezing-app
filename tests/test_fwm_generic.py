@@ -88,6 +88,26 @@ def test_timing_jitter_broadens_waveform():
     sharp = observables.biphoton_stats(tau, wave, 1_000.0, timing_jitter_ns=0.0)
     broad = observables.biphoton_stats(tau, wave, 1_000.0, timing_jitter_ns=0.8)
     assert broad["fwhm_ns"] > sharp["fwhm_ns"]
+    assert broad["g2_SI_tau"].shape == tau.shape
+
+
+def test_long_jitter_kernel_preserves_axis_length():
+    tau = np.linspace(0.0, 1.0, 481)
+    wave = np.exp(-tau / 0.1)
+    stats = observables.biphoton_stats(tau, wave, 1_000.0, timing_jitter_ns=0.55)
+    assert stats["g2_SI_tau"].shape == tau.shape
+    assert stats["tau_axis_ns"].shape == tau.shape
+
+
+def test_reference_g2_uses_explicit_added_accidentals():
+    tau = np.linspace(0.0, 10.0, 401)
+    wave = np.exp(-tau / 0.8)
+    stats = observables.biphoton_stats(
+        tau, wave, 1_000.0, signal_eff=0.1, idler_eff=0.1,
+        coincidence_window_ns=1.0, target_g2_peak=44.0)
+    assert np.isclose(stats["g2_peak"], 44.0)
+    assert stats["raw_g2_peak"] > stats["g2_peak"]
+    assert stats["added_accidental_cps"] > 0
 
 
 def test_rb87_telecom_preset_smoke():
@@ -120,12 +140,30 @@ def test_biphoton_ui_render_modes():
         assert view.get("metrics")
 
 
+def test_cs_btw_short_window_render_no_shape_error():
+    scheme = fwm.FWMScheme()
+    params = _params(
+        topology=fwm.TOPOLOGY_CS_BTW,
+        cs_channel=fwm.CS_CHANNEL_917,
+        tau_max_ns=1.0,
+        timing_jitter_ns=0.55,
+    )
+    raw = scheme.compute(params)
+    view = scheme.observables(raw, params)
+    assert view.get("figure") is not None
+    assert any(table["title"] == "Reference validation (medium model)"
+               for table in view.get("tables", []))
+
+
 if __name__ == "__main__":
     test_topology_energy_and_roles()
     test_phase_matching_reference_angle_is_maximum()
     test_detector_background_and_window_reduce_car()
     test_timing_jitter_broadens_waveform()
+    test_long_jitter_kernel_preserves_axis_length()
+    test_reference_g2_uses_explicit_added_accidentals()
     test_rb87_telecom_preset_smoke()
     test_cs_btw_channels_have_different_widths()
     test_biphoton_ui_render_modes()
+    test_cs_btw_short_window_render_no_shape_error()
     print("Generic SFWM / biphoton checks OK.")

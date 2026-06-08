@@ -95,7 +95,9 @@ def _smooth_same(y, x, fwhm):
     grid = np.arange(-half, half + 1) * dx
     kernel = np.exp(-0.5 * (grid / sigma) ** 2)
     kernel /= np.sum(kernel)
-    return np.convolve(y, kernel, mode="same")
+    full = np.convolve(y, kernel, mode="full")
+    start = (kernel.size - 1) // 2
+    return full[start:start + y.size]
 
 
 def _fwhm(x, y):
@@ -160,9 +162,17 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     singles_idler = pair_rate * eta_i + max(float(dark_idler_cps), 0.0)
     coincidence = pair_rate * eta_s * eta_i
     accidental = singles_signal * singles_idler * max(float(coincidence_window_ns), 0.0) * 1e-9
-    raw_car = coincidence / max(accidental, 1e-30)
+    raw_accidental = accidental
+    raw_car = coincidence / max(raw_accidental, 1e-30)
+    added_accidental = 0.0
     if target_g2_peak is not None:
-        car = min(raw_car, max(float(target_g2_peak) - 1.0, 0.0))
+        target_car = max(float(target_g2_peak) - 1.0, 0.0)
+        if target_car > 0 and target_car < raw_car:
+            accidental = coincidence / target_car
+            added_accidental = max(accidental - raw_accidental, 0.0)
+            car = target_car
+        else:
+            car = raw_car
     else:
         car = raw_car
     g2_tau = 1.0 + car * intensity
@@ -176,11 +186,15 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
         "singles_idler_cps": singles_idler,
         "coincidence_cps": coincidence,
         "accidental_cps": accidental,
+        "raw_accidental_cps": raw_accidental,
+        "added_accidental_cps": added_accidental,
         "CAR": car,
+        "raw_CAR": raw_car,
         "heralding_signal": coincidence / max(singles_idler, 1e-30),
         "heralding_idler": coincidence / max(singles_signal, 1e-30),
         "cauchy_schwarz_R": g2_peak ** 2 / 4.0,
         "g2_peak": g2_peak,
+        "raw_g2_peak": 1.0 + raw_car,
         "filter_transmission": filter_transmission,
     }
 
