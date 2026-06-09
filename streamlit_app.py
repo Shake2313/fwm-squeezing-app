@@ -16,6 +16,7 @@ Run with:
 import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
 import streamlit as st
+import streamlit.components.v1 as components
 from pathlib import Path
 from html import escape
 
@@ -35,7 +36,84 @@ THEME_BASE = (st.get_option("theme.base") or "light").lower()
 LOGO_ASSET = "gabes-logo-v3-dark.svg" if THEME_BASE == "dark" else "gabes-logo-v3.svg"
 ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v3.svg"
 
-LOGO_SVG = _asset_text(LOGO_ASSET)
+# User's Guide, served as a static file (config.toml -> server.enableStaticServing).
+# Streamlit exposes ./static/<f> at the relative URL "app/static/<f>", which
+# resolves correctly both locally and on Streamlit Community Cloud — so the link
+# opens from any computer. The file is fully self-contained (images base64-inlined
+# by docs/build_static_guide.py), so it needs no sibling assets.
+GUIDE_URL = "app/static/GABES_User_Guide.html"
+
+# BETA badge appended to the wordmark logo (this is "the GABES logo" the app shows).
+_BETA_BADGE = (
+    '<g transform="translate(582 74)">'
+    '<rect width="92" height="38" rx="19" fill="#F43F5E"/>'
+    '<text x="46" y="26" text-anchor="middle" '
+    'font-family="IBM Plex Sans, Inter, Segoe UI, Arial, sans-serif" '
+    'font-size="21" font-weight="800" letter-spacing="2.5" fill="#FFFFFF">BETA</text>'
+    '</g></svg>'
+)
+
+
+def _with_beta_badge(svg):
+    """Insert the BETA badge just before the closing </svg> tag."""
+    return svg.replace('</svg>', _BETA_BADGE, 1)
+
+
+# Guide launcher: a tiny in-app button that opens the User's Guide in a new tab,
+# RENDERED. Streamlit's static handler serves the file as text/plain (a security
+# default), so a plain <a> would show source. Instead we fetch the file and open
+# it as a text/html Blob — works on any computer with no external hosting. The
+# heavy 851 KB file is fetched only on click (then browser-cached); the launcher
+# itself is ~2 KB so it costs nothing on rerun.
+_GUIDE_LAUNCHER_TMPL = """<!doctype html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;padding:0;background:transparent;overflow:hidden;
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;}
+.bar{display:flex;justify-content:__JUSTIFY__;align-items:center;}
+button.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  cursor:pointer;__WIDTH__padding:.52rem .95rem;border-radius:9px;border:1px solid #1D4ED8;
+  background:linear-gradient(100deg,#0369A1,#2563EB);color:#fff;
+  font-weight:720;font-size:.85rem;line-height:1;
+  box-shadow:0 2px 10px rgba(37,99,235,.22);transition:filter .12s ease;}
+button.gbtn:hover{filter:brightness(1.08);}
+button.gbtn .arr{font-size:.95rem;opacity:.9;}
+</style></head><body>
+<div class="bar">
+  <button class="gbtn" id="gbtn" title="사용자 안내서를 새 창에서 엽니다">
+    &#128218; User&rsquo;s Guide <span class="arr">&#8599;</span></button>
+</div>
+<script>
+(function(){
+  var GURL="__URL__";
+  var btn=document.getElementById("gbtn");
+  btn.addEventListener("click", function(){
+    var old=btn.innerHTML; btn.disabled=true; btn.innerHTML="\\uC5EC\\uB294 \\uC911\\u2026";
+    var done=function(){ btn.disabled=false; btn.innerHTML=old; };
+    fetch(GURL).then(function(r){ return r.text(); }).then(function(t){
+      var u=URL.createObjectURL(new Blob([t],{type:"text/html"}));
+      if(!window.open(u,"_blank")){ window.open(GURL,"_blank"); }
+      done();
+    }).catch(function(){ window.open(GURL,"_blank"); done(); });
+  });
+})();
+</script>
+</body></html>"""
+
+
+def _guide_launcher(container=None, height=56, align="end", full_width=False):
+    justify = {"end": "flex-end", "center": "center",
+               "start": "flex-start"}.get(align, "flex-end")
+    html = (_GUIDE_LAUNCHER_TMPL
+            .replace("__JUSTIFY__", justify)
+            .replace("__WIDTH__", "width:100%;" if full_width else "")
+            .replace("__URL__", GUIDE_URL))
+    if container is None:
+        components.html(html, height=height)
+    else:
+        with container:
+            components.html(html, height=height)
+
+
+LOGO_SVG = _with_beta_badge(_asset_text(LOGO_ASSET))
 ICON_SVG = _asset_text(ICON_ASSET)
 SIDEBAR_LOGO_SVG = LOGO_SVG.replace(
     'width="960" height="232" viewBox="0 0 960 232"',
@@ -544,6 +622,7 @@ def _render_metrics(metrics):
 # Sidebar — scheme selection
 # ----------------------------------------------------------------------
 st.sidebar.image(SIDEBAR_LOGO_SVG, width=230)
+_guide_launcher(st.sidebar, height=46, align="center", full_width=True)
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
@@ -670,6 +749,7 @@ else:
 # ----------------------------------------------------------------------
 # Header + readout
 # ----------------------------------------------------------------------
+_guide_launcher(height=44, align="end")        # top bar: open the guide (new tab)
 _render_scheme_header(scheme)
 
 metrics = view.get("metrics", [])

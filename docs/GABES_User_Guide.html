@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GABES 사용자 안내서 · User's Guide</title>
+<style>
+:root{
+  --bg:#F6F8FB; --surface:#FFFFFF; --surface-2:#FBFDFF;
+  --ink:#0F172A; --muted:#64748B; --faint:#94A3B8;
+  --border:#DCE6EF; --grid:#E6EDF5;
+  --cyan:#0284C7; --blue:#2563EB; --teal:#0F766E;
+  --warm:#F97316; --rose:#F43F5E; --violet:#7C3AED;
+  --code-bg:#0F172A; --code-ink:#E2E8F0;
+  --maxw:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",
+    "Segoe UI","Inter",system-ui,-apple-system,sans-serif;
+  font-size:16px; line-height:1.72; letter-spacing:0;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+a{color:var(--cyan); text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd,.mono{
+  font-family:"JetBrains Mono","SFMono-Regular","Consolas","D2Coding",monospace;
+  font-size:0.86em;
+}
+
+/* ---------- layout ---------- */
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 clamp(16px,3vw,36px)}
+.layout{display:grid; grid-template-columns:248px minmax(0,1fr); gap:40px;
+  align-items:start; padding-top:34px; padding-bottom:80px}
+@media(max-width:920px){.layout{grid-template-columns:1fr; gap:0}}
+
+/* ---------- hero ---------- */
+.hero{background:var(--surface); border-bottom:1px solid var(--border)}
+.hero-inner{max-width:var(--maxw); margin:0 auto;
+  padding:34px clamp(16px,3vw,36px) 30px}
+.hairline{height:3px; width:100%; border-radius:999px; margin:0 0 22px;
+  background:linear-gradient(90deg,#22D3EE 0%,#2563EB 52%,#F43F5E 100%)}
+.hero svg{max-width:430px; width:62%; height:auto; display:block}
+.hero p.lead{max-width:62rem; margin:18px 0 0; color:var(--muted);
+  font-size:1.04rem; line-height:1.62}
+.badges{display:flex; flex-wrap:wrap; gap:7px; margin-top:18px}
+.badge{display:inline-flex; align-items:center; gap:6px; min-height:1.5rem;
+  padding:3px 11px; border-radius:999px; border:1px solid var(--border);
+  background:#F8FAFC; color:var(--muted); font-size:0.74rem; font-weight:650}
+.badge.beta{border-color:#FBCFE8; background:#FDF2F8; color:#BE185D}
+.badge.dot::before{content:""; width:7px; height:7px; border-radius:999px;
+  background:var(--cyan)}
+
+/* ---------- TOC ---------- */
+nav.toc{position:sticky; top:26px; align-self:start;
+  font-size:0.9rem; max-height:calc(100vh - 52px); overflow:auto}
+@media(max-width:920px){nav.toc{position:static; max-height:none; margin-bottom:8px}}
+nav.toc .toc-card{background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:14px 14px 16px; box-shadow:0 2px 10px rgba(15,23,42,.03)}
+nav.toc h4{margin:0 0 10px; font-size:0.7rem; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--faint)}
+nav.toc ol{list-style:none; margin:0; padding:0; counter-reset:toc}
+nav.toc li{counter-increment:toc; margin:1px 0}
+nav.toc li a{display:flex; gap:9px; padding:5px 8px; border-radius:7px;
+  color:var(--muted); line-height:1.3}
+nav.toc li a::before{content:counter(toc); color:var(--faint);
+  font-variant-numeric:tabular-nums; font-weight:700; min-width:1.1em}
+nav.toc li a:hover{background:var(--grid); color:var(--ink); text-decoration:none}
+
+/* ---------- sections ---------- */
+section{scroll-margin-top:20px; margin-bottom:8px}
+.sec-head{display:flex; align-items:baseline; gap:12px; margin:46px 0 6px}
+section:first-of-type .sec-head{margin-top:6px}
+.sec-num{font-size:0.82rem; font-weight:800; color:var(--cyan);
+  font-variant-numeric:tabular-nums; letter-spacing:.04em; flex:0 0 auto;
+  padding-top:2px}
+.sec-head h2{margin:0; font-size:clamp(1.32rem,2.2vw,1.72rem); font-weight:760;
+  line-height:1.2}
+.sec-sub{color:var(--muted); margin:2px 0 18px 2px; font-size:0.96rem}
+h3{font-size:1.08rem; font-weight:720; margin:30px 0 8px}
+h3 .k{color:var(--cyan)}
+p{margin:11px 0}
+strong{font-weight:680}
+ul,ol.body{margin:11px 0; padding-left:1.3em}
+li{margin:5px 0}
+hr.soft{border:none; border-top:1px solid var(--border); margin:34px 0}
+
+/* ---------- cards / callouts ---------- */
+.card{background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:20px 22px; margin:18px 0;
+  box-shadow:0 2px 12px rgba(15,23,42,.03)}
+.callout{border:1px solid var(--border); border-left:4px solid var(--cyan);
+  border-radius:10px; padding:13px 17px; margin:18px 0; background:var(--surface-2)}
+.callout .tag{font-size:0.72rem; font-weight:760; letter-spacing:.03em;
+  text-transform:uppercase; color:var(--cyan); display:block; margin-bottom:2px}
+.callout p{margin:4px 0}
+.callout.note{border-left-color:var(--blue)}
+.callout.note .tag{color:var(--blue)}
+.callout.warn{border-left-color:var(--warm); background:#FFFBF5}
+.callout.warn .tag{color:#C2630C}
+.callout.key{border-left-color:var(--rose); background:#FFF7F9}
+.callout.key .tag{color:var(--rose)}
+
+/* ---------- equations ---------- */
+.eq{display:block; text-align:center; margin:16px auto; padding:14px 16px;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+  font-family:"STIX Two Math","Cambria Math","Latin Modern Math",Georgia,serif;
+  font-size:1.12rem; color:var(--ink); overflow-x:auto}
+.eq .lbl{float:right; color:var(--faint); font-size:0.8rem; font-style:italic;
+  font-family:inherit}
+.var{font-style:italic}
+sub,sup{font-size:0.72em; line-height:0}
+
+/* ---------- figures ---------- */
+figure{margin:20px 0; background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:14px 14px 4px; box-shadow:0 2px 12px rgba(15,23,42,.04)}
+figure img{display:block; width:100%; height:auto; border-radius:6px}
+figure figcaption{color:var(--muted); font-size:0.86rem; line-height:1.5;
+  padding:11px 6px 10px}
+figure figcaption b{color:var(--ink); font-weight:680}
+.fig-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+@media(max-width:680px){.fig-2{grid-template-columns:1fr}}
+.fig-2 figure{margin:0}
+
+/* ---------- scheme grid ---------- */
+.scheme{display:grid; grid-template-columns:1fr; gap:0; margin:20px 0}
+.scheme .head{display:flex; flex-wrap:wrap; align-items:center; gap:9px;
+  margin-bottom:2px}
+.scheme .cl{font-size:0.7rem; font-weight:760; letter-spacing:.03em;
+  padding:2px 9px; border-radius:999px; color:#fff}
+.cl.a{background:var(--cyan)} .cl.c{background:var(--violet)}
+.cl.d{background:var(--warm)}
+.scheme h3{margin:0}
+.scheme .out{color:var(--muted); font-size:0.92rem; margin:6px 0 0}
+
+/* ---------- pipeline diagram ---------- */
+.pipe{display:flex; flex-wrap:wrap; align-items:stretch; gap:0; margin:20px 0;
+  border:1px solid var(--border); border-radius:12px; overflow:hidden;
+  background:var(--surface)}
+.pipe .step{flex:1 1 0; min-width:150px; padding:15px 16px;
+  border-right:1px solid var(--border)}
+.pipe .step:last-child{border-right:none}
+.pipe .step .n{font-size:0.7rem; font-weight:800; color:var(--cyan);
+  letter-spacing:.05em}
+.pipe .step .t{font-weight:700; margin:3px 0 4px; font-size:0.95rem}
+.pipe .step .d{color:var(--muted); font-size:0.82rem; line-height:1.45}
+.pipe .step.hot{background:#FFF7ED} .pipe .step.hot .n{color:var(--warm)}
+.pipe .step.cool{background:#F0FBFF} .pipe .step.cool .n{color:var(--teal)}
+
+/* ---------- metric chips ---------- */
+.metrics{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px; margin:18px 0}
+.metric{background:var(--surface); border:1px solid var(--border);
+  border-left:3px solid var(--metric,#2563EB); border-radius:10px;
+  padding:12px 14px; box-shadow:0 2px 9px rgba(15,23,42,.025)}
+.metric .l{color:var(--muted); font-size:0.74rem; font-weight:650}
+.metric .v{font-size:1.42rem; font-weight:780; line-height:1.15; margin-top:3px;
+  font-variant-numeric:tabular-nums}
+.metric .s{color:var(--faint); font-size:0.74rem; margin-top:2px}
+
+/* ---------- table ---------- */
+.tbl{width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem;
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  overflow:hidden}
+.tbl th,.tbl td{padding:9px 13px; text-align:left; border-bottom:1px solid var(--grid)}
+.tbl th{background:var(--surface-2); font-weight:700; color:var(--ink);
+  font-size:0.8rem; letter-spacing:.02em}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.num{text-align:right; font-variant-numeric:tabular-nums;
+  font-family:"JetBrains Mono","Consolas",monospace}
+.tbl tr:hover td{background:#FBFDFF}
+
+/* ---------- code ---------- */
+pre.code{background:var(--code-bg); color:var(--code-ink); border-radius:10px;
+  padding:14px 16px; overflow-x:auto; font-size:0.85rem; line-height:1.6; margin:14px 0}
+pre.code .c{color:#7DD3FC}
+:not(pre)>code{background:#EEF2F7; color:#0B3B5E; padding:1px 6px;
+  border-radius:5px; border:1px solid #E1E8F0}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--border); background:var(--surface)}
+footer .wrap{padding:24px clamp(16px,3vw,36px); color:var(--muted);
+  font-size:0.85rem; display:flex; flex-wrap:wrap; gap:14px;
+  justify-content:space-between; align-items:center; max-width:var(--maxw); margin:0 auto}
+.kbd{display:inline-block; padding:1px 7px; border-radius:6px; border:1px solid var(--border);
+  border-bottom-width:2px; background:#fff; font-size:0.8em; color:var(--ink);
+  font-family:"JetBrains Mono","Consolas",monospace}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hairline"></div>
+    <svg width="960" height="232" viewBox="0 0 960 232" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GABES — Generic Atomic Bloch Equation Solver">
+      <defs>
+        <linearGradient id="tc" x1="78" y1="150" x2="126" y2="78" gradientUnits="userSpaceOnUse"><stop stop-color="#0369A1"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
+        <linearGradient id="tw" x1="118" y1="154" x2="170" y2="76" gradientUnits="userSpaceOnUse"><stop stop-color="#F97316"/><stop offset="1" stop-color="#F43F5E"/></linearGradient>
+        <linearGradient id="sa" x1="300" y1="151" x2="620" y2="151" gradientUnits="userSpaceOnUse"><stop stop-color="#22D3EE"/><stop offset="0.52" stop-color="#2563EB"/><stop offset="1" stop-color="#F43F5E"/></linearGradient>
+        <style>.ink{stroke:#0F172A}.word{fill:#0F172A;font-family:"IBM Plex Sans","Inter","Segoe UI",Arial,sans-serif;font-size:86px;font-weight:760}.tag{fill:#526174;font-family:"IBM Plex Sans","Inter","Segoe UI",Arial,sans-serif;font-size:21px;font-weight:500}</style>
+      </defs>
+      <g transform="translate(34 18)">
+        <path d="M155 52C140 42 121 39 102 44C64 54 40 88 43 128C46 171 80 200 123 199C150 198 173 185 188 164" class="ink" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M132 124H194" class="ink" stroke-width="18" stroke-linecap="round"/>
+        <path d="M194 124V84" class="ink" stroke-width="18" stroke-linecap="round"/>
+        <path d="M68 84H124" class="ink" stroke-width="8.5" stroke-linecap="round"/>
+        <path d="M102 158H158" class="ink" stroke-width="8.5" stroke-linecap="round"/>
+        <path d="M84 153L122 89" stroke="url(#tc)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M120 153L158 89" stroke="url(#tw)" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="68" cy="84" r="4.8" fill="#0F172A"/><circle cx="158" cy="158" r="4.8" fill="#0F172A"/>
+      </g>
+      <g transform="translate(300 56)">
+        <text x="0" y="80" class="word">GABES</text>
+        <path d="M5 101H150C164 101 169 91 177 91C188 91 190 118 202 118C213 118 217 101 231 101H342" stroke="url(#sa)" stroke-width="4.75" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="4" y="143" class="tag">Generic Atomic Bloch Equation Solver</text>
+      </g>
+    </svg>
+    <p class="lead">
+      GABES는 따뜻한 증기·냉각 원자 분광의 광학 블로흐 방정식(OBE)을 정상상태에서 풀어
+      흡수·분산·이득·회전·짝광자 같은 관측량을 즉석에서 그려 주는 toy-model 솔버다.
+      "toy"라고 부르지만 물리는 얕지 않다. 그리고 무엇보다, <b>빠르다</b>.
+    </p>
+    <div class="badges">
+      <span class="badge beta">● Beta</span>
+      <span class="badge dot">scheme-driven UI</span>
+      <span class="badge">정상상태 OBE</span>
+      <span class="badge">Doppler 앙상블</span>
+      <span class="badge">Rb · Cs D-line</span>
+      <span class="badge">대화형 재계산 수백 ms</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+
+<!-- ============ TOC ============ -->
+<nav class="toc">
+  <div class="toc-card">
+    <h4>차례</h4>
+    <ol>
+      <li><a href="#about">GABES란 무엇인가</a></li>
+      <li><a href="#speed">왜 빠른가</a></li>
+      <li><a href="#schemes">무엇을 할 수 있나</a></li>
+      <li><a href="#ui">화면 사용법</a></li>
+      <li><a href="#limits">한계와 로드맵</a></li>
+      <li><a href="#refs">출처와 검증</a></li>
+    </ol>
+  </div>
+</nav>
+
+<!-- ============ CONTENT ============ -->
+<main>
+
+<!-- ===== 1. ABOUT ===== -->
+<section id="about">
+  <div class="sec-head"><span class="sec-num">01</span>
+    <h2>GABES란 무엇인가</h2></div>
+  <p class="sec-sub">정상상태 OBE를 푸는 toy model. 단, 꽤 깊은 수준의 toy.</p>
+
+  <p>
+    원자-광 상호작용을 정량적으로 보려면 결국 밀도행렬 <span class="var">ρ</span>의
+    운동방정식을 풀어야 한다. GABES가 푸는 것도 바로 그것이다 — 회전틀에서의
+    리우빌 방정식의 <b>정상상태</b>다.
+  </p>
+  <div class="eq">
+    <span class="var">ρ̇</span> = &minus;(<span class="var">i</span>/<span class="var">ℏ</span>)[<span class="var">H</span>, <span class="var">ρ</span>] + 𝓛[<span class="var">ρ</span>] = 0
+    <span class="lbl">trace(ρ) = 1 로 닫는다</span>
+  </div>
+  <p>
+    여기서 𝓛는 자발방출·바닥상태 결잃음을 담은 린드블라드 소산자다. GABES는 이 식을
+    레벨 구조(<code>AtomModel</code>)와 실험 구성(<code>Scheme</code>)으로부터 자동으로 조립하고,
+    속도 클래스마다 정상상태 <span class="var">ρ</span>를 구한 뒤 결맞음
+    <span class="var">ρ<sub>eg</sub></span>에서 감수율 <span class="var">χ</span>를 읽고,
+    거기서 흡수·분산·이득·편광회전을 만든다. 시간영역 적분(NDSolve류)이 아니라
+    <b>정상상태 선형 풀이</b>라는 점이 핵심이다.
+  </p>
+
+  <h3>"toy"가 뜻하는 것 — 그리고 뜻하지 않는 것</h3>
+  <p>
+    이 도구가 의도적으로 단순화한 부분은 분명히 있다. 정직하게 적어 둔다.
+  </p>
+  <ul>
+    <li><b>정상상태만</b> 본다. STIRAP·Ramsey 같은 시간영역 동역학, Mollow 삼중선·
+      <span class="var">g</span><sup>(2)</sup>(<span class="var">τ</span>) 같은 2-시간 상관은 현재 엔진 밖이다.</li>
+    <li><b>축약된 레벨 구조</b>를 쓴다. 각 스킴은 그 물리에 필요한 최소 다양체(2-준위,
+      Λ, 캐스케이드, 또는 한 쌍의 <span class="var">F<sub>g</sub></span>↔<span class="var">F<sub>e</sub></span> 제이만 다양체)만 세운다.</li>
+    <li><b>전파는 선형 또는 보정된 추정</b>이다. FWM 짝광자 발생률처럼 일부 출력은 완전한
+      양자-Langevin 전파가 아니라 문헌에 맞춰 보정한 추정치다(해당 패널에 명시).</li>
+  </ul>
+  <div class="callout key">
+    <span class="tag">핵심 메시지</span>
+    <p>단순화한 곳은 있지만, GABES가 빠른 이유는 <b>물리를 빼서가 아니다</b>.
+      실제 hyperfine Clebsch–Gordan 세기, Doppler 앙상블, Zeeman 다양체, 자발방출의
+      결맞음 전이(TOC), 실측 보정 밀도·선폭은 모두 살아 있다. 가속은 전적으로
+      <b>방정식의 구조를 이용한 풀이 방식</b>에서 온다. 다음 절이 그 이야기다.</p>
+  </div>
+
+  <h3>그래서 무엇이 "깊은가"</h3>
+  <ul>
+    <li>⁸⁵Rb D1 흡수 절대 스케일을 실험실 AutoOD 계산기와 <b>0.1&nbsp;% 이내</b>로 재현한다
+      (CRC 증기압 밀도 + CG·|d|² 정규화).</li>
+    <li>알칼리 SAS의 진짜 주인공인 <b>hyperfine optical pumping</b>(다른 바닥상태로의
+      CG 분기 붕괴)을 담아, crossover가 단순 dip이 아니라 증강·반전 피크로 나타난다.</li>
+    <li>자발방출의 결맞음 전이를 편광별 <span class="var">Σ<sub>q</sub></span> 점프 연산자로
+      넣어, Hanle 영역의 고유 EIA와 buffer-gas LCA 같은 미묘한 부호 전환까지 재현한다.</li>
+    <li>FWM은 ⁸⁵Rb D1 double-Λ에서 Sim et al.의 동작점(이득 ≈ 15, IDS −7.8&nbsp;dB)을 잡는다.</li>
+  </ul>
+</section>
+
+<hr class="soft">
+
+<!-- ===== 2. SPEED ===== -->
+<section id="speed">
+  <div class="sec-head"><span class="sec-num">02</span>
+    <h2>왜 빠른가</h2></div>
+  <p class="sec-sub">OBE 앙상블 풀이가 느리다는 건 다들 안다. GABES는 그 느림의 원인을 구조적으로 제거한다.</p>
+
+  <p>
+    Doppler 평균이 들어간 OBE는 보통 느리다. 검출(detuning) 한 점마다, 속도 클래스
+    하나하나마다, 작은 선형계(또는 비선형 OBE)를 따로 풀고 그것을 속도에 대해 수치적분하기
+    때문이다. 스캔점 × 속도 샘플만큼의 독립 풀이가 쌓이고, 온도나 셀을 바꾸면 처음부터
+    다시 푼다. GABES는 같은 답을 내면서 이 비용 구조를 네 군데에서 무너뜨린다.
+  </p>
+
+  <h3><span class="k">①</span> 속도는 대각 이동으로만 들어온다 — <span class="var">Δ<sub>eff</sub></span> 트릭</h3>
+  <p>
+    공진하는 기하에서 속도 <span class="var">v</span>는 리우빌리안에 들뜬상태 대각의 이동으로만
+    들어온다. 즉 모든 속도가 <b>하나의 템플릿</b>을 공유하고, 차이는 스칼라 한 개뿐이다.
+  </p>
+  <div class="eq">
+    <span class="var">L</span><sub>0</sub>(<span class="var">Δ<sub>eff</sub></span>) = <span class="var">L</span><sub>0</sub>(0) &minus; <span class="var">Δ<sub>eff</sub></span> · <span class="var">S<sub>v</sub></span>,
+    &nbsp;&nbsp; <span class="var">Δ<sub>eff</sub></span> = <span class="var">Δ</span> &minus; <span class="var">k·v</span>
+  </div>
+  <p>
+    그래서 속도 앙상블 전체와 detuning 스캔 전체가 <b>구조가 같은 작은 선형계의 거대한 더미</b>로
+    바뀐다. GABES는 이 더미를 파이썬 루프로 하나씩 풀지 않고, 한 축으로 쌓아
+    <b>한 번의 벡터화된 LAPACK 호출</b>(<code>np.linalg.solve</code>)로 동시에 푼다.
+    "각 점마다 따로 풀던" 것을 "전부 묶어 한 번에" 푸는 셈이다.
+  </p>
+
+  <h3><span class="k">②</span> <span class="var">χ̄</span> 표는 온도·Δ에 무관하다 — 재계산이 아니라 보간</h3>
+  <p>
+    한 번 만든 <span class="var">χ̄</span>(<span class="var">δ</span>, <span class="var">Δ<sub>eff</sub></span>) 표는
+    <b>온도와 전체 detuning에 독립</b>이다. 온도는 Maxwell 가중치로만, 스캔은 축의
+    평행이동으로만 들어가기 때문이다. 결과적으로 Doppler 평균은 OBE를 다시 푸는 일이
+    아니라, 미리 푼 표를 따라가는 <b>가중 보간</b>이 된다. 온도 슬라이더를 흔들어도, 셀 길이를
+    바꿔도, 무거운 풀이는 다시 돌지 않는다.
+  </p>
+
+  <h3><span class="k">③·④</span> 작은 행렬에 맞춘 두 가지 미시 최적화</h3>
+  <ul>
+    <li><b>단일 스레드 BLAS.</b> 한 번에 푸는 행렬이 아주 작다(<span class="var">M = n</span><sup>2</sup> ≤ 64).
+      이 크기에선 LAPACK 멀티스레딩의 호출 오버헤드가 병렬 이득을 잡아먹는다. 무거운 풀이
+      구간만 스레드를 1로 묶어 전 작업에서 25–30&nbsp;% 더 빠르다.</li>
+    <li><b>2×2 닫힌형 행렬지수.</b> 빔 전파의 전달행렬은 고유분해 없이 cosh/sinh 닫힌형으로
+      배치 계산한다.</li>
+  </ul>
+
+  <div class="pipe">
+    <div class="step hot"><div class="n">HEAVY · 캐시됨</div>
+      <div class="t">한 번의 배치 풀이</div>
+      <div class="d">속도×스캔을 한 축에 쌓아 단일 <code>solve</code>. recompute 노브가 바뀔 때만 실행.</div></div>
+    <div class="step cool"><div class="n">CHEAP · 즉시</div>
+      <div class="t">Doppler 평균</div>
+      <div class="d"><span class="var">χ̄</span> 표를 가중 보간. 온도·셀을 바꿔도 재풀이 없음.</div></div>
+    <div class="step cool"><div class="n">CHEAP · 즉시</div>
+      <div class="t">관측량 변환</div>
+      <div class="d"><span class="var">χ</span> → 흡수·분산·이득·회전. navigate 노브는 곡선 위를 이동만.</div></div>
+  </div>
+
+  <h3>정직한 벤치마크</h3>
+  <p>
+    아래는 <b>완전히 동일한 선형계 묶음</b>(Λ 정상상태, 9×9, 2만 개)을 두 방식으로 푼 결과다.
+    한쪽은 점마다 따로(옛 방식), 다른 쪽은 GABES의 배치 풀이. 결과는 <b>비트 단위로 같다</b>
+    (최대 오차 0). 물리를 바꾼 게 아니라 푸는 순서만 바꿨다는 뜻이다.
+  </p>
+  <div class="metrics">
+    <div class="metric" style="--metric:#64748B"><div class="l">점마다 따로 풀기</div>
+      <div class="v">129 ms</div><div class="s">20,000 × 개별 solve</div></div>
+    <div class="metric" style="--metric:#0284C7"><div class="l">배치 풀이 (GABES)</div>
+      <div class="v">27.7 ms</div><div class="s">단일 벡터화 solve</div></div>
+    <div class="metric" style="--metric:#F43F5E"><div class="l">가속</div>
+      <div class="v">4.7×</div><div class="s">같은 답, 더 빠르게</div></div>
+    <div class="metric" style="--metric:#0F766E"><div class="l">결과 차이</div>
+      <div class="v">0</div><div class="s">max |Δρ| · 비트 동일</div></div>
+  </div>
+  <p>
+    이 4.7×는 <b>오직 배치화만</b>으로 얻은, 가장 보수적인 숫자다(작은 9×9에서). 더 큰
+    다양체일수록, 그리고 <b>②의 표 재사용</b>이 더해질수록 실제 이득은 훨씬 커진다 — 온도·셀·
+    detuning을 바꾸는 대부분의 상호작용에서 무거운 풀이가 아예 다시 돌지 않기 때문이다.
+    체감으로는, 한 스킴의 전체 재계산이 다음 수준이다.
+  </p>
+  <table class="tbl">
+    <thead><tr><th>스킴</th><th>한 번의 전체 재계산</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td>Λ 결맞음 (EIT/AT/CPT)</td><td class="num">~0.6 s</td><td>Doppler-on Λ 스캔</td></tr>
+      <tr><td>Absorption (OD/SAS)</td><td class="num">~0.4 s</td><td>다중선 hyperfine + 펌프 SAS</td></tr>
+      <tr><td>Magneto (Hanle/NMOR)</td><td class="num">~0.35 s</td><td>B-스캔 × 속도, 2-영역 풀이</td></tr>
+      <tr><td>FWM 집중 창</td><td class="num">~수 초</td><td>3-모드 Floquet + Maxwell–Bloch 전파</td></tr>
+    </tbody>
+  </table>
+  <div class="callout note">
+    <span class="tag">UI도 거든다 — 2단 캐시</span>
+    <p>노브는 두 종류다. <b>recompute</b> 노브(온도·세기·전이 등)만 무거운 풀이를 다시 돌리고,
+      <b>navigate</b> 노브(예: FWM의 2광자 detuning, 셀 길이)는 이미 캐시된 곡선 위를
+      옮겨 다닐 뿐이라 <b>즉각</b> 갱신된다. 헤더의 "<i>N solve knobs</i>" 배지가 그 스킴에서
+      무거운 노브가 몇 개인지 알려 준다.</p>
+  </div>
+  <p style="color:var(--muted);font-size:0.9rem">
+    측정은 일반 노트북 CPU 기준의 한 예시이며 하드웨어에 따라 달라진다. 요점은 절대 시간이
+    아니라 <b>비용 구조</b>다 — 중첩 속도적분이 사라지고, 대부분의 노브 조작에서 재풀이가
+    일어나지 않는다.
+  </p>
+</section>
+
+<hr class="soft">
+
+<!-- ===== 3. SCHEMES ===== -->
+<section id="schemes">
+  <div class="sec-head"><span class="sec-num">03</span>
+    <h2>무엇을 할 수 있나</h2></div>
+  <p class="sec-sub">사이드바에서 스킴 하나를 고르면, 그 물리에 맞는 컨트롤과 플롯이 따라온다. 눌러 보면 된다.</p>
+
+  <p>
+    GABES는 단일 화면에 모든 슬라이더를 늘어놓지 않는다. 각 스킴이 자기 컨트롤과 플롯을
+    스스로 선언하고, UI는 선택된 스킴의 것만 그린다. 현재 다섯 개의 스킴(엔진 클러스터)이 있다.
+  </p>
+
+  <!-- A: OD/SAS -->
+  <div class="scheme">
+    <div class="head"><span class="cl a">A · Absorption</span><h3>흡수 분광 (OD / SAS)</h3></div>
+    <p class="out">역행 펌프가 있는 약한 프로브 흡수. <b>펌프 0 → OD</b>(Doppler 다중선 흡수),
+      <b>펌프 켬 → SAS</b>(Doppler-free Lamb dip + crossover). ⁸⁵Rb/⁸⁷Rb/¹³³Cs · D1/D2 또는 천연 Rb.</p>
+  </div>
+  <div class="fig-2">
+    <figure>
+      <img src="userguide_assets/od.png" alt="천연 Rb D1, 펌프 꺼짐 — Doppler 흡수">
+      <figcaption><b>펌프 = 0 (OD).</b> 천연 Rb D1의 Doppler 넓힘 다중선 흡수.
+        같은 스펙트럼의 펌프-off 극한이며, ⁸⁵Rb D1 절대 스케일은 AutoOD와 0.1&nbsp;% 이내.</figcaption>
+    </figure>
+    <figure>
+      <img src="userguide_assets/sas.png" alt="같은 조건, 펌프 켜짐 — SAS sub-Doppler 구조">
+      <figcaption><b>펌프 켬 (SAS).</b> 같은 곡선 위로 sub-Doppler Lamb dip과 crossover가 타들어간다.
+        hyperfine pumping이 일부 crossover를 증강·반전 피크로 바꾼다.</figcaption>
+    </figure>
+  </div>
+  <p style="color:var(--muted);font-size:0.92rem;margin-top:2px">
+    펌프 세기 슬라이더 하나로 OD ↔ SAS 사이를 연속으로 오간다. 프로브는 약하게 고정(읽기용),
+    펌프 세기[mW]만 노브다 (<span class="var">I</span> = 2<span class="var">P</span>/π<span class="var">w</span><sup>2</sup>, <span class="var">I<sub>sat</sub></span>로 Rabi 환산).
+  </p>
+
+  <!-- A: Lambda -->
+  <div class="scheme" style="margin-top:30px">
+    <div class="head"><span class="cl a">A · Absorption</span><h3>Λ 결맞음 (EIT / AT / CPT)</h3></div>
+    <p class="out">하나의 3-준위 Λ 엔진, 결합장 <span class="var">Ω<sub>c</sub></span>의 세 영역.
+      약한 결합 → EIT 투명창, 강한 결합 → Autler–Townes 이중선(간격 ≈ <span class="var">Ω<sub>c</sub></span>),
+      좁은 2광자 스캔 → CPT 암흑공명. Rb/Cs D-line, 물리 단위(MHz/kHz) 컨트롤.</p>
+  </div>
+  <figure>
+    <img src="userguide_assets/eit.png" alt="EIT 투명창과 가파른 분산">
+    <figcaption><b>EIT.</b> 2광자 공명에서 흡수 배경 위로 솟는 투명창(위)과, 그 자리의 가파른
+      정상분산 <span class="var">Re&nbsp;χ</span>(아래) — 느린 빛의 서명. <span class="var">Ω<sub>c</sub></span>를 키우면
+      이 창은 AT 이중선으로 벌어진다.</figcaption>
+  </figure>
+
+  <!-- A: Rydberg -->
+  <div class="scheme" style="margin-top:30px">
+    <div class="head"><span class="cl a">A · Absorption</span><h3>Rydberg-EIT 전기계측</h3></div>
+    <p class="out">⁸⁵Rb 캐스케이드 EIT / 마이크로파 AT 정적 스펙트럼. 5S–5P–40D 사다리와
+      37&nbsp;GHz 40D–39F RF 다리. EIT 피크가 RF장에 의해 갈라지는 AT 분리가 전기장의 자
+      역할을 한다.</p>
+  </div>
+  <figure>
+    <img src="userguide_assets/rydberg.png" alt="Rydberg 캐스케이드 EIT의 마이크로파 AT 분리">
+    <figcaption><b>Rydberg-EIT.</b> 캐스케이드 EIT 투명 피크가 마이크로파 RF장에 의해 AT
+      이중 피크로 갈라진다(위: 투과, 아래: 분산). 분리 폭이 RF 전기장 세기에 직접 대응한다.</figcaption>
+  </figure>
+
+  <!-- C: Magneto -->
+  <div class="scheme" style="margin-top:30px">
+    <div class="head"><span class="cl c">C · Magneto-optics</span><h3>Hanle / EIA / NMOR</h3></div>
+    <p class="out">⁸⁷Rb D1 제이만 다양체의 영자기장 근처 응답. <b>Hanle</b> 효과(바닥상태 결맞음에서
+      오는 영자기장 투과 dip/peak, EIA 변형 포함)와 <b>비선형 자기광학 회전</b>(NMOR, 편광면 회전)을
+      한 엔진으로. 프로브 타원율(QWP), 잔류 횡장, 셀 완화가 부호를 결정한다.</p>
+  </div>
+  <figure>
+    <img src="userguide_assets/hanle.png" alt="파라핀 셀의 영자기장 Hanle 투과 피크">
+    <figcaption><b>Hanle 투과.</b> 파라핀 코팅 셀에서 넓은 transit 받침 위로 영자기장에 솟는
+      좁은 Ramsey형 투과 피크. QWP 각도·잔류 횡장을 바꾸면 같은 자리가 EIA/MIA형 흡수로
+      뒤집히기도 한다. NMOR 읽기를 고르면 영점 교차 회전 신호로 바뀐다.</figcaption>
+  </figure>
+
+  <!-- D: FWM -->
+  <div class="scheme" style="margin-top:30px">
+    <div class="head"><span class="cl d">D · Wave mixing</span><h3>4파 혼합 (FWM) · 짝광자</h3></div>
+    <p class="out">⁸⁵Rb D1 double-Λ의 씨앗형 이득/스퀴징(Sim et al. 동작점)과,
+      범용 SFWM 짝광자원 추정(<span class="var">g</span><sup>(2)</sup><sub>SI</sub>(<span class="var">τ</span>), CAR, 발생률, 위상정합).</p>
+  </div>
+  <figure>
+    <img src="userguide_assets/fwm.png" alt="FWM 이득과 세기차 스퀴징">
+    <figcaption><b>씨앗형 이득 + 스퀴징.</b> 2광자 detuning에 따른 프로브 이득
+      <span class="var">G<sub>s</sub></span>(위)와 세기차 스퀴징(아래). 빨간 점선이 동작점이며,
+      이 영역에서 이득 ≈ 12, IDS ≈ −8&nbsp;dB로 ⁸⁵Rb 스퀴징 실험을 재현한다.</figcaption>
+  </figure>
+
+  <div class="callout">
+    <span class="tag">로드맵 (parking lot)</span>
+    <p>느린 빛/군지수 읽기, Raman 이득, 고차 파혼합, Bell–Bloom 자력계, Na D-line 등은
+      검토 중이다. 시간영역(STIRAP·Ramsey)과 2-시간 상관(Mollow·<span class="var">g</span><sup>(2)</sup>(<span class="var">τ</span>))은
+      새 엔진 계층이 필요하다.</p>
+  </div>
+</section>
+
+<hr class="soft">
+
+<!-- ===== 4. UI ===== -->
+<section id="ui">
+  <div class="sec-head"><span class="sec-num">04</span>
+    <h2>화면 사용법</h2></div>
+  <p class="sec-sub">실행은 한 줄. 나머지는 사이드바에서 누르며 익히면 된다.</p>
+
+  <h3>실행</h3>
+  <pre class="code"><span class="c"># 의존성: streamlit, numpy, matplotlib</span>
+streamlit run streamlit_app.py</pre>
+  <div class="callout warn">
+    <span class="tag">주의</span>
+    <p><code>python streamlit_app.py</code>로는 동작하지 않는다(서버가 뜨지 않음).
+      반드시 <code>streamlit run</code>으로 실행한다. FWM의 CLI 백엔드만 필요하면
+      <code>python fwm_obe.py</code>.</p>
+  </div>
+
+  <h3>한눈에 보는 흐름</h3>
+  <ol class="body">
+    <li><b>스킴 선택.</b> 사이드바 맨 위 드롭다운에서 실험/물리를 고른다. 화면의 컨트롤과
+      플롯이 통째로 그 스킴 것으로 바뀐다.</li>
+    <li><b>Default 불러오기.</b> 스킴마다 검증된 동작점이 준비돼 있다(예: Absorption의
+      <i>OD default / SAS default</i>, Λ의 <i>EIT/AT/CPT</i>, Magneto의 <i>EIT dip·EIA peak·NMOR…</i>).
+      먼저 이걸 불러 두고 한 노브씩 흔들어 보는 걸 권한다.</li>
+    <li><b>그룹별 노브 조절.</b> 컨트롤은 <i>Atomic · Fields · Detunings · Cell &amp; beams</i> 등으로
+      묶여 있다. 정밀·수치 노브는 <i>Advanced / numerics</i> 펼침 안에 접혀 있다.</li>
+    <li><b>읽기.</b> 상단의 metric 카드가 핵심 수치(투과·OD·이득·FWHM·회전 등)를, 그 아래 플롯이
+      스펙트럼을, 펼침 패널이 파생량 표와 <i>Reference / about</i>(참고문헌)을 보여 준다.</li>
+  </ol>
+
+  <div class="callout note">
+    <span class="tag">빠른 노브 vs 느린 노브</span>
+    <p>슬라이더를 움직였을 때 즉시 반응하면 navigate 노브(캐시된 곡선 위 이동),
+      잠깐 "<i>Solving Bloch equations…</i>"가 뜨면 recompute 노브다. 탐색은 navigate 노브로
+      넓게, 정밀 조정은 recompute 노브로 좁게 — 이게 가장 쾌적하다.</p>
+  </div>
+</section>
+
+<hr class="soft">
+
+<!-- ===== 5. LIMITS ===== -->
+<section id="limits">
+  <div class="sec-head"><span class="sec-num">05</span>
+    <h2>한계와 로드맵</h2></div>
+  <p class="sec-sub">아직 베타다. 무엇이 근사이고 무엇이 검증됐는지는 숨기지 않는다.</p>
+
+  <ul>
+    <li><b>정상상태 전용.</b> 시간영역·2-시간 상관은 미지원(로드맵).</li>
+    <li><b>FWM 절대 발생률은 보정된 추정.</b> 위상 부정합, 손실/노이즈, 펌프 고갈, 전체 Zeeman
+      구조는 아직 단순화돼 있다. FWM 이득은 고밀도에서 지수적으로 민감하므로, 잔여 결합
+      스케일은 보정 영역(~0.05) 근처에서 쓰는 걸 권한다.</li>
+    <li><b>흡수는 짧은 셀.</b> Rb는 강한 흡수체라 공진에서 cm급 셀이면 OD가 포화한다. OD/EIT/AT/CPT
+      기본값이 mm급 셀·중간 온도를 쓰는 이유다.</li>
+    <li><b>buffer-gas는 압력 넓힘만.</b> 압력 이동과 Dicke 좁힘은 미포함.</li>
+    <li><b>일부 스케일 노브는 보정용</b>이다(line-strength factor 등). 물리 변수가 아니라 유효
+      광학깊이 보정 손잡이이므로, 기본값 1.0이 검증 스케일을 재현한다.</li>
+  </ul>
+  <p>
+    요약하면, GABES는 직관과 빠른 탐색을 위한 도구다. 발표용 정밀값이 필요하면 해당 패널의
+    근사 범위를 확인하고 쓰는 게 좋다. 기능은 계속 추가될 예정이다.
+  </p>
+</section>
+
+<hr class="soft">
+
+<!-- ===== 6. REFS ===== -->
+<section id="refs">
+  <div class="sec-head"><span class="sec-num">06</span>
+    <h2>출처와 검증</h2></div>
+  <p class="sec-sub">각 스킴의 <i>Reference / about</i> 패널에 1차 문헌이 함께 들어 있다.</p>
+
+  <div class="card">
+    <ul style="margin:0">
+      <li>흡수 절대 스케일: 실험실 AutoOD 계산기와 ⁸⁵Rb D1에서 0.1&nbsp;% 이내 일치.
+        밀도는 CRC 증기압, 선세기는 Wigner-6j/3j (Steck D-line data).</li>
+      <li>SAS hyperfine pumping: Smith &amp; Hughes, <i>Am. J. Phys.</i> <b>72</b>, 631 (2004);
+        Preston, <i>Am. J. Phys.</i> <b>64</b>, 1432 (1996).</li>
+      <li>Magneto: Lee &amp; Moon, <i>JOSA B</i> <b>30</b>, 2301 (2013);
+        Moon &amp; Kim, <i>Opt. Express</i> <b>22</b>, 18604 (2014);
+        Yu, Lee &amp; Moon, <i>Phys. Rev. A</i> <b>81</b>, 023416 (2010).</li>
+      <li>FWM 스퀴징: G. Sim, H. Kim, H. S. Moon, <i>Sci. Rep.</i> <b>15</b>, 7727 (2025)
+        (⁸⁵Rb 최적점: Δ 0.9&nbsp;GHz, δ −8&nbsp;MHz, 121&nbsp;°C → 이득 ≈ 15, IDS −7.8&nbsp;dB).</li>
+    </ul>
+  </div>
+  <p style="color:var(--muted);font-size:0.9rem">
+    회귀·물리 검증 테스트는 <code>tests/</code>에 있다(<code>pytest tests/</code>). 절대 스케일·선폭·
+    AT 분리·NMOR 영점 교차 등을 자동으로 확인한다.
+  </p>
+</section>
+
+</main>
+</div><!-- /layout -->
+</div><!-- /wrap -->
+
+<footer>
+  <div class="wrap">
+    <span>GABES — Generic Atomic Bloch Equation Solver · <b>Beta</b></span>
+    <span>본 안내서의 모든 그림은 GABES가 직접 계산해 출력한 실제 스펙트럼이다.</span>
+  </div>
+</footer>
+
+</body>
+</html>

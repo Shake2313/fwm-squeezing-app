@@ -1,0 +1,7 @@
+{
+  "systems": 20000,
+  "M": 9,
+  "t_loop_ms": 129.0,
+  "t_batched_ms": 27.7,
+  "speedup": 4.7
+}

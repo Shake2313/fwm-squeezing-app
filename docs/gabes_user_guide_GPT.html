@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GABES User’s Guide — Korean</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --paper:#ffffff;
+      --ink:#111827;
+      --muted:#64748b;
+      --line:#dbe5ef;
+      --primary:#0369a1;
+      --primary-soft:#e0f2fe;
+      --green:#0f766e;
+      --green-soft:#ccfbf1;
+      --rose:#be123c;
+      --rose-soft:#ffe4e6;
+      --violet:#6d28d9;
+      --violet-soft:#ede9fe;
+      --amber:#b45309;
+      --amber-soft:#fef3c7;
+      --code:#0f172a;
+      --code-bg:#f1f5f9;
+      --shadow:0 16px 42px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#eef6ff 0,#f6f8fb 280px);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR","Apple SD Gothic Neo",Arial,sans-serif;
+      line-height:1.68;
+      word-break:keep-all;
+      overflow-wrap:break-word;
+    }
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .page{
+      display:grid;
+      grid-template-columns:280px minmax(0,1fr);
+      gap:28px;
+      max-width:1280px;
+      margin:0 auto;
+      padding:28px 24px 64px;
+    }
+    aside{
+      position:sticky;
+      top:24px;
+      align-self:start;
+      background:rgba(255,255,255,.78);
+      backdrop-filter:blur(10px);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    aside .mark{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:42px;height:42px;
+      border-radius:13px;
+      background:linear-gradient(135deg,#0284c7,#7c3aed);
+      color:white;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+    aside h2{
+      font-size:1.02rem;
+      line-height:1.25;
+      margin:0 0 4px;
+      letter-spacing:-.02em;
+    }
+    aside p{
+      color:var(--muted);
+      font-size:.86rem;
+      margin:0 0 14px;
+    }
+    nav a{
+      display:block;
+      color:#334155;
+      font-size:.9rem;
+      padding:7px 9px;
+      border-radius:10px;
+    }
+    nav a:hover{
+      background:#eff6ff;
+      text-decoration:none;
+      color:#075985;
+    }
+    main{
+      min-width:0;
+    }
+    .hero{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:36px 38px;
+      margin-bottom:24px;
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:6px;
+      background:linear-gradient(90deg,#22d3ee,#2563eb,#f43f5e);
+    }
+    .eyebrow{
+      display:inline-flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      color:#075985;
+      background:#e0f2fe;
+      border:1px solid #bae6fd;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:.82rem;
+      font-weight:700;
+      margin-bottom:15px;
+    }
+    h1{
+      margin:0;
+      font-size:clamp(2.1rem,4vw,4.4rem);
+      line-height:1.02;
+      letter-spacing:-.055em;
+    }
+    .subtitle{
+      margin:18px 0 0;
+      color:#475569;
+      font-size:1.08rem;
+      max-width:760px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin-top:26px;
+    }
+    .stat{
+      border:1px solid var(--line);
+      background:#fbfdff;
+      border-radius:16px;
+      padding:14px 14px 12px;
+    }
+    .stat b{
+      display:block;
+      font-size:1.08rem;
+      line-height:1.2;
+      margin-bottom:4px;
+    }
+    .stat span{color:var(--muted);font-size:.84rem}
+    section{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:0 7px 24px rgba(15,23,42,.045);
+      padding:28px 30px;
+      margin:18px 0;
+    }
+    h2{
+      margin:0 0 13px;
+      font-size:1.62rem;
+      line-height:1.2;
+      letter-spacing:-.03em;
+    }
+    h3{
+      margin:24px 0 9px;
+      font-size:1.13rem;
+      letter-spacing:-.01em;
+    }
+    p{margin:10px 0}
+    ul,ol{padding-left:1.34rem;margin:10px 0}
+    li{margin:5px 0}
+    .lead{
+      font-size:1.03rem;
+      color:#334155;
+    }
+    .callout{
+      border:1px solid var(--line);
+      border-left:5px solid var(--primary);
+      background:#f8fafc;
+      border-radius:14px;
+      padding:16px 18px;
+      margin:16px 0;
+    }
+    .callout strong{color:#075985}
+    .callout.green{border-left-color:var(--green);background:#f0fdfa}
+    .callout.rose{border-left-color:var(--rose);background:#fff1f2}
+    .callout.amber{border-left-color:var(--amber);background:#fffbeb}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      color:#334155;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:.84rem;
+      font-weight:650;
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:14px;
+      margin:14px 0;
+      font-size:.94rem;
+    }
+    th,td{
+      padding:12px 13px;
+      vertical-align:top;
+      border-bottom:1px solid var(--line);
+    }
+    th{
+      text-align:left;
+      background:#f8fafc;
+      color:#334155;
+      font-weight:800;
+    }
+    tr:last-child td{border-bottom:0}
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:17px 18px;
+      background:#fcfdff;
+    }
+    .card h3{
+      margin-top:0;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .badge{
+      display:inline-flex;
+      min-width:30px;
+      height:30px;
+      align-items:center;
+      justify-content:center;
+      border-radius:10px;
+      font-weight:800;
+      font-size:.82rem;
+      color:#075985;
+      background:var(--primary-soft);
+    }
+    .badge.green{color:#115e59;background:var(--green-soft)}
+    .badge.rose{color:#9f1239;background:var(--rose-soft)}
+    .badge.violet{color:#5b21b6;background:var(--violet-soft)}
+    .badge.amber{color:#92400e;background:var(--amber-soft)}
+    code{
+      font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+      color:#0f172a;
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      border-radius:6px;
+      padding:1px 5px;
+      font-size:.9em;
+    }
+    pre{
+      background:#0f172a;
+      color:#e5e7eb;
+      padding:15px 17px;
+      border-radius:14px;
+      overflow:auto;
+      font-size:.92rem;
+      line-height:1.55;
+    }
+    pre code{
+      color:inherit;
+      background:transparent;
+      border:0;
+      padding:0;
+      font-size:inherit;
+    }
+    .flow{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:10px;
+      margin:16px 0;
+    }
+    .step{
+      border:1px solid var(--line);
+      background:#f8fafc;
+      border-radius:15px;
+      padding:13px;
+      min-height:112px;
+    }
+    .step b{
+      display:block;
+      margin-bottom:5px;
+      color:#0f172a;
+    }
+    .step span{color:var(--muted);font-size:.88rem}
+    .speed-list{
+      counter-reset:item;
+      display:grid;
+      gap:12px;
+      margin-top:16px;
+    }
+    .speed-item{
+      counter-increment:item;
+      position:relative;
+      padding:16px 17px 16px 58px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fbfdff;
+    }
+    .speed-item::before{
+      content:counter(item);
+      position:absolute;
+      left:16px;top:16px;
+      width:28px;height:28px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#dbeafe;
+      color:#1d4ed8;
+      font-weight:900;
+    }
+    .speed-item h3{margin:0 0 4px}
+    .muted{color:var(--muted)}
+    .small{font-size:.88rem}
+    footer{
+      color:#64748b;
+      font-size:.88rem;
+      margin:22px 0 0;
+      text-align:center;
+    }
+    @media(max-width:980px){
+      .page{grid-template-columns:1fr;padding:18px 14px 50px}
+      aside{position:relative;top:0}
+      .hero{padding:30px 24px}
+      .hero-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .cards{grid-template-columns:1fr}
+      .flow{grid-template-columns:1fr}
+      section{padding:23px 20px}
+    }
+    @media(max-width:560px){
+      .hero-grid{grid-template-columns:1fr}
+      table{font-size:.88rem}
+      th,td{padding:10px}
+    }
+    @media print{
+      body{background:white}
+      .page{display:block;max-width:none;padding:0}
+      aside{display:none}
+      .hero,section{box-shadow:none;break-inside:avoid}
+      a{text-decoration:none;color:inherit}
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <aside>
+    <div class="mark">G</div>
+    <h2>GABES User’s Guide</h2>
+    <p>원자광학 대학원생을 위한 간결 안내서</p>
+    <nav>
+      <a href="#what">1. GABES란?</a>
+      <a href="#quickstart">2. 빠른 시작</a>
+      <a href="#ui">3. 화면 사용법</a>
+      <a href="#schemes">4. Scheme별 기능</a>
+      <a href="#speed">5. 왜 빠른가</a>
+      <a href="#workflow">6. 권장 사용 흐름</a>
+      <a href="#limits">7. 해석상의 주의</a>
+      <a href="#beta">8. 베타와 발전 방향</a>
+      <a href="#faq">9. 짧은 FAQ</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Beta guide · Korean · Atomic/quantum optics</div>
+      <h1>GABES<br>Generic Atomic Bloch Equation Solver</h1>
+      <p class="subtitle">
+        GABES는 따뜻한 원자 증기와 냉각 원자 분광에서 자주 만나는 Optical Bloch Equation을
+        빠르게 탐색하기 위한 실험 친화적 toy-model solver입니다. “toy”라고 부르지만,
+        실제 원자광학 사용자가 파라미터 감각을 잡을 수 있도록 Doppler 평균, hyperfine structure,
+        Zeeman manifold, Λ coherence, FWM gain/squeezing 등을 꽤 깊게 포함합니다.
+      </p>
+      <div class="hero-grid">
+        <div class="stat"><b>OBE toy model</b><span>단순화하되 핵심 물리 유지</span></div>
+        <div class="stat"><b>Scheme-driven UI</b><span>물리 모듈이 컨트롤과 출력 선언</span></div>
+        <div class="stat"><b>Fast recompute</b><span>무거운 계산과 readout 분리</span></div>
+        <div class="stat"><b>Beta</b><span>검증·확장 진행 중</span></div>
+      </div>
+    </header>
+
+    <section id="what">
+      <h2>1. GABES란?</h2>
+      <p class="lead">
+        GABES의 목적은 “논문급 full simulation”을 대체하는 것이 아니라,
+        실험자가 OBE 기반 현상을 빠르게 훑고, 파라미터 변화에 대한 감을 얻고,
+        다음 실험 조건을 정하는 데 도움을 주는 것입니다.
+      </p>
+
+      <div class="callout">
+        <strong>핵심 문장:</strong>
+        GABES는 Optical Bloch Equation의 toy model solver입니다.
+        다만 단순한 2-level 장난감에 머무르지 않고, 실제 알칼리 원자 분광에서 중요한
+        Doppler 평균, hyperfine pumping, Λ coherence, Zeeman coherence, FWM propagation
+        같은 요소를 가능한 한 계산 가능한 형태로 끌어들입니다.
+      </div>
+
+      <h3>잘 맞는 용도</h3>
+      <ul>
+        <li>OD/SAS, EIT/AT/CPT, Hanle/NMOR, Rydberg-EIT, FWM 같은 현상의 <b>파라미터 의존성</b> 탐색</li>
+        <li>온도, cell length, detuning, Rabi frequency, magnetic field scale 변화에 대한 <b>1차 예측</b></li>
+        <li>실험 데이터와 비교하기 전, “대충 어디를 봐야 하는지” 정하는 <b>지도 제작</b></li>
+        <li>새 scheme을 추가하기 위한 <b>공통 OBE 계산 골격</b></li>
+      </ul>
+
+      <h3>조심해야 할 용도</h3>
+      <ul>
+        <li>모든 세부 실험 요소를 포함한 최종 fitting engine으로 쓰는 것</li>
+        <li>absolute noise, pump scattering, residual sideband, window birefringence 같은 실험 잡음을 자동으로 설명한다고 기대하는 것</li>
+        <li>모델 범위를 벗어난 조건에서 수치 결과를 정량적으로 과신하는 것</li>
+      </ul>
+    </section>
+
+    <section id="quickstart">
+      <h2>2. 빠른 시작</h2>
+      <p>
+        로컬에서 실행할 때는 저장소 루트에서 아래 명령을 사용합니다.
+      </p>
+      <pre><code>pip install -r requirements.txt
+streamlit run streamlit_app.py</code></pre>
+
+      <div class="callout amber">
+        <strong>주의:</strong> <code>python streamlit_app.py</code>로 실행하는 방식이 아닙니다.
+        Streamlit 서버를 띄우는 앱이므로 <code>streamlit run streamlit_app.py</code>를 사용합니다.
+      </div>
+
+      <p>
+        FWM backend를 명령행에서 직접 확인하고 싶을 때는 호환용 entry point인
+        <code>python fwm_obe.py</code>를 사용할 수 있습니다. 보통 사용자는 Streamlit UI를 권장합니다.
+      </p>
+    </section>
+
+    <section id="ui">
+      <h2>3. 화면 사용법</h2>
+      <p>
+        GABES의 화면은 “scheme 선택 → 파라미터 조정 → 계산 결과 확인”으로 구성됩니다.
+        UI는 고정된 슬라이더 벽이 아니라, 선택한 물리 scheme이 필요한 컨트롤만 선언하면
+        앱이 그 컨트롤과 plot을 자동으로 그리는 방식입니다.
+      </p>
+
+      <div class="flow">
+        <div class="step"><b>1. Scheme 선택</b><span>좌측 sidebar에서 실험/물리 구도를 고릅니다.</span></div>
+        <div class="step"><b>2. Preset 적용</b><span>가능한 경우 기본 조건을 먼저 불러옵니다.</span></div>
+        <div class="step"><b>3. 주요 knob 조정</b><span>detuning, 온도, power, B scan 등을 조정합니다.</span></div>
+        <div class="step"><b>4. Metric 확인</b><span>gain, squeezing, OD, linewidth, rotation 등 핵심 숫자를 봅니다.</span></div>
+        <div class="step"><b>5. Table/extra view</b><span>derived quantity와 느린 확장 계산은 expander에서 확인합니다.</span></div>
+      </div>
+
+      <h3>Recompute knob과 navigate knob</h3>
+      <p>
+        일부 knob은 값을 바꾸면 OBE를 다시 풉니다. 다른 knob은 이미 계산된 곡선에서
+        읽는 위치만 옮기므로 즉시 반응합니다. 예를 들어 seeded FWM에서 OPD, 온도, pump power는
+        재계산 대상이지만, TPD readout은 캐시된 곡선 위의 operating point를 옮기는 동작입니다.
+      </p>
+
+      <h3>Advanced / numerics</h3>
+      <p>
+        고급 수치 설정은 기본적으로 접혀 있습니다. velocity step, scan points, Doppler on/off,
+        transit relaxation 같은 항목은 결과를 바꿀 수 있지만, 처음부터 만질 필요는 없습니다.
+        먼저 preset과 기본 knob로 모양을 본 뒤, 필요할 때만 펼쳐서 조정하는 것을 권합니다.
+      </p>
+    </section>
+
+    <section id="schemes">
+      <h2>4. Scheme별 기능</h2>
+      <p>
+        현재 GABES는 크게 absorption, magneto-optics, wave mixing 계열로 나뉩니다.
+        각 scheme은 자체 파라미터, 계산 루틴, metric, plot, table을 가집니다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Scheme</th>
+            <th>주요 물리</th>
+            <th>주요 출력</th>
+            <th>먼저 만질 knob</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>OD / SAS</b></td>
+            <td>weak-probe absorption, Doppler-broadened OD, saturated absorption, hyperfine optical pumping</td>
+            <td>Transmission, OD, Doppler FWHM, hyperfine line table</td>
+            <td>Pump power, species/isotope, D1/D2, temperature, cell length</td>
+          </tr>
+          <tr>
+            <td><b>Λ coherence</b><br>EIT / AT / CPT</td>
+            <td>3-level Λ system, transparency, Autler-Townes splitting, dark resonance</td>
+            <td>Transmission, Re χ, window FWHM, group index, AT splitting</td>
+            <td>Regime, coupling Rabi, ground dephasing, Doppler, temperature</td>
+          </tr>
+          <tr>
+            <td><b>Rydberg-EIT electrometry</b></td>
+            <td>85Rb 5S-5P-40D cascade EIT, 37 GHz microwave AT dressing</td>
+            <td>EIT linewidth, RF AT splitting, optical dispersion</td>
+            <td>EIT/AT mode, coupling Rabi, microwave LO Rabi, microwave detuning</td>
+          </tr>
+          <tr>
+            <td><b>Hanle / EIA / NMOR</b></td>
+            <td>87Rb D1 Zeeman manifold, near-zero-field transmission and magneto-optical rotation</td>
+            <td>Hanle feature, NMOR rotation, B-field width, derived cell/relaxation quantities</td>
+            <td>Signal type, cell type, transition, intensity, QWP angle, B scan range</td>
+          </tr>
+          <tr>
+            <td><b>FWM</b><br>Squeezing / Biphoton</td>
+            <td>85Rb D1 double-Λ seeded FWM gain/squeezing, generic SFWM biphoton estimates</td>
+            <td>Probe gain, conjugate gain, intensity-difference squeezing, g²<sub>SI</sub>, CAR, pair rate</td>
+            <td>Mode, OPD, TPD, temperature, pump/probe power, phase-matching angle</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="cards">
+        <div class="card">
+          <h3><span class="badge">A</span> OD / SAS</h3>
+          <p>
+            Pump power를 0으로 내리면 linear Doppler-broadened OD가 됩니다.
+            Pump를 올리면 velocity-selective saturation과 hyperfine optical pumping으로
+            Lamb dip과 crossover가 나타납니다. Natural Rb, 85Rb, 87Rb, Cs, D1/D2 선택을 지원합니다.
+          </p>
+        </div>
+        <div class="card">
+          <h3><span class="badge green">Λ</span> EIT / AT / CPT</h3>
+          <p>
+            하나의 Λ engine을 EIT, AT, CPT 세 regime으로 보여줍니다.
+            coupling field가 약하면 transparency window, 강하면 AT doublet,
+            좁은 two-photon scan에서는 CPT dark resonance를 봅니다.
+          </p>
+        </div>
+        <div class="card">
+          <h3><span class="badge violet">B</span> Magneto-optics</h3>
+          <p>
+            87Rb D1 Zeeman manifold에서 zero-field 근처의 Hanle transmission과
+            NMOR rotation을 계산합니다. QWP angle, residual transverse field,
+            cell relaxation이 EIT-like dip 또는 EIA/MIA-like peak를 바꿉니다.
+          </p>
+        </div>
+        <div class="card">
+          <h3><span class="badge rose">D</span> FWM</h3>
+          <p>
+            Squeezing mode는 85Rb D1 double-Λ seeded FWM gain과 intensity-difference
+            squeezing을 보여줍니다. Biphoton mode는 cascade/diamond SFWM source estimate,
+            g²<sub>SI</sub>(τ), CAR, rate, phase matching을 봅니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="speed">
+      <h2>5. 왜 빠른가</h2>
+      <p class="lead">
+        OBE 계산이 빠르다는 말은 원자광학 사용자에게 꽤 큰 주장입니다. GABES가 빠른 이유는
+        “물리를 대충 잘라내서”가 아니라, 같은 물리를 더 계산하기 좋은 형태로 정리했기 때문입니다.
+      </p>
+
+      <div class="callout green">
+        <strong>요약:</strong>
+        GABES는 무수히 많은 작은 선형 방정식을 하나씩 반복해서 푸는 대신,
+        같은 구조의 Liouvillian을 한꺼번에 쌓아 풀고, Doppler/scan/field 축에서
+        재사용 가능한 부분을 미리 표로 만들어 둡니다. 그 결과 물리적 엄밀함을 상당히 살리면서도
+        interactive 사용이 가능한 속도를 얻습니다.
+      </div>
+
+      <div class="speed-list">
+        <div class="speed-item">
+          <h3>Velocity class를 한꺼번에 풉니다</h3>
+          <p>
+            Doppler 평균은 원래 각 속도 class마다 OBE steady state를 풀어야 해서 느립니다.
+            GABES는 Δ<sub>eff</sub>에 따른 Liouvillian 묶음을 배열로 쌓고,
+            같은 크기의 작은 선형연립방정식을 batched solve로 처리합니다.
+            사용자가 보기에는 “속도 적분”이지만, 내부적으로는 같은 꼴의 문제를 한 번에 밀어 넣는 방식입니다.
+          </p>
+        </div>
+        <div class="speed-item">
+          <h3>Δ<sub>eff</sub> table을 재사용합니다</h3>
+          <p>
+            scan이 단순히 detuning axis를 이동시키는 경우, 매번 Hamiltonian을 새로 만들 필요가 없습니다.
+            예를 들어 흡수/OD 계열에서는 fine Δ<sub>eff</sub> table을 만든 뒤
+            Maxwell weight로 평균하거나 interpolation합니다. 온도는 weight를, detuning은 축 offset을 바꾸는 쪽으로 분리됩니다.
+          </p>
+        </div>
+        <div class="speed-item">
+          <h3>FWM에서는 χ matrix table을 분리합니다</h3>
+          <p>
+            seeded FWM 계산에서는 probe/conjugate propagation에 필요한 χ̄ matrix를
+            detuning과 Δ<sub>eff</sub> 격자 위에서 먼저 계산합니다. 이 table은 온도와 OPD 변화에서
+            일부 재사용 가능한 구조를 가지며, 이후 Maxwell-Bloch propagation과 readout이 가벼워집니다.
+          </p>
+        </div>
+        <div class="speed-item">
+          <h3>무거운 solve와 가벼운 readout을 나눕니다</h3>
+          <p>
+            UI에서 모든 slider가 같은 비용을 갖지 않습니다. 실제 OBE를 다시 풀어야 하는 knob만
+            cache key로 들어가고, 이미 계산된 curve 위에서 값을 읽는 knob는 즉시 갱신됩니다.
+            사용자는 TPD 같은 operating point를 움직이며 gain/squeezing 변화를 거의 실시간으로 볼 수 있습니다.
+          </p>
+        </div>
+        <div class="speed-item">
+          <h3>작은 행렬에 맞는 수치 전략을 씁니다</h3>
+          <p>
+            OBE의 Liouville space는 보통 n² 차원의 작은 dense matrix입니다.
+            이런 문제에서는 각 solve마다 거대한 멀티스레드 선형대수 라이브러리를 동원하는 것이 오히려 느릴 수 있습니다.
+            GABES는 작은 행렬을 많이 푸는 workload에 맞게 BLAS threading을 제한하고,
+            필요할 때 독립 branch만 병렬화합니다.
+          </p>
+        </div>
+      </div>
+
+      <h3>중요한 해석</h3>
+      <p>
+        빠르다는 것은 “모델이 빈약하다”와 같은 말이 아닙니다. GABES는 많은 곳에서 실제 OBE,
+        CG-branched decay, Doppler average, Zeeman manifold, Maxwell-Bloch propagation을 사용합니다.
+        다만 실험의 모든 non-ideal effect를 처음부터 풀지 않고, 우선순위가 높은 물리만
+        계산 가능한 형태로 잘 접은 것입니다.
+      </p>
+    </section>
+
+    <section id="workflow">
+      <h2>6. 권장 사용 흐름</h2>
+
+      <h3>실험 조건을 처음 잡을 때</h3>
+      <ol>
+        <li>가장 가까운 scheme을 선택합니다. 예: SAS 확인이면 <b>OD / SAS</b>, FWM squeezing이면 <b>FWM → Squeezing</b>.</li>
+        <li>기본 preset을 먼저 적용합니다. 이 단계에서는 숫자 하나하나를 믿기보다 line shape과 scale을 봅니다.</li>
+        <li>온도, cell length, detuning, power처럼 실험에서 실제로 움직일 수 있는 knob만 먼저 조정합니다.</li>
+        <li>metric과 plot을 함께 봅니다. 예를 들어 gain이 커졌는데 squeezing이 나빠지면 detection η나 loss knob도 확인합니다.</li>
+        <li>마지막에 Advanced / numerics를 열어 scan resolution, velocity step, relaxation rate 민감도를 확인합니다.</li>
+      </ol>
+
+      <h3>데이터와 비교할 때</h3>
+      <ul>
+        <li>absolute amplitude보다 먼저 <b>center, width, sign, branch, scaling trend</b>를 비교합니다.</li>
+        <li>실험에 있는 loss, detector efficiency, residual field, buffer gas, transit relaxation을 가능한 범위에서 맞춥니다.</li>
+        <li>계산이 실험을 설명하지 못하면, “코드가 틀렸다”보다 먼저 모델에 빠진 물리를 의심합니다.</li>
+      </ul>
+
+      <h3>새 scheme을 추가할 때</h3>
+      <p>
+        새 물리 구도는 <code>Scheme</code>을 상속하여 <code>param_schema()</code>,
+        <code>compute(params)</code>, <code>observables(raw, params)</code>를 정의하고
+        registry에 등록하는 구조입니다. UI를 직접 뜯지 않아도 control과 plot이 따라옵니다.
+      </p>
+    </section>
+
+    <section id="limits">
+      <h2>7. 해석상의 주의</h2>
+      <p>
+        GABES는 의도적으로 베타 toy-model solver입니다. 결과를 해석할 때는 아래 한계를 기억하는 것이 좋습니다.
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>영역</th>
+            <th>현재 모델의 성격</th>
+            <th>주의점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OD / SAS</td>
+            <td>Hyperfine manifold, CG-branched decay, transit relaxation을 포함한 OBE 기반 모델</td>
+            <td>Ne pressure shift, Dicke narrowing 등은 단순화되어 있습니다.</td>
+          </tr>
+          <tr>
+            <td>Λ coherence</td>
+            <td>Scalar D-line medium 위의 Λ engine</td>
+            <td>실제 polarization/Zeeman 세부구조까지 자동 포함하는 full model은 아닙니다.</td>
+          </tr>
+          <tr>
+            <td>Magneto-optics</td>
+            <td>87Rb D1 Zeeman manifold와 light/dark 또는 buffer relaxation 모델</td>
+            <td>cell wall, residual field, optical pumping의 실제 복잡도는 실험별 조정이 필요합니다.</td>
+          </tr>
+          <tr>
+            <td>Seeded FWM</td>
+            <td>85Rb D1 double-Λ gain/squeezing, regression-anchored reference model</td>
+            <td>propagation loss with Langevin noise, seed excess noise, pump scattering 등은 아직 완전 모델이 아닙니다.</td>
+          </tr>
+          <tr>
+            <td>Biphoton SFWM</td>
+            <td>reference-calibrated source estimate</td>
+            <td>full quantum-Langevin propagation/noise calculation으로 해석하면 안 됩니다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout rose">
+        <strong>권장 태도:</strong>
+        숫자는 “실험 설계의 방향”으로 쓰고, 절대값은 항상 해당 scheme의 가정과 함께 읽으십시오.
+        GABES는 실험자의 사고 속도를 올리는 도구이지, 실험적 판단을 대체하는 도구는 아닙니다.
+      </div>
+    </section>
+
+    <section id="beta">
+      <h2>8. 베타와 발전 방향</h2>
+      <p>
+        현재 버전은 베타입니다. 여러 scheme이 이미 동작하지만, 각 물리 영역마다 검증 수준과
+        모델 완성도가 다릅니다. 특히 FWM과 biphoton 쪽은 사용자가 관심을 가질 만한 기능이 빠르게 늘어날 수 있는 영역입니다.
+      </p>
+
+      <h3>예정 또는 자연스러운 확장 방향</h3>
+      <ul>
+        <li>FWM propagation에서 longitudinal phase mismatch Δk<sub>z</sub>의 더 명시적 반영</li>
+        <li>loss/noise를 scalar efficiency가 아니라 Langevin noise에 가까운 형태로 분리</li>
+        <li>pump scattering, seed excess noise, residual carrier/sideband 같은 실험적 noise source 추가</li>
+        <li>Raman gain, slow-light/group-index readout, higher-order wave mixing, Bell-Bloom magnetometry</li>
+        <li>STIRAP, Ramsey, Mollow, g²(τ) 같은 time-domain 또는 two-time correlation engine</li>
+      </ul>
+
+      <p>
+        따라서 지금은 “완성품”이라기보다, 원자광학 연구자가 실제 실험 질문을 넣어가며
+        성장시키기 좋은 계산 플랫폼으로 보는 것이 적절합니다.
+      </p>
+    </section>
+
+    <section id="faq">
+      <h2>9. 짧은 FAQ</h2>
+
+      <h3>Q. GABES는 toy model인가요?</h3>
+      <p>
+        네. 하지만 “아무 물리 없는 장난감”이라는 뜻은 아닙니다.
+        실험적으로 중요한 OBE 구조를 상당히 유지하되, 모든 실험 비이상성을 다 넣지는 않는다는 뜻에 가깝습니다.
+      </p>
+
+      <h3>Q. 왜 어떤 slider는 바로 반응하고, 어떤 slider는 오래 걸리나요?</h3>
+      <p>
+        OBE를 다시 풀어야 하는 knob와, 이미 푼 결과에서 readout 위치만 바꾸는 knob가 다르기 때문입니다.
+        예를 들어 FWM의 TPD는 curve navigation에 가깝지만, temperature나 OPD는 재계산이 필요합니다.
+      </p>
+
+      <h3>Q. 계산이 실험과 다르면 어떻게 해야 하나요?</h3>
+      <p>
+        먼저 detuning convention, transition label, beam waist의 radius/diameter convention,
+        cell length, temperature, loss, detector efficiency를 확인하십시오.
+        그 다음 residual field, optical pumping, pressure broadening, phase mismatch, excess noise처럼
+        현재 모델 밖에 있거나 단순화된 항목을 의심하는 것이 좋습니다.
+      </p>
+
+      <h3>Q. 이걸 논문 figure용으로 바로 써도 되나요?</h3>
+      <p>
+        가능은 하지만, 사용한 scheme의 가정과 한계를 명확히 써야 합니다.
+        특히 calibrated estimate나 scalar loss knob가 들어간 결과는 first-principles 계산처럼 보이지 않게 설명해야 합니다.
+      </p>
+    </section>
+
+    <footer>
+      <p>Prepared as a concise Korean user guide for GABES beta users. Generated on 2026-06-08.</p>
+    </footer>
+  </main>
+</div>
+</body>
+</html>

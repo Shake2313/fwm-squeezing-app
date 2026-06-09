@@ -8,3 +8,7 @@ font = "sans serif"
 
 [client]
 toolbarMode = "minimal"
+
+[server]
+# Serve the User's Guide as a static file at app/static/GABES_User_Guide.html
+enableStaticServing = true
