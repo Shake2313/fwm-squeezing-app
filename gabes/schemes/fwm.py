@@ -63,6 +63,10 @@ VELOCITY_CUTOFF_SIGMA = 3.0
 DELTA_GHZ_LIST = [0.9]
 BRANCHES = (-1, +1)
 DEFAULT_BRANCH = -1
+PHASE_LEGACY = "legacy"
+PHASE_BALANCED = "balanced"
+PHASE_FINE = "fine"
+SEEDED_PHASE_ANGLE_DEG = 0.3
 
 
 # =========================================================
@@ -185,6 +189,23 @@ def phase_matching_weight(delta_k, L):
     mask = np.abs(x) > 1e-12
     out[mask] = (np.sin(x[mask]) / x[mask]) ** 2
     return out
+
+
+def phase_mismatch_grid(fields, signal_axis_deg, idler_axis_deg,
+                        reference_delta_k=0.0):
+    """Vectorized signal/idler longitudinal mismatch grid."""
+    signal_axis_deg = np.asarray(signal_axis_deg, dtype=float)
+    idler_axis_deg = np.asarray(idler_axis_deg, dtype=float)
+    sig, ide = np.meshgrid(signal_axis_deg, idler_axis_deg, indexing="ij")
+    total = np.zeros_like(sig, dtype=float)
+    for field in fields:
+        if field.role == "signal":
+            total += field.phase_sign * field.k * np.cos(np.deg2rad(sig))
+        elif field.role == "idler":
+            total += field.phase_sign * field.k * np.cos(np.deg2rad(ide))
+        else:
+            total += field.phase_sign * field.k * math.cos(math.radians(field.angle_deg))
+    return total - (reference_delta_k or 0.0)
 
 
 def energy_mismatch_hz(fields):
@@ -399,6 +420,8 @@ class GenericFWMSolver:
         L = params.get("biphoton_cell_mm", self.topology.default_cell_mm) * 1e-3
         fields = self._fields_from_params(params)
         fmap = {f.role: f for f in fields}
+        detail = params.get("phase_detail", "Balanced")
+        fine_phase = str(detail).lower() == "fine"
         iso = self.topology.isotope
         v_step = params.get("biphoton_velocity_step", 2.0)
         v_grid, weights = doppler.velocity_grid(T, dv=v_step, cutoff_sigma=3.0,
@@ -414,6 +437,14 @@ class GenericFWMSolver:
             reference_delta_k=self.topology.reference_delta_k,
         )
         pm_weight = float(phase_matching_weight(np.array([delta_k]), L)[0])
+        delta_k_absolute = phase_mismatch(
+            fields,
+            signal_angle_deg=signal.angle_deg,
+            idler_angle_deg=idler.angle_deg,
+            reference_delta_k=0.0,
+        )
+        pm_weight_absolute = float(phase_matching_weight(
+            np.array([delta_k_absolute]), L)[0])
         density = species.number_density(iso, T)
         default_density = species.number_density(iso, self.topology.default_temp_c + 273.15)
         if self.topology.reference_od is not None:
@@ -459,6 +490,17 @@ class GenericFWMSolver:
             for a in angle_axis
         ])
         acceptance = phase_matching_weight(angle_dk, L)
+        signal_axis = phase_matching_2d = None
+        idler_axis_2d = None
+        if fine_phase:
+            signal_axis = np.linspace(max(signal.angle_deg - 3.0, 0.0),
+                                      signal.angle_deg + 3.0, 121)
+            idler_axis_2d = np.linspace(max(idler.angle_deg - 3.0, 0.0),
+                                        idler.angle_deg + 3.0, 121)
+            dk_2d = phase_mismatch_grid(
+                fields, signal_axis, idler_axis_2d,
+                reference_delta_k=self.topology.reference_delta_k)
+            phase_matching_2d = phase_matching_weight(dk_2d, L)
 
         return {
             "kind": "biphoton",
@@ -471,8 +513,14 @@ class GenericFWMSolver:
             "source_v": source_v,
             "angle_axis_deg": angle_axis,
             "phase_matching": acceptance,
+            "signal_angle_axis_deg": signal_axis,
+            "idler_angle_axis_2d_deg": idler_axis_2d,
+            "phase_matching_2d": phase_matching_2d,
             "delta_k": float(delta_k),
+            "delta_k_absolute": float(delta_k_absolute),
             "phase_match_weight": pm_weight,
+            "phase_match_weight_absolute": pm_weight_absolute,
+            "phase_detail": "Fine" if fine_phase else "Balanced",
             "energy_mismatch_hz": float(energy_mismatch_hz(fields)),
             "pair_rate_cps": float(pair_rate),
             "density": float(density),
@@ -626,6 +674,44 @@ def two_photon_detuning_from_probe_scan(probe_GHz, Delta_GHz, branch):
     return 2 * np.pi * delta_Hz
 
 
+def _optical_k_from_offset(offset_rad_s):
+    return (constants.OMEGA_D1 + np.asarray(offset_rad_s, dtype=float)) / constants.C_LIGHT
+
+
+def seeded_phase_mismatch_z(D_GHz, probe_axis_GHz, angle_deg=SEEDED_PHASE_ANGLE_DEG,
+                            n_seed=None, n_conj=None):
+    """Longitudinal seeded-FWM mismatch: Delta k_z = 2k_p - k_s - k_c."""
+    theta = math.radians(float(angle_deg))
+    pump_offset = 2 * np.pi * float(D_GHz) * 1e9
+    seed_offset = 2 * np.pi * np.asarray(probe_axis_GHz, dtype=float) * 1e9
+    conj_offset = 2.0 * pump_offset - seed_offset
+    k_pump = _optical_k_from_offset(pump_offset)
+    k_seed = _optical_k_from_offset(seed_offset)
+    k_conj = _optical_k_from_offset(conj_offset)
+    if n_seed is not None:
+        k_seed = k_seed * np.asarray(n_seed, dtype=float)
+    if n_conj is not None:
+        k_conj = k_conj * np.asarray(n_conj, dtype=float)
+    return 2.0 * k_pump - (k_seed + k_conj) * math.cos(theta)
+
+
+def _safe_refractive_index(chi_bar, N_atoms, line_strength):
+    chi = observables.chi_phys(chi_bar, N_atoms, line_strength=line_strength)
+    # Keep the cheap refractive correction in the dilute-vapor regime. Very large
+    # dispersive excursions usually mean the simplified propagation model is being
+    # pushed outside its calibrated range, so clip rather than letting k explode.
+    return 1.0 + np.clip(0.5 * np.real(chi), -1e-5, 1e-5)
+
+
+def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg):
+    chi = observables.chi_phys(chi_bar, N_atoms, line_strength=line_strength)
+    alpha = np.maximum(K_VEC * np.imag(chi), 0.0)
+    od = float(np.nanmedian(alpha) * L_CELL) if alpha.size else 0.0
+    od = float(np.clip(od, 0.0, 2.0))
+    z_frac = (np.arange(nseg, dtype=float) + 0.5) / nseg
+    return np.exp(-0.5 * od * z_frac), od
+
+
 def _single_branch(branch, branches):
     """Resolve one physical FWM channel; do not merge distinct Raman branches."""
     if branches is None:
@@ -655,7 +741,9 @@ def compute_spectrum(D_GHz, *,
                      coarse_points=None, fine_points=None, window_mhz=None,
                      scan_min=None, scan_max=None,
                      velocity_step=None, velocity_cutoff=None,
-                     branch=DEFAULT_BRANCH, branches=None):
+                     branch=DEFAULT_BRANCH, branches=None,
+                     phase_detail=PHASE_LEGACY,
+                     pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG):
     """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README)."""
     branch = _single_branch(branch, branches)
     if line_strength is None:
@@ -693,9 +781,38 @@ def compute_spectrum(D_GHz, *,
     chi_sc_avg += doppler.doppler_average(ch_sc, Delta_eff_axis, Delta, v_grid, weights)
     chi_cc_avg += doppler.doppler_average(ch_cc, Delta_eff_axis, Delta, v_grid, weights)
 
+    phase_detail = (phase_detail or PHASE_LEGACY).lower()
+    delta_k_z = None
+    delta_k_z_vacuum = None
+    k_probe_prop = K_VEC
+    k_conj_prop = K_VEC
+    propagation_segments = 1
+    segment_profile = None
+    segment_od = 0.0
+    if phase_detail != PHASE_LEGACY:
+        delta_k_z_vacuum = seeded_phase_mismatch_z(
+            D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg)
+        delta_k_z = delta_k_z_vacuum
+        if phase_detail == PHASE_FINE:
+            n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
+            n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
+            seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
+            pump_offset = 2 * np.pi * float(D_GHz) * 1e9
+            conj_offset = 2.0 * pump_offset - seed_offset
+            k_probe_prop = _optical_k_from_offset(seed_offset) * n_seed
+            k_conj_prop = _optical_k_from_offset(conj_offset) * n_conj
+            delta_k_z = seeded_phase_mismatch_z(
+                D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg,
+                n_seed=n_seed, n_conj=n_conj)
+            propagation_segments = 16
+            segment_profile, segment_od = _segment_profile_from_absorption(
+                chi_ss_avg, N_atoms, line_strength, propagation_segments)
+
     G_s, G_c, _ = observables.gain_from_chi(
         chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
-        K_VEC, K_VEC, L_CELL, N_atoms, line_strength=line_strength)
+        k_probe_prop, k_conj_prop, L_CELL, N_atoms, line_strength=line_strength,
+        delta_k_z=delta_k_z, propagation_segments=propagation_segments,
+        segment_profile=segment_profile)
 
     # The propagation above is linear in the (undepleted) pump. At high density
     # it overshoots the energy the pump can supply, so apply Manley-Rowe pump-
@@ -713,6 +830,12 @@ def compute_spectrum(D_GHz, *,
         "S_dB": S_dB,
         "G_s_smallsignal_peak": float(np.nanmax(G_s_smallsignal)),
         "pump_depletion_cap": 1.0 + 0.5 * P_pump / max(P_probe, 1e-30),
+        "phase_detail": phase_detail,
+        "pump_probe_angle_deg": pump_probe_angle_deg,
+        "delta_k_z": delta_k_z,
+        "delta_k_z_vacuum": delta_k_z_vacuum,
+        "phase_segments": propagation_segments,
+        "segment_absorption_od": segment_od,
         "eta": eta,
         "branch": branch,
         "N_atoms": N_atoms,
@@ -730,12 +853,18 @@ def operating_point(spectrum, delta_mhz, branch=-1):
     probe_GHz = (spectrum["raman_center_minus_GHz"] if branch == -1
                  else spectrum["raman_center_plus_GHz"]) + delta_mhz * 1e-3
     x = spectrum["probe_axis_GHz"]
-    return {
+    out = {
         "probe_GHz": probe_GHz,
         "G_s": float(np.interp(probe_GHz, x, spectrum["G_s"])),
         "G_c": float(np.interp(probe_GHz, x, spectrum["G_c"])),
         "S_dB": float(np.interp(probe_GHz, x, spectrum["S_dB"])),
     }
+    if spectrum.get("delta_k_z") is not None:
+        out["delta_k_z"] = float(np.interp(probe_GHz, x, spectrum["delta_k_z"]))
+    if spectrum.get("delta_k_z_vacuum") is not None:
+        out["delta_k_z_vacuum"] = float(np.interp(
+            probe_GHz, x, spectrum["delta_k_z_vacuum"]))
+    return out
 
 
 # =========================================================
@@ -744,9 +873,12 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
 RESOLUTION = {
-    "Fast  (~3 s)":     dict(coarse_points=121, velocity_step=5.0),
-    "Balanced  (~6 s)": dict(coarse_points=181, velocity_step=4.0),
-    "Fine  (~20 s)":    dict(coarse_points=301, velocity_step=2.0),
+    "Fast  (~3 s)":     dict(coarse_points=121, velocity_step=5.0,
+                              phase_detail=PHASE_BALANCED),
+    "Balanced  (~6 s)": dict(coarse_points=181, velocity_step=4.0,
+                              phase_detail=PHASE_BALANCED),
+    "Fine  (~20 s)":    dict(coarse_points=301, velocity_step=2.0,
+                              phase_detail=PHASE_FINE),
 }
 
 
@@ -754,8 +886,8 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "generic-sfwm-biphoton-v2"
-    defaults_version = "generic-sfwm-defaults-v2"
+    cache_version = "phase-matching-v3"
+    defaults_version = "phase-matching-defaults-v3"
     cache_observables = True
     caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
                "Biphoton shows generic SFWM source estimates for cascade and "
@@ -846,6 +978,15 @@ class FWMScheme(Scheme):
             ParamSpec("resolution", "Resolution", "Numerics", "Balanced  (~6 s)",
                       choices=tuple(RESOLUTION.keys()), advanced=True,
                       visible_if=seeded),
+            ParamSpec("seeded_angle_deg", "Pump-probe angle", "Phase matching",
+                      SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
+                      visible_if=seeded, advanced=True,
+                      help="Reference crossing angle for seeded FWM phase mismatch."),
+            ParamSpec("phase_detail", "Phase detail", "Phase matching", "Balanced",
+                      choices=("Balanced", "Fine"), visible_if=biphoton,
+                      advanced=True,
+                      help="Balanced uses calibrated 1D phase matching; Fine adds "
+                           "absolute diagnostics and a 2D signal-idler map."),
         ]
 
     def presets(self):
@@ -860,7 +1001,8 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     pump_mw=600.0, probe_uw=8.0, loss_pct=5.5, ls=0.05,
-                    resolution="Balanced  (~6 s)")
+                    resolution="Balanced  (~6 s)",
+                    seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
         topology = params.get("topology", TOPOLOGY_RB87_TELECOM)
@@ -881,6 +1023,7 @@ class FWMScheme(Scheme):
             timing_jitter_ns=0.55,
             tau_max_ns=12.0,
             biphoton_velocity_step=2.0,
+            phase_detail="Balanced",
         )
         if topology == TOPOLOGY_CS_BTW:
             base.update(cs_channel=params.get("cs_channel", CS_CHANNEL_917),
@@ -906,7 +1049,10 @@ class FWMScheme(Scheme):
             "grows exponentially with density and would exceed the pump's energy "
             "budget at high T. A Manley-Rowe pump-depletion saturation "
             "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
-            "conservation bound; it is negligible in the validated regime.\n\n"
+            "conservation bound; it is negligible in the validated regime. "
+            "Balanced resolution includes the reference 0.3 deg seeded phase "
+            "mismatch; Fine also applies a chi-reused refractive correction and "
+            "segmented propagation profile.\n\n"
             "**Biphoton references:** Heewoo Kim, Hansol Jeong and Han Seb Moon, "
             "[*Quantum Sci. Technol.* 9, 045006 (2024)]"
             "(https://arxiv.org/abs/2402.06872); Hansol Jeong, Heewoo Kim and "
@@ -914,7 +1060,7 @@ class FWMScheme(Scheme):
             "(https://www.citedrive.com/en/discovery/highperformance-telecomwavelength-biphoton-source-from-a-hot-atomic-vapor-cell/).\n\n"
             "| Biphoton reference quantity | V1 treatment |\n|---|---|\n"
             "| Velocity-class coherent BTW | coherent sum over Maxwell velocity classes |\n"
-            "| Phase matching | generic longitudinal Delta-k with sinc^2(Delta-k L / 2) |\n"
+            "| Phase matching | relative and absolute longitudinal Delta-k diagnostics; Fine adds a 2D signal-idler map |\n"
             "| 87Rb telecom source | calibrated to order 38,000 cps/mW and g2 peak ~44 |\n"
             "| Cs BTW channels | separate 852-917 nm and 852-795 nm temporal-width presets |\n\n"
             "Biphoton mode is a calibrated source estimate, not a full "
@@ -937,6 +1083,8 @@ class FWMScheme(Scheme):
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
             velocity_step=res["velocity_step"], velocity_cutoff=3.0,
+            phase_detail=res["phase_detail"],
+            pump_probe_angle_deg=params.get("seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
             branch=DEFAULT_BRANCH,
         )
 
@@ -985,6 +1133,16 @@ class FWMScheme(Scheme):
         cap = raw.get("pump_depletion_cap", float("inf"))
         small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
         depletion_limited = small_signal > 1.1 * cap
+        phase_rows = ""
+        if raw.get("phase_detail", PHASE_LEGACY) != PHASE_LEGACY:
+            phase_rows = (
+                f"| Phase detail | {raw['phase_detail']} |\n"
+                f"| Pump-probe angle | {raw['pump_probe_angle_deg']:.3f} deg |\n"
+                f"| Operating Delta k_z | {op.get('delta_k_z', np.nan):.3e} 1/m |\n"
+                f"| Vacuum Delta k_z | {op.get('delta_k_z_vacuum', np.nan):.3e} 1/m |\n"
+                f"| Propagation segments | {raw.get('phase_segments', 1)} |\n"
+                f"| Segment absorption OD estimate | {raw.get('segment_absorption_od', 0.0):.3f} |\n"
+            )
         derived = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| N(85Rb) | {raw['N_atoms']:.3e} /m³ |\n"
@@ -997,6 +1155,8 @@ class FWMScheme(Scheme):
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n\n"
+            + phase_rows
+            + ("\n" if phase_rows else "")
             + ("⚠️ **Pump-depletion limited:** the small-signal gain exceeds what "
                "the pump can supply (Manley-Rowe), so the shown gain is capped by "
                "energy conservation. Lower T / raise seed power to stay in the "
@@ -1057,6 +1217,28 @@ class FWMScheme(Scheme):
         axP.grid(alpha=0.3)
         figV.tight_layout()
 
+        extra_figures = [("Velocity-class coherent source", figV)]
+        pm2d = raw.get("phase_matching_2d")
+        if pm2d is not None:
+            figPM2, ax2 = plt.subplots(1, 1, figsize=(7.2, 5.2))
+            im = ax2.imshow(
+                pm2d.T, origin="lower", aspect="auto",
+                extent=[
+                    raw["signal_angle_axis_deg"][0],
+                    raw["signal_angle_axis_deg"][-1],
+                    raw["idler_angle_axis_2d_deg"][0],
+                    raw["idler_angle_axis_2d_deg"][-1],
+                ],
+                cmap="viridis", vmin=0.0, vmax=1.0)
+            ax2.scatter([params["signal_angle_deg"]], [params["idler_angle_deg"]],
+                        color="crimson", s=28, zorder=5)
+            ax2.set_xlabel("Signal angle [deg]")
+            ax2.set_ylabel("Idler angle [deg]")
+            ax2.set_title("2D phase-matching acceptance")
+            figPM2.colorbar(im, ax=ax2, label=r"$\mathrm{sinc}^2(\Delta k L / 2)$")
+            figPM2.tight_layout()
+            extra_figures.append(("2D phase matching", figPM2))
+
         metrics = [
             dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}",
                  help="Peak normalized signal-idler cross-correlation."),
@@ -1082,7 +1264,11 @@ class FWMScheme(Scheme):
             f"| Family | {topo.family} |\n"
             f"| Density | {raw['density']:.3e} /m^3 |\n"
             f"| Cell length | {raw['cell_length_m']*1e3:.2f} mm |\n"
-            f"| Delta k | {raw['delta_k']:.3e} 1/m |\n"
+            f"| Delta k (relative) | {raw['delta_k']:.3e} 1/m |\n"
+            f"| Delta k (absolute) | {raw['delta_k_absolute']:.3e} 1/m |\n"
+            f"| Phase match (relative) | {raw['phase_match_weight']:.3f} |\n"
+            f"| Phase match (absolute) | {raw['phase_match_weight_absolute']:.3f} |\n"
+            f"| Phase detail | {raw['phase_detail']} |\n"
             f"| Energy mismatch | {raw['energy_mismatch_hz']/1e6:.3f} MHz |\n"
             f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n\n"
             f"| Field | Transition | Wavelength | Angle |\n|---|---|---:|---:|\n"
@@ -1108,7 +1294,7 @@ class FWMScheme(Scheme):
         return {
             "metrics": metrics,
             "figure": fig,
-            "figures": [("Velocity-class coherent source", figV)],
+            "figures": extra_figures,
             "tables": [
                 {"title": "Generic SFWM topology", "markdown": topology_table},
                 {"title": "Biphoton detection model", "markdown": detection_table},

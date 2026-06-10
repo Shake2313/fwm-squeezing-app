@@ -1,0 +1,1083 @@
+% =====================================================================
+%  FWM_physics.tex
+%  A physics-first walkthrough of the GABES four-wave-mixing engine.
+%
+%  Personal study notes: every physical step from the atomic level
+%  scheme to the squeezing / biphoton observables, mapped onto the
+%  actual code path (gabes/schemes/fwm.py, core.py, observables.py,
+%  doppler.py, atoms.py, constants.py, hyperfine.py, species.py).
+%
+%  Compile with pdflatex (no external packages beyond a standard TeX
+%  Live / MiKTeX install; no images, no shell-escape).
+% =====================================================================
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{verbatim}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black,
+            citecolor=blue!50!black]{hyperref}
+
+% ---- light-weight macros (avoid depending on physics/braket pkgs) ----
+\newcommand{\ket}[1]{\lvert #1 \rangle}
+\newcommand{\bra}[1]{\langle #1 \rvert}
+\newcommand{\braket}[2]{\langle #1 \vert #2 \rangle}
+\newcommand{\ketbra}[2]{\lvert #1 \rangle\!\langle #2 \rvert}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\vecop}{\operatorname{vec}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\rd}{\,\mathrm{d}}
+\newcommand{\eff}{\mathrm{eff}}
+\newcommand{\HF}{\mathrm{HF}}
+\newcommand{\sinc}{\operatorname{sinc}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\Lcal}{\mathcal{L}}
+\newcommand{\Dcal}{\mathcal{D}}
+\newcommand{\rhobar}{\bar{\chi}}
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\Imag}{Im}
+
+\newtheorem{remark}{Remark}
+
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+
+\title{\textbf{Four-Wave Mixing in Hot \boldmath$^{85}$Rb:\\
+A Physics-First Walkthrough of the GABES Engine}\\[0.3em]
+\large Phase-Matching v2}
+\author{Personal study notes}
+\date{\today}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+\noindent
+These notes derive, step by step, every piece of physics that the GABES
+four-wave-mixing (FWM) code evaluates --- from the open-system master equation of
+the $^{85}$Rb $D_1$ double-$\Lambda$ system, through the Doppler average and the
+truncated-Floquet sideband steady state, to the Maxwell--Bloch propagation that
+turns the atomic susceptibility into seed/conjugate gain, intensity-difference
+squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform. Version
+2 adds explicit phase-matching diagnostics: seeded squeezing now includes the
+reference $0.3^\circ$ pump--probe longitudinal mismatch in the app's fast and
+balanced paths, while Fine mode also applies a conservative $\chi$-reused
+refractive correction and segmented propagation. Biphoton mode now reports both
+relative (calibrated) and absolute $\Delta k$ and, in Fine mode, a two-dimensional
+signal--idler acceptance map. The emphasis is on the \emph{physics}; the code is
+referenced only as a map so that each equation can be located in \code{gabes/}.
+The legacy direct \code{compute\_spectrum} path remains regression-anchored to
+G.~Sim, H.~Kim, and H.~S.~Moon, \emph{Sci.\ Rep.}\ \textbf{15}, 7727 (2025).
+\end{abstract}
+
+\tableofcontents
+\bigskip\hrule
+
+% =====================================================================
+\section{Purpose and the object we compute}
+% =====================================================================
+
+Non-degenerate four-wave mixing in a hot alkali vapour is a third-order parametric
+process. A strong \emph{pump} drives a multilevel atom; a weak \emph{seed} (probe)
+injected on one Raman leg stimulates the emission of a \emph{conjugate} on the
+other leg. Energy and momentum conservation tie the two generated photons
+together, so signal and conjugate emerge as a two-mode squeezed (twin-beam) state:
+their \emph{intensity difference} is quieter than the shot-noise limit, even though
+each beam alone is bright and thermal-like.
+
+The code answers two questions:
+
+\begin{enumerate}[leftmargin=2.2em]
+  \item \textbf{Seeded / squeezing mode.} Given a one-photon detuning $\Delta$,
+  cell temperature $T$, pump power, seed power, and detection efficiency, what is
+  the seed power gain $G_s$, the conjugate gain $G_c$, and the intensity-difference
+  squeezing $S$ (in dB) as a function of the two-photon detuning $\delta$? This is
+  the physics of Sim \emph{et al.}, and is the regression-anchored core.
+  \item \textbf{Spontaneous / biphoton mode.} For a cascade or diamond topology
+  with \emph{no} seed, what is the time-correlation $g^{(2)}_{SI}(\tau)$ of the
+  spontaneously generated signal--idler pair, its width, pair rate, and
+  coincidence-to-accidental ratio (CAR)? This is a reference-calibrated source
+  estimate, not a full quantum-Langevin propagation.
+\end{enumerate}
+
+The whole numerical machine exists to evaluate one object accurately: the
+\emph{atomic susceptibility matrix} $\rhobar(\delta,\Delta;v,T)$ that links the
+induced optical polarizations on the two Raman legs to the seed and conjugate
+fields. Everything before it (Hamiltonian, dissipator, Floquet, Doppler) builds
+that matrix; everything after it (Maxwell--Bloch, saturation, squeezing formula)
+reads it out.
+
+\paragraph{Code map.} The seeded pipeline lives in
+\code{gabes/schemes/fwm.py::compute\_spectrum}; the physics-agnostic OBE engine is
+\code{gabes/core.py}; the susceptibility$\,\to\,$observable layer is
+\code{gabes/observables.py}; the level model and rates are
+\code{gabes/atoms.py} and \code{gabes/hyperfine.py}; the thermal average is
+\code{gabes/doppler.py}; physical constants and field helpers are
+\code{gabes/constants.py}. The biphoton mode is the
+\code{GenericFWMSolver} class in the same \code{fwm.py}.
+
+% =====================================================================
+\section{The double-\boldmath$\Lambda$ system and its energy scales}
+% =====================================================================
+
+\subsection{Levels}
+
+The seeded model uses the $^{85}$Rb $D_1$ line ($5S_{1/2}\!\to\!5P_{1/2}$,
+$\lambda \approx 795\,$nm) reduced to four levels (\code{atoms.\_double\_lambda\_rb85}):
+
+\begin{center}
+\begin{tabular}{clcl}
+\toprule
+index & state & manifold & role \\
+\midrule
+$g_1$ & $\ket{5S_{1/2},F=2}$ & ground & lower Raman state \\
+$g_2$ & $\ket{5S_{1/2},F=3}$ & ground & upper Raman state \\
+$e_2$ & $\ket{5P_{1/2},F'=2}$ & excited & optical \\
+$e_3$ & $\ket{5P_{1/2},F'=3}$ & excited & optical \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The two ground hyperfine states are split by
+$\nu_{\HF}=\nu_{\text{ground HF}}=3.0357\,$GHz; the two excited states by
+$\nu^{(e)}_{\HF}=361.58\,$MHz. The geometry is ``double-$\Lambda$'': each ground
+state couples optically to \emph{both} excited states, and the two ground states
+share the excited manifold. That shared manifold is what lets a seed on the
+$g_2\!\leftrightarrow\!e$ leg transfer coherence to the $g_1\!\leftrightarrow\!e$
+leg and generate the conjugate --- the four ``waves'' are pump, pump, seed,
+conjugate.
+
+\subsection{Hyperfine line strengths (Clebsch--Gordan)}
+
+Each $F\!\to\!F'$ link carries a relative strength $C_F^2$ from the Wigner
+$3j/6j$ sum (\code{hyperfine.CF2}), exact rationals for $^{85}$Rb $D_1$:
+\begin{equation}
+C_F^2(2,2)=\tfrac{10}{81},\quad
+C_F^2(2,3)=\tfrac{35}{81},\quad
+C_F^2(3,2)=\tfrac{35}{81},\quad
+C_F^2(3,3)=\tfrac{28}{81}.
+\label{eq:cf2}
+\end{equation}
+These factors enter the physics in three distinct places, and using one consistent
+quantity for all three is what makes the model self-consistent:
+\begin{enumerate}[leftmargin=2.2em]
+  \item \textbf{Coherent drive.} The effective Rabi frequency on link $g\!\to\!e$
+  is scaled by $\sqrt{3\,C_F^2(F_g,F_{e})}$ (\code{TRANSITION\_DIPOLE\_SCALE});
+  the factor 3 is the $J\!\to\!J'$ reduction of the $D_1$ reduced matrix element.
+  \item \textbf{Polarization readout.} The macroscopic polarization on a leg is the
+  same CG-weighted sum of optical coherences (Sec.~\ref{sec:chi}).
+  \item \textbf{Spontaneous emission branching.} An excited state $e$ decays to
+  ground $g$ at the branched rate
+  \begin{equation}
+  \Gamma_{e\to g}=\Gamma\,\frac{C_F^2(F_g,F_{e})}{\sum_{g'}C_F^2(F_{g'},F_{e})},
+  \qquad \sum_g \Gamma_{e\to g}=\Gamma,
+  \label{eq:branching}
+  \end{equation}
+  so total population leaves each excited state at the natural rate $\Gamma$
+  (\code{atoms.\_double\_lambda\_rb85}).
+\end{enumerate}
+
+\subsection{Energy scales and why the rotating frame is mandatory}
+
+The relevant frequencies span fifteen orders of magnitude: the optical carrier is
+$\omega_{D_1}/2\pi=377\,$THz, the hyperfine splitting $3\,$GHz, the natural
+linewidth $\Gamma/2\pi=5.746\,$MHz, the ground-coherence decay $100\,$kHz. No
+solver integrates the bare optical oscillation. Instead we move to a frame
+co-rotating with the pump and apply the rotating-wave approximation (RWA): all
+optical carriers are removed, leaving \emph{detunings} of order MHz--GHz on the
+diagonal and slowly varying Rabi couplings off-diagonal. Throughout, energies are
+expressed as angular frequencies (i.e.\ $\hbar\!\equiv\!1$ in the Hamiltonian), so
+``$H$'' below is really $H/\hbar$ in rad\,s$^{-1}$.
+
+% =====================================================================
+\section{Units, fields, and the vapour density}
+% =====================================================================
+
+\subsection{Rabi frequency from beam power}
+
+A beam of power $P$ and $1/e^2$ intensity radius $w_0$ has peak intensity
+$I=2P/(\pi w_0^2)$. The code converts this to a Rabi frequency through the
+saturation intensity (\code{constants.rabi\_freq}):
+\begin{equation}
+I=\frac{2P}{\pi w_0^2},
+\qquad
+\Omega=\Gamma\sqrt{\frac{I}{2 I_{\mathrm{sat}}}},
+\qquad I_{\mathrm{sat}}=4.484\,\mathrm{mW\,cm^{-2}}.
+\label{eq:rabi}
+\end{equation}
+Equation~\eqref{eq:rabi} is just the standard two-level relation
+$I/I_{\mathrm{sat}}=2\Omega^2/\Gamma^2$ solved for $\Omega$; tying $\Omega$ to
+$I_{\mathrm{sat}}$ keeps the drive strength anchored to a measured quantity rather
+than to an absolute dipole. With the paper geometry
+($w_{\text{pump}}=530\,\mu$m, $w_{\text{seed}}=330\,\mu$m, both $1/e^2$
+\emph{radii}), $600\,$mW of pump gives $\Omega_{\text{pump}}/2\pi$ of order a
+GHz, while $8\,\mu$W of seed gives $\Omega_{\text{seed}}/2\pi$ of order MHz --- a
+clean separation of ``strong pump, weak seed'' that the linear-response treatment
+below relies on.
+
+\subsection{Number density}
+
+The atomic density sets the optical depth and hence the gain. For the seeded model
+the Steck liquid-phase vapour-pressure fit is used at natural abundance
+(\code{atoms.rb85\_density}):
+\begin{equation}
+\log_{10}P_{\text{torr}}
+   =15.88253-\frac{4529.635}{T}+0.00058663\,T-2.99138\log_{10}T,
+\end{equation}
+\begin{equation}
+N(^{85}\mathrm{Rb})
+   = f_{85}\,\frac{P}{k_B T},
+   \qquad f_{85}=0.7217,\quad P=P_{\text{torr}}\times133.322\,\text{Pa}.
+\end{equation}
+The exponential temperature dependence of $P$ is the origin of the model's
+extreme sensitivity to $T$: a few degrees changes $N$ by tens of percent, and the
+gain is exponential in $N$ (Sec.~\ref{sec:mb}). The biphoton mode uses the
+elemental densities in \code{species.number\_density} (CRC fit for Rb, Steck for
+Cs), with the per-isotope share applied separately.
+
+% =====================================================================
+\section{Open-system dynamics: the master equation}
+% =====================================================================
+
+The atom is open: it spontaneously emits, and ground coherences dephase from
+collisions and transit. The state is therefore a density matrix $\rho$ obeying a
+Gorini--Kossakowski--Sudarshan--Lindblad (GKSL) master equation,
+\begin{equation}
+\dot\rho=-\ii\,[H,\rho]+\Dcal[\rho],
+\label{eq:gksl}
+\end{equation}
+with $H$ the rotating-frame Hamiltonian (Sec.~\ref{sec:H}) and $\Dcal$ the
+dissipator (Sec.~\ref{sec:diss}). We only ever want the \emph{steady state}
+($\dot\rho=0$), since the experiment is continuous-wave.
+
+\subsection{The Hamiltonian}
+\label{sec:H}
+
+In the rotating frame the diagonal of $H$ carries detunings and hyperfine
+splittings, and the off-diagonal carries the (RWA) drives. The static part at zero
+effective detuning is built by
+\code{static\_hamiltonian\_at\_Deff\_zero}:
+\begin{equation}
+H_0=
+\underbrace{\delta\,\ketbra{g_2}{g_2}
+-\omega^{(e)}_{\HF}\,\ketbra{e_2}{e_2}}_{\text{diagonal: two-photon \& excited HF}}
+\;+\;
+\underbrace{\sum_{\text{legs}}\frac{\Omega_{ge}}{2}\big(\ketbra{g}{e}+\ketbra{e}{g}\big)}_{\text{RWA drives}},
+\label{eq:H0}
+\end{equation}
+where $\delta$ is the two-photon (Raman) detuning, $\omega^{(e)}_{\HF}=2\pi
+\nu^{(e)}_{\HF}$ places $e_3$ at zero and $e_2$ below it, and the leg drive is
+$\Omega_{ge}=\Omega\sqrt{3 C_F^2(F_g,F_e)}$ from Eq.~\eqref{eq:cf2}. The one-photon
+detuning $\Delta$ and the atomic velocity do \emph{not} appear in $H_0$; they enter
+later as a single shift $\Delta_\eff$ on the excited diagonal (Sec.~\ref{sec:dopp}),
+which is the trick that makes the Doppler average cheap.
+
+\paragraph{Which field sits where (the branch).} A subtlety unique to FWM: the
+pump and the weak fields can be assigned to the two legs in two inequivalent ways,
+corresponding to the two Raman resonances. The code labels them
+$\text{branch}=\mp1$. For the standard red-detuned seed (branch $-1$), the pump
+$\Omega_A$ drives the $g_1$ leg and the seed $\Omega_s$ drives the $g_2$ leg in
+$H_0$; for branch $+1$ the assignment swaps. These are \emph{physically distinct
+mode pairs} and must be computed separately --- never summed into one
+susceptibility matrix (see Sec.~\ref{sec:branch} and the README ``Traps'').
+
+\subsection{The dissipator}
+\label{sec:diss}
+
+The dissipator is a sum of GKSL terms, one per irreversible channel,
+\begin{equation}
+\Dcal[\rho]=\sum_k\Big(L_k\rho L_k^\dagger
+   -\tfrac12 L_k^\dagger L_k\,\rho-\tfrac12\rho\,L_k^\dagger L_k\Big).
+\label{eq:lindblad}
+\end{equation}
+Two kinds of channel appear (\code{atoms.AtomModel.\_build\_lindblad}):
+
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{Spontaneous emission}: jump operators
+  $L_{e\to g}=\sqrt{\Gamma_{e\to g}}\,\ketbra{g}{e}$ with the CG-branched rates of
+  Eq.~\eqref{eq:branching}. The ``recycling'' term $L\rho L^\dagger$ refeeds the
+  emitted population into the ground states; the anticommutator term damps the
+  optical coherences at $\Gamma/2$ (the homogeneous optical linewidth).
+  \item \textbf{Ground-state dephasing}: a phenomenological decay of the
+  $g_1\!\leftrightarrow\!g_2$ coherence,
+  $\dot\rho_{g_1g_2}\supset-\gamma_{gg}\rho_{g_1g_2}$, with
+  $\gamma_{gg}/2\pi=100\,$kHz (\code{constants.GAMMA\_GG}). This is the rate that
+  sets the width of the Raman/two-photon resonance and ultimately limits the
+  squeezing bandwidth; it lumps together collisions, transit time, and laser phase
+  noise.
+\end{itemize}
+
+\begin{remark}
+The general \code{AtomModel} also supports \emph{polarization-grouped} jump
+operators ($\Sigma_q$ form) that transfer coherence during spontaneous emission
+(used by the magneto-optics schemes). The four-level FWM model only needs the
+population-refeeding form above.
+\end{remark}
+
+\subsection{Liouville space (vectorization)}
+\label{sec:liouville}
+
+Equation~\eqref{eq:gksl} is linear in $\rho$, so stacking the $n\times n$ matrix
+$\rho$ into a length-$n^2$ vector turns the whole right-hand side into a single
+matrix --- the Liouvillian $\Lcal$. The code uses row-major vectorization,
+$\vecop(\rho)_{n i+j}=\rho_{ij}$, for which the commutator becomes
+(\code{core.comm\_super}):
+\begin{equation}
+\vecop\big([H,\rho]\big)=\big(H\otimes \mathbb{1}-\mathbb{1}\otimes H^{T}\big)\vecop(\rho),
+\qquad
+\mathcal{C}[H]\equiv-\ii\big(H\otimes \mathbb{1}-\mathbb{1}\otimes H^{T}\big).
+\label{eq:commsuper}
+\end{equation}
+The dissipator~\eqref{eq:lindblad} vectorizes likewise; each term
+$L\rho L^\dagger$ becomes $L\otimes L^{*}$, and the anticommutators become
+$\tfrac12(L^\dagger L\otimes\mathbb{1}+\mathbb{1}\otimes(L^\dagger L)^{T})$
+(\code{atoms.\_build\_lindblad}). The full base Liouvillian is
+\begin{equation}
+\Lcal_0=\mathcal{C}[H_0]+\Dcal,
+\label{eq:liouvillian}
+\end{equation}
+(\code{core.build\_liouvillian}). Finding the steady state is then the linear
+algebra problem $\Lcal_0\,\vecop(\rho)=0$ subject to $\Tr\rho=1$; the trace
+condition replaces one redundant row of $\Lcal_0$ (row $0$, the
+$\rho_{g_1g_1}$ equation) by $\sum_i\rho_{ii}=1$. This ``replace a row with the
+trace'' construction recurs in every solver in \code{core.py}.
+
+% =====================================================================
+\section{Thermal motion: the Doppler average}
+\label{sec:dopp}
+% =====================================================================
+
+\subsection{Velocity classes}
+
+At $T\sim120\,^\circ$C the atoms move fast enough that the Doppler shift $k v$
+($\sigma_v=\sqrt{k_B T/m}\sim170\,$m/s gives $k\sigma_v/2\pi\sim200\,$MHz) dwarfs
+the natural linewidth. The vapour is therefore a Maxwell ensemble of velocity
+classes (\code{doppler.velocity\_grid}):
+\begin{equation}
+v\in[-v_{\max},v_{\max}],\quad
+v_{\max}=\lceil c_\sigma\,\sigma_v\rceil,\quad
+w(v)\propto \exp\!\Big(-\frac{v^2}{2\sigma_v^2}\Big),\quad \sum_v w(v)=1,
+\end{equation}
+with cutoff $c_\sigma=3$ standard deviations and a step $\dd v$ of a few m/s. Each
+class sees both lasers Doppler-shifted by $kv$ (the pump and the near-degenerate
+seed/conjugate share essentially the same $k$, since they differ only by the GHz
+hyperfine scale $\ll$ the optical frequency).
+
+\subsection{The \boldmath$\Delta_\eff$ trick}
+
+The crucial observation (\code{doppler.py} header, README ``Speed'') is that the
+\emph{only} place the one-photon detuning $\Delta$ and the velocity $v$ enter the
+Hamiltonian is through the excited-state diagonal. Define the effective one-photon
+detuning
+\begin{equation}
+\Delta_\eff=\Delta-k v.
+\end{equation}
+Then the velocity-dependent Liouvillian is a \emph{rigid shift} of one template,
+\begin{equation}
+\Lcal_0(\Delta_\eff)=\Lcal_0(0)-\Delta_\eff\,S_v,
+\qquad
+S_v=\mathcal{C}\Big[\textstyle\sum_{e\in\text{excited}}\ketbra{e}{e}\Big],
+\label{eq:deffshift}
+\end{equation}
+where $S_v$ is the commutator super-operator of the projector onto the excited
+manifold (\code{atoms.\_build\_velocity\_shift}). Consequently:
+\begin{itemize}[leftmargin=1.6em]
+  \item Temperature $T$ enters \emph{only} through the Maxwell weights $w(v)$.
+  \item The detuning $\Delta$ enters \emph{only} as an offset of the
+  $\Delta_\eff$ axis.
+  \item The susceptibility table $\rhobar(\delta,\Delta_\eff)$ is therefore
+  computed \emph{once} on a $(\delta,\Delta_\eff)$ grid and reused for every
+  velocity and every $T$.
+\end{itemize}
+The $\Delta_\eff$ sampling axis is built (\code{doppler.build\_Delta\_eff\_axis})
+to span $\Delta-k v$ across the whole velocity grid, uniformly so that the later
+average is a cheap index interpolation rather than a re-solve. This single idea is
+why a full $-8\ldots12\,$GHz scan takes minutes instead of hours.
+
+% =====================================================================
+\section{The multimode steady state (truncated Floquet)}
+\label{sec:floquet}
+% =====================================================================
+
+\subsection{Why the steady state is not static}
+
+In ordinary absorption one weak field sits inside $H_0$ and the steady state is a
+single static $\rho$. FWM is different: the seed and the conjugate are
+\emph{different frequencies}, separated by twice the ground hyperfine splitting,
+and they couple through the ground-state coherence $\rho_{g_1g_2}$, which therefore
+\emph{oscillates} at the beat frequency
+\begin{equation}
+\Omega_{\text{beat}}=\Omega_{\HF}-\text{branch}\cdot\delta,
+\qquad \Omega_{\HF}=2\pi\nu_{\HF}.
+\label{eq:beat}
+\end{equation}
+The Hamiltonian is thus time periodic. We split it into the static part
+$H_0$ (pump $+$ one weak field, Eq.~\eqref{eq:H0}) and a \emph{sideband} part
+that oscillates at $\Omega_{\text{beat}}$ (\code{sideband\_hamiltonian}):
+\begin{equation}
+H(t)=H_0+H_p\,e^{-\ii\Omega_{\text{beat}}t}+H_p^\dagger\,e^{+\ii\Omega_{\text{beat}}t}.
+\label{eq:Ht}
+\end{equation}
+$H_p$ contains the \emph{other} weak field plus the pump on the complementary leg;
+its one-sided form ($\ketbra{e}{g}$ only, \code{\_add\_sideband\_drive}) is the
+positive-frequency component of that drive.
+
+\subsection{Three-mode ansatz and truncation}
+
+Because the drive is weak, the response is dominated by the carrier and the first
+sidebands. Expand
+\begin{equation}
+\rho(t)=\rho_0+\rho_{+1}\,e^{-\ii\Omega_{\text{beat}}t}+\rho_{-1}\,e^{+\ii\Omega_{\text{beat}}t}+\dots
+\end{equation}
+and keep $|n|\le1$ (a three-mode truncated Floquet expansion). Substituting into
+the vectorized master equation and matching harmonics gives, with
+$C_p\equiv\mathcal{C}[H_p]$ and $C_m\equiv\mathcal{C}[H_p^\dagger]$
+(\code{sideband\_template}):
+\begin{align}
+(\Lcal_0+\ii\Omega_{\text{beat}})\,\rho_{+1}&=-C_p\,\rho_0, \label{eq:sbplus}\\
+(\Lcal_0-\ii\Omega_{\text{beat}})\,\rho_{-1}&=-C_m\,\rho_0, \label{eq:sbminus}\\
+\Lcal_0\,\rho_0&=-\big(C_p\,\rho_{-1}+C_m\,\rho_{+1}\big). \label{eq:carrier}
+\end{align}
+Equation~\eqref{eq:carrier} is the carrier steady state \emph{dressed} by the
+sidebands feeding back into it.
+
+\subsection{Feedback elimination}
+
+Solving Eqs.~\eqref{eq:sbplus}--\eqref{eq:sbminus} for the sidebands and
+substituting into~\eqref{eq:carrier} eliminates $\rho_{\pm1}$, leaving a single
+effective equation for the carrier (\code{core.floquet\_solve}):
+\begin{equation}
+\boxed{\;
+\Big[\Lcal_0
+-\;C_p\,(\Lcal_0-\ii\Omega_{\text{beat}})^{-1}\,C_m
+-\;C_m\,(\Lcal_0+\ii\Omega_{\text{beat}})^{-1}\,C_p\Big]\rho_0=0.
+\;}
+\label{eq:Aeff}
+\end{equation}
+The two correction terms are exactly the code's \code{minus\_feedback} and
+\code{plus\_feedback}; the bracket is \code{A\_eff}. Trace-normalizing (row $0$
+$\to\sum_i\rho_{0,ii}=1$) and solving gives $\rho_0$; the upper sideband then
+follows directly,
+\begin{equation}
+\rho_{+1}=-(\Lcal_0+\ii\Omega_{\text{beat}})^{-1}\,C_p\,\rho_0,
+\label{eq:rhop1}
+\end{equation}
+reusing the factor already computed for \eqref{eq:Aeff} rather than solving a
+second system. Physically, $\rho_0$ holds the optical coherence at the seed
+frequency (the probe response) and $\rho_{+1}$ holds the coherence at the
+conjugate frequency (the generated conjugate) --- the two outputs we need.
+
+\paragraph{Velocity batching.} Equation~\eqref{eq:deffshift} makes
+$\Lcal_0(\Delta_\eff)$ a one-parameter family. The solver stacks all
+$\Delta_\eff$ values into one tensor and calls a single batched
+\code{np.linalg.solve}; each system is tiny ($n^2=16$) but there are thousands of
+them, so batching --- with BLAS pinned to one thread per the small-matrix note in
+\code{core.blas\_single\_thread} --- is the dominant performance lever.
+
+% =====================================================================
+\section{The susceptibility matrix}
+\label{sec:chi}
+% =====================================================================
+
+\subsection{What \boldmath$\rhobar$ means}
+
+We want the linear response of the two optical polarizations (one per Raman leg)
+to the two weak fields. Define the dimensionless susceptibility matrix by
+\begin{equation}
+\begin{pmatrix}P_s\\[2pt]P_c\end{pmatrix}
+=
+\begin{pmatrix}\rhobar_{ss}&\rhobar_{sc}\\[2pt]\rhobar_{cs}&\rhobar_{cc}\end{pmatrix}
+\begin{pmatrix}\Omega_s\\[2pt]\Omega_c\end{pmatrix},
+\label{eq:chimatrix}
+\end{equation}
+where $P_s$ ($P_c$) is the CG-weighted optical coherence read out on the
+seed (conjugate) leg, and $\Omega_s$ ($\Omega_c$) is the seed (conjugate) Rabi
+frequency. The polarization readout is (\code{\_polarization\_coherence}):
+\begin{equation}
+P_{\text{leg }g}=\sum_{e\in\text{excited}}\sqrt{3 C_F^2(F_g,F_e)}\;\rho_{e g},
+\label{eq:Pleg}
+\end{equation}
+the same CG weighting as the drive, so absorption and emission are described by one
+consistent dipole. Because the response is linear in the \emph{weak} fields (the
+pump is the strong field, already inside $H_0$ and the sidebands), $\rhobar$ is
+\emph{independent} of the magnitude of the reference field used to probe it --- the
+code simply divides the measured coherence by the reference Rabi
+$\Omega_{\text{ref}}$.
+
+\subsection{Two solves per detuning}
+
+Each entry of the $2\times2$ matrix is a response of one leg to one field, so two
+independent Floquet solves at each two-photon detuning $\delta$ extract all four
+(\code{chi\_matrix\_table}):
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{Solve 1 --- seed drive only} ($\Omega_c=0$ in the sidebands,
+  $\Omega_s=\Omega_{\text{ref}}$ in $H_0$). The carrier coherence on the seed leg
+  gives $\rhobar_{ss}=P_s/\Omega_{\text{ref}}$; the upper-sideband coherence on the
+  conjugate leg gives $\rhobar_{cs}=P_c/\Omega_{\text{ref}}$ --- this is the seed
+  $\to$ conjugate \emph{generation}.
+  \item \textbf{Solve 2 --- conjugate seed only} ($\Omega_c=\Omega_{\text{ref}}$ in
+  the sidebands, $\Omega_s=0$). Symmetrically yields $\rhobar_{sc}$ and
+  $\rhobar_{cc}$.
+\end{itemize}
+The off-diagonal $\rhobar_{cs},\rhobar_{sc}$ are the parametric coupling that does
+not exist without the pump; they are the heart of the four-wave mixing.
+
+\subsection{Detuning conventions and the two Raman branches}
+\label{sec:branch}
+
+The probe is scanned in laboratory frequency, referenced to the
+$F=2\!\to\!F'=3$ line. The two Raman resonances sit at
+(\code{branch\_center\_GHz})
+\begin{equation}
+f^{(\pm)}_{\text{Raman}}=\Delta_{\text{GHz}}\pm\nu_{\HF},
+\end{equation}
+and the two-photon detuning of a probe point is
+(\code{two\_photon\_detuning\_from\_probe\_scan})
+\begin{equation}
+\delta=2\pi\big(f_{\text{probe}}-f^{(\text{branch})}_{\text{Raman}}\big).
+\end{equation}
+The beat frequency~\eqref{eq:beat} that drives the Floquet expansion uses this same
+$\delta$. \textbf{The two branches are separate physical channels} (separate
+probe/conjugate mode pairs): the standard squeezing operating point is the
+red-detuned seed on the $(-)$ branch. Adding the two branches' $\rhobar$ matrices
+into one propagation is wrong --- it manufactures spurious high-gain features (the
+README documents an artefact near $+70\,$MHz TPD). The wide ``both branches'' view
+computes branch $-1$ and $+1$ independently and overlays them
+(\code{full\_spectrum}).
+
+% =====================================================================
+\section{Doppler averaging of the susceptibility}
+% =====================================================================
+
+The single-velocity table $\rhobar(\delta,\Delta_\eff)$ is averaged over the
+Maxwell distribution to give the macroscopic susceptibility seen by the beam.
+Using $\Delta_\eff=\Delta-kv$ and the uniform $\Delta_\eff$ axis, the average is a
+weighted linear interpolation (\code{doppler.doppler\_average}):
+\begin{equation}
+\overline{\rhobar}(\delta;\Delta,T)
+=\sum_v w(v)\,\rhobar\big(\delta,\;\Delta-kv\big).
+\label{eq:doppleravg}
+\end{equation}
+This is a \emph{coherent average of the complex susceptibility}: amplitude and
+phase from each velocity class add before the field propagates, which is the
+correct order of operations for a dispersive parametric medium (the alternative ---
+averaging intensities --- would discard the inhomogeneous phase that sets the
+gain). The interpolation indices and fractions are precomputed once
+(\code{interpolation\_weights}) and applied to every row of the table
+(\code{apply\_doppler\_average}), so the average costs one matrix multiply.
+
+% =====================================================================
+\section{Maxwell--Bloch propagation: susceptibility \boldmath$\to$ gain}
+\label{sec:mb}
+% =====================================================================
+
+\subsection{Coupled amplitude equations and phase conjugation}
+
+In a dilute medium the slowly varying seed and conjugate Rabi amplitudes obey
+coupled propagation equations along the cell ($z$ direction). The combination that
+closes is $(\Omega_s,\Omega_c^{*})^{T}$ --- note the \emph{complex conjugate} of
+the conjugate field, the signature of a phase-conjugating ($\chi^{(3)}$) process:
+\begin{equation}
+\frac{\dd}{\dd z}\begin{pmatrix}\Omega_s\\[2pt]\Omega_c^{*}\end{pmatrix}
+= M\begin{pmatrix}\Omega_s\\[2pt]\Omega_c^{*}\end{pmatrix},
+\qquad
+M=\frac{\ii}{2}
+\begin{pmatrix}
+ k_s\,\chi_{ss} & k_s\,\chi_{sc}\\[4pt]
+ -k_c\,\chi_{cs}^{*} & -k_c\,\chi_{cc}^{*}
+\end{pmatrix}.
+\label{eq:Mmatrix}
+\end{equation}
+The diagonal terms are self-action (gain/absorption and dispersion on each beam);
+the off-diagonal terms are the parametric coupling that converts seed into
+conjugate and back. The conjugation and the minus signs in the second row are what
+make $M$ generate \emph{amplification} (a non-unitary, energy-non-conserving
+transfer) rather than mere rotation.
+
+\subsection{Seeded longitudinal phase mismatch (v2)}
+
+The v1 seeded model implicitly assumed perfect longitudinal phase matching. In
+v2 the app path adds a rotating-frame mismatch term to the propagation matrix:
+\begin{equation}
+M_{\Delta k}=
+M+
+\frac{\ii\,\Delta k_z}{2}
+\begin{pmatrix}
+1 & 0\\
+0 & -1
+\end{pmatrix}.
+\label{eq:Mdeltak}
+\end{equation}
+For the seeded double-$\Lambda$ geometry the vacuum mismatch used in Balanced
+resolution is
+\begin{equation}
+\Delta k_z^{(0)}(\delta)
+=2k_p-\big(k_s(\delta)+k_c(\delta)\big)\cos\theta,
+\qquad
+\theta=0.3^\circ,
+\label{eq:seededDk}
+\end{equation}
+where the reference angle is the Sim \emph{et al.}\ pump--probe crossing angle,
+$k_s$ is set by the scanned seed frequency, and energy conservation sets
+$k_c=2k_p-k_s$ in angular-frequency units. This is cheap: it is one vector over
+the already-computed probe axis, and no OBE/Floquet solve is repeated.
+
+Fine resolution adds two post-OBE refinements while keeping the expensive
+susceptibility table fixed:
+\begin{enumerate}[leftmargin=2.2em]
+  \item A conservative refractive correction,
+  \[
+  k_s\to n_s k_s,\qquad k_c\to n_c k_c,\qquad
+  n_{s,c}\simeq1+\frac{1}{2}\Real\chi_{ss,cc},
+  \]
+  with the correction clipped to the dilute-vapour range so resonant dispersive
+  excursions do not create artificial phase-matching runaways.
+  \item A segmented propagation profile. The cell is sliced into 16 segments; the
+  diagonal self-action remains fixed, while the off-diagonal parametric coupling
+  is smoothly attenuated by a scalar profile inferred from the median absorptive
+  optical depth. This is a propagation-only approximation, not a new atomic solve.
+\end{enumerate}
+
+The direct \code{compute\_spectrum} API defaults to the legacy
+$\Delta k_z=0$ path so the frozen regression baseline remains bit-identical.
+The Streamlit resolution presets select the v2 behaviour: Fast/Balanced use
+Eq.~\eqref{eq:seededDk}; Fine uses the refractive and segmented refinements.
+
+\subsection{From dimensionless to physical susceptibility}
+
+The dimensionless $\overline{\rhobar}$ becomes a physical susceptibility through
+the medium coupling constant (\code{observables.gain\_from\_chi}):
+\begin{equation}
+\chi_{xy}= -\,\frac{2 N\,|d_\eff|^2}{\varepsilon_0\hbar}\,\overline{\rhobar}_{xy},
+\qquad
+|d_\eff|^2=\xi_{\text{LS}}\,|d_{D_1}|^2,
+\label{eq:chiphys}
+\end{equation}
+where $N$ is the number density, $d_{D_1}$ the $D_1$ reduced dipole, and
+$\xi_{\text{LS}}$ is the residual \emph{FWM coupling scale}
+(\code{LINE\_STRENGTH\_FACTOR}, app default $\sim0.05$). The sign makes a passive
+transition absorptive ($\Imag\chi>0$ on resonance). $\xi_{\text{LS}}$ is the one
+remaining lumped calibration knob: the genuine hyperfine CG structure is already in
+$\rhobar$, so $\xi_{\text{LS}}$ stands in for residual not-yet-modelled physics
+(full propagation loss/noise, full Zeeman degeneracy, and other geometry details
+not captured by the v2 longitudinal $\Delta k_z$ term). It rescales the
+\emph{effective} $|d|^2$ in propagation only; it does \emph{not} touch the OBE
+solve (where $\Gamma$ and $\Omega$ are fixed by $I_{\text{sat}}$).
+
+\subsection{The transfer matrix}
+
+Because $M$ is (per detuning point) a constant $2\times2$ matrix over the cell
+length $L$, the propagation is solved exactly by the matrix exponential
+\begin{equation}
+T=\exp(M L),\qquad
+\begin{pmatrix}\Omega_s\\\Omega_c^{*}\end{pmatrix}_{\!\!z=L}
+=T\begin{pmatrix}\Omega_s\\\Omega_c^{*}\end{pmatrix}_{\!\!z=0}.
+\end{equation}
+The $2\times2$ exponential is evaluated in closed form
+(\code{core.matrix\_exp\_2x2}; derivation in Appendix~\ref{app:expm}) for the whole
+batch of detuning points at once. The power gains are
+\begin{equation}
+G_s=|T_{00}|^2 \quad(\text{seed transmission}),
+\qquad
+G_c=|T_{10}|^2 \quad(\text{conjugate generated from a seed at port 0}).
+\label{eq:gains}
+\end{equation}
+With a seed in and vacuum in the conjugate port, $G_s$ is the amplified seed power
+and $G_c$ is the newly generated conjugate power. In the high-gain parametric
+regime the twin-beam relation $G_c\simeq G_s-1$ holds (each created conjugate
+photon accompanies one added seed photon).
+
+\paragraph{The exponential-density trap.} Since $M\propto N$ (Eq.~\eqref{eq:chiphys})
+and $T=e^{ML}$, the gain grows \emph{exponentially} with density, i.e.\
+super-exponentially with temperature through $N(T)$. This is physically correct
+only while the pump is undepleted; pushed too far it over-amplifies, which the next
+section caps.
+
+% =====================================================================
+\section{Pump depletion: the Manley--Rowe cap}
+% =====================================================================
+
+The propagation above is linear in the \emph{undepleted} pump, so at high density
+it can predict $G_s P_{\text{seed}}\gg P_{\text{pump}}$ --- more output power than
+the pump can supply. Non-degenerate FWM is a Manley--Rowe process: two pump photons
+make one signal photon and one conjugate photon, so at full conversion the added
+signal power and the generated conjugate power each approach half the pump power.
+The code enforces this energy bound with a smooth homogeneous-saturation form
+(\code{observables.pump\_depletion\_saturation}):
+\begin{equation}
+G_s^{\text{sat}}=1+\frac{G_s-1}{1+(G_s-1)\,P_{\text{seed}}/P_{\text{cap}}},
+\qquad
+G_c^{\text{sat}}=\frac{G_c}{1+G_c\,P_{\text{seed}}/P_{\text{cap}}},
+\qquad
+P_{\text{cap}}=\frac{P_{\text{pump}}}{2}.
+\label{eq:manleyrowe}
+\end{equation}
+Three properties make this the right minimal fix:
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{Small-signal limit.} When $(G-1)P_{\text{seed}}\ll P_{\text{cap}}$
+  the denominators are $\approx1$ and the validated gain is untouched.
+  \item \textbf{Energy ceiling.} As $G\to\infty$, $(G_s^{\text{sat}}-1)P_{\text{seed}}\to
+  P_{\text{cap}}$ and $G_c^{\text{sat}}P_{\text{seed}}\to P_{\text{cap}}$ --- exactly the
+  half-pump bound.
+  \item \textbf{Twin-beam relation preserved.} $(G_s-1)$ and $G_c$ saturate
+  identically, so $G_c^{\text{sat}}\simeq G_s^{\text{sat}}-1$ still holds and the
+  squeezing formula stays consistent.
+\end{itemize}
+The pipeline keeps the pre-saturation small-signal peak for diagnostics and flags
+the operating point as ``pump-depletion limited'' when the small-signal gain
+exceeds the cap by more than 10\,\% (\code{compute\_spectrum},
+\code{\_seeded\_observables}).
+
+% =====================================================================
+\section{Quantum observables of the twin beam}
+% =====================================================================
+
+\subsection{Intensity-difference squeezing}
+
+The twin beams are correlated, so the noise in $\hat n_s-\hat n_c$ can fall below
+the shot-noise level. For an ideal (lossless) two-mode parametric amplifier with
+gains $G_s,G_c$ the intensity-difference noise, normalized to shot noise, is
+(\code{observables.intensity\_difference\_squeezing\_dB}):
+\begin{equation}
+S_{\text{ideal}}=\frac{G_s+G_c-2\sqrt{G_s G_c-1}}{G_s+G_c}.
+\label{eq:Sideal}
+\end{equation}
+At unity gain $S_{\text{ideal}}=1$ (shot noise); as the gain grows, $G_c\to G_s-1$
+and $S_{\text{ideal}}\to0$ (perfect correlation). Symmetric detection efficiency
+$\eta$ on both arms mixes in uncorrelated vacuum,
+\begin{equation}
+S(\eta)=\eta\,S_{\text{ideal}}+(1-\eta),
+\qquad
+S_{\text{dB}}=10\log_{10}S,
+\label{eq:Seta}
+\end{equation}
+with $\eta=\text{QE}\,(1-\text{loss})$. Equation~\eqref{eq:Seta} immediately gives
+the squeezing \emph{floor}: since $S_{\text{ideal}}\!\ge\!0$,
+\begin{equation}
+S_{\text{dB}}\ \ge\ 10\log_{10}(1-\eta),
+\end{equation}
+a hard limit set purely by loss. (A 2-D $\xi(\Delta,T)$ scan confirms the model
+saturates exactly at this $10\log_{10}(1-\eta)$ plateau once the gain is large
+enough --- the gain-saturation and the loss-floor together cap the achievable
+squeezing.) Negative $S_{\text{dB}}$ means squeezed below shot noise; the Sim
+\emph{et al.} optimum reaches about $-7.8\,$dB.
+
+\subsection{Twin-beam photon statistics}
+
+In the same ideal-parametric spirit, the equal-time photon statistics follow from
+the mean pair number $n=G_s-1$ (\code{observables.coincidence\_stats}):
+\begin{equation}
+g^{(2)}_{ss}=g^{(2)}_{cc}=2\ (\text{each arm thermal}),
+\qquad
+g^{(2)}_{sc}(0)=2+\frac{1}{n},
+\qquad
+R=\frac{[g^{(2)}_{sc}]^2}{g^{(2)}_{ss}\,g^{(2)}_{cc}}=\frac{(2+1/n)^2}{4}.
+\label{eq:g2}
+\end{equation}
+The Cauchy--Schwarz ratio $R>1$ everywhere there is net gain is the nonclassical
+photon-pair signature; $g^{(2)}_{sc}\to2$ at high flux and diverges at low flux.
+These are valid only where $G_s>1$ (set to NaN otherwise) and, like the squeezing
+above, do not include quantum-Langevin propagation loss.
+
+% =====================================================================
+\section{The seeded pipeline, end to end}
+% =====================================================================
+
+Collecting the pieces, \code{compute\_spectrum} (one one-photon detuning
+$\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
+\begin{enumerate}[leftmargin=2.2em]
+  \item Convert powers to Rabi frequencies, Eq.~\eqref{eq:rabi}; density
+  $N(T)$.
+  \item Build the probe-frequency scan axis around the chosen Raman branch, and map
+  each point to a two-photon detuning $\delta$ (Sec.~\ref{sec:branch}).
+  \item Build the velocity grid and the $\Delta_\eff$ axis (Sec.~\ref{sec:dopp}).
+  \item For each $\delta$, two Floquet solves $\to$ the $\rhobar$ table on
+  $(\delta,\Delta_\eff)$ (Secs.~\ref{sec:floquet}--\ref{sec:chi}).
+  \item Doppler-average each of the four $\rhobar$ entries,
+  Eq.~\eqref{eq:doppleravg}.
+  \item Maxwell--Bloch propagate $\to$ $G_s,G_c$,
+  Eqs.~\eqref{eq:Mmatrix}--\eqref{eq:gains}. In the app path the propagation
+  matrix also carries the seeded phase-mismatch term, Eq.~\eqref{eq:Mdeltak};
+  Fine mode additionally uses the refractive and segmented propagation refinements.
+  \item Apply the Manley--Rowe cap, Eq.~\eqref{eq:manleyrowe}.
+  \item Squeezing $S_{\text{dB}}(\delta)$, Eq.~\eqref{eq:Seta}.
+\end{enumerate}
+The returned dictionary carries $G_s$, $G_c$, $S_{\text{dB}}$ versus probe
+detuning, plus derived diagnostics ($N$, $\sigma_v$, $\Omega_{\text{pump}}$,
+$\Omega_{\text{seed}}$, the small-signal peak, the depletion cap, the active
+phase-detail mode, $\Delta k_z$, the vacuum $\Delta k_z$, and any segment
+profile diagnostics). The TPD slider in the app reads a single operating point
+off this curve by interpolation (\code{operating\_point}) --- instant, no
+re-solve --- which is why the $\delta$ knob recomputes nothing.
+
+\paragraph{Anchor.} The direct legacy \code{compute\_spectrum} path remains
+anchored to the pre-v2 baseline. At the Sim \emph{et al.}\ optimum
+($\Delta=0.9\,$GHz, $\delta=-8\,$MHz, $T=121\,^\circ$C, $600\,$mW pump,
+$8\,\mu$W seed, $5.5\,\%$ loss) the model returns $G_s\approx15$ and
+$S_{\text{dB}}\approx-7.8\,$dB, and a regression test holds the full pipeline
+bit-identical to the pre-refactor baseline. The Streamlit app intentionally opts
+into the v2 phase-matching path through the resolution preset.
+
+% =====================================================================
+\section{Spontaneous FWM: the biphoton mode}
+% =====================================================================
+
+The second mode (\code{GenericFWMSolver}) drops the seed entirely and estimates the
+\emph{spontaneous} biphoton source: pairs generated from vacuum in a cascade or
+diamond level topology. It is a calibrated source model, not a Langevin
+propagation, but the physics it does contain is worth recording.
+
+\subsection{Topologies and fields}
+
+A topology is a set of \code{LevelSpec} levels and \code{FieldSpec} fields (pump,
+coupling, signal, idler), each with a wavelength, propagation direction, and
+phase sign. Three are provided:
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{$^{87}$Rb telecom cascade} $5S_{1/2}\!\to\!5P_{3/2}\!\to\!4D_{5/2}$
+  (780/1529 nm), calibrated to $\sim$38\,000 cps/mW, $g^{(2)}\!\approx\!44$,
+  OD$\,\approx\,$112, bandwidth $\approx300\,$MHz.
+  \item \textbf{$^{133}$Cs ``BTW'' cascade}, two channels (852--917 nm and
+  852--795 nm) that differ mainly in their temporal width.
+  \item \textbf{Generic diamond} four-level template with user wavelengths (no
+  validated anchor).
+\end{itemize}
+
+\subsection{Energy and momentum conservation}
+
+Energy conservation across the four fields is a bookkeeping check
+(\code{energy\_mismatch\_hz}):
+\begin{equation}
+\Delta\nu = \nu_{\text{pump}}+\nu_{\text{coupling}}-\nu_{\text{signal}}-\nu_{\text{idler}}\ \approx\ 0.
+\end{equation}
+Momentum conservation (phase matching) is the longitudinal wavevector mismatch
+projected onto the beam axis (\code{phase\_mismatch}),
+\begin{equation}
+\Delta k=\sum_{\text{fields}}s_i\,k_i\cos\theta_i-\Delta k_{\text{ref}},
+\qquad k_i=\frac{2\pi}{\lambda_i},
+\end{equation}
+with phase signs $s_i$ and collection angles $\theta_i$. The code now reports two
+versions:
+\begin{align}
+\Delta k_{\text{abs}}&=\sum_{\text{fields}}s_i\,k_i\cos\theta_i,\\
+\Delta k_{\text{rel}}&=\Delta k_{\text{abs}}-\Delta k_{\text{ref}}.
+\end{align}
+$\Delta k_{\text{rel}}$ is the calibrated phase-matching coordinate used by the
+source estimate; the preset reference makes it vanish at the reference geometry.
+$\Delta k_{\text{abs}}$ is shown as a diagnostic so the user can see how much
+absolute vacuum mismatch the calibration has absorbed.
+The finite interaction length $L$ turns this into a collection efficiency through
+the standard phase-matching sinc (\code{phase\_matching\_weight}):
+\begin{equation}
+\Phi(\Delta k)=\sinc^2\!\Big(\frac{\Delta k\,L}{2}\Big)
+=\left[\frac{\sin(\Delta k\,L/2)}{\Delta k\,L/2}\right]^2.
+\label{eq:sinc}
+\end{equation}
+Scanning the idler angle traces out the one-dimensional acceptance lobe
+$\Phi(\theta_{\text{idler}})$. In Fine phase-detail mode, the same vectorized
+geometry is evaluated on a signal--idler grid
+(\code{phase\_mismatch\_grid}), producing a two-dimensional acceptance map
+$\Phi(\theta_s,\theta_i)$ without touching the velocity-class source calculation.
+
+\subsection{Velocity-class coherent biphoton waveform}
+
+The temporal wavefunction of the pair is built as a \emph{coherent sum over
+Maxwell velocity classes} (the hot-vapour analogue of the joint spectral
+amplitude). For a cascade, each class contributes a two-photon amplitude that is a
+product of the two intermediate-state resonances
+(\code{GenericFWMSolver.compute\_biphoton}):
+\begin{equation}
+A(v)=w(v)\,\frac{\Omega_{\text{pump}}\,\Omega_{\text{coupling}}}
+{\big[\tfrac{\gamma_\ell}{2}+\ii(\Delta_{\text{pump}}-k_{\text{pump}}v)\big]\,
+ \big[\tfrac{\gamma_u}{2}+\ii(\Delta_{2\gamma}-k_{\text{res}}v)\big]}\,
+ \sqrt{\Phi},
+\label{eq:sourcev}
+\end{equation}
+with $\gamma_\ell,\gamma_u$ the intermediate/upper linewidths,
+$\Delta_{2\gamma}=\Delta_{\text{pump}}+\Delta_{\text{coupling}}$ the two-photon
+detuning, and $k_{\text{res}}=k_{\text{pump}}+k_{\text{coupling}}$ the residual
+two-photon Doppler wavevector. The time-domain waveform is the coherent sum with
+the idler-arm propagation phase and the exponential emission envelope:
+\begin{equation}
+\psi(\tau)=\Big[\sum_v A(v)\,e^{\,\ii k_{\text{idler}} v\,\tau}\Big]\,
+e^{-\tau/\tau_{\text{decay}}}.
+\label{eq:psitau}
+\end{equation}
+The first factor is a Doppler-dephasing sum (different velocity classes accumulate
+different phase $k v\tau$, so the pair correlation decays as the classes wash out);
+the second is the natural-lifetime envelope of the upper cascade state. The
+beating between the two cascade channels (e.g.\ the two Cs BTW channels) is exactly
+the velocity-class interference in Eq.~\eqref{eq:psitau} --- which is why the two
+channels give different temporal widths.
+
+\subsection{Correlation readout and calibration}
+
+The detector model (\code{observables.biphoton\_stats}) folds in finite filter
+transmission $\eta_f=\min(1,\,\text{BW}_{\text{filter}}/\text{BW}_{\text{source}})$,
+detector efficiencies $\eta_{s,i}$, dark counts, a coincidence window, and timing
+jitter (Gaussian smoothing of $|\psi|^2$). It then forms singles, true and
+accidental coincidences, and the normalized cross-correlation
+\begin{equation}
+g^{(2)}_{SI}(\tau)=1+\text{CAR}\cdot\frac{|\psi(\tau)|^2}{\max|\psi|^2},
+\qquad
+\text{CAR}=\frac{\text{coincidence}}{\text{accidental}}.
+\end{equation}
+Heralding efficiencies and the Cauchy--Schwarz ratio $R=[g^{(2)}_{\text{peak}}]^2/4$
+follow. Where a paper anchor exists (e.g.\ the $^{87}$Rb $g^{(2)}\!\approx\!44$),
+an explicit added-accidental term calibrates the peak to the reference value ---
+making clear that the absolute noise floor is \emph{calibrated}, not derived from
+first principles. A medium-complexity validation table checks the calibrated
+rate/OD/width anchors, energy bookkeeping, and phase matching.
+
+% =====================================================================
+\section{Numerical architecture (brief)}
+% =====================================================================
+
+The physics dictates the architecture, so a short note suffices:
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{One template, shifted.} $\Lcal_0(\Delta_\eff)=\Lcal_0(0)-\Delta_\eff
+  S_v$ (Eq.~\eqref{eq:deffshift}) lets every velocity share one Liouvillian and be
+  stacked into a single batched solve.
+  \item \textbf{$T$- and $\Delta$-independent table.} $\rhobar(\delta,\Delta_\eff)$
+  is computed once; $T\to$ weights, $\Delta\to$ axis offset
+  (Eq.~\eqref{eq:doppleravg}).
+  \item \textbf{Closed-form $2\times2$.} The transfer matrix exponential is
+  analytic (Appendix~\ref{app:expm}), avoiding a per-point \code{expm}.
+  \item \textbf{Small-matrix BLAS.} Each system is $n^2\le16$--$64$; one BLAS
+  thread per solve beats LAPACK's threading overhead
+  (\code{core.blas\_single\_thread}), and the two Raman branches of the wide scan
+  run on two threads concurrently (\code{full\_spectrum}).
+\end{itemize}
+
+% =====================================================================
+\section{Validation, scope, and what is \emph{not} modelled}
+% =====================================================================
+
+\paragraph{Validated.} The direct legacy seeded $G_s$/$S_{\text{dB}}$ pipeline
+reproduces the Sim \emph{et al.} $^{85}$Rb operating point and is
+regression-locked bit-for-bit. The app-facing v2 path deliberately adds
+phase-matching physics on top of that anchor. The genuine $^{85}$Rb $D_1$
+hyperfine CG factors $(10,35,35,28)/81$ drive the coherent coupling, the
+polarization readout, and the spontaneous-emission branching.
+
+\paragraph{Lumped / calibrated.} A single residual coupling scale
+$\xi_{\text{LS}}\!\sim\!0.05$ stands in for unmodelled propagation physics; the
+biphoton pair rates and the $g^{(2)}$ noise floor are reference-calibrated source
+estimates.
+
+\paragraph{Not yet modelled (future physics).}
+\begin{itemize}[leftmargin=1.6em]
+  \item Self-consistent refractive phase matching. Fine mode reuses the computed
+  susceptibility for a clipped, cheap refractive correction, but it does not
+  re-solve the atom with propagation-modified fields.
+  \item Full transverse/vector phase matching. The current seeded model uses
+  longitudinal $\Delta k_z$; the biphoton Fine map is a signal--idler angular
+  acceptance diagnostic, not a full spatial-mode overlap integral.
+  \item Dynamical pump absorption/depletion along the cell. Fine mode uses a
+  scalar segmented profile inferred from absorption, not a coupled pump-field
+  Maxwell--Bloch solve.
+  \item Explicit loss/noise: propagation loss with quantum-Langevin noise, seed
+  excess noise, pump scattering, EOM residual multimode noise --- currently all
+  folded into the scalar detection efficiency $\eta$.
+  \item Full Zeeman ($m_F$) substructure; the present model lumps the magnetic
+  sublevels into the CG line strengths.
+\end{itemize}
+
+% =====================================================================
+\appendix
+\section{Symbol glossary}
+% =====================================================================
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+symbol & meaning \\
+\midrule
+$\Delta$ & one-photon (pump) detuning from $F=2\!\to\!F'=3$ \\
+$\delta$ & two-photon (Raman) detuning \\
+$\Delta_\eff=\Delta-kv$ & effective one-photon detuning of a velocity class \\
+$\Omega$ & Rabi frequency (drive strength) \\
+$\nu_{\HF}=3.0357\,$GHz & ground hyperfine splitting \\
+$\Omega_{\text{beat}}=\Omega_{\HF}\mp\delta$ & ground-coherence beat (Floquet) frequency \\
+$\Gamma/2\pi=5.746\,$MHz & natural linewidth \\
+$\gamma_{gg}/2\pi=100\,$kHz & ground-coherence dephasing \\
+$C_F^2$ & hyperfine Clebsch--Gordan line strength \\
+$\rhobar_{xy}$ & dimensionless susceptibility (leg $x$, field $y$) \\
+$\chi_{xy}$ & physical susceptibility, Eq.~\eqref{eq:chiphys} \\
+$N$ & atomic number density \\
+$T$ (matrix) & $2\times2$ field transfer matrix $\exp(ML)$ \\
+$G_s,G_c$ & seed / conjugate power gain \\
+$S,S_{\text{dB}}$ & intensity-difference squeezing (linear / dB) \\
+$\eta=\text{QE}(1-\text{loss})$ & detection efficiency \\
+$\xi_{\text{LS}}$ & residual FWM coupling scale (\code{LINE\_STRENGTH\_FACTOR}) \\
+$\Delta k_z$ & seeded longitudinal phase mismatch \\
+$\Delta k_{\text{abs}},\Delta k_{\text{rel}}$ & biphoton absolute / calibrated relative mismatch \\
+$\Phi=\sinc^2(\Delta k L/2)$ & phase-matching weight \\
+$\psi(\tau)$ & biphoton temporal waveform \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\section{Closed-form \boldmath$2\times2$ matrix exponential}
+\label{app:expm}
+% =====================================================================
+
+Write $A=s\,\mathbb{1}+q$ with $s=\tfrac12\Tr A$ so that $q$ is traceless. By the
+Cayley--Hamilton theorem a traceless $2\times2$ matrix satisfies
+$q^2=-\det(q)\,\mathbb{1}=c^2\,\mathbb{1}$ with $c=\sqrt{-\det q}$. Hence
+\begin{equation}
+e^{qL}=\cosh(cL)\,\mathbb{1}+\frac{\sinh(cL)}{c}\,q,
+\qquad
+e^{AL}=e^{sL}\Big[\cosh(cL)\,\mathbb{1}+\frac{\sinh(cL)}{c}\,q\Big].
+\end{equation}
+This is evaluated entrywise and batched over all detuning points in
+\code{core.matrix\_exp\_2x2}; the $c\to0$ limit (where $\sinh(cL)/c\to L$) is
+handled explicitly to avoid the removable singularity. For the propagation matrix
+$M$ of Eq.~\eqref{eq:Mmatrix} this gives the transfer matrix $T=e^{ML}$ exactly,
+with no series truncation.
+
+% =====================================================================
+\section{File / function map}
+% =====================================================================
+
+\begin{center}\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lll}
+\toprule
+physics & function & file \\
+\midrule
+Rabi from power & \code{rabi\_freq} & \code{constants.py} \\
+density $N(T)$ & \code{rb85\_density}, \code{number\_density} & \code{atoms.py}, \code{species.py} \\
+CG line strengths & \code{CF2}, \code{line\_strength}, \code{cf2} & \code{hyperfine.py}, \code{species.py} \\
+level model + Lindblad & \code{AtomModel}, \code{\_double\_lambda\_rb85} & \code{atoms.py} \\
+commutator super-op & \code{comm\_super} & \code{core.py} \\
+Liouvillian & \code{build\_liouvillian} & \code{core.py} \\
+Hamiltonians & \code{static\_hamiltonian\_at\_Deff\_zero}, \code{sideband\_hamiltonian} & \code{schemes/fwm.py} \\
+Floquet steady state & \code{floquet\_solve} & \code{core.py} \\
+$\rhobar$ matrix table & \code{chi\_matrix\_table} & \code{schemes/fwm.py} \\
+velocity grid / $\Delta_\eff$ & \code{velocity\_grid}, \code{build\_Delta\_eff\_axis} & \code{doppler.py} \\
+Doppler average & \code{doppler\_average} & \code{doppler.py} \\
+Maxwell--Bloch gain / segmented propagation & \code{gain\_from\_chi} & \code{observables.py} \\
+$2\times2$ matrix exp & \code{matrix\_exp\_2x2} & \code{core.py} \\
+pump-depletion cap & \code{pump\_depletion\_saturation} & \code{observables.py} \\
+squeezing & \code{intensity\_difference\_squeezing\_dB} & \code{observables.py} \\
+twin-beam statistics & \code{coincidence\_stats} & \code{observables.py} \\
+full seeded pipeline & \code{compute\_spectrum} & \code{schemes/fwm.py} \\
+biphoton source & \code{GenericFWMSolver.compute\_biphoton} & \code{schemes/fwm.py} \\
+seeded $\Delta k_z$ & \code{seeded\_phase\_mismatch\_z} & \code{schemes/fwm.py} \\
+phase matching & \code{phase\_mismatch}, \code{phase\_mismatch\_grid}, \code{phase\_matching\_weight} & \code{schemes/fwm.py} \\
+biphoton readout & \code{biphoton\_stats} & \code{observables.py} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vfill
+\begin{center}\small
+Reference: G.\ Sim, H.\ Kim, H.\ S.\ Moon, \emph{Sci.\ Rep.}\ \textbf{15}, 7727 (2025);
+Rb data from D.\ A.\ Steck, ``Rubidium 85 D Line Data.''
+\end{center}
+
+\end{document}

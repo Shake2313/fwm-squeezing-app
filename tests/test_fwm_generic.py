@@ -152,6 +152,43 @@ def test_squeezing_hides_twin_beam_coincidence_figure():
                for table in view.get("tables", []))
 
 
+def test_seeded_phase_detail_modes_are_gated_by_resolution():
+    center = fwm.branch_center_GHz(0.9, -1)
+    common = dict(
+        T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05,
+        coarse_points=11, fine_points=0, scan_min=center - 0.02,
+        scan_max=center + 0.02, velocity_step=20.0, velocity_cutoff=1.0,
+        branch=-1,
+    )
+    legacy = fwm.compute_spectrum(0.9, **common)
+    balanced = fwm.compute_spectrum(
+        0.9, phase_detail=fwm.PHASE_BALANCED,
+        pump_probe_angle_deg=fwm.SEEDED_PHASE_ANGLE_DEG, **common)
+    fine = fwm.compute_spectrum(
+        0.9, phase_detail=fwm.PHASE_FINE,
+        pump_probe_angle_deg=fwm.SEEDED_PHASE_ANGLE_DEG, **common)
+
+    assert legacy["delta_k_z"] is None
+    assert balanced["delta_k_z"] is not None
+    assert balanced["phase_segments"] == 1
+    assert fine["delta_k_z"] is not None
+    assert fine["phase_segments"] > 1
+
+
+def test_biphoton_fine_phase_adds_absolute_and_2d_map():
+    scheme = fwm.FWMScheme()
+    params = _params(
+        topology=fwm.TOPOLOGY_RB87_TELECOM,
+        phase_detail="Fine",
+        biphoton_velocity_step=20.0,
+    )
+    raw = scheme.compute(params)
+    assert np.isfinite(raw["delta_k_absolute"])
+    assert np.isfinite(raw["phase_match_weight_absolute"])
+    assert raw["phase_matching_2d"] is not None
+    assert raw["phase_matching_2d"].ndim == 2
+
+
 def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
     scheme = fwm.FWMScheme()
     defaults = scheme.recommended_defaults(scheme.defaults())
@@ -200,6 +237,8 @@ if __name__ == "__main__":
     test_cs_btw_channels_have_different_widths()
     test_biphoton_ui_render_modes()
     test_squeezing_hides_twin_beam_coincidence_figure()
+    test_seeded_phase_detail_modes_are_gated_by_resolution()
+    test_biphoton_fine_phase_adds_absolute_and_2d_map()
     test_fwm_default_buttons_are_squeezing_and_contextual_biphoton()
     test_cs_btw_short_window_render_no_shape_error()
     print("Generic SFWM / biphoton checks OK.")

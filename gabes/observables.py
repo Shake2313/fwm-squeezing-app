@@ -13,9 +13,35 @@ from . import constants
 from .core import matrix_exp_2x2
 
 
+def _gain_matrix_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+                          k_probe, k_conj, N_atoms, dipole, line_strength,
+                          delta_k_z=None):
+    """Build the 2x2 Maxwell-Bloch propagation matrix stack."""
+    chi_ss_avg = np.asarray(chi_ss_avg, dtype=complex)
+    chi_sc_avg = np.asarray(chi_sc_avg, dtype=complex)
+    chi_cs_avg = np.asarray(chi_cs_avg, dtype=complex)
+    chi_cc_avg = np.asarray(chi_cc_avg, dtype=complex)
+    k_probe = np.asarray(k_probe, dtype=complex)
+    k_conj = np.asarray(k_conj, dtype=complex)
+
+    coupling = -2.0 * N_atoms * line_strength * dipole**2 / (constants.EPS_0 * constants.HBAR)
+    n = chi_ss_avg.size
+    M = np.zeros((n, 2, 2), dtype=complex)
+    M[:, 0, 0] = 0.5j * k_probe * coupling * chi_ss_avg
+    M[:, 0, 1] = 0.5j * k_probe * coupling * chi_sc_avg
+    M[:, 1, 0] = -0.5j * k_conj * coupling * chi_cs_avg.conj()
+    M[:, 1, 1] = -0.5j * k_conj * coupling * chi_cc_avg.conj()
+    if delta_k_z is not None:
+        dk = np.asarray(delta_k_z, dtype=float)
+        M[:, 0, 0] += 0.5j * dk
+        M[:, 1, 1] -= 0.5j * dk
+    return M
+
+
 def gain_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
                   k_probe, k_conj, L, N_atoms,
-                  dipole=None, line_strength=None):
+                  dipole=None, line_strength=None, delta_k_z=None,
+                  propagation_segments=1, segment_profile=None):
     """
     Linearised Maxwell-Bloch propagation:
 
@@ -30,15 +56,28 @@ def gain_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         dipole = constants.DIPOLE_D1
     if line_strength is None:
         line_strength = constants.LINE_STRENGTH_FACTOR
-    coupling = -2.0 * N_atoms * line_strength * dipole**2 / (constants.EPS_0 * constants.HBAR)
-    n = chi_ss_avg.size
-    M = np.zeros((n, 2, 2), dtype=complex)
-    M[:, 0, 0] = 0.5j * k_probe * coupling * chi_ss_avg
-    M[:, 0, 1] = 0.5j * k_probe * coupling * chi_sc_avg
-    M[:, 1, 0] = -0.5j * k_conj * coupling * chi_cs_avg.conj()
-    M[:, 1, 1] = -0.5j * k_conj * coupling * chi_cc_avg.conj()
+    M = _gain_matrix_from_chi(
+        chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+        k_probe, k_conj, N_atoms, dipole, line_strength, delta_k_z=delta_k_z)
 
-    T = matrix_exp_2x2(M, L)
+    n = M.shape[0]
+    nseg = max(int(propagation_segments or 1), 1)
+    if nseg <= 1 and segment_profile is None:
+        T = matrix_exp_2x2(M, L)
+    else:
+        if segment_profile is None:
+            profile = np.ones(nseg, dtype=float)
+        else:
+            profile = np.asarray(segment_profile, dtype=float)
+            if profile.size != nseg:
+                raise ValueError("segment_profile length must match propagation_segments")
+        dz = L / nseg
+        T = np.broadcast_to(np.eye(2, dtype=complex), (n, 2, 2)).copy()
+        for scale in profile:
+            Mz = M.copy()
+            Mz[:, 0, 1] *= scale
+            Mz[:, 1, 0] *= scale
+            T = matrix_exp_2x2(Mz, dz) @ T
     G_s = np.abs(T[:, 0, 0]) ** 2
     G_c = np.abs(T[:, 1, 0]) ** 2
     return G_s, G_c, T
