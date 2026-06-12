@@ -509,7 +509,8 @@ def _apply_recommended_defaults(scheme_name, scheme_obj, key):
         for sp in scheme_obj.param_schema()
     }
     sets = scheme_obj.recommended_defaults(cur) or {}
-    for k, v in (sets.get(selection) or {}).items():
+    defaults = sets.get(selection) or sets.get(cur.get("mode")) or {}
+    for k, v in defaults.items():
         st.session_state[_skey(scheme_name, k)] = v
 
 

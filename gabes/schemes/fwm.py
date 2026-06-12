@@ -83,6 +83,9 @@ TOPOLOGY_CS_BTW = "cascade_cs_btw"
 TOPOLOGY_DIAMOND = "diamond_generic"
 CS_CHANNEL_917 = "6D5/2: 852-917 nm"
 CS_CHANNEL_795 = "8S1/2: 852-795 nm"
+SIDE_PLUS = "+"
+SIDE_MINUS = "-"
+SIDE_CHOICES = (SIDE_PLUS, SIDE_MINUS)
 
 
 @dataclass(frozen=True)
@@ -105,6 +108,7 @@ class FieldSpec:
     phase_sign: float = 1.0
     direction: float = 1.0
     angle_deg: float = 0.0
+    side_sign: float = 0.0
 
     @property
     def k(self):
@@ -153,8 +157,27 @@ def _wavevector_nm(wavelength_nm):
     return 2 * np.pi / (float(wavelength_nm) * NM)
 
 
+def _side_sign(value):
+    if isinstance(value, str):
+        return 1.0 if value.strip() == SIDE_PLUS else -1.0
+    return 1.0 if float(value) >= 0.0 else -1.0
+
+
+def _side_label(value):
+    return SIDE_PLUS if float(value) >= 0.0 else SIDE_MINUS
+
+
+def transverse_matched_angle_deg(source_wavelength_nm, target_wavelength_nm,
+                                 source_angle_deg):
+    """Collection angle that cancels transverse k for two generated photons."""
+    source_k = _wavevector_nm(source_wavelength_nm)
+    target_k = _wavevector_nm(target_wavelength_nm)
+    x = source_k / target_k * math.sin(math.radians(float(source_angle_deg)))
+    return math.degrees(math.asin(float(np.clip(x, -1.0, 1.0))))
+
+
 def _field_with(field, *, wavelength_nm=None, detuning_mhz=None, rabi_mhz=None,
-                angle_deg=None):
+                angle_deg=None, side_sign=None):
     return FieldSpec(
         role=field.role,
         lower=field.lower,
@@ -165,6 +188,7 @@ def _field_with(field, *, wavelength_nm=None, detuning_mhz=None, rabi_mhz=None,
         phase_sign=field.phase_sign,
         direction=field.direction,
         angle_deg=field.angle_deg if angle_deg is None else angle_deg,
+        side_sign=field.side_sign if side_sign is None else side_sign,
     )
 
 
@@ -180,6 +204,38 @@ def phase_mismatch(fields, *, signal_angle_deg=None, idler_angle_deg=None,
             angle = idler_angle_deg
         total += field.phase_sign * field.k * math.cos(math.radians(angle))
     return total - (reference_delta_k or 0.0)
+
+
+def phase_mismatch_vector(fields, *, signal_angle_deg=None, idler_angle_deg=None,
+                          signal_side_sign=None, idler_side_sign=None,
+                          reference_delta_k=0.0):
+    """Biphoton vector mismatch: calibrated longitudinal, absolute transverse."""
+    delta_k_z_absolute = 0.0
+    delta_k_x = 0.0
+    for field in fields:
+        angle = field.angle_deg
+        side = field.side_sign
+        if field.role == "signal":
+            if signal_angle_deg is not None:
+                angle = signal_angle_deg
+            if signal_side_sign is not None:
+                side = signal_side_sign
+        elif field.role == "idler":
+            if idler_angle_deg is not None:
+                angle = idler_angle_deg
+            if idler_side_sign is not None:
+                side = idler_side_sign
+        angle_rad = math.radians(float(angle))
+        delta_k_z_absolute += field.phase_sign * field.k * math.cos(angle_rad)
+        delta_k_x += field.phase_sign * field.k * math.sin(angle_rad) * side
+    delta_k_z_relative = delta_k_z_absolute - (reference_delta_k or 0.0)
+    delta_k_vector = math.hypot(delta_k_z_relative, delta_k_x)
+    return {
+        "delta_k_z_relative": delta_k_z_relative,
+        "delta_k_z_absolute": delta_k_z_absolute,
+        "delta_k_x": delta_k_x,
+        "delta_k_vector": delta_k_vector,
+    }
 
 
 def phase_matching_weight(delta_k, L):
@@ -206,6 +262,34 @@ def phase_mismatch_grid(fields, signal_axis_deg, idler_axis_deg,
         else:
             total += field.phase_sign * field.k * math.cos(math.radians(field.angle_deg))
     return total - (reference_delta_k or 0.0)
+
+
+def phase_mismatch_vector_grid(fields, signal_axis_deg, idler_axis_deg,
+                               reference_delta_k=0.0):
+    """Vectorized signal/idler mismatch magnitude grid for biphoton collection."""
+    signal_axis_deg = np.asarray(signal_axis_deg, dtype=float)
+    idler_axis_deg = np.asarray(idler_axis_deg, dtype=float)
+    sig, ide = np.meshgrid(signal_axis_deg, idler_axis_deg, indexing="ij")
+    delta_k_z_absolute = np.zeros_like(sig, dtype=float)
+    delta_k_x = np.zeros_like(sig, dtype=float)
+    for field in fields:
+        if field.role == "signal":
+            angle_rad = np.deg2rad(sig)
+            delta_k_z_absolute += field.phase_sign * field.k * np.cos(angle_rad)
+            delta_k_x += (field.phase_sign * field.k * np.sin(angle_rad)
+                          * field.side_sign)
+        elif field.role == "idler":
+            angle_rad = np.deg2rad(ide)
+            delta_k_z_absolute += field.phase_sign * field.k * np.cos(angle_rad)
+            delta_k_x += (field.phase_sign * field.k * np.sin(angle_rad)
+                          * field.side_sign)
+        else:
+            angle_rad = math.radians(field.angle_deg)
+            delta_k_z_absolute += field.phase_sign * field.k * math.cos(angle_rad)
+            delta_k_x += (field.phase_sign * field.k * math.sin(angle_rad)
+                          * field.side_sign)
+    delta_k_z_relative = delta_k_z_absolute - (reference_delta_k or 0.0)
+    return np.hypot(delta_k_z_relative, delta_k_x)
 
 
 def energy_mismatch_hz(fields):
@@ -254,8 +338,11 @@ def _rb87_telecom_spec():
     fields = (
         FieldSpec("pump", 0, 1, 780.24, phase_sign=+1.0),
         FieldSpec("coupling", 1, 2, 1529.37, phase_sign=-1.0, direction=-1.0),
-        FieldSpec("signal", 2, 3, 1529.37, phase_sign=-1.0, angle_deg=1.5),
-        FieldSpec("idler", 3, 0, 780.24, phase_sign=+1.0, angle_deg=1.5),
+        FieldSpec("signal", 2, 3, 1529.37, phase_sign=-1.0, angle_deg=1.5,
+                  side_sign=+1.0),
+        FieldSpec("idler", 3, 0, 780.24, phase_sign=+1.0,
+                  angle_deg=transverse_matched_angle_deg(1529.37, 780.24, 1.5),
+                  side_sign=+1.0),
     )
     return _with_reference_delta_k(TopologySpec(
         name=TOPOLOGY_RB87_TELECOM,
@@ -305,8 +392,11 @@ def _cs_btw_spec(channel):
     fields = (
         FieldSpec("pump", 0, 1, pump_nm, phase_sign=+1.0),
         FieldSpec("coupling", 1, 2, coupling_nm, phase_sign=-1.0, direction=-1.0),
-        FieldSpec("signal", 2, 3, coupling_nm, phase_sign=-1.0, angle_deg=1.5),
-        FieldSpec("idler", 3, 0, pump_nm, phase_sign=+1.0, angle_deg=1.5),
+        FieldSpec("signal", 2, 3, coupling_nm, phase_sign=-1.0, angle_deg=1.5,
+                  side_sign=+1.0),
+        FieldSpec("idler", 3, 0, pump_nm, phase_sign=+1.0,
+                  angle_deg=transverse_matched_angle_deg(coupling_nm, pump_nm, 1.5),
+                  side_sign=+1.0),
     )
     return _with_reference_delta_k(TopologySpec(
         name=TOPOLOGY_CS_BTW,
@@ -349,8 +439,11 @@ def _diamond_generic_spec(params=None):
     fields = (
         FieldSpec("pump", 0, 1, pump_nm, phase_sign=+1.0),
         FieldSpec("coupling", 0, 2, coupling_nm, phase_sign=+1.0),
-        FieldSpec("signal", 3, 1, signal_nm, phase_sign=-1.0, angle_deg=2.0),
-        FieldSpec("idler", 3, 2, idler_nm, phase_sign=-1.0, angle_deg=2.0),
+        FieldSpec("signal", 3, 1, signal_nm, phase_sign=-1.0, angle_deg=2.0,
+                  side_sign=+1.0),
+        FieldSpec("idler", 3, 2, idler_nm, phase_sign=-1.0,
+                  angle_deg=transverse_matched_angle_deg(signal_nm, idler_nm, 2.0),
+                  side_sign=-1.0),
     )
     return _with_reference_delta_k(TopologySpec(
         name=TOPOLOGY_DIAMOND,
@@ -386,8 +479,20 @@ def topology_from_params(params):
     return _rb87_telecom_spec()
 
 
+def _default_biphoton_geometry(params):
+    spec = topology_from_params(params)
+    signal = spec.field_map["signal"]
+    idler = spec.field_map["idler"]
+    return dict(
+        signal_angle_deg=signal.angle_deg,
+        idler_angle_deg=idler.angle_deg,
+        signal_side=_side_label(signal.side_sign),
+        idler_side=_side_label(idler.side_sign),
+    )
+
+
 class GenericFWMSolver:
-    """Reference-calibrated V1 engine for generic SFWM biphoton estimates."""
+    """Reference-calibrated v3 engine for generic SFWM biphoton estimates."""
 
     def __init__(self, topology):
         self.topology = topology
@@ -412,6 +517,9 @@ class GenericFWMSolver:
                 detuning_mhz=detuning,
                 rabi_mhz=rabi,
                 angle_deg=params.get(f"{field.role}_angle_deg", field.angle_deg),
+                side_sign=_side_sign(params[f"{field.role}_side"])
+                if field.role in ("signal", "idler")
+                and f"{field.role}_side" in params else field.side_sign,
             ))
         return tuple(out)
 
@@ -436,7 +544,7 @@ class GenericFWMSolver:
             idler_angle_deg=idler.angle_deg,
             reference_delta_k=self.topology.reference_delta_k,
         )
-        pm_weight = float(phase_matching_weight(np.array([delta_k]), L)[0])
+        pm_weight_longitudinal = float(phase_matching_weight(np.array([delta_k]), L)[0])
         delta_k_absolute = phase_mismatch(
             fields,
             signal_angle_deg=signal.angle_deg,
@@ -445,6 +553,14 @@ class GenericFWMSolver:
         )
         pm_weight_absolute = float(phase_matching_weight(
             np.array([delta_k_absolute]), L)[0])
+        vector_pm = phase_mismatch_vector(
+            fields,
+            signal_angle_deg=signal.angle_deg,
+            idler_angle_deg=idler.angle_deg,
+            reference_delta_k=self.topology.reference_delta_k,
+        )
+        pm_weight = float(phase_matching_weight(
+            np.array([vector_pm["delta_k_vector"]]), L)[0])
         density = species.number_density(iso, T)
         default_density = species.number_density(iso, self.topology.default_temp_c + 273.15)
         if self.topology.reference_od is not None:
@@ -485,8 +601,10 @@ class GenericFWMSolver:
         angle_axis = np.linspace(max(idler.angle_deg - 4.0, 0.0),
                                  idler.angle_deg + 4.0, 181)
         angle_dk = np.array([
-            phase_mismatch(fields, idler_angle_deg=a,
-                           reference_delta_k=self.topology.reference_delta_k)
+            phase_mismatch_vector(
+                fields, idler_angle_deg=a,
+                reference_delta_k=self.topology.reference_delta_k
+            )["delta_k_vector"]
             for a in angle_axis
         ])
         acceptance = phase_matching_weight(angle_dk, L)
@@ -497,7 +615,7 @@ class GenericFWMSolver:
                                       signal.angle_deg + 3.0, 121)
             idler_axis_2d = np.linspace(max(idler.angle_deg - 3.0, 0.0),
                                         idler.angle_deg + 3.0, 121)
-            dk_2d = phase_mismatch_grid(
+            dk_2d = phase_mismatch_vector_grid(
                 fields, signal_axis, idler_axis_2d,
                 reference_delta_k=self.topology.reference_delta_k)
             phase_matching_2d = phase_matching_weight(dk_2d, L)
@@ -518,7 +636,13 @@ class GenericFWMSolver:
             "phase_matching_2d": phase_matching_2d,
             "delta_k": float(delta_k),
             "delta_k_absolute": float(delta_k_absolute),
+            "delta_k_z_relative": float(vector_pm["delta_k_z_relative"]),
+            "delta_k_z_absolute": float(vector_pm["delta_k_z_absolute"]),
+            "delta_k_x": float(vector_pm["delta_k_x"]),
+            "delta_k_vector": float(vector_pm["delta_k_vector"]),
             "phase_match_weight": pm_weight,
+            "phase_match_weight_vector": pm_weight,
+            "phase_match_weight_longitudinal": pm_weight_longitudinal,
             "phase_match_weight_absolute": pm_weight_absolute,
             "phase_detail": "Fine" if fine_phase else "Balanced",
             "energy_mismatch_hz": float(energy_mismatch_hz(fields)),
@@ -906,10 +1030,11 @@ class FWMScheme(Scheme):
                            "to that mode's recommended default values."),
             ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
                       choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
-                      visible_if=biphoton,
+                      visible_if=biphoton, applies_defaults=True,
                       help="Level topology for the spontaneous biphoton source model."),
             ParamSpec("cs_channel", "Cs BTW channel", "Model", CS_CHANNEL_917,
                       choices=(CS_CHANNEL_917, CS_CHANNEL_795), visible_if=cs_btw,
+                      applies_defaults=True,
                       help="Selects the Cs cascade channel used for BTW comparison."),
             ParamSpec("opd", "OPD — one-photon detuning Δ", "Detunings", 0.9,
                       -1.0, 3.0, 0.1, "GHz",
@@ -947,8 +1072,17 @@ class FWMScheme(Scheme):
                       -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
             ParamSpec("signal_angle_deg", "Signal angle", "Phase matching", 1.5,
                       0.0, 10.0, 0.1, "deg", visible_if=biphoton),
-            ParamSpec("idler_angle_deg", "Idler angle", "Phase matching", 1.5,
+            ParamSpec("idler_angle_deg", "Idler angle", "Phase matching",
+                      transverse_matched_angle_deg(1529.37, 780.24, 1.5),
                       0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+            ParamSpec("signal_side", "Signal side", "Phase matching", SIDE_PLUS,
+                      choices=SIDE_CHOICES, visible_if=biphoton,
+                      advanced=True,
+                      help="Transverse collection side used in vector phase matching."),
+            ParamSpec("idler_side", "Idler side", "Phase matching", SIDE_PLUS,
+                      choices=SIDE_CHOICES, visible_if=biphoton,
+                      advanced=True,
+                      help="Opposite side flips the idler transverse wavevector."),
             ParamSpec("diamond_pump_nm", "Diamond pump wavelength", "Fields", 780.0,
                       300.0, 2000.0, 1.0, "nm", visible_if=diamond),
             ParamSpec("diamond_coupling_nm", "Diamond coupling wavelength", "Fields", 776.0,
@@ -1013,7 +1147,9 @@ class FWMScheme(Scheme):
             pump_detuning_mhz=0.0,
             coupling_detuning_mhz=0.0,
             signal_angle_deg=1.5,
-            idler_angle_deg=1.5,
+            idler_angle_deg=transverse_matched_angle_deg(1529.37, 780.24, 1.5),
+            signal_side=SIDE_PLUS,
+            idler_side=SIDE_PLUS,
             signal_eff_pct=10.0,
             idler_eff_pct=10.0,
             dark_signal_cps=2000.0,
@@ -1031,13 +1167,13 @@ class FWMScheme(Scheme):
                         coupling_mw=1.0)
         elif topology == TOPOLOGY_DIAMOND:
             base.update(biphoton_temp_c=60.0, pump_biphoton_uw=20.0,
-                        coupling_mw=1.0, signal_angle_deg=2.0,
-                        idler_angle_deg=2.0, diamond_pump_nm=780.0,
+                        coupling_mw=1.0, diamond_pump_nm=780.0,
                         diamond_coupling_nm=776.0, diamond_signal_nm=795.0,
                         diamond_idler_nm=761.702)
         else:
             base.update(topology=TOPOLOGY_RB87_TELECOM, biphoton_temp_c=90.0,
                         pump_biphoton_uw=10.0, coupling_mw=1.0)
+        base.update(_default_biphoton_geometry(base))
         return base
 
     def info(self):
@@ -1058,9 +1194,9 @@ class FWMScheme(Scheme):
             "(https://arxiv.org/abs/2402.06872); Hansol Jeong, Heewoo Kim and "
             "Han Seb Moon, [*Advanced Quantum Technologies* 7, 2300108 (2024)]"
             "(https://www.citedrive.com/en/discovery/highperformance-telecomwavelength-biphoton-source-from-a-hot-atomic-vapor-cell/).\n\n"
-            "| Biphoton reference quantity | V1 treatment |\n|---|---|\n"
+            "| Biphoton reference quantity | V3 treatment |\n|---|---|\n"
             "| Velocity-class coherent BTW | coherent sum over Maxwell velocity classes |\n"
-            "| Phase matching | relative and absolute longitudinal Delta-k diagnostics; Fine adds a 2D signal-idler map |\n"
+            "| Phase matching | strict vector phase matching: calibrated longitudinal Delta-k plus absolute transverse Delta-k; Fine adds a 2D signal-idler map |\n"
             "| 87Rb telecom source | calibrated to order 38,000 cps/mW and g2 peak ~44 |\n"
             "| Cs BTW channels | separate 852-917 nm and 852-795 nm temporal-width presets |\n\n"
             "Biphoton mode is a calibrated source estimate, not a full "
@@ -1200,7 +1336,7 @@ class FWMScheme(Scheme):
         axPM.plot(raw["angle_axis_deg"], raw["phase_matching"], color="#2ca02c", lw=1.8)
         axPM.axvline(params["idler_angle_deg"], color="crimson", lw=1.1, ls="--")
         axPM.set_xlabel("Idler collection angle [deg]")
-        axPM.set_ylabel(r"$\mathrm{sinc}^2(\Delta k L / 2)$")
+        axPM.set_ylabel(r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
         axPM.grid(alpha=0.3)
         fig.tight_layout()
 
@@ -1235,7 +1371,8 @@ class FWMScheme(Scheme):
             ax2.set_xlabel("Signal angle [deg]")
             ax2.set_ylabel("Idler angle [deg]")
             ax2.set_title("2D phase-matching acceptance")
-            figPM2.colorbar(im, ax=ax2, label=r"$\mathrm{sinc}^2(\Delta k L / 2)$")
+            figPM2.colorbar(im, ax=ax2,
+                            label=r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
             figPM2.tight_layout()
             extra_figures.append(("2D phase matching", figPM2))
 
@@ -1249,14 +1386,19 @@ class FWMScheme(Scheme):
             dict(label="BTW FWHM", value=f"{stats['fwhm_ns']:.2f} ns",
                  help="FWHM of the modeled biphoton temporal waveform."),
             dict(label="Phase match", value=f"{raw['phase_match_weight']:.3f}",
-                 help="sinc^2 phase-matching collection weight."),
+                 help="Vector sinc^2 phase-matching collection weight."),
         ]
 
         field_rows = "".join(
             f"| {f.role} | {raw['topology'].levels[f.lower].name} -> "
             f"{raw['topology'].levels[f.upper].name} | {f.wavelength_nm:.2f} nm | "
-            f"{f.angle_deg:.2f} deg |\n"
+            f"{f.angle_deg:.2f} deg | {_side_label(f.side_sign) if f.side_sign else '0'} |\n"
             for f in raw["fields"]
+        )
+        pm_warning = (
+            "| Warning | Vector phase match < 1e-3; collection geometry is not "
+            "physically phase matched. |\n"
+            if raw["phase_match_weight"] < 1e-3 else ""
         )
         topology_table = (
             f"| Quantity | Value |\n|---|---|\n"
@@ -1264,14 +1406,18 @@ class FWMScheme(Scheme):
             f"| Family | {topo.family} |\n"
             f"| Density | {raw['density']:.3e} /m^3 |\n"
             f"| Cell length | {raw['cell_length_m']*1e3:.2f} mm |\n"
-            f"| Delta k (relative) | {raw['delta_k']:.3e} 1/m |\n"
-            f"| Delta k (absolute) | {raw['delta_k_absolute']:.3e} 1/m |\n"
-            f"| Phase match (relative) | {raw['phase_match_weight']:.3f} |\n"
-            f"| Phase match (absolute) | {raw['phase_match_weight_absolute']:.3f} |\n"
+            f"| Delta k z relative | {raw['delta_k_z_relative']:.3e} 1/m |\n"
+            f"| Delta k z absolute | {raw['delta_k_z_absolute']:.3e} 1/m |\n"
+            f"| Delta k x transverse | {raw['delta_k_x']:.3e} 1/m |\n"
+            f"| Delta k vector | {raw['delta_k_vector']:.3e} 1/m |\n"
+            f"| Vector phase match | {raw['phase_match_weight']:.3f} |\n"
+            f"| Longitudinal phase match | {raw['phase_match_weight_longitudinal']:.3f} |\n"
+            f"| Vacuum phase match | {raw['phase_match_weight_absolute']:.3f} |\n"
+            + pm_warning +
             f"| Phase detail | {raw['phase_detail']} |\n"
             f"| Energy mismatch | {raw['energy_mismatch_hz']/1e6:.3f} MHz |\n"
             f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n\n"
-            f"| Field | Transition | Wavelength | Angle |\n|---|---|---:|---:|\n"
+            f"| Field | Transition | Wavelength | Angle | Side |\n|---|---|---:|---:|---:|\n"
             + field_rows
         )
         detection_table = (
@@ -1371,7 +1517,7 @@ class FWMScheme(Scheme):
         rows.append(row(
             "Phase matching", f"{raw['phase_match_weight']:.3f}",
             "> 0.90", raw["phase_match_weight"] > 0.90,
-            "sinc^2(Delta k L / 2)"))
+            "vector sinc^2(|Delta k| L / 2)"))
         rows.append(row(
             "Energy conservation", f"{raw['energy_mismatch_hz']/1e6:.3f} MHz",
             "near 0 MHz", abs(raw["energy_mismatch_hz"]) < 1e6,

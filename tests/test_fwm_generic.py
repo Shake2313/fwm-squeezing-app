@@ -27,6 +27,18 @@ def _params(**updates):
     return params
 
 
+def _recommended_params(**updates):
+    scheme = fwm.FWMScheme()
+    params = _params(**updates)
+    defaults = scheme.recommended_defaults(params)[fwm.MODE_BIPHOTON]
+    defaults.update({
+        "biphoton_velocity_step": params["biphoton_velocity_step"],
+        "tau_max_ns": params["tau_max_ns"],
+    })
+    defaults.update(updates)
+    return defaults
+
+
 def _stats(raw, params, target=True):
     return observables.biphoton_stats(
         raw["tau_axis_ns"], raw["psi_tau"], raw["pair_rate_cps"],
@@ -51,20 +63,60 @@ def test_topology_energy_and_roles():
 
 
 def test_phase_matching_reference_angle_is_maximum():
-    params = _params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
     spec = fwm.topology_from_params(params)
     L = spec.default_cell_mm * 1e-3
-    angles = np.linspace(0.0, 4.0, 81)
+    angles = np.linspace(0.0, 2.5, 101)
     weights = np.array([
         fwm.phase_matching_weight(
-            np.array([fwm.phase_mismatch(
-                spec.fields, idler_angle_deg=a,
-                reference_delta_k=spec.reference_delta_k)]), L)[0]
+            np.array([fwm.phase_mismatch_vector(
+                spec.fields,
+                signal_angle_deg=params["signal_angle_deg"],
+                idler_angle_deg=a,
+                reference_delta_k=spec.reference_delta_k,
+            )["delta_k_vector"]]), L)[0]
         for a in angles
     ])
     best = angles[int(np.argmax(weights))]
-    assert abs(best - 1.5) <= 0.1
-    assert np.isclose(weights.max(), 1.0)
+    assert abs(best - params["idler_angle_deg"]) <= 0.05
+    exact = fwm.phase_matching_weight(
+        np.array([fwm.phase_mismatch_vector(
+            spec.fields,
+            signal_angle_deg=params["signal_angle_deg"],
+            idler_angle_deg=params["idler_angle_deg"],
+            reference_delta_k=spec.reference_delta_k,
+        )["delta_k_vector"]]), L)[0]
+    assert np.isclose(exact, 1.0)
+
+
+def test_rb87_default_vector_phase_match_has_positive_rate():
+    scheme = fwm.FWMScheme()
+    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    raw = scheme.compute(params)
+    assert raw["phase_match_weight"] > 0.99
+    assert raw["pair_rate_cps"] > 0
+    assert params["signal_angle_deg"] == 1.5
+    assert abs(params["idler_angle_deg"] - 0.77) < 0.02
+
+
+def test_rb87_equal_angles_are_transversely_suppressed():
+    scheme = fwm.FWMScheme()
+    matched = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    good = scheme.compute(matched)
+    bad = dict(matched, signal_angle_deg=1.5, idler_angle_deg=1.5,
+               signal_side=fwm.SIDE_PLUS, idler_side=fwm.SIDE_PLUS)
+    raw = scheme.compute(bad)
+    assert raw["phase_match_weight"] < 1e-4
+    assert raw["pair_rate_cps"] < good["pair_rate_cps"] * 1e-4
+
+
+def test_side_flip_suppresses_matched_geometry():
+    scheme = fwm.FWMScheme()
+    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    params["idler_side"] = fwm.SIDE_MINUS
+    raw = scheme.compute(params)
+    assert raw["phase_match_weight"] < 1e-4
+    assert raw["pair_rate_cps"] < 1e-2
 
 
 def test_detector_background_and_window_reduce_car():
@@ -112,7 +164,7 @@ def test_reference_g2_uses_explicit_added_accidentals():
 
 def test_rb87_telecom_preset_smoke():
     scheme = fwm.FWMScheme()
-    params = _params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
     raw = scheme.compute(params)
     stats = _stats(raw, params)
     assert np.isfinite(stats["g2_peak"]) and stats["g2_peak"] > 2
@@ -122,10 +174,14 @@ def test_rb87_telecom_preset_smoke():
 
 def test_cs_btw_channels_have_different_widths():
     scheme = fwm.FWMScheme()
-    p917 = _params(topology=fwm.TOPOLOGY_CS_BTW, cs_channel=fwm.CS_CHANNEL_917)
-    p795 = _params(topology=fwm.TOPOLOGY_CS_BTW, cs_channel=fwm.CS_CHANNEL_795)
+    p917 = _recommended_params(topology=fwm.TOPOLOGY_CS_BTW,
+                                cs_channel=fwm.CS_CHANNEL_917)
+    p795 = _recommended_params(topology=fwm.TOPOLOGY_CS_BTW,
+                                cs_channel=fwm.CS_CHANNEL_795)
     s917 = _stats(scheme.compute(p917), p917)
     s795 = _stats(scheme.compute(p795), p795)
+    assert s917["pair_rate_cps"] > 0
+    assert s795["pair_rate_cps"] > 0
     assert abs(s917["fwhm_ns"] - s795["fwhm_ns"]) > 0.05
 
 
@@ -133,7 +189,7 @@ def test_biphoton_ui_render_modes():
     scheme = fwm.FWMScheme()
     for topo in (fwm.TOPOLOGY_RB87_TELECOM, fwm.TOPOLOGY_CS_BTW,
                  fwm.TOPOLOGY_DIAMOND):
-        params = _params(topology=topo)
+        params = _recommended_params(topology=topo)
         raw = scheme.compute(params)
         view = scheme.observables(raw, params)
         assert view.get("figure") is not None
@@ -177,7 +233,7 @@ def test_seeded_phase_detail_modes_are_gated_by_resolution():
 
 def test_biphoton_fine_phase_adds_absolute_and_2d_map():
     scheme = fwm.FWMScheme()
-    params = _params(
+    params = _recommended_params(
         topology=fwm.TOPOLOGY_RB87_TELECOM,
         phase_detail="Fine",
         biphoton_velocity_step=20.0,
@@ -188,12 +244,23 @@ def test_biphoton_fine_phase_adds_absolute_and_2d_map():
     assert raw["phase_matching_2d"] is not None
     assert raw["phase_matching_2d"].ndim == 2
 
+    idx = np.unravel_index(np.argmax(raw["phase_matching_2d"]),
+                           raw["phase_matching_2d"].shape)
+    best_signal = raw["signal_angle_axis_deg"][idx[0]]
+    best_idler = raw["idler_angle_axis_2d_deg"][idx[1]]
+    assert abs(best_signal - params["signal_angle_deg"]) <= 0.06
+    assert abs(best_idler - params["idler_angle_deg"]) <= 0.06
+
 
 def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
     scheme = fwm.FWMScheme()
     defaults = scheme.recommended_defaults(scheme.defaults())
     assert set(defaults) == {fwm.MODE_SEEDED, fwm.MODE_BIPHOTON}
     assert defaults[fwm.MODE_SEEDED]["mode"] == fwm.MODE_SEEDED
+    schema = {spec.name: spec for spec in scheme.param_schema()}
+    assert schema["mode"].applies_defaults
+    assert schema["topology"].applies_defaults
+    assert schema["cs_channel"].applies_defaults
 
     cs_defaults = scheme.recommended_defaults(_params(
         topology=fwm.TOPOLOGY_CS_BTW,
@@ -203,17 +270,27 @@ def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
     assert cs_defaults["topology"] == fwm.TOPOLOGY_CS_BTW
     assert cs_defaults["cs_channel"] == fwm.CS_CHANNEL_795
     assert cs_defaults["biphoton_temp_c"] == 75.0
+    cs917_defaults = scheme.recommended_defaults(_params(
+        topology=fwm.TOPOLOGY_CS_BTW,
+        cs_channel=fwm.CS_CHANNEL_917,
+    ))[fwm.MODE_BIPHOTON]
+    assert abs(cs917_defaults["idler_angle_deg"] - 1.39) < 0.03
+    assert abs(cs_defaults["idler_angle_deg"] - 1.61) < 0.03
+    assert cs_defaults["signal_side"] == fwm.SIDE_PLUS
+    assert cs_defaults["idler_side"] == fwm.SIDE_PLUS
 
     diamond_defaults = scheme.recommended_defaults(_params(
         topology=fwm.TOPOLOGY_DIAMOND,
     ))[fwm.MODE_BIPHOTON]
     assert diamond_defaults["topology"] == fwm.TOPOLOGY_DIAMOND
     assert diamond_defaults["diamond_idler_nm"] == 761.702
+    assert abs(diamond_defaults["idler_angle_deg"] - 1.92) < 0.03
+    assert diamond_defaults["idler_side"] == fwm.SIDE_MINUS
 
 
 def test_cs_btw_short_window_render_no_shape_error():
     scheme = fwm.FWMScheme()
-    params = _params(
+    params = _recommended_params(
         topology=fwm.TOPOLOGY_CS_BTW,
         cs_channel=fwm.CS_CHANNEL_917,
         tau_max_ns=1.0,
@@ -229,6 +306,9 @@ def test_cs_btw_short_window_render_no_shape_error():
 if __name__ == "__main__":
     test_topology_energy_and_roles()
     test_phase_matching_reference_angle_is_maximum()
+    test_rb87_default_vector_phase_match_has_positive_rate()
+    test_rb87_equal_angles_are_transversely_suppressed()
+    test_side_flip_suppresses_matched_geometry()
     test_detector_background_and_window_reduce_car()
     test_timing_jitter_broadens_waveform()
     test_long_jitter_kernel_preserves_axis_length()
