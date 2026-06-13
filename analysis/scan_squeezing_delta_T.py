@@ -25,7 +25,6 @@ efficiency η = QE·(1-loss) does, because it sets the hard squeezing floor
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 os.environ.setdefault("OMP_NUM_THREADS", str(os.cpu_count() or 1))
@@ -35,7 +34,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import kernels  # noqa: E402
+from gabes import atoms, constants, doppler, kernels, observables  # noqa: E402
 from gabes.schemes import fwm  # noqa: E402
 from gabes.core import blas_single_thread  # noqa: E402
 
@@ -61,6 +60,16 @@ COARSE_POINTS = 81
 VELOCITY_STEP = 5.0
 
 
+def _delta_axis(coarse=COARSE_POINTS):
+    """Common two-photon detuning axis for the focused branch window [rad/s]."""
+    return 2.0 * np.pi * np.linspace(-WINDOW_GHZ, WINDOW_GHZ, coarse) * 1e9
+
+
+def _probe_axis_for_delta(D_GHz, delta_axis):
+    center = fwm.branch_center_GHz(D_GHz, BRANCH)
+    return center + delta_axis / (2.0 * np.pi) / 1e9
+
+
 def best_squeezing(D_GHz, T_K, coarse=COARSE_POINTS, vstep=VELOCITY_STEP):
     """Min S_dB over the δ scan on the (-) branch, plus the gains there."""
     center = fwm.branch_center_GHz(D_GHz, BRANCH)
@@ -84,10 +93,59 @@ def best_squeezing(D_GHz, T_K, coarse=COARSE_POINTS, vstep=VELOCITY_STEP):
     )
 
 
+def _master_jobs(delta_ghz=DELTA_GHZ, temp_c=TEMP_C, vstep=VELOCITY_STEP):
+    jobs = []
+    delta_eff_chunks = []
+    for iD, D in enumerate(delta_ghz):
+        D = float(D)
+        Delta = 2.0 * np.pi * D * 1e9
+        for iT, T_C in enumerate(temp_c):
+            T_K = float(T_C) + 273.15
+            v_grid, weights = doppler.velocity_grid(
+                T_K, dv=vstep, cutoff_sigma=3.0)
+            delta_eff = Delta - constants.K_VEC * v_grid
+            delta_eff_chunks.append(delta_eff)
+            jobs.append((iD, iT, D, T_K, delta_eff, weights))
+    master_delta_eff = np.unique(np.concatenate(delta_eff_chunks))
+    for i, job in enumerate(jobs):
+        idx = np.searchsorted(master_delta_eff, job[4])
+        if not np.array_equal(master_delta_eff[idx], job[4]):
+            raise RuntimeError("master Delta_eff axis lost an exact velocity sample")
+        jobs[i] = (*job, idx)
+    return master_delta_eff, jobs
+
+
+def _best_from_cached_tables(tables, delta_axis, job):
+    iD, iT, D_GHz, T_K, _delta_eff, weights, idx = job
+    chi_ss_avg = tables[0][:, idx] @ weights
+    chi_cs_avg = tables[1][:, idx] @ weights
+    chi_sc_avg = tables[2][:, idx] @ weights
+    chi_cc_avg = tables[3][:, idx] @ weights
+
+    N_atoms = atoms.rb85_density(T_K)
+    G_s, G_c, _ = observables.gain_from_chi(
+        chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+        fwm.K_VEC, fwm.K_VEC, fwm.L_CELL, N_atoms,
+        line_strength=LINE_STRENGTH)
+    G_s_smallsignal = G_s
+    G_s, G_c = observables.pump_depletion_saturation(
+        G_s, G_c, P_PUMP, P_SEED)
+    S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, ETA)
+
+    i = int(np.nanargmin(S_dB))
+    center = fwm.branch_center_GHz(D_GHz, BRANCH)
+    probe_axis_GHz = _probe_axis_for_delta(D_GHz, delta_axis)
+    return iD, iT, dict(
+        S_dB=float(S_dB[i]),
+        delta_mhz=float((probe_axis_GHz[i] - center) * 1e3),
+        G_s=float(G_s[i]),
+        G_c=float(G_c[i]),
+        G_s_smallsignal_peak=float(np.nanmax(G_s_smallsignal)),
+        pump_depletion_cap=1.0 + 0.5 * P_PUMP / max(P_SEED, 1e-30),
+    )
+
+
 def run_grid():
-    jobs = [(iD, iT, float(D), float(T) + 273.15)
-            for iD, D in enumerate(DELTA_GHZ)
-            for iT, T in enumerate(TEMP_C)]
     nD, nT = DELTA_GHZ.size, TEMP_C.size
     Xi = np.full((nD, nT), np.nan)
     Gs = np.full((nD, nT), np.nan)
@@ -95,25 +153,33 @@ def run_grid():
     Dlt = np.full((nD, nT), np.nan)
 
     t0 = time.time()
-    # The numba kernel is internally parallel (saturates all cores per point),
-    # so thread the grid only on the NumPy fallback path.
-    workers = 1 if kernels.available() else min(os.cpu_count() or 1, 8)
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        futs = {ex.submit(best_squeezing, D, T): (iD, iT)
-                for (iD, iT, D, T) in jobs}
-        done = 0
-        from concurrent.futures import as_completed
-        for fut in as_completed(futs):
-            iD, iT = futs[fut]
-            r = fut.result()
-            Xi[iD, iT] = r["S_dB"]
-            Gs[iD, iT] = r["G_s"]
-            Gc[iD, iT] = r["G_c"]
-            Dlt[iD, iT] = r["delta_mhz"]
-            done += 1
-            if done % 50 == 0 or done == len(jobs):
-                print(f"  {done}/{len(jobs)} points "
-                      f"({time.time()-t0:.0f}s)", flush=True)
+    delta_axis = _delta_axis(COARSE_POINTS)
+    master_delta_eff, jobs = _master_jobs()
+
+    Op = fwm.rabi_freq(P_PUMP, fwm.W_PUMP)
+    Os = fwm.rabi_freq(P_SEED, fwm.W_PROBE)
+    table_mb = (4 * delta_axis.size * master_delta_eff.size
+                * np.dtype(np.complex128).itemsize / 1024**2)
+    print("building shared chi table: "
+          f"{delta_axis.size} delta x {master_delta_eff.size} Delta_eff "
+          f"({table_mb:.1f} MiB, numba={kernels.available()})",
+          flush=True)
+    with blas_single_thread():
+        tables = fwm.chi_matrix_table(
+            Op, Op, Os, Os, delta_axis, master_delta_eff, BRANCH)
+    print(f"  chi table built in {time.time()-t0:.1f}s", flush=True)
+
+    t_avg = time.time()
+    for done, job in enumerate(jobs, start=1):
+        iD, iT, r = _best_from_cached_tables(tables, delta_axis, job)
+        Xi[iD, iT] = r["S_dB"]
+        Gs[iD, iT] = r["G_s"]
+        Gc[iD, iT] = r["G_c"]
+        Dlt[iD, iT] = r["delta_mhz"]
+        if done % 50 == 0 or done == len(jobs):
+            print(f"  {done}/{len(jobs)} Doppler averages "
+                  f"({time.time()-t_avg:.1f}s avg, {time.time()-t0:.1f}s total)",
+                  flush=True)
     return Xi, Gs, Gc, Dlt
 
 
