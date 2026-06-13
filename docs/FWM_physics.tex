@@ -48,7 +48,7 @@
 
 \title{\textbf{Four-Wave Mixing in Hot \boldmath$^{85}$Rb:\\
 A Physics-First Walkthrough of the GABES Engine}\\[0.3em]
-\large Phase-Matching v2}
+\large Current FWM Physics Model}
 \author{Personal study notes}
 \date{\today}
 
@@ -61,15 +61,18 @@ four-wave-mixing (FWM) code evaluates --- from the open-system master equation o
 the $^{85}$Rb $D_1$ double-$\Lambda$ system, through the Doppler average and the
 truncated-Floquet sideband steady state, to the Maxwell--Bloch propagation that
 turns the atomic susceptibility into seed/conjugate gain, intensity-difference
-squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform. Version
-2 adds explicit phase-matching diagnostics: seeded squeezing now includes the
-reference $0.3^\circ$ pump--probe longitudinal mismatch in the app's fast and
-balanced paths, while Fine mode also applies a conservative $\chi$-reused
-refractive correction and segmented propagation. Biphoton mode now reports both
-relative (calibrated) and absolute $\Delta k$ and, in Fine mode, a two-dimensional
-signal--idler acceptance map. The emphasis is on the \emph{physics}; the code is
+squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform. Seeded
+squeezing includes the reference $0.3^\circ$ pump--probe longitudinal
+mismatch in the app's fast and balanced paths; Fine mode adds a conservative
+$\chi$-reused refractive correction and segmented propagation. Biphoton mode uses
+vector phase matching: calibrated longitudinal $\Delta k_z$ plus absolute
+transverse $\Delta k_x$, with a two-dimensional signal--idler vector acceptance
+map in Fine mode. The heavy OBE grid can be evaluated by optional compiled Numba
+kernels, while the $(\Delta,T)$ squeezing scan reuses one master
+$\rhobar(\delta,\Delta_\eff)$ table. The emphasis is on the \emph{physics}; the
+code is
 referenced only as a map so that each equation can be located in \code{gabes/}.
-The legacy direct \code{compute\_spectrum} path remains regression-anchored to
+The direct \code{compute\_spectrum} path is regression-anchored to
 G.~Sim, H.~Kim, and H.~S.~Moon, \emph{Sci.\ Rep.}\ \textbf{15}, 7727 (2025).
 \end{abstract}
 
@@ -388,14 +391,17 @@ manifold (\code{atoms.\_build\_velocity\_shift}). Consequently:
   \item Temperature $T$ enters \emph{only} through the Maxwell weights $w(v)$.
   \item The detuning $\Delta$ enters \emph{only} as an offset of the
   $\Delta_\eff$ axis.
-  \item The susceptibility table $\rhobar(\delta,\Delta_\eff)$ is therefore
-  computed \emph{once} on a $(\delta,\Delta_\eff)$ grid and reused for every
-  velocity and every $T$.
+  \item The susceptibility table $\rhobar(\delta,\Delta_\eff)$ is therefore a
+  function of $(\delta,\Delta_\eff)$ alone; it carries no explicit $T$ or
+  absolute $\Delta$ dependence.
 \end{itemize}
 The $\Delta_\eff$ sampling axis is built (\code{doppler.build\_Delta\_eff\_axis})
-to span $\Delta-k v$ across the whole velocity grid, uniformly so that the later
-average is a cheap index interpolation rather than a re-solve. This single idea is
-why a full $-8\ldots12\,$GHz scan takes minutes instead of hours.
+to span $\Delta-k v$ across a spectrum call's velocity grid, so the later average
+is a cheap index interpolation rather than a re-solve. The dedicated
+$(\Delta,T)$ squeezing map builds a master $\Delta_\eff$ axis from the exact union
+of all velocity samples needed by the scan and evaluates
+$\rhobar(\delta,\Delta_\eff)$ once on that master grid; each map point then only
+gathers the relevant columns and applies the Maxwell weights.
 
 % =====================================================================
 \section{The multimode steady state (truncated Floquet)}
@@ -470,12 +476,22 @@ second system. Physically, $\rho_0$ holds the optical coherence at the seed
 frequency (the probe response) and $\rho_{+1}$ holds the coherence at the
 conjugate frequency (the generated conjugate) --- the two outputs we need.
 
-\paragraph{Velocity batching.} Equation~\eqref{eq:deffshift} makes
-$\Lcal_0(\Delta_\eff)$ a one-parameter family. The solver stacks all
-$\Delta_\eff$ values into one tensor and calls a single batched
-\code{np.linalg.solve}; each system is tiny ($n^2=16$) but there are thousands of
-them, so batching --- with BLAS pinned to one thread per the small-matrix note in
-\code{core.blas\_single\_thread} --- is the dominant performance lever.
+\paragraph{Compiled grid solve.} Equation~\eqref{eq:deffshift}, together with the
+affine $\delta$ dependence of the ground-state Hamiltonian, lets the FWM grid be
+assembled from constant matrices:
+\begin{equation}
+\Lcal_0(\delta,\Delta_\eff)
+=\Lcal_0(0,0)+\delta\,C_\delta-\Delta_\eff\,S_v,
+\qquad
+\Omega_{\text{beat}}(\delta)=\Omega_{\HF}-\text{branch}\cdot\delta .
+\end{equation}
+When Numba is available, \code{kernels.floquet\_chi\_grid} evaluates the full
+$(\delta,\Delta_\eff)$ grid in a fused parallel loop: assemble the local
+Liouvillian, factor the two sideband matrices, form $A_{\text{eff}}$, solve the
+trace-normalized carrier, recover $\rho_{+1}$, and contract directly with the
+CG-weighted readout vectors. The NumPy path follows the same equations with a
+per-$\delta$ loop over \code{core.floquet\_solve}; \code{tests/test\_kernels.py}
+pins the two paths to the same numerical result.
 
 % =====================================================================
 \section{The susceptibility matrix}
@@ -503,7 +519,7 @@ P_{\text{leg }g}=\sum_{e\in\text{excited}}\sqrt{3 C_F^2(F_g,F_e)}\;\rho_{e g},
 the same CG weighting as the drive, so absorption and emission are described by one
 consistent dipole. Because the response is linear in the \emph{weak} fields (the
 pump is the strong field, already inside $H_0$ and the sidebands), $\rhobar$ is
-\emph{independent} of the magnitude of the reference field used to probe it --- the
+\emph{independent} of the magnitude of the reference field that probes it --- the
 code simply divides the measured coherence by the reference Rabi
 $\Omega_{\text{ref}}$.
 
@@ -523,7 +539,12 @@ independent Floquet solves at each two-photon detuning $\delta$ extract all four
   $\rhobar_{cc}$.
 \end{itemize}
 The off-diagonal $\rhobar_{cs},\rhobar_{sc}$ are the parametric coupling that does
-not exist without the pump; they are the heart of the four-wave mixing.
+not exist without the pump; they are the heart of the four-wave mixing. In the
+compiled path, these two physical solves correspond to two calls to
+\code{kernels.floquet\_chi\_grid}: one with the seed reference field and one with
+the conjugate reference field. Each call fills the whole
+$(\delta,\Delta_\eff)$ grid and returns the probe-leg and conjugate-leg
+coherences already contracted with the proper CG readout weights.
 
 \subsection{Detuning conventions and the two Raman branches}
 \label{sec:branch}
@@ -567,7 +588,11 @@ correct order of operations for a dispersive parametric medium (the alternative 
 averaging intensities --- would discard the inhomogeneous phase that sets the
 gain). The interpolation indices and fractions are precomputed once
 (\code{interpolation\_weights}) and applied to every row of the table
-(\code{apply\_doppler\_average}), so the average costs one matrix multiply.
+(\code{apply\_doppler\_average}), so the average costs one matrix multiply. In the
+$(\Delta,T)$ squeezing-map script, the master $\Delta_\eff$ axis is the exact
+union of all requested $\Delta-kv$ samples. The Doppler step therefore becomes a
+direct column gather followed by the same weighted sum, with no interpolation
+error and no additional Floquet solve.
 
 % =====================================================================
 \section{Maxwell--Bloch propagation: susceptibility \boldmath$\to$ gain}
@@ -597,10 +622,10 @@ conjugate and back. The conjugation and the minus signs in the second row are wh
 make $M$ generate \emph{amplification} (a non-unitary, energy-non-conserving
 transfer) rather than mere rotation.
 
-\subsection{Seeded longitudinal phase mismatch (v2)}
+\subsection{Seeded longitudinal phase mismatch}
 
-The v1 seeded model implicitly assumed perfect longitudinal phase matching. In
-v2 the app path adds a rotating-frame mismatch term to the propagation matrix:
+The seeded propagation matrix can carry a rotating-frame longitudinal mismatch
+term:
 \begin{equation}
 M_{\Delta k}=
 M+
@@ -641,10 +666,10 @@ susceptibility table fixed:
   optical depth. This is a propagation-only approximation, not a new atomic solve.
 \end{enumerate}
 
-The direct \code{compute\_spectrum} API defaults to the legacy
-$\Delta k_z=0$ path so the frozen regression baseline remains bit-identical.
-The Streamlit resolution presets select the v2 behaviour: Fast/Balanced use
-Eq.~\eqref{eq:seededDk}; Fine uses the refractive and segmented refinements.
+The \code{phase\_detail} option selects how much of this propagation physics is
+included. \code{PHASE\_LEGACY} sets $\Delta k_z=0$ for regression-preserving
+direct calculations. The app's Fast and Balanced presets use Eq.~\eqref{eq:seededDk};
+Fine uses the refractive and segmented refinements.
 
 \subsection{From dimensionless to physical susceptibility}
 
@@ -663,7 +688,7 @@ transition absorptive ($\Imag\chi>0$ on resonance). $\xi_{\text{LS}}$ is the one
 remaining lumped calibration knob: the genuine hyperfine CG structure is already in
 $\rhobar$, so $\xi_{\text{LS}}$ stands in for residual not-yet-modelled physics
 (full propagation loss/noise, full Zeeman degeneracy, and other geometry details
-not captured by the v2 longitudinal $\Delta k_z$ term). It rescales the
+not captured by the seeded longitudinal $\Delta k_z$ term). It rescales the
 \emph{effective} $|d|^2$ in propagation only; it does \emph{not} touch the OBE
 solve (where $\Gamma$ and $\Omega$ are fixed by $I_{\text{sat}}$).
 
@@ -763,7 +788,7 @@ a hard limit set purely by loss. (A 2-D $\xi(\Delta,T)$ scan confirms the model
 saturates exactly at this $10\log_{10}(1-\eta)$ plateau once the gain is large
 enough --- the gain-saturation and the loss-floor together cap the achievable
 squeezing.) Negative $S_{\text{dB}}$ means squeezed below shot noise; the Sim
-\emph{et al.} optimum reaches about $-7.8\,$dB.
+\emph{et al.} reference point reaches about $-8.33\,$dB in the focused scan.
 
 \subsection{Twin-beam photon statistics}
 
@@ -794,8 +819,10 @@ $\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
   \item Build the probe-frequency scan axis around the chosen Raman branch, and map
   each point to a two-photon detuning $\delta$ (Sec.~\ref{sec:branch}).
   \item Build the velocity grid and the $\Delta_\eff$ axis (Sec.~\ref{sec:dopp}).
-  \item For each $\delta$, two Floquet solves $\to$ the $\rhobar$ table on
-  $(\delta,\Delta_\eff)$ (Secs.~\ref{sec:floquet}--\ref{sec:chi}).
+  \item Build the $\rhobar$ table on $(\delta,\Delta_\eff)$
+  (Secs.~\ref{sec:floquet}--\ref{sec:chi}); with Numba available this is the
+  fused \code{kernels.floquet\_chi\_grid} path, otherwise the NumPy
+  \code{core.floquet\_solve} reference path.
   \item Doppler-average each of the four $\rhobar$ entries,
   Eq.~\eqref{eq:doppleravg}.
   \item Maxwell--Bloch propagate $\to$ $G_s,G_c$,
@@ -813,13 +840,14 @@ profile diagnostics). The TPD slider in the app reads a single operating point
 off this curve by interpolation (\code{operating\_point}) --- instant, no
 re-solve --- which is why the $\delta$ knob recomputes nothing.
 
-\paragraph{Anchor.} The direct legacy \code{compute\_spectrum} path remains
-anchored to the pre-v2 baseline. At the Sim \emph{et al.}\ optimum
-($\Delta=0.9\,$GHz, $\delta=-8\,$MHz, $T=121\,^\circ$C, $600\,$mW pump,
-$8\,\mu$W seed, $5.5\,\%$ loss) the model returns $G_s\approx15$ and
-$S_{\text{dB}}\approx-7.8\,$dB, and a regression test holds the full pipeline
-bit-identical to the pre-refactor baseline. The Streamlit app intentionally opts
-into the v2 phase-matching path through the resolution preset.
+\paragraph{Anchor.} The direct \code{compute\_spectrum} path remains
+regression-anchored. Around the Sim \emph{et al.}\ reference setting
+($\Delta=0.9\,$GHz, $T=121\,^\circ$C, $600\,$mW pump, $8\,\mu$W seed,
+$5.5\,\%$ loss), the focused two-photon-detuning scan returns
+$S_{\text{dB}}\approx-8.33\,$dB with $G_s\approx17.6$ at the local optimum.
+Regression tests hold the seeded gain/squeezing arrays to the frozen baseline,
+and the app presets select the appropriate phase-detail mode for interactive
+calculations.
 
 % =====================================================================
 \section{Spontaneous FWM: the biphoton mode}
@@ -845,41 +873,54 @@ phase sign. Three are provided:
   validated anchor).
 \end{itemize}
 
-\subsection{Energy and momentum conservation}
+\subsection{Energy and vector momentum conservation}
 
 Energy conservation across the four fields is a bookkeeping check
 (\code{energy\_mismatch\_hz}):
 \begin{equation}
 \Delta\nu = \nu_{\text{pump}}+\nu_{\text{coupling}}-\nu_{\text{signal}}-\nu_{\text{idler}}\ \approx\ 0.
 \end{equation}
-Momentum conservation (phase matching) is the longitudinal wavevector mismatch
-projected onto the beam axis (\code{phase\_mismatch}),
+Momentum conservation (phase matching) is evaluated as a vector mismatch
+(\code{phase\_mismatch\_vector}). The longitudinal component remains calibrated
+to the reference geometry,
 \begin{equation}
-\Delta k=\sum_{\text{fields}}s_i\,k_i\cos\theta_i-\Delta k_{\text{ref}},
+\Delta k_z^{\text{rel}}
+=\Delta k_z^{\text{abs}}-\Delta k_{\text{ref}},
+\qquad
+\Delta k_z^{\text{abs}}
+=\sum_{\text{fields}}s_i\,k_i\cos\theta_i,
 \qquad k_i=\frac{2\pi}{\lambda_i},
 \end{equation}
-with phase signs $s_i$ and collection angles $\theta_i$. The code now reports two
-versions:
-\begin{align}
-\Delta k_{\text{abs}}&=\sum_{\text{fields}}s_i\,k_i\cos\theta_i,\\
-\Delta k_{\text{rel}}&=\Delta k_{\text{abs}}-\Delta k_{\text{ref}}.
-\end{align}
-$\Delta k_{\text{rel}}$ is the calibrated phase-matching coordinate used by the
-source estimate; the preset reference makes it vanish at the reference geometry.
-$\Delta k_{\text{abs}}$ is shown as a diagnostic so the user can see how much
-absolute vacuum mismatch the calibration has absorbed.
+with phase signs $s_i$ and collection angles $\theta_i$. The reference
+$\Delta k_{\text{ref}}$ is applied only to the longitudinal component. The
+transverse component is absolute:
+\begin{equation}
+\Delta k_x=\sum_{\text{fields}}s_i\,k_i\sin\theta_i\,\sigma_i,
+\qquad
+\sigma_i\in\{-1,0,+1\}.
+\end{equation}
+Pump and coupling fields use $\sigma_i=0$ in the current biphoton collection
+model. Signal and idler use the selected collection side. Thus a longitudinally
+calibrated but transversely inconsistent setting, such as forcing the
+$^{87}$Rb telecom source to $1.5^\circ/1.5^\circ$ on the same side, carries a
+large transverse mismatch and is suppressed by the sinc weight.
 The finite interaction length $L$ turns this into a collection efficiency through
 the standard phase-matching sinc (\code{phase\_matching\_weight}):
 \begin{equation}
-\Phi(\Delta k)=\sinc^2\!\Big(\frac{\Delta k\,L}{2}\Big)
-=\left[\frac{\sin(\Delta k\,L/2)}{\Delta k\,L/2}\right]^2.
+\Delta k_{\text{vec}}=
+\sqrt{\left(\Delta k_z^{\text{rel}}\right)^2+\Delta k_x^2},
+\qquad
+\Phi_{\text{vec}}=\sinc^2\!\Big(\frac{\Delta k_{\text{vec}}\,L}{2}\Big)
+=\left[\frac{\sin(\Delta k_{\text{vec}}\,L/2)}
+{\Delta k_{\text{vec}}\,L/2}\right]^2.
 \label{eq:sinc}
 \end{equation}
 Scanning the idler angle traces out the one-dimensional acceptance lobe
-$\Phi(\theta_{\text{idler}})$. In Fine phase-detail mode, the same vectorized
-geometry is evaluated on a signal--idler grid
-(\code{phase\_mismatch\_grid}), producing a two-dimensional acceptance map
-$\Phi(\theta_s,\theta_i)$ without touching the velocity-class source calculation.
+$\Phi_{\text{vec}}(\theta_{\text{idler}})$. In Fine phase-detail mode, the same
+vectorized geometry is evaluated on a signal--idler grid
+(\code{phase\_mismatch\_vector\_grid}), producing a two-dimensional acceptance map
+$\Phi_{\text{vec}}(\theta_s,\theta_i)$ without touching the velocity-class source
+calculation.
 
 \subsection{Velocity-class coherent biphoton waveform}
 
@@ -939,26 +980,32 @@ The physics dictates the architecture, so a short note suffices:
 \begin{itemize}[leftmargin=1.6em]
   \item \textbf{One template, shifted.} $\Lcal_0(\Delta_\eff)=\Lcal_0(0)-\Delta_\eff
   S_v$ (Eq.~\eqref{eq:deffshift}) lets every velocity share one Liouvillian and be
-  stacked into a single batched solve.
+  assembled by cheap matrix shifts.
   \item \textbf{$T$- and $\Delta$-independent table.} $\rhobar(\delta,\Delta_\eff)$
-  is computed once; $T\to$ weights, $\Delta\to$ axis offset
-  (Eq.~\eqref{eq:doppleravg}).
+  is computed on the needed grid; $T\to$ weights, $\Delta\to$ sampled columns or
+  interpolation coordinates (Eq.~\eqref{eq:doppleravg}). The $(\Delta,T)$ map
+  uses one exact-union master grid for all points.
+  \item \textbf{Compiled OBE kernels.} \code{gabes/kernels.py} provides optional
+  Numba kernels for the hot solve grids. FWM uses
+  \code{floquet\_chi\_grid}; the absorption/Rydberg family uses the affine-scan
+  kernel. The NumPy paths remain the reference fallback when Numba is unavailable.
   \item \textbf{Closed-form $2\times2$.} The transfer matrix exponential is
   analytic (Appendix~\ref{app:expm}), avoiding a per-point \code{expm}.
-  \item \textbf{Small-matrix BLAS.} Each system is $n^2\le16$--$64$; one BLAS
-  thread per solve beats LAPACK's threading overhead
-  (\code{core.blas\_single\_thread}), and the two Raman branches of the wide scan
-  run on two threads concurrently (\code{full\_spectrum}).
+  \item \textbf{Thread hygiene.} The small dense systems are kept out of
+  oversubscribed BLAS threading with \code{core.blas\_single\_thread}; compiled
+  kernels parallelize at the grid level, and \code{full\_spectrum} computes the
+  two Raman branches independently.
 \end{itemize}
 
 % =====================================================================
 \section{Validation, scope, and what is \emph{not} modelled}
 % =====================================================================
 
-\paragraph{Validated.} The direct legacy seeded $G_s$/$S_{\text{dB}}$ pipeline
+\paragraph{Validated.} The direct seeded $G_s$/$S_{\text{dB}}$ pipeline
 reproduces the Sim \emph{et al.} $^{85}$Rb operating point and is
-regression-locked bit-for-bit. The app-facing v2 path deliberately adds
-phase-matching physics on top of that anchor. The genuine $^{85}$Rb $D_1$
+regression-locked bit-for-bit. The optional Numba kernels are tested against the
+NumPy reference paths, and the app-facing phase-detail modes add propagation
+physics without changing the atomic OBE definition. The genuine $^{85}$Rb $D_1$
 hyperfine CG factors $(10,35,35,28)/81$ drive the coherent coupling, the
 polarization readout, and the spontaneous-emission branching.
 
@@ -972,9 +1019,9 @@ estimates.
   \item Self-consistent refractive phase matching. Fine mode reuses the computed
   susceptibility for a clipped, cheap refractive correction, but it does not
   re-solve the atom with propagation-modified fields.
-  \item Full transverse/vector phase matching. The current seeded model uses
-  longitudinal $\Delta k_z$; the biphoton Fine map is a signal--idler angular
-  acceptance diagnostic, not a full spatial-mode overlap integral.
+  \item Full Gaussian spatial-mode overlap. Biphoton mode includes vector phase
+  matching through $\Delta k_z^{\text{rel}}$ and absolute $\Delta k_x$, but it
+  still uses a scalar sinc acceptance rather than a full mode-overlap integral.
   \item Dynamical pump absorption/depletion along the cell. Fine mode uses a
   scalar segmented profile inferred from absorption, not a coupled pump-field
   Maxwell--Bloch solve.
@@ -1013,8 +1060,9 @@ $S,S_{\text{dB}}$ & intensity-difference squeezing (linear / dB) \\
 $\eta=\text{QE}(1-\text{loss})$ & detection efficiency \\
 $\xi_{\text{LS}}$ & residual FWM coupling scale (\code{LINE\_STRENGTH\_FACTOR}) \\
 $\Delta k_z$ & seeded longitudinal phase mismatch \\
-$\Delta k_{\text{abs}},\Delta k_{\text{rel}}$ & biphoton absolute / calibrated relative mismatch \\
-$\Phi=\sinc^2(\Delta k L/2)$ & phase-matching weight \\
+$\Delta k_z^{\text{abs}},\Delta k_z^{\text{rel}}$ & biphoton longitudinal absolute / calibrated relative mismatch \\
+$\Delta k_x,\Delta k_{\text{vec}}$ & biphoton transverse and vector phase mismatch \\
+$\Phi_{\text{vec}}=\sinc^2(\Delta k_{\text{vec}} L/2)$ & biphoton vector phase-matching weight \\
 $\psi(\tau)$ & biphoton temporal waveform \\
 \bottomrule
 \end{tabular}
@@ -1057,7 +1105,7 @@ commutator super-op & \code{comm\_super} & \code{core.py} \\
 Liouvillian & \code{build\_liouvillian} & \code{core.py} \\
 Hamiltonians & \code{static\_hamiltonian\_at\_Deff\_zero}, \code{sideband\_hamiltonian} & \code{schemes/fwm.py} \\
 Floquet steady state & \code{floquet\_solve} & \code{core.py} \\
-$\rhobar$ matrix table & \code{chi\_matrix\_table} & \code{schemes/fwm.py} \\
+$\rhobar$ matrix table & \code{chi\_matrix\_table}, \code{floquet\_chi\_grid} & \code{schemes/fwm.py}, \code{kernels.py} \\
 velocity grid / $\Delta_\eff$ & \code{velocity\_grid}, \code{build\_Delta\_eff\_axis} & \code{doppler.py} \\
 Doppler average & \code{doppler\_average} & \code{doppler.py} \\
 Maxwell--Bloch gain / segmented propagation & \code{gain\_from\_chi} & \code{observables.py} \\
@@ -1068,7 +1116,7 @@ twin-beam statistics & \code{coincidence\_stats} & \code{observables.py} \\
 full seeded pipeline & \code{compute\_spectrum} & \code{schemes/fwm.py} \\
 biphoton source & \code{GenericFWMSolver.compute\_biphoton} & \code{schemes/fwm.py} \\
 seeded $\Delta k_z$ & \code{seeded\_phase\_mismatch\_z} & \code{schemes/fwm.py} \\
-phase matching & \code{phase\_mismatch}, \code{phase\_mismatch\_grid}, \code{phase\_matching\_weight} & \code{schemes/fwm.py} \\
+phase matching & \code{phase\_mismatch\_vector}, \code{phase\_mismatch\_vector\_grid}, \code{phase\_matching\_weight} & \code{schemes/fwm.py} \\
 biphoton readout & \code{biphoton\_stats} & \code{observables.py} \\
 \bottomrule
 \end{tabular}
