@@ -208,6 +208,23 @@ def test_squeezing_hides_twin_beam_coincidence_figure():
                for table in view.get("tables", []))
 
 
+def test_squeezing_observables_tolerate_rapid_tpd_changes():
+    import matplotlib.pyplot as plt
+
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params["resolution"] = "Fast  (~3 s)"
+    raw = scheme.compute(params)
+    for tpd in (-480.0, -8.0, 0.0, 245.0, 500.0):
+        params["tpd"] = tpd
+        view = scheme.observables(raw, params)
+        fig = view["figure"]
+        fig.canvas.draw()
+        labels = [ax.get_ylabel() for ax in fig.axes] + [fig.axes[-1].get_xlabel()]
+        assert all("$" not in label for label in labels)
+        plt.close(fig)
+
+
 def test_seeded_phase_detail_modes_are_gated_by_resolution():
     center = fwm.branch_center_GHz(0.9, -1)
     common = dict(

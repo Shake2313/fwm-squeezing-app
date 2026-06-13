@@ -19,12 +19,14 @@ import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
 from html import escape
+from threading import RLock
 
 from gabes import schemes
 from gabes.core import blas_single_thread
 from gabes.plot_style import apply_gabes_plot_style
 
 APP_DIR = Path(__file__).resolve().parent
+_PLOT_LOCK = RLock()
 
 
 @st.cache_data(show_spinner=False)
@@ -459,7 +461,11 @@ def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
 
 @st.cache_data(show_spinner=False, max_entries=64)
 def _cached_observables(scheme_name, raw, param_items, cache_version):
-    return schemes.get(scheme_name).observables(raw, dict(param_items))
+    # Matplotlib's font/mathtext/layout caches are process-global. Streamlit can
+    # briefly overlap reruns when sliders are moved quickly, so serialize figure
+    # construction to avoid layout-time parser crashes.
+    with _PLOT_LOCK:
+        return schemes.get(scheme_name).observables(raw, dict(param_items))
 
 
 def _close_fig(fig):
@@ -744,7 +750,8 @@ param_items = tuple(sorted(params.items()))
 if getattr(scheme, "cache_observables", False):
     view = _cached_observables(scheme.name, raw, param_items, cache_version)
 else:
-    view = scheme.observables(raw, params)
+    with _PLOT_LOCK:
+        view = scheme.observables(raw, params)
 
 
 # ----------------------------------------------------------------------

@@ -1279,9 +1279,9 @@ class FWMScheme(Scheme):
         axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
         axG.axhline(1.0, color="black", lw=0.6)
         axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
-        axG.set_ylabel("Seed / probe gain  $G_s$")
-        axG.set_title(f"Δ = {params['opd']:.1f} GHz,  T = {params['temp_c']:.0f} °C,  "
-                      f"η = {raw['eta']:.3f}")
+        axG.set_ylabel("Seed / probe gain G_s")
+        axG.set_title(f"Delta = {params['opd']:.1f} GHz,  T = {params['temp_c']:.0f} C,  "
+                      f"eta = {raw['eta']:.3f}")
         if np.nanmax(raw["G_s"]) > 50:
             axG.set_yscale("log")
         axS.plot(d_axis, raw["S_dB"], color="#2ca02c", lw=1.8)
@@ -1289,7 +1289,7 @@ class FWMScheme(Scheme):
         axS.axhline(0.0, color="black", lw=0.6)
         axS.scatter([tpd], [op["S_dB"]], color="crimson", zorder=5)
         axS.set_ylabel("Intensity-difference\nsqueezing  [dB]")
-        axS.set_xlabel("Two-photon detuning δ  [MHz]   (probe on the − Raman branch)")
+        axS.set_xlabel("Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
         axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
         fig.tight_layout()
 
@@ -1588,12 +1588,12 @@ class FWMScheme(Scheme):
                 aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
                 aS.plot(spec["probe_axis_GHz"], spec["S_dB"], lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
-            aG.set_ylabel("Seed / probe gain  $G_s$")
+            aG.set_ylabel("Seed / probe gain G_s")
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
             aS.set_ylabel("Squeezing [dB]")
-            aS.set_xlabel(r"Probe detuning from $F=2\to F'=3$  [GHz]")
+            aS.set_xlabel("Probe detuning from F=2 -> F'=3 [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)
             aG.legend(fontsize=9)
