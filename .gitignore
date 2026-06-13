@@ -1,6 +1,8 @@
 __pycache__/
 *.pyc
 *.png
+*.npz
+*.log
 .streamlit/secrets.toml
 st.log
 .venv/

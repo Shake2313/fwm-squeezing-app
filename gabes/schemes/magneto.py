@@ -11,7 +11,7 @@ import re
 
 import numpy as np
 
-from .. import constants, core, observables, species, zeeman
+from .. import constants, core, kernels, observables, species, zeeman
 from .base import ParamSpec, Preset, Scheme
 
 MAX_LEVELS = 16
@@ -537,6 +537,14 @@ class MagnetoScheme(Scheme):
         shifted but unlit. Solves the (B × velocity) batch in memory-bounded
         chunks. Returns the in-beam ρ_light, shape (nB, nv, n_levels, n_levels).
         """
+        if kernels.available():
+            with core.blas_single_thread():
+                return kernels.magneto_two_region_grid(
+                    np.ascontiguousarray(L_light0),
+                    np.ascontiguousarray(L_dark0),
+                    np.ascontiguousarray(deff, dtype=float),
+                    np.ascontiguousarray(S_v),
+                    float(gamma_out), float(gamma_in), n_levels)
         nB = L_light0.shape[0]
         nv = deff.size
         M = n_levels * n_levels
@@ -572,6 +580,12 @@ class MagnetoScheme(Scheme):
         L0_all: (nB, M, M). Solves the (B × velocity) batch in memory-bounded
         chunks. Returns ρ, shape (nB, nv, n_levels, n_levels).
         """
+        if kernels.available():
+            with core.blas_single_thread():
+                return kernels.magneto_buffer_grid(
+                    np.ascontiguousarray(L0_all),
+                    np.ascontiguousarray(deff, dtype=float),
+                    np.ascontiguousarray(S_v), n_levels)
         nB = L0_all.shape[0]
         nv = deff.size
         M = n_levels * n_levels

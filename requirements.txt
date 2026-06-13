@@ -2,4 +2,5 @@ streamlit>=1.40,<2
 numpy>=2.0,<3
 matplotlib>=3.8,<4
 threadpoolctl>=3.0
+numba>=0.60  # optional fast path (gabes/kernels.py); app falls back to NumPy without it
 pytest>=8,<9

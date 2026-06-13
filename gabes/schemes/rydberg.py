@@ -12,7 +12,7 @@ as internal constants for tests.
 """
 import numpy as np
 
-from .. import atoms, constants, core, observables, species
+from .. import atoms, constants, core, kernels, observables, species
 from .base import ParamSpec, Scheme
 
 MHZ = 2 * np.pi * 1e6
@@ -173,11 +173,24 @@ class RydbergEITScheme(Scheme):
             return H
 
         scan = self._scan(params)
-        chi = np.zeros(scan.size, dtype=complex)
-        for i, s in enumerate(scan):
-            L0 = core.build_liouvillian(h_of(s), atom)
-            rho = core.steady_state_batched(L0, np.array([0.0]), atom.S_v, atom.n_levels)
-            chi[i] = rho[0, 1, 0] / probe
+        n = atom.n_levels
+        if kernels.available():
+            # h_of(s) is affine in s and there is no Doppler shift (S_v = 0), so
+            # the whole scan is one parallel kernel pass (kv = 0, unit weight).
+            base = core.build_liouvillian(h_of(0.0), atom)
+            A_coef = core.build_liouvillian(h_of(1.0), atom) - base
+            with core.blas_single_thread():
+                chi = kernels.affine_scan_chi(
+                    base, A_coef, atom.S_v,
+                    np.ascontiguousarray(scan, dtype=float),
+                    np.zeros(1), np.ones(1), 1 * n + 0, n) / probe
+        else:
+            chi = np.zeros(scan.size, dtype=complex)
+            for i, s in enumerate(scan):
+                L0 = core.build_liouvillian(h_of(s), atom)
+                rho = core.steady_state_batched(
+                    L0, np.array([0.0]), atom.S_v, atom.n_levels)
+                chi[i] = rho[0, 1, 0] / probe
 
         return dict(
             scan=scan,

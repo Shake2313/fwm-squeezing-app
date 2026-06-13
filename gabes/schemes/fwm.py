@@ -16,7 +16,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .. import atoms, constants, doppler, hyperfine, observables, species
+from .. import atoms, constants, doppler, hyperfine, kernels, observables, species
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
 from .base import ExtraView, ParamSpec, Preset, Scheme
@@ -716,23 +716,59 @@ def sideband_template(Op_A, Op_B, Oc, branch):
 # =========================================================
 # χ-matrix table   (T- and Δ-independent)
 # =========================================================
+def _coherence_weights(ground):
+    """w such that Σ_k w[k]·vec(ρ)[k] = Σ_e scale[g,e]·ρ[e,g] (vec row-major)."""
+    w = np.zeros(N_LEVELS * N_LEVELS, dtype=complex)
+    for e in EXCITED_STATES:
+        w[e * N_LEVELS + ground] = TRANSITION_DIPOLE_SCALE[ground, e]
+    return w
+
+
 def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch):
     """
     Two solves per probe-detuning point to extract (χ̄_ss, χ̄_cs, χ̄_sc, χ̄_cc)
     on a 2-D (δ, Δ_eff) grid. Returns each array (n_delta, n_deff), complex.
+
+    With numba available the whole grid runs in one fused compiled kernel
+    (`kernels.floquet_chi_grid`); the NumPy δ-loop below is the fallback and
+    the reference implementation (tests/test_kernels.py pins them together).
     """
     probe_ground = G2 if branch == -1 else G1
     conj_ground = G1 if branch == -1 else G2
     n_d = delta_axis.size
     n_de = Delta_eff_axis.size
 
+    Cp_no_c, Cm_no_c = sideband_template(Op_A, Op_B, 0.0, branch)      # solve 1
+    Cp_c, Cm_c = sideband_template(Op_A, Op_B, Oc_ref, branch)        # solve 2
+
+    if kernels.available():
+        # H₀(δ) is affine in δ (only H₀[G2,G2] = δ), so L₀(δ) = L₀(0) + δ·C_δ.
+        E_g2 = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
+        E_g2[G2, G2] = 1.0
+        C_delta = comm_super(E_g2)
+        w_probe = _coherence_weights(probe_ground)
+        w_conj = _coherence_weights(conj_ground)
+        delta_axis = np.ascontiguousarray(delta_axis, dtype=float)
+        deff_axis = np.ascontiguousarray(Delta_eff_axis, dtype=float)
+
+        L0_1 = build_liouvillian(
+            static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), ATOM)
+        probe_a, conj_a = kernels.floquet_chi_grid(
+            L0_1, C_delta, ATOM.S_v, Cp_no_c, Cm_no_c, delta_axis, deff_axis,
+            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
+
+        L0_2 = build_liouvillian(
+            static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), ATOM)
+        probe_b, conj_b = kernels.floquet_chi_grid(
+            L0_2, C_delta, ATOM.S_v, Cp_c, Cm_c, delta_axis, deff_axis,
+            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
+
+        return probe_a / Os_ref, conj_a / Os_ref, probe_b / Oc_ref, conj_b / Oc_ref
+
     chi_ss = np.zeros((n_d, n_de), dtype=complex)
     chi_cs = np.zeros((n_d, n_de), dtype=complex)
     chi_sc = np.zeros((n_d, n_de), dtype=complex)
     chi_cc = np.zeros((n_d, n_de), dtype=complex)
-
-    Cp_no_c, Cm_no_c = sideband_template(Op_A, Op_B, 0.0, branch)      # solve 1
-    Cp_c, Cm_c = sideband_template(Op_A, Op_B, Oc_ref, branch)        # solve 2
 
     for i, delta in enumerate(delta_axis):
         Omega_beat = OMEGA_HF - branch * delta
