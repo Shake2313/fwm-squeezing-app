@@ -12,6 +12,8 @@ import re
 import numpy as np
 
 from .. import constants, core, kernels, observables, species, zeeman
+from ..lineshape import halfwidth_from_center, lorentz_fwhm
+from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
 
 MAX_LEVELS = 16
@@ -122,55 +124,11 @@ def _qwp_drive_weights(theta_deg):
     return {+1: math.sqrt(2.0) * e_plus, -1: math.sqrt(2.0) * e_minus}
 
 
-def _lorentz_fwhm(B, y):
-    """FWHM (in B units) of the zero-field Lorentzian-like feature."""
-    base = 0.5 * (y[0] + y[-1])
-    s = y - base
-    ic = int(np.argmin(np.abs(B)))
-    s0 = s[ic]
-    if abs(s0) < 1e-30:
-        return float("nan")
-    core = (np.sign(s) == np.sign(s0)) & (np.abs(s) >= 0.2 * abs(s0))
-    if int(core.sum()) < 3:
-        return float("nan")
-    a, b = np.polyfit(B[core] ** 2, 1.0 / s[core], 1)
-    if a == 0 or b / a <= 0:
-        return float("nan")
-    return 2.0 * math.sqrt(b / a)
-
-
-def _halfwidth_from_center(B, y, frac=0.5):
-    """Half-width around zero for a central feature, robust to broad pedestal."""
-    B = np.asarray(B)
-    y = np.asarray(y)
-    ic = int(np.argmin(np.abs(B)))
-    bg = 0.5 * (y[0] + y[-1])
-    amp = y[ic] - bg
-    if abs(amp) < 1e-30:
-        return float("nan")
-    target = bg + frac * amp
-    right = np.arange(ic, y.size)
-    vals = (y[right] - target) * np.sign(amp)
-    below = np.where(vals <= 0)[0]
-    if below.size == 0 or below[0] == 0:
-        return float("nan")
-    j = right[below[0]]
-    i = j - 1
-    y0, y1 = y[i], y[j]
-    if y1 == y0:
-        return float(abs(B[j] - B[ic]))
-    t = (target - y0) / (y1 - y0)
-    return float(abs((B[i] + t * (B[j] - B[i])) - B[ic]))
-
-
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
     cache_version = "polarized-two-region-v2"
-    defaults_version = "polarized-two-region-v2"
-    # Render the readout-contextual default presets as a single dropdown (with an
-    # emoji per regime) instead of a row of buttons.
-    recommended_defaults_as_dropdown = True
+    defaults_version = "polarized-two-region-v3"
 
     _REGIME_EMOJI = {
         "EIT dip": "🕳️",
@@ -213,9 +171,31 @@ class MagnetoScheme(Scheme):
             self.title = self._DEF[mode]["title"]
             self.caption = self._DEF[mode]["desc"]
 
+    def _regime_options(self):
+        """Flat, ordered list of emoji-tagged regime labels across both readouts.
+
+        Used both for the segmented `regime` control's choices and as the keys of
+        `recommended_defaults`, so a selection maps straight onto a parameter set.
+        """
+        opts = []
+        for regimes in self._REGIMES.values():
+            for label in regimes:
+                opts.append(f"{self._REGIME_EMOJI.get(label, '•')} {label}")
+        return opts
+
     def param_schema(self):
         d = self._DEF[self.mode or "hanle"]
-        specs = [
+        specs = []
+        if self.mode is None:
+            options = self._regime_options()
+            specs.append(ParamSpec(
+                "regime", "Regime", "Regime", options[0],
+                choices=tuple(options), control="segmented",
+                applies_defaults=True, recompute=False,
+                help="Pick a ready-made magneto-optics regime; selecting one loads "
+                     "its full parameter set (including the Signal readout). Same "
+                     "in-panel regime selector the other schemes use."))
+        specs += [
             ParamSpec("signal_type", "Signal", "Readout", d["signal"],
                       choices=(SIGNAL_TRANSMISSION, SIGNAL_NMOR),
                       control="segmented", recompute=False,
@@ -228,19 +208,19 @@ class MagnetoScheme(Scheme):
                       help="87Rb D1 hyperfine transition F_g → F'_e "
                            "(all four satisfy |F'_e − F_g| ≤ 1)."),
             ParamSpec("intensity_mw_cm2", "Beam intensity", "Fields", d["intensity"],
-                      0.01, 20.0, 0.05, "mW/cm^2",
-                      help=f"Converted with Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm^2."),
+                      0.01, 20.0, 0.05, "mW/cm²",
+                      help=f"Converted with Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm²."),
             ParamSpec("qwp_deg", "Probe polarization (QWP angle)", "Fields", d["qwp"],
                       0.0, 45.0, 0.5, "deg", endpoints=("linear", "circular"),
                       help="0 deg is linear; 45 deg is circular. Absolute handedness is hidden."),
-            ParamSpec("b_max_ut", "B scan +/-", "Fields", d["bmax"],
-                      0.02, 500.0, 0.01, "uT",
+            ParamSpec("b_max_ut", "B scan ±", "Fields", d["bmax"],
+                      0.02, 500.0, 0.01, "µT",
                       help="Longitudinal magnetic-field scan range around zero."),
             ParamSpec("laser_detuning_mhz", "Laser detuning", "Detunings", 0.0,
                       -1000.0, 1000.0, 5.0, "MHz",
                       help="Detuning from the selected 87Rb D1 hyperfine transition."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 25.0,
-                      20.0, 120.0, 1.0, "deg C",
+                      20.0, 120.0, 1.0, "°C",
                       help="Sets 87Rb vapor density and Doppler width."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0,
                       0.5, 200.0, 0.5, "mm", recompute=False),
@@ -281,7 +261,7 @@ class MagnetoScheme(Scheme):
             # compensation), not a primary scan knob. Advanced — presets carry the
             # values that switch EIT<->EIA and enable circular-light LCA.
             ParamSpec("residual_transverse_b_ut", "Residual transverse B", "Fields", 0.05,
-                      0.0, 5.0, 0.005, "uT", advanced=True,
+                      0.0, 5.0, 0.005, "µT", advanced=True,
                       help="Weak transverse field. Enables MIA/MIT-like switching and "
                            "the circular-light level-crossing absorption (LCA)."),
             ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0.0,
@@ -355,16 +335,17 @@ class MagnetoScheme(Scheme):
                                    b_max_ut=d["bmax"], doppler="on"))]
 
     def recommended_defaults(self, params):
-        # One-click defaults that follow the current Signal readout, so the readout
-        # selector doubles as the default chooser: Transmission offers the EIT/EIA
-        # regimes (paraffin CPT dip / MIA peak, buffer Hanle / LCA); NMOR offers the
-        # rotation default. Only the merged entry exposes these.
+        # The merged entry exposes a single segmented "Regime" control
+        # (applies_defaults); selecting a regime loads its full parameter set,
+        # including the Signal readout. Return every regime (keyed by the same
+        # emoji-tagged label as the control's choices) so any selection resolves.
         if self.mode is not None:
             return None
-        signal = params.get("signal_type", SIGNAL_TRANSMISSION)
-        regimes = self._REGIMES.get(signal, self._REGIMES[SIGNAL_TRANSMISSION])
-        return {f"{self._REGIME_EMOJI.get(label, '•')} {label}": dict(values)
-                for label, values in regimes.items()}
+        out = {}
+        for regimes in self._REGIMES.values():
+            for label, values in regimes.items():
+                out[f"{self._REGIME_EMOJI.get(label, '•')} {label}"] = dict(values)
+        return out
 
     def info(self):
         return (
@@ -649,10 +630,10 @@ class MagnetoScheme(Scheme):
             feature = "EIA/MIA-like peak"
         else:
             feature = "crossover"
-        fwhm = _lorentz_fwhm(x, alpha)
-        central_hw = _halfwidth_from_center(x, alpha)
-        fwhm_str = f"{fwhm:.3f} uT" if fwhm == fwhm else "n/a"
-        central_str = f"{2*central_hw:.3f} uT" if central_hw == central_hw else "n/a"
+        fwhm = lorentz_fwhm(x, alpha)
+        central_hw = halfwidth_from_center(x, alpha)
+        fwhm_str = f"{fwhm:.3f} µT" if fwhm == fwhm else "n/a"
+        central_str = f"{2*central_hw:.3f} µT" if central_hw == central_hw else "n/a"
 
         title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
                  f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
@@ -662,13 +643,13 @@ class MagnetoScheme(Scheme):
             ax.axhline(0, color="black", lw=0.6)
             ax.axvline(0, color="gray", ls=":", lw=0.8)
             ax.set_ylabel("Polarization rotation  [mrad]")
-            ax.set_xlabel("Magnetic field B  [uT]")
+            ax.set_xlabel("Magnetic field B  [µT]")
             ax.set_title(title)
             fig.tight_layout()
             slope = np.gradient(rotation, x)[ic]
             metrics = [
                 dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
-                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/uT"),
+                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/µT"),
                 dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad"),
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
@@ -677,7 +658,7 @@ class MagnetoScheme(Scheme):
             axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
             axT.axvline(0, color="gray", ls=":", lw=0.8)
             axT.set_ylabel("Transmission")
-            axT.set_xlabel("Magnetic field B  [uT]")
+            axT.set_xlabel("Magnetic field B  [µT]")
             axT.set_title(title)
             fig.tight_layout()
             metrics = [
@@ -691,27 +672,26 @@ class MagnetoScheme(Scheme):
 
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
-        derived = (
-            "| Quantity | Value |\n|---|---|\n"
-            f"| Isotope / line | {raw['isotope']} {raw['line']} |\n"
-            f"| Cell model | {raw['cell_type']} |\n"
-            f"| Transition | F={raw['Fg']} -> F'={raw['Fe']} |\n"
-            f"| Relative strength S_FF' | {raw['strength']:.4f} |\n"
-            f"| g_F ground / excited | {raw['gFg']:.4f} / {raw['gFe']:.4f} |\n"
-            f"| Ground Larmor scale | {larmor_hz_per_g/1e6:.3f} MHz/G |\n"
-            f"| Omega/Gamma | {raw['omega_rabi']/raw['gamma_natural']:.3f} |\n"
-            f"| Gamma/2pi | {raw['gamma']/(2*np.pi)/1e6:.4f} MHz |\n"
-            f"| Ne broadening/2pi | {buffer_mhz:.3f} MHz |\n"
-            f"| I_sat(D1 scale) | {raw['isat']:.4f} mW/cm^2 |\n"
-            f"| Residual transverse B | {raw['b_perp_ut']:.4f} uT |\n"
-            f"| N(87Rb) | {raw['N']:.3e} /m^3 |\n"
-            f"| Doppler OD scale | {raw['doppler_scale']:.3e} |\n"
-            f"| Doppler classes | {raw['velocity_count']} |\n"
-            f"| Two-region gamma_out/2pi | {raw['gamma_out']/(2*np.pi)/1e3:.3f} kHz |\n"
-            f"| Two-region gamma_in/2pi | {raw['gamma_in']/(2*np.pi)/1e3:.3f} kHz |\n"
-            f"| Wall gamma/2pi | {raw['gamma_wall']/(2*np.pi):.3f} Hz |\n"
-        )
+        derived = derived_table([
+            ("Isotope / line", f"{raw['isotope']} {raw['line']}"),
+            ("Cell model", f"{raw['cell_type']}"),
+            ("Transition", f"F={raw['Fg']} → F'={raw['Fe']}"),
+            ("Relative strength S_FF'", f"{raw['strength']:.4f}"),
+            ("g_F ground / excited", f"{raw['gFg']:.4f} / {raw['gFe']:.4f}"),
+            ("Ground Larmor scale", f"{larmor_hz_per_g/1e6:.3f} MHz/G"),
+            ("Ω / Γ", f"{raw['omega_rabi']/raw['gamma_natural']:.3f}"),
+            ("Γ / 2π", f"{raw['gamma']/(2*np.pi)/1e6:.4f} MHz"),
+            ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
+            ("I_sat (D1 scale)", f"{raw['isat']:.4f} mW/cm²"),
+            ("Residual transverse B", f"{raw['b_perp_ut']:.4f} µT"),
+            ("N(87Rb)", f"{raw['N']:.3e} /m³"),
+            ("Doppler OD scale", f"{raw['doppler_scale']:.3e}"),
+            ("Doppler classes", f"{raw['velocity_count']}"),
+            ("Two-region γ_out / 2π", f"{raw['gamma_out']/(2*np.pi)/1e3:.3f} kHz"),
+            ("Two-region γ_in / 2π", f"{raw['gamma_in']/(2*np.pi)/1e3:.3f} kHz"),
+            ("Wall γ / 2π", f"{raw['gamma_wall']/(2*np.pi):.3f} Hz"),
+        ])
         return dict(metrics=metrics, figure=fig, tables=[
             {"title": "Notes", "markdown": note},
-            {"title": "Derived quantities", "markdown": derived},
+            derived,
         ])

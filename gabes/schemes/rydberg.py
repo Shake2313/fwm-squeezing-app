@@ -13,25 +13,12 @@ as internal constants for tests.
 import numpy as np
 
 from .. import atoms, constants, core, kernels, observables, species
+from ..lineshape import window_fwhm
+from ..report import derived_table
 from .base import ParamSpec, Scheme
 
 MHZ = 2 * np.pi * 1e6
 PROBE_RABI = 1e-3
-
-
-def _window_fwhm(x, y, ic):
-    peak = y[ic]
-    floor = np.nanmin(y)
-    if not np.isfinite(peak) or peak <= floor:
-        return float("nan")
-    thresh = 0.5 * (peak + floor)
-    i = ic
-    while i > 0 and y[i] >= thresh:
-        i -= 1
-    j = ic
-    while j < y.size - 1 and y[j] >= thresh:
-        j += 1
-    return float(x[j] - x[i])
 
 
 class RydbergEITScheme(Scheme):
@@ -70,28 +57,34 @@ class RydbergEITScheme(Scheme):
                       choices=("EIT", "AT electrometry"), control="segmented",
                       applies_defaults=True,
                       help="EIT: no microwave dressing. AT: the Rydberg RF leg is dressed."),
-            ParamSpec("probe_power_uw", "Probe power", "Cell & beams",
-                      r["probe_power_uw"], 0.1, 20.0, 0.1, "uW", recompute=False,
-                      help="Experimental optical readout power; the OBE remains weak-probe linear."),
-            ParamSpec("coupling_power_mw", "Coupling power", "Cell & beams",
+            ParamSpec("probe_power_uw", "Probe power (display only)", "Cell & beams",
+                      r["probe_power_uw"], 0.1, 20.0, 0.1, "µW", recompute=False,
+                      help="Display-only metadata; not used in the solve (the probe stays "
+                           "weak-probe linear, Ω_probe = 1e-3 Γ). See docs/checklist.json "
+                           "for the planned power→drive coupling."),
+            ParamSpec("coupling_power_mw", "Coupling power (display only)", "Cell & beams",
                       r["coupling_power_mw"], 1.0, 80.0, 0.5, "mW", recompute=False,
-                      help="Experimental 480 nm beam power metadata; Omega_c is the fitted OBE knob."),
-            ParamSpec("beam_diameter_mm", "Beam diameter", "Cell & beams",
-                      r["beam_diameter_mm"], 0.05, 1.0, 0.01, "mm", recompute=False),
+                      help="Display-only metadata; not used in the solve — Ω_c (Coupling "
+                           "Rabi) is the fitted OBE knob. Planned power→Ω link: "
+                           "docs/checklist.json."),
+            ParamSpec("beam_diameter_mm", "Beam diameter (display only)", "Cell & beams",
+                      r["beam_diameter_mm"], 0.05, 1.0, 0.01, "mm", recompute=False,
+                      help="Display-only metadata; not used in the solve."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", r["cell_mm"],
                       1.0, 100.0, 0.5, "mm", recompute=False),
             ParamSpec("temp_c", "Temperature", "Cell & beams", r["temp_c"],
-                      15.0, 80.0, 1.0, "deg C"),
+                      15.0, 80.0, 1.0, "°C"),
             ParamSpec("coupling_rabi_mhz", "Coupling Rabi", "Fields",
                       r["coupling_rabi_mhz"], 0.1, 20.0, 0.1, "MHz",
                       help="Optical 5P -> 40D coupling Rabi frequency Omega_c/2pi."),
-            ParamSpec("lo_rabi_mhz", "Microwave LO Rabi", "Fields",
+            ParamSpec("lo_rabi_mhz", "Microwave Rabi Ω_RF", "Fields",
                       r["lo_rabi_mhz"], 0.0, 20.0, 0.1, "MHz",
-                      help="Rydberg 40D -> 39F dressing Rabi frequency."),
+                      help="Rydberg 40D -> 39F dressing Rabi frequency Ω_RF/2π."),
             ParamSpec("mw_detuning_mhz", "Microwave detuning", "Detunings",
                       r["mw_detuning_mhz"], -20.0, 20.0, 0.1, "MHz"),
-            ParamSpec("mw_frequency_ghz", "Microwave frequency", "Fields",
-                      r["mw_frequency_ghz"], 1.0, 100.0, 0.1, "GHz", recompute=False),
+            ParamSpec("mw_frequency_ghz", "Microwave frequency (display only)", "Fields",
+                      r["mw_frequency_ghz"], 1.0, 100.0, 0.1, "GHz", recompute=False,
+                      help="Display-only metadata; not used in the solve."),
             ParamSpec("rydberg_dephasing_mhz", "Rydberg dephasing", "Atomic",
                       r["rydberg_dephasing_mhz"], 0.0, 5.0, 0.01, "MHz",
                       help="Phenomenological 5S-40D coherence broadening."),
@@ -235,9 +228,13 @@ class RydbergEITScheme(Scheme):
         alpha, xphys = observables.absorption_coefficient(
             raw["chi_bar"], raw["k_vec"], raw["N"], dipole=raw["dipole"],
             line_strength=raw["ls"])
-        T_trans = observables.transmission(alpha, raw["L"])
+        # Cell length only scales αL here (recompute=False navigate-only knob), so
+        # read it from the live params, not the cached raw, or a cell-length change
+        # would not update the transmission.
+        L = float(params.get("cell_mm", self._REF["cell_mm"])) * 1e-3
+        T_trans = observables.transmission(alpha, L)
         ic = int(np.argmin(np.abs(x)))
-        width = _window_fwhm(x, T_trans, ic)
+        width = window_fwhm(x, T_trans, ic)
         slope = np.nanmax(np.abs(np.gradient(T_trans, x)))
 
         fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
@@ -269,19 +266,17 @@ class RydbergEITScheme(Scheme):
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}"),
         ])
 
-        derived = (
-            "| Quantity | Value |\n|---|---|\n"
-            "| Ladder | 85Rb 5S1/2 F=3 -> 5P3/2 F'=4 -> 40D5/2 |\n"
-            "| RF leg | 40D5/2 -> 39F7/2 |\n"
-            f"| Microwave frequency | {raw['mw_frequency_ghz']:.1f} GHz |\n"
-            f"| Probe power | {raw['probe_power_uw']:.2f} uW |\n"
-            f"| Beam diameter | {raw['beam_diameter_mm']:.3f} mm |\n"
-            f"| Gamma_5P/2pi | {raw['gamma_mhz']:.4f} MHz |\n"
-            f"| Rydberg dephasing/2pi | {raw['rydberg_dephasing_mhz']:.3f} MHz |\n"
-            f"| N(85Rb) | {raw['N']:.3e} /m^3 |\n"
-        )
-        return dict(metrics=metrics, figure=fig,
-                    tables=[{"title": "Derived quantities", "markdown": derived}])
+        derived = derived_table([
+            ("Ladder", "85Rb 5S1/2 F=3 → 5P3/2 F'=4 → 40D5/2"),
+            ("RF leg", "40D5/2 → 39F7/2"),
+            ("Microwave frequency", f"{raw['mw_frequency_ghz']:.1f} GHz"),
+            ("Probe power (display only)", f"{raw['probe_power_uw']:.2f} µW"),
+            ("Beam diameter (display only)", f"{raw['beam_diameter_mm']:.3f} mm"),
+            ("Γ_5P / 2π", f"{raw['gamma_mhz']:.4f} MHz"),
+            ("Rydberg dephasing / 2π", f"{raw['rydberg_dephasing_mhz']:.3f} MHz"),
+            ("N(85Rb)", f"{raw['N']:.3e} /m³"),
+        ])
+        return dict(metrics=metrics, figure=fig, tables=[derived])
 
     def info(self):
         return (

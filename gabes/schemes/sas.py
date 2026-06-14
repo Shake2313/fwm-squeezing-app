@@ -41,6 +41,7 @@ import numpy as np
 from .. import atoms, constants, doppler, observables, species
 from ..constants import GAMMA, K_VEC
 from .. import core
+from ..lineshape import narrowest_subdoppler, window_fwhm
 from .base import ParamSpec, Scheme
 
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
@@ -343,7 +344,7 @@ class SASScheme(Scheme):
                 ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
         fig.tight_layout()
 
-        sub_fwhm, sub_at = _narrowest_subdoppler(x, T_trans)
+        sub_fwhm, sub_at = narrowest_subdoppler(x, T_trans)
         if pump <= 0:                                        # OD limit: no holes burned
             sub_fwhm = float("nan")
         metrics = [
@@ -387,7 +388,7 @@ class SASScheme(Scheme):
         fig.tight_layout()
 
         ic = int(np.argmin(np.abs(x - offs_mhz[0])))
-        sub_fwhm = _peak_fwhm(x, T_trans, ic)
+        sub_fwhm = window_fwhm(x, T_trans, ic)
         dopp_mhz = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
         metrics = [
             dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz"),
@@ -415,37 +416,3 @@ def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
     return pops
 
 
-def _peak_fwhm(x, y, ic):
-    peak, floor = y[ic], np.nanmin(y)
-    if not np.isfinite(peak) or peak <= floor:
-        return float("nan")
-    thresh = 0.5 * (peak + floor)
-    i = ic
-    while i > 0 and y[i] >= thresh:
-        i -= 1
-    j = ic
-    while j < y.size - 1 and y[j] >= thresh:
-        j += 1
-    return float(x[j] - x[i])
-
-
-def _narrowest_subdoppler(x_ghz, T_trans):
-    """Width [GHz] and location of the sharpest Doppler-free feature (nan if none)."""
-    y = np.asarray(T_trans)
-    n = y.size
-    win = max(5, (n // 60) | 1)
-    pad = win // 2
-    ypad = np.pad(y, pad, mode="edge")
-    smooth = np.array([np.median(ypad[i:i + win]) for i in range(n)])
-    resid = np.abs(y - smooth)
-    if resid.max() <= 1e-6:
-        return float("nan"), float("nan")
-    ic = int(np.argmax(resid))
-    half = 0.5 * resid[ic]
-    i = ic
-    while i > 0 and resid[i] >= half:
-        i -= 1
-    j = ic
-    while j < n - 1 and resid[j] >= half:
-        j += 1
-    return float(x_ghz[j] - x_ghz[i]), float(x_ghz[ic])

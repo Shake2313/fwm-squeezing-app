@@ -1,0 +1,26 @@
+{
+  "_comment": "Deferred / planned work for GABES. Basics & current behaviour live in README.md; this file tracks things intentionally NOT done yet. Each item: {id, area, title, why, status}. status: deferred | in_progress | done.",
+  "items": [
+    {
+      "id": "rydberg-power-to-rabi",
+      "area": "schemes/rydberg.py",
+      "title": "Connect Rydberg probe/coupling beam power to the OBE drive",
+      "why": "probe_power_uw / coupling_power_mw / beam_diameter_mm are display-only metadata today; the solve is driven by the fitted coupling_rabi_mhz / lo_rabi_mhz. An experimentalist sets beam power, not Rabi. Add beam-geometry -> intensity -> Rabi conversion so power sliders actually move the spectrum. Needs a calibrated 480 nm 5P->40D coupling dipole (and the probe stays weak-probe linear, so probe power would only scale readout, not the solve).",
+      "status": "deferred"
+    },
+    {
+      "id": "biphoton-predictive-model",
+      "area": "schemes/fwm.py + observables.py",
+      "title": "Replace calibrated biphoton estimate with a predictive model",
+      "why": "Biphoton mode reproduces reference numbers by construction (pair_rate_cps_per_mw, target_g2_peak injected, added-accidental forced). It is a calibrated estimate, not a first-principles prediction. A full quantum-Langevin / coupled propagation model would make g2/CAR/rate predictive instead of anchored. Until then the UI is labelled 'calibrated estimate (non-predictive)'.",
+      "status": "deferred"
+    },
+    {
+      "id": "buffer-gas-pressure-shift",
+      "area": "constants.py",
+      "title": "Promote Ne buffer broadening to a gas/species/line table with pressure shift + Dicke narrowing",
+      "why": "neon_buffer_broadening() is a fixed FWHM-per-Torr line only; pressure shift and Dicke narrowing are not modelled (see constants.py TODO). Generalise to a coefficient table when more buffer gases are exposed.",
+      "status": "deferred"
+    }
+  ]
+}

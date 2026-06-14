@@ -107,13 +107,14 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   preset).
 - Biphoton readout: `g²_SI(τ)`, FWHM, pair-rate estimate, singles, true and
   accidental coincidences, CAR, heralding estimates, and Cauchy-Schwarz R.
-- The waveform is a coherent sum over Doppler velocity classes. Phase matching
-  uses a longitudinal Δk model with `sinc²(Δk L / 2)` collection weight.
+- The waveform is a coherent sum over Doppler velocity classes. Biphoton v3 phase
+  matching uses calibrated longitudinal Δk plus absolute transverse Δk, with a
+  strict vector `sinc²(|Δk| L / 2)` collection weight.
 - Reference anchors: the 87Rb telecom source is calibrated to order
   `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
   the Cs BTW preset exposes the wavelength-dependent temporal-width change
   reported for the 852-917 nm and 852-795 nm cascade channels.
-- V1 limitation: absolute pair rate is a **calibrated source estimate**, not a
+- v3 limitation: absolute pair rate is a **calibrated source estimate**, not a
   full quantum-Langevin propagation/noise calculation.
 
 ## Traps

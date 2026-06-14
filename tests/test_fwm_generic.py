@@ -316,7 +316,7 @@ def test_cs_btw_short_window_render_no_shape_error():
     raw = scheme.compute(params)
     view = scheme.observables(raw, params)
     assert view.get("figure") is not None
-    assert any(table["title"] == "Reference validation (medium model)"
+    assert any(table["title"] == "Reference reproduction (calibrated · non-predictive)"
                for table in view.get("tables", []))
 
 

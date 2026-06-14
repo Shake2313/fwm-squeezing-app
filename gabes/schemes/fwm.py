@@ -863,10 +863,10 @@ def _safe_refractive_index(chi_bar, N_atoms, line_strength):
     return 1.0 + np.clip(0.5 * np.real(chi), -1e-5, 1e-5)
 
 
-def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg):
+def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg, L=L_CELL):
     chi = observables.chi_phys(chi_bar, N_atoms, line_strength=line_strength)
     alpha = np.maximum(K_VEC * np.imag(chi), 0.0)
-    od = float(np.nanmedian(alpha) * L_CELL) if alpha.size else 0.0
+    od = float(np.nanmedian(alpha) * L) if alpha.size else 0.0
     od = float(np.clip(od, 0.0, 2.0))
     z_frac = (np.arange(nseg, dtype=float) + 0.5) / nseg
     return np.exp(-0.5 * od * z_frac), od
@@ -898,6 +898,7 @@ def compute_spectrum(D_GHz, *,
                      T=T_CELL, P_pump=P_PUMP, P_probe=P_PROBE,
                      w_pump=W_PUMP, w_probe=W_PROBE,
                      line_strength=None, loss_frac=LOSS_FRAC, qe=QE_DETECTOR,
+                     L=L_CELL,
                      coarse_points=None, fine_points=None, window_mhz=None,
                      scan_min=None, scan_max=None,
                      velocity_step=None, velocity_cutoff=None,
@@ -966,11 +967,11 @@ def compute_spectrum(D_GHz, *,
                 n_seed=n_seed, n_conj=n_conj)
             propagation_segments = 16
             segment_profile, segment_od = _segment_profile_from_absorption(
-                chi_ss_avg, N_atoms, line_strength, propagation_segments)
+                chi_ss_avg, N_atoms, line_strength, propagation_segments, L=L)
 
     G_s, G_c, _ = observables.gain_from_chi(
         chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
-        k_probe_prop, k_conj_prop, L_CELL, N_atoms, line_strength=line_strength,
+        k_probe_prop, k_conj_prop, L, N_atoms, line_strength=line_strength,
         delta_k_z=delta_k_z, propagation_segments=propagation_segments,
         segment_profile=segment_profile)
 
@@ -997,6 +998,7 @@ def compute_spectrum(D_GHz, *,
         "phase_segments": propagation_segments,
         "segment_absorption_od": segment_od,
         "eta": eta,
+        "cell_length_m": L,
         "branch": branch,
         "N_atoms": N_atoms,
         "sigma_v": np.sqrt(constants.KB * T / constants.MASS_85RB),
@@ -1046,8 +1048,8 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "phase-matching-v3"
-    defaults_version = "phase-matching-defaults-v3"
+    cache_version = "phase-matching-v4"
+    defaults_version = "phase-matching-defaults-v4"
     cache_observables = True
     caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
                "Biphoton shows generic SFWM source estimates for cascade and "
@@ -1082,6 +1084,10 @@ class FWMScheme(Scheme):
                       help="ω_seed = ω_pump − ν_HF + δ. Navigates the curve instantly (no recompute)."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 121.0,
                       60.0, 150.0, 1.0, "°C", visible_if=seeded),
+            ParamSpec("cell_mm", "Cell length", "Cell & beams", 12.5,
+                      1.0, 100.0, 0.5, "mm", visible_if=seeded,
+                      help="Vapor-cell length L. Enters the Maxwell-Bloch "
+                           "propagation exp(M·L), so it recomputes the gain."),
             ParamSpec("pump_mw", "Pump power", "Cell & beams", 600.0,
                       50.0, 1200.0, 10.0, "mW", visible_if=seeded),
             ParamSpec("probe_uw", "Seed / probe power", "Cell & beams", 8.0,
@@ -1089,19 +1095,23 @@ class FWMScheme(Scheme):
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", visible_if=seeded,
                       help="Folds into eta = QE x (1 - loss)."),
-            ParamSpec("ls", "FWM coupling scale", "Detection & scaling", 0.05,
+            ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 0.05,
                       0.01, 1.0, 0.01, "",
                       visible_if=seeded,
-                      help="Residual propagation-coupling scale after applying "
-                           "Rb85 D1 hyperfine Clebsch-Gordan strengths."),
+                      help="Effective |d|² calibration knob (residual propagation-coupling "
+                           "scale after the Rb85 D1 hyperfine Clebsch-Gordan strengths). "
+                           "This is a regression-anchored fit value, not first-principles — "
+                           "the absolute gain / squeezing scale depends on it."),
             ParamSpec("biphoton_temp_c", "Temperature", "Cell & beams", 90.0,
                       30.0, 160.0, 1.0, "°C", visible_if=biphoton),
             ParamSpec("biphoton_cell_mm", "Cell length", "Cell & beams", 12.5,
                       1.0, 100.0, 0.5, "mm", visible_if=biphoton),
             ParamSpec("pump_biphoton_uw", "Pump power", "Fields", 10.0,
                       0.1, 200.0, 0.1, "µW", visible_if=biphoton),
-            ParamSpec("coupling_mw", "Coupling power scale", "Fields", 1.0,
-                      0.01, 50.0, 0.01, "mW", visible_if=biphoton),
+            ParamSpec("coupling_mw", "Coupling drive scale", "Fields", 1.0,
+                      0.01, 50.0, 0.01, "×", visible_if=biphoton,
+                      help="Relative coupling drive, √-scaled against the topology's "
+                           "reference coupling power — dimensionless, not an absolute mW."),
             ParamSpec("pump_detuning_mhz", "Pump detuning", "Detunings", 0.0,
                       -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
             ParamSpec("coupling_detuning_mhz", "Coupling detuning", "Detunings", 0.0,
@@ -1170,8 +1180,8 @@ class FWMScheme(Scheme):
 
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
-                    pump_mw=600.0, probe_uw=8.0, loss_pct=5.5, ls=0.05,
-                    resolution="Balanced  (~6 s)",
+                    cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
+                    line_strength=0.05, resolution="Balanced  (~6 s)",
                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
@@ -1250,7 +1260,8 @@ class FWMScheme(Scheme):
             T=params["temp_c"] + 273.15,
             P_pump=params["pump_mw"] * 1e-3,
             P_probe=params["probe_uw"] * 1e-6,
-            line_strength=params["ls"],
+            line_strength=params["line_strength"],
+            L=params["cell_mm"] * 1e-3,
             loss_frac=params["loss_pct"] / 100.0,
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
@@ -1295,7 +1306,9 @@ class FWMScheme(Scheme):
 
         metrics = [
             dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
-                 help="Power gain of the seeded probe through the cell."),
+                 help="Power gain of the seeded probe through the cell. Absolute "
+                      "scale is calibrated by the Line-strength factor "
+                      "(regression-anchored fit), not first-principles."),
             dict(label="Squeezing", value=f"{op['S_dB']:.2f} dB",
                  delta="below shot noise" if op["S_dB"] < 0 else "above shot noise",
                  delta_color="inverse"),
@@ -1324,6 +1337,8 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
+            f"| Line-strength factor (calibration) | {params['line_strength']:.3f} — "
+            f"regression-anchored fit; sets the absolute gain/squeezing scale |\n"
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n\n"
@@ -1333,7 +1348,8 @@ class FWMScheme(Scheme):
                "the pump can supply (Manley-Rowe), so the shown gain is capped by "
                "energy conservation. Lower T / raise seed power to stay in the "
                "linear regime.\n\n" if depletion_limited else "")
-            + f"Fixed: cell L = {L_CELL*1e3:.1f} mm · pump w₀ {W_PUMP*1e6:.0f} µm · "
+            + f"Cell L = {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm · "
+            f"Fixed: pump w₀ {W_PUMP*1e6:.0f} µm · "
             f"seed w₀ {W_PROBE*1e6:.0f} µm · QE {QE_DETECTOR*100:.2f}% · "
             f"responsivity {RESPONSIVITY_AW} A/W @ 795 nm · pump⊥probe at PBS."
         )
@@ -1413,8 +1429,14 @@ class FWMScheme(Scheme):
             extra_figures.append(("2D phase matching", figPM2))
 
         metrics = [
+            dict(label="Model status", value="calibrated · non-predictive",
+                 help="Biphoton mode is a reference-calibrated source estimate, not a "
+                      "first-principles prediction: pair rate and g2 are anchored to the "
+                      "reference numbers by construction. See docs/checklist.json for the "
+                      "planned predictive (quantum-Langevin) model."),
             dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}",
-                 help="Peak normalized signal-idler cross-correlation."),
+                 help="Peak normalized signal-idler cross-correlation (calibrated to the "
+                      "reference target, not predicted)."),
             dict(label="CAR", value=f"{stats['CAR']:.1f}",
                  help="True coincidence divided by accidental coincidence."),
             dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
@@ -1480,18 +1502,23 @@ class FWMScheme(Scheme):
             "tables": [
                 {"title": "Generic SFWM topology", "markdown": topology_table},
                 {"title": "Biphoton detection model", "markdown": detection_table},
-                {"title": "Reference validation (medium model)", "markdown": validation_table},
+                {"title": "Reference reproduction (calibrated · non-predictive)", "markdown": validation_table},
             ],
         }
 
     def _reference_validation_table(self, raw, params, stats):
         topo = raw["topology"]
 
-        def verdict(ok):
+        def verdict(ok, kind="physical"):
+            # Calibration anchors are matched to the reference *by construction*
+            # (the reference number is injected into the model), so a "PASS" there
+            # would be circular — label it honestly instead.
+            if kind == "calibrated":
+                return "by construction"
             return "PASS" if ok else "CHECK"
 
-        def row(name, calc, ref, ok, note=""):
-            return f"| {name} | {calc} | {ref} | {verdict(ok)} | {note} |\n"
+        def row(name, calc, ref, ok, note="", kind="physical"):
+            return f"| {name} | {calc} | {ref} | {verdict(ok, kind)} | {note} |\n"
 
         rows = []
         if topo.name == TOPOLOGY_RB87_TELECOM:
@@ -1500,23 +1527,23 @@ class FWMScheme(Scheme):
             rows.append(row(
                 "Pair rate / pump", f"{rate_per_mw:.0f} cps/mW",
                 "38000 cps/mW", abs(rate_per_mw / 38000.0 - 1.0) < 0.15,
-                "calibrated source-rate anchor"))
+                "anchored: pair rate is scaled from this reference number", kind="calibrated"))
             rows.append(row(
                 "g2 peak", f"{stats['g2_peak']:.2f} (raw {stats['raw_g2_peak']:.1f})",
                 "44(3)", abs(stats["g2_peak"] - 44.0) <= 3.0,
-                "uses explicit added-accidental calibration, not a noise first-principles result"))
+                "anchored: forced to the target via added-accidental calibration", kind="calibrated"))
             rows.append(row(
                 "BTW FWHM", f"{stats['fwhm_ns']:.3f} ns",
                 "0.56(4) ns", abs(stats["fwhm_ns"] - 0.56) <= 0.04,
-                "detector jitter is part of this medium model"))
+                "model waveform + detector jitter"))
             rows.append(row(
                 "OD estimate", f"{raw['od_estimate']:.1f}",
                 "112(3)", abs(raw["od_estimate"] - 112.0) <= 3.0,
-                "density/cell scaling from reference OD"))
+                "anchored: density/cell scaling of the reference OD", kind="calibrated"))
             rows.append(row(
                 "Bandwidth setting", f"{params['filter_bandwidth_mhz']:.0f} MHz",
                 "about 300 MHz", abs(params["filter_bandwidth_mhz"] - 300.0) <= 40.0,
-                "filter/source bandwidth check"))
+                "user filter-bandwidth setting check"))
         elif topo.name == TOPOLOGY_CS_BTW:
             other_channel = CS_CHANNEL_795 if params.get("cs_channel") == CS_CHANNEL_917 else CS_CHANNEL_917
             other_params = dict(params)
@@ -1543,7 +1570,7 @@ class FWMScheme(Scheme):
             rows.append(row(
                 "OD estimate", f"{raw['od_estimate']:.1f}",
                 "about 10", abs(raw["od_estimate"] - 10.0) <= 2.0,
-                "density/cell scaling from reference note"))
+                "anchored: density/cell scaling of the reference OD", kind="calibrated"))
         else:
             rows.append(row(
                 "Reference validation", "generic diamond template",
@@ -1560,10 +1587,13 @@ class FWMScheme(Scheme):
             "wavelength bookkeeping"))
 
         return (
-            "This table is the medium-complexity reference check. It verifies "
-            "bookkeeping, calibrated rate/OD anchors, detector-level g2 calibration, "
-            "and phase matching. It does not claim full quantum-Langevin noise or "
-            "full Cs BTW theory.\n\n"
+            "**Reference reproduction — calibrated, non-predictive.** Rows tagged "
+            "*by construction* are anchored to the reference number (it is injected "
+            "into the model), so agreement there is not an independent validation. "
+            "Only the *physical* rows — phase matching and energy conservation, "
+            "computed from the geometry/wavelength bookkeeping — are genuine "
+            "PASS/CHECK tests. Full quantum-Langevin noise and full Cs BTW theory "
+            "are not modelled (see docs/checklist.json).\n\n"
             "| Check | Calculated | Reference | Verdict | Note |\n|---|---:|---:|---|---|\n"
             + "".join(rows)
         )
@@ -1572,7 +1602,8 @@ class FWMScheme(Scheme):
         def _compute_full(params):
             return full_spectrum(
                 params["opd"], params["temp_c"] + 273.15,
-                params["pump_mw"], params["probe_uw"], params["ls"], params["loss_pct"])
+                params["pump_mw"], params["probe_uw"], params["line_strength"],
+                params["loss_pct"], L=params["cell_mm"] * 1e-3)
 
         def _render_full(full):
             import matplotlib.pyplot as plt
@@ -1609,7 +1640,8 @@ class FWMScheme(Scheme):
         )]
 
 
-def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct):
+def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
+                  L=L_CELL):
     """Wide scan with the two Raman channels calculated independently.
 
     The ∓ branches are independent pure solves, so run them concurrently. With
@@ -1618,7 +1650,7 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct):
     """
     common = dict(
         T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
-        line_strength=line_strength, loss_frac=loss_pct / 100.0,
+        line_strength=line_strength, L=L, loss_frac=loss_pct / 100.0,
         coarse_points=301, fine_points=401, velocity_step=2.0)
 
     def _branch(b):

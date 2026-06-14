@@ -21,6 +21,8 @@ import numpy as np
 from .. import atoms, constants, doppler, hyperfine, observables, species
 from ..constants import GAMMA, K_VEC, OMEGA_D1
 from .. import core, kernels
+from ..lineshape import fwhm_halfmax, window_fwhm
+from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
 
 PROBE_RABI = 1e-3              # weak probe, in units of Γ
@@ -138,35 +140,6 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     return out
 
 
-def _fwhm(x, y):
-    """FWHM of a single peak in y over x (same units as x); nan if ill-defined."""
-    pk = np.nanmax(y)
-    if not np.isfinite(pk) or pk <= 0:
-        return float("nan")
-    above = x[y >= 0.5 * pk]
-    return float(above.max() - above.min()) if above.size > 1 else float("nan")
-
-
-def _window_fwhm(x, y, ic):
-    """
-    Width of a transparency feature: a peak in y (transmission) at index ic
-    sitting above an adjacent absorption floor. Walks out from ic to the
-    half-height between the peak and the deepest neighbouring value.
-    """
-    peak = y[ic]
-    floor = np.nanmin(y)
-    if not np.isfinite(peak) or peak <= floor:
-        return float("nan")
-    thresh = 0.5 * (peak + floor)
-    i = ic
-    while i > 0 and y[i] >= thresh:
-        i -= 1
-    j = ic
-    while j < y.size - 1 and y[j] >= thresh:
-        j += 1
-    return float(x[j] - x[i])
-
-
 def _hyperfine_alpha(scan, params):
     """
     Realistic 85Rb D1 absorption coefficient α(scan) [1/m]: an incoherent sum of
@@ -252,7 +225,8 @@ class ODScheme(Scheme):
                       "Voigt — the validation backbone the Λ schemes reduce to."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 50.0, 20.0, 200.0, 1.0, "°C",
                       help="Sets the 85Rb density (absorption scale) and Doppler width."),
-            ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0, 0.5, 200.0, 0.5, "mm"),
+            ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0, 0.5, 200.0, 0.5, "mm",
+                      recompute=False),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", help="Effective |d|² calibration knob. Single: "
                       "=1.0 reproduces the textbook 3λ²/2π cross-section. Hyperfine: "
@@ -299,8 +273,9 @@ class ODScheme(Scheme):
         import matplotlib.pyplot as plt
         x = raw["scan"] / (2 * np.pi) / 1e9                      # GHz
         alpha = raw["alpha"]
-        OD = observables.optical_density(alpha, raw["L"])
-        T_trans = observables.transmission(alpha, raw["L"])
+        L = params["cell_mm"] * 1e-3            # navigate-only knob: read live
+        OD = observables.optical_density(alpha, L)
+        T_trans = observables.transmission(alpha, L)
 
         fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
         axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
@@ -333,20 +308,19 @@ class ODScheme(Scheme):
             f"| {Fg}→{Fe}′ | {hyperfine.LINE_SHIFT_HZ[(Fg, Fe)]/1e9:.3f} | "
             f"{hyperfine.GROUND_POP[Fg]*hyperfine.CF2[(Fg, Fe)]:.4f} |\n"
             for (Fg, Fe) in hyperfine.TRANSITIONS)
-        derived = (
-            f"| Quantity | Value |\n|---|---|\n"
-            f"| N(85Rb), pure cell | {raw['N']:.3e} /m³ |\n"
-            f"| σ_v (1-D) | {raw['sigma_v']:.1f} m/s |\n"
-            f"| Doppler FWHM | {raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz |\n"
-            f"| Γ_eff/2π (self + Ne broadened) | {raw['gamma_eff']/(2*np.pi)/1e6:.3f} MHz "
-            f"(+{sb_mhz:.3f}) |\n"
-            f"| Ne buffer pressure | {params.get('ne_pressure_torr', 0.0):.0f} Torr |\n"
-            f"| Ne broadening/2π | {buffer_mhz:.3f} MHz |\n"
-            f"| Natural Γ/2π | {GAMMA_MHZ:.3f} MHz |\n"
-        )
+        derived = derived_table([
+            ("N(85Rb), pure cell", f"{raw['N']:.3e} /m³"),
+            ("σ_v (1-D)", f"{raw['sigma_v']:.1f} m/s"),
+            ("Doppler FWHM", f"{raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz"),
+            ("Γ_eff / 2π (self + Ne broadened)",
+             f"{raw['gamma_eff']/(2*np.pi)/1e6:.3f} MHz (+{sb_mhz:.3f})"),
+            ("Ne buffer pressure", f"{params.get('ne_pressure_torr', 0.0):.0f} Torr"),
+            ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
+            ("Natural Γ / 2π", f"{GAMMA_MHZ:.3f} MHz"),
+        ])
         lines = ("| Line | Center [GHz] | p_F·C_F² |\n|---|---|---|\n" + rows)
         return dict(metrics=metrics, figure=fig, tables=[
-            {"title": "Derived quantities", "markdown": derived},
+            derived,
             {"title": "Hyperfine lines (relative strength)", "markdown": lines}])
 
     # ---- single bare 2-level line (validation backbone) ----
@@ -379,8 +353,9 @@ class ODScheme(Scheme):
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, _ = observables.absorption_coefficient(
             raw["chi_bar"], K_VEC, raw["N"], line_strength=raw["ls"])
-        OD = observables.optical_density(alpha, raw["L"])
-        T_trans = observables.transmission(alpha, raw["L"])
+        L = params["cell_mm"] * 1e-3           # navigate-only knob: read live
+        OD = observables.optical_density(alpha, L)
+        T_trans = observables.transmission(alpha, L)
 
         fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
         axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
@@ -395,7 +370,7 @@ class ODScheme(Scheme):
             a.axvline(0, color="gray", ls=":", lw=0.8)
         fig.tight_layout()
 
-        fwhm_mhz = _fwhm(x, OD)
+        fwhm_mhz = fwhm_halfmax(x, OD)
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         metrics = [
             dict(label="Peak OD", value=f"{np.nanmax(OD):.3f}",
@@ -404,18 +379,16 @@ class ODScheme(Scheme):
             dict(label="Line FWHM", value=f"{fwhm_mhz:.1f} MHz",
                  help="Voigt width (Doppler on) or natural Γ (Doppler off)."),
         ]
-        derived = (
-            f"| Quantity | Value |\n|---|---|\n"
-            f"| Ne buffer pressure | {params.get('ne_pressure_torr', 0.0):.0f} Torr |\n"
-            f"| Ne broadening/2π | {buffer_mhz:.3f} MHz |\n"
-            f"| Γ_eff/2π | {raw.get('gamma_eff', GAMMA)/(2*np.pi)/1e6:.3f} MHz |\n"
-            f"| N(85Rb) | {raw['N']:.3e} /m³ |\n"
-            f"| σ_v (1-D) | {raw['sigma_v']:.1f} m/s |\n"
-            f"| Doppler FWHM | {raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz |\n"
-            f"| Natural Γ/2π | {GAMMA_MHZ:.3f} MHz |\n"
-        )
-        return dict(metrics=metrics, figure=fig,
-                    tables=[{"title": "Derived quantities", "markdown": derived}])
+        derived = derived_table([
+            ("Ne buffer pressure", f"{params.get('ne_pressure_torr', 0.0):.0f} Torr"),
+            ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
+            ("Γ_eff / 2π", f"{raw.get('gamma_eff', GAMMA)/(2*np.pi)/1e6:.3f} MHz"),
+            ("N(85Rb)", f"{raw['N']:.3e} /m³"),
+            ("σ_v (1-D)", f"{raw['sigma_v']:.1f} m/s"),
+            ("Doppler FWHM", f"{raw['dopp_fwhm']/(2*np.pi)/1e6:.1f} MHz"),
+            ("Natural Γ / 2π", f"{GAMMA_MHZ:.3f} MHz"),
+        ])
+        return dict(metrics=metrics, figure=fig, tables=[derived])
 
     def compute(self, params):
         if params.get("model", "85Rb D1 hyperfine") == "single 2-level":
@@ -473,8 +446,8 @@ def _mkey(params, new_key, old_key, scale, default):
 # =========================================================
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
-    cache_version = "physical-units-v1"
-    defaults_version = "physical-units-v1"
+    cache_version = "physical-units-v2"
+    defaults_version = "physical-units-v2"
 
     _TITLE = {
         "eit": "Electromagnetically induced transparency (EIT)",
@@ -541,11 +514,14 @@ class LambdaScheme(Scheme):
                       0.1, 120.0, 0.1, "MHz",
                       help="Strong dressing-field Rabi frequency on the second leg.",
                       endpoints=("weak EIT", "strong AT")),
-            ParamSpec("ground_dephasing_khz", "Ground dephasing", "Atomic", d["gg_khz"],
-                      0.0, 2000.0, 1.0, "kHz",
-                      help="Ground-state coherence decay; sets the EIT/CPT linewidth floor."),
+            ParamSpec("buffer_ground_relax_khz", "Buffer ground relaxation", "Atomic",
+                      d["gg_khz"], 0.0, 2000.0, 1.0, "kHz",
+                      help="Ground-state coherence relaxation (buffer-gas collisions); "
+                           "sets the EIT/CPT linewidth floor. Same quantity as the "
+                           "magneto buffer ground relaxation."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", d["temp"], 20.0, 200.0, 1.0, "°C"),
-            ParamSpec("cell_mm", "Cell length", "Cell & beams", d["cell"], 0.5, 200.0, 0.5, "mm"),
+            ParamSpec("cell_mm", "Cell length", "Cell & beams", d["cell"], 0.5, 200.0, 0.5, "mm",
+                      recompute=False),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", advanced=True),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", d["dopp"],
@@ -564,7 +540,7 @@ class LambdaScheme(Scheme):
         view = {"eit": "EIT", "at": "AT", "cpt": "CPT"}[mode]
         return dict(
             view=view, coupling_detuning_mhz=0.0,
-            coupling_rabi_mhz=d["oc_mhz"], ground_dephasing_khz=d["gg_khz"],
+            coupling_rabi_mhz=d["oc_mhz"], buffer_ground_relax_khz=d["gg_khz"],
             temp_c=d["temp"], cell_mm=d["cell"], doppler=d["dopp"],
             line_strength=1.0,
         )
@@ -586,7 +562,7 @@ class LambdaScheme(Scheme):
         Oc = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
                    self._DEF[m]["oc_mhz"])
         Dc = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
-        gg = _mkey(params, "ground_dephasing_khz", "gamma_gg", gamma_mhz * 1e3,
+        gg = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
                    self._DEF[m]["gg_khz"]) / (gamma_mhz * 1e3)
         Oc_g = Oc / gamma_mhz
         Dc_g = Dc / gamma_mhz
@@ -606,7 +582,7 @@ class LambdaScheme(Scheme):
         Oc_mhz = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
                        self._DEF[self._mode(params)]["oc_mhz"])
         Dc_mhz = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
-        gg_khz = _mkey(params, "ground_dephasing_khz", "gamma_gg", gamma_mhz * 1e3,
+        gg_khz = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
                        self._DEF[self._mode(params)]["gg_khz"])
         atom = atoms.lambda3(gamma_gg=gg_khz * KHZ, gamma=gamma)
         Oc = Oc_mhz * MHZ
@@ -629,7 +605,7 @@ class LambdaScheme(Scheme):
                     gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],
                     omega0=medium["omega0"], dipole=medium["dipole"],
                     medium_label=medium["label"], line=medium["line"],
-                    coupling_rabi_mhz=Oc_mhz, ground_dephasing_khz=gg_khz)
+                    coupling_rabi_mhz=Oc_mhz, buffer_ground_relax_khz=gg_khz)
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
@@ -638,7 +614,8 @@ class LambdaScheme(Scheme):
         alpha, xphys = observables.absorption_coefficient(
             raw["chi_bar"], raw.get("k_vec", K_VEC), raw["N"],
             dipole=raw.get("dipole"), line_strength=raw["ls"])
-        T_trans = observables.transmission(alpha, raw["L"])
+        L = params["cell_mm"] * 1e-3           # navigate-only knob: read live
+        T_trans = observables.transmission(alpha, L)
         center = raw["Dc"] / (2 * np.pi) / 1e6                   # two-photon resonance, MHz
 
         fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
@@ -649,7 +626,7 @@ class LambdaScheme(Scheme):
             f"{self._TITLE[m].split('(')[0].strip()}: "
             f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}, "
             f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-            f"gamma_gg = {raw['ground_dephasing_khz']:.1f} kHz, "
+            f"buffer relax = {raw['buffer_ground_relax_khz']:.1f} kHz, "
             f"Doppler {params.get('doppler', 'off')}")
         axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
         axD.set_ylabel("Re chi  (dispersion)")
@@ -660,16 +637,14 @@ class LambdaScheme(Scheme):
 
         ic = int(np.argmin(np.abs(x - center)))
         metrics = self._metrics(m, x, alpha, T_trans, xphys, ic, center, raw, params)
-        derived = (
-            "| Quantity | Value |\n|---|---|\n"
-            f"| Medium | {raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')} |\n"
-            f"| Gamma/2pi | {raw.get('gamma_mhz', GAMMA_MHZ):.4f} MHz |\n"
-            f"| Omega_c/2pi | {raw['coupling_rabi_mhz']:.4f} MHz |\n"
-            f"| gamma_gg/2pi | {raw['ground_dephasing_khz']:.3f} kHz |\n"
-            f"| N | {raw['N']:.3e} /m^3 |\n"
-        )
-        return dict(metrics=metrics, figure=fig,
-                    tables=[{"title": "Derived quantities", "markdown": derived}])
+        derived = derived_table([
+            ("Medium", f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}"),
+            ("Γ / 2π", f"{raw.get('gamma_mhz', GAMMA_MHZ):.4f} MHz"),
+            ("Ω_c / 2π", f"{raw['coupling_rabi_mhz']:.4f} MHz"),
+            ("Buffer ground relax / 2π", f"{raw['buffer_ground_relax_khz']:.3f} kHz"),
+            ("N", f"{raw['N']:.3e} /m³"),
+        ])
+        return dict(metrics=metrics, figure=fig, tables=[derived])
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":
@@ -689,7 +664,7 @@ class LambdaScheme(Scheme):
                 dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}"),
             ]
         # EIT / CPT: transparency at two-photon resonance + dark-resonance width.
-        win_fwhm = _window_fwhm(x, T_trans, ic)
+        win_fwhm = window_fwhm(x, T_trans, ic)
         ng = observables.group_index(xphys, raw["scan"], raw.get("omega0", OMEGA_D1))[ic]
         unit = "kHz" if mode == "cpt" else "MHz"
         scale = 1e3 if mode == "cpt" else 1.0

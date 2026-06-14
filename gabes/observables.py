@@ -11,6 +11,7 @@ import numpy as np
 
 from . import constants
 from .core import matrix_exp_2x2
+from .lineshape import fwhm_interp
 
 
 def _gain_matrix_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
@@ -170,31 +171,6 @@ def _smooth_same(y, x, fwhm):
     return full[start:start + y.size]
 
 
-def _fwhm(x, y):
-    x = np.asarray(x, dtype=float)
-    y = np.asarray(y, dtype=float)
-    if x.size < 2 or not np.any(np.isfinite(y)):
-        return np.nan
-    peak = float(np.nanmax(y))
-    if peak <= 0:
-        return np.nan
-    half = 0.5 * peak
-    above = np.flatnonzero(y >= half)
-    if above.size == 0:
-        return np.nan
-    lo = int(above[0])
-    hi = int(above[-1])
-
-    def interp_edge(i0, i1):
-        if i0 < 0 or i1 >= x.size or y[i1] == y[i0]:
-            return x[max(min(i1, x.size - 1), 0)]
-        return x[i0] + (half - y[i0]) * (x[i1] - x[i0]) / (y[i1] - y[i0])
-
-    left = interp_edge(lo - 1, lo) if lo > 0 else x[lo]
-    right = interp_edge(hi, hi + 1) if hi < x.size - 1 else x[hi]
-    return float(max(right - left, 0.0))
-
-
 def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
                    signal_eff=0.1, idler_eff=0.1,
                    dark_signal_cps=0.0, dark_idler_cps=0.0,
@@ -250,7 +226,7 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     return {
         "g2_SI_tau": g2_tau,
         "tau_axis_ns": tau_axis_ns,
-        "fwhm_ns": _fwhm(tau_axis_ns, intensity),
+        "fwhm_ns": fwhm_interp(tau_axis_ns, intensity),
         "pair_rate_cps": pair_rate,
         "singles_signal_cps": singles_signal,
         "singles_idler_cps": singles_idler,
