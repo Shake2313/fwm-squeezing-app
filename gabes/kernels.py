@@ -250,11 +250,12 @@ def magneto_two_region_grid(L_light0, L_dark0, deff, S_v,
 
     This is the hot path: at 2M up to ~200 the giant (nB,nv,2M,2M) NumPy
     temporary and its serial batched solve dominate; the kernel fuses assembly
-    and solve per grid point and parallelises over B. Unlike the FWM kernel it
-    solves each 2M×2M system with LAPACK (`np.linalg.solve`) rather than a
-    hand-rolled LU — at this size LAPACK's blocked factorisation wins (~3× over
-    scalar LU, measured). Pin BLAS to one thread around the call so the prange
-    threads don't oversubscribe.
+    and solve per grid point and parallelises over B. Like the other kernels it
+    uses the hand-rolled `_lu_factor`/`_lu_solve` (LAPACK zgetf2 conventions, so
+    results match `np.linalg.solve` to ~1e-13) rather than numba's
+    `np.linalg.solve`, which needs a SciPy/LAPACK runtime that is not guaranteed
+    to be present. Pin BLAS to one thread around the call so the prange threads
+    don't oversubscribe.
     """
     nB = L_light0.shape[0]
     nv = deff.size
@@ -264,6 +265,7 @@ def magneto_two_region_grid(L_light0, L_dark0, deff, S_v,
     for b in prange(nB):
         A = np.zeros((M2, M2), np.complex128)        # reused across the v loop
         rhs = np.zeros((M2, 1), np.complex128)
+        piv = np.empty(M2, np.int64)
         for j in range(nv):
             d = deff[j]
             for r in range(M):
@@ -282,12 +284,14 @@ def magneto_two_region_grid(L_light0, L_dark0, deff, S_v,
                 idx = s * n_levels + s
                 A[0, idx] = 1.0
                 A[0, M + idx] = 1.0
-            rhs[0, 0] = 1.0                          # rest stay 0 across the loop
-            sol = np.linalg.solve(A, rhs)
-            rhs[0, 0] = 0.0                          # restore for the next j
+            for r in range(M2):                      # reset RHS (solved in place)
+                rhs[r, 0] = 0.0
+            rhs[0, 0] = 1.0
+            _lu_factor(A, piv)
+            _lu_solve(A, piv, rhs)                   # rhs now holds the solution
             for r in range(n_levels):                # light block only
                 for c in range(n_levels):
-                    out[b, j, r, c] = sol[r * n_levels + c, 0]
+                    out[b, j, r, c] = rhs[r * n_levels + c, 0]
     return out
 
 
