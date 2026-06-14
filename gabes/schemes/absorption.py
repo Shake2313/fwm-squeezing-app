@@ -267,7 +267,7 @@ class ODScheme(Scheme):
         alpha, components, info = _hyperfine_alpha(scan, params)
         return dict(model="hyperfine", scan=scan, alpha=alpha,
                     components={f"{Fg}-{Fe}": v for (Fg, Fe), v in components.items()},
-                    L=params["cell_mm"] * 1e-3, T=T, **info)
+                    L=params.get("cell_mm", 10.0) * 1e-3, T=T, **info)
 
     def _observables_hyperfine(self, raw, params):
         import matplotlib.pyplot as plt
@@ -344,7 +344,7 @@ class ODScheme(Scheme):
         chi_bar = _solve_chi_avg(atom, build_H0, (1, 0), scan, params, h_dep=False)
         N = atoms.rb85_density(T)
         return dict(model="single", scan=scan, chi_bar=chi_bar, N=N, T=T,
-                    L=params["cell_mm"] * 1e-3, ls=params["line_strength"],
+                    L=params.get("cell_mm", 10.0) * 1e-3, ls=params["line_strength"],
                     sigma_v=sigma_v, dopp_fwhm=dopp_fwhm,
                     gamma_eff=gamma_eff, buffer_gamma=buffer_gamma)
 
@@ -601,7 +601,7 @@ class LambdaScheme(Scheme):
             atom, build_H0, (2, 0), scan, params, h_dep=True,
             probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"])
         return dict(scan=scan, chi_bar=chi_bar, N=medium["N"], T=medium["T"], Dc=Dc,
-                    L=params["cell_mm"] * 1e-3, ls=params.get("line_strength", 1.0),
+                    L=params.get("cell_mm", 10.0) * 1e-3, ls=params.get("line_strength", 1.0),
                     gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],
                     omega0=medium["omega0"], dipole=medium["dipole"],
                     medium_label=medium["label"], line=medium["line"],
