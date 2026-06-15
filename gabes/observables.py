@@ -262,6 +262,25 @@ def intensity_difference_squeezing_dB(G_s, G_c, eta):
     return 10.0 * np.log10(np.maximum(S, 1e-30))
 
 
+def segmented_loss_noise_squeezing_dB(
+        G_s, G_c, eta, *, in_cell_loss_frac=0.0,
+        seed_excess_noise=0.0, pump_scatter_noise=0.0,
+        eom_residual_noise=0.0):
+    """Ultra FWM squeezing with in-cell loss and additive technical noise."""
+    G_s = np.asarray(G_s, dtype=float)
+    G_c = np.asarray(G_c, dtype=float)
+    cross = np.sqrt(np.maximum(G_s * G_c - 1.0, 0.0))
+    S_ideal = (G_s + G_c - 2.0 * cross) / np.maximum(G_s + G_c, 1e-30)
+    S_ideal = np.clip(S_ideal, 0.0, None)
+    tau_cell = 1.0 - np.clip(float(in_cell_loss_frac), 0.0, 1.0)
+    S_cell = tau_cell * S_ideal + (1.0 - tau_cell)
+    tech = (max(float(seed_excess_noise), 0.0)
+            + max(float(pump_scatter_noise), 0.0)
+            + max(float(eom_residual_noise), 0.0))
+    S = eta * S_cell + (1.0 - eta) + tech
+    return 10.0 * np.log10(np.maximum(S, 1e-30))
+
+
 # =========================================================
 # Absorption-cluster observables (OD / AT / EIT / CPT)
 # =========================================================

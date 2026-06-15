@@ -11,7 +11,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import observables  # noqa: E402
+from gabes import hyperfine, observables, zeeman  # noqa: E402
 from gabes.schemes import fwm  # noqa: E402
 
 
@@ -248,6 +248,44 @@ def test_seeded_phase_detail_modes_are_gated_by_resolution():
     assert fine["phase_segments"] > 1
 
 
+def test_fidelity_alias_and_ultra_tiny_grid():
+    assert fwm.normalize_fidelity("Fine  (~20 s)") == fwm.FIDELITY_HIGH
+
+    center = fwm.branch_center_GHz(0.9, -1)
+    raw = fwm.compute_spectrum(
+        0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05,
+        coarse_points=7, fine_points=0, scan_min=center - 0.01,
+        scan_max=center + 0.01, velocity_step=30.0, velocity_cutoff=0.4,
+        phase_detail=fwm.PHASE_ULTRA, model_fidelity=fwm.FIDELITY_ULTRA,
+        branch=-1)
+    assert raw["delta_k_z"] is not None
+    assert raw["phase_segments"] == fwm.ULTRA_PROPAGATION_SEGMENTS
+    assert raw["ultra_phase_iterations"] == fwm.ULTRA_PHASE_ITERATIONS
+    assert raw["ultra_dynamic_depletion"] is True
+    assert raw["ultra_in_cell_loss_noise"] is True
+    assert np.all(np.isfinite(raw["G_s"]))
+    assert np.all(np.isfinite(raw["G_c"]))
+    assert np.all(np.isfinite(raw["S_dB"]))
+    assert np.nanmax(raw["G_s"]) <= raw["pump_depletion_cap"] * (1.0 + 1e-9)
+
+
+def test_loss_noise_never_improves_squeezing():
+    Gs = np.array([2.0, 10.0])
+    Gc = np.array([1.0, 9.0])
+    ideal = observables.intensity_difference_squeezing_dB(Gs, Gc, 0.9)
+    lossy = observables.segmented_loss_noise_squeezing_dB(
+        Gs, Gc, 0.9, in_cell_loss_frac=0.1)
+    assert np.all(lossy >= ideal)
+
+
+def test_rb85_fwm_zeeman_cg_sum_rules_match_lumped_strengths():
+    atom = zeeman.rb85_d1_double_lambda_zeeman()
+    assert atom.n_levels == 24
+    for key, cf2 in hyperfine.CF2.items():
+        assert np.isclose(atom.lumped_strengths[key], 3.0 * cf2, rtol=1e-12)
+    assert np.isclose(atom.lumped_strength_correction, 1.0, rtol=1e-12)
+
+
 def test_biphoton_fine_phase_adds_absolute_and_2d_map():
     scheme = fwm.FWMScheme()
     params = _recommended_params(
@@ -335,6 +373,9 @@ if __name__ == "__main__":
     test_biphoton_ui_render_modes()
     test_squeezing_hides_twin_beam_coincidence_figure()
     test_seeded_phase_detail_modes_are_gated_by_resolution()
+    test_fidelity_alias_and_ultra_tiny_grid()
+    test_loss_noise_never_improves_squeezing()
+    test_rb85_fwm_zeeman_cg_sum_rules_match_lumped_strengths()
     test_biphoton_fine_phase_adds_absolute_and_2d_map()
     test_fwm_default_buttons_are_squeezing_and_contextual_biphoton()
     test_cs_btw_short_window_render_no_shape_error()

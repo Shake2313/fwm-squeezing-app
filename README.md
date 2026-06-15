@@ -123,8 +123,9 @@ Current FWM note: the 4-level FWM model now applies the real 85Rb D1 hyperfine
 `C_F^2` values `(10,35,35,28)/81` to Rabi couplings, polarization readout, and
 spontaneous-emission branching. The remaining app knob is a residual **FWM
 coupling scale**, not a literal line-strength constant; keep it near the
-calibrated regime (~0.05) until phase mismatch, loss/noise, pump depletion, and
-full Zeeman structure are included.
+calibrated regime (~0.05). Ultra fidelity now adds the slow propagation
+refinements, but the full 24-level Zeeman Floquet scan is still reported as a
+diagnostic rather than used as the default full-scan solver.
 
 1. **FWM gain is exponentially sensitive at high density.** At paper optimum
    T=121 °C linear Maxwell-Bloch still over-amplifies if the residual coupling
@@ -174,15 +175,15 @@ full Zeeman structure are included.
 
 ## FWM future physics work
 
-- Add longitudinal phase mismatch `Δk_z` to the probe/conjugate propagation
-  matrix. Sim et al. use a finite pump-probe angle, and Turnbull et al. show that
-  phase mismatch controls the gain/absorption tradeoff for squeezed twin beams.
-- Add explicit loss/noise physics rather than folding everything into a scalar
-  detection efficiency: propagation loss with Langevin noise, seed excess noise,
-  pump scattering, and EOM residual carrier/sideband multimode noise.
-- Benchmark the cost/benefit of those additions before making them default. Record
-  runtime slowdown, shift in optimum TPD, gain match to Sim et al. (~15), and IDS
-  accuracy improvement versus the current single-branch model.
+- Ultra fidelity includes fixed-iteration refractive phase matching, 64-segment
+  propagation, Gaussian overlap, segment-wise pump-budget depletion, and in-cell
+  loss/noise before detector efficiency.
+- Technical noise channels (seed excess noise, pump scattering, EOM residual
+  carrier/sideband noise) are present as zero-default internal terms until
+  calibrated measurements are available.
+- The 24-level 85Rb D1 Zeeman manifold is built for CG diagnostics and correction
+  bookkeeping; the full Zeeman Floquet solve remains future work because the
+  density matrix jumps from 4-level `M=16` to 24-level `M=576`.
 
 ## Sim et al. 85Rb optimum (Squeezing default, FWM scheme)
 

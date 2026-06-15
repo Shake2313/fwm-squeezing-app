@@ -63,8 +63,9 @@ truncated-Floquet sideband steady state, to the Maxwell--Bloch propagation that
 turns the atomic susceptibility into seed/conjugate gain, intensity-difference
 squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform. Seeded
 squeezing includes the reference $0.3^\circ$ pump--probe longitudinal
-mismatch in the app's fast and balanced paths; Fine mode adds a conservative
-$\chi$-reused refractive correction and segmented propagation. Biphoton mode uses
+mismatch in the app's fast and balanced paths; High-fidelity mode adds a
+conservative $\chi$-reused refractive correction and segmented propagation;
+Ultra adds slow segmented depletion/loss/noise and Zeeman diagnostics. Biphoton mode uses
 vector phase matching: calibrated longitudinal $\Delta k_z$ plus absolute
 transverse $\Delta k_x$, with a two-dimensional signal--idler vector acceptance
 map in Fine mode. The heavy OBE grid can be evaluated by optional compiled Numba
@@ -650,7 +651,7 @@ $k_s$ is set by the scanned seed frequency, and energy conservation sets
 $k_c=2k_p-k_s$ in angular-frequency units. This is cheap: it is one vector over
 the already-computed probe axis, and no OBE/Floquet solve is repeated.
 
-Fine resolution adds two post-OBE refinements while keeping the expensive
+High fidelity adds two post-OBE refinements while keeping the expensive
 susceptibility table fixed:
 \begin{enumerate}[leftmargin=2.2em]
   \item A conservative refractive correction,
@@ -669,7 +670,10 @@ susceptibility table fixed:
 The \code{phase\_detail} option selects how much of this propagation physics is
 included. \code{PHASE\_LEGACY} sets $\Delta k_z=0$ for regression-preserving
 direct calculations. The app's Fast and Balanced presets use Eq.~\eqref{eq:seededDk};
-Fine uses the refractive and segmented refinements.
+High fidelity uses the refractive and segmented refinements. Ultra repeats the
+refractive phase update for a fixed small iteration count, uses 64 propagation
+segments, applies Gaussian overlap and an approximate segment-wise pump budget,
+and reports the active Zeeman diagnostic correction.
 
 \subsection{From dimensionless to physical susceptibility}
 
@@ -828,7 +832,8 @@ $\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
   \item Maxwell--Bloch propagate $\to$ $G_s,G_c$,
   Eqs.~\eqref{eq:Mmatrix}--\eqref{eq:gains}. In the app path the propagation
   matrix also carries the seeded phase-mismatch term, Eq.~\eqref{eq:Mdeltak};
-  Fine mode additionally uses the refractive and segmented propagation refinements.
+  High fidelity additionally uses the refractive and segmented propagation
+  refinements; Ultra uses the segmented depletion/loss/noise path.
   \item Apply the Manley--Rowe cap, Eq.~\eqref{eq:manleyrowe}.
   \item Squeezing $S_{\text{dB}}(\delta)$, Eq.~\eqref{eq:Seta}.
 \end{enumerate}
@@ -1014,22 +1019,18 @@ $\xi_{\text{LS}}\!\sim\!0.05$ stands in for unmodelled propagation physics; the
 biphoton pair rates and the $g^{(2)}$ noise floor are reference-calibrated source
 estimates.
 
-\paragraph{Not yet modelled (future physics).}
+\paragraph{Ultra status and remaining future physics.}
 \begin{itemize}[leftmargin=1.6em]
-  \item Self-consistent refractive phase matching. Fine mode reuses the computed
-  susceptibility for a clipped, cheap refractive correction, but it does not
-  re-solve the atom with propagation-modified fields.
-  \item Full Gaussian spatial-mode overlap. Biphoton mode includes vector phase
-  matching through $\Delta k_z^{\text{rel}}$ and absolute $\Delta k_x$, but it
-  still uses a scalar sinc acceptance rather than a full mode-overlap integral.
-  \item Dynamical pump absorption/depletion along the cell. Fine mode uses a
-  scalar segmented profile inferred from absorption, not a coupled pump-field
-  Maxwell--Bloch solve.
-  \item Explicit loss/noise: propagation loss with quantum-Langevin noise, seed
-  excess noise, pump scattering, EOM residual multimode noise --- currently all
-  folded into the scalar detection efficiency $\eta$.
-  \item Full Zeeman ($m_F$) substructure; the present model lumps the magnetic
-  sublevels into the CG line strengths.
+  \item Ultra v1 includes fixed-iteration refractive phase matching, Gaussian
+  beam-overlap weighting, segment-wise pump-budget depletion, and in-cell
+  beam-splitter loss/noise before detector efficiency.
+  \item Technical noise channels (seed excess noise, pump scattering, EOM
+  residual multimode noise) are present as zero-default internal terms until
+  calibrated measurements are available.
+  \item Full Zeeman ($m_F$) substructure is available as a 24-level 85Rb D1
+  diagnostic manifold whose CG sums reproduce the lumped FWM strengths. The
+  full 24-level Floquet scan is not run by default in Ultra v1; the diagnostics
+  table reports this explicitly.
 \end{itemize}
 
 % =====================================================================

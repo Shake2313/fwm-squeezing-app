@@ -66,7 +66,10 @@ DEFAULT_BRANCH = -1
 PHASE_LEGACY = "legacy"
 PHASE_BALANCED = "balanced"
 PHASE_FINE = "fine"
+PHASE_ULTRA = "ultra"
 SEEDED_PHASE_ANGLE_DEG = 0.3
+ULTRA_PHASE_ITERATIONS = 3
+ULTRA_PROPAGATION_SEGMENTS = 64
 
 
 # =========================================================
@@ -872,6 +875,73 @@ def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg, L=L_
     return np.exp(-0.5 * od * z_frac), od
 
 
+def _gaussian_overlap_profile(nseg, L, w_pump, w_probe, angle_deg):
+    """Amplitude overlap of crossed Gaussian beams along the cell."""
+    theta = math.radians(float(angle_deg))
+    z = ((np.arange(nseg, dtype=float) + 0.5) / nseg - 0.5) * L
+    separation = np.abs(z * math.tan(theta))
+    waist_sq = max(float(w_pump) ** 2 + float(w_probe) ** 2, 1e-30)
+    profile = np.exp(-(separation ** 2) / waist_sq)
+    return profile / max(float(np.nanmax(profile)), 1e-30)
+
+
+def _ultra_phase_mismatch(D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg,
+                          N_atoms, line_strength, angle_deg):
+    """Fixed-iteration refractive phase-mismatch refinement for Ultra."""
+    delta_k = seeded_phase_mismatch_z(D_GHz, probe_axis_GHz, angle_deg=angle_deg)
+    max_change = 0.0
+    n_seed = np.ones_like(probe_axis_GHz, dtype=float)
+    n_conj = np.ones_like(probe_axis_GHz, dtype=float)
+    for _ in range(ULTRA_PHASE_ITERATIONS):
+        n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
+        n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
+        new_delta_k = seeded_phase_mismatch_z(
+            D_GHz, probe_axis_GHz, angle_deg=angle_deg,
+            n_seed=n_seed, n_conj=n_conj)
+        max_change = float(np.nanmax(np.abs(new_delta_k - delta_k)))
+        delta_k = new_delta_k
+    return delta_k, n_seed, n_conj, max_change
+
+
+def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+                          k_probe, k_conj, L, N_atoms, line_strength,
+                          delta_k_z, segment_profile, spatial_profile,
+                          segment_loss_od, P_pump, P_seed):
+    """Segmented propagation with approximate dynamic pump depletion."""
+    nseg = int(segment_profile.size)
+    dz = L / max(nseg, 1)
+    M = observables._gain_matrix_from_chi(
+        chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+        k_probe, k_conj, N_atoms, constants.DIPOLE_D1, line_strength,
+        delta_k_z=delta_k_z)
+    n = M.shape[0]
+    amp = np.zeros((n, 2), dtype=complex)
+    amp[:, 0] = math.sqrt(max(float(P_seed), 1e-30))
+    T_total = np.broadcast_to(np.eye(2, dtype=complex), (n, 2, 2)).copy()
+    pump_remaining = np.full(n, max(float(P_pump), 1e-30), dtype=float)
+    alpha_loss = max(float(segment_loss_od), 0.0) / max(float(L), 1e-30)
+
+    for coupling_scale, spatial_scale in zip(segment_profile, spatial_profile):
+        pump_scale = np.sqrt(np.clip(pump_remaining / max(float(P_pump), 1e-30),
+                                     0.0, 1.0))
+        Mz = M.copy()
+        scale = float(coupling_scale) * float(spatial_scale) * pump_scale
+        Mz[:, 0, 1] *= scale
+        Mz[:, 1, 0] *= scale
+        Mz[:, 0, 0] -= 0.5 * alpha_loss
+        Mz[:, 1, 1] -= 0.5 * alpha_loss
+        Tseg = observables.matrix_exp_2x2(Mz, dz)
+        amp = np.einsum("nij,nj->ni", Tseg, amp)
+        T_total = Tseg @ T_total
+        seed_added = np.maximum(np.abs(amp[:, 0]) ** 2 - float(P_seed), 0.0)
+        conj_power = np.maximum(np.abs(amp[:, 1]) ** 2, 0.0)
+        pump_remaining = np.maximum(float(P_pump) - seed_added - conj_power, 0.0)
+
+    G_s = np.abs(amp[:, 0]) ** 2 / max(float(P_seed), 1e-30)
+    G_c = np.abs(amp[:, 1]) ** 2 / max(float(P_seed), 1e-30)
+    return G_s, G_c, T_total, pump_remaining
+
+
 def _single_branch(branch, branches):
     """Resolve one physical FWM channel; do not merge distinct Raman branches."""
     if branches is None:
@@ -904,7 +974,8 @@ def compute_spectrum(D_GHz, *,
                      velocity_step=None, velocity_cutoff=None,
                      branch=DEFAULT_BRANCH, branches=None,
                      phase_detail=PHASE_LEGACY,
-                     pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG):
+                     pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
+                     model_fidelity=None):
     """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README)."""
     branch = _single_branch(branch, branches)
     if line_strength is None:
@@ -950,6 +1021,12 @@ def compute_spectrum(D_GHz, *,
     propagation_segments = 1
     segment_profile = None
     segment_od = 0.0
+    spatial_profile = None
+    ultra_phase_iterations = 0
+    ultra_phase_max_change = 0.0
+    ultra_pump_remaining_min = float(P_pump)
+    zeeman_status = "inactive"
+    zeeman_correction = 1.0
     if phase_detail != PHASE_LEGACY:
         delta_k_z_vacuum = seeded_phase_mismatch_z(
             D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg)
@@ -968,12 +1045,49 @@ def compute_spectrum(D_GHz, *,
             propagation_segments = 16
             segment_profile, segment_od = _segment_profile_from_absorption(
                 chi_ss_avg, N_atoms, line_strength, propagation_segments, L=L)
+        elif phase_detail == PHASE_ULTRA:
+            delta_k_z, n_seed, n_conj, ultra_phase_max_change = _ultra_phase_mismatch(
+                D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg, N_atoms,
+                line_strength, pump_probe_angle_deg)
+            ultra_phase_iterations = ULTRA_PHASE_ITERATIONS
+            seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
+            pump_offset = 2 * np.pi * float(D_GHz) * 1e9
+            conj_offset = 2.0 * pump_offset - seed_offset
+            k_probe_prop = _optical_k_from_offset(seed_offset) * n_seed
+            k_conj_prop = _optical_k_from_offset(conj_offset) * n_conj
+            propagation_segments = ULTRA_PROPAGATION_SEGMENTS
+            segment_profile, segment_od = _segment_profile_from_absorption(
+                chi_ss_avg, N_atoms, line_strength, propagation_segments, L=L)
+            spatial_profile = _gaussian_overlap_profile(
+                propagation_segments, L, w_pump, w_probe, pump_probe_angle_deg)
+            try:
+                from .. import zeeman as _zeeman
+                z_atom = _zeeman.rb85_d1_double_lambda_zeeman()
+                zeeman_correction = float(
+                    getattr(z_atom, "lumped_strength_correction", 1.0))
+                zeeman_status = (
+                    "reduced CG-sum correction active; full 24-level Floquet "
+                    "scan not run in Ultra v1")
+            except Exception as exc:                  # pragma: no cover
+                zeeman_status = f"unavailable: {exc}"
 
-    G_s, G_c, _ = observables.gain_from_chi(
-        chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
-        k_probe_prop, k_conj_prop, L, N_atoms, line_strength=line_strength,
-        delta_k_z=delta_k_z, propagation_segments=propagation_segments,
-        segment_profile=segment_profile)
+    if phase_detail == PHASE_ULTRA:
+        if segment_profile is None:
+            segment_profile = np.ones(propagation_segments, dtype=float)
+        if spatial_profile is None:
+            spatial_profile = np.ones(propagation_segments, dtype=float)
+        G_s, G_c, _T, pump_remaining = _ultra_segmented_gain(
+            chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+            k_probe_prop, k_conj_prop, L, N_atoms,
+            line_strength * zeeman_correction, delta_k_z,
+            segment_profile, spatial_profile, segment_od, P_pump, P_probe)
+        ultra_pump_remaining_min = float(np.nanmin(pump_remaining))
+    else:
+        G_s, G_c, _ = observables.gain_from_chi(
+            chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+            k_probe_prop, k_conj_prop, L, N_atoms, line_strength=line_strength,
+            delta_k_z=delta_k_z, propagation_segments=propagation_segments,
+            segment_profile=segment_profile)
 
     # The propagation above is linear in the (undepleted) pump. At high density
     # it overshoots the energy the pump can supply, so apply Manley-Rowe pump-
@@ -981,7 +1095,14 @@ def compute_spectrum(D_GHz, *,
     # caps the runaway when (G_s−1)·P_seed approaches P_pump/2.
     G_s_smallsignal = G_s
     G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
-    S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, eta)
+    if phase_detail == PHASE_ULTRA:
+        in_cell_loss_frac = float(np.clip(1.0 - np.exp(-segment_od), 0.0, 1.0))
+        S_dB = observables.segmented_loss_noise_squeezing_dB(
+            G_s, G_c, eta, in_cell_loss_frac=in_cell_loss_frac,
+            seed_excess_noise=0.0, pump_scatter_noise=0.0,
+            eom_residual_noise=0.0)
+    else:
+        S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, eta)
 
     return {
         "D_GHz": D_GHz,
@@ -992,11 +1113,21 @@ def compute_spectrum(D_GHz, *,
         "G_s_smallsignal_peak": float(np.nanmax(G_s_smallsignal)),
         "pump_depletion_cap": 1.0 + 0.5 * P_pump / max(P_probe, 1e-30),
         "phase_detail": phase_detail,
+        "model_fidelity": model_fidelity or phase_detail,
         "pump_probe_angle_deg": pump_probe_angle_deg,
         "delta_k_z": delta_k_z,
         "delta_k_z_vacuum": delta_k_z_vacuum,
         "phase_segments": propagation_segments,
         "segment_absorption_od": segment_od,
+        "ultra_phase_iterations": ultra_phase_iterations,
+        "ultra_phase_max_change": ultra_phase_max_change,
+        "ultra_dynamic_depletion": phase_detail == PHASE_ULTRA,
+        "ultra_in_cell_loss_noise": phase_detail == PHASE_ULTRA,
+        "ultra_pump_remaining_min": ultra_pump_remaining_min,
+        "ultra_spatial_overlap_min": (float(np.nanmin(spatial_profile))
+                                      if spatial_profile is not None else 1.0),
+        "zeeman_status": zeeman_status,
+        "zeeman_correction": zeeman_correction,
         "eta": eta,
         "cell_length_m": L,
         "branch": branch,
@@ -1034,22 +1165,37 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 # =========================================================
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
-RESOLUTION = {
-    "Fast  (~3 s)":     dict(coarse_points=121, velocity_step=5.0,
-                              phase_detail=PHASE_BALANCED),
-    "Balanced  (~6 s)": dict(coarse_points=181, velocity_step=4.0,
-                              phase_detail=PHASE_BALANCED),
-    "Fine  (~20 s)":    dict(coarse_points=301, velocity_step=2.0,
-                              phase_detail=PHASE_FINE),
+FIDELITY_FAST = "Fast  (~3 s)"
+FIDELITY_BALANCED = "Balanced  (~6 s)"
+FIDELITY_HIGH = "High fidelity  (~20 s)"
+FIDELITY_ULTRA = "Ultra  (slow)"
+FIDELITY_LEGACY_FINE = "Fine  (~20 s)"
+FWM_FIDELITY = {
+    FIDELITY_FAST:     dict(coarse_points=121, velocity_step=5.0,
+                            velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
+    FIDELITY_BALANCED: dict(coarse_points=181, velocity_step=4.0,
+                            velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
+    FIDELITY_HIGH:     dict(coarse_points=301, velocity_step=2.0,
+                            velocity_cutoff=3.0, phase_detail=PHASE_FINE),
+    FIDELITY_ULTRA:    dict(coarse_points=401, velocity_step=1.0,
+                            velocity_cutoff=4.0, phase_detail=PHASE_ULTRA),
 }
+RESOLUTION = FWM_FIDELITY
+
+
+def normalize_fidelity(value):
+    """Map old saved labels onto current user-facing fidelity labels."""
+    if value == FIDELITY_LEGACY_FINE:
+        return FIDELITY_HIGH
+    return value if value in FWM_FIDELITY else FIDELITY_BALANCED
 
 
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "phase-matching-v4"
-    defaults_version = "phase-matching-defaults-v4"
+    cache_version = "fidelity-ultra-v1"
+    defaults_version = "fidelity-ultra-defaults-v1"
     cache_observables = True
     caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
                "Biphoton shows generic SFWM source estimates for cascade and "
@@ -1155,8 +1301,8 @@ class FWMScheme(Scheme):
                       1.0, 100.0, 1.0, "ns", visible_if=biphoton, advanced=True),
             ParamSpec("biphoton_velocity_step", "Velocity step", "Numerics", 2.0,
                       0.5, 20.0, 0.5, "m/s", visible_if=biphoton, advanced=True),
-            ParamSpec("resolution", "Resolution", "Numerics", "Balanced  (~6 s)",
-                      choices=tuple(RESOLUTION.keys()), advanced=True,
+            ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_BALANCED,
+                      choices=tuple(FWM_FIDELITY.keys()), advanced=True,
                       visible_if=seeded),
             ParamSpec("seeded_angle_deg", "Pump-probe angle", "Phase matching",
                       SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
@@ -1181,7 +1327,7 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
-                    line_strength=0.05, resolution="Balanced  (~6 s)",
+                    line_strength=0.05, resolution=FIDELITY_BALANCED,
                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
@@ -1232,9 +1378,12 @@ class FWMScheme(Scheme):
             "budget at high T. A Manley-Rowe pump-depletion saturation "
             "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
             "conservation bound; it is negligible in the validated regime. "
-            "Balanced resolution includes the reference 0.3 deg seeded phase "
-            "mismatch; Fine also applies a chi-reused refractive correction and "
-            "segmented propagation profile.\n\n"
+            "Balanced fidelity includes the reference 0.3 deg seeded phase "
+            "mismatch; High fidelity also applies a chi-reused refractive "
+            "correction and segmented propagation profile. Ultra adds a slow "
+            "self-consistent phase refinement, dynamic segmented depletion, "
+            "in-cell loss/noise, Gaussian overlap, and a visible Zeeman "
+            "diagnostic correction.\n\n"
             "**Biphoton references:** Heewoo Kim, Hansol Jeong and Han Seb Moon, "
             "[*Quantum Sci. Technol.* 9, 045006 (2024)]"
             "(https://arxiv.org/abs/2402.06872); Hansol Jeong, Heewoo Kim and "
@@ -1254,7 +1403,8 @@ class FWMScheme(Scheme):
             topology = topology_from_params(params)
             return GenericFWMSolver(topology).compute_biphoton(params)
         center = branch_center_GHz(params["opd"], -1)
-        res = RESOLUTION[params["resolution"]]
+        fidelity = normalize_fidelity(params["resolution"])
+        res = FWM_FIDELITY[fidelity]
         return compute_spectrum(
             params["opd"],
             T=params["temp_c"] + 273.15,
@@ -1265,9 +1415,11 @@ class FWMScheme(Scheme):
             loss_frac=params["loss_pct"] / 100.0,
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
-            velocity_step=res["velocity_step"], velocity_cutoff=3.0,
+            velocity_step=res["velocity_step"],
+            velocity_cutoff=res.get("velocity_cutoff", 3.0),
             phase_detail=res["phase_detail"],
             pump_probe_angle_deg=params.get("seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
+            model_fidelity=fidelity,
             branch=DEFAULT_BRANCH,
         )
 
@@ -1321,6 +1473,7 @@ class FWMScheme(Scheme):
         phase_rows = ""
         if raw.get("phase_detail", PHASE_LEGACY) != PHASE_LEGACY:
             phase_rows = (
+                f"| Model fidelity | {raw.get('model_fidelity', raw['phase_detail'])} |\n"
                 f"| Phase detail | {raw['phase_detail']} |\n"
                 f"| Pump-probe angle | {raw['pump_probe_angle_deg']:.3f} deg |\n"
                 f"| Operating Delta k_z | {op.get('delta_k_z', np.nan):.3e} 1/m |\n"
@@ -1328,6 +1481,17 @@ class FWMScheme(Scheme):
                 f"| Propagation segments | {raw.get('phase_segments', 1)} |\n"
                 f"| Segment absorption OD estimate | {raw.get('segment_absorption_od', 0.0):.3f} |\n"
             )
+            if raw.get("phase_detail") == PHASE_ULTRA:
+                phase_rows += (
+                    f"| Ultra fixed-point iterations | {raw.get('ultra_phase_iterations', 0)} |\n"
+                    f"| Ultra final Delta-k change | {raw.get('ultra_phase_max_change', 0.0):.3e} 1/m |\n"
+                    f"| Dynamic depletion | {raw.get('ultra_dynamic_depletion', False)} |\n"
+                    f"| Min pump remaining | {raw.get('ultra_pump_remaining_min', np.nan):.3e} W |\n"
+                    f"| In-cell loss/noise | {raw.get('ultra_in_cell_loss_noise', False)} |\n"
+                    f"| Min Gaussian overlap | {raw.get('ultra_spatial_overlap_min', 1.0):.4f} |\n"
+                    f"| Zeeman status | {raw.get('zeeman_status', 'inactive')} |\n"
+                    f"| Zeeman correction | {raw.get('zeeman_correction', 1.0):.4f} |\n"
+                )
         derived = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| N(85Rb) | {raw['N_atoms']:.3e} /m³ |\n"

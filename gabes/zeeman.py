@@ -9,7 +9,7 @@ import math
 
 import numpy as np
 
-from . import constants
+from . import constants, hyperfine
 from .atoms import AtomModel
 
 
@@ -135,4 +135,110 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
     atom.m_excited = np.array(me, dtype=float)
     atom.g_ratio = g_ratio
     atom.couplings = couplings
+    return atom
+
+
+def rb85_d1_double_lambda_zeeman(gamma=None, gamma_gg=None):
+    """Full 85Rb D1 double-lambda Zeeman manifold used by FWM Ultra diagnostics.
+
+    Levels are ordered as all ground states F=2,3 followed by all excited states
+    F'=2,3. Coupling amplitudes are normalized so the unpolarized CG sum for each
+    Fg->Fe block reproduces the lumped FWM scale 3*C_F^2.
+    """
+    gamma = constants.GAMMA if gamma is None else gamma
+    gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg
+
+    ground_blocks = [(2, list(range(-2, 3))), (3, list(range(-3, 4)))]
+    excited_blocks = [(2, list(range(-2, 3))), (3, list(range(-3, 4)))]
+    labels = []
+    level_F = []
+    level_m = []
+    ground = []
+    for F, mvals in ground_blocks:
+        for m in mvals:
+            ground.append(len(labels))
+            labels.append(f"gF{F}m{m:+d}")
+            level_F.append(F)
+            level_m.append(m)
+    excited = []
+    for F, mvals in excited_blocks:
+        for m in mvals:
+            excited.append(len(labels))
+            labels.append(f"eF{F}m{m:+d}")
+            level_F.append(F)
+            level_m.append(m)
+
+    n = len(labels)
+    couplings = {-1: [], 0: [], +1: []}
+    block_sum = {}
+    for Fg, _ in ground_blocks:
+        for Fe, _ in excited_blocks:
+            raw = []
+            for gi in ground:
+                if level_F[gi] != Fg:
+                    continue
+                for ei in excited:
+                    if level_F[ei] != Fe:
+                        continue
+                    q = level_m[ei] - level_m[gi]
+                    if q not in (-1, 0, 1):
+                        continue
+                    cg = clebsch_gordan(Fg, level_m[gi], 1, q, Fe, level_m[ei])
+                    if abs(cg) > 1e-14:
+                        raw.append((q, gi, ei, cg))
+            sum_cg2 = sum(abs(cg) ** 2 for _, _, _, cg in raw)
+            target = 3.0 * hyperfine.CF2[(Fg, Fe)]
+            scale = math.sqrt(target * (2 * Fg + 1) / max(sum_cg2, 1e-30))
+            for q, gi, ei, cg in raw:
+                couplings[q].append((gi, ei, scale * cg))
+            avg = sum(abs(scale * cg) ** 2 for _, _, _, cg in raw) / (2 * Fg + 1)
+            block_sum[(Fg, Fe)] = avg
+
+    emission = {q: np.zeros((n, n), dtype=complex) for q in (-1, 0, 1)}
+    for Fe, _ in excited_blocks:
+        weights = {Fg: hyperfine.CF2[(Fg, Fe)] for Fg, _ in ground_blocks}
+        total_w = sum(weights.values())
+        for ei in excited:
+            if level_F[ei] != Fe:
+                continue
+            for Fg, _ in ground_blocks:
+                branch = weights[Fg] / total_w
+                raw = []
+                for gi in ground:
+                    if level_F[gi] != Fg:
+                        continue
+                    q = level_m[ei] - level_m[gi]
+                    if q not in (-1, 0, 1):
+                        continue
+                    cg = clebsch_gordan(Fg, level_m[gi], 1, q, Fe, level_m[ei])
+                    if abs(cg) > 1e-14:
+                        raw.append((q, gi, cg))
+                norm = sum(abs(cg) ** 2 for _, _, cg in raw)
+                amp_scale = math.sqrt(gamma * branch / max(norm, 1e-30))
+                for q, gi, cg in raw:
+                    emission[q][gi, ei] = amp_scale * cg
+
+    dephasing = tuple((i, j, gamma_gg) for i in ground for j in ground if i != j)
+    atom = AtomModel(
+        name="rb85_d1_double_lambda_zeeman",
+        n_levels=n,
+        labels=tuple(labels),
+        ground=tuple(ground),
+        excited=tuple(excited),
+        decay=(),
+        dephasing=dephasing,
+        doppler_levels=tuple(excited),
+        emission_ops=tuple(emission[q] for q in (-1, 0, 1)),
+    )
+    atom.level_F = np.array(level_F, dtype=int)
+    atom.level_m = np.array(level_m, dtype=float)
+    atom.couplings = couplings
+    atom.lumped_strengths = block_sum
+    ratios = [
+        block_sum[key] / (3.0 * hyperfine.CF2[key])
+        for key in hyperfine.CF2
+    ]
+    atom.lumped_strength_correction = float(np.mean(ratios))
+    atom.ultra_status = (
+        "24-level 85Rb D1 Zeeman manifold available for CG diagnostics")
     return atom
