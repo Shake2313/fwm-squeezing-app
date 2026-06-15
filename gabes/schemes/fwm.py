@@ -67,7 +67,7 @@ PHASE_LEGACY = "legacy"
 PHASE_BALANCED = "balanced"
 PHASE_FINE = "fine"
 PHASE_ULTRA = "ultra"
-SEEDED_PHASE_ANGLE_DEG = 0.3
+SEEDED_PHASE_ANGLE_DEG = 0.32
 ULTRA_PHASE_ITERATIONS = 3
 ULTRA_PROPAGATION_SEGMENTS = 64
 
@@ -1378,7 +1378,7 @@ class FWMScheme(Scheme):
             "budget at high T. A Manley-Rowe pump-depletion saturation "
             "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
             "conservation bound; it is negligible in the validated regime. "
-            "Balanced fidelity includes the reference 0.3 deg seeded phase "
+            "Balanced fidelity includes the reference 0.32 deg seeded phase "
             "mismatch; High fidelity also applies a chi-reused refractive "
             "correction and segmented propagation profile. Ultra adds a slow "
             "self-consistent phase refinement, dynamic segmented depletion, "
