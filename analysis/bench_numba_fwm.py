@@ -30,7 +30,7 @@ WORKLOADS = {
     "app-fast": dict(coarse_points=121, fine_points=0, velocity_step=5.0),
     "app-fine": dict(coarse_points=301, fine_points=0, velocity_step=2.0),
 }
-COMMON = dict(T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=1.0,
+COMMON = dict(T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.74,
               loss_frac=0.055, branch=-1)
 
 

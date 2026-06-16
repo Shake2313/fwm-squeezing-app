@@ -41,7 +41,7 @@ from gabes.core import blas_single_thread  # noqa: E402
 # ---- Fixed Sim et al. reference values (everything except Δ, T) -------------
 P_PUMP = 0.6        # W   (600 mW)  -- adjustable, gain saturates anyway
 P_SEED = 8e-6       # W   (8 uW)
-LINE_STRENGTH = 1.0   # residual calibration; physical p_F/[2(2I+1)] now in-engine
+LINE_STRENGTH = 0.74  # residual (Sim et al. anchored); physical p_F/[2(2I+1)] in-engine
 LOSS_FRAC = 0.055   # 5.5 % loss after the cell
 QE = fwm.QE_DETECTOR          # 0.9047
 ETA = QE * (1.0 - LOSS_FRAC)

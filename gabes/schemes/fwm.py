@@ -67,8 +67,12 @@ W_PROBE = 330e-6
 P_PUMP, P_PROBE = 600e-3, 10e-6
 T_CELL = 394.15
 
-QE_DETECTOR = 0.9047
-RESPONSIVITY_AW = 0.58
+# Detection efficiency matched to Sim et al. (Sci. Rep. 15, 7727 (2025)): the
+# reported system (detection) loss is 8.0% -> QE 0.92; the 5.5% optical loss is
+# the separate `loss_pct` knob. Together QE·(1−0.055)=0.869 reproduces the paper's
+# ~13.5% total detection loss. (RESPONSIVITY_AW is display-only: 0.92·795/1240.)
+QE_DETECTOR = 0.92
+RESPONSIVITY_AW = 0.59
 LOSS_FRAC = 0.0
 ETA_TOTAL = QE_DETECTOR * (1.0 - LOSS_FRAC)
 
@@ -1279,16 +1283,19 @@ class FWMScheme(Scheme):
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", visible_if=seeded,
                       help="Folds into eta = QE x (1 - loss)."),
-            ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
-                      0.2, 5.0, 0.05, "×",
+            ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 0.74,
+                      0.2, 5.0, 0.01, "×",
                       visible_if=seeded, advanced=True,
-                      help="Dimensionless residual coupling calibration (≈1.0). The "
-                           "physical macroscopic normalization — the Rb85 D1 hyperfine "
-                           "Clebsch-Gordan strengths plus p_F/[2(2I+1)] (ground "
-                           "population × sublevel degeneracy) — is now computed from "
-                           "first principles in code. This knob only rescales any "
-                           "residual mismatch; it is NOT an experimentally tunable "
-                           "variable, so it lives under Advanced."),
+                      help="Dimensionless residual coupling calibration. The physical "
+                           "macroscopic normalization — Rb85 D1 hyperfine Clebsch-Gordan "
+                           "strengths × p_F/[2(2I+1)] (ground population × sublevel "
+                           "degeneracy) — is computed from first principles in code; this "
+                           "residual (0.74) is anchored to Sim et al. (Sci. Rep. 15, 7727 "
+                           "(2025)): at Ultra fidelity it reproduces the measured gain "
+                           "G_s≈14 and −7.8 dB squeezing at the paper's operating point. "
+                           "The ~0.74 (vs 1.0) is the m-sublevel participation / geometry "
+                           "reduction not yet derived from first principles. NOT an "
+                           "experimentally tunable variable — lives under Advanced."),
             ParamSpec("biphoton_temp_c", "Temperature", "Cell & beams", 90.0,
                       30.0, 160.0, 1.0, "°C", visible_if=biphoton),
             ParamSpec("biphoton_cell_mm", "Cell length", "Cell & beams", 12.5,
@@ -1364,7 +1371,7 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
-                    line_strength=1.0, resolution=FIDELITY_BALANCED,
+                    line_strength=0.74, resolution=FIDELITY_BALANCED,
                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
