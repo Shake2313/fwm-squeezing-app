@@ -11,7 +11,7 @@ Everything except Δ and T is fixed at the Sim et al. reference operating point
 (G. Sim, H. Kim, H. S. Moon, Sci. Rep. 15, 7727 (2025)) -- the same numbers the
 regression test calls "sim_optimum":
 
-    P_pump = 600 mW,  P_seed = 8 uW,  line_strength = 0.05,  loss = 5.5 %,
+    P_pump = 600 mW,  P_seed = 8 uW,  line_strength = 1.0 (residual),  loss = 5.5 %,
     QE = 0.9047,  L_cell = 12.5 mm,  w_pump = 530 um,  w_seed = 330 um.
 
 Pump / seed power and the line-strength calibration do not change the qualitative
@@ -34,14 +34,14 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import atoms, constants, doppler, kernels, observables  # noqa: E402
+from gabes import atoms, constants, doppler, hyperfine, kernels, observables  # noqa: E402
 from gabes.schemes import fwm  # noqa: E402
 from gabes.core import blas_single_thread  # noqa: E402
 
 # ---- Fixed Sim et al. reference values (everything except Δ, T) -------------
 P_PUMP = 0.6        # W   (600 mW)  -- adjustable, gain saturates anyway
 P_SEED = 8e-6       # W   (8 uW)
-LINE_STRENGTH = 0.05
+LINE_STRENGTH = 1.0   # residual calibration; physical p_F/[2(2I+1)] now in-engine
 LOSS_FRAC = 0.055   # 5.5 % loss after the cell
 QE = fwm.QE_DETECTOR          # 0.9047
 ETA = QE * (1.0 - LOSS_FRAC)
@@ -122,11 +122,13 @@ def _best_from_cached_tables(tables, delta_axis, job):
     chi_sc_avg = tables[2][:, idx] @ weights
     chi_cc_avg = tables[3][:, idx] @ weights
 
-    N_atoms = atoms.rb85_density(T_K)
+    # Mirror compute_spectrum: pure-85Rb CRC density + first-principles coupling
+    # normalization p_F/[2(2I+1)] on top of the residual LINE_STRENGTH.
+    N_atoms = hyperfine.number_density(T_K)
     G_s, G_c, _ = observables.gain_from_chi(
         chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         fwm.K_VEC, fwm.K_VEC, fwm.L_CELL, N_atoms,
-        line_strength=LINE_STRENGTH)
+        line_strength=LINE_STRENGTH * fwm.physical_coupling_norm(BRANCH))
     G_s_smallsignal = G_s
     G_s, G_c = observables.pump_depletion_saturation(
         G_s, G_c, P_PUMP, P_SEED)

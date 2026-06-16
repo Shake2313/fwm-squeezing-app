@@ -228,7 +228,7 @@ def test_squeezing_observables_tolerate_rapid_tpd_changes():
 def test_seeded_phase_detail_modes_are_gated_by_resolution():
     center = fwm.branch_center_GHz(0.9, -1)
     common = dict(
-        T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05,
+        T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=1.0,
         coarse_points=11, fine_points=0, scan_min=center - 0.02,
         scan_max=center + 0.02, velocity_step=20.0, velocity_cutoff=1.0,
         branch=-1,
@@ -253,7 +253,7 @@ def test_fidelity_alias_and_ultra_tiny_grid():
 
     center = fwm.branch_center_GHz(0.9, -1)
     raw = fwm.compute_spectrum(
-        0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05,
+        0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=1.0,
         coarse_points=7, fine_points=0, scan_min=center - 0.01,
         scan_max=center + 0.01, velocity_step=30.0, velocity_cutoff=0.4,
         phase_detail=fwm.PHASE_ULTRA, model_fidelity=fwm.FIDELITY_ULTRA,

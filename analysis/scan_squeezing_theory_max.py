@@ -36,7 +36,7 @@ from gabes import observables as ob                 # noqa: E402
 # ---- Fixed reference values (Sim et al.), EXCEPT loss=0 ---------------------
 P_PUMP = 0.6
 P_SEED = 8e-6
-LINE_STRENGTH = 0.05
+LINE_STRENGTH = 1.0   # residual calibration; physical p_F/[2(2I+1)] now in-engine
 QE = fwm.QE_DETECTOR          # 0.9047
 BRANCH = -1
 WINDOW_GHZ = 0.60             # half-width of the focused δ (probe) scan

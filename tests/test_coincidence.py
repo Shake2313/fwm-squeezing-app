@@ -35,7 +35,7 @@ def test_ideal_two_mode_squeezer():
 def test_fwm_spectrum_nonclassical_in_gain_region():
     center = fwm.branch_center_GHz(0.9, -1)
     spec = fwm.compute_spectrum(
-        0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.05, loss_frac=0.055,
+        0.9, T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=1.0, loss_frac=0.055,
         coarse_points=121, fine_points=0, scan_min=center - 0.55, scan_max=center + 0.55,
         velocity_step=5.0, velocity_cutoff=3.0, branch=-1)
     c = observables.coincidence_stats(spec["G_s"], spec["G_c"])

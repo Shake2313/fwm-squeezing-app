@@ -135,6 +135,8 @@ GROUP_STYLES = {
     "pump": dict(label="field", color="#0284C7", bg="#E6F7FC"),
     "detunings": dict(label="detuning", color="#F43F5E", bg="#FFF1F3"),
     "cell & beams": dict(label="cell", color="#0F766E", bg="#EAF8F5"),
+    "cell": dict(label="cell", color="#0F766E", bg="#EAF8F5"),
+    "beams": dict(label="beams", color="#0891B2", bg="#E0F7FA"),
     "detection & scaling": dict(label="readout", color="#7C3AED", bg="#F3E8FF"),
     "numerics": dict(label="numerics", color="#64748B", bg="#F1F5F9"),
     "default": dict(label="preset", color="#0284C7", bg="#E6F7FC"),

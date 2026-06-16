@@ -119,18 +119,25 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ## Traps
 
-Current FWM note: the 4-level FWM model now applies the real 85Rb D1 hyperfine
+Current FWM note: the 4-level FWM model applies the real 85Rb D1 hyperfine
 `C_F^2` values `(10,35,35,28)/81` to Rabi couplings, polarization readout, and
-spontaneous-emission branching. The remaining app knob is a residual **FWM
-coupling scale**, not a literal line-strength constant; keep it near the
-calibrated regime (~0.05). Ultra fidelity now adds the slow propagation
-refinements, but the full 24-level Zeeman Floquet scan is still reported as a
-diagnostic rather than used as the default full-scan solver.
+spontaneous-emission branching. The macroscopic-coupling scale is now
+**first-principles**: `fwm.physical_coupling_norm` supplies `p_F/[2(2I+1)]` (the
+ground-population fraction × ground-sublevel degeneracy, ≈0.0486 on the (−)
+branch) — the factor the validated absorption path applies explicitly and the
+lumped 4-level + total-density convention otherwise omits. Density also uses the
+pure-85Rb CRC fit (`hyperfine.number_density`), consistent with that path. The
+**Line-strength factor** is now only a dimensionless **residual** calibration
+(default `1.0`), parked under *Advanced* because it is not an experimentally
+tunable variable. Ultra fidelity adds the slow propagation refinements, but the
+full 24-level Zeeman Floquet scan is still reported as a diagnostic rather than
+used as the default full-scan solver.
 
 1. **FWM gain is exponentially sensitive at high density.** At paper optimum
-   T=121 °C linear Maxwell-Bloch still over-amplifies if the residual coupling
-   scale is pushed to 1.0. Keep it near the calibrated regime (~0.05) unless you
-   are deliberately stress-testing the ideal model.
+   T=121 °C linear Maxwell-Bloch still over-amplifies; the residual Line-strength
+   factor multiplies the physical coupling on top of `p_F/[2(2I+1)]`, so leave it
+   at `1.0` unless an absolute-gain measurement says otherwise. Pump-depletion
+   (Manley-Rowe) saturation caps the runaway; squeezing depth is η-limited.
 2. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
    The Sim et al. 85Rb operating point uses the standard red-detuned seed on the
    (−) Raman branch. Compute `branch=-1` and `branch=+1` independently; do not add

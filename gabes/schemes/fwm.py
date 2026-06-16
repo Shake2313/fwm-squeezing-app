@@ -37,6 +37,27 @@ for _g in GROUND_STATES:
         TRANSITION_DIPOLE_SCALE[_g, _e] = np.sqrt(
             3.0 * hyperfine.CF2[(GROUND_F[_g], EXCITED_F[_e])])
 
+
+def physical_coupling_norm(branch):
+    """First-principles macroscopic-coupling normalization for the lumped
+    4-level double-Λ model — the factor the old hand-tuned ``line_strength=0.05``
+    was standing in for.
+
+    The AutoOD-validated absorption scale (`schemes.absorption._hyperfine_alpha`,
+    <0.1 % vs lab) carries an explicit ``p_F / [2(2I+1)]``: the ground-population
+    fraction times the ground-sublevel degeneracy. The lumped FWM solve instead
+    normalizes Tr(ρ)=1 over just 4 levels and multiplies by the *total* atomic
+    density, so this population/degeneracy factor is otherwise omitted. The χ̄
+    already carries the Clebsch-Gordan strengths (C² = 3·C_F² via drive×readout),
+    so this is the only structural piece missing relative to the validated path.
+
+    The seeded probe couples from F=3 on the (−) Raman branch and F=2 on (+);
+    the residual asymmetry between the two ground manifolds folds into the
+    dimensionless ``line_strength`` residual knob.
+    """
+    probe_F = GROUND_F[G2] if branch == -1 else GROUND_F[G1]
+    return hyperfine.GROUND_POP[probe_F] / hyperfine.N_GROUND_SUBLEVELS
+
 # =========================================================
 # FWM experiment configuration (cell, beams, detection, scan)
 # =========================================================
@@ -980,6 +1001,11 @@ def compute_spectrum(D_GHz, *,
     branch = _single_branch(branch, branches)
     if line_strength is None:
         line_strength = constants.LINE_STRENGTH_FACTOR
+    # `line_strength` is now a dimensionless residual (≈1.0); the physical
+    # macroscopic-coupling scale is computed from first principles and applied
+    # on top of it. `coupling_ls` is what enters every χ_phys / gain call below.
+    coupling_norm = physical_coupling_norm(branch)
+    coupling_ls = line_strength * coupling_norm
     eta = qe * (1.0 - loss_frac)
 
     Op_A = rabi_freq(P_pump, w_pump)
@@ -988,7 +1014,10 @@ def compute_spectrum(D_GHz, *,
     Os_ref = Os
     Oc_ref = Os                              # χ̄ is independent of |Ω_ref|
 
-    N_atoms = atoms.rb85_density(T)
+    # Pure-85Rb CRC vapor density, consistent with the AutoOD-validated
+    # absorption path (`hyperfine.number_density`). The other (natural-abundance,
+    # Steck) `atoms.rb85_density` understated N for the enriched FWM cell.
+    N_atoms = hyperfine.number_density(T)
     Delta = 2 * np.pi * D_GHz * 1e9
 
     probe_axis_GHz = probe_scan_axis_GHz(
@@ -1032,8 +1061,8 @@ def compute_spectrum(D_GHz, *,
             D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg)
         delta_k_z = delta_k_z_vacuum
         if phase_detail == PHASE_FINE:
-            n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
-            n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
+            n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, coupling_ls)
+            n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, coupling_ls)
             seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
             pump_offset = 2 * np.pi * float(D_GHz) * 1e9
             conj_offset = 2.0 * pump_offset - seed_offset
@@ -1044,11 +1073,11 @@ def compute_spectrum(D_GHz, *,
                 n_seed=n_seed, n_conj=n_conj)
             propagation_segments = 16
             segment_profile, segment_od = _segment_profile_from_absorption(
-                chi_ss_avg, N_atoms, line_strength, propagation_segments, L=L)
+                chi_ss_avg, N_atoms, coupling_ls, propagation_segments, L=L)
         elif phase_detail == PHASE_ULTRA:
             delta_k_z, n_seed, n_conj, ultra_phase_max_change = _ultra_phase_mismatch(
                 D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg, N_atoms,
-                line_strength, pump_probe_angle_deg)
+                coupling_ls, pump_probe_angle_deg)
             ultra_phase_iterations = ULTRA_PHASE_ITERATIONS
             seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
             pump_offset = 2 * np.pi * float(D_GHz) * 1e9
@@ -1057,7 +1086,7 @@ def compute_spectrum(D_GHz, *,
             k_conj_prop = _optical_k_from_offset(conj_offset) * n_conj
             propagation_segments = ULTRA_PROPAGATION_SEGMENTS
             segment_profile, segment_od = _segment_profile_from_absorption(
-                chi_ss_avg, N_atoms, line_strength, propagation_segments, L=L)
+                chi_ss_avg, N_atoms, coupling_ls, propagation_segments, L=L)
             spatial_profile = _gaussian_overlap_profile(
                 propagation_segments, L, w_pump, w_probe, pump_probe_angle_deg)
             try:
@@ -1079,13 +1108,13 @@ def compute_spectrum(D_GHz, *,
         G_s, G_c, _T, pump_remaining = _ultra_segmented_gain(
             chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
             k_probe_prop, k_conj_prop, L, N_atoms,
-            line_strength * zeeman_correction, delta_k_z,
+            coupling_ls * zeeman_correction, delta_k_z,
             segment_profile, spatial_profile, segment_od, P_pump, P_probe)
         ultra_pump_remaining_min = float(np.nanmin(pump_remaining))
     else:
         G_s, G_c, _ = observables.gain_from_chi(
             chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
-            k_probe_prop, k_conj_prop, L, N_atoms, line_strength=line_strength,
+            k_probe_prop, k_conj_prop, L, N_atoms, line_strength=coupling_ls,
             delta_k_z=delta_k_z, propagation_segments=propagation_segments,
             segment_profile=segment_profile)
 
@@ -1131,6 +1160,9 @@ def compute_spectrum(D_GHz, *,
         "eta": eta,
         "cell_length_m": L,
         "branch": branch,
+        "coupling_norm": coupling_norm,
+        "line_strength_residual": line_strength,
+        "effective_line_strength": coupling_ls,
         "N_atoms": N_atoms,
         "sigma_v": np.sqrt(constants.KB * T / constants.MASS_85RB),
         "n_velocity": v_grid.size,
@@ -1228,26 +1260,35 @@ class FWMScheme(Scheme):
                       -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ, 1.0, "MHz", recompute=False,
                       visible_if=seeded,
                       help="ω_seed = ω_pump − ν_HF + δ. Navigates the curve instantly (no recompute)."),
-            ParamSpec("temp_c", "Temperature", "Cell & beams", 121.0,
+            ParamSpec("temp_c", "Temperature", "Cell", 121.0,
                       60.0, 150.0, 1.0, "°C", visible_if=seeded),
-            ParamSpec("cell_mm", "Cell length", "Cell & beams", 12.5,
+            ParamSpec("cell_mm", "Cell length", "Cell", 12.5,
                       1.0, 100.0, 0.5, "mm", visible_if=seeded,
                       help="Vapor-cell length L. Enters the Maxwell-Bloch "
                            "propagation exp(M·L), so it recomputes the gain."),
-            ParamSpec("pump_mw", "Pump power", "Cell & beams", 600.0,
+            ParamSpec("pump_mw", "Pump power", "Beams", 600.0,
                       50.0, 1200.0, 10.0, "mW", visible_if=seeded),
-            ParamSpec("probe_uw", "Seed / probe power", "Cell & beams", 8.0,
+            ParamSpec("probe_uw", "Seed / probe power", "Beams", 8.0,
                       1.0, 200.0, 1.0, "µW", visible_if=seeded),
+            ParamSpec("seeded_angle_deg", "Pump-probe angle", "Beams",
+                      SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
+                      visible_if=seeded,
+                      help="Pump-seed crossing angle θ. Real beam geometry: sets "
+                           "the seeded-FWM longitudinal phase mismatch Δk_z (active "
+                           "from Balanced fidelity up), so it recomputes the gain."),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", visible_if=seeded,
                       help="Folds into eta = QE x (1 - loss)."),
-            ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 0.05,
-                      0.01, 1.0, 0.01, "",
-                      visible_if=seeded,
-                      help="Effective |d|² calibration knob (residual propagation-coupling "
-                           "scale after the Rb85 D1 hyperfine Clebsch-Gordan strengths). "
-                           "This is a regression-anchored fit value, not first-principles — "
-                           "the absolute gain / squeezing scale depends on it."),
+            ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
+                      0.2, 5.0, 0.05, "×",
+                      visible_if=seeded, advanced=True,
+                      help="Dimensionless residual coupling calibration (≈1.0). The "
+                           "physical macroscopic normalization — the Rb85 D1 hyperfine "
+                           "Clebsch-Gordan strengths plus p_F/[2(2I+1)] (ground "
+                           "population × sublevel degeneracy) — is now computed from "
+                           "first principles in code. This knob only rescales any "
+                           "residual mismatch; it is NOT an experimentally tunable "
+                           "variable, so it lives under Advanced."),
             ParamSpec("biphoton_temp_c", "Temperature", "Cell & beams", 90.0,
                       30.0, 160.0, 1.0, "°C", visible_if=biphoton),
             ParamSpec("biphoton_cell_mm", "Cell length", "Cell & beams", 12.5,
@@ -1304,10 +1345,6 @@ class FWMScheme(Scheme):
             ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_BALANCED,
                       choices=tuple(FWM_FIDELITY.keys()), advanced=True,
                       visible_if=seeded),
-            ParamSpec("seeded_angle_deg", "Pump-probe angle", "Phase matching",
-                      SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
-                      visible_if=seeded, advanced=True,
-                      help="Reference crossing angle for seeded FWM phase mismatch."),
             ParamSpec("phase_detail", "Phase detail", "Phase matching", "Balanced",
                       choices=("Balanced", "Fine"), visible_if=biphoton,
                       advanced=True,
@@ -1327,7 +1364,7 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
-                    line_strength=0.05, resolution=FIDELITY_BALANCED,
+                    line_strength=1.0, resolution=FIDELITY_BALANCED,
                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
@@ -1459,8 +1496,9 @@ class FWMScheme(Scheme):
         metrics = [
             dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
                  help="Power gain of the seeded probe through the cell. Absolute "
-                      "scale is calibrated by the Line-strength factor "
-                      "(regression-anchored fit), not first-principles."),
+                      "scale uses the first-principles macroscopic normalization "
+                      "(Clebsch-Gordan strengths × p_F/[2(2I+1)]); the Advanced "
+                      "Line-strength factor is a residual ×1.0 calibration."),
             dict(label="Squeezing", value=f"{op['S_dB']:.2f} dB",
                  delta="below shot noise" if op["S_dB"] < 0 else "above shot noise",
                  delta_color="inverse"),
@@ -1501,8 +1539,10 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
-            f"| Line-strength factor (calibration) | {params['line_strength']:.3f} — "
-            f"regression-anchored fit; sets the absolute gain/squeezing scale |\n"
+            f"| Coupling norm p_F/[2(2I+1)] (first-principles) | "
+            f"{raw.get('coupling_norm', float('nan')):.4f} |\n"
+            f"| Line-strength residual (Advanced, ≈1.0) | {params['line_strength']:.3f}× |\n"
+            f"| Effective coupling scale | {raw.get('effective_line_strength', float('nan')):.4f} |\n"
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n\n"

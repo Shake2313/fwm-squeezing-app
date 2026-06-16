@@ -23,9 +23,9 @@ from gabes.schemes import fwm
 WINDOW_GHZ = 0.55
 CONFIGS = {
     "sim_optimum": dict(D_GHz=0.9, T=394.15, P_pump=0.6, P_probe=8e-6,
-                        line_strength=0.05, loss_frac=0.055),
+                        line_strength=1.0, loss_frac=0.055),
     "detuned": dict(D_GHz=1.5, T=383.15, P_pump=0.4, P_probe=10e-6,
-                    line_strength=0.05, loss_frac=0.0),
+                    line_strength=1.0, loss_frac=0.0),
 }
 
 
