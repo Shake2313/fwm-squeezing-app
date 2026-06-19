@@ -105,6 +105,10 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   `cascade_cs_btw` (133Cs 852-917 nm or 852-795 nm BTW comparison), and
   `diamond_generic` (four-level user-wavelength template; not a validated paper
   preset).
+- The default Biphoton sidebar is intentionally lab-facing: temperature, pump and
+  coupling drive, pump detuning, two-photon detuning, collection geometry, filter
+  bandwidth, and coincidence window. Detector calibration, manual wavelengths,
+  source-model comparison, and numerical diagnostics live under Advanced.
 - Biphoton readout: `g²_SI(τ)`, FWHM, pair-rate estimate, singles, true and
   accidental coincidences, CAR, heralding estimates, and Cauchy-Schwarz R.
 - The waveform is a coherent sum over Doppler velocity classes. Biphoton v3 phase
@@ -114,7 +118,7 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
   the Cs BTW preset exposes the wavelength-dependent temporal-width change
   reported for the 852-917 nm and 852-795 nm cascade channels.
-- **Source model toggle** (`biphoton_model`, default **Predictive**):
+- **Advanced source model toggle** (`biphoton_model`, default **Predictive**):
   - **Predictive** solves the Doppler-averaged cascade biphoton amplitude from
     first principles (Kim *et al.* QST 9, 045006 (2024) Eq. 2; Du, Wen, Rubin
     JOSAB 25, C98 (2008); Chen *et al.* PRR 4, 023132 (2022) Eq. 3-5): the

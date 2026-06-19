@@ -1447,8 +1447,8 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "biphoton-predictive-v1"
-    defaults_version = "biphoton-predictive-defaults-v1"
+    cache_version = "biphoton-slim-ui-v1"
+    defaults_version = "biphoton-slim-ui-defaults-v1"
     cache_observables = True
     caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
                "Biphoton shows generic SFWM source estimates for cascade and "
@@ -1475,7 +1475,7 @@ class FWMScheme(Scheme):
                       help="Selects the Cs cascade channel used for BTW comparison."),
             ParamSpec("biphoton_model", "Source model", "Model", BIPHOTON_PREDICTIVE,
                       choices=BIPHOTON_MODELS, control="segmented",
-                      visible_if=biphoton,
+                      visible_if=biphoton, advanced=True,
                       help="Predictive solves the Doppler-averaged cascade biphoton "
                            "amplitude from first principles (Ω_c² Autler-Townes term, "
                            "velocity-class coherent sum, natural-linewidth decay, OD "
@@ -1529,7 +1529,8 @@ class FWMScheme(Scheme):
             ParamSpec("biphoton_temp_c", "Temperature", "Cell & beams", 90.0,
                       30.0, 160.0, 1.0, "°C", visible_if=biphoton),
             ParamSpec("biphoton_cell_mm", "Cell length", "Cell & beams", 12.5,
-                      1.0, 100.0, 0.5, "mm", visible_if=biphoton),
+                      1.0, 100.0, 0.5, "mm", visible_if=biphoton,
+                      advanced=True),
             ParamSpec("pump_biphoton_uw", "Pump power", "Fields", 10.0,
                       0.1, 200.0, 0.1, "µW", visible_if=biphoton),
             ParamSpec("coupling_mw", "Coupling drive scale", "Fields", 1.0,
@@ -1538,43 +1539,64 @@ class FWMScheme(Scheme):
                            "reference coupling power — dimensionless, not an absolute mW."),
             ParamSpec("pump_detuning_mhz", "Pump detuning", "Detunings", 0.0,
                       -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
+            ParamSpec("two_photon_detuning_mhz", "Two-photon detuning", "Detunings", 0.0,
+                      -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton,
+                      help="Delta_p + Delta_c. Internally this sets the coupling "
+                           "detuning relative to the pump detuning."),
             ParamSpec("coupling_detuning_mhz", "Coupling detuning", "Detunings", 0.0,
-                      -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
-            ParamSpec("signal_angle_deg", "Signal angle", "Phase matching", 1.5,
+                      -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton,
+                      hidden=True, recompute=False),
+            ParamSpec("signal_angle_deg", "Signal collection angle", "Phase matching", 1.5,
                       0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+            ParamSpec("idler_angle_offset_deg", "Idler angle offset", "Phase matching",
+                      0.0, -5.0, 5.0, 0.05, "deg", visible_if=biphoton,
+                      help="Offset from the transverse phase-matched idler angle "
+                           "derived from the selected topology and signal angle."),
             ParamSpec("idler_angle_deg", "Idler angle", "Phase matching",
                       transverse_matched_angle_deg(1529.37, 780.24, 1.5),
-                      0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+                      0.0, 10.0, 0.1, "deg", visible_if=biphoton,
+                      hidden=True, recompute=False),
             ParamSpec("signal_side", "Signal side", "Phase matching", SIDE_PLUS,
                       choices=SIDE_CHOICES, visible_if=biphoton,
-                      advanced=True,
+                      hidden=True,
                       help="Transverse collection side used in vector phase matching."),
             ParamSpec("idler_side", "Idler side", "Phase matching", SIDE_PLUS,
                       choices=SIDE_CHOICES, visible_if=biphoton,
-                      advanced=True,
+                      hidden=True,
                       help="Opposite side flips the idler transverse wavevector."),
             ParamSpec("diamond_pump_nm", "Diamond pump wavelength", "Fields", 780.0,
-                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond,
+                      advanced=True),
             ParamSpec("diamond_coupling_nm", "Diamond coupling wavelength", "Fields", 776.0,
-                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond,
+                      advanced=True),
             ParamSpec("diamond_signal_nm", "Diamond signal wavelength", "Fields", 795.0,
-                      300.0, 2000.0, 1.0, "nm", visible_if=diamond),
+                      300.0, 2000.0, 1.0, "nm", visible_if=diamond,
+                      advanced=True),
             ParamSpec("diamond_idler_nm", "Diamond idler wavelength", "Fields", 761.702,
-                      300.0, 2500.0, 0.001, "nm", visible_if=diamond),
+                      300.0, 2500.0, 0.001, "nm", visible_if=diamond,
+                      advanced=True),
             ParamSpec("signal_eff_pct", "Signal efficiency", "Detection & scaling", 10.0,
-                      0.1, 95.0, 0.1, "%", visible_if=biphoton),
+                      0.1, 95.0, 0.1, "%", visible_if=biphoton,
+                      advanced=True, recompute=False),
             ParamSpec("idler_eff_pct", "Idler efficiency", "Detection & scaling", 10.0,
-                      0.1, 95.0, 0.1, "%", visible_if=biphoton),
+                      0.1, 95.0, 0.1, "%", visible_if=biphoton,
+                      advanced=True, recompute=False),
             ParamSpec("dark_signal_cps", "Signal background", "Detection & scaling", 2000.0,
-                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton),
+                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton,
+                      advanced=True, recompute=False),
             ParamSpec("dark_idler_cps", "Idler background", "Detection & scaling", 2000.0,
-                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton),
+                      0.0, 100000.0, 100.0, "cps", visible_if=biphoton,
+                      advanced=True, recompute=False),
             ParamSpec("coincidence_window_ns", "Coincidence window", "Detection & scaling", 1.0,
-                      0.01, 100.0, 0.01, "ns", visible_if=biphoton),
+                      0.01, 100.0, 0.01, "ns", visible_if=biphoton,
+                      recompute=False),
             ParamSpec("timing_jitter_ns", "Timing jitter FWHM", "Detection & scaling", 0.55,
-                      0.0, 5.0, 0.01, "ns", visible_if=biphoton),
+                      0.0, 5.0, 0.01, "ns", visible_if=biphoton,
+                      advanced=True, recompute=False),
             ParamSpec("filter_bandwidth_mhz", "Filter bandwidth", "Detection & scaling", 300.0,
-                      1.0, 5000.0, 1.0, "MHz", visible_if=biphoton),
+                      1.0, 5000.0, 1.0, "MHz", visible_if=biphoton,
+                      recompute=False),
             ParamSpec("tau_max_ns", "Temporal window", "Numerics", 12.0,
                       1.0, 100.0, 1.0, "ns", visible_if=biphoton, advanced=True),
             ParamSpec("biphoton_velocity_step", "Velocity step", "Numerics", 2.0,
@@ -1612,8 +1634,10 @@ class FWMScheme(Scheme):
             biphoton_model=params.get("biphoton_model", BIPHOTON_PREDICTIVE),
             biphoton_cell_mm=12.5,
             pump_detuning_mhz=0.0,
+            two_photon_detuning_mhz=0.0,
             coupling_detuning_mhz=0.0,
             signal_angle_deg=1.5,
+            idler_angle_offset_deg=0.0,
             idler_angle_deg=transverse_matched_angle_deg(1529.37, 780.24, 1.5),
             signal_side=SIDE_PLUS,
             idler_side=SIDE_PLUS,
@@ -1642,6 +1666,36 @@ class FWMScheme(Scheme):
                         pump_biphoton_uw=10.0, coupling_mw=1.0)
         base.update(_default_biphoton_geometry(base))
         return base
+
+    def _biphoton_runtime_params(self, params):
+        """Map the compact lab-facing controls onto the backend parameters."""
+        out = dict(params)
+        if out.get("mode", MODE_SEEDED) != MODE_BIPHOTON:
+            return out
+
+        topology = topology_from_params(out)
+        signal = topology.field_map["signal"]
+        idler = topology.field_map["idler"]
+        signal_angle = float(out.get("signal_angle_deg", signal.angle_deg))
+        out["signal_angle_deg"] = signal_angle
+
+        if "two_photon_detuning_mhz" in out:
+            two_det = float(out.get("two_photon_detuning_mhz", 0.0))
+            pump_det = float(out.get("pump_detuning_mhz", 0.0))
+            out["coupling_detuning_mhz"] = two_det - pump_det
+        else:
+            out["two_photon_detuning_mhz"] = (
+                float(out.get("pump_detuning_mhz", 0.0))
+                + float(out.get("coupling_detuning_mhz", 0.0))
+            )
+
+        if "idler_angle_offset_deg" in out:
+            matched_idler = transverse_matched_angle_deg(
+                signal.wavelength_nm, idler.wavelength_nm, signal_angle)
+            out["idler_angle_deg"] = float(np.clip(
+                matched_idler + float(out.get("idler_angle_offset_deg", 0.0)),
+                0.0, 10.0))
+        return out
 
     def info(self):
         return (
@@ -1691,6 +1745,7 @@ class FWMScheme(Scheme):
 
     def compute(self, params):
         if params.get("mode", MODE_SEEDED) == MODE_BIPHOTON:
+            params = self._biphoton_runtime_params(params)
             topology = topology_from_params(params)
             return GenericFWMSolver(topology).compute_biphoton(params)
         center = branch_center_GHz(params["opd"], -1)
@@ -1716,6 +1771,7 @@ class FWMScheme(Scheme):
 
     def observables(self, raw, params):
         if raw.get("kind") == "biphoton":
+            params = self._biphoton_runtime_params(params)
             return self._biphoton_observables(raw, params)
         return self._seeded_observables(raw, params)
 

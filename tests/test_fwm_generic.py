@@ -103,7 +103,8 @@ def test_rb87_equal_angles_are_transversely_suppressed():
     scheme = fwm.FWMScheme()
     matched = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
     good = scheme.compute(matched)
-    bad = dict(matched, signal_angle_deg=1.5, idler_angle_deg=1.5,
+    bad = dict(matched, signal_angle_deg=1.5,
+               idler_angle_offset_deg=1.5 - matched["idler_angle_deg"],
                signal_side=fwm.SIDE_PLUS, idler_side=fwm.SIDE_PLUS)
     raw = scheme.compute(bad)
     assert raw["phase_match_weight"] < 1e-4
@@ -236,6 +237,42 @@ def test_biphoton_ui_render_modes():
         view = scheme.observables(raw, params)
         assert view.get("figure") is not None
         assert view.get("metrics")
+
+
+def test_biphoton_basic_ui_keeps_only_lab_controls():
+    scheme = fwm.FWMScheme()
+    specs = scheme.param_schema()
+    biphoton_only = {"mode": fwm.MODE_BIPHOTON}
+    basic = {
+        sp.name for sp in specs
+        if sp.visible_if == biphoton_only and not sp.advanced and not sp.hidden
+    }
+    assert basic == {
+        "topology",
+        "biphoton_temp_c",
+        "pump_biphoton_uw",
+        "coupling_mw",
+        "pump_detuning_mhz",
+        "two_photon_detuning_mhz",
+        "signal_angle_deg",
+        "idler_angle_offset_deg",
+        "coincidence_window_ns",
+        "filter_bandwidth_mhz",
+    }
+    hidden = {sp.name for sp in specs if sp.hidden}
+    assert {"coupling_detuning_mhz", "idler_angle_deg",
+            "signal_side", "idler_side"} <= hidden
+
+    params = _recommended_params(
+        topology=fwm.TOPOLOGY_RB87_TELECOM,
+        pump_detuning_mhz=120.0,
+        two_photon_detuning_mhz=25.0,
+        signal_angle_deg=1.8,
+    )
+    runtime = scheme._biphoton_runtime_params(params)
+    expected_idler = fwm.transverse_matched_angle_deg(1529.37, 780.24, 1.8)
+    assert runtime["coupling_detuning_mhz"] == -95.0
+    assert np.isclose(runtime["idler_angle_deg"], expected_idler)
 
 
 def test_squeezing_hides_twin_beam_coincidence_figure():
