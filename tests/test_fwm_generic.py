@@ -164,12 +164,23 @@ def test_reference_g2_uses_explicit_added_accidentals():
 
 def test_rb87_telecom_preset_smoke():
     scheme = fwm.FWMScheme()
-    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM)
+    # Calibrated mode reproduces the injected reference waveform (FWHM ~0.56 ns).
+    params = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM,
+                                 biphoton_model=fwm.BIPHOTON_CALIBRATED)
     raw = scheme.compute(params)
     stats = _stats(raw, params)
     assert np.isfinite(stats["g2_peak"]) and stats["g2_peak"] > 2
     assert stats["pair_rate_cps"] > 0
     assert stats["fwhm_ns"] < 1.0
+    # Predictive mode: waveform is solved (absolute width approximate for the
+    # extreme 780/1529 nm ratio), so only finiteness/positivity is asserted here.
+    pred = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM,
+                               biphoton_model=fwm.BIPHOTON_PREDICTIVE)
+    praw = scheme.compute(pred)
+    pstats = _stats(praw, pred, target=False)
+    assert np.all(np.isfinite(praw["psi_tau"]))
+    assert 0.0 < pstats["fwhm_ns"] < 50.0
+    assert praw["regime"] in ("group-delay", "damped-Rabi")
 
 
 def test_cs_btw_channels_have_different_widths():
@@ -183,6 +194,37 @@ def test_cs_btw_channels_have_different_widths():
     assert s917["pair_rate_cps"] > 0
     assert s795["pair_rate_cps"] > 0
     assert abs(s917["fwhm_ns"] - s795["fwhm_ns"]) > 0.05
+
+
+def test_cs_btw_predictive_width_ordering():
+    """Predictive: the 852-917 nm channel BTW is narrower than 852-795 nm — the
+    wavelength-dependent collective two-photon-coherence ordering of Kim et al.
+    (the absolute ns-widths are approximate; only the ordering is asserted)."""
+    scheme = fwm.FWMScheme()
+    p917 = _recommended_params(topology=fwm.TOPOLOGY_CS_BTW,
+                               cs_channel=fwm.CS_CHANNEL_917,
+                               biphoton_model=fwm.BIPHOTON_PREDICTIVE)
+    p795 = _recommended_params(topology=fwm.TOPOLOGY_CS_BTW,
+                               cs_channel=fwm.CS_CHANNEL_795,
+                               biphoton_model=fwm.BIPHOTON_PREDICTIVE)
+    s917 = _stats(scheme.compute(p917), p917, target=False)
+    s795 = _stats(scheme.compute(p795), p795, target=False)
+    assert s917["fwhm_ns"] < s795["fwhm_ns"]
+
+
+def test_predictive_coupling_rabi_broadens_two_photon_resonance():
+    """The Ω_c² Autler-Townes term lives in the two-photon denominator (vs the old
+    weak-coupling drive in the numerator), so raising the coupling drive changes
+    the source bandwidth — a coupling-power dependence the calibrated model lacks."""
+    scheme = fwm.FWMScheme()
+    base = _recommended_params(topology=fwm.TOPOLOGY_CS_BTW,
+                               cs_channel=fwm.CS_CHANNEL_795,
+                               biphoton_model=fwm.BIPHOTON_PREDICTIVE)
+    weak = scheme.compute(dict(base, coupling_mw=0.25))
+    strong = scheme.compute(dict(base, coupling_mw=8.0))
+    assert np.isfinite(weak["source_bandwidth_mhz"])
+    assert np.isfinite(strong["source_bandwidth_mhz"])
+    assert weak["source_bandwidth_mhz"] != strong["source_bandwidth_mhz"]
 
 
 def test_biphoton_ui_render_modes():
@@ -354,7 +396,7 @@ def test_cs_btw_short_window_render_no_shape_error():
     raw = scheme.compute(params)
     view = scheme.observables(raw, params)
     assert view.get("figure") is not None
-    assert any(table["title"] == "Reference reproduction (calibrated · non-predictive)"
+    assert any(table["title"].startswith("Reference ")
                for table in view.get("tables", []))
 
 

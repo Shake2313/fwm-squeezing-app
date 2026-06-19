@@ -114,8 +114,29 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
   the Cs BTW preset exposes the wavelength-dependent temporal-width change
   reported for the 852-917 nm and 852-795 nm cascade channels.
-- v3 limitation: absolute pair rate is a **calibrated source estimate**, not a
-  full quantum-Langevin propagation/noise calculation.
+- **Source model toggle** (`biphoton_model`, default **Predictive**):
+  - **Predictive** solves the Doppler-averaged cascade biphoton amplitude from
+    first principles (Kim *et al.* QST 9, 045006 (2024) Eq. 2; Du, Wen, Rubin
+    JOSAB 25, C98 (2008); Chen *et al.* PRR 4, 023132 (2022) Eq. 3-5): the
+    two-photon denominator carries the **Ω_c² Autler-Townes term** (not a
+    weak-coupling drive), the BTW is the collective velocity-class coherent sum
+    with **natural-linewidth decay** (no injected lifetime), the source bandwidth
+    comes from the waveform, and `g²_SI(τ)` is computed from `|ψ|²` with physical
+    accidentals (no target-g² forcing). The wavelength-dependent BTW width
+    **ordering** (917 narrower than 795) emerges.
+  - **Calibrated** is the legacy reference-injected estimate (decay, bandwidth,
+    g² target forced) kept for comparison.
+- **Honest limits of Predictive** (documented in `info()` / the in-app validation
+  table): absolute ns-widths are **approximate** — the Cs cascade channels land
+  within ~30 %, but the extreme 780/1529 nm telecom ratio over-weights the
+  natural-decay tail (use Calibrated for the telecom waveform). The absolute pair
+  rate stays **reference-anchored with physical scaling** (pump power, OD, phase
+  matching), because the lumped 4-level model does not pin the absolute collection
+  coefficient — the same reason the squeezing mode keeps a `line_strength`
+  residual. An OD waveform-reshaping path (Du/Chen ρ̄, group-delay/precursor) is
+  implemented but **off by default** (`biphoton_od_reshaping`) since the lumped
+  model overestimates it at high OD. Full quantum-Langevin noise is still future
+  work (`docs/checklist.json`).
 
 ## Traps
 
