@@ -154,6 +154,13 @@ def steady_state_from_liouvillian(L_batch, n_levels, trace_row=0):
     return rho_vec[..., 0].reshape(A.shape[:-2] + (n_levels, n_levels))
 
 
+# float64 overflows exp/cosh past ~709; cap the per-exponent real part well
+# below that so a runaway *linear* gain stays finite (the physical bound is then
+# enforced by the Manley-Rowe pump-depletion saturation downstream). Two terms
+# at the cap multiply, so 2·cap must stay under ~709 → 350.
+_EXP_ARG_CLAMP = 350.0
+
+
 def matrix_exp_2x2(M, L):
     """Closed-form exp(M·L) for a batched stack of complex 2×2 matrices."""
     s = 0.5 * (M[..., 0, 0] + M[..., 1, 1])
@@ -165,9 +172,20 @@ def matrix_exp_2x2(M, L):
     c = np.sqrt(-c2 + 0j)                # exp(q L) = cosh(cL)I + sinh(cL)/c · q
     big = np.abs(c) > 1e-30
     safe_c = np.where(big, c, 1.0)
-    sinh_over_c = np.where(big, np.sinh(c * L) / safe_c, L * np.ones_like(c))
-    cosh_cL = np.cosh(c * L)
-    exp_sL = np.exp(s * L)
+    # Clamp the real part of the exponent arguments so cosh/sinh/exp cannot
+    # overflow to +inf. At extreme density/length/coupling the linear gain this
+    # represents is unphysical (it overshoots the pump's energy budget); without
+    # the clamp it returns inf, and the downstream pump-depletion saturation then
+    # evaluates inf/(1+inf) = NaN, silently poisoning the whole gain/squeezing
+    # curve. A huge-but-finite value is instead capped to the energy bound by
+    # that saturation. The clamp is a no-op in the validated regime (|Re·L| ≪ cap).
+    cL = c * L
+    sL = s * L
+    cL = np.clip(cL.real, -_EXP_ARG_CLAMP, _EXP_ARG_CLAMP) + 1j * cL.imag
+    sL = np.clip(sL.real, -_EXP_ARG_CLAMP, _EXP_ARG_CLAMP) + 1j * sL.imag
+    sinh_over_c = np.where(big, np.sinh(cL) / safe_c, L * np.ones_like(c))
+    cosh_cL = np.cosh(cL)
+    exp_sL = np.exp(sL)
 
     out = np.empty_like(M)
     out[..., 0, 0] = exp_sL * (cosh_cL + sinh_over_c * q00)

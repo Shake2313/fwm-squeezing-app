@@ -447,13 +447,13 @@ _inject_css()
 # ----------------------------------------------------------------------
 # Cached compute layer (keyed on the scheme + its recompute knobs only)
 # ----------------------------------------------------------------------
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, max_entries=64)
 def _cached_compute(scheme_name, recompute_items, cache_version):
     with blas_single_thread():
         return schemes.get(scheme_name).compute(dict(recompute_items))
 
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, max_entries=16)
 def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
     scheme = schemes.get(scheme_name)
     view = next(v for v in scheme.extra_views() if v.key == view_key)
