@@ -387,6 +387,8 @@ class RydbergEITScheme(Scheme):
             "√(P/d²) intensity scaling, anchored to the reference operating point. "
             "An optional Doppler-on mode Maxwell-averages the residual two-photon "
             "shift (k_probe − k_coupling)·v for the counter-propagating geometry.\n\n"
-            "Reference: arXiv:2606.04354, 85Rb vapor cell, 50 mm cell, 6 uW probe, "
-            "30 mW coupling beam, 0.15 mm beam diameter, 37 GHz RF transition."
+            "**References**\n"
+            "- [arXiv:2606.04354](https://arxiv.org/abs/2606.04354), 85Rb vapor "
+            "cell (50 mm cell, 6 µW probe, 30 mW coupling beam, 0.15 mm beam "
+            "diameter, 37 GHz RF transition)."
         )

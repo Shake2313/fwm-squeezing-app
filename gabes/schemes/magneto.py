@@ -361,12 +361,12 @@ class MagnetoScheme(Scheme):
             "**References**\n"
             "- D. A. Steck, *Rubidium 87 D Line Data*, http://steck.us/alkalidata.\n"
             "- H. J. Lee and H. S. Moon, magnetic-field-induced absorption in a "
-            "paraffin-coated rubidium vapor cell, *JOSA B* 30, 2301 (2013).\n"
+            "paraffin-coated rubidium vapor cell, *JOSA B* **30**, 2301 (2013).\n"
             "- H. S. Moon and H. J. Kim, Ramsey EIA to MIT transformation in a "
-            "paraffin-coated Rb vapor cell, *Optics Express* 22, 18604 (2014).\n"
+            "paraffin-coated Rb vapor cell, *Optics Express* **22**, 18604 (2014).\n"
             "- Y.-J. Yu, H. J. Lee, and H. S. Moon, level-crossing absorption "
             "with narrow spectral width in Rb vapor with buffer gas, "
-            "*Phys. Rev. A* 81, 023416 (2010)."
+            "*Phys. Rev. A* **81**, 023416 (2010)."
         )
 
     def compute(self, params):
