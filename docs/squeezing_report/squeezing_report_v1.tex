@@ -1,0 +1,554 @@
+% !TEX program = xelatex
+% 컴파일: xelatex squeezing_report.tex  (그림 참조/목차 때문에 2회 실행 권장)
+% 한글 출력: kotex + XeLaTeX. Hangul 폰트는 Windows 기본 'Malgun Gothic'으로 고정
+%            (어느 Windows 10/11에나 존재하므로 추가 설치 불필요).
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{./}}
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\degC}{\,^{\circ}\mathrm{C}}
+
+\title{\textbf{$^{85}$Rb D1 이중-$\Lambda$ 사파장혼합(FWM) 트윈빔\\
+세기차 스퀴징의 $(\Delta,T)$ 평면 최대화와 이론 검증}}
+\author{GABES (Generic Atomic Bloch Equation Solver) 분석 보고서}
+\date{2026년 6월 15일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+GABES 엔진의 $^{85}$Rb D1 이중-$\Lambda$ FWM 모델을 사용하여, 트윈빔(seed/conjugate)
+세기차 스퀴징 $\xi$를 단일광자 detuning(OPD) $\Delta$와 셀 온도 $T$의 함수로 스캔하고
+그 최대치를 구하였다. $\Delta,T$를 제외한 모든 변수는 Sim \textit{et al.}
+(\textit{Sci. Rep.} \textbf{15}, 7727 (2025))의 레퍼런스 동작점에 고정하였다. 각 $(\Delta,T)$
+에 대해 두광자 detuning $\delta$를 단일 Raman branch에서 스캔하여 가장 깊은 스퀴징을 취한다.
+검증된 동작점(손실 $5.5\%$, $\eta=0.855$)에서 전역 최대치는 $-8.385\dB$로,
+검출효율 한계 $10\log_{10}(1-\eta)$와 소수 넷째 자리까지 일치하였으며 floor 아래로
+내려가는 지점은 하나도 없었다. 이 최대치는 코딩 오류가 아니라 \emph{검출효율이 정하는
+shot-noise floor}임을 해석적으로 증명한다. 이어 손실을 $0$으로 두고 OPD 범위를
+$[-4,+8]\GHz$로 넓힌 고정밀(1464점) 확장 스캔으로 "이론상의 최대점"을 탐색한 결과,
+국소적 최대점은 존재하지 않으며 최대치는 (유한 $\eta$에서는) floor가 만드는 평원이거나,
+($\eta=1$에서는) 펌프고갈 cap만이 제한하는 무한정 깊은 값임을 확인하였다. 마지막으로
+실험에서 관측되는 안티스퀴징의 원인이 손실이 아니라 excess noise임을 모델의 구조로부터
+논증한다.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{서론과 동기}
+%==================================================================
+비축퇴(non-degenerate) 사파장혼합은 강한 펌프 두 광자가 seed(probe) 광자 하나와
+conjugate 광자 하나를 \emph{쌍으로} 생성하는 Manley--Rowe 과정이다. 이 때문에 두 빔의
+광자수 차 $N_s-N_c$는 강하게 상관되어 그 잡음이 shot-noise 한계 아래로 내려가는데, 이것이
+\emph{세기차 스퀴징(intensity-difference squeezing)}이다. 뜨거운 $^{85}$Rb 증기셀의
+D1 이중-$\Lambda$ 구조는 이러한 트윈빔 광원의 대표적 플랫폼이다.
+
+본 보고서의 목적은 다음 한 문장으로 요약된다.
+
+\begin{quote}
+\itshape
+GABES의 FWM 코드를 그대로 사용하여, Sim \textit{et al.}의 레퍼런스 값을 고정한 채
+스퀴징 $\xi(\Delta,T)$의 최대치를 구하고, 그 최대치가 이론에 부합하는지 아니면 수치/코딩
+오류인지 최종 검증한다.
+\end{quote}
+
+여기서 두광자 detuning $\delta$는 하나의 OPD와 하나의 Raman branch에 대해 스퀴징
+곡선의 유일한 최저점(=최대 스퀴징)을 주므로, $\delta$ 스캔 범위 안에서 최솟값을 취하는
+기존 메커니즘을 그대로 활용한다. 펌프/시드 파워나 line-strength 보정처럼 스퀴징 결과의
+\emph{값}에 본질적 영향을 주지 않는(또는 자유롭게 조절 가능한) 변수는 레퍼런스 값에
+고정한다.
+
+%==================================================================
+\section{모델과 계산 방법}
+%==================================================================
+
+\subsection{물리 모델: $\bar\chi$로부터 이득까지}
+계산 파이프라인(\texttt{gabes.schemes.fwm.compute\_spectrum})은 원본 FWM 코드의 물리를
+그대로 따른다. 4준위(두 바닥 초미세 $G_1,G_2$, 두 들뜸 $E_2,E_3$) 이중-$\Lambda$
+Hamiltonian에 대해 Floquet 사이드밴드 정상상태를 풀어, 각 probe 주파수와 속도류에 대한
+무차원 감수율 행렬 $(\bar\chi_{ss},\bar\chi_{cs},\bar\chi_{sc},\bar\chi_{cc})$를 얻는다.
+Rabi 주파수는
+\begin{equation}
+I=\frac{2P}{\pi w_0^2},\qquad
+\Omega=\Gamma\sqrt{\frac{I}{2I_{\mathrm{sat}}}} .
+\end{equation}
+Maxwell 속도분포에 대해 Doppler 평균한 뒤, 선형화된 Maxwell--Bloch 전파
+\begin{equation}
+\frac{d}{dz}\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix}
+= M\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix},
+\qquad
+\chi^{\mathrm{phys}}_{xy} = -\frac{2N\,\mathrm{LSF}\,|d|^2}{\varepsilon_0\hbar}\,\bar\chi_{xy},
+\end{equation}
+를 적분하여 전달행렬 $T=\exp(ML)$을 구하고, 이로부터 seed/conjugate 전력 이득
+\begin{equation}
+G_s=|T_{00}|^2,\qquad G_c=|T_{10}|^2
+\end{equation}
+을 얻는다. 여기서 $N$은 원자 밀도, $L$은 셀 길이, LSF는 line-strength 보정 인자이다.
+$M\propto N$이고 $\bar\chi$는 밀도와 무관하므로 $\ln G_s\propto N L$, 즉 이득은 온도(밀도)에
+대해 \emph{이중지수적}으로 증가한다.
+
+\subsection{펌프고갈 포화 (에너지 보존)}
+위 전파는 펌프 비고갈(undepleted) 가정이라 고밀도에서 펌프가 공급할 수 있는 것보다 더 큰
+이득을 준다. 이를 Manley--Rowe 펌프고갈 포화로 제한한다.
+\begin{equation}
+G_s^{\mathrm{sat}}=1+\frac{G_s-1}{1+(G_s-1)P_{\mathrm{seed}}/P_{\mathrm{cap}}},\quad
+G_c^{\mathrm{sat}}=\frac{G_c}{1+G_c\,P_{\mathrm{seed}}/P_{\mathrm{cap}}},\quad
+P_{\mathrm{cap}}=\tfrac12 P_{\mathrm{pump}} .
+\label{eq:cap}
+\end{equation}
+$(G_s-1)$과 $G_c$가 동일하게 포화하므로 트윈빔 관계 $G_c\approx G_s-1$이 보존되며, 고이득
+상한(cap)은
+\begin{equation}
+G_{\mathrm{cap}}=1+\frac{P_{\mathrm{pump}}}{2P_{\mathrm{seed}}} .
+\label{eq:Gcap}
+\end{equation}
+
+\subsection{스퀴징과 검출효율}
+이상적(무손실) 트윈빔의 세기차 잡음과 대칭 검출효율 $\eta$에서의 측정값은
+\begin{equation}
+S_{\mathrm{ideal}}=\frac{G_s+G_c-2\sqrt{G_sG_c-1}}{G_s+G_c}\in[0,1],\qquad
+S(\eta)=\eta\,S_{\mathrm{ideal}}+(1-\eta),
+\label{eq:Seta}
+\end{equation}
+\begin{equation}
+\xi=10\log_{10}S(\eta)\quad[\dB],\qquad \eta=\mathrm{QE}\,(1-\mathrm{loss}).
+\end{equation}
+식~\eqref{eq:Seta}에서 $S_{\mathrm{ideal}}\in[0,1]$이므로 $S(\eta)\in[1-\eta,\,1]$,
+따라서 \textbf{항상 $\xi\le 0\dB$}이고 가능한 가장 깊은 값은
+\begin{equation}
+\boxed{\;\xi_{\mathrm{floor}}=10\log_{10}(1-\eta)\;}
+\label{eq:floor}
+\end{equation}
+이다. 결정적으로, $\eta$는 이득 $G_s,G_c$를 푼 \emph{뒤} 적용되는 순수 사후처리이다. 따라서
+$(\Delta,T)$ 격자를 \emph{한 번} 풀어 이득을 저장해 두면, 임의의 $\eta$에 대한 스퀴징을
+거의 공짜로 얻는다. 본 분석의 효율성은 이 관찰에 기반한다.
+
+\subsection{스캔 절차}
+각 $(\Delta,T)$에 대해 $(-)$ Raman branch 중심 $\pm 0.55\GHz$의 좁은 probe 창에서 probe
+주파수($=\delta$)를 스캔하고 $\min_\delta \xi$를 취한다. 서로 다른 Raman branch는 독립적인
+모드쌍이므로 감수율을 합치지 않고 한 번에 하나씩 계산한다. 격자 점들은 \texttt{ThreadPool}
++ 단일스레드 BLAS로 병렬화한다.
+
+\subsection{레퍼런스 파라미터}
+표~\ref{tab:ref}는 회귀 테스트에 bit-lock된 \texttt{sim\_optimum} 설정으로, 본 분석의 고정값
+원천이다.
+
+\begin{table}[h]
+\centering
+\caption{Sim \textit{et al.} 레퍼런스 동작점($\Delta,T$ 제외 전부 고정).}
+\label{tab:ref}
+\begin{tabular}{lll}
+\toprule
+변수 & 값 & 비고\\
+\midrule
+펌프 전력 $P_{\mathrm{pump}}$ & $600\,\mathrm{mW}$ & 조절가능; 이득은 cap에서 포화\\
+시드 전력 $P_{\mathrm{seed}}$ & $8\,\mu\mathrm{W}$ & 조절가능\\
+line-strength 보정 & $0.05$ & 전파 결합 보정\\
+셀 이후 손실 & $5.5\%$ & $\eta$로 흡수됨\\
+검출 양자효율 QE & $0.9047$ & \\
+셀 길이 $L$ & $12.5\,\mathrm{mm}$ & 모듈 상수\\
+펌프 빔 허리 $w_0$ & $530\,\mu\mathrm{m}$ & \\
+시드 빔 허리 $w_0$ & $330\,\mu\mathrm{m}$ & \\
+\midrule
+$\eta=\mathrm{QE}(1-\mathrm{loss})$ & $0.85494$ & \\
+floor $10\log_{10}(1-\eta)$ & $-8.3846\dB$ & 식~\eqref{eq:floor}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==================================================================
+\section{결과 1: 검증된 동작점에서의 $\xi(\Delta,T)$ 최대화}
+%==================================================================
+$\Delta\in[-0.5,3.0]\GHz$(0.1 간격), $T\in[60,150]\degC$(5 간격)의 684점 격자를
+스캔하였다(그림~\ref{fig:map1}).
+
+\begin{table}[h]
+\centering
+\caption{온도에 따른 최적 스퀴징(각 $T$에서 $\Delta$ 최적), 손실 $5.5\%$, floor $-8.385\dB$.}
+\label{tab:Tslice}
+\begin{tabular}{rrrr}
+\toprule
+$T\,[^{\circ}\mathrm{C}]$ & $\xi_{\mathrm{best}}\,[\mathrm{dB}]$ & floor까지 격차 $[\mathrm{dB}]$ & 최대 $G_s$\\
+\midrule
+$\le 80$ & $0.000$  & $+8.385$ & $1.0$\\
+$85$  & $-2.004$ & $+6.381$ & $1.6$\\
+$90$  & $-4.459$ & $+3.925$ & $1.9$\\
+$95$  & $-6.243$ & $+2.142$ & $2.9$\\
+$100$ & $-7.412$ & $+0.972$ & $4.3$\\
+$105$ & $-7.897$ & $+0.487$ & $6.2$\\
+$110$ & $-8.258$ & $+0.127$ & $10.0$\\
+$115$ & $-8.336$ & $+0.048$ & $23.1$\\
+$120$ & $-8.347$ & $+0.038$ & $48.3$\\
+$125$ & $-8.378$ & $+0.006$ & $578$\\
+$130$ & $-8.384$ & $+0.000$ & $4854$\\
+$135\text{--}150$ & $-8.385$ & $+0.000$ & $\to 37500$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{squeezing_map.png}
+\caption{왼쪽: $\xi(\Delta,T)$ 히트맵($\delta$에 대한 최소, $(-)$ branch). 저온 무이득
+영역($\xi=0$)에서 고온 floor 평원($-8.4\dB$)으로의 전이. 가운데: 최적 $\Delta$에서 $\xi$의
+온도 의존성 --- floor로의 점근. 오른쪽: $T=121\degC$에서 $\Delta$ 의존성. 빨간 별이 전역
+최대, 흰 원이 Sim 동작점.}
+\label{fig:map1}
+\end{figure}
+
+\paragraph{핵심 결과.}
+\begin{itemize}[nosep]
+\item 전역 최대치 $\xi_{\max}=-8.3846\dB$, 위치 $\Delta=-0.5\GHz$, $T=145\degC$
+      ($G_s=37498$, cap~\eqref{eq:Gcap}에 포화).
+\item 이 값은 floor $-8.3846\dB$와 소수 넷째 자리까지 일치.
+\item floor 아래로 내려간 점: $0/684$. floor의 $0.01\dB$ 이내: $174/684$ (넓은 평원).
+\item Sim 동작점($\Delta=0.9\GHz$, $T=121\degC$)은 $G_s\approx 17.6$의 중간 이득에서도
+      이미 $-8.33\dB$로 floor에서 $0.05\dB$ 이내.
+\end{itemize}
+즉 저온에서는 밀도 부족으로 무이득($\xi=0$), $85\text{--}110\degC$에서 이득이 쌓이며 단조
+개선, $\gtrsim 125\degC$에서 이득이 cap에 포화하며 floor에 점근한다.
+
+%==================================================================
+\section{결과 2: 이론 검증 --- $\eta$가 정하는 floor}
+%==================================================================
+최대치 $-8.385\dB$가 물리적으로 옳은지, 아니면 코딩 오류인지 검증한다.
+
+\subsection{해석적 상한}
+트윈빔 관계 $G_c=G_s-1$을 식~\eqref{eq:Seta}에 넣고 고이득 전개하면(부록~\ref{app:deriv})
+\begin{equation}
+S_{\mathrm{ideal}}\;\xrightarrow{\;G_s\gg1\;}\;\frac{5}{8\,G_s^{2}}\;\to\;0 ,
+\label{eq:asym}
+\end{equation}
+즉 $S_{\mathrm{ideal}}$은 $1/G_s^2$로 \emph{제곱만큼 빠르게} 0으로 간다. 그러면
+$S(\eta)\to 1-\eta$, 따라서 스퀴징의 가능한 최대치는 식~\eqref{eq:floor}의 floor이다.
+
+\subsection{두 레버의 분리: 이득 vs 효율}
+스퀴징을 깊게 하는 두 경로를 수치로 분리하였다(표~\ref{tab:gain}, \ref{tab:eta}).
+
+\begin{table}[h]
+\centering
+\caption{이득 레버($\eta=0.855$ 고정): 한계효용 급감.}
+\label{tab:gain}
+\begin{tabular}{rrr}
+\toprule
+$G_s$ & $\xi\,[\mathrm{dB}]$ & floor까지 격차 $[\mathrm{dB}]$\\
+\midrule
+$3$    & $-6.284$ & $+2.102$\\
+$5$    & $-7.650$ & $+0.737$\\
+$10$   & $-8.212$ & $+0.174$\\
+$17$   & $-8.328$ & $+0.058$\\
+$30$   & $-8.368$ & $+0.018$\\
+$100$  & $-8.385$ & $+0.002$\\
+$\ge 300$ & $-8.386$ & $+0.000$\\
+\bottomrule
+\end{tabular}
+\quad
+\begin{tabular}{rr}
+\multicolumn{2}{c}{}\\
+\toprule
+\multicolumn{2}{c}{floor 위치 = $10\log_{10}(1-\eta)$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{효율 레버(고이득 $G=10^4$ 고정): floor 자체를 이동, dB로 큰 레버리지.}
+\label{tab:eta}
+\begin{tabular}{rrrrrrr}
+\toprule
+$\eta$ & $0.855$ & $0.90$ & $0.95$ & $0.97$ & $0.98$ & $0.99$\\
+\midrule
+floor $[\mathrm{dB}]$ & $-8.39$ & $-10.0$ & $-13.0$ & $-15.2$ & $-17.0$ & $-20.0$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+이득은 $G_s\gtrsim 30$에서 이미 floor의 $0.02\dB$ 이내라 \emph{사실상 포화}되어 추가 이득의
+의미가 없다. 반면 $\eta$는 floor를 직접 옮기며 1 근처에서 극적으로 레버리지된다.
+
+\subsection{검증 판정}
+\begin{itemize}[nosep]
+\item 시뮬레이션 최대치 $-8.3846\dB$ $=$ 이론 floor $-8.3846\dB$ (4자리 일치).
+\item floor 아래 점 $0/684$ --- $\eta$ 한계를 절대 깨지 않음.
+\item 이득이 cap에 포화하며 floor로 점근(표~\ref{tab:Tslice})하는 물리적 거동.
+\end{itemize}
+\textbf{결론: 코딩 오류가 아니다.} 최대치는 "검출효율이 정하는 shot-noise floor
+$10\log_{10}(1-\eta)$"라는 교과서적 결과를 정확히 재현한다. 만약 어떤 점이 floor보다
+깊었다면 그것은 $S\ge 1-\eta$를 위반하는 물리적 불가능이므로 수치 오류의 신호였을 것이나,
+그런 점은 없었다.
+
+%==================================================================
+\section{평원(plateau)이 $-8.4\dB$ 근처에 생기는 이유}
+%==================================================================
+평원은 \emph{독립적인 두 사실}이 겹쳐 생긴다.
+
+\paragraph{(1) 평원의 높이 --- 손실이 주입하는 진공잡음 바닥.}
+FWM은 광자를 쌍으로 만들어 $N_s-N_c$를 상관시키므로 무손실에서 $S_{\mathrm{ideal}}\to 0$
+(완전 압축)이다. 그러나 손실은 짝을 깨뜨려 진공잡음을 주입한다. 손실을 투과율 $\eta$의
+빔스플리터로 모델링하면 식~\eqref{eq:Seta}의 $(1-\eta)$ 항이 바로 그 \emph{진공잡음
+누설}이다. 따라서 평원의 높이는 압축 한계가 아니라 손실 바닥 $1-\eta$이다.
+
+\paragraph{(2) 평원이 평탄한 이유 --- $S_{\mathrm{ideal}}\propto 1/G^2$의 빠른 소멸.}
+식~\eqref{eq:asym}에 의해 $G_s\gtrsim 10$(무릎)을 넘으면 $\eta S_{\mathrm{ideal}}$이
+$(1-\eta)=0.145$에 비해 무시되어, 이득을 더 키워도 합은 $(1-\eta)$에 고정된다.
+
+\paragraph{(3) 평원이 넓은 이유 --- 이득이 도처에서 충분.}
+이득은 $T$에 지수적이라 고온$\cdot$중간 $\Delta$의 넓은 영역 전체가 무릎 위에 있고, 게다가
+고온에서는 cap~\eqref{eq:cap}이 이득을 상수($\approx 37500$)로 고정한다. 그래서 2차원의
+넓은 면적이 동일한 floor로 사상되어 평탄한 평원으로 보인다. 평원의 유일한 함몰($\Delta\approx
+0$)은 1광자 공명 흡수가 이득을 무릎 아래로 끌어내리는 곳이다.
+
+%==================================================================
+\section{스퀴징 dB를 향상시키는 유의미한 방법}
+%==================================================================
+단순한 probe 파워 증가에 따른 SNR 향상을 제외하면, 이 계산이 가리키는 결론은 명확하다.
+
+\paragraph{핵심: 스퀴징 dB는 이득이 아니라 효율 $\eta$가 결정한다.}
+동작 영역에서 $S_{\mathrm{ideal}}\approx 0$이므로 $\xi\approx 10\log_{10}(1-\eta)$. 이득
+레버는 이미 포화(표~\ref{tab:gain})되어 의미가 없고, 오직 $\eta$만이 floor를 옮긴다
+(표~\ref{tab:eta}).
+
+\begin{enumerate}[nosep]
+\item \textbf{검출효율 $\eta$ 향상(압도적 1순위).} 고-QE 검출기, 셀 이후 수동 손실
+      최소화(AR 코팅, 저손실 필터/광학계, 파이버 결합, signal$\cdot$conjugate 공간모드 정합),
+      매질 내 트윈빔 재흡수 최소화($\Delta$를 투명창 안쪽, $\Delta\approx 0$ 흡수 notch 회피).
+\item \textbf{트윈빔 대칭성 $G_c\approx G_s-1$ 유지(2순위).} 비대칭 흡수는
+      $S_{\mathrm{ideal}}$을 들뜨게 한다(예: $G_s=100$에서 $G_c$가 $99\to 80$이면
+      $-8.39\to -8.23\dB$). 페널티 자체는 작으나 원인(한쪽 트윈의 공명 재흡수)이 곧 손실원.
+\item \textbf{이득 확보는 "floor 도달 조건"일 뿐, 향상 레버가 아님.} $G\gtrsim 30$이면 충분.
+\end{enumerate}
+
+\paragraph{모델 밖(정직한 단서).} 이 모델은 스퀴징 저하 채널이 $\eta$ 하나뿐이며 excess
+noise를 보지 못한다. 따라서 "$T$만 올리면 floor 도달"이라는 예측은 실제보다 낙관적이고,
+$-8.4\dB$는 효율 상한이지 실험 보장치가 아니다.
+
+%==================================================================
+\section{결과 3: 확장 정밀 시뮬레이션 --- "이론상의 최대점" 탐색}
+%==================================================================
+손실을 $0$으로 두고($\eta=\mathrm{QE}=0.9047$), OPD를 $[-4,+8]\GHz$로 넓히고, $T$를
+$[70,185]\degC$로 확장하며, $\delta$ 창을 201점($\sim 6\MHz$ 분해능), 속도격자를 $3\,$m/s로
+높여 1464점을 약 21분 계산하였다(그림~\ref{fig:map2}). 이득 $G_s,G_c$를 한 번만 풀어
+$\eta=\mathrm{QE}$, $\eta=0.855$, $\eta=1$의 세 경우를 동시에 추출하였다.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{squeezing_theory_max.png}
+\caption{확장 스캔. 왼쪽: 무손실($\eta=\mathrm{QE}$) 스퀴징 맵 --- floor가 $-10.2\dB$로
+이동, 평원 재현. 가운데: 본질적 source 압축($\eta=1$, $S_{\mathrm{ideal}}$) --- floor가
+사라져 이득제한이 되고 함몰(공명 notch) 구조가 드러남. 오른쪽: $\log_{10}G_s$ --- 고온에서
+cap에 의해 상수로 고정(clamp).}
+\label{fig:map2}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{세 검출효율에서의 전역 최대 스퀴징(확장 스캔). floor 아래 점은 모두 $0$.}
+\label{tab:three}
+\begin{tabular}{lrll}
+\toprule
+영역 & $\xi_{\max}\,[\mathrm{dB}]$ & 위치 & 성격\\
+\midrule
+무손실 $\eta=0.9047$ & $-10.209$ & 평원($659/1464$점) & floor, degenerate 평원\\
+원래 손실 $\eta=0.855$ & $-8.385$ & 동일 & 같은 구조, floor만 다름\\
+완전검출 $\eta=1$ & $-94.5$ & cap 포화점 & 이득제한, \emph{내부 최대점 없음}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{넓은 OPD가 드러낸 efficient frontier}
+모든 $(\Delta,T)$가 결국 같은 floor에 도달하지만, \emph{얼마나 낮은 $T$}로 도달하는지는
+$\Delta$에 크게 의존한다(표~\ref{tab:frontier}). 가장 "값싼" 동작점은 Sim의 $0.9\GHz$가
+아니라 $\Delta\approx -1.6\GHz$로, $G_s\approx 28$의 중간 이득만으로 floor에 도달한다.
+$\Delta\approx 0$(1광자 공명)과 $\Delta\approx -3.5\GHz$(바닥상태 초미세 $-3.04\GHz$ 부근)는
+흡수 notch라 floor 도달에 매우 높은 $T$가 필요하다.
+
+\begin{table}[h]
+\centering
+\caption{efficient frontier: 각 $\Delta$에서 floor에 도달하는 최저 온도와 그때의 이득.}
+\label{tab:frontier}
+\begin{tabular}{rrr}
+\toprule
+$\Delta\,[\mathrm{GHz}]$ & floor 도달 최저 $T\,[^{\circ}\mathrm{C}]$ & $G_s$\\
+\midrule
+$-3.6$ & $165$ & $37324$\\
+$-2.0$ & $120$ & $42.4$\\
+$\mathbf{-1.6}$ & $\mathbf{110}$ & $\mathbf{27.9}$\\
+$-1.0$ & $115$ & $68.3$\\
+$\phantom{-}0.0$ & $155$ & $37169$\\
+$+0.8$ & $125$ & $43.6$\\
+$+2.0$ & $125$ & $46.9$\\
+$+4.0$ & $125$ & $25.6$\\
+$+6.0$ & $125$ & $63.2$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{cap 스윕: 본질적 압축은 무한}
+$\eta=1$에서 $\xi$는 $S_{\mathrm{ideal}}\propto 1/G^2$이고 이득의 유일한 상한은
+cap~\eqref{eq:Gcap}이다. 펌프/시드 비율을 키우면 본질적 압축이 한계 없이 깊어진다
+(표~\ref{tab:cap}). 즉 이 모델에서 \emph{스퀴징을 막는 유일한 진짜 한계는 $\eta$ 하나}이다.
+
+\begin{table}[h]
+\centering
+\caption{cap 스윕($\eta=1$, $\Delta=+2\GHz$, $T=180\degC$): 측정값이 해석식
+$5/(8G^2)$와 일치.}
+\label{tab:cap}
+\begin{tabular}{rrrrr}
+\toprule
+$P_{\mathrm{pump}}\,[\mathrm{W}]$ & $P_{\mathrm{seed}}\,[\mu\mathrm{W}]$ & cap & $G_s$ & $S_{\mathrm{ideal}}\,[\mathrm{dB}]$\\
+\midrule
+$0.6$ & $8$    & $3.75\times10^4$ & $3.75\times10^4$ & $-93.9$\\
+$0.6$ & $1$    & $3.0\times10^5$  & $3.0\times10^5$  & $-111.8$\\
+$1.2$ & $1$    & $6.0\times10^5$  & $6.0\times10^5$  & $-118.6$\\
+$1.2$ & $0.1$  & $6.0\times10^6$  & $6.0\times10^6$  & $-138.2$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{수치 한계: float64 catastrophic cancellation}
+$G\gtrsim 10^7\text{--}10^8$에서 식~\eqref{eq:Seta}의 분자
+$G_s+G_c-2\sqrt{G_sG_c-1}$은 두 큰 수의 차로 유효숫자를 모두 잃는다. 예를 들어 $G=10^8$이면
+$G^2=10^{16}$이 float64 해상도($\sim 2$)를 넘어 $G^2-1$이 $G^2$으로 반올림되고, 분자가
+$0$으로 계산되어 가짜 $-300\dB$가 나온다(실제값 $-162\dB$). 따라서 신뢰 가능한 범위는
+$G\lesssim 10^7$이며, 이는 어차피 물리적으로 도달 불가능한 영역이라 주 결론에 영향을 주지
+않는다.
+
+\subsection{종합: 국소적 최대점은 없다}
+\begin{itemize}[nosep]
+\item 유한 $\eta$(무손실 QE 포함): 최대치는 floor $10\log_{10}(1-\eta)$이고 넓은 평원으로
+      degenerate --- 한 점으로 특정되지 않는다.
+\item $\eta=1$: floor가 사라져 cap이 허용하는 한 무한정 깊어진다 --- 최대점이 없다.
+\item 실용적으로 의미 있는 단 하나의 특이점은 efficient frontier($\Delta\approx -1.6\GHz$,
+      $T\approx 110\degC$) --- floor를 최소 비용으로 도달하는 동작점이다.
+\end{itemize}
+
+%==================================================================
+\section{실험에서의 안티스퀴징: 손실인가, 다른 원인인가?}
+%==================================================================
+여기서 "안티스퀴징"은 측정한 압축 관측량(세기 차)의 잡음이 shot-noise 위(양의 dB)로
+올라가는 것을 뜻한다.
+
+\paragraph{손실은 안티스퀴징을 만들 수 없다.}
+식~\eqref{eq:Seta}에서 $S(\eta)\in[1-\eta,1]$이므로 $\xi\le 0\dB$가 항상 성립한다. 손실은
+진공잡음을 섞어 압축을 shot-noise($0\dB$)로 \emph{수렴}시킬 뿐 그 위로 올리지 못한다.
+따라서:
+\begin{quote}
+손실 = 압축을 \emph{얕게} 만드는 주범($-8\dB\to 0\dB$ 방향). 그러나 안티스퀴징($0\dB$
+초과)은 만들 수 없음.
+\end{quote}
+실험에서 세기차 잡음이 shot-noise 위로 올라온다면, 그것은 정의상 이 모델에 없는
+\textbf{excess noise}이다.
+
+\paragraph{안티스퀴징의 진짜 원인(중요도 순).}
+\begin{enumerate}[nosep]
+\item \textbf{안티스퀴즈된 \emph{합} 잡음의 누설(가장 위험).} 세기 합 잡음은 위상비민감
+      증폭이라 이득에 비례($\sim G$)해 거대하다(보통 $+20\sim+30\dB$). 두 빔의 이득/손실
+      비대칭이나 균형검출의 common-mode rejection 불완전성이 이 거대한 합 잡음을 차 측정으로
+      흘려보낸다. 수\% 불균형으로도 $-8\dB$ 압축이 양의 dB로 뒤집힌다.
+\item \textbf{펌프 잡음의 비선형 전이.} 이득이 펌프 세기/위상의 함수라, 펌프 잡음이 이득을
+      변조해 트윈빔에 상관된 초과잡음으로 실린다(특히 위상잡음).
+\item \textbf{자발 산란/형광 잡음.} 강한 펌프로부터의 자발 Raman 산란$\cdot$자발방출이 짝 없는
+      광자를 더한다. 특히 공명 근처 재흡수는 깨끗한 손실이 아니라 흡수+자발재방출(Langevin)
+      잡음을 동반한다($\Delta\approx 0$ notch).
+\item \textbf{원자 매질 잡음.} 열적 원자수 요동, 충돌 dephasing, 비행시간 효과.
+\item \textbf{측정/기술 잡음.} 검출기 전자잡음 위로의 clearance 부족, shot-noise-limited가
+      아닌 레이저. 저주파에서 $1/f$ 기술잡음이 압축을 덮으므로 보통 MHz 측파대에서 측정한다.
+\end{enumerate}
+
+\paragraph{실무 진단.}
+압축 quadrature가 손실만 고려한 floor에도 못 미치거나 양의 dB이면 excess noise가
+확정이다(손실로는 floor까지는 가도 그 위로는 못 감). 또한 측정 안티스퀴징이 "순수상태+손실"
+모델의 예측보다 크면 순수 손실이 아니라 added noise의 신호이다.
+
+\begin{table}[h]
+\centering
+\caption{증상별 주원인.}
+\begin{tabular}{ll}
+\toprule
+증상 & 주원인\\
+\midrule
+압축이 얕음($-8\dB$여야 하는데 $-3\dB$) & \textbf{손실}($\eta$) --- floor 그대로\\
+압축이 사라지거나 양의 dB(안티스퀴징) & \textbf{excess noise} --- 합잡음 누설/불균형,\\
+ & 펌프잡음, 자발 Raman, 저주파 기술잡음\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==================================================================
+\section{결론}
+%==================================================================
+\begin{enumerate}[nosep]
+\item GABES FWM 모델에서 $\xi(\Delta,T)$의 전역 최대치는 검증된 동작점($\eta=0.855$)에서
+      $-8.385\dB$로, 검출효율 floor $10\log_{10}(1-\eta)$와 정확히 일치하며 floor를 절대
+      깨지 않는다. \textbf{이론에 부합하며 코딩 오류가 아니다.}
+\item 이 최대치는 한 점이 아니라 고이득 평원이다. 평원의 높이는 손실 바닥 $1-\eta$, 평탄함은
+      $S_{\mathrm{ideal}}\propto 1/G^2$, 넓이는 이득의 광역 포화(cap)에서 온다.
+\item probe SNR을 제외하면 스퀴징 dB를 향상시키는 유의미한 레버는 \emph{사실상 $\eta$
+      하나}이다. 이득은 이미 포화되어 향상 여지가 없다.
+\item 손실을 $0$으로 두고 범위를 넓혀도 국소적 "이론상 최대점"은 존재하지 않는다. 유한
+      $\eta$에서는 floor 평원, $\eta=1$에서는 cap만이 제한하는 무한정 깊은 값이다. 유일한
+      의미 있는 특이점은 efficient frontier($\Delta\approx -1.6\GHz$)이다.
+\item 실험적 안티스퀴징은 손실의 문제가 아니다. 손실은 압축을 shot-noise로 수렴시킬 뿐이며,
+      안티스퀴징은 본질적으로 excess noise(특히 이득에 비례해 거대해진 안티스퀴즈 합잡음의
+      불균형 누설)에서 온다.
+\end{enumerate}
+
+\noindent\textbf{한 줄 요약.} \emph{이 모델에서 스퀴징을 제한하는 본질은 오직 검출효율
+$\eta$이며, 측정된 $-8.4\dB$는 그 $\eta$가 정하는 shot-noise floor에 다름 아니다.}
+
+\appendix
+%==================================================================
+\section{$S_{\mathrm{ideal}}\to 5/(8G^2)$ 유도}
+\label{app:deriv}
+%==================================================================
+$G_c=G_s-1\equiv x-1$($x=G_s$)로 두면 식~\eqref{eq:Seta}의 분자는
+\begin{equation}
+N = (2x-1)-2\sqrt{x^2-x-1}.
+\end{equation}
+$\sqrt{x^2-x-1}=x\sqrt{1-1/x-1/x^2}
+= x\left(1-\tfrac{1}{2x}-\tfrac{5}{8x^2}+\cdots\right)
+= x-\tfrac12-\tfrac{5}{8x}+\cdots$ 이므로
+\begin{equation}
+N=(2x-1)-\left(2x-1-\tfrac{5}{4x}\right)=\frac{5}{4x}.
+\end{equation}
+분모는 $G_s+G_c=2x-1\approx 2x$이므로
+\begin{equation}
+S_{\mathrm{ideal}}=\frac{N}{2x-1}\approx\frac{5/(4x)}{2x}=\frac{5}{8x^2}=\frac{5}{8G_s^2}.
+\end{equation}
+$G_s=30$이면 $S_{\mathrm{ideal}}\approx 6.9\times10^{-4}$, $\eta S_{\mathrm{ideal}}\approx
+5.9\times10^{-4}\ll(1-\eta)=0.145$이므로 floor에 사실상 도달한다.
+
+\section{수치 세부}
+\begin{itemize}[nosep]
+\item 결과 1: $36\times19=684$점, $\delta$ 창 $\pm0.55\GHz$, coarse $81$, 속도격자 $5\,$m/s,
+      8스레드 약 $104\,$s.
+\item 결과 3: $61\times24=1464$점, OPD $[-4,8]\GHz$, $T\,[70,185]\degC$, coarse $201$,
+      속도격자 $3\,$m/s, 8스레드 약 $1248\,$s. $\delta$ 최적이 창 가장자리에 닿은 점
+      $345/1464$(저이득 영역, 최대치에는 무영향).
+\item 펌프고갈 cap: $G_{\mathrm{cap}}=1+P_{\mathrm{pump}}/(2P_{\mathrm{seed}})
+      =1+0.6/(2\cdot 8\times10^{-6})\approx 3.75\times10^4$.
+\end{itemize}
+
+\end{document}

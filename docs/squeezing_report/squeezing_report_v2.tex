@@ -1,0 +1,350 @@
+% !TEX program = xelatex
+% 컴파일: xelatex squeezing_report_v2.tex  (그림 참조/목차 때문에 2회 실행 권장)
+% 한글 출력: kotex + XeLaTeX. Hangul 폰트는 Windows 기본 'Malgun Gothic'으로 고정.
+% 그림: squeezing_frontier.png, squeezing_frontier_od.png  (docs/squeezing_report/make_v2_figs.py로 생성)
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{./}}
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\degC}{\,^{\circ}\mathrm{C}}
+
+\title{\textbf{$^{85}$Rb D1 이중-$\Lambda$ 사파장혼합(FWM) 트윈빔\\
+세기차 스퀴징: 완전(Ultra) 전파모형에서의 최효율 전선과\\
+in-cell 손실이 만드는 진짜 동작점 최적화}\\[4pt]
+\large 보고서 v2 --- 고점 탐색의 무의미성을 넘어서}
+\author{GABES (Generic Atomic Bloch Equation Solver) 분석 보고서}
+\date{2026년 6월 18일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{v2 요약.} v1은 GABES의 이상(무손실) FWM 모형에서 스퀴징 $\xi(\Delta,T)$의
+\emph{최대치}가 항상 검출효율 floor $10\log_{10}(1-\eta)$이며, 고이득 영역 전체가 그 floor로
+사상되는 넓은 평원으로 degenerate함을 보였다 --- 즉 "최대점"은 무의미한 평원 가장자리
+좌표였다. 이에 따라 (i)~분석 스킬을 \emph{최고점}에서 \emph{최효율 전선(efficient frontier)},
+즉 floor를 \emph{최저 비용}(최저 셀온도/이득)으로 도달하는 동작점 탐색으로 재정의하였고,
+(ii)~엔진을 \textbf{완전(Ultra) 전파모형}---자기무모순 $\Delta k_z$ 위상부정합(3회 반복),
+64분할 전파 중 동적 펌프고갈, \textbf{in-cell 전파손실}, 가우시안 빔겹침, 24준위 Zeeman
+Clebsch--Gordan 보정---으로 올렸으며, (iii)~Sim \textit{et al.} 측정 보정에 맞춰 검출 양자효율을
+$\mathrm{QE}=0.9047\to 0.92$로 재교정하였다(detection floor $-8.385\to -8.841\dB$).
+
+완전 모형은 v1에 없던 본질적 변화를 만든다: \textbf{in-cell 손실 $\mathrm{OD}(\Delta,T)$가
+온도(밀도)에 따라 커지므로, 고정 $\Delta$에서 $\xi(T)$는 저온의 이득제한과 고온의 손실제한이
+경쟁하는 \emph{진짜 내부 최적점}을 가진다.} 그러나 전역 최적점은 여전히 \emph{투명창}
+($\Delta\approx-2\!\sim\!-2.5\GHz$, $\mathrm{OD}\approx0$)에 있어 floor를 평원으로 재현한다:
+전역 최적 $\xi_{\mathrm{opt}}=-8.841\dB$ @ $\Delta=-2.2\GHz,\,T=140\degC$ (in-cell 손실
+$0\%$). 최효율 동작점은 $\Delta\approx-1.9\GHz,\,T\approx120\degC,\,G_s\approx32,\,
+\mathrm{OD}\approx0.3\%$에서 $\xi\approx-8.75\dB$이다. floor 아래로 내려간 점은 $0/1254$로
+가드레일을 절대 깨지 않는다. 공명에 가까운 detuning(Sim의 $+0.9\GHz$, 또는 $\Delta\approx0$)은
+in-cell 손실 페널티로 floor에 도달하지 못한다($+0.9\GHz$에서 $-7.88\dB$). 결론적으로
+스퀴징 dB를 정하는 본질은 여전히 검출효율 $\eta$이며, 실험 권고 동작점은 \emph{투명창 안의
+중간온도 전선}이다.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{v1에서 v2로: 무엇이, 왜 바뀌었나}
+%==================================================================
+v1 보고서(\texttt{squeezing\_report\_v1.tex})의 결론은 한 문장으로: \emph{이상 모형에서
+$\xi$의 최대치는 $\eta$가 정하는 shot-noise floor이고, 그 최대치는 넓은 평원이라 "최고점"을
+한 점으로 특정하는 것은 무의미하다}는 것이었다. 이 무의미성의 \emph{발견}이 유의미했으므로,
+분석의 목표를 다음으로 옮겼다.
+
+\begin{quote}\itshape
+floor(=달성 가능한 최선)를 \emph{가장 싸게}(최저 셀온도/이득/광학두께로) 도달하는 동작점,
+즉 efficient frontier를 찾는다. 이 점은 실험적으로 가장 저렴하고, 동시에 실제 실험을
+제한하는 excess-noise 채널(이득에 비례하는 반압축 합잡음, 펌프에 비례하는 자발 Raman,
+밀도에 비례하는 충돌 dephasing)을 모두 최소화하므로 \emph{가장 강건}하다.
+\end{quote}
+
+\begin{table}[h]
+\centering
+\caption{v1 $\to$ v2 변경점 요약.}
+\label{tab:changelog}
+\begin{tabular}{p{4.2cm}p{4.3cm}p{5.4cm}}
+\toprule
+항목 & v1 & v2\\
+\midrule
+분석 목표 & $\xi$ 최대점(고점) & \textbf{최효율 전선}(floor 최저비용 도달점)\\
+전파 모형 & 이상(무손실) legacy & \textbf{Ultra}: in-cell 손실 + 64분할 동적 펌프고갈 + $\Delta k_z$ 위상부정합 + Zeeman CG + 빔겹침\\
+검출효율 QE & $0.9047$ & $0.92$ (Sim 측정 보정)\\
+detection floor & $-8.385\dB$ & $-8.841\dB$\\
+line-strength(잔차) & $0.05$ & $0.74$ (물리 결합정규화 $p_F/[2(2I+1)]$와 CRC 밀도가 엔진 내부로 이동)\\
+$\xi(T)$ 거동 & floor로 단조 점근 & 저온 이득제한 vs 고온 손실제한 $\Rightarrow$ \textbf{진짜 내부 최적점}\\
+권고 동작점 & (특정 안 함) & 투명창 전선 $\Delta\approx-1.9\GHz,\,T\approx120\degC$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==================================================================
+\section{모델: Ultra 전파모형과 스퀴징 재구성}
+%==================================================================
+
+\subsection{$\bar\chi$에서 이득과 in-cell 손실까지}
+파이프라인(\texttt{gabes.schemes.fwm.compute\_spectrum})은 4준위(두 바닥 초미세 $G_1,G_2$,
+두 들뜸 $E_2,E_3$) 이중-$\Lambda$ Hamiltonian의 Floquet 정상상태로 무차원 감수율
+$(\bar\chi_{ss},\bar\chi_{cs},\bar\chi_{sc},\bar\chi_{cc})$를 얻고, Maxwell 속도분포로 Doppler
+평균한다. Rabi 주파수는 $I=2P/(\pi w_0^2)$, $\Omega=\Gamma\sqrt{I/2I_{\mathrm{sat}}}$.
+선형화된 Maxwell--Bloch 전파를 적분해 전달행렬 $T=\exp(ML)$, seed/conjugate 전력이득
+$G_s=|T_{00}|^2,\;G_c=|T_{10}|^2$를 얻는다.
+
+\paragraph{Ultra 모형이 추가하는 것(v1 대비).}
+\begin{enumerate}[nosep]
+\item \textbf{in-cell 전파손실 $\mathrm{OD}(\Delta,T)$}: 셀 \emph{내부}에서 트윈빔이 겪는
+      광학두께. 공명 근처에서 온도(밀도)에 따라 급증한다(본 보고서 핵심 새 채널).
+\item \textbf{64분할 전파 + 동적 펌프고갈}: 셀을 64구간으로 나눠 구간마다 펌프고갈을
+      재계산(v1의 단일 Manley--Rowe cap을 구간분해).
+\item \textbf{자기무모순 $\Delta k_z$ 위상부정합}(3회 반복), \textbf{가우시안 빔겹침} 프로파일,
+      \textbf{24준위 Zeeman Clebsch--Gordan} 보정.
+\end{enumerate}
+
+\subsection{스퀴징 재구성: in-cell 손실 + 검출효율}
+이상 트윈빔 세기차 잡음 $S_{\mathrm{ideal}}=(G_s+G_c-2\sqrt{G_sG_c-1})/(G_s+G_c)\in[0,1]$에,
+셀 내부 투과율 $\tau=e^{-\mathrm{OD}}$를 분산 빔스플리터로, 이어 검출효율 $\eta$를 적용한다:
+\begin{equation}
+S_{\mathrm{cell}}=\tau\,S_{\mathrm{ideal}}+(1-\tau),\qquad
+S(\eta)=\eta\,S_{\mathrm{cell}}+(1-\eta),\qquad
+\xi=10\log_{10}S(\eta)\;[\dB].
+\label{eq:Sv2}
+\end{equation}
+$\mathrm{OD}=0$이면 $\tau=1$, $S_{\mathrm{cell}}=S_{\mathrm{ideal}}$이 되어 v1 무손실 식으로
+정확히 환원된다. $\eta=\mathrm{QE}(1-\mathrm{loss})$. 검출효율 floor(달성 가능한 최저 dB의
+\emph{하한})는
+\begin{equation}
+\xi_{\mathrm{floor}}=10\log_{10}(1-\eta),\qquad
+S(\eta)\ge 1-\eta\ \Rightarrow\ \xi\le 0\dB\ \text{항상}.
+\label{eq:floor}
+\end{equation}
+중요: $\eta$와 $\tau$는 이득을 푼 \emph{뒤} 적용되는 사후처리이고, $\delta$ 스캔의 최저점은
+$\eta$-무관하므로(스펙트럼당 $\tau$는 스칼라), 격자를 \emph{한 번} 풀어 $(G_s,G_c,\mathrm{OD})$를
+저장하면 임의의 $\eta$에 대한 $\xi$를 공짜로 얻는다.
+
+\paragraph{정직한 한계(과대주장 방지).}
+식~\eqref{eq:Sv2}의 재구성은 \textbf{in-cell 손실과 검출손실만} 포함한다. 엔진이 운반할 수
+있는 technical/excess noise 채널은 이 스캔에서 $0$으로 둔다. 따라서 $\xi\le0$과 식~\eqref{eq:floor}
+의 하한은 그대로 유지되며, $-8.75\dB$는 \emph{효율+손실 상한}이지 실험 보장치가 아니다.
+다만 v1과 달리 in-cell 손실은 이제 \emph{모형 안}에 있어, 달성 가능한 스퀴징이 $\Delta,T$에
+실질적으로 의존하게 된다.
+
+\subsection{레퍼런스 파라미터}
+표~\ref{tab:ref}는 회귀 테스트에 bit-lock된 \texttt{sim\_optimum} 설정으로, $\Delta,T$를 제외한
+모든 고정값의 원천이다.
+
+\begin{table}[h]
+\centering
+\caption{Sim \textit{et al.} 레퍼런스 동작점($\Delta,T$ 제외 전부 고정).
+출처 \texttt{tests/test\_regression.py::CONFIGS['sim\_optimum']}.}
+\label{tab:ref}
+\begin{tabular}{lll}
+\toprule
+변수 & 값 & 비고\\
+\midrule
+펌프 전력 $P_{\mathrm{pump}}$ & $600\,\mathrm{mW}$ & \\
+시드 전력 $P_{\mathrm{seed}}$ & $8\,\mu\mathrm{W}$ & \\
+line-strength 잔차 & $0.74$ & 물리 결합정규화는 엔진 내부\\
+셀 이후 손실 & $5.5\%$ & 검출 $\eta$로 흡수\\
+검출 양자효율 QE & $0.92$ & \textbf{v2 재교정}(v1 $0.9047$)\\
+셀 길이 $L$ & $12.5\,\mathrm{mm}$ & 모듈 상수\\
+펌프/시드 빔 허리 $w_0$ & $530/330\,\mu\mathrm{m}$ & \\
+\midrule
+$\eta=\mathrm{QE}(1-\mathrm{loss})$ & $0.86940$ & \\
+detection floor $10\log_{10}(1-\eta)$ & $-8.8406\dB$ & 식~\eqref{eq:floor}\\
+무손실 floor($\eta=\mathrm{QE}$) & $-10.969\dB$ & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%==================================================================
+\section{결과 1: Ultra 모형의 $\xi(\Delta,T)$와 최효율 전선}
+%==================================================================
+$\Delta\in[-3.5,3.0]\GHz$(0.1 간격), $T\in[60,150]\degC$(5 간격)의 1254점 격자를 Ultra
+fidelity로 스캔하였다($(-)$ Raman branch, $\delta$창 $\pm0.7\GHz$, coarse 81, 속도격자 5\,m/s;
+8스레드 약 111\,s). 그림~\ref{fig:front}.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier.png}
+\caption{Ultra fidelity $\xi(\Delta,T)$. \textbf{왼쪽}: 히트맵($\delta$에 대한 최소, $(-)$
+branch)과 efficient frontier 곡선(흰선), 전역 최적(금색 원), 최효율점(빨강 별). \textbf{가운데}:
+전선의 비용 --- 각 $\Delta$에서 최적에 $0.1\dB$ 이내로 도달하는 최저 $T$(파랑)와 그때의
+$G_s$(빨강). \textbf{오른쪽}: 최효율 $\Delta=-1.9\GHz$에서 $\xi$의 온도 의존성 --- 저온 무이득,
+중간온도 최소, 고온의 미세한 손실제한 반등.}
+\label{fig:front}
+\end{figure}
+
+\paragraph{핵심 결과.}
+\begin{itemize}[nosep]
+\item 전역 최적 $\xi_{\mathrm{opt}}=-8.841\dB$ @ $\Delta=-2.2\GHz,\,T=140\degC$
+      ($G_s\approx9.1\times10^3$, in-cell $\mathrm{OD}\approx0$). detection floor $-8.841\dB$와
+      일치(전파 페널티 $+0.000\dB$): \textbf{최적점은 투명창에 있어 in-cell 손실이 없다.}
+\item floor의 $0.01\dB$ 이내: $21/1254$점 --- 투명창$\cdot$고이득의 좁아진 평원.
+\item 최효율 동작점(최적에 $0.1\dB$ 이내, 최저 $T$): $\Delta=-1.9\GHz,\,T=120\degC,\,
+      G_s\approx32,\,\mathrm{OD}\approx0.3\%$, $\xi=-8.75\dB$.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{efficient frontier: 각 $\Delta$에서 최적($-8.84\dB$)에 $0.1\dB$ 이내로 도달하는 최저
+$T$와 그때의 이득$\cdot$in-cell OD. ($*$=전역 최효율점.)}
+\label{tab:frontier}
+\begin{tabular}{rrrrr}
+\toprule
+$\Delta\,[\mathrm{GHz}]$ & 최저 $T\,[^{\circ}\mathrm{C}]$ & $G_s$ & in-cell OD & $\xi\,[\mathrm{dB}]$\\
+\midrule
+$-2.50$ & $125$ & $39.1$ & $0.000$ & $-8.755$\\
+$-2.40$ & $120$ & $35.1$ & $0.000$ & $-8.774$\\
+$-2.30$ & $120$ & $35.2$ & $0.000$ & $-8.813$\\
+$-2.20$ & $120$ & $39.9$ & $0.000$ & $-8.827$\\
+$-2.10$ & $120$ & $40.0$ & $0.001$ & $-8.830$\\
+$-2.00$ & $120$ & $37.1$ & $0.001$ & $-8.796$\\
+$\mathbf{-1.90}$ & $\mathbf{120}$ & $\mathbf{32.5}$ & $\mathbf{0.003}$ & $\mathbf{-8.753}$\,$*$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{임계 $\varepsilon$ 민감도(강건성).}
+"최적에 $\varepsilon\dB$ 이내"의 $\varepsilon$를 0.05/0.1/0.2로 스윕하면 최효율점은
+$(-2.3\GHz,120\degC,G\,35)$ / $(-1.9\GHz,120\degC,G\,32)$ / $(+2.7\GHz,105\degC,G\,15)$로
+이동한다. 모두 투명창 안의 중간이득($G_s\sim15\!-\!40$) 동작점이며, float64 소거대역($G\gtrsim10^7$)
+훨씬 아래라 수치적으로 깨끗하다.
+
+%==================================================================
+\section{결과 2: in-cell 손실이 만드는 진짜 내부 최적점(v2 신물리)}
+%==================================================================
+v1에서 $\xi(T)$는 floor로 단조 점근했다. Ultra 모형에서는 in-cell 손실 $\mathrm{OD}(\Delta,T)$가
+온도에 따라 커지므로, \textbf{고정 $\Delta$에서 저온은 이득부족(무압축), 고온은 손실과다(반등)}
+가 경쟁해 $\xi(T)$가 \emph{진짜 내부 최소}를 갖는다(그림~\ref{fig:od}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_od.png}
+\caption{\textbf{왼쪽}: in-cell 광학두께 $\mathrm{OD}(\Delta,T)$. $\Delta\in[-1.2,+0.5]\GHz$,
+$T\gtrsim90\degC$에서 흡수 쐐기가 열려 $\mathrm{OD}\to2$(clip)로 포화; $\Delta\lesssim-1.3\GHz$와
+$\Delta\gtrsim+0.5\GHz$는 투명창. 전역 최적(청록 원)은 투명창 안. \textbf{오른쪽}: 대표 $\Delta$의
+$\xi(T)$. 투명창($-2.2\GHz$, 파랑)은 floor로 단조 도달; 손실제한($-1.0\GHz$, 초록)은 $T\!=\!80\degC$
+에서 최소 후 급반등; Sim detuning($+0.9\GHz$, 빨강)은 $T\!=\!120\degC$에서 $-7.88\dB$로 floor
+미달; 공명($0\GHz$, 보라)은 흡수 notch로 거의 무압축.}
+\label{fig:od}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{대표 $\Delta$의 $\xi(T)$ 거동: 내부 최소와 고온 손실제한 반등.
+$\mathrm{OD}_{\max}=2.0$(clip)은 $\Delta=-1.2\GHz,\,T=145\degC$에서 발생.}
+\label{tab:interior}
+\begin{tabular}{rrrrrl}
+\toprule
+$\Delta\,[\mathrm{GHz}]$ & $\xi_{\min}\,[\mathrm{dB}]$ & 최소 $T\,[^{\circ}\mathrm{C}]$ &
+$G_s$ & $\mathrm{OD}$ & $\xi(T{=}150\degC)$ / 성격\\
+\midrule
+$-2.2$ & $-8.841$ & $140$ & $9.1\!\times\!10^3$ & $0.000$ & $-8.841$ / 투명, floor 도달\\
+$-1.9$ & $-8.753$ & $120$ & $32$ & $0.003$ & $-8.48$ / 전선, 미세 반등\\
+$-1.0$ & $-4.83$ & $80$ & $4.1$ & $0.230$ & $-0.54$ / \textbf{강한 손실제한}\\
+$+0.9$ & $-7.88$ & $120$ & $12$ & $0.034$ & $-5.76$ / Sim, floor 미달\\
+$\phantom{+}0.0$ & $-0.96$ & $100$ & $2.0$ & $1.25$ & $-0.41$ / 공명 흡수 notch\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{해석.}
+(1)~전역 최적이 \emph{투명창}에 있는 이유: $\Delta\approx-2\GHz$는 1광자 공명과 바닥상태 초미세
+($-3.04\GHz$) 양쪽에서 떨어져 $\mathrm{OD}\approx0$이 고온까지 유지되므로, 이득만 쌓이고
+손실은 없어 floor로 단조 도달한다. (2)~공명에 가까운 detuning(Sim의 $+0.9\GHz$, 더 심하게
+$\Delta\approx0$)은 $\mathrm{OD}$가 빠르게 커져 고온에서 손실제한에 걸리고, 내부 최소가 floor에
+\emph{못 미친다}. 이는 v1의 낙관적 "$T$만 올리면 floor 도달"을 in-cell 손실이 현실적으로
+교정한 결과다.
+
+%==================================================================
+\section{이론 검증(가드레일)}
+%==================================================================
+\begin{itemize}[nosep]
+\item floor 아래로 내려간 점 $0/1254$. in-cell 손실과 검출손실은 $S=\eta S_{\mathrm{cell}}+(1-\eta)
+      \ge 1-\eta$를 통해 $\xi$를 항상 \emph{위로}만 밀며, 절대 floor 아래로 내리지 못한다.
+\item 전역 최적이 detection floor와 소수 셋째 자리까지 일치($-8.8406$ vs $-8.8406$)하고 투명창
+      평원으로 재현 --- v1의 floor 정리가 Ultra 모형에서도 성립.
+\item 만약 어떤 점이 floor보다 깊었다면 식~\eqref{eq:floor} 위반의 물리적 불가능이므로 수치
+      오류 신호였을 것이나, 그런 점은 없었다.
+\end{itemize}
+\textbf{판정: PASS / EFFICIENT.} 최적은 재교정된 검출효율 floor이고, 최효율 동작점은
+투명창 전선이다.
+
+%==================================================================
+\section{스퀴징 dB를 향상시키는 유의미한 레버}
+%==================================================================
+\begin{enumerate}[nosep]
+\item \textbf{검출효율 $\eta$(압도적 1순위).} floor $=10\log_{10}(1-\eta)$를 직접 옮긴다:
+      $\eta=0.869\to-8.84\dB$, $\eta=\mathrm{QE}=0.92\to-10.97\dB$, $\eta\to1$이면 발산.
+      고-QE 검출기$\cdot$셀 이후 수동손실 최소화$\cdot$공간모드 정합.
+\item \textbf{투명창 동작(2순위, v2 신규).} $\Delta$를 흡수 쐐기($\Delta\in[-1.2,+0.5]\GHz$)
+      \emph{밖}, 특히 $\Delta\approx-1.9\!\sim\!-2.5\GHz$ 투명창에 두어 in-cell 손실 $\tau=e^{-\mathrm{OD}}$
+      를 $1$에 유지. Sim의 $+0.9\GHz$는 흡수 쐐기에 가까워 손실 페널티를 받는다.
+\item \textbf{중간온도$\cdot$중간이득($T\approx120\degC,\,G_s\approx30$)에서 멈춤.} floor 도달엔
+      $G_s\gtrsim30$이면 충분하고, 더 높은 $T$는 손실$\cdot$excess noise만 키운다. 최효율 전선이
+      바로 이 지점이다.
+\end{enumerate}
+\paragraph{모델 밖(정직한 단서).} 본 재구성은 in-cell 손실과 $\eta$만 본다. 실험의 안티스퀴징은
+손실이 아니라 excess noise(이득에 비례해 거대해진 반압축 \emph{합}잡음의 불균형 누설, 펌프
+잡음의 비선형 전이, 자발 Raman, GAWBS)에서 온다 --- 손실은 압축을 shot-noise로 \emph{수렴}만
+시킬 뿐 그 위로 올리지 못한다. 최효율 전선(저$T\cdot$저$G\cdot$저OD)은 바로 이 누락 채널들을
+가장 작게 만드는 동작영역이라는 점에서 이중으로 권장된다.
+
+%==================================================================
+\section{결론}
+%==================================================================
+\begin{enumerate}[nosep]
+\item 완전(Ultra) 전파모형에서도 $\xi(\Delta,T)$의 전역 최적은 재교정된 검출효율 floor
+      $-8.84\dB$이며, 투명창($\Delta\approx-2\!\sim\!-2.5\GHz$, $\mathrm{OD}\approx0$)에서 평원으로
+      도달한다. floor를 깨는 점은 없다(가드레일 PASS).
+\item 유의미한 동작점은 최효율 전선: $\Delta\approx-1.9\GHz,\,T\approx120\degC,\,G_s\approx32,\,
+      \mathrm{OD}\approx0.3\%,\;\xi\approx-8.75\dB$. 최저비용이며 excess noise도 최소.
+\item \textbf{v2 신물리}: in-cell 전파손실이 $\xi(T)$에 진짜 내부 최적점을 만든다(저온 이득제한
+      vs 고온 손실제한). 공명 근처(Sim $+0.9\GHz$, $\Delta\approx0$)는 손실 페널티로 floor에
+      못 미친다 --- v1의 낙관적 예측을 현실화.
+\item 스퀴징 dB를 정하는 본질 레버는 여전히 검출효율 $\eta$이며($-8.84\to-10.97\dB$),
+      $T$를 무작정 올리는 것은 이득이 아니라 손실$\cdot$잡음만 키운다.
+\item 한 줄 요약: \emph{이 모형에서 최선은 재교정된 $\eta$-floor $-8.84\dB$이고, 그것을 가장 싸고
+      강건하게 얻는 길은 투명창 안 중간온도($\Delta\approx-1.9\GHz,\,T\approx120\degC$) 전선이다.}
+\end{enumerate}
+
+\appendix
+%==================================================================
+\section{수치 세부와 재현}
+%==================================================================
+\begin{itemize}[nosep]
+\item 스캔: $66\times19=1254$점, OPD $[-3.5,3.0]\GHz$, $T\,[60,150]\degC$, $\delta$창 $\pm0.7\GHz$,
+      coarse $81$, 속도격자 $5\,$m/s, fidelity \texttt{ultra}, 8스레드 약 $111\,$s.
+\item 생성 명령: \texttt{python .claude/skills/fwm-squeezing-frontier/scripts/scan\_squeezing\_frontier.py
+      --fidelity ultra} $\Rightarrow$ \texttt{analysis/squeezing\_frontier.npz}.
+\item 그림: \texttt{python docs/squeezing\_report/make\_v2\_figs.py}(같은 npz에서
+      \texttt{squeezing\_frontier.png}, \texttt{squeezing\_frontier\_od.png} 생성).
+\item 드리프트 강건성: 레퍼런스는 bit-lock된 \texttt{CONFIGS['sim\_optimum']}에서 읽음
+      (UI 키가 아니라 \texttt{compute\_spectrum} 네이티브 kwargs). 앵커가 이동하면 스크립트가
+      큰 소리로 실패한다.
+\item 수치 한계: 식~\eqref{eq:Sv2}의 $S_{\mathrm{ideal}}$ 분자 $G_s+G_c-2\sqrt{G_sG_c-1}$는
+      $G\gtrsim10^7$에서 float64 catastrophic cancellation을 겪는다. 본 결과의 동작영역($G_s\sim30$)은
+      이보다 6자리 아래라 무관하다.
+\end{itemize}
+
+\end{document}
