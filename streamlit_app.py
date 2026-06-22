@@ -475,8 +475,23 @@ def _close_fig(fig):
     plt.close(fig)
 
 
+def _render_fig(fig):
+    """Style, draw, then release a figure (matplotlib figures leak if not closed)."""
+    apply_gabes_plot_style(fig)
+    st.pyplot(fig)
+    _close_fig(fig)
+
+
 def _skey(scheme_name, pname):
     return f"{scheme_name}__{pname}"
+
+
+def _current_params(scheme_name, scheme_obj):
+    """Live value of every param knob from session_state, falling back to defaults."""
+    return {
+        sp.name: st.session_state.get(_skey(scheme_name, sp.name), sp.default)
+        for sp in scheme_obj.param_schema()
+    }
 
 
 def _concept_style(group):
@@ -512,10 +527,7 @@ def _apply_recommended_defaults(scheme_name, scheme_obj, key):
     """on_change for a control whose selection applies the matching
     recommended_defaults set (so choosing it also resets that mode's knobs)."""
     selection = st.session_state.get(key)
-    cur = {
-        sp.name: st.session_state.get(_skey(scheme_name, sp.name), sp.default)
-        for sp in scheme_obj.param_schema()
-    }
+    cur = _current_params(scheme_name, scheme_obj)
     sets = scheme_obj.recommended_defaults(cur) or {}
     defaults = sets.get(selection) or sets.get(cur.get("mode")) or {}
     for k, v in defaults.items():
@@ -673,21 +685,14 @@ if callable(_rec_fn):
         # Probe with the live selection (not static defaults) so a scheme can
         # offer readout/mode-dependent default buttons (e.g. magneto shows
         # transmission regimes vs an NMOR default). Keys are stable for SAS/FWM.
-        _live_params = {
-            sp.name: st.session_state.get(_skey(scheme.name, sp.name), sp.default)
-            for sp in scheme.param_schema()
-        }
-        _rec_sets = _rec_fn(_live_params)
+        _rec_sets = _rec_fn(_current_params(scheme.name, scheme))
     except Exception:
         _rec_sets = None
 # A control flagged applies_defaults (e.g. FWM's Mode) already applies these sets
 # on selection, so the standalone "Default" buttons would just duplicate it.
 _mode_driven_defaults = any(getattr(sp, "applies_defaults", False) for sp in specs)
 def _apply_default_set(sname, sc, label):
-    cur = {
-        sp.name: st.session_state.get(_skey(sname, sp.name), sp.default)
-        for sp in sc.param_schema()
-    }
+    cur = _current_params(sname, sc)
     sets = sc.recommended_defaults(cur) or {}
     for k, v in (sets.get(label) or {}).items():
         st.session_state[_skey(sname, k)] = v
@@ -769,16 +774,12 @@ if metrics:
 
 fig = view.get("figure")
 if fig is not None:
-    apply_gabes_plot_style(fig)
-    st.pyplot(fig)
-    _close_fig(fig)
+    _render_fig(fig)
 
 for _title, _extra_fig in view.get("figures", []):
     st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
     st.subheader(_title)
-    apply_gabes_plot_style(_extra_fig)
-    st.pyplot(_extra_fig)
-    _close_fig(_extra_fig)
+    _render_fig(_extra_fig)
 
 
 # ----------------------------------------------------------------------
@@ -801,6 +802,4 @@ for view_def in scheme.extra_views():
                 data = _cached_extra(scheme.name, view_def.key, recompute_items, cache_version)
             extra_fig = view_def.render(data)
             st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
-            apply_gabes_plot_style(extra_fig)
-            st.pyplot(extra_fig)
-            _close_fig(extra_fig)
+            _render_fig(extra_fig)
