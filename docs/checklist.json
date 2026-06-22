@@ -5,8 +5,8 @@
       "id": "rydberg-power-to-rabi",
       "area": "schemes/rydberg.py",
       "title": "Connect Rydberg probe/coupling beam power to the OBE drive",
-      "why": "probe_power_uw / coupling_power_mw / beam_diameter_mm are display-only metadata today; the solve is driven by the fitted coupling_rabi_mhz / lo_rabi_mhz. An experimentalist sets beam power, not Rabi. Add beam-geometry -> intensity -> Rabi conversion so power sliders actually move the spectrum. Needs a calibrated 480 nm 5P->40D coupling dipole (and the probe stays weak-probe linear, so probe power would only scale readout, not the solve).",
-      "status": "deferred"
+      "why": "DONE. coupling_power_mw / beam_diameter_mm now drive Ω_c via the FWM-style √(P/d²) intensity scaling (RydbergEITScheme._coupling_rabi), anchored so the reference operating point reproduces the fitted coupling_rabi_mhz (kept as an Advanced anchor) — no absolute 480 nm dipole needed. Both knobs are recompute=True solve knobs. probe_power_uw stays display-only (weak-probe linear, scales readout only). Also landed alongside: residual two-photon Doppler option (per-level k via atoms.doppler_ratios), 2-channel dephasing (5S-40D vs 40D-39F), AT center-shift metric, cached probe-line constants. cache/defaults bumped to rydberg-eit-v2.",
+      "status": "done"
     },
     {
       "id": "biphoton-predictive-model",

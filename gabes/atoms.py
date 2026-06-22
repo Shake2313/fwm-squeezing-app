@@ -29,6 +29,11 @@ class AtomModel:
     decay: tuple          # incoherent rate channels (i->j, rate): population only
     dephasing: tuple      # coherence decay on ρ_{ij}: (i, j, rate) tuples
     doppler_levels: tuple  # diagonal entries shifted by Δ_eff (= excited states)
+    doppler_ratios: tuple = ()  # optional ((level, k_ratio), …) for ladders whose
+                              # legs carry different photon momenta: the diagonal
+                              # shift on `level` is k_ratio·Δ_eff instead of 1·Δ_eff.
+                              # Empty -> every `doppler_levels` entry gets ratio 1
+                              # (single optical k), so existing schemes are unchanged.
     emission_ops: tuple = ()  # full n×n jump operators L; D[L] each. Use the
                               # polarization-grouped Σ_q form to carry spontaneous-
                               # emission transfer of coherence (TOC); a per-(i,j)
@@ -77,10 +82,19 @@ class AtomModel:
         return D
 
     def _build_velocity_shift(self):
-        """S_v = comm_super(diag over doppler_levels), so L₀(Δ_eff)=L₀(0)−Δ_eff·S_v."""
+        """S_v = comm_super(diag over doppler_levels), so L₀(Δ_eff)=L₀(0)−Δ_eff·S_v.
+
+        Each shifted level carries a k-ratio (default 1, single optical k). A
+        cascade ladder whose legs differ in wavelength sets `doppler_ratios` so an
+        intermediate level keeps ratio 1 (probe k) while the two-photon level gets
+        the residual (k_probe − k_coupling)/k_probe — the kernel still passes a
+        single kv = k_probe·v.
+        """
+        ratios = {k: 1.0 for k in self.doppler_levels}
+        ratios.update({k: r for k, r in self.doppler_ratios})
         Dee = np.zeros((self.n_levels, self.n_levels), dtype=complex)
-        for k in self.doppler_levels:
-            Dee[k, k] = 1.0
+        for k, r in ratios.items():
+            Dee[k, k] = r
         return comm_super(Dee)
 
 
