@@ -1860,9 +1860,9 @@ class FWMScheme(Scheme):
             f"| Effective coupling scale | {raw.get('effective_line_strength', float('nan')):.4f} |\n"
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
-            f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n\n"
+            f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
             + phase_rows
-            + ("\n" if phase_rows else "")
+            + "\n"
             + ("⚠️ **Pump-depletion limited:** the small-signal gain exceeds what "
                "the pump can supply (Manley-Rowe), so the shown gain is capped by "
                "energy conservation. Lower T / raise seed power to stay in the "
