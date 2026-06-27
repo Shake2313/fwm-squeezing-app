@@ -356,7 +356,7 @@ class SASScheme(Scheme):
                        if np.isfinite(sub_fwhm) else "Pump off → no sub-Doppler features.")),
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
             dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ]
+        ] + _lock_readout_metrics(x, T_trans, mhz_per_x=1000.0)
         rows = "".join(f"| {lbl} | {gx*1e3:.1f} |\n" for gx, lbl in raw["markers"])
         table = ("Hyperfine transitions (Lamb-dip centres); crossovers appear at the "
                  "midpoint of any two sharing a ground state, enhanced/inverted by "
@@ -395,7 +395,7 @@ class SASScheme(Scheme):
             dict(label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz"),
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
             dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ]
+        ] + _lock_readout_metrics(x, T_trans, mhz_per_x=1.0)
         note = ("Two transitions: Lamb dips at ±splitting/2 and a **crossover** dip "
                 "at the midpoint (green)." if raw["two"]
                 else "Single transition: one Lamb dip at line centre.")
@@ -414,5 +414,23 @@ def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
         rho = core.steady_state_batched(L0, deff_axis[sl], S_v, n)
         pops[sl] = np.einsum("vii->vi", rho).real
     return pops
+
+
+def _lock_readout_metrics(x, T_trans, mhz_per_x):
+    """Finite-slope lock-point proxy from the displayed transmission curve."""
+    if len(x) < 2:
+        return []
+    slope_per_x = np.gradient(T_trans, x)
+    if not np.isfinite(slope_per_x).any():
+        return []
+    i = int(np.nanargmax(np.abs(slope_per_x)))
+    slope_per_mhz = abs(float(slope_per_x[i])) / float(mhz_per_x)
+    detuning_mhz = float(x[i]) * float(mhz_per_x)
+    return [
+        dict(label="Lock slope", value=f"{slope_per_mhz:.4f} /MHz",
+             help="Largest |dT/dΔ| on the displayed spectrum; proxy for a laser-lock discriminator."),
+        dict(label="Lock detuning", value=f"{detuning_mhz:+.1f} MHz",
+             help="Detuning where the lock-slope proxy is largest."),
+    ]
 
 

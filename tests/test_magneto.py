@@ -167,6 +167,15 @@ def test_buffer_mode_has_single_broad_hanle_and_ground_relaxation_broadens():
     assert _central_halfwidth(x_h, a_h) > _central_halfwidth(x_l, a_l)
 
 
+def test_longitudinal_b_offset_shifts_physical_field_axis():
+    sc = schemes.get("magneto")
+    p = _fast_defaults(sc)
+    p.update(b_offset_ut=0.25)
+    raw = sc.compute(p)
+    assert raw["b_offset_ut"] == 0.25
+    assert np.allclose(raw["b_physical_ut"] - raw["b_ut"], 0.25)
+
+
 def test_intrinsic_eia_on_cycling_transition():
     # With transfer of coherence (grouped Σ_q emission), the open Fg=1->Fe=2
     # (Fe=Fg+1) transition is EIA at linear pol / zero residual field, while the
@@ -242,6 +251,7 @@ if __name__ == "__main__":
     test_paraffin_circular_qwp_gives_zero_field_peak()
     test_paraffin_wall_coherence_narrows_central_feature()
     test_buffer_mode_has_single_broad_hanle_and_ground_relaxation_broadens()
+    test_longitudinal_b_offset_shifts_physical_field_axis()
     test_nmor_zero_crossing()
     test_cell_type_controls_visibility_metadata()
     test_invalid_transition_handled()

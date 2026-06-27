@@ -444,10 +444,14 @@ def _mkey(params, new_key, old_key, scale, default):
 # =========================================================
 # Λ system — EIT / AT / CPT (one engine, three presentations)
 # =========================================================
+LAMBDA_COUPLING_POWER_REF_MW = 1.0
+LAMBDA_COUPLING_DIAMETER_REF_MM = 1.0
+
+
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
-    cache_version = "physical-units-v2"
-    defaults_version = "physical-units-v2"
+    cache_version = "physical-units-v3"
+    defaults_version = "physical-units-v3"
 
     _TITLE = {
         "eit": "Electromagnetically induced transparency (EIT)",
@@ -510,9 +514,19 @@ class LambdaScheme(Scheme):
                       help="Sets linewidth, wavelength, Doppler scale and dipole moment."),
             ParamSpec("coupling_detuning_mhz", "Coupling detuning", "Detunings", 0.0,
                       -80.0, 80.0, 0.1, "MHz"),
-            ParamSpec("coupling_rabi_mhz", "Coupling Rabi", "Fields", d["oc_mhz"],
+            ParamSpec("coupling_power_mw", "Coupling power", "Fields",
+                      LAMBDA_COUPLING_POWER_REF_MW, 0.01, 50.0, 0.01, "mW",
+                      help="Lab-facing coupling-field power. The effective Ω_c is "
+                           "anchored by Coupling Rabi and scales as √P/d."),
+            ParamSpec("coupling_diameter_mm", "Coupling beam diameter", "Fields",
+                      LAMBDA_COUPLING_DIAMETER_REF_MM, 0.05, 5.0, 0.05, "mm",
+                      help="1/e² coupling-beam diameter used for the √(P/d²) "
+                           "Rabi scaling."),
+            ParamSpec("coupling_rabi_mhz", "Coupling Rabi (anchor)", "Fields", d["oc_mhz"],
                       0.1, 120.0, 0.1, "MHz",
-                      help="Strong dressing-field Rabi frequency on the second leg.",
+                      advanced=True,
+                      help="Ω_c/2π at the reference coupling power and beam diameter. "
+                           "Power and diameter sliders scale the effective Ω_c.",
                       endpoints=("weak EIT", "strong AT")),
             ParamSpec("buffer_ground_relax_khz", "Buffer ground relaxation", "Atomic",
                       d["gg_khz"], 0.0, 2000.0, 1.0, "kHz",
@@ -541,9 +555,21 @@ class LambdaScheme(Scheme):
         return dict(
             view=view, coupling_detuning_mhz=0.0,
             coupling_rabi_mhz=d["oc_mhz"], buffer_ground_relax_khz=d["gg_khz"],
+            coupling_power_mw=LAMBDA_COUPLING_POWER_REF_MW,
+            coupling_diameter_mm=LAMBDA_COUPLING_DIAMETER_REF_MM,
             temp_c=d["temp"], cell_mm=d["cell"], doppler=d["dopp"],
             line_strength=1.0,
         )
+
+    @staticmethod
+    def _coupling_rabi_from_params(params, gamma_mhz, default_mhz):
+        anchor = _mkey(params, "coupling_rabi_mhz", "coupling_rabi",
+                       gamma_mhz, default_mhz)
+        p = float(params.get("coupling_power_mw", LAMBDA_COUPLING_POWER_REF_MW))
+        d = float(params.get("coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM))
+        scale = (np.sqrt(max(p, 0.0) / LAMBDA_COUPLING_POWER_REF_MW)
+                 * LAMBDA_COUPLING_DIAMETER_REF_MM / max(d, 1e-9))
+        return anchor * scale
 
     def recommended_defaults(self, params):
         if self.mode is not None:
@@ -559,8 +585,7 @@ class LambdaScheme(Scheme):
         m = self._mode(params)
         medium = _medium_from_params(params)
         gamma_mhz = medium["gamma_mhz"]
-        Oc = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
-                   self._DEF[m]["oc_mhz"])
+        Oc = self._coupling_rabi_from_params(params, gamma_mhz, self._DEF[m]["oc_mhz"])
         Dc = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
         gg = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
                    self._DEF[m]["gg_khz"]) / (gamma_mhz * 1e3)
@@ -579,8 +604,8 @@ class LambdaScheme(Scheme):
         medium = _medium_from_params(params)
         gamma = medium["gamma"]
         gamma_mhz = medium["gamma_mhz"]
-        Oc_mhz = _mkey(params, "coupling_rabi_mhz", "coupling_rabi", gamma_mhz,
-                       self._DEF[self._mode(params)]["oc_mhz"])
+        Oc_mhz = self._coupling_rabi_from_params(
+            params, gamma_mhz, self._DEF[self._mode(params)]["oc_mhz"])
         Dc_mhz = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
         gg_khz = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
                        self._DEF[self._mode(params)]["gg_khz"])
@@ -605,7 +630,11 @@ class LambdaScheme(Scheme):
                     gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],
                     omega0=medium["omega0"], dipole=medium["dipole"],
                     medium_label=medium["label"], line=medium["line"],
-                    coupling_rabi_mhz=Oc_mhz, buffer_ground_relax_khz=gg_khz)
+                    coupling_rabi_mhz=Oc_mhz, buffer_ground_relax_khz=gg_khz,
+                    coupling_power_mw=float(params.get(
+                        "coupling_power_mw", LAMBDA_COUPLING_POWER_REF_MW)),
+                    coupling_diameter_mm=float(params.get(
+                        "coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM)))
 
     def observables(self, raw, params):
         import matplotlib.pyplot as plt
@@ -641,6 +670,8 @@ class LambdaScheme(Scheme):
             ("Medium", f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}"),
             ("Γ / 2π", f"{raw.get('gamma_mhz', GAMMA_MHZ):.4f} MHz"),
             ("Ω_c / 2π", f"{raw['coupling_rabi_mhz']:.4f} MHz"),
+            ("Coupling power", f"{raw['coupling_power_mw']:.3f} mW"),
+            ("Coupling beam diameter", f"{raw['coupling_diameter_mm']:.3f} mm"),
             ("Buffer ground relax / 2π", f"{raw['buffer_ground_relax_khz']:.3f} kHz"),
             ("N", f"{raw['N']:.3e} /m³"),
         ])

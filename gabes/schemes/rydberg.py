@@ -6,9 +6,10 @@ v1 is a static 85Rb cascade model:
     40D5/2 -> 39F7/2.
 
 The model intentionally stops at the optical spectrum and microwave
-Autler-Townes splitting. Time-domain superheterodyne demodulation and public
-experiment-match overlays are left out; reference sensitivity numbers are kept
-as internal constants for tests.
+Autler-Townes splitting. Full time-domain superheterodyne demodulation and public
+experiment-match overlays are left out; a finite-IF discriminator proxy is
+reported from the static spectrum. Reference sensitivity numbers are kept as
+internal constants for tests.
 """
 import functools
 
@@ -84,8 +85,8 @@ class RydbergEITScheme(Scheme):
     caption = ("85Rb cascade EIT / microwave Autler-Townes electrometry. "
                "The static optical spectrum follows the 5S-5P-40D ladder; "
                "the 37 GHz RF leg dresses 40D-39F.")
-    cache_version = "rydberg-eit-v3"
-    defaults_version = "rydberg-eit-v3"
+    cache_version = "rydberg-eit-v4"
+    defaults_version = "rydberg-eit-v4"
 
     REFERENCE_SENSITIVITY_NV_CM_SQRT_HZ = 12.5
     REFERENCE_PSN_LIMIT_NV_CM_SQRT_HZ = 11.2
@@ -103,6 +104,7 @@ class RydbergEITScheme(Scheme):
         mw_frequency_ghz=37.0,
         if_khz=40.0,
         rydberg_dephasing_mhz=0.10,
+        temp_dephasing_mhz_per_c=0.0,
         rf_dephasing_mhz=1.00,
         residual_zeeman_mhz=1.50,
         doppler="off",
@@ -154,6 +156,12 @@ class RydbergEITScheme(Scheme):
                            "from laser linewidth etc. The EIT linewidth is the sum "
                            "of this, the transit-time term (from beam diameter), and "
                            "the residual Zeeman term when uncompensated."),
+            ParamSpec("temp_dephasing_mhz_per_c", "Temperature dephasing slope", "Atomic",
+                      r["temp_dephasing_mhz_per_c"], 0.0, 0.2, 0.001, "MHz/°C",
+                      advanced=True,
+                      help="Optional phenomenological 5S–40D broadening added above "
+                           "the reference temperature. Default 0 preserves the "
+                           "Ju et al. reference line shape."),
             ParamSpec("residual_zeeman_mhz", "Residual Zeeman (uncompensated)", "Atomic",
                       r["residual_zeeman_mhz"], 0.0, 3.0, 0.01, "MHz", advanced=True,
                       help="Extra 5S–40D broadening present WITHOUT B-field "
@@ -305,8 +313,13 @@ class RydbergEITScheme(Scheme):
         # 5S-40D dephasing budget: intrinsic (laser etc.) + transit-time (beam
         # diameter) is always present; the residual Zeeman term is added only on
         # the uncompensated curve (B-field compensation off).
-        intrinsic = float(params.get(
+        intrinsic_base = float(params.get(
             "rydberg_dephasing_mhz", self._REF["rydberg_dephasing_mhz"]))
+        temp_slope = float(params.get(
+            "temp_dephasing_mhz_per_c", self._REF["temp_dephasing_mhz_per_c"]))
+        temp_extra = max(float(params.get("temp_c", self._REF["temp_c"]))
+                         - self._REF["temp_c"], 0.0) * max(temp_slope, 0.0)
+        intrinsic = intrinsic_base + temp_extra
         transit = self._transit_rate_mhz(params)
         zeeman = float(params.get(
             "residual_zeeman_mhz", self._REF["residual_zeeman_mhz"]))
@@ -365,7 +378,8 @@ class RydbergEITScheme(Scheme):
             coupling_rabi_mhz=Oc / MHZ,
             probe_rabi_mhz=probe / MHZ,
             lo_rabi_mhz=Olo / MHZ,
-            rydberg_dephasing_mhz=intrinsic,
+            rydberg_dephasing_mhz=intrinsic_base,
+            temperature_dephasing_mhz=temp_extra,
             transit_mhz=transit,
             residual_zeeman_mhz=zeeman,
             rf_dephasing_mhz=rf_deph / MHZ,
@@ -429,6 +443,19 @@ class RydbergEITScheme(Scheme):
         ic = int(np.argmin(np.abs(x)))
         width, _ = self._eit_features(x, T_trans)
         slope = np.nanmax(np.abs(np.gradient(T_trans, x)))
+        if_delta = max(float(params.get("if_khz", self._REF["if_khz"])) / 1000.0,
+                       1e-9)
+        if_valid = (x >= x[0] + if_delta) & (x <= x[-1] - if_delta)
+        if if_valid.any():
+            t_hi = np.interp(x[if_valid] + if_delta, x, T_trans)
+            t_lo = np.interp(x[if_valid] - if_delta, x, T_trans)
+            if_readout = (t_hi - t_lo) / (2.0 * if_delta)
+            i_if = int(np.nanargmax(np.abs(if_readout)))
+            if_disc = float(abs(if_readout[i_if]))
+            if_detuning = float(x[if_valid][i_if])
+        else:
+            if_disc = float("nan")
+            if_detuning = float("nan")
 
         metrics = []
         if raw["lo_rabi_mhz"] > 0:
@@ -455,6 +482,11 @@ class RydbergEITScheme(Scheme):
         metrics.extend([
             dict(label="Max spectral slope", value=f"{slope:.3f} /MHz",
                  help="Largest static dT/dnu; used internally for electrometry tests."),
+            dict(label="IF discriminator", value=f"{if_disc:.3f} /MHz",
+                 help="Finite-difference transmission discriminator at the selected "
+                      "IF offset; a static proxy for a lock-in/superhet readout."),
+            dict(label="IF optimum detuning", value=f"{if_detuning:+.2f} MHz",
+                 help="Probe detuning where the finite-IF discriminator is largest."),
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}"),
         ])
         return dict(x=x, T_trans=T_trans, xphys=xphys, width=width, metrics=metrics)
@@ -509,6 +541,7 @@ class RydbergEITScheme(Scheme):
             ("Transit broadening / 2π", f"{raw['transit_mhz']:.3f} MHz"),
             ("Residual Zeeman (uncomp.) / 2π", f"{raw['residual_zeeman_mhz']:.3f} MHz"),
             ("Intrinsic 5S–40D dephasing / 2π", f"{raw['rydberg_dephasing_mhz']:.3f} MHz"),
+            ("Temperature dephasing / 2π", f"{raw['temperature_dephasing_mhz']:.3f} MHz"),
             ("N(85Rb)", f"{raw['N']:.3e} /m³"),
         ])
         return dict(metrics=ro["metrics"], figure=fig, tables=[derived])

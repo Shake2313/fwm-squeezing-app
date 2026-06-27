@@ -76,6 +76,21 @@ def test_sensitivity_reference_constants_are_internal_only():
     assert "12.5" not in tables and "11.2" not in tables
 
 
+def test_if_proxy_metric_and_temperature_dephasing_are_opt_in():
+    sc = schemes.get("rydberg_eit")
+    params = sc.recommended_defaults(sc.defaults())["EIT"]
+    view = sc.observables(sc.compute(params), params)
+    labels = {metric["label"] for metric in view["metrics"]}
+    plt.close(view["figure"])
+    assert "IF discriminator" in labels
+    assert "IF optimum detuning" in labels
+
+    warm = dict(params, temp_c=60.0)
+    assert sc.compute(warm)["temperature_dephasing_mhz"] == 0.0
+    broadened = sc.compute(dict(warm, temp_dephasing_mhz_per_c=0.01))
+    assert abs(broadened["temperature_dephasing_mhz"] - 0.40) < 1e-12
+
+
 def test_coupling_power_and_waist_drive_rabi():
     """481 nm coupling power/waist set Ω_c via √(P/d²), anchored at reference."""
     sc = schemes.get("rydberg_eit")
@@ -205,6 +220,7 @@ if __name__ == "__main__":
     test_reference_eit_linewidth_near_experiment()
     test_microwave_at_splitting_tracks_lo_rabi()
     test_sensitivity_reference_constants_are_internal_only()
+    test_if_proxy_metric_and_temperature_dephasing_are_opt_in()
     test_coupling_power_and_waist_drive_rabi()
     test_at_center_shift_tracks_microwave_detuning()
     test_doppler_on_broadens_eit_linewidth()

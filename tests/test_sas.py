@@ -163,6 +163,8 @@ def test_observables_render_species():
     view = SAS.observables(SAS.compute(p), p)
     assert view["figure"] is not None
     assert any(m["label"] == "Peak OD" for m in view["metrics"])
+    assert any(m["label"] == "Lock slope" for m in view["metrics"])
+    assert any(m["label"] == "Lock detuning" for m in view["metrics"])
 
 
 # -------------------------------------------------------------- generic mode

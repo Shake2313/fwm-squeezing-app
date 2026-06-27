@@ -127,8 +127,8 @@ def _qwp_drive_weights(theta_deg):
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "polarized-two-region-v2"
-    defaults_version = "polarized-two-region-v3"
+    cache_version = "polarized-two-region-v3"
+    defaults_version = "polarized-two-region-v4"
 
     _REGIME_EMOJI = {
         "EIT dip": "🕳️",
@@ -216,6 +216,11 @@ class MagnetoScheme(Scheme):
             ParamSpec("b_max_ut", "B scan ±", "Fields", d["bmax"],
                       0.02, 500.0, 0.01, "µT",
                       help="Longitudinal magnetic-field scan range around zero."),
+            ParamSpec("b_offset_ut", "B zero offset", "Fields", 0.0,
+                      -50.0, 50.0, 0.01, "µT", advanced=True,
+                      help="Longitudinal bias added to the physical field while "
+                           "the displayed scan stays centered at the commanded "
+                           "zero. Use it for residual shielding or coil offsets."),
             ParamSpec("laser_detuning_mhz", "Laser detuning", "Detunings", 0.0,
                       -1000.0, 1000.0, 5.0, "MHz",
                       help="Detuning from the selected 87Rb D1 hyperfine transition."),
@@ -412,7 +417,9 @@ class MagnetoScheme(Scheme):
 
         b_ut = np.linspace(-params["b_max_ut"], params["b_max_ut"],
                            int(params["scan_points"]))
-        b_z = b_ut * 1e-6
+        b_offset_ut = float(params.get("b_offset_ut", 0.0))
+        b_physical_ut = b_ut + b_offset_ut
+        b_z = b_physical_ut * 1e-6
         # A real vapor cell always has a small residual transverse field (imperfect
         # shielding); it enters the Zeeman Hamiltonian exactly like any field. It is
         # essential for circular-light level-crossing absorption: σ± light orients
@@ -477,6 +484,7 @@ class MagnetoScheme(Scheme):
 
         return dict(
             line=LINE, isotope="87Rb", cell_type=cell_type, b_ut=b_ut,
+            b_physical_ut=b_physical_ut, b_offset_ut=b_offset_ut,
             chi_probe=chi_probe, chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale,
             T=T, valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
             gamma=gamma_opt, gamma_natural=GAMMA_D1, buffer_gamma=buffer_gamma,
@@ -683,6 +691,7 @@ class MagnetoScheme(Scheme):
             ("Γ / 2π", f"{raw['gamma']/(2*np.pi)/1e6:.4f} MHz"),
             ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
             ("I_sat (D1 scale)", f"{raw['isat']:.4f} mW/cm²"),
+            ("Longitudinal B0 offset", f"{raw['b_offset_ut']:.4f} µT"),
             ("Residual transverse B", f"{raw['b_perp_ut']:.4f} µT"),
             ("N(87Rb)", f"{raw['N']:.3e} /m³"),
             ("Doppler OD scale", f"{raw['doppler_scale']:.3e}"),

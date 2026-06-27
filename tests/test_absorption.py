@@ -117,6 +117,17 @@ def test_at_splitting_equals_coupling_rabi():
         assert abs((xr - xl) / Oc_mhz - 1.0) < 0.05
 
 
+def test_lambda_coupling_power_and_diameter_scale_rabi():
+    at = schemes.get("at")
+    base = _params(at, coupling_rabi_mhz=8.0 * GMHZ, coupling_power_mw=1.0,
+                   coupling_diameter_mm=1.0, doppler="off")
+    assert abs(at.compute(base)["coupling_rabi_mhz"] - 8.0 * GMHZ) < 1e-9
+    assert abs(at.compute(dict(base, coupling_power_mw=4.0))["coupling_rabi_mhz"]
+               - 16.0 * GMHZ) < 1e-9
+    assert abs(at.compute(dict(base, coupling_diameter_mm=2.0))["coupling_rabi_mhz"]
+               - 4.0 * GMHZ) < 1e-9
+
+
 def test_eit_transparency():
     eit = schemes.get("eit")
     raw = eit.compute(_params(
@@ -155,6 +166,8 @@ def test_lambda_regime_defaults_are_mode_driven():
     specs = {sp.name: sp for sp in sc.param_schema()}
     assert specs["view"].control == "segmented"
     assert specs["view"].applies_defaults
+    assert "coupling_power_mw" in specs
+    assert "coupling_diameter_mm" in specs
     assert "coupling_rabi" not in specs and "gamma_gg" not in specs
 
 
@@ -166,6 +179,7 @@ if __name__ == "__main__":
     test_hyperfine_group_strength_ratio()
     test_hyperfine_self_broadening_monotone()
     test_at_splitting_equals_coupling_rabi()
+    test_lambda_coupling_power_and_diameter_scale_rabi()
     test_eit_transparency()
     test_cpt_subnatural_dark_resonance()
     test_lambda_regime_defaults_are_mode_driven()
