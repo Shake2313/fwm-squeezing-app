@@ -1,25 +1,118 @@
 {
   "_comment": "Deferred / planned work for GABES. Basics & current behaviour live in README.md; this file tracks things intentionally NOT done yet. Each item: {id, area, title, why, status}. status: deferred | in_progress | done.",
+  "_daily_report_sync": "Daily reports through 2026-06-27 have been reflected in this checklist.",
+  "_group_policy": "GROUP B items are safe but substantial coding work. GROUP C items are heavy / need design alignment; ask the user before coding any GROUP C item.",
   "items": [
     {
       "id": "rydberg-power-to-rabi",
       "area": "schemes/rydberg.py",
       "title": "Connect Rydberg probe/coupling beam power to the OBE drive",
-      "why": "DONE. coupling_power_mw / beam_diameter_mm now drive Ω_c via the FWM-style √(P/d²) intensity scaling (RydbergEITScheme._coupling_rabi), anchored so the reference operating point reproduces the fitted coupling_rabi_mhz (kept as an Advanced anchor) — no absolute 480 nm dipole needed. Both knobs are recompute=True solve knobs. probe_power_uw stays display-only (weak-probe linear, scales readout only). Also landed alongside: residual two-photon Doppler option (per-level k via atoms.doppler_ratios), 2-channel dephasing (5S-40D vs 40D-39F), AT center-shift metric, cached probe-line constants. cache/defaults bumped to rydberg-eit-v2.",
+      "why": "DONE. coupling_power_mw / beam_diameter_mm now drive Ω_c via the FWM-style √(P/d²) intensity scaling (RydbergEITScheme._coupling_rabi), anchored so the reference operating point reproduces the fitted coupling_rabi_mhz (kept as an Advanced anchor) -- no absolute 480 nm dipole needed. probe_power_uw also drives the weak Ω_P through the same anchored √P/d scaling, so probe-power broadening is represented. These knobs are recompute=True solve knobs. Also landed alongside: residual two-photon Doppler option (per-level k via atoms.doppler_ratios), 2-channel dephasing (5S-40D vs 40D-39F), AT center-shift metric, cached probe-line constants, finite-IF static discriminator proxy, and opt-in temperature-linked dephasing. cache/defaults bumped through rydberg-eit-v4.",
       "status": "done"
     },
     {
       "id": "biphoton-predictive-model",
       "area": "schemes/fwm.py + observables.py",
       "title": "Replace calibrated biphoton estimate with a predictive model",
-      "why": "PARTIAL (biphoton_model toggle, Predictive is the default). The biphoton WAVEFORM is now solved from first principles: Doppler-averaged cascade amplitude (Kim QST 9,045006 (2024) Eq.2; Du JOSAB 25,C98 (2008) Eq.15; Chen PRR 4,023132 (2022) Eq.3-5) with the Omega_c^2 Autler-Townes term in the two-photon denominator (not a weak-coupling drive), the collective velocity-class coherent sum, natural-linewidth decay (no injected emission_decay_ns), a waveform-derived source bandwidth, and the wavelength-dependent BTW width ORDERING (852-917 nm narrower than 852-795 nm). g2_SI(tau) is computed from |psi|^2 with physical accidentals (no added-accidental forcing in Predictive mode). STILL ANCHORED / APPROXIMATE: (a) absolute pair rate is reference-anchored with physical scaling (pump power, OD, phase matching) because the lumped 4-level model does not pin the absolute collection coefficient C -- same role as the squeezing line_strength residual; (b) absolute ns-widths are approximate (closed-form over-sensitivity in this regime; the extreme 780/1529 nm telecom ratio over-weights the natural-decay tail, Cs cascade channels land within ~30%); (c) OD waveform reshaping (Du/Chen rho-bar, GenericFWMSolver._apply_longitudinal_response) is implemented but OFF by default (param biphoton_od_reshaping) -- the lumped model overestimates high-OD group delay; (d) full quantum-Langevin noise (Kolchin PRA 75,033814 (2007)) is not modelled. Next: per-source Rabi/dephasing calibration for exact widths, and a Langevin noise channel.",
+      "why": "PARTIAL (biphoton_model toggle, Predictive is the default). The biphoton WAVEFORM is now solved from first principles: Doppler-averaged cascade amplitude (Kim QST 9,045006 (2024) Eq.2; Du JOSAB 25,C98 (2008) Eq.15; Chen PRR 4,023132 (2022) Eq.3-5) with the Omega_c^2 Autler-Townes term in the two-photon denominator (not a weak-coupling drive), the collective velocity-class coherent sum, natural-linewidth decay (no injected emission_decay_ns), a waveform-derived source bandwidth, and the wavelength-dependent BTW width ORDERING (852-917 nm narrower than 852-795 nm). g2_SI(tau) is computed from |psi|^2 with physical accidentals (no added-accidental forcing in Predictive mode). STILL ANCHORED / APPROXIMATE: (a) absolute pair rate is reference-anchored with physical scaling (pump power, OD, phase matching) because the lumped 4-level model does not pin the absolute collection coefficient C -- same role as the squeezing line_strength residual; (b) absolute ns-widths now CONVERGE numerically: the velocity-class coherent sum integrates a narrow ~Gamma/k source resonance (~17 m/s for the telecom cascade) that a fixed Doppler-sized velocity step aliased, giving a factor-~20 non-monotonic FWHM swing vs biphoton_velocity_step; GenericFWMSolver._converged_predictive_waveform now auto-refines the velocity grid (oversample the measured resonance, halve until the |psi|^2 FWHM is stable, PRED_V_* constants) so the predictive telecom BTW converges to ~0.50 ns (reference 0.56(4) ns), and a cap-hit case is surfaced as 'unconverged / qualitative only' in the validation table. The RESIDUAL approximation is the per-source ABSOLUTE width calibration only (lumped 4-level Rabi/dephasing), not numerical aliasing; (c) OD waveform reshaping (Du/Chen rho-bar, GenericFWMSolver._apply_longitudinal_response) is implemented but OFF by default (param biphoton_od_reshaping) -- the lumped model overestimates high-OD group delay; (d) full quantum-Langevin noise (Kolchin PRA 75,033814 (2007)) is not modelled. Next: per-source Rabi/dephasing calibration for exact widths, and a Langevin noise channel.",
       "status": "in_progress"
     },
     {
       "id": "buffer-gas-pressure-shift",
       "area": "constants.py",
       "title": "Promote Ne buffer broadening to a gas/species/line table with pressure shift + Dicke narrowing",
-      "why": "neon_buffer_broadening() is a fixed FWHM-per-Torr line only; pressure shift and Dicke narrowing are not modelled (see constants.py TODO). Generalise to a coefficient table when more buffer gases are exposed.",
+      "why": "GROUP B. Safe but substantial cross-scheme work. neon_buffer_broadening() is a fixed FWHM-per-Torr line only; pressure shift and Dicke narrowing are not modelled (see constants.py TODO). Generalise to a gas/species/line coefficient table and apply low-order pressure shift + phenomenological Dicke narrowing in OD/SAS, Magneto, and Lambda without changing solver dimensions. Do not include full velocity-changing collisions in this item.",
+      "status": "deferred"
+    },
+    {
+      "id": "figureless-observables-paths",
+      "area": "schemes/* + streamlit_app.py",
+      "title": "Split metric/table readout from Matplotlib figure generation across schemes",
+      "why": "GROUP B. Safe but touches several schemes. Daily reports repeatedly found observables() plotting dominates interactive/batch cost (SAS, Lambda, Magneto, FWM, Rydberg). Add public/headless metric/table paths or lazy figure rendering so tests, batch sweeps, and reports can skip Matplotlib while preserving existing UI figures.",
+      "status": "deferred"
+    },
+    {
+      "id": "magneto-buffer-relaxation-map",
+      "area": "schemes/magneto.py",
+      "title": "Map Ne buffer pressure to default ground relaxation and depolarization",
+      "why": "GROUP B. Safe but needs empirical defaults and tests. Today ne_pressure_torr mainly affects optical broadening while buffer_ground_relax_khz and collisional_depol_khz remain independent overrides. Add a simple table/experience-based default mapping from pressure to diffusion-limited ground relaxation and spin-depolarization, with Advanced overrides left in place.",
+      "status": "deferred"
+    },
+    {
+      "id": "fwm-per-source-biphoton-calibration",
+      "area": "schemes/fwm.py",
+      "title": "Add per-source Rabi/dephasing/width calibration for predictive biphoton modes",
+      "why": "GROUP B. Safe for runtime because it should adjust scalar / low-dimensional topology parameters, not solver dimension. Separate topology-specific effective linewidth, dephasing, and coupling-scale anchors so predictive biphoton widths can be reported as calibrated per source rather than one lumped approximation.",
+      "status": "deferred"
+    },
+    {
+      "id": "fwm-line-strength-factorization",
+      "area": "schemes/fwm.py",
+      "title": "Factor seeded FWM line_strength into lab-facing residual components",
+      "why": "GROUP B. Safe phenomenological refactor but needs UI/docs/tests. Split the current residual line_strength into interpretable components such as beam overlap, polarization purity, and effective participating Zeeman fraction, while keeping the compact seeded model and existing reference behaviour available.",
+      "status": "deferred"
+    },
+    {
+      "id": "lambda-residual-two-photon-doppler",
+      "area": "schemes/absorption.py",
+      "title": "Add Lambda residual two-photon Doppler / beam-angle mismatch option",
+      "why": "GROUP B. Safe if kept affine and optional. Current Lambda assumes exactly Doppler-free two-photon resonance in co-propagating geometry. Add a delta_k_eff or beam-angle knob that broadens/washes out warm-vapor EIT/CPT without moving to a full velocity-collision model.",
+      "status": "deferred"
+    },
+    {
+      "id": "low-order-polarization-zeeman-proxies",
+      "area": "schemes/sas.py + schemes/rydberg.py",
+      "title": "Add low-order polarization / Zeeman proxy knobs without full manifolds",
+      "why": "GROUP B. Safe but model-design work. For OD/SAS and Rydberg, add optional low-dimensional proxies such as effective branching selectors, polarization purity, or uncompensated asymmetry broadening to explain common lab distortions without adopting a full Zeeman manifold.",
+      "status": "deferred"
+    },
+    {
+      "id": "fwm-batch-cache-and-map-separation",
+      "area": "schemes/fwm.py",
+      "title": "Tighten FWM batch caches and separate expensive phase-map views",
+      "why": "GROUP B. Safe optimization but touches FWM cache keys and views. Reuse topology solvers, velocity grids, scan axes, and fidelity-specific arrays where possible; keep 2D angle-acceptance / fine phase-matching maps opt-in or extra-view only for large batch scans.",
+      "status": "deferred"
+    },
+    {
+      "id": "full-velocity-changing-collision-kernel",
+      "area": "doppler.py + schemes/sas.py + schemes/magneto.py + schemes/absorption.py",
+      "title": "Full velocity-changing-collision model across velocity classes",
+      "why": "GROUP C. Heavy / needs design alignment. This couples velocity classes and breaks the current separable Maxwell-weight averaging, likely increasing matrix dimension or requiring iterative solves. Ask the user for scope and modelling choices before coding.",
+      "status": "deferred"
+    },
+    {
+      "id": "lambda-hyperfine-resolved-manifold",
+      "area": "schemes/absorption.py + species.py + zeeman.py",
+      "title": "Hyperfine-resolved Lambda manifold with optical pumping",
+      "why": "GROUP C. Heavy / needs design alignment. Moving from the compact 3-level Lambda model to hyperfine/possibly Zeeman-resolved manifolds greatly increases density-matrix size and changes the interpretation of all Lambda presets. Ask the user before coding.",
+      "status": "deferred"
+    },
+    {
+      "id": "fwm-quantum-langevin-noise",
+      "area": "schemes/fwm.py + observables.py",
+      "title": "Full quantum-Langevin source-noise channel for FWM",
+      "why": "GROUP C. Heavy / needs design alignment. This changes the source-noise model beyond waveform + detector accidentals and likely adds correlation/noise-propagation state. Ask the user for modelling scope before coding.",
+      "status": "deferred"
+    },
+    {
+      "id": "fwm-full-zeeman-floquet-solve",
+      "area": "schemes/fwm.py + zeeman.py",
+      "title": "Full 24-level Zeeman / Floquet solve for FWM",
+      "why": "GROUP C. Heavy / needs design alignment. The current 24-level Zeeman manifold is diagnostic/correction bookkeeping, not the main solve. Promoting it to a full solve changes model complexity, runtime, and validation surface. Ask the user before coding.",
+      "status": "deferred"
+    },
+    {
+      "id": "rydberg-full-zeeman-polarization-field-model",
+      "area": "schemes/rydberg.py + zeeman.py",
+      "title": "Full Rydberg Zeeman / polarization / stray-field / ionization model",
+      "why": "GROUP C. Heavy / needs design alignment. Absolute electrometry calibration would need Zeeman sublevels, polarization selection rules, stray E/B mixing, state-selective ionization/dephasing, and optical-pumping redistribution. This goes well beyond the lumped 4-level ladder. Ask the user before coding.",
+      "status": "deferred"
+    },
+    {
+      "id": "full-time-domain-superhet-demodulation",
+      "area": "schemes/rydberg.py + observables.py",
+      "title": "Full time-domain superheterodyne / lock-in demodulation chain",
+      "why": "GROUP C. Heavy / needs design alignment. Static IF/slope proxies are safe, but a real detector/lock-in/superheterodyne chain introduces separate time-domain signal processing and noise assumptions. Ask the user for the desired readout model before coding.",
       "status": "deferred"
     }
   ]
