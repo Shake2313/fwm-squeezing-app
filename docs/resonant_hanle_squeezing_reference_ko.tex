@@ -1,0 +1,420 @@
+% !TEX program = xelatex
+% Compile from the repository root or from docs/:
+%   xelatex docs/resonant_hanle_squeezing_reference_ko.tex
+%   cd docs; xelatex resonant_hanle_squeezing_reference_ko.tex
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{../analysis/}{analysis/}{./}}
+\setlength{\emergencystretch}{2em}
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\uT}{\,\mu\mathrm{T}}
+\newcommand{\pT}{\,\mathrm{pT}}
+\newcommand{\sqrtHz}{/\sqrt{\mathrm{Hz}}}
+\newcommand{\Rb}[1]{\({}^{#1}\mathrm{Rb}\)}
+\newcommand{\Done}{D1}
+\newcommand{\FWM}{four-wave mixing}
+\newcommand{\IDS}{intensity-difference squeezing}
+
+\title{\textbf{\Rb{85} D1 이중-\(\Lambda\) FWM squeezed light를 이용한\\
+\Rb{87} Hanle 자력계 양자이득 분석}\\[4pt]
+\large GABES 기반 실험 레퍼런스 시뮬레이션 보고서}
+\author{GABES (Generic Atomic Bloch Equation Solver) 분석 보고서}
+\date{2026년 6월 25일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+본 보고서는 \Rb{85} D1 이중-\(\Lambda\) \FWM{}으로 생성한 probe/conjugate twin beam의
+\IDS{}를 \Rb{87} D1 Hanle 자력계에 적용할 때 기대되는 양자이득을 정리한다.
+실험 스킴은 probe 빔만 \Rb{87} Hanle 셀을 통과시키고 conjugate 빔은 외부 reference로 보낸 뒤,
+두 빔을 balanced detection하는 구조이다. 주파수 기준은 \Rb{85} D1
+\(F=2\to F'=3\)을 GABES FWM 원점으로 두고, Kim--Marino 방식의 \Rb{87} 공명 조건
+\(F=2\to F'=2\) probe 및 \(F=1\to F'=1\) conjugate를 절대 hyperfine 주파수로 다시 계산하였다.
+
+OE 논문에서 보고된 resonant-FWM gain/squeezing 값을 source anchor로 쓰면,
+기본 \(10\,\mathrm{mm}\), \(0.8\,\mathrm{mW/cm^2}\) \Rb{87} Hanle 조건에서
+probe-resonant 구성은 \(-6.56\dB\)의 balanced noise와
+\(29\pT\sqrtHz\) shot-limited field sensitivity를 준다.
+동일 광파워의 coherent reference 한계는 \(61.6\pT\sqrtHz\)로, 약 \(6.6\dB\)
+noise reduction 또는 약 \(2.1\)배의 field-sensitivity 개선에 해당한다.
+Hanle 동작점 스캔에서는 probe-resonant 구성이 \(L=50\,\mathrm{mm}\),
+\(I=1.5\,\mathrm{mW/cm^2}\)에서 \(5.25\pT\sqrtHz\)까지 개선된다.
+절대 수치는 현재 compact Hanle 모델의 semi-quantitative 예측이며, measured Hanle CSV를 이용한
+\(B\)-axis 및 detector-voltage calibration 경로를 함께 제공한다.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{실험 목적과 분석 범위}
+%==================================================================
+
+목표 실험은 Sim \textit{et al.}의 \Rb{85} D1 이중-\(\Lambda\) \FWM{} 스킴으로
+twin-beam \IDS{}를 생성하고, 이를 \Rb{87} Hanle effect 기반 자력계의 probe/reference 측정에
+적용하여 coherent light 대비 양자이득을 확인하는 것이다. 구체적인 광학 경로는 다음과 같다.
+
+\begin{enumerate}[nosep]
+\item \Rb{85} vapor cell에서 pump와 seed를 이용해 probe와 conjugate twin beam을 생성한다.
+\item probe는 \Rb{87} Hanle 자력계 셀로 보내고, conjugate는 셀 외부 reference arm으로 보낸다.
+\item 두 photodiode 전류를 전자적으로 가중하여
+      \(D=I_s-wI_c\) 형태의 balanced signal을 만든다.
+\item 같은 광파워와 같은 electronic weight를 갖는 coherent-state shot-noise limit과 비교해
+      field sensitivity 개선을 평가한다.
+\end{enumerate}
+
+본 분석에서 새로 중요한 점은 Hanle 셀이 \Rb{87}이라는 것이다. 이는
+Kim and Marino의 Optics Express 논문(\texttt{oe-26-25-33366.pdf})처럼,
+\Rb{85} FWM source의 probe와 conjugate가 각각 \Rb{87} D1
+\(F=2\to F'=2\), \(F=1\to F'=1\) 전이에 맞도록 detuning을 고르는 이유이다.
+
+\paragraph{현재 fidelity의 의미.}
+FWM source는 GABES의 \texttt{gabes.schemes.fwm}을 사용하되,
+OE resonant-FWM 구성에서는 compact 4-level GABES 모델이 해당 paper의 resonant gain을
+정량적으로 재현하도록 별도 calibration되어 있지 않다. 따라서 본 보고서의 readout 계산은
+OE 논문에서 보고 또는 추정되는 gain/IDS 값을 source anchor로 사용한다. Hanle 자력계 부분은
+\texttt{gabes.schemes.magneto}의 \Rb{87} D1 compact susceptibility model을 사용한다.
+
+%==================================================================
+\section{주파수 앵커와 \texorpdfstring{\Rb{87}}{87Rb} 공명 조건}
+%==================================================================
+
+GABES FWM 주파수 원점은 \Rb{85} D1 \(F=2\to F'=3\)으로 둔다.
+표~\ref{tab:freq}는 hyperfine constant로 다시 계산한 주요 transition offset이다.
+
+\begin{table}[h]
+\centering
+\caption{FWM 원점에 대한 주요 D1 transition offset.}
+\label{tab:freq}
+\begin{tabular}{lr}
+\toprule
+Transition & offset from \Rb{85} \(F=2\to F'=3\) [GHz]\\
+\midrule
+\Rb{85} \(F=2\to F'=3\) & \(+0.000000\)\\
+\Rb{85} \(F=2\to F'=2\) & \(-0.361581\)\\
+\Rb{85} \(F=3\to F'=3\) & \(-3.035732\)\\
+\Rb{85} \(F=3\to F'=2\) & \(-3.397313\)\\
+\Rb{87} \(F=2\to F'=2\) & \(-4.101389\)\\
+\Rb{87} \(F=1\to F'=1\) & \(+1.918814\)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+GABES 코드의 branch \(=-1\) convention에서 source probe/conjugate offset은
+\begin{equation}
+\nu_s = D - \nu_{\mathrm{HF}} + \delta,\qquad
+\nu_c = 2D-\nu_s = D+\nu_{\mathrm{HF}}-\delta
+\end{equation}
+로 쓴다. 여기서 \(D\)는 pump one-photon detuning, \(\delta\)는 GABES의 two-photon
+detuning convention이다. OE 논문의 beat-note detuning convention은 부호가 반대이므로,
+보고서에는 \texttt{paper delta equiv}도 함께 표시하였다.
+
+\begin{table}[h]
+\centering
+\caption{분석에 사용한 source configuration과 \Rb{87} 공명성.}
+\label{tab:sourcefreq}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Source & \(D\) [GHz] & \(\delta_{\mathrm{GABES}}\) [MHz] &
+probe det. [MHz] & conjugate det. [MHz]\\
+\midrule
+Sim 2025 IDS optimum & \(+0.900000\) & \(-8.00\) & \(+1957.66\) & \(+2024.92\)\\
+OE probe resonant & \(-1.049656\) & \(-16.00\) & \(+0.00\) & \(+83.26\)\\
+OE conjugate resonant & \(-1.132918\) & \(-16.00\) & \(-83.26\) & \(+0.00\)\\
+OE double resonant & \(-1.091287\) & \(+25.63\) & \(+0.00\) & \(+0.00\)\\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+Sim 2025 IDS optimum은 \Rb{87} D1 공명에서 약 \(2\GHz\) 떨어져 있으므로,
+Hanle 자력계 probe로 쓰기에는 slope가 사실상 없다. 반면 OE probe-resonant 및
+double-resonant 구성은 probe가 \Rb{87} \(F=2\to F'=2\)에 놓이므로 Hanle readout에 직접 연결된다.
+
+%==================================================================
+\section{Balanced reference readout 모델}
+%==================================================================
+
+\subsection{Unequal-arm twin-beam noise}
+
+Hanle 셀을 지난 probe arm은 absorption과 slope를 갖고, conjugate reference arm은 셀을 지나지 않는다.
+따라서 두 arm efficiency가 일반적으로 다르다. GABES 분석에는 다음 normalized noise를 추가하였다.
+\begin{equation}
+D = I_s-wI_c,\qquad
+S_D = \frac{\mathrm{Var}(D)}{\langle I_s\rangle+w^2\langle I_c\rangle}.
+\label{eq:balanced}
+\end{equation}
+여기서 \(w=1\)은 raw subtraction, \(w=\langle I_s\rangle/\langle I_c\rangle\)은
+DC-balanced subtraction, \(w=\sqrt{\langle I_s\rangle/\langle I_c\rangle}\)은
+shot-noise-normalized noise를 최소화하는 electronic weight이다. 본 보고서의 대표 수치는
+마지막 shot-weight mode를 사용한다.
+
+OE resonant 구성에서는 source covariance를 GABES compact gain에서 직접 계산하지 않고,
+OE의 measured/inferred source \IDS{} \(S_0\)를 anchor로 둔다. 손실 이후의 covariance는
+probe/reference efficiency \(\eta_s,\eta_c\)와 Hanle transmission \(T(B)\)를 포함해 전파된다.
+
+\subsection{Field sensitivity}
+
+Photodiode responsivity \(R\)와 probe 입력 power \(P_s^0\), reference 입력 power \(P_c^0\)에 대해
+balanced current noise density는
+\begin{equation}
+i_{\mathrm{sq}} =
+\sqrt{S_D}\sqrt{2e\left(I_s+w^2I_c\right)}
+\end{equation}
+의 optical shot-noise contribution을 갖는다. 코드에서는 여기에 선택적으로 dark-current shot noise,
+per-diode current noise, differential electronics noise를 제곱합으로 더한다.
+magnetic sensitivity는
+\begin{equation}
+\delta B =
+\frac{i_{\mathrm{tot}}}
+{R P_s^0 \eta_{\mathrm{probe}}\left|\frac{dT}{dB}\right|}.
+\label{eq:sensitivity}
+\end{equation}
+로 계산한다. 표에는 electronics noise를 포함한 total sensitivity와 optical shot-only sensitivity를
+분리해 둔다. 현재 기본 산출물에서는 electronics noise를 \(0\)으로 두었으므로 두 값이 같다.
+
+\subsection{Beam waist와 Hanle intensity}
+
+Hanle susceptibility model의 intensity \(I\)는 peak Gaussian intensity로 해석한다.
+probe power와 waist가 주어지면
+\begin{equation}
+I_{\mathrm{peak}}[\mathrm{mW/cm^2}]
+=0.1\,\frac{2P}{\pi w_0^2}
+\end{equation}
+로 변환된다. 기본 보고서는 \(I=0.8\,\mathrm{mW/cm^2}\)를 직접 지정했으며,
+각 source의 simulated probe power에 대해 이 intensity가 어느 Gaussian waist에 해당하는지
+``equiv waist''로 역산해 표시한다. 실제 실험에서는 \texttt{--hanle-intensity-mode waist}와
+measured waist를 쓰는 것이 더 안전하다.
+
+%==================================================================
+\section{기본 Hanle 조건 결과}
+%==================================================================
+
+표~\ref{tab:baseline}는 \(10\,\mathrm{mm}\), \(25^\circ\mathrm{C}\),
+\(0.8\,\mathrm{mW/cm^2}\), paraffin-coated \Rb{87} cell 조건에서의 결과이다.
+감도 단위는 \(\pT\sqrtHz\)이다.
+
+\begin{table}[h]
+\centering
+\caption{기본 Hanle 조건에서의 balanced readout 결과.}
+\label{tab:baseline}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+Source & source \(S\) [dB] & \(P_s^0\) [\(\mu\)W] & \(B_{\mathrm{op}}\) [\(\mu\)T] &
+\(T\) & noise [dB] & sq. sens. & coh. sens.\\
+\midrule
+Sim 2025 IDS optimum & \(-8.84\) & \(573\) & \(+2.000\) & \(1.0000\) & n/a & n/a & n/a\\
+OE probe resonant & \(-8.30\) & \(44.8\) & \(-0.040\) & \(0.9962\) & \(-6.56\) & \(29.0\) & \(61.6\)\\
+OE conjugate resonant & \(-8.10\) & \(30.4\) & \(-0.140\) & \(0.9926\) & \(-6.51\) & \(96.7\) & \(205\)\\
+OE double resonant & \(-4.70\) & \(15.2\) & \(-0.040\) & \(0.9962\) & \(-4.49\) & \(63.1\) & \(106\)\\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+주요 결론은 세 가지이다.
+\begin{itemize}[nosep]
+\item \textbf{probe-resonant 구성이 기본 후보이다.} source squeezing과 Hanle slope가 동시에 좋다.
+\item \textbf{conjugate-resonant 구성은 probe가 \(-83.26\MHz\) detuned되어 slope가 작다.}
+      squeezing dB 자체는 유지되지만 field sensitivity는 나빠진다.
+\item \textbf{double-resonant 구성은 두 frequency가 모두 \Rb{87} transition에 맞지만 source gain이 낮다.}
+      따라서 squeezing dB와 shot-noise 개선이 probe-resonant보다 작다.
+\end{itemize}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{resonant_hanle_squeezing_reference.png}
+\caption{FWM source spectrum, source \IDS{}, \Rb{87} Hanle transmission, 그리고 Hanle 이후 balanced noise.
+왼쪽 위/오른쪽 위 패널의 OE resonant source model curve는 compact GABES 모델 scan이며,
+readout 수치는 OE paper anchor를 사용한다.}
+\label{fig:main}
+\end{figure}
+
+%==================================================================
+\section{Loss 및 balance tolerance}
+%==================================================================
+
+경로 손실은 quantum advantage를 가장 직접적으로 제한한다. 분석에서는 best Hanle bias point에서
+probe/reference path efficiency를 각각 \(0.5\)부터 \(1.0\)까지 스캔하고,
+electronic weight는 shot-weight optimum 주변 \(\pm20\%\)로 흔들었다.
+
+\begin{table}[h]
+\centering
+\caption{경로 손실 및 electronic balance tolerance.}
+\label{tab:tolerance}
+\begin{tabular}{lrrrr}
+\toprule
+Source & min probe eff. & min ref. eff. & balance window & best grid sens.\\
+\midrule
+OE probe resonant & \(0.50\) & \(0.50\) & \(-20.0\%\) to \(+20.0\%\) & \(26.2\)\\
+OE conjugate resonant & \(0.50\) & \(0.50\) & \(-20.0\%\) to \(+20.0\%\) & \(87.6\)\\
+OE double resonant & \(0.56\) & \(0.56\) & \(-20.0\%\) to \(+20.0\%\) & \(59.5\)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{resonant_hanle_squeezing_reference_tolerance.png}
+\caption{OE probe-resonant 구성의 path-loss tolerance와 electronic balance tolerance.
+흰 contour는 \(-6\), \(-3\), \(-1\dB\) balanced noise level을 나타낸다.}
+\label{fig:tolerance}
+\end{figure}
+
+기본 조건에서는 \(0.96/0.96\) path efficiency가 충분히 안전한 영역에 있다.
+다만 이 결론은 reference arm의 excess technical noise가 없다는 가정 위에 있으므로,
+실험에서는 conjugate detector chain의 electronics noise와 residual intensity noise를 별도로 측정해야 한다.
+
+%==================================================================
+\section{Hanle 동작점 최적화}
+%==================================================================
+
+Hanle cell 자체의 slope를 키우면 quantum noise reduction이 field sensitivity 개선으로 더 잘 전환된다.
+기본 scan은 \(T_{\mathrm{cell}}=25^\circ\mathrm{C}\), intensity
+\(\{0.2,0.5,0.8,1.5,3.0\}\,\mathrm{mW/cm^2}\),
+cell length \(\{5,10,25,50\}\,\mathrm{mm}\)을 돈다.
+
+\begin{table}[h]
+\centering
+\caption{Hanle operating-point scan 결과.}
+\label{tab:opt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+Source & \(I\) [mW/cm\(^2\)] & equiv waist [\(\mu\)m] & \(L\) [mm] &
+\(B_{\mathrm{op}}\) [\(\mu\)T] & noise [dB] & sq. sens. & coh. sens.\\
+\midrule
+OE probe resonant & \(1.5\) & \(1.38\times10^3\) & \(50\) & \(-0.040\) & \(-6.49\) & \(5.25\) & \(11.1\)\\
+OE conjugate resonant & \(0.8\) & \(1.56\times10^3\) & \(50\) & \(-0.140\) & \(-6.30\) & \(20.1\) & \(41.5\)\\
+OE double resonant & \(1.5\) & \(803\) & \(50\) & \(-0.040\) & \(-4.45\) & \(11.4\) & \(19.0\)\\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{resonant_hanle_squeezing_reference_hanle_optimize.png}
+\caption{가장 좋은 source인 OE probe-resonant 구성에서의 Hanle operating-point heatmap.
+왼쪽은 squeezed field sensitivity, 오른쪽은 같은 \(B\)-bias에서의 balanced noise이다.}
+\label{fig:opt}
+\end{figure}
+
+scan 결과는 긴 cell이 강한 slope를 주어 감도를 개선한다는 직관과 일치한다.
+다만 실제 셀에서는 beam diameter, coating quality, residual transverse field,
+temperature-dependent vapor density가 함께 바뀌므로, 이 표는 장비 설계 후보를 좁히는 용도로 읽어야 한다.
+
+%==================================================================
+\section{Measured Hanle calibration 사용법}
+%==================================================================
+
+현재 기본 보고서에는 measured Hanle CSV가 제공되지 않았으므로 calibration fit은 수행되지 않았다.
+그 대신 분석 스크립트는 다음 형태의 CSV를 받을 수 있다.
+\begin{verbatim}
+B_uT,voltage
+-0.40,2.4910
+-0.30,2.4912
+...
+\end{verbatim}
+
+실행 예시는 다음과 같다.
+\begin{verbatim}
+python analysis\resonant_hanle_squeezing_reference.py ^
+  --config-json analysis\resonant_hanle_experiment_config.example.json ^
+  --hanle-calibration-csv path\to\measured_hanle.csv ^
+  --hanle-calibration-b-column B_uT ^
+  --hanle-calibration-signal-column voltage
+\end{verbatim}
+
+fit model은
+\begin{equation}
+V_{\mathrm{meas}}(B)
+= a_0 + a_1\,T_{\mathrm{model}}\!\left(s_B B + B_0\right)
+\end{equation}
+이다. \(s_B\)와 \(B_0\)는 coil/current-to-field calibration 및 zero-field offset을 나타내고,
+\(a_0,a_1\)은 detector voltage offset/scale을 흡수한다. fit 결과는
+\texttt{resonant\_hanle\_squeezing\_reference.md},
+\texttt{resonant\_hanle\_squeezing\_reference.npz}, 그리고 calibration PNG로 저장된다.
+
+이 단계가 중요한 이유는 식~\eqref{eq:sensitivity}의 \(|dT/dB|\)가 field sensitivity를 직접 결정하기 때문이다.
+measured Hanle trace가 모델보다 넓거나 좁으면, shot-noise pT/\(\sqrt{\mathrm{Hz}}\) 값도 같은 비율로 달라진다.
+
+%==================================================================
+\section{실험 레퍼런스로 쓰기 위한 입력값}
+%==================================================================
+
+현재 산출물을 실제 실험 reference로 사용하려면 다음 값을 실제 장비에서 측정해
+\texttt{analysis/resonant\_hanle\_experiment\_config.example.json}에 반영하는 것이 좋다.
+
+\begin{enumerate}[nosep]
+\item \textbf{Hanle 셀 직전 probe power와 waist}: \path{probe_input_power_uw},
+      \path{hanle_intensity_mode=waist}, \path{hanle_probe_waist_um}.
+\item \textbf{reference arm power}: \path{reference_input_power_uw}.
+\item \textbf{path efficiency}: \path{probe_path_eff}, \path{reference_path_eff}.
+\item \textbf{photodiode/electronics noise}: dark current, per-diode current-noise density,
+      differential balanced electronics noise.
+\item \textbf{measured Hanle sweep}: \(B\)-axis calibrated 또는 coil-current axis CSV.
+\item \textbf{실제 measurement bandwidth}: RMS sensitivity가 필요하면
+      \path{measurement_bandwidth_hz}를 지정한다.
+\end{enumerate}
+
+\paragraph{권장 1차 실험 조건.}
+현 시뮬레이션 기준으로는 OE probe-resonant frequency lock을 우선 후보로 삼는 것이 가장 합리적이다.
+기본 \(10\,\mathrm{mm}\) 셀에서는 \(29\pT\sqrtHz\) 대 \(61.6\pT\sqrtHz\)의 비교가 가능하고,
+더 긴 effective interaction length 또는 더 큰 Hanle slope가 확보되면 \(5\pT\sqrtHz\) 수준까지
+개선될 수 있다. 다만 이 숫자는 measured Hanle calibration 전에는 모델 기반 목표값이다.
+
+%==================================================================
+\section{결론}
+%==================================================================
+
+GABES 기반 분석 결과, \Rb{85} D1 resonant-FWM squeezed light를 \Rb{87} Hanle 자력계에 넣는
+구성에서는 probe-resonant OE lock이 가장 강한 후보이다. 기본 조건에서 balanced noise는
+\(-6.56\dB\), field sensitivity는 \(29\pT\sqrtHz\)로 coherent reference 대비 약 \(2.1\)배
+개선된다. Hanle operating point를 개선하면 같은 source에서 \(5.25\pT\sqrtHz\)까지 낮아진다.
+
+본 보고서의 가장 중요한 사용법은 절대값을 그대로 믿는 것이 아니라,
+source squeezing, Hanle slope, optical loss, detector noise를 같은 예산식 안에서 함께 바꿔 보는 것이다.
+실험 measured Hanle CSV가 들어오면 \(B\)-axis와 signal normalization을 fit할 수 있으므로,
+다음 단계에서는 실제 셀의 \(T(B)\) curve를 넣어 slope calibration을 먼저 닫는 것이 좋다.
+
+\appendix
+%==================================================================
+\section{재현 명령}
+%==================================================================
+
+기본 fine 산출물은 다음 명령으로 재생성하였다.
+\begin{verbatim}
+python analysis\resonant_hanle_squeezing_reference.py --fidelity fine
+\end{verbatim}
+
+대표 검증은 다음과 같다.
+\begin{verbatim}
+python -m pytest tests -q
+\end{verbatim}
+현재 작업 시점에서 전체 테스트는 \(105\)개 통과하였다.
+
+\end{document}

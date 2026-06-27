@@ -19,6 +19,7 @@ import numpy as np
 from .. import atoms, constants, doppler, hyperfine, kernels, observables, species
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
+from ..lineshape import fwhm_interp
 from .base import ExtraView, ParamSpec, Preset, Scheme
 
 # =========================================================
@@ -123,6 +124,20 @@ GROUND_DEPHASING_FRAC = 0.02
 # Regularization clip for the complex longitudinal function ρ̄ at high OD
 # (mirrors the dilute-vapor clip in `_safe_refractive_index`).
 PRED_RHO_CLIP = 60.0
+
+# Predictive velocity-grid auto-refinement. The nonlinear source |amp(v)| that the
+# velocity-class coherent sum integrates is only ~Γ/k — a few m/s — wide, far
+# narrower than the Doppler width σ_v the navigate-only `biphoton_velocity_step`
+# is sized for. A step coarser than that resonance aliases the (Fourier) sum, so
+# the reported absolute BTW width tracks numerical undersampling, not physics
+# (e.g. a factor-~20, non-monotonic swing over vstep=1–12 m/s in the 780/1529 nm
+# telecom cascade). The predictive path therefore starts from a step that
+# oversamples the *measured* resonance, then halves until the |ψ|² FWHM is stable;
+# if the point cap is hit first the width is flagged unconverged.
+PRED_V_OVERSAMPLE = 16.0      # starting step = probe-measured resonance FWHM / this
+PRED_V_FWHM_TOL = 0.03        # relative |ψ|² FWHM change accepted as converged
+PRED_V_MAX_REFINE = 10        # max successive halvings of the velocity step
+PRED_V_MAX_POINTS = 40000     # velocity-grid point cap (guards runtime)
 
 TOPOLOGY_RB87_TELECOM = "cascade_rb87_telecom"
 TOPOLOGY_CS_BTW = "cascade_cs_btw"
@@ -725,6 +740,87 @@ class GenericFWMSolver:
             "brightness_limit_cps_per_mhz": float(0.5 * np.pi * 1e6),
         }
 
+    def _predictive_velocity_step(self, params, pump, coupling, residual_k, T, iso):
+        """Velocity-grid step that oversamples the velocity-space resonance of the
+        nonlinear source |amp(v)| — the integrand of the velocity-class coherent
+        sum in `_predictive_waveform`.
+
+        The resonance is measured directly on a fine probe grid (so it follows the
+        Autler-Townes / detuning broadening of the denominator, not just the bare
+        linewidth), and the step is set to its FWHM / `PRED_V_OVERSAMPLE`. Falls
+        back to the natural-linewidth width Γ/2k if the probe feature is
+        ill-defined. This is only the *starting* step; `_converged_predictive_
+        waveform` halves it further until the waveform width converges.
+        """
+        sigma_v = math.sqrt(constants.KB * T / iso.mass)
+        Gamma_i = max(self.topology.levels[1].gamma_mhz, 0.1) * MHZ_ANG
+        Gamma_e = max(self.topology.levels[2].gamma_mhz, 0.1) * MHZ_ANG
+        Oc = max(coupling.rabi_mhz, 1e-6) * MHZ_ANG
+        Op = pump.rabi_mhz * MHZ_ANG
+        dp = params.get("pump_detuning_mhz", 0.0) * MHZ_ANG
+        two_det = (params.get("pump_detuning_mhz", 0.0)
+                   + params.get("coupling_detuning_mhz", 0.0)) * MHZ_ANG
+        kp = max(abs(pump.k), 1e-30)
+        rk = max(abs(residual_k), 1e-30)
+        # probe spacing resolves the narrowest bare-linewidth velocity scale
+        narrow = min(Gamma_i / (2.0 * kp), Gamma_e / (2.0 * rk))
+        dv_probe = max(narrow / 6.0, 1e-3)
+        n_probe = int(min(2.0 * 3.2 * sigma_v / dv_probe + 1.0, 200000))
+        v = np.linspace(-3.2 * sigma_v, 3.2 * sigma_v, max(n_probe, 64))
+        w = np.exp(-v**2 / (2.0 * sigma_v**2))
+        f1 = 0.5 * Gamma_i + 1j * (dp - pump.direction * pump.k * v)
+        f2 = 0.5 * Gamma_e + 1j * (two_det - residual_k * v)
+        integ = np.abs(w * (Op * Oc) / (4.0 * f1 * f2 + Oc**2))
+        res_fwhm = fwhm_interp(v, integ)
+        if not np.isfinite(res_fwhm) or res_fwhm <= 0:
+            res_fwhm = Gamma_i / (2.0 * kp)
+        return max(res_fwhm / PRED_V_OVERSAMPLE, 1e-3)
+
+    def _converged_predictive_waveform(self, params, fields, pump, coupling, signal,
+                                       idler, residual_k, density, L, pm_weight,
+                                       tau_axis_ns, od_value, T, iso, user_step):
+        """Predictive biphoton waveform on a velocity grid auto-refined to
+        convergence.
+
+        The coherent sum over Maxwell velocity classes is a discretized Fourier
+        integral of the narrow source |amp(v)|; a step coarser than that resonance
+        aliases it, so the navigate-only `biphoton_velocity_step` (sized for the
+        σ_v-wide Doppler profile) is far too coarse and the absolute BTW width
+        swings with it. Start from a step that oversamples the measured resonance —
+        never coarser than the user step — then halve until the |ψ|² FWHM is stable
+        within `PRED_V_FWHM_TOL`. Returns the converged waveform, its velocity grid
+        and weights, the step used, and a convergence flag (False if the point cap
+        `PRED_V_MAX_POINTS` is reached first → width is qualitative only).
+        """
+        def solve_on(v_grid, weights):
+            wf = self._predictive_waveform(
+                params, fields, v_grid, weights, pump, coupling, signal, idler,
+                residual_k=residual_k, density=density, L=L, pm_weight=pm_weight,
+                tau_axis_ns=tau_axis_ns, od_value=od_value)
+            fw = float(fwhm_interp(tau_axis_ns, np.abs(wf["psi_tau"])**2))
+            return wf, fw
+
+        dv = min(float(user_step),
+                 self._predictive_velocity_step(params, pump, coupling,
+                                                residual_k, T, iso))
+        v_grid, weights = doppler.velocity_grid(T, dv=dv, cutoff_sigma=3.0,
+                                                mass=iso.mass)
+        wf, fw = solve_on(v_grid, weights)
+        converged = False
+        for _ in range(PRED_V_MAX_REFINE):
+            step2 = 0.5 * dv
+            v2, w2 = doppler.velocity_grid(T, dv=step2, cutoff_sigma=3.0,
+                                           mass=iso.mass)
+            if v2.size > PRED_V_MAX_POINTS:
+                break
+            wf2, fw2 = solve_on(v2, w2)
+            rel = abs(fw2 - fw) / max(fw2, 1e-12)
+            v_grid, weights, wf, dv, fw = v2, w2, wf2, step2, fw2
+            if np.isfinite(rel) and rel < PRED_V_FWHM_TOL:
+                converged = True
+                break
+        return wf, v_grid, weights, float(dv), bool(converged)
+
     def compute_biphoton(self, params):
         T = params.get("biphoton_temp_c", self.topology.default_temp_c) + 273.15
         L = params.get("biphoton_cell_mm", self.topology.default_cell_mm) * 1e-3
@@ -794,10 +890,15 @@ class GenericFWMSolver:
                         else self._leg_optical_depth(
                             density, L, self.topology.levels[1].gamma_mhz,
                             idler.wavelength_nm))
-            wf = self._predictive_waveform(
-                params, fields, v_grid, weights, pump, coupling, signal, idler,
-                residual_k=residual_k, density=density, L=L, pm_weight=pm_weight,
-                tau_axis_ns=tau_axis_ns, od_value=od_value)
+            # The velocity-class coherent sum aliases on a step coarser than the
+            # narrow source resonance, so the predictive grid is auto-refined to
+            # convergence (the user `biphoton_velocity_step` acts as an upper bound).
+            wf, v_grid, weights, v_step, velocity_converged = (
+                self._converged_predictive_waveform(
+                    params, fields, pump, coupling, signal, idler,
+                    residual_k=residual_k, density=density, L=L,
+                    pm_weight=pm_weight, tau_axis_ns=tau_axis_ns,
+                    od_value=od_value, T=T, iso=iso, user_step=v_step))
             psi_tau = wf["psi_tau"]
             source_v = wf["source_v"]
             od_estimate = wf["od_phys"]
@@ -825,6 +926,9 @@ class GenericFWMSolver:
             source_bandwidth_mhz = float(self.topology.reference_bandwidth_mhz or 300.0)
             regime = "calibrated"
             brightness_limit = float("nan")
+            # Calibrated width is set by the injected emission lifetime, not the
+            # velocity-sum dephasing, so it is stable on the user grid (no refine).
+            velocity_converged = True
 
         angle_axis = np.linspace(max(idler.angle_deg - 4.0, 0.0),
                                  idler.angle_deg + 4.0, 181)
@@ -885,6 +989,8 @@ class GenericFWMSolver:
             "predictive": bool(predictive),
             "regime": regime,
             "brightness_limit_cps_per_mhz": float(brightness_limit),
+            "velocity_step_used": float(v_step),
+            "velocity_converged": bool(velocity_converged),
             "notes": self.topology.notes,
         }
 
@@ -1600,7 +1706,12 @@ class FWMScheme(Scheme):
             ParamSpec("tau_max_ns", "Temporal window", "Numerics", 12.0,
                       1.0, 100.0, 1.0, "ns", visible_if=biphoton, advanced=True),
             ParamSpec("biphoton_velocity_step", "Velocity step", "Numerics", 2.0,
-                      0.5, 20.0, 0.5, "m/s", visible_if=biphoton, advanced=True),
+                      0.5, 20.0, 0.5, "m/s", visible_if=biphoton, advanced=True,
+                      help="Maxwell velocity-grid step. The calibrated source model "
+                           "uses it directly; the predictive model treats it as an "
+                           "upper bound and auto-refines finer until the biphoton "
+                           "width converges (a coarse step aliases the velocity-"
+                           "class coherent sum)."),
             ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_BALANCED,
                       choices=tuple(FWM_FIDELITY.keys()), advanced=True,
                       visible_if=seeded),
@@ -1885,6 +1996,7 @@ class FWMScheme(Scheme):
 
         topo = raw["topology"]
         predictive = raw.get("predictive", False)
+        velocity_converged = raw.get("velocity_converged", True)
         # Predictive: g²_SI(τ) comes from the computed waveform |ψ|² and the
         # physical accidentals (no target-g² forcing). Calibrated: legacy
         # added-accidental anchoring to the reference g² peak.
@@ -1959,16 +2071,29 @@ class FWMScheme(Scheme):
             rate_help = ("Pair rate is reference-anchored with physical scaling "
                          "(pump power, OD, phase matching) — the absolute collection "
                          "coefficient is not derivable in the lumped 4-level model.")
-            fwhm_help = ("FWHM of the predicted biphoton temporal waveform. Width "
-                         "ordering vs wavelength is physical; absolute ns-scale is "
-                         "approximate (closed-form over-sensitivity in this regime).")
+            fwhm_help = (
+                "FWHM of the predicted biphoton temporal waveform, computed on a "
+                "Maxwell velocity grid auto-refined until the width converges (the "
+                "velocity-class coherent sum aliases on a coarse step). Width "
+                "ordering vs wavelength is physical; the absolute ns-scale still "
+                "carries the lumped-model per-source calibration uncertainty."
+                if velocity_converged else
+                "Predicted waveform width did NOT converge: the velocity-grid "
+                "refinement hit its point cap, so the value is qualitative only "
+                "(shape/ordering still indicative). Raise the temporal window or "
+                "report it as unconverged.")
+            status_value = (f"predictive · {raw.get('regime', '—')}"
+                            if velocity_converged
+                            else f"predictive · {raw.get('regime', '—')} · "
+                                 "width unconverged")
             status = dict(
-                label="Model status", value=f"predictive · {raw.get('regime', '—')}",
+                label="Model status", value=status_value,
                 help="Waveform shape, decay, bandwidth and the wavelength-dependent "
                      "width ordering are solved from first principles (Ω_c² Autler-"
                      "Townes term, velocity-class coherent sum, natural-linewidth "
-                     "decay, OD reshaping). Absolute widths are approximate; pair "
-                     "rate is reference-anchored. Du regime: damped-Rabi vs group-delay.")
+                     "decay, OD reshaping) on a velocity grid auto-refined to FWHM "
+                     "convergence; pair rate is reference-anchored. Du regime: "
+                     "damped-Rabi vs group-delay.")
         else:
             g2_help = ("Peak normalized signal-idler cross-correlation (calibrated to "
                        "the reference target, not predicted).")
@@ -1986,7 +2111,10 @@ class FWMScheme(Scheme):
                  help="True coincidence divided by accidental coincidence."),
             dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
                  help=rate_help),
-            dict(label="BTW FWHM", value=f"{stats['fwhm_ns']:.2f} ns", help=fwhm_help),
+            dict(label="BTW FWHM",
+                 value=(f"{stats['fwhm_ns']:.2f} ns"
+                        if (velocity_converged or not predictive) else "unconverged"),
+                 help=fwhm_help),
             dict(label="Source bandwidth", value=f"{raw['source_bandwidth_mhz']:.0f} MHz",
                  help=("Spectral FWHM from the waveform (predictive)." if predictive
                        else "Reference source bandwidth.")),
@@ -2021,7 +2149,10 @@ class FWMScheme(Scheme):
             + pm_warning +
             f"| Phase detail | {raw['phase_detail']} |\n"
             f"| Energy mismatch | {raw['energy_mismatch_hz']/1e6:.3f} MHz |\n"
-            f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n\n"
+            f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n"
+            f"| Velocity step{' (auto-refined)' if predictive else ''} | "
+            f"{raw.get('velocity_step_used', float('nan')):.3f} m/s"
+            f"{'' if velocity_converged else ' · UNCONVERGED'} |\n\n"
             f"| Field | Transition | Wavelength | Angle | Side |\n|---|---|---:|---:|---:|\n"
             + field_rows
         )
@@ -2059,6 +2190,7 @@ class FWMScheme(Scheme):
     def _reference_validation_table(self, raw, params, stats):
         topo = raw["topology"]
         predictive = raw.get("predictive", False)
+        velocity_converged = raw.get("velocity_converged", True)
 
         def verdict(ok, kind="physical"):
             # Calibration anchors are matched to the reference *by construction*
@@ -2090,12 +2222,21 @@ class FWMScheme(Scheme):
                  if predictive else
                  "anchored: forced to the target via added-accidental calibration"),
                 kind="predicted" if predictive else "calibrated"))
-            rows.append(row(
-                "BTW FWHM", f"{stats['fwhm_ns']:.3f} ns",
-                "0.56(4) ns", abs(stats["fwhm_ns"] - 0.56) <= 0.04,
-                ("predicted waveform; absolute ns approximate (ordering physical)"
-                 if predictive else "model waveform + detector jitter"),
-                kind="predicted" if predictive else "physical"))
+            if predictive and not velocity_converged:
+                rows.append(row(
+                    "BTW FWHM", "unconverged",
+                    "0.56(4) ns", False,
+                    "velocity-grid auto-refine hit the point cap — absolute width "
+                    "not converged, qualitative only (shape/ordering still indicative)",
+                    kind="predicted"))
+            else:
+                rows.append(row(
+                    "BTW FWHM", f"{stats['fwhm_ns']:.3f} ns",
+                    "0.56(4) ns", abs(stats["fwhm_ns"] - 0.56) <= 0.04,
+                    ("predicted waveform (velocity-converged); absolute ns carries "
+                     "per-source calibration uncertainty, ordering physical"
+                     if predictive else "model waveform + detector jitter"),
+                    kind="predicted" if predictive else "physical"))
             rows.append(row(
                 "OD estimate", f"{raw['od_estimate']:.1f}",
                 "112(3)", abs(raw["od_estimate"] - 112.0) <= 3.0,

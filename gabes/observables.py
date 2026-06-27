@@ -262,6 +262,83 @@ def intensity_difference_squeezing_dB(G_s, G_c, eta):
     return 10.0 * np.log10(np.maximum(S, 1e-30))
 
 
+def balanced_twin_beam_noise(
+        G_s, G_c, eta_s=1.0, eta_c=1.0, *, reference_weight=1.0,
+        source_noise=None,
+        seed_excess_noise=0.0, reference_excess_noise=0.0):
+    """
+    Twin-beam intensity-difference noise with unequal arm efficiencies.
+
+    The returned value is linear noise power normalized to the coherent-state
+    shot-noise level of the same weighted photocurrent difference,
+
+        D = I_s - w I_c,      S = Var(D) / (I_s + w^2 I_c).
+
+    `eta_s` and `eta_c` are total intensity efficiencies after the FWM source
+    (cell transmission, path loss and detector QE).  `reference_weight` may be a
+    scalar electronic gain, or one of:
+
+    - "raw": w = 1.
+    - "dc": w = <I_s>/<I_c>, which cancels the mean photocurrents.
+    - "shot": w = sqrt(<I_s>/<I_c>), which minimizes the normalized quantum
+      noise for fixed detected powers.
+
+    `source_noise`, when provided, replaces the ideal GABES source covariance
+    with a measured/inferred source intensity-difference noise in linear units.
+    This is useful for paper-anchored resonant-FWM operating points where the
+    compact four-level gain model is not the final source metrology reference.
+
+    For eta_s == eta_c == eta, w == 1 and source_noise is None this reduces
+    exactly to `intensity_difference_squeezing_dB(..., eta)` in linear units.
+    """
+    G_s = np.asarray(G_s, dtype=float)
+    G_c = np.asarray(G_c, dtype=float)
+    eta_s = np.clip(np.asarray(eta_s, dtype=float), 0.0, 1.0)
+    eta_c = np.clip(np.asarray(eta_c, dtype=float), 0.0, 1.0)
+
+    mean_s = eta_s * G_s
+    mean_c = eta_c * G_c
+    if source_noise is None:
+        cov0 = np.sqrt(np.maximum(G_s * G_c - 1.0, 0.0))
+    else:
+        S0 = np.clip(np.asarray(source_noise, dtype=float), 0.0, None)
+        cov0 = 0.5 * (G_s + G_c) * (1.0 - S0)
+        cov0 = np.clip(cov0, 0.0, np.sqrt(np.maximum(G_s * G_c, 0.0)))
+    cov = eta_s * eta_c * cov0
+
+    if isinstance(reference_weight, str):
+        mode = reference_weight.lower()
+        if mode == "raw":
+            w = np.asarray(1.0)
+        elif mode == "dc":
+            w = mean_s / np.maximum(mean_c, 1e-30)
+        elif mode in ("shot", "optimal", "opt"):
+            w = np.sqrt(mean_s / np.maximum(mean_c, 1e-30))
+        else:
+            raise ValueError("reference_weight must be scalar, raw, dc, or shot")
+    else:
+        w = np.asarray(reference_weight, dtype=float)
+
+    var = mean_s + w * w * mean_c - 2.0 * w * cov
+    shot = mean_s + w * w * mean_c
+    tech = (max(float(seed_excess_noise), 0.0)
+            + max(float(reference_excess_noise), 0.0))
+    return np.maximum(var / np.maximum(shot, 1e-30) + tech, 1e-30)
+
+
+def balanced_twin_beam_squeezing_dB(
+        G_s, G_c, eta_s=1.0, eta_c=1.0, *, reference_weight=1.0,
+        source_noise=None,
+        seed_excess_noise=0.0, reference_excess_noise=0.0):
+    """dB wrapper for `balanced_twin_beam_noise`."""
+    S = balanced_twin_beam_noise(
+        G_s, G_c, eta_s, eta_c, reference_weight=reference_weight,
+        source_noise=source_noise,
+        seed_excess_noise=seed_excess_noise,
+        reference_excess_noise=reference_excess_noise)
+    return 10.0 * np.log10(S)
+
+
 def segmented_loss_noise_squeezing_dB(
         G_s, G_c, eta, *, in_cell_loss_frac=0.0,
         seed_excess_noise=0.0, pump_scatter_noise=0.0,

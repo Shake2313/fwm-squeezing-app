@@ -1,0 +1,479 @@
+% !TEX program = xelatex
+% 컴파일: xelatex squeezing_report_v3.tex  (목차/참조 때문에 2회 실행 권장)
+% 한글 출력: kotex + XeLaTeX. Windows 기본 'Malgun Gothic' 사용.
+% 그림:
+%   squeezing_frontier.png            -- v2 finite-loss ultra frontier
+%   squeezing_frontier_od.png         -- v2 in-cell OD diagnostic
+%   squeezing_frontier_ideal_qe1.png  -- v3 ideal QE=1, loss=0 wide dense scan
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{./}}
+\sloppy
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\degC}{\,^{\circ}\mathrm{C}}
+
+\title{\textbf{$^{85}$Rb D1 이중-$\Lambda$ 사파장혼합(FWM) 트윈빔\\
+세기차 스퀴징 최적점: 실험 레퍼런스, in-cell 손실,\\
+그리고 이상 검출 한계의 분리}\\[4pt]
+\large 보고서 v3}
+\author{GABES (Generic Atomic Bloch Equation Solver) 분석 보고서}
+\date{2026년 6월 25일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+본 v3 보고서는 v1/v2의 결론을 유지하면서, 새로 수행한 \textbf{이상 검출 한계 스캔}
+(\texttt{QE=1}, \texttt{loss=0}, \texttt{fidelity=ultra})과 문헌 레퍼런스 비교를 추가한다.
+v2의 finite-loss Ultra 모형에서는 in-cell 전파손실 $\mathrm{OD}(\Delta,T)$가 들어가면서
+$\xi(T)$가 저온 이득제한과 고온 손실제한 사이의 내부 최적점을 갖게 되었다. 이 현실적
+조건에서는 Sim \textit{et al.}의 $^{85}$Rb D1 double-$\Lambda$ FWM 레퍼런스
+($\Delta\approx+0.9\GHz$, $T\approx121\degC$, gain $\approx15$, IDS $\approx-7.8\dB$)와
+정성적, 정량적으로 잘 맞는다. 특히 GABES의 Sim detuning readout은 $\xi\approx-7.88\dB$를
+주어 실험값과 같은 크기이다.
+
+반면 v3의 이상 검출 스캔은 의도적으로 실험 손실과 검출 floor를 제거한 \emph{source-limit}
+질문이다. 넓고 촘촘한 Ultra 격자
+$\Delta\in[-6,+8]\GHz$, $T\in[50,220]\degC$에서 전역 최적은
+$\Delta=-2.10\GHz$, $T=142.5\degC$, $\delta=-120\MHz$,
+$G_s\simeq1.26\times10^4$, $\mathrm{OD}=0$, $\xi=-81.95\dB$로 나타났다.
+이 좌표는 문헌의 실험 권고 동작점과 직접 일치하지 않는다. 그러나 이는 모순이 아니다.
+검출 손실, pump scatter, seed excess noise, collision noise가 제거되면 목적함수가
+"실험에서 가장 강건한 점"이 아니라 "모형 내부에서 거의 무손실이고 균형 이득이 가장 큰 점"으로
+바뀌기 때문이다. 따라서 v3의 최종 판정은 다음과 같다:
+\textbf{현실 조건의 GABES 최적화는 레퍼런스와 일치하며, \texttt{QE=1} 이상 스캔은 별도의
+theoretical source-limit로 분리해서 해석해야 한다.}
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{질문의 분리}
+%==================================================================
+이 보고서에서 서로 다른 세 질문을 분리한다. 이 분리가 없으면 같은 FWM 모델 안에서도
+"최적점"이라는 말이 서로 다른 좌표를 가리킨다.
+
+\begin{enumerate}[nosep]
+\item \textbf{실험 레퍼런스 재현}: Sim \textit{et al.}과 Lett 계열 문헌의 85Rb D1
+      double-$\Lambda$ FWM squeezing 동작점($T\sim120\degC$, pump detuning
+      $\sim+0.8\text{--}1.0\GHz$, IDS $-8\dB$대)을 GABES가 재현하는가?
+\item \textbf{현실적 최효율 전선}: 검출효율, optical loss, in-cell 손실을 포함했을 때,
+      최적에 거의 도달하면서 온도/이득/OD를 최소화하는 robust operating point는 어디인가?
+\item \textbf{이상 source-limit}: \texttt{QE=1}, \texttt{loss=0}으로 검출 floor를 제거하면,
+      Ultra 모형 자체가 허용하는 가장 깊은 세기차 스퀴징은 어디인가?
+\end{enumerate}
+
+v1은 첫 번째 이상화에서 전역 최대가 검출효율 floor로 collapse하는 문제를 보였다. v2는
+in-cell 손실을 넣어 두 번째 질문, 즉 \emph{최효율 전선}을 찾았다. v3는 세 번째 질문을 실제로
+실행하고, 그 결과가 문헌의 첫 번째 질문과 왜 달라지는지를 정리한다.
+
+%==================================================================
+\section{좌표계와 레퍼런스 설정}
+%==================================================================
+
+\subsection{GABES detuning convention}
+GABES의 seeded FWM convention은 다음과 같다.
+\begin{itemize}[nosep]
+\item $\Delta$: 펌프 one-photon detuning. 기준은 $^{85}$Rb D1의
+      $F=2\to F'=3$ 선이다.
+\item 즉 $\omega_{\mathrm{pump}}=\omega(F=2\to F'=3)+\Delta$.
+\item 표준 seeded FWM readout은 $(-)$ Raman branch이며, probe/seed는 대략
+      $\Delta-\nu_{\mathrm{HF}}$ 근처에서 스캔된다.
+\item 바닥 초미세 분리는 $\nu_{\mathrm{HF}}=3.035732439\GHz$이다.
+\end{itemize}
+
+따라서 이번 이상 스캔의 전역 최적 $\Delta=-2.10\GHz$는
+$F=2\to F'=3$ 기준으로는 red detuning이지만, $F=3\to F'=3$ 전이 기준으로는
+$-2.10+3.0357\simeq+0.936\GHz$ blue detuning이다. 이 숫자는 문헌의
+$+0.8\text{--}0.9\GHz$와 닮아 보이지만, 문헌에서 보통 인용되는 Sim 동작점은
+$F=2\to F'=3$ 기준 $+0.9\GHz$이므로 같은 물리 좌표라고 섣불리 동일시하면 안 된다.
+
+\subsection{고정 파라미터}
+스캔에서 $\Delta,T$를 제외한 seeded FWM 파라미터는 회귀 테스트의
+\texttt{CONFIGS['sim\_optimum']}과 동일하게 두었다.
+
+\begin{table}[h]
+\centering
+\caption{seeded 85Rb D1 FWM 레퍼런스 설정.}
+\label{tab:refparams}
+\begin{tabular}{lll}
+\toprule
+항목 & 값 & 비고\\
+\midrule
+$P_{\mathrm{pump}}$ & $600\,\mathrm{mW}$ & Sim 레퍼런스\\
+$P_{\mathrm{seed}}$ & $8\,\mu\mathrm{W}$ & Sim 레퍼런스\\
+line-strength residual & $0.74$ & 물리 결합정규화는 엔진 내부\\
+셀 길이 $L$ & $12.5\,\mathrm{mm}$ & GABES 상수\\
+빔 허리 $w_{\mathrm{pump}}/w_{\mathrm{seed}}$ & $530/330\,\mu\mathrm{m}$ & GABES 상수\\
+branch & $-1$ & standard seeded FWM branch\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+현실 조건 스캔은 $\mathrm{QE}=0.92$, post-cell optical loss $5.5\%$를 사용해
+$\eta=0.8694$이다. 이상 source-limit 스캔은 런타임에서 $\mathrm{QE}=1$,
+post-cell loss $0$으로 두었다. 이때 detection floor는 물리적으로 $-\infty$이며, 코드의
+guardrail 표시는 $-3000\dB$이다.
+
+%==================================================================
+\section{현실 손실 포함 Ultra 결과: 레퍼런스와 맞는가}
+%==================================================================
+
+\subsection{finite-loss Ultra frontier}
+v2의 Ultra 스캔은 $\Delta\in[-3.5,+3.0]\GHz$, $T\in[60,150]\degC$에서 수행되었다.
+그 결과는 그림~\ref{fig:frontier_v2}와 같다.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier.png}
+\caption{finite-loss Ultra 스캔(v2). 왼쪽: $\xi(\Delta,T)$ heatmap. 가운데:
+최적에 $0.1\dB$ 이내로 도달하는 최저 온도 전선. 오른쪽: 최효율 detuning에서의
+$\xi(T)$.}
+\label{fig:frontier_v2}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{finite-loss Ultra 스캔의 핵심 좌표.}
+\label{tab:v2summary}
+\begin{tabular}{lrrrrr}
+\toprule
+점 & $\Delta$ [GHz] & $T$ [$^\circ$C] & $\xi$ [dB] & $G_s$ & in-cell OD\\
+\midrule
+전역 최적 & $-2.2$ & $140$ & $-8.8406$ & $9.1\times10^3$ & $0.000$\\
+최효율점($0.1\dB$ 이내) & $-1.9$ & $120$ & $-8.7532$ & $32.5$ & $0.0026$\\
+Sim detuning readout & $+0.9$ & $120$ & $-7.8766$ & $12.1$ & $0.0336$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+여기서 중요한 것은 두 가지다. 첫째, 전역 최적은 detection floor
+$10\log_{10}(1-\eta)=-8.8406\dB$와 사실상 일치한다. 둘째, 실험적으로 더 의미 있는
+최효율점은 $T\approx120\degC$의 중간 이득 영역이다. 이 점은 최적보다 약 $0.09\dB$ 얕지만,
+이득과 OD가 훨씬 작아 excess noise에 더 강하다.
+
+\subsection{in-cell 손실이 만드는 내부 최적}
+그림~\ref{fig:od_v2}는 v2에서 새로 들어간 in-cell optical depth를 보여준다. 공명 근처에서는
+온도가 올라갈수록 gain도 증가하지만 OD도 함께 증가한다. 따라서 $\xi(T)$는 낮은 온도에서
+이득 부족, 높은 온도에서 손실 과다라는 두 제한의 경쟁으로 내부 최저점을 갖는다.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_od.png}
+\caption{v2의 in-cell OD 진단. 왼쪽: $\mathrm{OD}(\Delta,T)$ map. 오른쪽:
+대표 detuning들의 $\xi(T)$ slice. 공명 근처는 고온에서 손실 제한으로 되돌아오며,
+투명창 쪽은 floor에 접근한다.}
+\label{fig:od_v2}
+\end{figure}
+
+이 결과는 문헌과 방향이 같다. 85Rb D1 FWM에서 온도를 올리면 gain은 커지지만, 일정 지점
+이후에는 absorption, collision noise, pump scatter, imbalance leakage가 squeezing을 제한한다.
+따라서 "온도만 올리면 무한히 좋아진다"는 이전 toy 결론은 Ultra 모형에서는 사라진다.
+
+%==================================================================
+\section{이상 검출 한계 스캔: \texttt{QE=1}, \texttt{loss=0}}
+%==================================================================
+
+\subsection{실행 조건}
+v3에서 새로 실행한 스캔은 실험 권고점을 찾는 목적이 아니라, 검출 손실과 post-cell loss를
+완전히 제거했을 때 GABES Ultra 모형의 source-limit 최적점을 찾는 목적이다.
+
+\begin{table}[h]
+\centering
+\caption{v3 이상 source-limit 스캔 설정.}
+\label{tab:idealrun}
+\begin{tabular}{ll}
+\toprule
+항목 & 값\\
+\midrule
+fidelity & Ultra\\
+$\mathrm{QE}$, post-cell loss & $1.0$, $0$\\
+$\Delta$ 범위 & $[-6,+8]\GHz$, step $0.05\GHz$\\
+$T$ 범위 & $[50,220]\degC$, step $2.5\degC$\\
+$\delta$ scan window & $\pm1.0\GHz$\\
+coarse points & $201$\\
+velocity grid & $2.0\,\mathrm{m/s}$, cutoff $4\sigma$\\
+총 격자 & $281\times69=19389$ points\\
+실행 시간 & $13012\,\mathrm{s}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+고온/고이득 일부 외곽점에서 segment propagation의 overflow warning이 발생했지만,
+최종 저장 배열의 $\xi$, $G_s$, $G_c$에는 NaN/Inf가 없었다. 전체 중 $\delta$ window edge에
+걸린 점은 $5293$개였으나, 최적점은 edge-limited가 아니었다.
+
+\subsection{전역 최적 결과}
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_ideal_qe1.png}
+\caption{v3 이상 검출 한계 스캔. 왼쪽: $\xi(\Delta,T)$ heatmap과 작은 원으로 표시한
+전역 최적. 가운데: 각 $\Delta$에서 얻을 수 있는 최저 $\xi$와 그때의 온도. 오른쪽:
+최적 detuning $\Delta=-2.10\GHz$에서의 $\xi(T)$ slice. y축은 $0$에서 $-100\dB$로 제한했다.}
+\label{fig:ideal_qe1}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{v3 이상 source-limit 최적점.}
+\label{tab:idealopt}
+\begin{tabular}{lr}
+\toprule
+항목 & 값\\
+\midrule
+$\Delta$ & $-2.10\GHz$\\
+$T$ & $142.5\degC$\\
+$\delta$ & $-120\MHz$\\
+$\xi$ & $-81.9469\dB$\\
+$G_s$ & $12617.07$\\
+$G_c$ & $12615.04$\\
+in-cell OD & $0.000$\\
+edge-limited? & no\\
+최적 $0.01\dB$ 이내 점 수 & $1/19389$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+이 값은 문헌 실험에서 보이는 $-8$에서 $-9\dB$대와 전혀 다르다. 그러나 이는 불일치라기보다
+질문의 차이다. \texttt{QE=1}, \texttt{loss=0}에서는 detection floor가 사라지고, 스캔은
+기술잡음이 전혀 없는 순수 source model에서 거의 무손실인 투명창과 높은 균형 이득이 만나는
+점을 찾는다. 이 경우 $S_{\mathrm{ideal}}\sim 1/G^2$ scaling 때문에 $G\sim10^4$만 되어도
+$-80\dB$대가 수학적으로 가능하다.
+
+\subsection{왜 실험 최적점과 같지 않은가}
+문헌 실험 최적점은 단순히 가장 큰 intrinsic gain을 찾는 문제가 아니다. 실제 실험에서는
+다음 제한들이 동시에 작동한다.
+
+\begin{itemize}[nosep]
+\item detection efficiency와 optical loss가 $-8$에서 $-10\dB$대 floor를 만든다.
+\item pump scattering과 detector/electronic noise가 low-frequency IDS를 제한한다.
+\item seed가 완전한 shot-noise-limited coherent state가 아니면 seed excess noise가 증폭된다.
+\item gain이 너무 크면 anti-squeezed sum noise가 imbalance를 통해 difference channel로 샌다.
+\item 온도 상승은 collision dephasing, fluorescence, absorption, self-action을 키운다.
+\end{itemize}
+
+따라서 이번 $\Delta=-2.10\GHz$, $T=142.5\degC$ 좌표는 "실험 권고점"이 아니라
+\textbf{GABES Ultra 모형의 이상 source-limit 좌표}로 라벨링해야 한다. 실험 권고점은 여전히
+$T\sim120\degC$ 부근의 finite-loss frontier가 더 적절하다.
+
+%==================================================================
+\section{문헌 레퍼런스와의 비교}
+%==================================================================
+
+\subsection{85Rb D1 double-$\Lambda$ squeezing 최적점}
+직접적으로 비교 가능한 레퍼런스는 다음과 같다.
+
+\begin{table}[h]
+\centering
+\caption{문헌과 GABES 결과의 비교.}
+\label{tab:literature}
+\begin{tabular}{p{3.3cm}p{3.4cm}p{3.0cm}p{4.8cm}}
+\toprule
+출처 & 보고된 조건 & squeezing/gain & GABES와의 관계\\
+\midrule
+McCormick \textit{et al.} (2007) &
+hot Rb vapor FWM &
+$-3.5\dB$ measured, $-8.1\dB$ loss-corrected &
+초기 실험 기준. GABES finite-loss 결과의 크기($-8\dB$대)와 같은 scale.\\
+\addlinespace
+Pooser \textit{et al.} (2009) &
+85Rb D1, $\Delta\approx+0.8\GHz$ cut, 400 mW pump &
+$-8.0(2)\dB$; detection efficiency $\approx0.90$라 $-10\dB$ 상한 &
+finite-loss GABES가 $\eta$ floor에 의해 $-8$에서 $-10\dB$대로 제한되는 것과 일치.\\
+\addlinespace
+Sim \textit{et al.} (2025) &
+85Rb D1, $T=121\degC$, $\Delta\approx+0.9\GHz$, $\delta=-8\MHz$ &
+gain $\approx15$, IDS $-7.8\dB$, slope estimate $-8.7\dB$ &
+GABES Sim detuning readout $T=120\degC$에서 $\xi\approx-7.88\dB$로 잘 맞음.\\
+\addlinespace
+Allen \textit{et al.} (2026) &
+85Rb 12.5 mm cell, $T\sim118\degC$ near optimized detuning &
+long-term stable IDS $-7.8\dB$ &
+실험적으로 $T\sim118\text{--}121\degC$ 부근이 robust operating point임을 뒷받침.\\
+\addlinespace
+Jasperse \textit{et al.} (2011) &
+85Rb FWM with distributed gain/loss model &
+gain과 absorption 경쟁을 analytic model로 설명 &
+GABES Ultra의 in-cell loss 채널과 같은 물리 방향.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+문헌 전체의 메시지는 꽤 일관적이다. 85Rb D1 double-$\Lambda$ FWM에서 좋은 실험 squeezing은
+보통 $T\sim120\degC$, pump detuning $+0.8\text{--}1.0\GHz$ 부근, gain $10$에서 $20$ 사이,
+측정 IDS $-8\dB$ 전후에서 나온다. 또한 최고 gain tuning이 최고 squeezing tuning과 같지
+않고, loss와 absorption이 최적점을 결정한다.
+
+\subsection{일치하는 부분}
+GABES finite-loss Ultra 분석은 다음 점에서 문헌과 일치한다.
+
+\begin{enumerate}[nosep]
+\item \textbf{온도 scale}: Sim/Allen의 $118\text{--}121\degC$와 GABES 최효율점
+      $120\degC$가 일치한다.
+\item \textbf{squeezing scale}: Sim의 $-7.8\dB$와 GABES의 Sim detuning readout
+      $-7.8766\dB$가 거의 같은 크기다.
+\item \textbf{gain scale}: Sim의 gain $\approx15$와 GABES Sim detuning readout의
+      $G_s\approx12$가 같은 order이다.
+\item \textbf{손실 제한}: Pooser와 Jasperse가 강조한 detection/intrinsic loss 제한이
+      GABES의 $\eta$ floor 및 in-cell OD penalty와 같은 방향이다.
+\end{enumerate}
+
+\subsection{일치하지 않는 부분과 이유}
+v3의 ideal source-limit 최적점은 문헌의 실험 최적점과 일치하지 않는다.
+
+\begin{equation}
+\text{문헌 실험 최적: } \Delta\approx+0.8\text{--}+0.9\GHz,\ T\approx120\degC,\ \xi\sim-8\dB
+\end{equation}
+\begin{equation}
+\text{GABES 이상 최적: } \Delta=-2.10\GHz,\ T=142.5\degC,\ \xi=-81.95\dB
+\end{equation}
+
+이 차이는 세 가지 이유로 자연스럽다.
+
+\begin{enumerate}[nosep]
+\item \textbf{목적함수 차이}: 문헌은 실제 balanced detector에서 관측되는 IDS를 최적화한다.
+      v3 ideal scan은 검출 손실과 기술잡음을 제거한 intrinsic source squeezing을 최적화한다.
+\item \textbf{좌표계 차이}: $\Delta=-2.10\GHz$는 $F=2\to F'=3$ 기준으로는 red detuning이지만,
+      $F=3\to F'=3$ 기준으로는 약 $+0.936\GHz$ blue detuning이다. 숫자만 보고 Sim의
+      $+0.9\GHz$와 같은 점으로 해석하면 안 된다.
+\item \textbf{calibration domain}: line-strength residual $0.74$는 Sim 레퍼런스 주변에서
+      anchor된 값이다. $-2.10\GHz$ 투명창의 초고이득 source-limit를 정량 실험 예측으로 쓰려면
+      그 영역의 별도 calibration과 full noise model이 필요하다.
+\end{enumerate}
+
+따라서 v3 ideal result는 \emph{모형 내부에서 손실 제한이 제거되면 어디까지 갈 수 있는가}에
+대한 답이고, 문헌 검증은 finite-loss Ultra 결과로 해야 한다.
+
+%==================================================================
+\section{물리적 해석}
+%==================================================================
+
+\subsection{왜 finite-loss에서는 frontier가 중요해지는가}
+유한 검출효율에서는
+\begin{equation}
+S(\eta)=\eta S_{\mathrm{cell}}+(1-\eta)
+\end{equation}
+이므로 $S_{\mathrm{ideal}}$을 아무리 줄여도 $1-\eta$ 아래로 갈 수 없다. 예를 들어
+$\eta=0.8694$이면 floor는 $-8.8406\dB$이다. 이때 $G_s\gtrsim30$이면 이미 floor에
+거의 도달하므로, 더 큰 이득은 실험적으로는 이득보다 비용이 크다. 더 큰 $G$는 pump scatter,
+anti-squeezed sum noise leakage, thermal/collisional noise를 키운다. 그러므로 실험 권고점은
+"가장 깊은 점"이 아니라 "floor에 거의 도달하는 가장 낮은 온도와 작은 OD의 점"이다.
+
+\subsection{왜 ideal scan에서는 $-80\dB$가 나오는가}
+loss-free balanced twin beam에서 $G_c\simeq G_s-1$이면
+\begin{equation}
+S_{\mathrm{ideal}}\approx\frac{5}{8G_s^2}.
+\end{equation}
+v3 optimum의 $G_s\simeq12617$을 대입하면
+\begin{equation}
+10\log_{10}\left(\frac{5}{8G_s^2}\right)\approx -84\dB
+\end{equation}
+scale이 된다. 실제 GABES 값 $-81.95\dB$는 gain imbalance와 full propagation details를
+포함한 같은 order의 값이다. 즉 $-81.95\dB$는 숫자상 기괴해 보이지만, \texttt{QE=1},
+technical noise $=0$이라는 이상 조건에서는 수식상 이상하지 않다.
+
+\subsection{실험 안티스퀴징은 손실만으로 설명되지 않는다}
+손실은 squeezed difference noise를 shot noise 쪽으로 되돌릴 뿐 $0\dB$ 위로 올리지 못한다.
+따라서 실험에서 difference channel이 양의 dB로 올라가거나, predicted loss floor보다 훨씬
+얕다면 원인은 pure loss가 아니라 excess noise이다. 가장 위험한 항은 큰 이득에서 커지는
+anti-squeezed sum noise가 imbalance를 통해 difference readout으로 새는 경로다. 이 때문에
+문헌의 $T\sim120\degC$ 동작점은 단순히 "조금 덜 깊은 점"이 아니라 실제 장치에서는
+가장 안정한 선택이다.
+
+%==================================================================
+\section{결론}
+%==================================================================
+
+\begin{enumerate}[nosep]
+\item \textbf{레퍼런스 일치 여부}: finite-loss Ultra GABES 결과는 85Rb D1 double-$\Lambda$
+      FWM squeezing 문헌과 잘 맞는다. Sim detuning readout의 $\xi\approx-7.88\dB$는
+      Sim \textit{et al.}의 $-7.8\dB$와 직접 비교 가능한 수준이다.
+\item \textbf{in-cell 손실의 역할}: v2 이후 모형에서는 온도를 올린다고 스퀴징이 무한정
+      좋아지지 않는다. OD가 커지는 detuning에서는 $\xi(T)$가 내부 최저점을 갖고 이후
+      악화된다.
+\item \textbf{실험 권고점}: 현실 조건에서는 $\Delta\approx-1.9\GHz$, $T\approx120\degC$의
+      finite-loss frontier가 가장 실용적이다. Sim의 $+0.9\GHz$ 동작점도 같은 dB scale에서
+      레퍼런스를 잘 재현한다.
+\item \textbf{이상 source-limit}: \texttt{QE=1}, \texttt{loss=0} wide-dense Ultra 스캔의 전역
+      최적은 $\Delta=-2.10\GHz$, $T=142.5\degC$, $\xi=-81.95\dB$이다. 이는 실험 권고점이
+      아니라 model-internal theoretical source-limit이다.
+\item \textbf{해석 원칙}: 앞으로 보고서나 UI에 두 값을 함께 제시할 때는
+      \emph{reference-calibrated experimental operating point}와
+      \emph{ideal source-limit optimum}을 명확히 분리해야 한다.
+\end{enumerate}
+
+\noindent\textbf{한 줄 요약.} \emph{GABES는 문헌의 85Rb D1 FWM squeezing 동작점을 현실 손실
+조건에서 잘 재현한다. 이번 $-81.95\dB$ 결과는 문헌과 충돌하는 실험 예측이 아니라,
+손실과 검출 floor를 제거했을 때 Ultra 모형이 보여주는 별도의 이상 source-limit이다.}
+
+\appendix
+%==================================================================
+\section{수치 재현 정보}
+%==================================================================
+
+\begin{itemize}[nosep]
+\item finite-loss v2 산출물:
+      \texttt{analysis/squeezing\_frontier.npz},
+      \texttt{docs/squeezing\_report/squeezing\_frontier.png},
+      \texttt{docs/squeezing\_report/squeezing\_frontier\_od.png}.
+\item ideal v3 산출물:
+      \texttt{analysis/squeezing\_frontier\_ultra\_ideal\_qe1\_wide\_dense/}
+      \texttt{squeezing\_frontier.npz}.
+\item ideal v3 그림:
+      \texttt{docs/squeezing\_report/squeezing\_frontier\_ideal\_qe1.png}.
+\item ideal v3 finite check: $\xi$, $G_s$, $G_c$ NaN/Inf $0$개. edge-limited point
+      $5293/19389$, optimum은 edge-limited 아님.
+\item ideal v3 warning: 고온/고이득 일부 외곽점에서 matrix propagation overflow warning이
+      발생했으나, 최종 저장 배열은 finite이고 optimum은 warning 외곽영역이 아니다.
+\end{itemize}
+
+%==================================================================
+\section{참고문헌}
+%==================================================================
+
+\begin{enumerate}[label={[\arabic*]},leftmargin=*]
+\item G. Sim, H. Kim, H. S. Moon, ``Intensity-difference squeezing from four-wave mixing
+      in hot $^{85}$Rb and $^{87}$Rb atoms in single diode laser pumping system,''
+      \textit{Scientific Reports} \textbf{15}, 7727 (2025).
+      \url{https://www.nature.com/articles/s41598-025-86479-w}
+\item C. F. McCormick, V. Boyer, E. Arimondo, P. D. Lett,
+      ``Strong relative intensity squeezing by four-wave mixing in rubidium vapor,''
+      \textit{Optics Letters} \textbf{32}, 178--180 (2007).
+      \url{https://doi.org/10.1364/OL.32.000178}
+\item R. C. Pooser, A. M. Marino, V. Boyer, K. M. Jones, P. D. Lett,
+      ``Quantum correlated light beams from non-degenerate four-wave mixing in an atomic vapor:
+      the D1 and D2 lines of $^{85}$Rb and $^{87}$Rb,''
+      \textit{Optics Express} \textbf{17}, 16722--16730 (2009).
+      \url{https://doi.org/10.1364/OE.17.016722}
+\item M. Jasperse, L. D. Turner, R. E. Scholten,
+      ``Relative intensity squeezing by four-wave mixing with loss: an analytic model and
+      experimental diagnostic,'' \textit{Optics Express} \textbf{19}, 3765--3774 (2011).
+      \url{https://arxiv.org/abs/1012.3482}
+\item C. H. Allen, M. San Soucie, R. J. Benson, O.-M. Glezakou-Elbert, R. Jimenez,
+      J. Morrell-Falvey, Y.-Z. Ma,
+      ``Long-term stabilization of intensity-difference squeezing from four-wave mixing in
+      rubidium vapor,'' \textit{Optics Express} \textbf{34}, 19382--19399 (2026).
+      \url{https://doi.org/10.1364/OE.600911}
+\end{enumerate}
+
+\end{document}
