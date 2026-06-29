@@ -129,6 +129,7 @@ class MagnetoScheme(Scheme):
     presets_group = "Default"
     cache_version = "polarized-two-region-v3"
     defaults_version = "polarized-two-region-v4"
+    supports_headless_observables = True
 
     _REGIME_EMOJI = {
         "EIT dip": "🕳️",
@@ -604,16 +605,19 @@ class MagnetoScheme(Scheme):
                   + np.conj(drive.get(-1, 0.0)) * m) / Om
         return cp, cm, cprobe
 
-    def observables(self, raw, params):
-        import matplotlib.pyplot as plt
+    def observables(self, raw, params, include_figures=True):
 
         if not raw["valid"]:
-            fig, ax = plt.subplots(figsize=(8.5, 3.0))
-            ax.text(0.5, 0.5,
-                    f"87Rb D1 F_g={raw['Fg']}, F'_e={raw['Fe']} is not allowed "
-                    f"for this compact Zeeman model.",
-                    ha="center", va="center", wrap=True)
-            ax.axis("off")
+            fig = None
+            if include_figures:
+                import matplotlib.pyplot as plt
+
+                fig, ax = plt.subplots(figsize=(8.5, 3.0))
+                ax.text(0.5, 0.5,
+                        f"87Rb D1 F_g={raw['Fg']}, F'_e={raw['Fe']} is not allowed "
+                        f"for this compact Zeeman model.",
+                        ha="center", va="center", wrap=True)
+                ax.axis("off")
             return dict(metrics=[dict(label="Status", value="invalid transition")],
                         figure=fig, tables=[])
 
@@ -645,15 +649,8 @@ class MagnetoScheme(Scheme):
 
         title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
                  f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
+        fig = None
         if params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR:
-            fig, ax = plt.subplots(figsize=(8.5, 4.6))
-            ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
-            ax.axhline(0, color="black", lw=0.6)
-            ax.axvline(0, color="gray", ls=":", lw=0.8)
-            ax.set_ylabel("Polarization rotation  [mrad]")
-            ax.set_xlabel("Magnetic field B  [µT]")
-            ax.set_title(title)
-            fig.tight_layout()
             slope = np.gradient(rotation, x)[ic]
             metrics = [
                 dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
@@ -661,14 +658,18 @@ class MagnetoScheme(Scheme):
                 dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad"),
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
+            if include_figures:
+                import matplotlib.pyplot as plt
+
+                fig, ax = plt.subplots(figsize=(8.5, 4.6))
+                ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
+                ax.axhline(0, color="black", lw=0.6)
+                ax.axvline(0, color="gray", ls=":", lw=0.8)
+                ax.set_ylabel("Polarization rotation  [mrad]")
+                ax.set_xlabel("Magnetic field B  [µT]")
+                ax.set_title(title)
+                fig.tight_layout()
         else:
-            fig, axT = plt.subplots(figsize=(8.5, 4.6))
-            axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-            axT.axvline(0, color="gray", ls=":", lw=0.8)
-            axT.set_ylabel("Transmission")
-            axT.set_xlabel("Magnetic field B  [µT]")
-            axT.set_title(title)
-            fig.tight_layout()
             metrics = [
                 dict(label="Transmission at B=0", value=f"{T_trans[ic]:.3f}"),
                 dict(label="Zero-field feature", value=feature),
@@ -677,6 +678,16 @@ class MagnetoScheme(Scheme):
             ]
             note = ("Transmission readout: feature sign is classified from absorption "
                     "at B=0 relative to the scan wings.")
+            if include_figures:
+                import matplotlib.pyplot as plt
+
+                fig, axT = plt.subplots(figsize=(8.5, 4.6))
+                axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+                axT.axvline(0, color="gray", ls=":", lw=0.8)
+                axT.set_ylabel("Transmission")
+                axT.set_xlabel("Magnetic field B  [µT]")
+                axT.set_title(title)
+                fig.tight_layout()
 
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
@@ -704,3 +715,6 @@ class MagnetoScheme(Scheme):
             {"title": "Notes", "markdown": note},
             derived,
         ])
+
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)

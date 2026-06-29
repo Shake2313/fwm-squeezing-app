@@ -239,6 +239,52 @@ def test_biphoton_ui_render_modes():
         assert view.get("metrics")
 
 
+def test_fwm_headless_observables_skip_figure_generation():
+    import matplotlib.pyplot as plt
+
+    scheme = fwm.FWMScheme()
+    assert scheme.supports_headless_observables is True
+
+    seeded_params = scheme.defaults()
+    seeded_params["resolution"] = "Fast  (~3 s)"
+    seeded_raw = scheme.compute(seeded_params)
+    biphoton_params = _recommended_params(
+        topology=fwm.TOPOLOGY_RB87_TELECOM,
+        biphoton_model=fwm.BIPHOTON_CALIBRATED,
+        phase_detail="Fine",
+    )
+    biphoton_raw = scheme.compute(biphoton_params)
+    assert biphoton_raw["phase_matching_2d"] is not None
+
+    original_subplots = plt.subplots
+
+    def _fail_subplots(*_args, **_kwargs):
+        raise AssertionError("headless observables must not build figures")
+
+    try:
+        plt.subplots = _fail_subplots
+        for raw, params in (
+            (seeded_raw, seeded_params),
+            (biphoton_raw, biphoton_params),
+        ):
+            view = scheme.headless_observables(raw, params)
+            direct = scheme.observables(raw, params, include_figures=False)
+            assert view.get("figure") is None
+            assert not view.get("figures", [])
+            assert direct.get("figure") is None
+            assert not direct.get("figures", [])
+            assert view.get("metrics")
+            assert view.get("tables")
+            assert [m["label"] for m in view["metrics"]] == [
+                m["label"] for m in direct["metrics"]
+            ]
+            assert [t["title"] for t in view["tables"]] == [
+                t["title"] for t in direct["tables"]
+            ]
+    finally:
+        plt.subplots = original_subplots
+
+
 def test_biphoton_basic_ui_keeps_only_lab_controls():
     scheme = fwm.FWMScheme()
     specs = scheme.param_schema()
@@ -450,6 +496,7 @@ if __name__ == "__main__":
     test_rb87_telecom_preset_smoke()
     test_cs_btw_channels_have_different_widths()
     test_biphoton_ui_render_modes()
+    test_fwm_headless_observables_skip_figure_generation()
     test_squeezing_hides_twin_beam_coincidence_figure()
     test_seeded_phase_detail_modes_are_gated_by_resolution()
     test_fidelity_alias_and_ultra_tiny_grid()

@@ -210,6 +210,7 @@ class ODScheme(Scheme):
     name = "od"
     cluster = "A — Absorption"
     title = "Optical absorption (OD)"
+    supports_headless_observables = True
     caption = ("Weak-probe absorption. The full 85Rb D1 four-line hyperfine "
                "spectrum (validated against the lab AutoOD calculator), or a single "
                "bare 2-level Voigt. Doppler-broadened in a warm vapor; natural-"
@@ -269,30 +270,34 @@ class ODScheme(Scheme):
                     components={f"{Fg}-{Fe}": v for (Fg, Fe), v in components.items()},
                     L=params.get("cell_mm", 10.0) * 1e-3, T=T, **info)
 
-    def _observables_hyperfine(self, raw, params):
-        import matplotlib.pyplot as plt
+    def _observables_hyperfine(self, raw, params, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                      # GHz
         alpha = raw["alpha"]
         L = params["cell_mm"] * 1e-3            # navigate-only knob: read live
         OD = observables.optical_density(alpha, L)
         T_trans = observables.transmission(alpha, L)
 
-        fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
-        axT.set_ylabel("Transmission")
-        axT.set_ylim(-0.02, 1.04)
-        axT.set_title(f"85Rb D1 hyperfine:  T = {params['temp_c']:.0f} °C,  "
-                      f"L = {params['cell_mm']:.1f} mm,  Doppler {params['doppler']}")
-        axOD.plot(x, OD, color="#d62728", lw=1.6)
-        axOD.set_ylabel("Optical density  (−log₁₀T)")
-        axOD.set_xlabel("Detuning  [GHz]  (ref: 87Rb F=2→F′=2)")
-        for (Fg, Fe), sh in hyperfine.LINE_SHIFT_HZ.items():
-            for a in (axT, axOD):
-                a.axvline(sh / 1e9, color="gray", ls=":", lw=0.7)
-            axOD.annotate(f"{Fg}→{Fe}′", (sh / 1e9, 0), xytext=(0, 2),
-                          textcoords="offset points", ha="center", va="bottom",
-                          fontsize=7, color="gray")
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
+            axT.set_ylabel("Transmission")
+            axT.set_ylim(-0.02, 1.04)
+            axT.set_title(f"85Rb D1 hyperfine:  T = {params['temp_c']:.0f} °C,  "
+                          f"L = {params['cell_mm']:.1f} mm,  "
+                          f"Doppler {params['doppler']}")
+            axOD.plot(x, OD, color="#d62728", lw=1.6)
+            axOD.set_ylabel("Optical density  (−log₁₀T)")
+            axOD.set_xlabel("Detuning  [GHz]  (ref: 87Rb F=2→F′=2)")
+            for (Fg, Fe), sh in hyperfine.LINE_SHIFT_HZ.items():
+                for a in (axT, axOD):
+                    a.axvline(sh / 1e9, color="gray", ls=":", lw=0.7)
+                axOD.annotate(f"{Fg}→{Fe}′", (sh / 1e9, 0), xytext=(0, 2),
+                              textcoords="offset points", ha="center", va="bottom",
+                              fontsize=7, color="gray")
+            fig.tight_layout()
 
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         self_gamma = raw["gamma_eff"] - GAMMA - raw.get("buffer_gamma", 0.0)
@@ -348,8 +353,7 @@ class ODScheme(Scheme):
                     sigma_v=sigma_v, dopp_fwhm=dopp_fwhm,
                     gamma_eff=gamma_eff, buffer_gamma=buffer_gamma)
 
-    def _observables_single(self, raw, params):
-        import matplotlib.pyplot as plt
+    def _observables_single(self, raw, params, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, _ = observables.absorption_coefficient(
             raw["chi_bar"], K_VEC, raw["N"], line_strength=raw["ls"])
@@ -357,18 +361,23 @@ class ODScheme(Scheme):
         OD = observables.optical_density(alpha, L)
         T_trans = observables.transmission(alpha, L)
 
-        fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-        axT.set_ylabel("Transmission")
-        axT.set_ylim(-0.02, 1.02)
-        axT.set_title(f"Single 2-level:  T = {params['temp_c']:.0f} °C,  "
-                      f"L = {params['cell_mm']:.0f} mm,  Doppler {params['doppler']}")
-        axOD.plot(x, OD, color="#d62728", lw=1.8)
-        axOD.set_ylabel("Optical density  (−log₁₀T)")
-        axOD.set_xlabel("Probe detuning  [MHz]")
-        for a in (axT, axOD):
-            a.axvline(0, color="gray", ls=":", lw=0.8)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axT, axOD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+            axT.set_ylabel("Transmission")
+            axT.set_ylim(-0.02, 1.02)
+            axT.set_title(f"Single 2-level:  T = {params['temp_c']:.0f} °C,  "
+                          f"L = {params['cell_mm']:.0f} mm,  "
+                          f"Doppler {params['doppler']}")
+            axOD.plot(x, OD, color="#d62728", lw=1.8)
+            axOD.set_ylabel("Optical density  (−log₁₀T)")
+            axOD.set_xlabel("Probe detuning  [MHz]")
+            for a in (axT, axOD):
+                a.axvline(0, color="gray", ls=":", lw=0.8)
+            fig.tight_layout()
 
         fwhm_mhz = fwhm_halfmax(x, OD)
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
@@ -395,10 +404,15 @@ class ODScheme(Scheme):
             return self._compute_single(params)
         return self._compute_hyperfine(params)
 
-    def observables(self, raw, params):
+    def observables(self, raw, params, include_figures=True):
         if raw.get("model") == "single":
-            return self._observables_single(raw, params)
-        return self._observables_hyperfine(raw, params)
+            return self._observables_single(
+                raw, params, include_figures=include_figures)
+        return self._observables_hyperfine(
+            raw, params, include_figures=include_figures)
+
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)
 
 
 LAMBDA_GENERIC = "Generic"
@@ -452,6 +466,7 @@ class LambdaScheme(Scheme):
     cluster = "A — Absorption"
     cache_version = "physical-units-v3"
     defaults_version = "physical-units-v3"
+    supports_headless_observables = True
 
     _TITLE = {
         "eit": "Electromagnetically induced transparency (EIT)",
@@ -636,8 +651,7 @@ class LambdaScheme(Scheme):
                     coupling_diameter_mm=float(params.get(
                         "coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM)))
 
-    def observables(self, raw, params):
-        import matplotlib.pyplot as plt
+    def observables(self, raw, params, include_figures=True):
         m = self._mode(params)
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, xphys = observables.absorption_coefficient(
@@ -647,22 +661,26 @@ class LambdaScheme(Scheme):
         T_trans = observables.transmission(alpha, L)
         center = raw["Dc"] / (2 * np.pi) / 1e6                   # two-photon resonance, MHz
 
-        fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-        axT.set_ylabel("Transmission")
-        axT.set_ylim(-0.02, 1.02)
-        axT.set_title(
-            f"{self._TITLE[m].split('(')[0].strip()}: "
-            f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}, "
-            f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-            f"buffer relax = {raw['buffer_ground_relax_khz']:.1f} kHz, "
-            f"Doppler {params.get('doppler', 'off')}")
-        axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
-        axD.set_ylabel("Re chi  (dispersion)")
-        axD.set_xlabel("Probe detuning  [MHz]")
-        for a in (axT, axD):
-            a.axvline(center, color="gray", ls=":", lw=0.8)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+            axT.set_ylabel("Transmission")
+            axT.set_ylim(-0.02, 1.02)
+            axT.set_title(
+                f"{self._TITLE[m].split('(')[0].strip()}: "
+                f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}, "
+                f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
+                f"buffer relax = {raw['buffer_ground_relax_khz']:.1f} kHz, "
+                f"Doppler {params.get('doppler', 'off')}")
+            axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
+            axD.set_ylabel("Re chi  (dispersion)")
+            axD.set_xlabel("Probe detuning  [MHz]")
+            for a in (axT, axD):
+                a.axvline(center, color="gray", ls=":", lw=0.8)
+            fig.tight_layout()
 
         ic = int(np.argmin(np.abs(x - center)))
         metrics = self._metrics(m, x, alpha, T_trans, xphys, ic, center, raw, params)
@@ -676,6 +694,9 @@ class LambdaScheme(Scheme):
             ("N", f"{raw['N']:.3e} /m³"),
         ])
         return dict(metrics=metrics, figure=fig, tables=[derived])
+
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":

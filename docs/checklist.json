@@ -28,8 +28,8 @@
       "id": "figureless-observables-paths",
       "area": "schemes/* + streamlit_app.py",
       "title": "Split metric/table readout from Matplotlib figure generation across schemes",
-      "why": "GROUP B. Safe but touches several schemes. Daily reports repeatedly found observables() plotting dominates interactive/batch cost (SAS, Lambda, Magneto, FWM, Rydberg). Add public/headless metric/table paths or lazy figure rendering so tests, batch sweeps, and reports can skip Matplotlib while preserving existing UI figures.",
-      "status": "deferred"
+      "why": "DONE for the current scheme API. Scheme.headless_observables now provides the public hook, and all current user-facing schemes (OD/SAS, Lambda, Rydberg-EIT, Magneto, FWM) plus the internal OD validation primitive implement include_figures=False so metrics/tables can skip Matplotlib while preserving the existing UI figure path. tests/test_headless_observables.py proves the headless path does not call plt.subplots; tests/test_schemes_render.py still proves normal figure rendering. No existing non-UI batch/report callsite needed rewiring; future batch/report callers should use headless_observables.",
+      "status": "done"
     },
     {
       "id": "magneto-buffer-relaxation-map",

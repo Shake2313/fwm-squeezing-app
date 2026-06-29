@@ -15,6 +15,8 @@ Contract
   observables(raw, params) -> dict           cheap; uses all knobs (incl. navigate)
                                              -> {"metrics":[...], "figure":fig,
                                                  "tables":[...]}.
+  headless_observables(raw, params) -> dict  optional metric/table path that can
+                                             skip figure generation when supported.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -75,6 +77,7 @@ class Scheme(ABC):
     # readout) reuses the built figure instead of rebuilding it. Observables are
     # pure and their return (metrics / figure / tables) is picklable.
     cache_observables: bool = True
+    supports_headless_observables: bool = False
 
     @abstractmethod
     def param_schema(self) -> list:
@@ -102,6 +105,14 @@ class Scheme(ABC):
     @abstractmethod
     def observables(self, raw: dict, params: dict) -> dict:
         ...
+
+    def headless_observables(self, raw: dict, params: dict) -> dict:
+        """Metric/table readout without figures when a scheme implements it.
+
+        The default preserves the old contract for schemes that have not been
+        split yet; pilots can override this to skip Matplotlib entirely.
+        """
+        return self.observables(raw, params)
 
     # ---- helpers shared by the UI ----
     def recompute_keys(self):

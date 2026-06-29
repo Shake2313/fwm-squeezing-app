@@ -56,6 +56,7 @@ class SASScheme(Scheme):
     title = "Absorption spectroscopy (OD / SAS)"
     cache_version = "2"            # merged model: bust the old SAS compute cache
     defaults_version = "2"         # new param schema: reseed sidebar defaults
+    supports_headless_observables = True
     caption = ("Weak-probe absorption with a counter-propagating pump. Pump off → "
                "linear Doppler-broadened OD (validated 85Rb D1 hyperfine scale); "
                "pump on → Doppler-free saturated-absorption Lamb dips and crossovers "
@@ -314,15 +315,19 @@ class SASScheme(Scheme):
     # =================================================================
     # observables  (dispatch)
     # =================================================================
-    def observables(self, raw, params):
+    def observables(self, raw, params, include_figures=True):
         L = params["cell_mm"] * 1e-3
         alpha = raw["alpha_unit"] * params["line_strength"]
         if raw["mode"] == "species":
-            return self._obs_species(raw, params, alpha, L)
-        return self._obs_generic(raw, params, alpha, L)
+            return self._obs_species(
+                raw, params, alpha, L, include_figures=include_figures)
+        return self._obs_generic(
+            raw, params, alpha, L, include_figures=include_figures)
 
-    def _obs_species(self, raw, params, alpha, L):
-        import matplotlib.pyplot as plt
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)
+
+    def _obs_species(self, raw, params, alpha, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                  # GHz (relative)
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
@@ -331,18 +336,23 @@ class SASScheme(Scheme):
         pump = params["pump_power_mw"]
         regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
 
-        fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        axT.plot(x, T_trans, color="#1f77b4", lw=1.3)
-        axT.set_ylabel("Transmission")
-        axT.set_title(f"{raw['species']} {raw['line']} — {regime}:  "
-                      f"T = {params['temp_c']:.0f} °C, L = {params['cell_mm']:.0f} mm")
-        axA.plot(x, OD, color="#d62728", lw=1.3)
-        axA.set_ylabel("Optical density")
-        axA.set_xlabel("Relative frequency  [GHz]  (ref: line centroid)")
-        for gx, _lbl in raw["markers"]:
-            for ax in (axT, axA):
-                ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.3)
+            axT.set_ylabel("Transmission")
+            axT.set_title(f"{raw['species']} {raw['line']} — {regime}:  "
+                          f"T = {params['temp_c']:.0f} °C, "
+                          f"L = {params['cell_mm']:.0f} mm")
+            axA.plot(x, OD, color="#d62728", lw=1.3)
+            axA.set_ylabel("Optical density")
+            axA.set_xlabel("Relative frequency  [GHz]  (ref: line centroid)")
+            for gx, _lbl in raw["markers"]:
+                for ax in (axT, axA):
+                    ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
+            fig.tight_layout()
 
         sub_fwhm, sub_at = narrowest_subdoppler(x, T_trans)
         if pump <= 0:                                        # OD limit: no holes burned
@@ -364,28 +374,31 @@ class SASScheme(Scheme):
         return dict(metrics=metrics, figure=fig,
                     tables=[{"title": "Hyperfine lines", "markdown": table}])
 
-    def _obs_generic(self, raw, params, alpha, L):
-        import matplotlib.pyplot as plt
+    def _obs_generic(self, raw, params, alpha, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                  # MHz
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
         offs_mhz = raw["offsets"] / (2 * np.pi) / 1e6
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
 
-        fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
-        axT.set_ylabel("Transmission")
-        axT.set_title(f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
-                      f"T = {params['temp_c']:.0f} °C")
-        axA.plot(x, OD, color="#d62728", lw=1.6)
-        axA.set_ylabel("Optical density")
-        axA.set_xlabel("Probe detuning  [MHz]")
-        for ax in (axT, axA):
-            for off in offs_mhz:
-                ax.axvline(off, color="gray", ls=":", lw=0.7)
-            if raw["two"]:
-                ax.axvline(0.0, color="green", ls=":", lw=0.7)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
+            axT.set_ylabel("Transmission")
+            axT.set_title(f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
+                          f"T = {params['temp_c']:.0f} °C")
+            axA.plot(x, OD, color="#d62728", lw=1.6)
+            axA.set_ylabel("Optical density")
+            axA.set_xlabel("Probe detuning  [MHz]")
+            for ax in (axT, axA):
+                for off in offs_mhz:
+                    ax.axvline(off, color="gray", ls=":", lw=0.7)
+                if raw["two"]:
+                    ax.axvline(0.0, color="green", ls=":", lw=0.7)
+            fig.tight_layout()
 
         ic = int(np.argmin(np.abs(x - offs_mhz[0])))
         sub_fwhm = window_fwhm(x, T_trans, ic)

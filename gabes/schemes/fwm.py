@@ -1556,6 +1556,7 @@ class FWMScheme(Scheme):
     cache_version = "biphoton-slim-ui-v1"
     defaults_version = "biphoton-slim-ui-defaults-v1"
     cache_observables = True
+    supports_headless_observables = True
     caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
                "Biphoton shows generic SFWM source estimates for cascade and "
                "diamond topologies.")
@@ -1885,39 +1886,47 @@ class FWMScheme(Scheme):
             branch=DEFAULT_BRANCH,
         )
 
-    def observables(self, raw, params):
+    def observables(self, raw, params, include_figures=True):
         if raw.get("kind") == "biphoton":
             params = self._biphoton_runtime_params(params)
-            return self._biphoton_observables(raw, params)
-        return self._seeded_observables(raw, params)
+            return self._biphoton_observables(
+                raw, params, include_figures=include_figures)
+        return self._seeded_observables(
+            raw, params, include_figures=include_figures)
 
-    def _seeded_observables(self, raw, params):
-        import matplotlib.pyplot as plt
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)
 
+    def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
         op = operating_point(raw, tpd, branch=-1)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
 
-        fig, (axG, axS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-        for ax in (axG, axS):
-            ax.grid(alpha=0.3)
-        axG.plot(d_axis, raw["G_s"], color="#1f77b4", lw=1.8)
-        axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
-        axG.axhline(1.0, color="black", lw=0.6)
-        axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
-        axG.set_ylabel("Seed / probe gain G_s")
-        axG.set_title(f"Delta = {params['opd']:.1f} GHz,  T = {params['temp_c']:.0f} C,  "
-                      f"eta = {raw['eta']:.3f}")
-        if np.nanmax(raw["G_s"]) > 50:
-            axG.set_yscale("log")
-        axS.plot(d_axis, raw["S_dB"], color="#2ca02c", lw=1.8)
-        axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
-        axS.axhline(0.0, color="black", lw=0.6)
-        axS.scatter([tpd], [op["S_dB"]], color="crimson", zorder=5)
-        axS.set_ylabel("Intensity-difference\nsqueezing  [dB]")
-        axS.set_xlabel("Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
-        axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            fig, (axG, axS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
+            for ax in (axG, axS):
+                ax.grid(alpha=0.3)
+            axG.plot(d_axis, raw["G_s"], color="#1f77b4", lw=1.8)
+            axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
+            axG.axhline(1.0, color="black", lw=0.6)
+            axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
+            axG.set_ylabel("Seed / probe gain G_s")
+            axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
+                          f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f}")
+            if np.nanmax(raw["G_s"]) > 50:
+                axG.set_yscale("log")
+            axS.plot(d_axis, raw["S_dB"], color="#2ca02c", lw=1.8)
+            axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
+            axS.axhline(0.0, color="black", lw=0.6)
+            axS.scatter([tpd], [op["S_dB"]], color="crimson", zorder=5)
+            axS.set_ylabel("Intensity-difference\nsqueezing  [dB]")
+            axS.set_xlabel(
+                "Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
+            axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
+            fig.tight_layout()
 
         metrics = [
             dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
@@ -1991,9 +2000,7 @@ class FWMScheme(Scheme):
             ],
         }
 
-    def _biphoton_observables(self, raw, params):
-        import matplotlib.pyplot as plt
-
+    def _biphoton_observables(self, raw, params, include_figures=True):
         topo = raw["topology"]
         predictive = raw.get("predictive", False)
         velocity_converged = raw.get("velocity_converged", True)
@@ -2013,57 +2020,65 @@ class FWMScheme(Scheme):
             target_g2_peak=None if predictive else topo.target_g2_peak,
         )
 
-        fig, (axG2, axPM) = plt.subplots(2, 1, figsize=(8.5, 6.4))
-        axG2.plot(stats["tau_axis_ns"], stats["g2_SI_tau"], color="#1f77b4", lw=1.8)
-        axG2.axhline(2.0, color="black", lw=0.7, ls=":")
-        axG2.set_ylabel(r"$g^{(2)}_{SI}(\tau)$")
-        title_tag = ("predictive (waveform + anchored rate)" if predictive
-                     else "calibrated spontaneous SFWM estimate")
-        axG2.set_title(f"{topo.label}: {title_tag}")
-        axG2.grid(alpha=0.3)
+        fig = None
+        extra_figures = []
+        if include_figures:
+            import matplotlib.pyplot as plt
 
-        axPM.plot(raw["angle_axis_deg"], raw["phase_matching"], color="#2ca02c", lw=1.8)
-        axPM.axvline(params["idler_angle_deg"], color="crimson", lw=1.1, ls="--")
-        axPM.set_xlabel("Idler collection angle [deg]")
-        axPM.set_ylabel(r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
-        axPM.grid(alpha=0.3)
-        fig.tight_layout()
+            fig, (axG2, axPM) = plt.subplots(2, 1, figsize=(8.5, 6.4))
+            axG2.plot(stats["tau_axis_ns"], stats["g2_SI_tau"],
+                      color="#1f77b4", lw=1.8)
+            axG2.axhline(2.0, color="black", lw=0.7, ls=":")
+            axG2.set_ylabel(r"$g^{(2)}_{SI}(\tau)$")
+            title_tag = ("predictive (waveform + anchored rate)" if predictive
+                         else "calibrated spontaneous SFWM estimate")
+            axG2.set_title(f"{topo.label}: {title_tag}")
+            axG2.grid(alpha=0.3)
 
-        amp = np.abs(raw["source_v"])
-        amp = amp / np.nanmax(amp) if np.nanmax(amp) > 0 else amp
-        phase = np.unwrap(np.angle(raw["source_v"]))
-        figV, (axA, axP) = plt.subplots(2, 1, figsize=(8.5, 6.0), sharex=True)
-        axA.plot(raw["v_grid"], amp, color="#ff7f0e", lw=1.5)
-        axA.set_ylabel("Velocity source amplitude")
-        axA.grid(alpha=0.3)
-        axP.plot(raw["v_grid"], phase, color="#9467bd", lw=1.3)
-        axP.set_xlabel("Atomic velocity [m/s]")
-        axP.set_ylabel("Velocity source phase [rad]")
-        axP.grid(alpha=0.3)
-        figV.tight_layout()
+            axPM.plot(raw["angle_axis_deg"], raw["phase_matching"],
+                      color="#2ca02c", lw=1.8)
+            axPM.axvline(params["idler_angle_deg"], color="crimson", lw=1.1, ls="--")
+            axPM.set_xlabel("Idler collection angle [deg]")
+            axPM.set_ylabel(r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
+            axPM.grid(alpha=0.3)
+            fig.tight_layout()
 
-        extra_figures = [("Velocity-class coherent source", figV)]
-        pm2d = raw.get("phase_matching_2d")
-        if pm2d is not None:
-            figPM2, ax2 = plt.subplots(1, 1, figsize=(7.2, 5.2))
-            im = ax2.imshow(
-                pm2d.T, origin="lower", aspect="auto",
-                extent=[
-                    raw["signal_angle_axis_deg"][0],
-                    raw["signal_angle_axis_deg"][-1],
-                    raw["idler_angle_axis_2d_deg"][0],
-                    raw["idler_angle_axis_2d_deg"][-1],
-                ],
-                cmap="viridis", vmin=0.0, vmax=1.0)
-            ax2.scatter([params["signal_angle_deg"]], [params["idler_angle_deg"]],
-                        color="crimson", s=28, zorder=5)
-            ax2.set_xlabel("Signal angle [deg]")
-            ax2.set_ylabel("Idler angle [deg]")
-            ax2.set_title("2D phase-matching acceptance")
-            figPM2.colorbar(im, ax=ax2,
-                            label=r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
-            figPM2.tight_layout()
-            extra_figures.append(("2D phase matching", figPM2))
+            amp = np.abs(raw["source_v"])
+            amp = amp / np.nanmax(amp) if np.nanmax(amp) > 0 else amp
+            phase = np.unwrap(np.angle(raw["source_v"]))
+            figV, (axA, axP) = plt.subplots(2, 1, figsize=(8.5, 6.0), sharex=True)
+            axA.plot(raw["v_grid"], amp, color="#ff7f0e", lw=1.5)
+            axA.set_ylabel("Velocity source amplitude")
+            axA.grid(alpha=0.3)
+            axP.plot(raw["v_grid"], phase, color="#9467bd", lw=1.3)
+            axP.set_xlabel("Atomic velocity [m/s]")
+            axP.set_ylabel("Velocity source phase [rad]")
+            axP.grid(alpha=0.3)
+            figV.tight_layout()
+
+            extra_figures = [("Velocity-class coherent source", figV)]
+            pm2d = raw.get("phase_matching_2d")
+            if pm2d is not None:
+                figPM2, ax2 = plt.subplots(1, 1, figsize=(7.2, 5.2))
+                im = ax2.imshow(
+                    pm2d.T, origin="lower", aspect="auto",
+                    extent=[
+                        raw["signal_angle_axis_deg"][0],
+                        raw["signal_angle_axis_deg"][-1],
+                        raw["idler_angle_axis_2d_deg"][0],
+                        raw["idler_angle_axis_2d_deg"][-1],
+                    ],
+                    cmap="viridis", vmin=0.0, vmax=1.0)
+                ax2.scatter([params["signal_angle_deg"]], [params["idler_angle_deg"]],
+                            color="crimson", s=28, zorder=5)
+                ax2.set_xlabel("Signal angle [deg]")
+                ax2.set_ylabel("Idler angle [deg]")
+                ax2.set_title("2D phase-matching acceptance")
+                figPM2.colorbar(
+                    im, ax=ax2,
+                    label=r"$\mathrm{sinc}^2(|\Delta\mathbf{k}| L / 2)$")
+                figPM2.tight_layout()
+                extra_figures.append(("2D phase matching", figPM2))
 
         if predictive:
             g2_help = ("Peak signal-idler cross-correlation from the computed "

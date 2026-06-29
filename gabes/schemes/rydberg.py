@@ -87,6 +87,7 @@ class RydbergEITScheme(Scheme):
                "the 37 GHz RF leg dresses 40D-39F.")
     cache_version = "rydberg-eit-v4"
     defaults_version = "rydberg-eit-v4"
+    supports_headless_observables = True
 
     REFERENCE_SENSITIVITY_NV_CM_SQRT_HZ = 12.5
     REFERENCE_PSN_LIMIT_NV_CM_SQRT_HZ = 11.2
@@ -491,44 +492,51 @@ class RydbergEITScheme(Scheme):
         ])
         return dict(x=x, T_trans=T_trans, xphys=xphys, width=width, metrics=metrics)
 
-    def observables(self, raw, params):
-        import matplotlib.pyplot as plt
+    def observables(self, raw, params, include_figures=True):
         ro = self._readout(raw, params)
         x, T_trans, xphys, width = ro["x"], ro["T_trans"], ro["xphys"], ro["width"]
         view = params.get("view", "EIT")
 
-        if view == "EIT":
-            # Ju et al. Fig. 2(a): EIT transmission with / without B-field
-            # compensation, zoomed onto the transparency feature.
-            _, T_uncomp, _ = self._transmission(raw["chi_bar_uncomp"], raw, params)
-            fig, axT = plt.subplots(figsize=(8.5, 4.8))
-            axT.plot(x, T_uncomp, color="#1f77b4", lw=1.6,
-                     label="without B-field compensation")
-            axT.plot(x, T_trans, color="#d62728", lw=2.0, label="with compensation")
-            axT.set_xlabel("Frequency [MHz]")
-            axT.set_ylabel("Transmission")
-            axT.axvline(0.0, color="gray", ls=":", lw=0.8)
-            axT.legend(fontsize=9, loc="upper right")
-            axT.set_title(
-                f"85Rb Rydberg-EIT: Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-                f"probe = {raw['probe_power_uw']:.1f} uW")
-            xlim = max(2.5, 2.5 * width)
-            axT.set_xlim(-xlim, xlim)
-        else:
-            fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-            axT.plot(x, T_trans, color="#0f766e", lw=1.8)
-            axT.set_ylabel("Transmission")
-            axT.set_ylim(-0.02, 1.04)
-            axT.set_title(
-                f"85Rb Rydberg {view}: "
-                f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-                f"Omega_LO = {raw['lo_rabi_mhz']:.2f} MHz")
-            axD.plot(x, np.real(xphys), color="#7c3aed", lw=1.5)
-            axD.set_ylabel("Re chi")
-            axD.set_xlabel("Probe detuning [MHz]")
-            for a in (axT, axD):
-                a.axvline(0.0, color="gray", ls=":", lw=0.8)
-        fig.tight_layout()
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+
+            if view == "EIT":
+                # Ju et al. Fig. 2(a): EIT transmission with / without B-field
+                # compensation, zoomed onto the transparency feature.
+                _, T_uncomp, _ = self._transmission(
+                    raw["chi_bar_uncomp"], raw, params)
+                fig, axT = plt.subplots(figsize=(8.5, 4.8))
+                axT.plot(x, T_uncomp, color="#1f77b4", lw=1.6,
+                         label="without B-field compensation")
+                axT.plot(x, T_trans, color="#d62728", lw=2.0,
+                         label="with compensation")
+                axT.set_xlabel("Frequency [MHz]")
+                axT.set_ylabel("Transmission")
+                axT.axvline(0.0, color="gray", ls=":", lw=0.8)
+                axT.legend(fontsize=9, loc="upper right")
+                axT.set_title(
+                    f"85Rb Rydberg-EIT: "
+                    f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
+                    f"probe = {raw['probe_power_uw']:.1f} uW")
+                xlim = max(2.5, 2.5 * width)
+                axT.set_xlim(-xlim, xlim)
+            else:
+                fig, (axT, axD) = plt.subplots(2, 1, figsize=(8.5, 6.4),
+                                               sharex=True)
+                axT.plot(x, T_trans, color="#0f766e", lw=1.8)
+                axT.set_ylabel("Transmission")
+                axT.set_ylim(-0.02, 1.04)
+                axT.set_title(
+                    f"85Rb Rydberg {view}: "
+                    f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
+                    f"Omega_LO = {raw['lo_rabi_mhz']:.2f} MHz")
+                axD.plot(x, np.real(xphys), color="#7c3aed", lw=1.5)
+                axD.set_ylabel("Re chi")
+                axD.set_xlabel("Probe detuning [MHz]")
+                for a in (axT, axD):
+                    a.axvline(0.0, color="gray", ls=":", lw=0.8)
+            fig.tight_layout()
 
         derived = derived_table([
             ("Ladder", "85Rb 5S1/2 F=3 → 5P3/2 F'=4 → 40D5/2"),
@@ -545,6 +553,9 @@ class RydbergEITScheme(Scheme):
             ("N(85Rb)", f"{raw['N']:.3e} /m³"),
         ])
         return dict(metrics=ro["metrics"], figure=fig, tables=[derived])
+
+    def headless_observables(self, raw, params):
+        return self.observables(raw, params, include_figures=False)
 
     def extra_views(self):
         """Ju et al. Fig. 2(b): EIT peak amplitude and linewidth vs probe power,
