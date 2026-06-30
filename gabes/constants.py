@@ -43,9 +43,38 @@ OMEGA_EXCITED_HF = 2 * np.pi * NU_EXCITED_HF_D1
 K_VEC = 2 * np.pi / WAVELENGTH_D1_85RB
 OMEGA_D1 = 2 * np.pi * NU_D1_85RB
 
-# ---- Phenomenological ground-coherence decay ----
+# ---- Ground-coherence (Raman) relaxation ----
+# GAMMA_GG is the transit-time / residual floor (≈ v̄/w for the FWM beams),
+# anchored at the validated operating point. On top of it, binary Rb–Rb
+# collisions add a density-dependent term n·σ·v̄_rel (see
+# `ground_coherence_dephasing`); it is subdominant to the transit floor in the
+# pure-cell FWM temperature range but scales correctly with density.
 GAMMA_GG_2PI = 100e3
 GAMMA_GG = 2 * np.pi * GAMMA_GG_2PI
+# Rb–Rb spin-exchange cross-section, 1.9e-14 cm² → m². Sets the binary-collision
+# contribution to the ground Raman-coherence relaxation.
+RB_GROUND_COHERENCE_XSECTION = 1.9e-18
+
+
+def mean_relative_speed(T, mass=None):
+    """Mean relative speed of like atoms, v̄ = √(8 kB T / π μ), μ = m/2 [m/s]."""
+    mass = MASS_85RB if mass is None else mass
+    return np.sqrt(8.0 * KB * T / (np.pi * (mass / 2.0)))
+
+
+def ground_coherence_dephasing(T, density, *, floor=None,
+                               xsection=RB_GROUND_COHERENCE_XSECTION, mass=None):
+    """Density/temperature-dependent ground Raman-coherence relaxation [rad/s].
+
+        γ_gg(T, N) = γ_floor + N · σ · v̄_rel(T)
+
+    `floor` (default GAMMA_GG) is the transit-time/residual rate anchored at the
+    validated point; the collisional term is the Rb–Rb spin-exchange
+    contribution. Reduces to GAMMA_GG as N → 0.
+    """
+    floor = GAMMA_GG if floor is None else floor
+    coll = max(float(density), 0.0) * xsection * mean_relative_speed(T, mass)
+    return floor + coll
 
 # ---- Simple buffer-gas broadening ----
 # Easy OD/SAS model: fixed Ne buffer gas adds homogeneous FWHM broadening only.

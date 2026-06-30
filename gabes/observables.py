@@ -245,19 +245,38 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     }
 
 
-def intensity_difference_squeezing_dB(G_s, G_c, eta):
+def ideal_twin_beam_noise(G_s, G_c):
     """
-    Ideal twin-beam intensity-difference noise (lossless):
-        S_ideal = (G_s + G_c − 2√(G_s·G_c − 1)) / (G_s + G_c)
-    Symmetric detection efficiency η on both arms:
-        S(η) = η · S_ideal + (1 − η)
-    Returns 10·log10(S) in dB (negative ↔ squeezed).
+    Ideal (lossless) twin-beam intensity-difference noise normalized to the SQL.
+
+    For a lossless seeded FWM amplifier the photon-number difference N_s − N_c is
+    a conserved quantity of the Bogoliubov transformation (|u|²−|v|²=1): one finds
+    the operator identity (N_s − N_c)|_out = (G_s − G_c)·(N_s − N_c)|_in, so with a
+    bright coherent seed (conjugate from vacuum) and SQL = ⟨N_s⟩+⟨N_c⟩,
+
+        S_ideal = (G_s − G_c)² / (G_s + G_c).
+
+    In the lossless domain G_s − G_c = 1 and this reduces to the standard
+    1/(G_s + G_c) = 1/(2G − 1) (G_s=G, G_c=G−1; Sim et al., Sci. Rep. 15, 7727
+    (2025); McCormick et al., Opt. Lett. 32, 178 (2007)). S_ideal ≤ 1 in that
+    domain; it is clipped to [0, 1] so passive-loss regions of a probe scan (no
+    parametric gain, G_s−G_c arbitrary) cannot spuriously report sub-SQL noise.
     """
     G_s = np.asarray(G_s, dtype=float)
     G_c = np.asarray(G_c, dtype=float)
-    cross = np.sqrt(np.maximum(G_s * G_c - 1.0, 0.0))
-    S_ideal = (G_s + G_c - 2.0 * cross) / np.maximum(G_s + G_c, 1e-30)
-    S_ideal = np.clip(S_ideal, 0.0, None)
+    total = np.maximum(G_s + G_c, 1e-30)
+    return np.clip((G_s - G_c) ** 2 / total, 0.0, 1.0)
+
+
+def intensity_difference_squeezing_dB(G_s, G_c, eta):
+    """
+    Ideal twin-beam intensity-difference noise (lossless) with symmetric
+    detection efficiency η on both arms:
+        S_ideal = (G_s − G_c)² / (G_s + G_c)      [see `ideal_twin_beam_noise`]
+        S(η)    = η · S_ideal + (1 − η)
+    Returns 10·log10(S) in dB (negative ↔ squeezed).
+    """
+    S_ideal = ideal_twin_beam_noise(G_s, G_c)
     S = eta * S_ideal + (1.0 - eta)
     return 10.0 * np.log10(np.maximum(S, 1e-30))
 
@@ -299,7 +318,13 @@ def balanced_twin_beam_noise(
     mean_s = eta_s * G_s
     mean_c = eta_c * G_c
     if source_noise is None:
-        cov0 = np.sqrt(np.maximum(G_s * G_c - 1.0, 0.0))
+        # Source intensity-difference covariance consistent with the conserved
+        # (N_s − N_c) result: at w=1, eta_s=eta_c this gives exactly
+        # Var/SQL = (G_s − G_c)²/(G_s + G_c) = `ideal_twin_beam_noise` (lossless
+        # → 1/(2G−1)). cov0 = [(G_s + G_c) − (G_s − G_c)²]/2 (= G_c at G_s−G_c=1),
+        # clipped to the Cauchy-Schwarz bound √(G_s G_c) and ≥ 0.
+        cov0 = 0.5 * ((G_s + G_c) - (G_s - G_c) ** 2)
+        cov0 = np.clip(cov0, 0.0, np.sqrt(np.maximum(G_s * G_c, 0.0)))
     else:
         S0 = np.clip(np.asarray(source_noise, dtype=float), 0.0, None)
         cov0 = 0.5 * (G_s + G_c) * (1.0 - S0)
@@ -344,11 +369,7 @@ def segmented_loss_noise_squeezing_dB(
         seed_excess_noise=0.0, pump_scatter_noise=0.0,
         eom_residual_noise=0.0):
     """Ultra FWM squeezing with in-cell loss and additive technical noise."""
-    G_s = np.asarray(G_s, dtype=float)
-    G_c = np.asarray(G_c, dtype=float)
-    cross = np.sqrt(np.maximum(G_s * G_c - 1.0, 0.0))
-    S_ideal = (G_s + G_c - 2.0 * cross) / np.maximum(G_s + G_c, 1e-30)
-    S_ideal = np.clip(S_ideal, 0.0, None)
+    S_ideal = ideal_twin_beam_noise(G_s, G_c)
     tau_cell = 1.0 - np.clip(float(in_cell_loss_frac), 0.0, 1.0)
     S_cell = tau_cell * S_ideal + (1.0 - tau_cell)
     tech = (max(float(seed_excess_noise), 0.0)

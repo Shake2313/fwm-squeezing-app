@@ -98,8 +98,20 @@ class AtomModel:
         return comm_super(Dee)
 
 
-def _double_lambda_rb85():
-    """85Rb D1 4-level double-Λ: g₁=F2, g₂=F3, e₂=F'2, e₃=F'3 (indices 0,1,2,3)."""
+def double_lambda_rb85(gamma_gg=None, gamma_opt=0.0):
+    """85Rb D1 4-level double-Λ: g₁=F2, g₂=F3, e₂=F'2, e₃=F'3 (indices 0,1,2,3).
+
+    `gamma_gg` is the ground Raman-coherence relaxation rate (default
+    `constants.GAMMA_GG`). `gamma_opt` is an optional *collisional* dephasing
+    rate added to every optical (g,e) coherence — Rb self-broadening, the
+    density-dependent decoherence that grows at high vapor temperature. With
+    `gamma_opt=0` (the registry default) the optical coherence keeps its natural
+    Γ/2 width, so existing schemes/tests are unchanged. The natural Γ is already
+    carried by the spontaneous-emission `decay` channels, so `gamma_opt` should
+    be the *added* collisional half-width (Γ_eff − Γ)/2 to stay consistent with
+    the AutoOD-validated `hyperfine.self_broadened_gamma`.
+    """
+    gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg
     ground = (0, 1)
     excited = (2, 3)
     ground_F = {0: 2, 1: 3}
@@ -109,7 +121,12 @@ def _double_lambda_rb85():
         weights = {g: hyperfine.CF2[(ground_F[g], excited_F[e])] for g in ground}
         total = sum(weights.values())
         decay.extend((e, g, constants.GAMMA * weights[g] / total) for g in ground)
-    dephasing = ((0, 1, constants.GAMMA_GG), (1, 0, constants.GAMMA_GG))
+    dephasing = [(0, 1, gamma_gg), (1, 0, gamma_gg)]
+    if gamma_opt:
+        for g in ground:
+            for e in excited:
+                dephasing.append((g, e, gamma_opt))
+                dephasing.append((e, g, gamma_opt))
     return AtomModel(
         name="double_lambda_rb85",
         n_levels=4,
@@ -117,9 +134,14 @@ def _double_lambda_rb85():
         ground=ground,
         excited=excited,
         decay=tuple(decay),
-        dephasing=dephasing,
+        dephasing=tuple(dephasing),
         doppler_levels=excited,
     )
+
+
+def _double_lambda_rb85():
+    """Registry default: natural-linewidth double-Λ (gamma_opt=0)."""
+    return double_lambda_rb85()
 
 
 def two_level(gamma=None):

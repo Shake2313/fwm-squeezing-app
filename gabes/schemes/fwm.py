@@ -1062,10 +1062,16 @@ def _coherence_weights(ground):
     return w
 
 
-def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch):
+def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch,
+                     atom=ATOM):
     """
     Two solves per probe-detuning point to extract (χ̄_ss, χ̄_cs, χ̄_sc, χ̄_cc)
     on a 2-D (δ, Δ_eff) grid. Returns each array (n_delta, n_deff), complex.
+
+    `atom` carries the level scheme and its dissipator; pass a temperature-
+    dependent model (collisional ground/optical dephasing) to fold density-
+    dependent decoherence into the solve. Defaults to the natural-linewidth
+    module `ATOM` so the kernel/NumPy regression callers are unchanged.
 
     With numba available the whole grid runs in one fused compiled kernel
     (`kernels.floquet_chi_grid`); the NumPy δ-loop below is the fallback and
@@ -1090,15 +1096,15 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         deff_axis = np.ascontiguousarray(Delta_eff_axis, dtype=float)
 
         L0_1 = build_liouvillian(
-            static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), ATOM)
+            static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), atom)
         probe_a, conj_a = kernels.floquet_chi_grid(
-            L0_1, C_delta, ATOM.S_v, Cp_no_c, Cm_no_c, delta_axis, deff_axis,
+            L0_1, C_delta, atom.S_v, Cp_no_c, Cm_no_c, delta_axis, deff_axis,
             OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
 
         L0_2 = build_liouvillian(
-            static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), ATOM)
+            static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), atom)
         probe_b, conj_b = kernels.floquet_chi_grid(
-            L0_2, C_delta, ATOM.S_v, Cp_c, Cm_c, delta_axis, deff_axis,
+            L0_2, C_delta, atom.S_v, Cp_c, Cm_c, delta_axis, deff_axis,
             OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
 
         return probe_a / Os_ref, conj_a / Os_ref, probe_b / Oc_ref, conj_b / Oc_ref
@@ -1113,9 +1119,9 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
 
         # ---- Solve 1: probe drive only ----
         H0_1 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, delta, branch)
-        L0_1 = build_liouvillian(H0_1, ATOM)
+        L0_1 = build_liouvillian(H0_1, atom)
         rho0_a, rhop_a = floquet_solve(
-            L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis, ATOM.S_v, N_LEVELS)
+            L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
         probe_a = _polarization_coherence(rho0_a, probe_ground)
         conj_a = _polarization_coherence(rhop_a, conj_ground)
         chi_ss[i] = probe_a / Os_ref
@@ -1123,9 +1129,9 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
 
         # ---- Solve 2: conjugate seed only ----
         H0_2 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, delta, branch)
-        L0_2 = build_liouvillian(H0_2, ATOM)
+        L0_2 = build_liouvillian(H0_2, atom)
         rho0_b, rhop_b = floquet_solve(
-            L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis, ATOM.S_v, N_LEVELS)
+            L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
         probe_b = _polarization_coherence(rho0_b, probe_ground)
         conj_b = _polarization_coherence(rhop_b, conj_ground)
         chi_sc[i] = probe_b / Oc_ref
@@ -1343,6 +1349,17 @@ def compute_spectrum(D_GHz, *,
     N_atoms = hyperfine.number_density(T)
     Delta = 2 * np.pi * D_GHz * 1e9
 
+    # Density/temperature-dependent collisional decoherence (Sim et al. note that
+    # collision-driven decoherence dominates at high vapor temperature). Two
+    # channels fold into a per-temperature atom model:
+    #   • optical (g,e) coherence — Rb self-broadening, the dominant high-T term,
+    #     using the AutoOD-validated `hyperfine.self_broadened_gamma`. The added
+    #     collisional half-width is (Γ_eff − Γ)/2 (Γ already in the decay channels).
+    #   • ground Raman (g₁,g₂) coherence — transit-time floor + Rb–Rb collisions.
+    gamma_gg = constants.ground_coherence_dephasing(T, N_atoms)
+    gamma_opt = 0.5 * (hyperfine.self_broadened_gamma(N_atoms) - constants.GAMMA)
+    atom_T = atoms.double_lambda_rb85(gamma_gg=gamma_gg, gamma_opt=max(gamma_opt, 0.0))
+
     probe_axis_GHz = probe_scan_axis_GHz(
         D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max,
         branches=(branch,))
@@ -1359,7 +1376,7 @@ def compute_spectrum(D_GHz, *,
 
     delta_axis = two_photon_detuning_from_probe_scan(probe_axis_GHz, D_GHz, branch)
     ch_ss, ch_cs, ch_sc, ch_cc = chi_matrix_table(
-        Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch)
+        Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch, atom=atom_T)
     chi_ss_avg += doppler.doppler_average(ch_ss, Delta_eff_axis, Delta, v_grid, weights)
     chi_cs_avg += doppler.doppler_average(ch_cs, Delta_eff_axis, Delta, v_grid, weights)
     chi_sc_avg += doppler.doppler_average(ch_sc, Delta_eff_axis, Delta, v_grid, weights)
@@ -1819,6 +1836,12 @@ class FWMScheme(Scheme):
             "budget at high T. A Manley-Rowe pump-depletion saturation "
             "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
             "conservation bound; it is negligible in the validated regime. "
+            "The solve also folds in density-dependent collisional decoherence "
+            "(Rb self-broadening of the optical coherence via the AutoOD-validated "
+            "Γ_eff = Γ + β·N, plus a transit-time-floor + Rb–Rb ground Raman-"
+            "coherence term), so the squeezing now peaks near 121–131 °C and "
+            "decreases at higher temperature as Sim *et al.* observe, rather than "
+            "improving monotonically with density. "
             "Balanced fidelity includes the reference 0.32 deg seeded phase "
             "mismatch; High fidelity also applies a chi-reused refractive "
             "correction and segmented propagation profile. Ultra adds a slow "
