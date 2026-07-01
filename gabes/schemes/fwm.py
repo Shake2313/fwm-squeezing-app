@@ -1317,6 +1317,30 @@ def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     return G_s, G_c, T_total, pump_remaining
 
 
+def collisional_atom(T, density=None):
+    """Per-temperature double-Λ atom carrying density-dependent collisional
+    decoherence (Sim et al. note collision-driven decoherence dominates at high
+    vapor temperature):
+
+      • optical (g,e) coherence — Rb self-broadening, added collisional
+        half-width (Γ_eff − Γ)/2 via the AutoOD-validated
+        `hyperfine.self_broadened_gamma`;
+      • ground Raman (g₁,g₂) coherence — transit-time floor + Rb–Rb collisions
+        (`constants.ground_coherence_dephasing`).
+
+    Because χ̄ now depends on temperature through this dissipator, any cached-χ̄
+    scanner must rebuild its table per temperature with this atom (a single
+    all-temperature table is no longer valid). Shared by `compute_spectrum` and
+    the analysis scanners so the optimum-finder sees the same physics.
+    """
+    if density is None:
+        density = hyperfine.number_density(T)
+    gamma_gg = constants.ground_coherence_dephasing(T, density)
+    gamma_opt = 0.5 * (hyperfine.self_broadened_gamma(density) - constants.GAMMA)
+    return atoms.double_lambda_rb85(gamma_gg=gamma_gg,
+                                    gamma_opt=max(gamma_opt, 0.0))
+
+
 def _single_branch(branch, branches):
     """Resolve one physical FWM channel; do not merge distinct Raman branches."""
     if branches is None:
@@ -1374,16 +1398,9 @@ def compute_spectrum(D_GHz, *,
     N_atoms = hyperfine.number_density(T)
     Delta = 2 * np.pi * D_GHz * 1e9
 
-    # Density/temperature-dependent collisional decoherence (Sim et al. note that
-    # collision-driven decoherence dominates at high vapor temperature). Two
-    # channels fold into a per-temperature atom model:
-    #   • optical (g,e) coherence — Rb self-broadening, the dominant high-T term,
-    #     using the AutoOD-validated `hyperfine.self_broadened_gamma`. The added
-    #     collisional half-width is (Γ_eff − Γ)/2 (Γ already in the decay channels).
-    #   • ground Raman (g₁,g₂) coherence — transit-time floor + Rb–Rb collisions.
-    gamma_gg = constants.ground_coherence_dephasing(T, N_atoms)
-    gamma_opt = 0.5 * (hyperfine.self_broadened_gamma(N_atoms) - constants.GAMMA)
-    atom_T = atoms.double_lambda_rb85(gamma_gg=gamma_gg, gamma_opt=max(gamma_opt, 0.0))
+    # Density/temperature-dependent collisional decoherence (optical Rb
+    # self-broadening + ground Raman collisions). See `collisional_atom`.
+    atom_T = collisional_atom(T, N_atoms)
 
     probe_axis_GHz = probe_scan_axis_GHz(
         D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max,

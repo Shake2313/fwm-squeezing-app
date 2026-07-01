@@ -11,7 +11,7 @@ Everything except Δ and T is fixed at the Sim et al. reference operating point
 (G. Sim, H. Kim, H. S. Moon, Sci. Rep. 15, 7727 (2025)) -- the same numbers the
 regression test calls "sim_optimum":
 
-    P_pump = 600 mW,  P_seed = 8 uW,  line_strength = 1.0 (residual),  loss = 5.5 %,
+    P_pump = 600 mW,  P_seed = 8 uW,  line_strength = 0.74 (residual),  loss = 5.5 %,
     QE = 0.9047,  L_cell = 12.5 mm,  w_pump = 530 um,  w_seed = 330 um.
 
 Pump / seed power and the line-strength calibration do not change the qualitative
@@ -19,6 +19,11 @@ squeezing result (gain saturates against the pump-depletion bound); the detectio
 efficiency η = QE·(1-loss) does, because it sets the hard squeezing floor
 
     S_floor(dB) = 10·log10(1 - η).
+
+Density-dependent collisional decoherence (optical Rb self-broadening + ground
+Raman collisions) makes χ̄ temperature-dependent, so the scan rebuilds the χ̄
+table per temperature (`fwm.collisional_atom`); squeezing now peaks near
+121-131 °C and worsens at higher T rather than tracking the density monotonically.
 
     python analysis/scan_squeezing_delta_T.py
 """
@@ -93,30 +98,36 @@ def best_squeezing(D_GHz, T_K, coarse=COARSE_POINTS, vstep=VELOCITY_STEP):
     )
 
 
-def _master_jobs(delta_ghz=DELTA_GHZ, temp_c=TEMP_C, vstep=VELOCITY_STEP):
-    jobs = []
-    delta_eff_chunks = []
-    for iD, D in enumerate(delta_ghz):
-        D = float(D)
-        Delta = 2.0 * np.pi * D * 1e9
-        for iT, T_C in enumerate(temp_c):
-            T_K = float(T_C) + 273.15
-            v_grid, weights = doppler.velocity_grid(
-                T_K, dv=vstep, cutoff_sigma=3.0)
-            delta_eff = Delta - constants.K_VEC * v_grid
-            delta_eff_chunks.append(delta_eff)
-            jobs.append((iD, iT, D, T_K, delta_eff, weights))
-    master_delta_eff = np.unique(np.concatenate(delta_eff_chunks))
-    for i, job in enumerate(jobs):
-        idx = np.searchsorted(master_delta_eff, job[4])
-        if not np.array_equal(master_delta_eff[idx], job[4]):
-            raise RuntimeError("master Delta_eff axis lost an exact velocity sample")
-        jobs[i] = (*job, idx)
-    return master_delta_eff, jobs
+def _temperature_tables(T_K, delta_axis, vstep=VELOCITY_STEP):
+    """Build the χ̄ table for ONE temperature with its collisional atom.
+
+    Density-dependent collisional decoherence (optical Rb self-broadening +
+    ground Raman collisions) makes χ̄ temperature-dependent, so a single
+    all-temperature table is no longer valid — the table is rebuilt per T with
+    `fwm.collisional_atom(T)`. The (δ × Δ_eff) grid is still shared across all Δ
+    (OPD) at this temperature: Δ_eff = Δ − k·v is unioned over the whole Δ range.
+    Returns (tables, v_grid, weights, master_delta_eff).
+    """
+    atom_T = fwm.collisional_atom(T_K)
+    v_grid, weights = doppler.velocity_grid(T_K, dv=vstep, cutoff_sigma=3.0)
+    deff_chunks = [2.0 * np.pi * float(D) * 1e9 - constants.K_VEC * v_grid
+                   for D in DELTA_GHZ]
+    master_delta_eff = np.unique(np.concatenate(deff_chunks))
+    Op = fwm.rabi_freq(P_PUMP, fwm.W_PUMP)
+    Os = fwm.rabi_freq(P_SEED, fwm.W_PROBE)
+    with blas_single_thread():
+        tables = fwm.chi_matrix_table(
+            Op, Op, Os, Os, delta_axis, master_delta_eff, BRANCH, atom=atom_T)
+    return tables, v_grid, weights, master_delta_eff
 
 
-def _best_from_cached_tables(tables, delta_axis, job):
-    iD, iT, D_GHz, T_K, _delta_eff, weights, idx = job
+def _best_from_tables(tables, master_delta_eff, v_grid, weights, delta_axis,
+                      D_GHz, T_K):
+    Delta = 2.0 * np.pi * float(D_GHz) * 1e9
+    delta_eff = Delta - constants.K_VEC * v_grid
+    idx = np.searchsorted(master_delta_eff, delta_eff)
+    if not np.array_equal(master_delta_eff[idx], delta_eff):
+        raise RuntimeError("master Delta_eff axis lost an exact velocity sample")
     chi_ss_avg = tables[0][:, idx] @ weights
     chi_cs_avg = tables[1][:, idx] @ weights
     chi_sc_avg = tables[2][:, idx] @ weights
@@ -137,7 +148,7 @@ def _best_from_cached_tables(tables, delta_axis, job):
     i = int(np.nanargmin(S_dB))
     center = fwm.branch_center_GHz(D_GHz, BRANCH)
     probe_axis_GHz = _probe_axis_for_delta(D_GHz, delta_axis)
-    return iD, iT, dict(
+    return dict(
         S_dB=float(S_dB[i]),
         delta_mhz=float((probe_axis_GHz[i] - center) * 1e3),
         G_s=float(G_s[i]),
@@ -156,32 +167,24 @@ def run_grid():
 
     t0 = time.time()
     delta_axis = _delta_axis(COARSE_POINTS)
-    master_delta_eff, jobs = _master_jobs()
+    print(f"per-temperature chi tables (collisional atom, numba="
+          f"{kernels.available()}): {nT} temperatures x {nD} OPD", flush=True)
 
-    Op = fwm.rabi_freq(P_PUMP, fwm.W_PUMP)
-    Os = fwm.rabi_freq(P_SEED, fwm.W_PROBE)
-    table_mb = (4 * delta_axis.size * master_delta_eff.size
-                * np.dtype(np.complex128).itemsize / 1024**2)
-    print("building shared chi table: "
-          f"{delta_axis.size} delta x {master_delta_eff.size} Delta_eff "
-          f"({table_mb:.1f} MiB, numba={kernels.available()})",
-          flush=True)
-    with blas_single_thread():
-        tables = fwm.chi_matrix_table(
-            Op, Op, Os, Os, delta_axis, master_delta_eff, BRANCH)
-    print(f"  chi table built in {time.time()-t0:.1f}s", flush=True)
-
-    t_avg = time.time()
-    for done, job in enumerate(jobs, start=1):
-        iD, iT, r = _best_from_cached_tables(tables, delta_axis, job)
-        Xi[iD, iT] = r["S_dB"]
-        Gs[iD, iT] = r["G_s"]
-        Gc[iD, iT] = r["G_c"]
-        Dlt[iD, iT] = r["delta_mhz"]
-        if done % 50 == 0 or done == len(jobs):
-            print(f"  {done}/{len(jobs)} Doppler averages "
-                  f"({time.time()-t_avg:.1f}s avg, {time.time()-t0:.1f}s total)",
-                  flush=True)
+    # χ̄ depends on temperature (collisional decoherence), so build one table per
+    # T and reuse it across all Δ at that T (Δ_eff columns picked per Δ).
+    for iT, T_C in enumerate(TEMP_C):
+        T_K = float(T_C) + 273.15
+        tables, v_grid, weights, master_delta_eff = _temperature_tables(
+            T_K, delta_axis)
+        for iD, D in enumerate(DELTA_GHZ):
+            r = _best_from_tables(tables, master_delta_eff, v_grid, weights,
+                                  delta_axis, float(D), T_K)
+            Xi[iD, iT] = r["S_dB"]
+            Gs[iD, iT] = r["G_s"]
+            Gc[iD, iT] = r["G_c"]
+            Dlt[iD, iT] = r["delta_mhz"]
+        print(f"  T = {T_C:.0f} °C  ({iT+1}/{nT}, {time.time()-t0:.1f}s)",
+              flush=True)
     return Xi, Gs, Gc, Dlt
 
 

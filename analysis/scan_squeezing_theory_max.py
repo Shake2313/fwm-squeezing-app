@@ -156,12 +156,24 @@ def cap_sweep():
     """Intrinsic (η=1) deepest squeezing vs the pump-depletion ceiling.
 
     cap = 1 + P_pump/(2 P_seed). Pushed to a high T so the small-signal gain
-    saturates against the cap; analytic prediction S_ideal ≈ 5/(8 G²).
+    saturates against the cap. The conserved-(N_s−N_c) ideal squeezing is
+    S_ideal = (G_s−G_c)²/(G_s+G_c); in the LOSSLESS limit the twin-beam relation
+    G_c = G_s−1 holds and this reduces to the reference law S_ideal ≈ 1/(2G−1).
+
+    Caveat (collisional decoherence, `fwm.collisional_atom`): at the high T needed
+    to saturate the cap, Rb self-broadening adds real in-cell absorption, so the
+    propagation no longer preserves G_s−G_c = 1 (the twin gains are compressed
+    toward each other, gap < 1). The lossless formula then reports S_ideal *below*
+    the 1/(2G−1) reference — this is the ideal expression applied outside its
+    lossless domain, not extra physical squeezing. A faithful lossy source needs
+    the quantum-Langevin noise channel (docs/checklist.json
+    `fwm-quantum-langevin-noise`); until then treat the η=1 column as a lossless
+    idealization and the `gap` as the diagnostic of how far it is trusted.
     """
     print("\n================  CAP SWEEP (η=1, intrinsic)  ================")
     print("  using Δ = +2.0 GHz, T = 180 °C (high gain), loss = 0")
     print(f"  {'P_pump[W]':>9} {'P_seed[uW]':>10} {'cap':>12} {'G_s':>12} "
-          f"{'S_ideal[dB]':>12} {'5/(8G^2)[dB]':>13}")
+          f"{'gap Gs-Gc':>10} {'S_ideal[dB]':>12} {'1/(2G-1)[dB]':>13}")
     combos = [
         (0.6, 8e-6), (0.6, 1e-6), (1.2, 1e-6),
         (1.2, 1e-7), (2.0, 1e-8),
@@ -171,10 +183,14 @@ def cap_sweep():
         r = deepest_point(2.0, 180.0 + 273.15, coarse=161, vstep=3.0,
                           P_pump=P_pump, P_seed=P_seed)
         cap = 1.0 + P_pump / (2.0 * P_seed)
-        pred = 10.0 * np.log10(5.0 / (8.0 * r["G_s"] ** 2))
+        gap = r["G_s"] - r["G_c"]
+        pred = 10.0 * np.log10(1.0 / (2.0 * r["G_s"] - 1.0))
         print(f"  {P_pump:9.2f} {P_seed*1e6:10.4g} {cap:12.3e} "
-              f"{r['G_s']:12.3e} {r['S_ideal_dB']:12.3f} {pred:13.3f}")
+              f"{r['G_s']:12.3e} {gap:10.3f} {r['S_ideal_dB']:12.3f} {pred:13.3f}")
         rows.append((cap, r["G_s"], r["S_ideal_dB"]))
+    print("  (gap Gs-Gc → 1 in the lossless limit; gap < 1 flags collisional "
+          "absorption\n   breaking the twin-beam relation, so S_ideal runs below "
+          "the 1/(2G-1) reference.)")
     return rows
 
 
@@ -202,7 +218,7 @@ def main():
     print(f"  deepest S_ideal = {Sid[iD,iT]:.3f} dB at "
           f"Δ = {DELTA_GHZ[iD]:+.2f} GHz, T = {TEMP_C[iT]:.0f} °C")
     print(f"    G_s = {Gs[iD,iT]:.3e} (cap-limited); "
-          f"S_ideal scales as 5/(8 G²) -> no interior maximum, only the gain "
+          f"S_ideal scales as 1/(2G-1) -> no interior maximum, only the gain "
           f"ceiling bounds it.")
 
     rows = cap_sweep()
