@@ -324,9 +324,6 @@ class SASScheme(Scheme):
         return self._obs_generic(
             raw, params, alpha, L, include_figures=include_figures)
 
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)
-
     def _obs_species(self, raw, params, alpha, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                  # GHz (relative)
         T_trans = observables.transmission(alpha, L)

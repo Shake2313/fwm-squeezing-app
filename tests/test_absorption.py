@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from gabes import schemes, observables, constants  # noqa: E402
+from gabes.lineshape import window_fwhm  # noqa: E402
 from gabes.schemes.absorption import ODScheme  # noqa: E402  (OD primitive: not registered)
 
 G = constants.GAMMA
@@ -128,6 +129,25 @@ def test_lambda_coupling_power_and_diameter_scale_rabi():
                - 4.0 * GMHZ) < 1e-9
 
 
+def test_lambda_beam_angle_mismatch_broadens_warm_eit():
+    eit = schemes.get("eit")
+    base = _params(
+        eit, temp_c=50, cell_mm=1, doppler="on", coupling_rabi_mhz=3.0 * GMHZ,
+        beam_angle_mrad=0.0)
+    angled = dict(base, beam_angle_mrad=10.0)
+
+    raw0 = eit.compute(base)
+    raw1 = eit.compute(angled)
+    x0, _, T0, _ = _curve(raw0)
+    x1, _, T1, _ = _curve(raw1)
+    ic0 = int(np.argmin(np.abs(x0)))
+    ic1 = int(np.argmin(np.abs(x1)))
+
+    assert raw1["two_photon_k_ratio"] > 0.009
+    assert T1[ic1] < 0.5 * T0[ic0]
+    assert window_fwhm(x1, T1, ic1) > 5.0 * window_fwhm(x0, T0, ic0)
+
+
 def test_eit_transparency():
     eit = schemes.get("eit")
     raw = eit.compute(_params(
@@ -168,6 +188,7 @@ def test_lambda_regime_defaults_are_mode_driven():
     assert specs["view"].applies_defaults
     assert "coupling_power_mw" in specs
     assert "coupling_diameter_mm" in specs
+    assert specs["beam_angle_mrad"].advanced
     assert "coupling_rabi" not in specs and "gamma_gg" not in specs
 
 
@@ -180,6 +201,7 @@ if __name__ == "__main__":
     test_hyperfine_self_broadening_monotone()
     test_at_splitting_equals_coupling_rabi()
     test_lambda_coupling_power_and_diameter_scale_rabi()
+    test_lambda_beam_angle_mismatch_broadens_warm_eit()
     test_eit_transparency()
     test_cpt_subnatural_dark_resonance()
     test_lambda_regime_defaults_are_mode_driven()

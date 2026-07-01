@@ -10,13 +10,14 @@ only change is that shared engine pieces now come from gabes.core / .doppler /
 shim and the regression test can call them directly. `FWMScheme` wraps them for
 the generic Streamlit front-end.
 """
+import functools
 import math
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import numpy as np
 
-from .. import atoms, constants, doppler, hyperfine, kernels, observables, species
+from .. import atoms, beam, constants, doppler, hyperfine, kernels, observables, species
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
 from ..lineshape import fwhm_interp
@@ -566,13 +567,40 @@ def _diamond_generic_spec(params=None):
     ))
 
 
-def topology_from_params(params):
-    topo = params.get("topology", TOPOLOGY_RB87_TELECOM)
+def _optional_float(value):
+    return None if value is None else float(value)
+
+
+def _topology_cache_key(params):
+    return (
+        params.get("topology", TOPOLOGY_RB87_TELECOM),
+        params.get("cs_channel", CS_CHANNEL_917),
+        float(params.get("diamond_pump_nm", 780.0)),
+        float(params.get("diamond_coupling_nm", 776.0)),
+        float(params.get("diamond_signal_nm", 795.0)),
+        _optional_float(params.get("diamond_idler_nm")),
+    )
+
+
+@functools.lru_cache(maxsize=32)
+def _topology_from_key(topo, cs_channel, diamond_pump_nm, diamond_coupling_nm,
+                       diamond_signal_nm, diamond_idler_nm):
     if topo == TOPOLOGY_CS_BTW:
-        return _cs_btw_spec(params.get("cs_channel", CS_CHANNEL_917))
+        return _cs_btw_spec(cs_channel)
     if topo == TOPOLOGY_DIAMOND:
+        params = dict(
+            diamond_pump_nm=diamond_pump_nm,
+            diamond_coupling_nm=diamond_coupling_nm,
+            diamond_signal_nm=diamond_signal_nm,
+        )
+        if diamond_idler_nm is not None:
+            params["diamond_idler_nm"] = diamond_idler_nm
         return _diamond_generic_spec(params)
     return _rb87_telecom_spec()
+
+
+def topology_from_params(params):
+    return _topology_from_key(*_topology_cache_key(params))
 
 
 def _default_biphoton_geometry(params):
@@ -601,12 +629,12 @@ class GenericFWMSolver:
             rabi = field.rabi_mhz
             detuning = field.detuning_mhz
             if field.role == "pump":
-                rabi = math.sqrt(max(pump_rabi, 0.0) / max(self.topology.default_pump_uw, 1e-12))
-                rabi *= 2.0
+                rabi = beam.anchored_rabi_mhz(
+                    2.0, pump_rabi, self.topology.default_pump_uw)
                 detuning = params.get("pump_detuning_mhz", 0.0)
             elif field.role == "coupling":
-                rabi = math.sqrt(max(coupling_rabi, 0.0) / max(self.topology.default_coupling_mw, 1e-12))
-                rabi *= 12.0
+                rabi = beam.anchored_rabi_mhz(
+                    12.0, coupling_rabi, self.topology.default_coupling_mw)
                 detuning = params.get("coupling_detuning_mhz", 0.0)
             out.append(_field_with(
                 field,
@@ -930,16 +958,7 @@ class GenericFWMSolver:
             # velocity-sum dephasing, so it is stable on the user grid (no refine).
             velocity_converged = True
 
-        angle_axis = np.linspace(max(idler.angle_deg - 4.0, 0.0),
-                                 idler.angle_deg + 4.0, 181)
-        angle_dk = np.array([
-            phase_mismatch_vector(
-                fields, idler_angle_deg=a,
-                reference_delta_k=self.topology.reference_delta_k
-            )["delta_k_vector"]
-            for a in angle_axis
-        ])
-        acceptance = phase_matching_weight(angle_dk, L)
+        angle_axis = acceptance = None
         signal_axis = phase_matching_2d = None
         idler_axis_2d = None
         if fine_phase:
@@ -993,6 +1012,12 @@ class GenericFWMSolver:
             "velocity_converged": bool(velocity_converged),
             "notes": self.topology.notes,
         }
+
+
+@functools.lru_cache(maxsize=32)
+def _solver_from_topology_key(key):
+    return GenericFWMSolver(_topology_from_key(*key))
+
 
 # =========================================================
 # Hamiltonians
@@ -1886,8 +1911,8 @@ class FWMScheme(Scheme):
     def compute(self, params):
         if params.get("mode", MODE_SEEDED) == MODE_BIPHOTON:
             params = self._biphoton_runtime_params(params)
-            topology = topology_from_params(params)
-            return GenericFWMSolver(topology).compute_biphoton(params)
+            return _solver_from_topology_key(
+                _topology_cache_key(params)).compute_biphoton(params)
         center = branch_center_GHz(params["opd"], -1)
         fidelity = normalize_fidelity(params["resolution"])
         res = FWM_FIDELITY[fidelity]
@@ -1916,9 +1941,6 @@ class FWMScheme(Scheme):
                 raw, params, include_figures=include_figures)
         return self._seeded_observables(
             raw, params, include_figures=include_figures)
-
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)
 
     def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
@@ -2058,7 +2080,21 @@ class FWMScheme(Scheme):
             axG2.set_title(f"{topo.label}: {title_tag}")
             axG2.grid(alpha=0.3)
 
-            axPM.plot(raw["angle_axis_deg"], raw["phase_matching"],
+            angle_axis = raw.get("angle_axis_deg")
+            phase_matching = raw.get("phase_matching")
+            if angle_axis is None or phase_matching is None:
+                angle_axis = np.linspace(max(params["idler_angle_deg"] - 4.0, 0.0),
+                                         params["idler_angle_deg"] + 4.0, 181)
+                angle_dk = np.array([
+                    phase_mismatch_vector(
+                        raw["fields"], idler_angle_deg=a,
+                        reference_delta_k=topo.reference_delta_k
+                    )["delta_k_vector"]
+                    for a in angle_axis
+                ])
+                phase_matching = phase_matching_weight(angle_dk, raw["cell_length_m"])
+
+            axPM.plot(angle_axis, phase_matching,
                       color="#2ca02c", lw=1.8)
             axPM.axvline(params["idler_angle_deg"], color="crimson", lw=1.1, ls="--")
             axPM.set_xlabel("Idler collection angle [deg]")
@@ -2287,7 +2323,8 @@ class FWMScheme(Scheme):
             other_channel = CS_CHANNEL_795 if params.get("cs_channel") == CS_CHANNEL_917 else CS_CHANNEL_917
             other_params = dict(params)
             other_params["cs_channel"] = other_channel
-            other_raw = GenericFWMSolver(topology_from_params(other_params)).compute_biphoton(other_params)
+            other_raw = _solver_from_topology_key(
+                _topology_cache_key(other_params)).compute_biphoton(other_params)
             other_stats = observables.biphoton_stats(
                 other_raw["tau_axis_ns"], other_raw["psi_tau"], other_raw["pair_rate_cps"],
                 signal_eff=params["signal_eff_pct"] / 100.0,

@@ -15,7 +15,7 @@ import functools
 
 import numpy as np
 
-from .. import atoms, constants, core, doppler, kernels, observables, species
+from .. import atoms, beam, constants, core, doppler, kernels, observables, species
 from ..report import derived_table
 from .base import ExtraView, ParamSpec, Scheme
 
@@ -68,8 +68,8 @@ def _cascade_skeleton():
     line = _probe_line()
     gamma_r = 0.02 * MHZ
     kp = line["k_vec"]
-    kc = 2 * np.pi / (COUPLING_WAVELENGTH_NM * 1e-9)
-    ratio = (kp - kc) / kp
+    kc = beam.wavevector_from_wavelength_nm(COUPLING_WAVELENGTH_NM)
+    ratio = beam.collinear_residual_k_ratio(kp, kc)
     return dict(
         labels=("5S F=3", "5P F'=4", "40D", "39F"),
         decay=((1, 0, line["gamma_e"]), (2, 1, gamma_r), (3, 2, gamma_r)),
@@ -229,8 +229,8 @@ class RydbergEITScheme(Scheme):
         d = float(params.get("beam_diameter_mm", self._REF["beam_diameter_mm"]))
         p_ref = self._REF["coupling_power_mw"]
         d_ref = self._REF["beam_diameter_mm"]
-        scale = np.sqrt(max(p, 0.0) / p_ref) * (d_ref / max(d, 1e-9))
-        return oc_ref * scale
+        return beam.anchored_rabi_mhz(
+            oc_ref, p, p_ref, diameter=d, ref_diameter=d_ref)
 
     def _probe_rabi(self, params):
         """Weak-probe drive Ω_P/2π [MHz] from probe power & waist, anchored at the
@@ -240,7 +240,8 @@ class RydbergEITScheme(Scheme):
         d = float(params.get("beam_diameter_mm", self._REF["beam_diameter_mm"]))
         p_ref = self._REF["probe_power_uw"]
         d_ref = self._REF["beam_diameter_mm"]
-        return PROBE_RABI_REF_MHZ * np.sqrt(max(p, 0.0) / p_ref) * (d_ref / max(d, 1e-9))
+        return beam.anchored_rabi_mhz(
+            PROBE_RABI_REF_MHZ, p, p_ref, diameter=d, ref_diameter=d_ref)
 
     def _transit_rate_mhz(self, params):
         """Transit-time broadening of the 5S–40D coherence /2π [MHz]: an atom
@@ -248,9 +249,9 @@ class RydbergEITScheme(Scheme):
         v_mp/d. Ties the beam diameter (and temperature) to the EIT linewidth —
         the transit-limited regime Ju et al. report."""
         T = float(params.get("temp_c", self._REF["temp_c"])) + 273.15
-        d = float(params.get("beam_diameter_mm", self._REF["beam_diameter_mm"])) * 1e-3
-        v_mp = np.sqrt(2 * constants.KB * T / constants.MASS_85RB)
-        return TRANSIT_FACTOR * v_mp / max(d, 1e-9) / MHZ
+        d = float(params.get("beam_diameter_mm", self._REF["beam_diameter_mm"]))
+        return beam.transit_broadening_mhz(
+            T, d, mass=constants.MASS_85RB, factor=TRANSIT_FACTOR)
 
     def _scan_chi(self, atom, h_of, scan, probe, kv, w):
         """χ̄(scan) for one dephasing configuration via the affine kernel
@@ -553,9 +554,6 @@ class RydbergEITScheme(Scheme):
             ("N(85Rb)", f"{raw['N']:.3e} /m³"),
         ])
         return dict(metrics=ro["metrics"], figure=fig, tables=[derived])
-
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)
 
     def extra_views(self):
         """Ju et al. Fig. 2(b): EIT peak amplitude and linewidth vs probe power,

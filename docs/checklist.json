@@ -28,7 +28,7 @@
       "id": "figureless-observables-paths",
       "area": "schemes/* + streamlit_app.py",
       "title": "Split metric/table readout from Matplotlib figure generation across schemes",
-      "why": "DONE for the current scheme API. Scheme.headless_observables now provides the public hook, and all current user-facing schemes (OD/SAS, Lambda, Rydberg-EIT, Magneto, FWM) plus the internal OD validation primitive implement include_figures=False so metrics/tables can skip Matplotlib while preserving the existing UI figure path. tests/test_headless_observables.py proves the headless path does not call plt.subplots; tests/test_schemes_render.py still proves normal figure rendering. No existing non-UI batch/report callsite needed rewiring; future batch/report callers should use headless_observables.",
+      "why": "DONE for the current scheme API. Scheme.headless_observables now provides the public hook and centralized wrapper: schemes opt in by exposing observables(..., include_figures=False), while the base class performs the common headless dispatch. All current user-facing schemes (OD/SAS, Lambda, Rydberg-EIT, Magneto, FWM) plus the internal OD validation primitive support this path so metrics/tables can skip Matplotlib while preserving the existing UI figure path. tests/test_headless_observables.py proves the headless path does not call plt.subplots and that the base wrapper passes include_figures=False without forbidding future custom overrides; tests/test_schemes_render.py still proves normal figure rendering. No existing non-UI batch/report callsite needed rewiring; future batch/report callers should use headless_observables.",
       "status": "done"
     },
     {
@@ -56,8 +56,8 @@
       "id": "lambda-residual-two-photon-doppler",
       "area": "schemes/absorption.py",
       "title": "Add Lambda residual two-photon Doppler / beam-angle mismatch option",
-      "why": "GROUP B. Safe if kept affine and optional. Current Lambda assumes exactly Doppler-free two-photon resonance in co-propagating geometry. Add a delta_k_eff or beam-angle knob that broadens/washes out warm-vapor EIT/CPT without moving to a full velocity-collision model.",
-      "status": "deferred"
+      "why": "DONE. Lambda now exposes an Advanced beam_angle_mrad knob that defaults to 0 mrad, preserving the co-propagating Doppler-free two-photon resonance. Nonzero mismatch computes a residual |Delta k|/k with the shared gabes.beam geometry helper and carries it through atoms.lambda3(two_photon_doppler_ratio=...) / AtomModel.S_v, so warm-vapor EIT/CPT broadens or washes out without increasing solver dimension or adding a full velocity-changing-collision model. The same work extracted anchored Rabi scaling, transit broadening, wave-vector, and residual-k helpers to gabes/beam.py and refactored Lambda, Rydberg-EIT, and generic FWM users onto them.",
+      "status": "done"
     },
     {
       "id": "low-order-polarization-zeeman-proxies",

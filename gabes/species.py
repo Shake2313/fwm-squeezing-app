@@ -32,6 +32,7 @@ References
       D. W. Preston, Am. J. Phys. 64, 1432 (1996). (Rb saturated-absorption,
       crossover bookkeeping.)
 """
+import functools
 import math
 from dataclasses import dataclass, field
 
@@ -333,6 +334,7 @@ class Manifold:
         return self.atom.n_levels
 
 
+@functools.lru_cache(maxsize=64)
 def build_manifold(iso, line, transit_rate=0.0):
     """
     Build the full {Fg}×{Fe} hyperfine manifold for `iso` on `line` ('D1'/'D2').

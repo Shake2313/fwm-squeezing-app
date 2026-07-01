@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT))
 
 from gabes import schemes  # noqa: E402
 from gabes.schemes.absorption import ODScheme  # noqa: E402
+from gabes.schemes.base import Scheme  # noqa: E402
 
 
 def _fast(params):
@@ -66,7 +67,30 @@ def test_headless_observables_do_not_build_figures():
         plt.close("all")
 
 
+def test_base_headless_observables_passes_include_figures_false():
+    class ProbeScheme(Scheme):
+        supports_headless_observables = True
+
+        def param_schema(self):
+            return []
+
+        def compute(self, params):
+            return {}
+
+        def observables(self, raw, params, include_figures=True):
+            return dict(
+                metrics=[dict(label="include_figures", value=str(include_figures))],
+                figure="figure" if include_figures else None,
+                tables=[],
+            )
+
+    view = ProbeScheme().headless_observables({}, {})
+    assert view["figure"] is None
+    assert view["metrics"][0]["value"] == "False"
+
+
 if __name__ == "__main__":
     test_current_schemes_support_headless_observables()
     test_headless_observables_do_not_build_figures()
+    test_base_headless_observables_passes_include_figures_false()
     print("All current schemes expose headless observables.")

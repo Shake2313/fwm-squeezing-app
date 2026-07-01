@@ -154,7 +154,7 @@ def two_level(gamma=None):
     )
 
 
-def lambda3(gamma_gg=None, gamma=None):
+def lambda3(gamma_gg=None, gamma=None, two_photon_doppler_ratio=0.0):
     """
     3-level Λ: ground g₁(0), g₂(1), excited e(2). Excited decays to each ground
     at Γ/2 (symmetric branching, total Γ). `gamma_gg` is the ground-coherence
@@ -162,12 +162,20 @@ def lambda3(gamma_gg=None, gamma=None):
     """
     gamma = constants.GAMMA if gamma is None else gamma
     gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg
+    two_photon_doppler_ratio = float(two_photon_doppler_ratio)
+    if abs(two_photon_doppler_ratio) > 1e-15:
+        doppler_levels = (1, 2)
+        doppler_ratios = ((1, two_photon_doppler_ratio), (2, 1.0))
+    else:
+        doppler_levels = (2,)
+        doppler_ratios = ()
     return AtomModel(
         name="lambda3", n_levels=3, labels=("g1", "g2", "e"),
         ground=(0, 1), excited=(2,),
         decay=((2, 0, gamma / 2), (2, 1, gamma / 2)),
         dephasing=((0, 1, gamma_gg), (1, 0, gamma_gg)),
-        doppler_levels=(2,),
+        doppler_levels=doppler_levels,
+        doppler_ratios=doppler_ratios,
     )
 
 

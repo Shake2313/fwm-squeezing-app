@@ -12,11 +12,12 @@ Contract
   extra_views()            -> [ExtraView]    optional heavy on-demand panels.
   compute(params)          -> dict           heavy solve; uses ONLY recompute knobs
                                              so the UI can cache it.
-  observables(raw, params) -> dict           cheap; uses all knobs (incl. navigate)
+  observables(raw, params,
+              include_figures=True) -> dict  cheap; uses all knobs (incl. navigate)
                                              -> {"metrics":[...], "figure":fig,
                                                  "tables":[...]}.
-  headless_observables(raw, params) -> dict  optional metric/table path that can
-                                             skip figure generation when supported.
+  headless_observables(raw, params) -> dict  metric/table path that skips figure
+                                             generation when supported.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -103,15 +104,19 @@ class Scheme(ABC):
         ...
 
     @abstractmethod
-    def observables(self, raw: dict, params: dict) -> dict:
+    def observables(self, raw: dict, params: dict,
+                    include_figures: bool = True) -> dict:
         ...
 
     def headless_observables(self, raw: dict, params: dict) -> dict:
         """Metric/table readout without figures when a scheme implements it.
 
-        The default preserves the old contract for schemes that have not been
-        split yet; pilots can override this to skip Matplotlib entirely.
+        Schemes opt in by accepting `include_figures=False` in observables().
+        The fallback preserves the older contract for schemes that have not
+        split metric/table readout from figure generation.
         """
+        if self.supports_headless_observables:
+            return self.observables(raw, params, include_figures=False)
         return self.observables(raw, params)
 
     # ---- helpers shared by the UI ----

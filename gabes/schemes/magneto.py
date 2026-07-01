@@ -715,6 +715,3 @@ class MagnetoScheme(Scheme):
             {"title": "Notes", "markdown": note},
             derived,
         ])
-
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)

@@ -8,9 +8,10 @@ CPT : same Λ, narrow two-photon scan → sub-natural dark resonance.
 
 All share one engine: build a rotating-frame H₀ with a weak probe (and optional
 strong coupling), solve the steady state per velocity class (core.steady_state_
-batched), and read the probe coherence ρ_eg/Ω_p = χ̄. Co-propagating geometry, so
-the single excited-state Doppler shift (atom.S_v) is exact: the optical line is
-Doppler-broadened while the Λ two-photon resonance stays Doppler-free.
+batched), and read the probe coherence ρ_eg/Ω_p = χ̄. Co-propagating geometry is
+the default: the optical line is Doppler-broadened while the Λ two-photon
+resonance stays Doppler-free. An optional beam-angle mismatch adds residual
+two-photon Doppler through the same atom.S_v path.
 
 Spectroscopic knobs are in units of Γ (natural linewidth) so the physics is
 atom-agnostic and validation is direct (AT splitting reads Ω_c). Temperature sets
@@ -18,7 +19,7 @@ the Doppler width and the 85Rb number density (hence the absorption scale).
 """
 import numpy as np
 
-from .. import atoms, constants, doppler, hyperfine, observables, species
+from .. import atoms, beam, constants, doppler, hyperfine, observables, species
 from ..constants import GAMMA, K_VEC, OMEGA_D1
 from .. import core, kernels
 from ..lineshape import fwhm_halfmax, window_fwhm
@@ -60,15 +61,15 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
                    probe_omega=None, k_vec=None, mass=None):
     """
     χ̄(scan) = probe coherence ρ_eg / Ω_p, Doppler-averaged over the Maxwell
-    velocity distribution (single excited-state shift, co-propagating geometry).
+    velocity distribution (optical shift plus optional per-level residual shifts).
 
     Doppler off: a single v = 0 solve per scan point.
     Doppler on, scan-independent H (OD): one fine χ̄(Δ_eff) table + interpolated
         Doppler average — decouples velocity sampling from the solve (accurate
         Voigt without millions of solves), mirroring the FWM Δ_eff trick.
     Doppler on, scan-dependent H (Λ): per scan point, solve directly at the
-        Maxwell velocity classes. The Λ two-photon feature is Doppler-free
-        (exact); only the broad optical background is averaged.
+        Maxwell velocity classes. The Λ two-photon feature is Doppler-free unless
+        atom.S_v carries an optional residual two-photon k-ratio.
     """
     e, g = probe_coh
     om_p = PROBE_RABI * GAMMA if probe_omega is None else probe_omega
@@ -114,8 +115,8 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         table = rho[:, e, g] / om_p
         return doppler.doppler_average_1d(table, deff, scan, v, w, k_vec=k_vec)
 
-    # Scan-dependent H (Λ): the two-photon feature is Doppler-free, so the optical
-    # background must be solved at the Maxwell classes per scan point — this path
+    # Scan-dependent H (Λ): solve the optical background and any optional residual
+    # two-photon Doppler at the Maxwell classes per scan point — this path
     # is solve-bound (scan_points × velocity classes linear solves). The Doppler-
     # free feature is insensitive to velocity sampling and the broad optical
     # background is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1)
@@ -411,10 +412,6 @@ class ODScheme(Scheme):
         return self._observables_hyperfine(
             raw, params, include_figures=include_figures)
 
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)
-
-
 LAMBDA_GENERIC = "Generic"
 
 
@@ -537,6 +534,12 @@ class LambdaScheme(Scheme):
                       LAMBDA_COUPLING_DIAMETER_REF_MM, 0.05, 5.0, 0.05, "mm",
                       help="1/e² coupling-beam diameter used for the √(P/d²) "
                            "Rabi scaling."),
+            ParamSpec("beam_angle_mrad", "Beam angle mismatch", "Fields",
+                      0.0, 0.0, 20.0, 0.1, "mrad", advanced=True,
+                      help="Included angle between probe and coupling beams. "
+                           "0 mrad preserves the Doppler-free two-photon "
+                           "Lambda model; nonzero values add residual "
+                           "two-photon Doppler broadening."),
             ParamSpec("coupling_rabi_mhz", "Coupling Rabi (anchor)", "Fields", d["oc_mhz"],
                       0.1, 120.0, 0.1, "MHz",
                       advanced=True,
@@ -572,6 +575,7 @@ class LambdaScheme(Scheme):
             coupling_rabi_mhz=d["oc_mhz"], buffer_ground_relax_khz=d["gg_khz"],
             coupling_power_mw=LAMBDA_COUPLING_POWER_REF_MW,
             coupling_diameter_mm=LAMBDA_COUPLING_DIAMETER_REF_MM,
+            beam_angle_mrad=0.0,
             temp_c=d["temp"], cell_mm=d["cell"], doppler=d["dopp"],
             line_strength=1.0,
         )
@@ -582,9 +586,15 @@ class LambdaScheme(Scheme):
                        gamma_mhz, default_mhz)
         p = float(params.get("coupling_power_mw", LAMBDA_COUPLING_POWER_REF_MW))
         d = float(params.get("coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM))
-        scale = (np.sqrt(max(p, 0.0) / LAMBDA_COUPLING_POWER_REF_MW)
-                 * LAMBDA_COUPLING_DIAMETER_REF_MM / max(d, 1e-9))
-        return anchor * scale
+        return beam.anchored_rabi_mhz(
+            anchor, p, LAMBDA_COUPLING_POWER_REF_MW,
+            diameter=d, ref_diameter=LAMBDA_COUPLING_DIAMETER_REF_MM)
+
+    @staticmethod
+    def _two_photon_k_ratio(params, medium):
+        angle = float(params.get("beam_angle_mrad", 0.0))
+        return beam.angled_residual_k_ratio(
+            medium["k_vec"], medium["k_vec"], angle_mrad=angle)
 
     def recommended_defaults(self, params):
         if self.mode is not None:
@@ -596,14 +606,19 @@ class LambdaScheme(Scheme):
             "CPT": self._default_values("cpt"),
         }
 
-    def _scan(self, params):
-        m = self._mode(params)
-        medium = _medium_from_params(params)
+    def _scan(self, params, medium=None, mode=None, Oc_mhz=None, Dc_mhz=None,
+              gg_khz=None):
+        m = self._mode(params) if mode is None else mode
+        medium = _medium_from_params(params) if medium is None else medium
         gamma_mhz = medium["gamma_mhz"]
-        Oc = self._coupling_rabi_from_params(params, gamma_mhz, self._DEF[m]["oc_mhz"])
-        Dc = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
-        gg = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
-                   self._DEF[m]["gg_khz"]) / (gamma_mhz * 1e3)
+        Oc = (self._coupling_rabi_from_params(params, gamma_mhz, self._DEF[m]["oc_mhz"])
+              if Oc_mhz is None else Oc_mhz)
+        Dc = (_mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
+              if Dc_mhz is None else Dc_mhz)
+        gg_khz = (_mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
+                        self._DEF[m]["gg_khz"])
+                  if gg_khz is None else gg_khz)
+        gg = gg_khz / (gamma_mhz * 1e3)
         Oc_g = Oc / gamma_mhz
         Dc_g = Dc / gamma_mhz
         if m == "cpt":
@@ -619,24 +634,30 @@ class LambdaScheme(Scheme):
         medium = _medium_from_params(params)
         gamma = medium["gamma"]
         gamma_mhz = medium["gamma_mhz"]
+        mode = self._mode(params)
         Oc_mhz = self._coupling_rabi_from_params(
-            params, gamma_mhz, self._DEF[self._mode(params)]["oc_mhz"])
+            params, gamma_mhz, self._DEF[mode]["oc_mhz"])
         Dc_mhz = _mkey(params, "coupling_detuning_mhz", "coupling_detuning", gamma_mhz, 0.0)
         gg_khz = _mkey(params, "buffer_ground_relax_khz", "gamma_gg", gamma_mhz * 1e3,
-                       self._DEF[self._mode(params)]["gg_khz"])
-        atom = atoms.lambda3(gamma_gg=gg_khz * KHZ, gamma=gamma)
+                       self._DEF[mode]["gg_khz"])
+        two_photon_k_ratio = self._two_photon_k_ratio(params, medium)
+        atom = atoms.lambda3(
+            gamma_gg=gg_khz * KHZ, gamma=gamma,
+            two_photon_doppler_ratio=two_photon_k_ratio)
         Oc = Oc_mhz * MHZ
         Dc = Dc_mhz * MHZ
         probe = PROBE_RABI * gamma
 
         def build_H0(s):
             H = np.zeros((3, 3), dtype=complex)
-            H[1, 1] = Dc - s                      # two-photon detuning (Doppler-free)
+            H[1, 1] = Dc - s                      # two-photon detuning
             H[0, 2] = H[2, 0] = probe / 2
             H[1, 2] = H[2, 1] = Oc / 2
             return H
 
-        scan = self._scan(params)
+        scan = self._scan(
+            params, medium=medium, mode=mode, Oc_mhz=Oc_mhz,
+            Dc_mhz=Dc_mhz, gg_khz=gg_khz)
         chi_bar = _solve_chi_avg(
             atom, build_H0, (2, 0), scan, params, h_dep=True,
             probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"])
@@ -649,7 +670,9 @@ class LambdaScheme(Scheme):
                     coupling_power_mw=float(params.get(
                         "coupling_power_mw", LAMBDA_COUPLING_POWER_REF_MW)),
                     coupling_diameter_mm=float(params.get(
-                        "coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM)))
+                        "coupling_diameter_mm", LAMBDA_COUPLING_DIAMETER_REF_MM)),
+                    beam_angle_mrad=float(params.get("beam_angle_mrad", 0.0)),
+                    two_photon_k_ratio=two_photon_k_ratio)
 
     def observables(self, raw, params, include_figures=True):
         m = self._mode(params)
@@ -690,13 +713,12 @@ class LambdaScheme(Scheme):
             ("Ω_c / 2π", f"{raw['coupling_rabi_mhz']:.4f} MHz"),
             ("Coupling power", f"{raw['coupling_power_mw']:.3f} mW"),
             ("Coupling beam diameter", f"{raw['coupling_diameter_mm']:.3f} mm"),
+            ("Beam angle mismatch", f"{raw.get('beam_angle_mrad', 0.0):.3f} mrad"),
+            ("Residual two-photon k / k", f"{raw.get('two_photon_k_ratio', 0.0):.3e}"),
             ("Buffer ground relax / 2π", f"{raw['buffer_ground_relax_khz']:.3f} kHz"),
             ("N", f"{raw['N']:.3e} /m³"),
         ])
         return dict(metrics=metrics, figure=fig, tables=[derived])
-
-    def headless_observables(self, raw, params):
-        return self.observables(raw, params, include_figures=False)
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":

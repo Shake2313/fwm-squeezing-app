@@ -5,6 +5,7 @@ Hand-rolled Clebsch-Gordan (Racah formula — no sympy dependency) and a builder
 that turns (F_g, F_e) into an `AtomModel` plus the polarization-resolved dipole
 couplings (σ⁺, σ⁻, π) and CG-branched spontaneous emission.
 """
+import functools
 import math
 
 import numpy as np
@@ -65,6 +66,7 @@ def angular_momentum_matrices(F):
     return Fx, Fy, Fz
 
 
+@functools.lru_cache(maxsize=16)
 def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
                     transit_rate=0.0):
     """
