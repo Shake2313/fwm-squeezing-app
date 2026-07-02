@@ -98,6 +98,17 @@ SEEDED_PHASE_ANGLE_DEG = 0.32
 ULTRA_PHASE_ITERATIONS = 1   # n(χ) has no Δk feedback; one refractive pass is exact
 ULTRA_PROPAGATION_SEGMENTS = 64
 
+# Hardened excess-noise model — now INTRINSIC to the Ultra path (see
+# `compute_spectrum`). It adds the two penalties the gap-only squeezing objective
+# is blind to: (i) the CONJUGATE arm's own in-cell absorption (asymmetric twin-arm
+# loss, the squeezing killer Sim et al. document when the conjugate sits near
+# resonance), and (ii) pump-scatter excess noise anchored to the validated
+# hyperfine pump OD. `kappa` is the one residual coefficient: the fraction of
+# scattered-pump OD that leaks into the difference photocurrent. The pinned
+# regression baseline is the LEGACY path, so folding this into Ultra leaves it
+# untouched; pass `excess_noise_model=False` to recover pre-hardening Ultra (A/B).
+HARDENED_PUMP_SCATTER_KAPPA = 0.1
+
 
 # =========================================================
 # Generic SFWM / biphoton topology layer
@@ -1241,6 +1252,53 @@ def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg, L=L_
     return np.exp(-0.5 * od * z_frac), od
 
 
+def _arm_linear_od(beam_GHz, T, L=L_CELL, ground_F=2):
+    """Linear in-cell absorption suffered by a twin-beam arm (probe or conjugate)
+    at its own optical frequency (per δ), from the validated hyperfine path.
+
+    The lumped 4-level parametric susceptibilities `chi_ss`/`chi_cc` carry the FWM
+    response but NOT the ordinary linear absorption a real beam suffers from the
+    vapor when it crosses the F=`ground_F`→F' manifold — the physics that kills
+    squeezing when a sideband lands near resonance (the conjugate near F=2→F'=3 in
+    the deep-red-Δ region; the probe near F=2→F'=3 in the deep-blue-Δ region). We
+    sum just those manifold components of the AutoOD-validated α (<0.1 % vs lab).
+    Δ=0 is 85Rb F=2→F'=3, hence the ref-line shift.
+    """
+    from . import absorption
+    ref_hz = hyperfine.LINE_SHIFT_HZ[(2, 3)]
+    scan = 2 * np.pi * (np.asarray(beam_GHz, dtype=float) * 1e9 + ref_hz)
+    params = {"temp_c": float(T) - 273.15, "line_strength": 1.0, "doppler": "on"}
+    _alpha_tot, comps, _info = absorption._hyperfine_alpha(scan, params)
+    alpha = np.zeros_like(scan, dtype=float)
+    for (Fg, _Fe), a in comps.items():
+        if Fg == ground_F:
+            alpha = alpha + np.asarray(a, dtype=float)
+    return np.clip(np.maximum(alpha, 0.0) * L, 0.0, 5.0)
+
+
+def _pump_scatter_noise(D_GHz, T, L, kappa):
+    """Excess intensity-difference noise (normalized to SQL) from pump light
+    scattered into the detection mode.
+
+    Anchored to the validated hyperfine absorption path (`schemes.absorption.
+    _hyperfine_alpha`, <0.1 % vs lab): the pump's own linear OD at its detuning
+    fixes how much pump power is scattered by the vapor; `kappa` is the residual
+    fraction reaching the difference photocurrent (PBS extinction + spatial
+    filtering leakage). Small far from resonance (Sim's +0.9 GHz window), large
+    when the pump sits near a populous manifold (the −2.1 GHz / F=3 region).
+    """
+    from . import absorption
+    # `_hyperfine_alpha`'s scan axis is referenced to the 87Rb F=2→F'=2 marker
+    # (hyperfine.LINE_SHIFT_HZ), whereas the FWM Δ is referenced to 85Rb F=2→F'=3.
+    # Shift by that line's position so Δ=0 maps to the F=2→F'=3 line center.
+    ref_hz = hyperfine.LINE_SHIFT_HZ[(2, 3)]
+    scan = np.array([2 * np.pi * (float(D_GHz) * 1e9 + ref_hz)])
+    params = {"temp_c": float(T) - 273.15, "line_strength": 1.0, "doppler": "on"}
+    alpha, _, _ = absorption._hyperfine_alpha(scan, params)
+    od_pump = float(np.clip(float(alpha[0]) * L, 0.0, 50.0))
+    return float(kappa) * (1.0 - math.exp(-od_pump)), od_pump
+
+
 def _gaussian_overlap_profile(nseg, L, w_pump, w_probe, angle_deg):
     """Amplitude overlap of crossed Gaussian beams along the cell."""
     theta = math.radians(float(angle_deg))
@@ -1374,8 +1432,20 @@ def compute_spectrum(D_GHz, *,
                      branch=DEFAULT_BRANCH, branches=None,
                      phase_detail=PHASE_LEGACY,
                      pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
-                     model_fidelity=None):
-    """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README)."""
+                     model_fidelity=None,
+                     excess_noise_model=None):
+    """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README).
+
+    The Ultra path folds in the hardened excess-noise model by default: the
+    conjugate arm's own in-cell absorption (asymmetric twin-arm loss) and
+    pump-scatter excess noise, which penalise the near-resonance/high-gain regions
+    the gap-only objective otherwise rewards for free. `excess_noise_model`:
+    None/True → on (default); a dict tunes it (e.g. ``{"pump_scatter_kappa":0.2}``);
+    ``False`` recovers the pre-hardening Ultra squeezing (kept for A/B and for
+    reproducing pre-hardening reports). No effect outside the Ultra path — the
+    legacy/balanced/fine squeezing formulas (and the pinned regression) are
+    unchanged.
+    """
     branch = _single_branch(branch, branches)
     if line_strength is None:
         line_strength = constants.LINE_STRENGTH_FACTOR
@@ -1510,12 +1580,50 @@ def compute_spectrum(D_GHz, *,
     # caps the runaway when (G_s−1)·P_seed approaches P_pump/2.
     G_s_smallsignal = G_s
     G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
+    hardened_noise = None
     if phase_detail == PHASE_ULTRA:
         in_cell_loss_frac = float(np.clip(1.0 - np.exp(-segment_od), 0.0, 1.0))
-        S_dB = observables.segmented_loss_noise_squeezing_dB(
-            G_s, G_c, eta, in_cell_loss_frac=in_cell_loss_frac,
-            seed_excess_noise=0.0, pump_scatter_noise=0.0,
-            eom_residual_noise=0.0)
+        if excess_noise_model is False:
+            # Pre-hardening Ultra (gap-only S_ideal + probe-only in-cell loss),
+            # kept for A/B and for reproducing pre-hardening reports.
+            S_dB = observables.segmented_loss_noise_squeezing_dB(
+                G_s, G_c, eta, in_cell_loss_frac=in_cell_loss_frac,
+                seed_excess_noise=0.0, pump_scatter_noise=0.0,
+                eom_residual_noise=0.0)
+        else:
+            cfg = {} if excess_noise_model in (None, True) else dict(excess_noise_model)
+            kappa = cfg.get("pump_scatter_kappa", HARDENED_PUMP_SCATTER_KAPPA)
+            # The F=2→F'=3 manifold is the linear absorption the lumped double-Λ
+            # omits for the generated sidebands. Apply it at BOTH sidebands' own
+            # optical frequencies: without the probe term the deep-blue-Δ region
+            # parks the probe ON F=2→F'=3 with no penalty (a probe-side mirror of
+            # the conjugate artifact).
+            conj_ground = G1 if branch == -1 else G2
+            manifold_F = GROUND_F[conj_ground]
+            conj_GHz = 2.0 * float(D_GHz) - probe_axis_GHz
+            od_conj_arr = _arm_linear_od(conj_GHz, T, L, ground_F=manifold_F)
+            od_probe_lin = _arm_linear_od(probe_axis_GHz, T, L, ground_F=manifold_F)
+            pump_scatter, od_pump = _pump_scatter_noise(D_GHz, T, L, kappa)
+            # Probe arm: model chi_ss in-cell OD (segment_od) PLUS the omitted
+            # manifold linear absorption at its frequency. Conjugate arm: the
+            # manifold linear absorption (the parametric chi_cc omits it entirely).
+            # Asymmetric arm loss -> validated balanced two-arm noise model.
+            eta_s_arm = eta * np.exp(-(float(segment_od) + od_probe_lin))
+            eta_c_arm = eta * np.exp(-od_conj_arr)
+            S_lin = observables.balanced_twin_beam_noise(
+                G_s, G_c, eta_s_arm, eta_c_arm, reference_weight="dc",
+                seed_excess_noise=pump_scatter)
+            S_dB = 10.0 * np.log10(np.maximum(S_lin, 1e-30))
+            hardened_noise = {
+                "kappa": float(kappa),
+                "pump_scatter_noise": float(pump_scatter),
+                "od_pump": float(od_pump),
+                "segment_od_probe": float(segment_od),
+                "od_conj_max": float(np.nanmax(od_conj_arr)),
+                "od_probe_lin_max": float(np.nanmax(od_probe_lin)),
+                "od_conj_arr": od_conj_arr,
+                "od_probe_lin_arr": od_probe_lin,
+            }
     else:
         S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, eta)
 
@@ -1556,6 +1664,7 @@ def compute_spectrum(D_GHz, *,
         "Os_2pi_MHz": Os / (2 * np.pi) / 1e6,
         "raman_center_minus_GHz": branch_center_GHz(D_GHz, -1),
         "raman_center_plus_GHz": branch_center_GHz(D_GHz, +1),
+        "hardened_noise": hardened_noise,
     }
 
 
