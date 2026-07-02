@@ -1,0 +1,289 @@
+% !TEX program = xelatex
+% 컴파일: xelatex squeezing_report_v5.tex  (목차/참조 때문에 2회 실행 권장)
+% 한글 출력: kotex + XeLaTeX. Windows 기본 'Malgun Gothic' 사용.
+% 그림:
+%   squeezing_frontier_v5.png                    -- v5 hardened Ultra frontier (3-panel)
+%   squeezing_frontier_od_v5.png                 -- probe OD + conjugate OD + xi(T) slices
+%   squeezing_frontier_hardened_compare_v5.png   -- v4 legacy vs v5 hardened xi(Delta,T)
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{./}}
+\sloppy
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\degC}{\,^{\circ}\mathrm{C}}
+
+\title{\textbf{$^{85}$Rb D1 이중-$\Lambda$ 사파장혼합(FWM) 트윈빔\\
+세기차 스퀴징 최적점: 강화된 과잉잡음 모델과\\
+음(-)디튜닝 최적점의 재평가 --- 아티팩트와 실제 물리의 분리}\\[4pt]
+\large 보고서 v5}
+\author{GABES (Generic Atomic Bloch Equation Solver) 분석 보고서}
+\date{2026년 7월 2일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+v4까지 GABES FWM 엔진의 Ultra 스퀴징 목적함수는 이상 세기차 노이즈
+$S_{\mathrm{ideal}}=(G_s-G_c)^2/(G_s+G_c)$(이득 \emph{차이}만 보는 gap-only 식)와
+probe-측 in-cell 손실만으로 구성되어, \textbf{절대 이득 크기·conjugate/probe 선형
+흡수·pump scatter를 전혀 청구하지 않았다.} 그 결과 공명 근처의 초고이득
+영역($G_s\sim636$, in-cell OD$\approx0$이라는 내부 모순)을 공짜로 보상해 전역 최적을
+$\Delta=-2.20\GHz$($\xi=-8.83\dB$)에 고정시켰다.
+
+본 v5에서는 Ultra 경로에 \textbf{강화된 과잉잡음 모델}을 내재화했다: (1) 두
+사이드밴드(probe·conjugate)가 각자의 광주파수에서 겪는 F=2$\to$F$'$=3 매니폴드
+선형 흡수(검증된 AutoOD 흡수, $<0.1\%$ vs lab; lumped 4-준위 파라메트릭 $\chi$가
+누락하는 물리), (2) 검증된 pump OD에 앵커된 pump scatter. 흡수 채널은 무보정,
+pump scatter만 잔여 계수 $\kappa$(기본 $0.1$)를 갖는다.
+
+\textbf{핵심 결과는 두 갈래로 분리된다.} 첫째(성공), 강화 모델은 \emph{극단
+이득 아티팩트를 제거}한다: 전역 최적의 $G_s$가 $636\to27$로 내려오고, v4에서
+아티팩트를 만들던 $-2.20\GHz/135\degC$ 좌표($G_s=636$)는 conjugate 흡수로
+$-8.83\to-5.41\dB$로 억제된다. 둘째(정직한 한계), 그럼에도 \emph{전역 최적은
+음(-)디튜닝에 남는다}: $\Delta=-2.00\GHz$, $T=120\degC$, $\xi=-8.07\dB$,
+$G_s=27$. 양(+)측 Sim-쪽 lobe($\Delta=+1.3\GHz$, $\xi=-7.79\dB$)는 $0.28\dB$
+얕아 근접-축퇴(near-degenerate)다. 즉 \textbf{음(-)디튜닝 최적점은 부분적으로
+아티팩트(극단 이득, 교정됨)이고 부분적으로 실제 물리}다: 더 많이 채워진 F=3
+바닥 매니폴드(7/12 vs 5/12)와 far-red probe의 깨끗한 스펙트럼 위치가 물리적
+이점을 준다. 실험의 $+0.9\GHz$ 선호를 재현하려면 pump가 F=3 공명 근처일 때의
+광펌핑(optical pumping)에 의한 F=3 population 고갈이 필요하며, 이는 현재의 lumped
+정상상태 모델에 담기지 않는다.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{v4 대비 달라진 것}
+%==================================================================
+\begin{enumerate}[nosep]
+\item \textbf{강화된 과잉잡음 모델을 Ultra에 내재화.} 별도 fidelity나 UI/CLI
+      토글이 아니라 Ultra 경로의 기본 동작으로 통합(엔진 kwarg
+      \texttt{excess\_noise\_model=False}로만 이전 Ultra 재현; A/B·구보고서 재현용).
+      고정된 회귀 베이스라인은 \emph{legacy} 경로를 시험하므로 무영향.
+\item \textbf{세 과잉잡음 채널.} 두 사이드밴드의 F=2$\to$F$'$=3 매니폴드 선형
+      흡수(무보정, 검증된 AutoOD) + $\kappa$-앵커 pump scatter.
+\item \textbf{극단 이득 아티팩트 제거.} 최적 $G_s$가 $636\to27$로 내려오고
+      $G_s=636$ @ OD$\approx0$의 내부 모순 좌표가 억제된다.
+\item \textbf{음(-)디튜닝 최적점의 재평가.} 최적은 여전히 음(-)측이지만
+      ($-2.20\to-2.00\GHz$) 이제 물리적 이득 스케일이며, 양(+)측 lobe와
+      $0.28\dB$ 근접-축퇴다. 아티팩트와 실제 F=3 물리를 분리해 정직히 보고한다.
+\end{enumerate}
+
+%==================================================================
+\section{진단: 극단 이득 아티팩트}
+%==================================================================
+v4의 Ultra 스퀴징 값은 사실상 세 조각의 함수였다:
+\begin{equation}
+S = \eta\,[\tau_{\mathrm{cell}}\,S_{\mathrm{ideal}}(G_s,G_c) + (1-\tau_{\mathrm{cell}})]
+    + (1-\eta),\qquad
+S_{\mathrm{ideal}}=\frac{(G_s-G_c)^2}{G_s+G_c},
+\end{equation}
+$\tau_{\mathrm{cell}}=e^{-\mathrm{OD}}$의 OD는 \emph{probe leg}($\chi_{ss}$)에서만
+계산되었고 과잉잡음 항은 전부 $0$이었다.
+\begin{itemize}[nosep]
+\item $S_{\mathrm{ideal}}$은 이득 \emph{차이}만 본다. gap$\approx1$이면 $G_s=636$이든
+      $27$이든 똑같이 깊게 보고된다 --- 이득을 만든 흡수/scatter 비용이 목적함수에
+      없다.
+\item probe가 공명에서 먼 음(-)디튜닝($\Delta=-2.2$: probe $\approx-5.2\GHz$)에서
+      $\chi_{ss}$-기반 OD$\approx0$이므로, conjugate가 $+0.85\GHz$(F=2$\to$F$'$=3
+      근처)에 앉아 실제로 흡수됨에도 페널티가 없었다.
+\item $G_s=636$인데 OD$\approx0$이라는 보고 자체가 내부 모순이다: 그만한 이득은
+      근처 공명의 강한 응답(=큰 흡수)을 요구한다. 이득 채널과 손실 채널이
+      디커플되어 있었다.
+\end{itemize}
+이 부분(초고이득 아티팩트)은 강화 모델로 명확히 제거된다.
+
+%==================================================================
+\section{강화된 과잉잡음 모델}
+%==================================================================
+\begin{enumerate}[nosep]
+\item \textbf{두 사이드밴드의 선형 흡수.} 파라메트릭 $\chi_{ss}/\chi_{cc}$는 FWM
+      응답만 담고, 각 빔이 자기 광주파수에서 F=2$\to$F$'$=3 매니폴드를 가로지를 때의
+      \emph{선형} 흡수를 누락한다. 검증된 hyperfine 흡수를 conjugate 주파수
+      $f_c=2\Delta-f_{\mathrm{probe}}$와 probe 주파수 $f_{\mathrm{probe}}$ 양쪽에서
+      계산해 arm 투과율 $\eta_{s,c}=\eta\,e^{-\mathrm{OD}_{s,c}}$로 적용한다. probe
+      항이 없으면 deep-blue-$\Delta$($\simeq+3\GHz$)에서 probe가 F=2 공명에 앉는
+      mirror 아티팩트가 남는다.
+\item \textbf{pump scatter.} 검증된 pump OD에 앵커한
+      $\propto\kappa\,(1-e^{-\mathrm{OD}_{\mathrm{pump}}})$. $\kappa$가 유일한 잔여
+      계수이며, 아티팩트 억제는 무보정 흡수 채널이 담당하므로 결과는 $\kappa$에
+      둔감하다($\kappa=0$에서도 아티팩트 억제).
+\end{enumerate}
+비대칭 arm 손실은 검증된 balanced 2-arm 노이즈 모델
+(\texttt{observables.balanced\_twin\_beam\_noise}, reference weight = dc)로
+라우팅한다.
+
+%==================================================================
+\section{결과: v4 legacy vs v5 hardened}
+%==================================================================
+$\eta=0.8694$(detection floor $-8.8406\dB$), $\Delta\in[-3.5,+3.0]\GHz$,
+$T\in[60,150]\degC$의 동일 격자를 재실행했다(그림~\ref{fig:frontier_v5},
+\ref{fig:compare_v5}).
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_v5.png}
+\caption{finite-loss Ultra 스캔(v5, 강화된 과잉잡음). 왼쪽: $\xi(\Delta,T)$
+heatmap. 가운데: 최적에 $0.1\dB$ 이내로 도달하는 최저 온도 전선. 오른쪽:
+최효율 detuning에서의 $\xi(T)$.}
+\label{fig:frontier_v5}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_hardened_compare_v5.png}
+\caption{$\xi(\Delta,T)$ 비교. 왼쪽: v4 legacy Ultra(최적 $-2.20\GHz$,
+$G_s=636$ 초고이득 아티팩트). 오른쪽: v5 hardened Ultra(최적 $-2.00\GHz$,
+$G_s=27$ 물리적 이득). 흰 점선은 Sim의 $+0.9\GHz$. 강화 모델은 극단 이득을
+제거하지만 최적의 \emph{부호}는 음(-)측에 남으며, 양(+)측 lobe와 근접-축퇴다.}
+\label{fig:compare_v5}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{v4 legacy와 v5 hardened 핵심 좌표(동일 격자·$\eta$).}
+\label{tab:v5summary}
+\begin{tabular}{lrrrrr}
+\toprule
+점 & $\Delta$ [GHz] & $T$ [$^\circ$C] & $\xi$ [dB] & $G_s$ & 비고\\
+\midrule
+v4 legacy 전역 최적      & $-2.20$ & $135$ & $-8.834$ & $636$  & 초고이득 아티팩트\\
+v5 hardened 전역 최적    & $-2.00$ & $120$ & $-8.068$ & $27$   & 물리적 이득, 음(-)측\\
+v5 최선 양(+)측 lobe     & $+1.30$ & $125$ & $-7.787$ & $41$   & $0.28\dB$ 얕음(근접-축퇴)\\
+v5 Sim 동작점 재현       & $+0.90$ & $121$ & $-7.041$ & $12$   & 문헌 $-7.8\dB$ scale\\
+v4-아티팩트 좌표(v5)     & $-2.20$ & $135$ & $-5.405$ & $636$  & 강화 후 $3.4\dB$ 억제\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{성공한 부분.} 초고이득 아티팩트가 제거된다: 전역 최적의 $G_s$가
+$636\to27$로 실험적으로 접근 가능한 스케일로 내려오고, v4의 아티팩트 좌표
+$-2.20\GHz/135\degC$($G_s=636$)는 conjugate 흡수(od$_c=0.22$)로 $-8.83\to-5.41\dB$
+로 억제된다. 그림~\ref{fig:od_v5}의 conjugate OD 채널이 음(-)디튜닝의 흡수 띠를
+정확히 페널티하는 것을 보인다.
+
+\textbf{남은 부분.} 그럼에도 전역 최적은 $\Delta=-2.00\GHz$의 음(-)측에 남는다.
+양(+)측 최선 lobe($+1.30\GHz$)는 $0.28\dB$ 얕을 뿐이라 두 lobe는 근접-축퇴다.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{squeezing_frontier_od_v5.png}
+\caption{v5 진단. 왼쪽: probe in-cell OD$(\Delta,T)$. 가운데: \emph{신규}
+conjugate arm 선형 OD$(\Delta,T)$ --- 아티팩트를 죽이는 흡수 채널. 오른쪽:
+대표 $\Delta$의 $\xi(T)$ slice(최적 $-2.0$, Sim $+0.9$, v4 아티팩트 $-2.2$ 대비).}
+\label{fig:od_v5}
+\end{figure}
+
+%==================================================================
+\section{정직한 한계: F=2/F=3 근접-축퇴와 광펌핑}
+%==================================================================
+전역 최적이 음(-)측에 남는 것은 수치 버그가 아니라 실제 물리 효과다.
+$\Delta=-2.0\GHz$는 pump가 \emph{더 많이 채워진} F=3$\to$F$'$=3 매니폴드의
+$+0.94\GHz$ blue에 놓이는, Sim의 F=2-앵커($+0.9\GHz$)의 F=3-앵커 mirror다.
+두 가지가 음(-)측에 이점을 준다: (i) F=3의 더 큰 population(7/12 vs 5/12)이
+더 큰 파라메트릭 이득을 주고, (ii) 이때 seeded probe는 $-5.0\GHz$의 far-red,
+모든 공명에서 먼 \emph{깨끗한} 스펙트럼 위치에 놓여 arm 흡수가 작다(반면 양(+)측
+Sim 영역의 probe는 F=2 매니폴드 blue wing에 가까워 흡수를 더 받는다).
+
+실험이 F=2-앵커를 선택하는 결정적 이유 --- pump가 F=3 공명 근처일 때
+\emph{광펌핑}이 F=3 population을 F=2로 비워 F=3-앵커의 이득 이점을 무너뜨리는
+효과 --- 는 현재의 lumped 4-준위 \emph{정상상태} 모델에 담기지 않는다. 따라서
+v5는 "음(-)측이 이긴다"를 정량적 물리 예측이 아니라, \emph{현 모델 수준에서의
+근접-축퇴}로 보고한다. \textbf{강화 모델의 확실한 성과는 극단 이득 아티팩트의
+제거와 이득 스케일의 물리화이며($G_s\,636\to27$), 남은 F=2/F=3 near-degeneracy는
+광펌핑 동역학을 요구하는 별도 과제로 명시한다.}
+
+\subsection{원 질문에 대한 답}
+"왜 GABES 최적점은 음(-)디튜닝인가?"에 대한 v5의 답은 \emph{둘 다}이다:
+\begin{itemize}[nosep]
+\item \textbf{부분적으로 아티팩트}: v3/v4의 극단값($\xi\sim-82\dB$, $G_s\sim636$)은
+      gap-only 목적함수가 흡수/scatter 비용에 눈이 먼 결과였고, 강화로 제거된다.
+\item \textbf{부분적으로 실제 물리}: 아티팩트 제거 후에도 $-2.0\GHz$의 물리적
+      이득 최적점($G_s=27$)이 남으며, 이는 F=3의 더 큰 population과 far-red probe의
+      스펙트럼 청정성이라는 실제 이점에서 온다. 완전한 해소는 광펌핑 물리가 필요.
+\end{itemize}
+
+%==================================================================
+\section{결론}
+%==================================================================
+\begin{enumerate}[nosep]
+\item \textbf{극단 이득 아티팩트는 제거됨.} gap-only + probe-only OD + 무-과잉잡음
+      목적함수가 F=3 근처 초고이득을 공짜로 보상했다. 강화 모델로 최적 $G_s$가
+      $636\to27$로 내려오고, $G_s=636$ @ OD$\approx0$ 좌표는 $-8.83\to-5.41\dB$로
+      억제된다.
+\item \textbf{강화 모델을 Ultra에 내재화.} 두 사이드밴드의 무보정 선형 흡수 +
+      $\kappa$-앵커 pump scatter. 회귀(legacy) 무영향.
+\item \textbf{최적점은 음(-)측에 남고 근접-축퇴다.} $-2.00\GHz$($\xi=-8.07\dB$,
+      $G_s=27$) vs 양(+)측 $+1.30\GHz$($-7.79\dB$)가 $0.28\dB$ 차. Sim 재현은
+      $-7.04\dB$로 문헌 scale 유지.
+\item \textbf{실제 물리로 남은 부분은 광펌핑.} F=3-앵커의 잔여 이점을 무너뜨려
+      실험의 $+0.9\GHz$를 재현하려면 pump-유발 F=3 population 고갈이 필요하며,
+      이는 lumped 정상상태 모델의 범위 밖이다.
+\end{enumerate}
+
+\noindent\textbf{한 줄 요약.} \emph{음(-)디튜닝 최적점은 절반은 아티팩트(gap-only
+목적함수의 극단 이득, 강화로 제거 --- $G_s\,636\to27$), 절반은 실제 물리(더 많이
+채워진 F=3 앵커의 이점)였다. 강화 후에도 최적은 $-2.0\GHz$에 남되 양(+)측 Sim-쪽
+lobe와 $0.28\dB$ 근접-축퇴이며, 완전한 분리는 광펌핑 물리를 요한다.}
+
+\appendix
+%==================================================================
+\section{수치 재현 정보}
+%==================================================================
+\begin{itemize}[nosep]
+\item v5 finite-loss 산출물:
+      \texttt{analysis/squeezing\_frontier\_finite\_loss\_v5/squeezing\_frontier.npz},
+      그림 \texttt{docs/squeezing\_report/squeezing\_frontier\_v5.png},
+      \texttt{...\_od\_v5.png}, \texttt{...\_hardened\_compare\_v5.png}
+      (\texttt{make\_v5\_hardened\_figs.py}로 생성).
+\item 스캔 명령: \texttt{scan\_squeezing\_frontier.py --fidelity ultra}
+      (Ultra는 자동 hardened; \texttt{--pump-scatter-kappa}로 $\kappa$ 조정).
+      격자 $66\times19=1254$점, coarse$=81$, vstep$=5$, vcut$=3$, window$=\pm0.7\GHz$.
+\item 모델 구현: \texttt{gabes/schemes/fwm.py}의 \texttt{compute\_spectrum} Ultra
+      분기 --- \texttt{\_arm\_linear\_od}(probe·conjugate 선형 흡수, 검증된
+      \texttt{schemes.absorption.\_hyperfine\_alpha} 기반)와
+      \texttt{\_pump\_scatter\_noise}. 스캔의 \texttt{squeezing\_map}은 두 arm OD와
+      pump scatter를 모두 재구성하여 \texttt{compute\_spectrum}의 $S_{dB}$와
+      비트 단위로 일치(self-consistency 검증됨).
+\item 비교용 v4 legacy:
+      \texttt{analysis/squeezing\_frontier\_finite\_loss\_v4/squeezing\_frontier.npz}.
+\end{itemize}
+
+%==================================================================
+\section{참고문헌}
+%==================================================================
+\begin{enumerate}[label={[\arabic*]},leftmargin=*]
+\item G. Sim, H. Kim, H. S. Moon, ``Intensity-difference squeezing from four-wave mixing
+      in hot $^{85}$Rb and $^{87}$Rb atoms in single diode laser pumping system,''
+      \textit{Scientific Reports} \textbf{15}, 7727 (2025).
+\item C. F. McCormick, V. Boyer, E. Arimondo, P. D. Lett,
+      ``Strong relative intensity squeezing by four-wave mixing in rubidium vapor,''
+      \textit{Optics Letters} \textbf{32}, 178--180 (2007).
+\item R. C. Pooser \textit{et al.}, ``Quantum correlated light beams from non-degenerate
+      four-wave mixing in an atomic vapor,'' \textit{Optics Express} \textbf{17},
+      16722--16730 (2009).
+\item M. Jasperse, L. D. Turner, R. E. Scholten, ``Relative intensity squeezing by
+      four-wave mixing with loss,'' \textit{Optics Express} \textbf{19}, 3765--3774 (2011).
+\end{enumerate}
+
+\end{document}
