@@ -1762,7 +1762,7 @@ class FWMScheme(Scheme):
                            "line-strength residual). Calibrated is the legacy "
                            "reference-injected estimate."),
             ParamSpec("opd", "OPD — one-photon detuning Δ", "Detunings", 0.9,
-                      -1.0, 3.0, 0.1, "GHz",
+                      -3.0, 3.0, 0.1, "GHz",
                       visible_if=seeded,
                       help="ω_pump = ω(F=2→F'=3) + Δ. Sets where the pump sits; recomputes."),
             ParamSpec("tpd", "TPD — two-photon detuning δ", "Detunings", -8.0,
