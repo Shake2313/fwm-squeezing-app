@@ -434,6 +434,18 @@ div[data-testid="stButton"] > button:hover {
   height: 0.56rem;
 }
 
+/* Cap chart width so a fixed-aspect figure can't overflow viewport height in the no-max-width wide layout. */
+[data-testid="stMain"] [data-testid="stImage"] img {
+  max-width: 50rem !important;
+  height: auto !important;
+}
+
+/* stFullScreenFrame stays full-width even once the image inside it is capped; re-center the capped image within it. */
+[data-testid="stMain"] [data-testid="stFullScreenFrame"] {
+  display: flex;
+  justify-content: center;
+}
+
 .stDataFrame, [data-testid="stTable"] {
   border-radius: 8px;
 }
