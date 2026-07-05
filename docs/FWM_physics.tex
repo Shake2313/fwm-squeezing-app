@@ -48,7 +48,9 @@
 
 \title{\textbf{Four-Wave Mixing in Hot \boldmath$^{85}$Rb:\\
 A Physics-First Walkthrough of the GABES Engine}\\[0.3em]
-\large Current FWM Physics Model}
+\large Current FWM Physics Model --- revised 2026-07-03\\
+(first-principles coupling, collisional decoherence, corrected IDS formula,\\
+hardened Ultra noise, predictive biphoton)}
 \author{Personal study notes}
 \date{\today}
 
@@ -61,19 +63,35 @@ four-wave-mixing (FWM) code evaluates --- from the open-system master equation o
 the $^{85}$Rb $D_1$ double-$\Lambda$ system, through the Doppler average and the
 truncated-Floquet sideband steady state, to the Maxwell--Bloch propagation that
 turns the atomic susceptibility into seed/conjugate gain, intensity-difference
-squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform. Seeded
-squeezing includes the reference $0.32^\circ$ pump--probe longitudinal
-mismatch in the app's fast and balanced paths; High-fidelity mode adds a
-conservative $\chi$-reused refractive correction and segmented propagation;
-Ultra adds slow segmented depletion/loss/noise and Zeeman diagnostics. Biphoton mode uses
-vector phase matching: calibrated longitudinal $\Delta k_z$ plus absolute
-transverse $\Delta k_x$, with a two-dimensional signal--idler vector acceptance
-map in Fine mode. The heavy OBE grid can be evaluated by optional compiled Numba
-kernels, while the $(\Delta,T)$ squeezing scan reuses one master
-$\rhobar(\delta,\Delta_\eff)$ table. The emphasis is on the \emph{physics}; the
-code is
-referenced only as a map so that each equation can be located in \code{gabes/}.
-The direct \code{compute\_spectrum} path is regression-anchored to
+squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform.
+The macroscopic coupling is now first-principles: the hyperfine Clebsch--Gordan
+structure inside $\rhobar$ is completed by the explicit population/degeneracy
+normalization $p_F/[2(2I+1)]$ and the pure-$^{85}$Rb CRC vapour density, leaving
+only a dimensionless residual line-strength calibration ($\approx1$). The
+dissipator carries density- and temperature-dependent collisional decoherence
+(optical self-broadening $\Gamma+\beta N$ and ground-state Raman collisions), so
+the achievable squeezing peaks near $121$--$131\,^\circ$C and degrades at higher
+temperature, as observed. The ideal intensity-difference noise uses the
+conserved-difference Bogoliubov result
+$S_{\text{ideal}}=(G_s-G_c)^2/(G_s+G_c)$ [$=1/(2G_s-1)$ in the lossless limit],
+replacing an older expression that overestimated squeezing at high gain. Seeded
+squeezing includes the reference $0.32^\circ$ pump--probe longitudinal mismatch
+from Balanced fidelity up; High fidelity adds a conservative $\chi$-reused
+refractive correction and segmented propagation; Ultra adds 64-segment dynamic
+pump-budget depletion, Gaussian beam overlap, in-cell loss/noise, Zeeman
+diagnostics, and --- intrinsic since the v5 hardening --- an excess-noise model
+with arm-resolved linear absorption of probe and conjugate plus OD-anchored pump
+scatter. Biphoton mode defaults to a predictive first-principles Doppler-averaged
+waveform (Autler--Townes two-photon denominator, velocity-class coherent sum on
+an auto-refined grid, natural-linewidth decay) and uses vector phase matching:
+calibrated longitudinal $\Delta k_z$ plus absolute transverse $\Delta k_x$, with
+a two-dimensional signal--idler vector acceptance map in Fine mode. The heavy OBE
+grid can be evaluated by optional compiled Numba kernels; the $(\Delta,T)$
+squeezing scan builds one master $\rhobar(\delta,\Delta_\eff)$ table \emph{per
+temperature} (the collisional dissipator makes $\rhobar$ $T$-dependent). The
+emphasis is on the \emph{physics}; the code is referenced only as a map so that
+each equation can be located in \code{gabes/}. The direct
+\code{compute\_spectrum} path is regression-anchored to
 G.~Sim, H.~Kim, and H.~S.~Moon, \emph{Sci.\ Rep.}\ \textbf{15}, 7727 (2025).
 \end{abstract}
 
@@ -103,8 +121,11 @@ The code answers two questions:
   \item \textbf{Spontaneous / biphoton mode.} For a cascade or diamond topology
   with \emph{no} seed, what is the time-correlation $g^{(2)}_{SI}(\tau)$ of the
   spontaneously generated signal--idler pair, its width, pair rate, and
-  coincidence-to-accidental ratio (CAR)? This is a reference-calibrated source
-  estimate, not a full quantum-Langevin propagation.
+  coincidence-to-accidental ratio (CAR)? The default Predictive model computes
+  the waveform, width and bandwidth from first principles, with a
+  reference-anchored absolute rate; a legacy Calibrated model is kept for
+  comparison. Either way it is a source estimate, not a full quantum-Langevin
+  propagation.
 \end{enumerate}
 
 The whole numerical machine exists to evaluate one object accurately: the
@@ -130,7 +151,9 @@ reads it out.
 \subsection{Levels}
 
 The seeded model uses the $^{85}$Rb $D_1$ line ($5S_{1/2}\!\to\!5P_{1/2}$,
-$\lambda \approx 795\,$nm) reduced to four levels (\code{atoms.\_double\_lambda\_rb85}):
+$\lambda \approx 795\,$nm) reduced to four levels (\code{atoms.double\_lambda\_rb85};
+the builder now takes the dephasing rates $\gamma_{gg}$ and
+$\gamma_{\text{opt}}$ as arguments, see Sec.~\ref{sec:collisional}):
 
 \begin{center}
 \begin{tabular}{clcl}
@@ -181,7 +204,7 @@ quantity for all three is what makes the model self-consistent:
   \label{eq:branching}
   \end{equation}
   so total population leaves each excited state at the natural rate $\Gamma$
-  (\code{atoms.\_double\_lambda\_rb85}).
+  (\code{atoms.double\_lambda\_rb85}).
 \end{enumerate}
 
 \subsection{Energy scales and why the rotating frame is mandatory}
@@ -224,23 +247,30 @@ below relies on.
 
 \subsection{Number density}
 
-The atomic density sets the optical depth and hence the gain. For the seeded model
-the Steck liquid-phase vapour-pressure fit is used at natural abundance
-(\code{atoms.rb85\_density}):
+The atomic density sets the optical depth and hence the gain. The seeded model
+uses the \emph{pure-$^{85}$Rb} CRC vapour-pressure fit
+(\code{hyperfine.number\_density}, isotopic fraction $f_{85}=1$) --- the same
+density that lets the validated absorption scheme reproduce the lab AutoOD
+transmission to $<0.1\,\%$:
 \begin{equation}
-\log_{10}P_{\text{torr}}
-   =15.88253-\frac{4529.635}{T}+0.00058663\,T-2.99138\log_{10}T,
+\log_{10}P_{\text{Pa}} =
+\begin{cases}
+\;9.863-4215/T, & T<312.45\,\mathrm{K}\ \ (\text{solid Rb}),\\[3pt]
+\;9.318-4040/T, & T\ge312.45\,\mathrm{K}\ \ (\text{liquid Rb}),
+\end{cases}
+\qquad
+N=\frac{P}{k_B T}.
+\label{eq:crc}
 \end{equation}
-\begin{equation}
-N(^{85}\mathrm{Rb})
-   = f_{85}\,\frac{P}{k_B T},
-   \qquad f_{85}=0.7217,\quad P=P_{\text{torr}}\times133.322\,\text{Pa}.
-\end{equation}
-The exponential temperature dependence of $P$ is the origin of the model's
-extreme sensitivity to $T$: a few degrees changes $N$ by tens of percent, and the
-gain is exponential in $N$ (Sec.~\ref{sec:mb}). The biphoton mode uses the
-elemental densities in \code{species.number\_density} (CRC fit for Rb, Steck for
-Cs), with the per-isotope share applied separately.
+At the reference $121\,^\circ$C this gives $N=2.15\times10^{19}\,\mathrm{m^{-3}}$.
+The enriched cell of the reference experiment is very nearly pure $^{85}$Rb, so
+the previously used natural-abundance Steck fit (\code{atoms.rb85\_density},
+$f_{85}=0.7217$; retained for the other schemes) understated $N$ for the FWM cell
+by roughly the abundance factor. The exponential temperature dependence of $P$ is
+the origin of the model's extreme sensitivity to $T$: a few degrees changes $N$
+by tens of percent, and the gain is exponential in $N$ (Sec.~\ref{sec:mb}). The
+biphoton mode uses the per-isotope elemental densities in
+\code{species.number\_density} (CRC fit for Rb, Steck for Cs).
 
 % =====================================================================
 \section{Open-system dynamics: the master equation}
@@ -305,13 +335,20 @@ Two kinds of channel appear (\code{atoms.AtomModel.\_build\_lindblad}):
   Eq.~\eqref{eq:branching}. The ``recycling'' term $L\rho L^\dagger$ refeeds the
   emitted population into the ground states; the anticommutator term damps the
   optical coherences at $\Gamma/2$ (the homogeneous optical linewidth).
-  \item \textbf{Ground-state dephasing}: a phenomenological decay of the
+  \item \textbf{Ground-state (Raman) dephasing}: a decay of the
   $g_1\!\leftrightarrow\!g_2$ coherence,
-  $\dot\rho_{g_1g_2}\supset-\gamma_{gg}\rho_{g_1g_2}$, with
-  $\gamma_{gg}/2\pi=100\,$kHz (\code{constants.GAMMA\_GG}). This is the rate that
+  $\dot\rho_{g_1g_2}\supset-\gamma_{gg}\rho_{g_1g_2}$. This is the rate that
   sets the width of the Raman/two-photon resonance and ultimately limits the
-  squeezing bandwidth; it lumps together collisions, transit time, and laser phase
-  noise.
+  squeezing bandwidth. It is no longer a single constant: it is a transit-time /
+  residual floor ($\gamma_{\text{floor}}/2\pi=100\,$kHz,
+  \code{constants.GAMMA\_GG}) plus a density-dependent Rb--Rb collision term
+  (Sec.~\ref{sec:collisional}).
+  \item \textbf{Optical collisional dephasing}: an extra decay
+  $\gamma_{\text{opt}}$ on every optical $(g,e)$ coherence, representing Rb--Rb
+  self-broadening of the optical line on top of the natural $\Gamma/2$
+  (Sec.~\ref{sec:collisional}). With $\gamma_{\text{opt}}=0$ (the registry
+  default) the natural-linewidth model is recovered --- this is what the pinned
+  kernel regressions use.
 \end{itemize}
 
 \begin{remark}
@@ -320,6 +357,62 @@ operators ($\Sigma_q$ form) that transfer coherence during spontaneous emission
 (used by the magneto-optics schemes). The four-level FWM model only needs the
 population-refeeding form above.
 \end{remark}
+
+\subsection{Density-dependent collisional decoherence}
+\label{sec:collisional}
+
+Sim \emph{et al.}\ attribute the degradation of squeezing at high vapour
+temperature to collision-driven decoherence, and the model now carries that
+physics explicitly. Two dephasing channels grow with density; both are built per
+temperature by \code{fwm.collisional\_atom(T)}, which calls
+\code{atoms.double\_lambda\_rb85(gamma\_gg, gamma\_opt)}:
+
+\begin{enumerate}[leftmargin=2.2em]
+  \item \textbf{Optical self-broadening.} Resonant Rb--Rb collisions broaden the
+  optical line linearly in density,
+  \begin{equation}
+  \Gamma_\eff=\Gamma+\beta N,
+  \qquad
+  \beta/2\pi=0.69\times10^{-7}\,\mathrm{Hz\,cm^{3}},
+  \label{eq:selfbroad}
+  \end{equation}
+  (\code{hyperfine.self\_broadened\_gamma}; the $\beta$ value is the one the
+  AutoOD-validated absorption path uses). The natural $\Gamma$ is already carried
+  by the spontaneous-emission jump operators, so the dissipator receives only the
+  \emph{added} collisional half-width
+  \begin{equation}
+  \gamma_{\text{opt}}=\tfrac12\big(\Gamma_\eff-\Gamma\big)=\tfrac12\,\beta N
+  \label{eq:gammaopt}
+  \end{equation}
+  as a pure-dephasing rate on each optical $(g,e)$ coherence. At the reference
+  $121\,^\circ$C ($N=2.15\times10^{19}\,\mathrm{m^{-3}}$) this is
+  $\gamma_{\text{opt}}/2\pi\approx0.74\,$MHz --- already a $\sim\!26\,\%$
+  addition to the natural half-width $\Gamma/2$, and it grows exponentially with
+  $T$ through $N(T)$.
+  \item \textbf{Ground Raman collisions.} The ground-coherence relaxation is
+  \begin{equation}
+  \gamma_{gg}(T,N)=\gamma_{\text{floor}}+N\,\sigma\,\bar v_{\text{rel}},
+  \qquad
+  \bar v_{\text{rel}}=\sqrt{\frac{8k_BT}{\pi\,(m/2)}},
+  \label{eq:gammagg}
+  \end{equation}
+  (\code{constants.ground\_coherence\_dephasing}), with the transit/residual
+  floor $\gamma_{\text{floor}}/2\pi=100\,$kHz anchored at the validated operating
+  point and the Rb--Rb spin-exchange cross-section
+  $\sigma=1.9\times10^{-14}\,\mathrm{cm^{2}}$. At $121\,^\circ$C the collisional
+  term adds only $\sim\!3\,$kHz --- the transit floor dominates over the whole
+  pure-cell range --- but the rate now scales correctly with density.
+\end{enumerate}
+
+The physical consequence is a genuine interior optimum in temperature: raising
+$T$ raises $N$ and hence the parametric gain exponentially, but the same $N$
+degrades the optical and Raman coherences that the gain is built from, so the
+achievable squeezing peaks near $121$--$131\,^\circ$C and then \emph{worsens} at
+higher temperature --- reproducing the experimental behaviour instead of tracking
+the density monotonically. The numerical consequence is that $\rhobar$ is no
+longer temperature-independent: any scanner that caches the
+$\rhobar(\delta,\Delta_\eff)$ table must rebuild it per temperature with this
+atom (Sec.~\ref{sec:dopp}).
 
 \subsection{Liouville space (vectorization)}
 \label{sec:liouville}
@@ -389,20 +482,28 @@ S_v=\mathcal{C}\Big[\textstyle\sum_{e\in\text{excited}}\ketbra{e}{e}\Big],
 where $S_v$ is the commutator super-operator of the projector onto the excited
 manifold (\code{atoms.\_build\_velocity\_shift}). Consequently:
 \begin{itemize}[leftmargin=1.6em]
-  \item Temperature $T$ enters \emph{only} through the Maxwell weights $w(v)$.
-  \item The detuning $\Delta$ enters \emph{only} as an offset of the
+  \item In the \emph{Hamiltonian}, temperature enters only through the Maxwell
+  weights $w(v)$, and the detuning $\Delta$ only as an offset of the
   $\Delta_\eff$ axis.
-  \item The susceptibility table $\rhobar(\delta,\Delta_\eff)$ is therefore a
-  function of $(\delta,\Delta_\eff)$ alone; it carries no explicit $T$ or
-  absolute $\Delta$ dependence.
+  \item For a \emph{fixed dissipator} the susceptibility table
+  $\rhobar(\delta,\Delta_\eff)$ is therefore a function of
+  $(\delta,\Delta_\eff)$ alone, with no explicit $T$ or absolute-$\Delta$
+  dependence.
+  \item The collisional decoherence of Sec.~\ref{sec:collisional} puts $N(T)$
+  into the dissipator, so the table is now $T$-dependent through
+  $\gamma_{\text{opt}}(N)$ and $\gamma_{gg}(T,N)$: \emph{one table per
+  temperature}, still reusable across all $\Delta$ and all velocity classes at
+  that temperature.
 \end{itemize}
 The $\Delta_\eff$ sampling axis is built (\code{doppler.build\_Delta\_eff\_axis})
 to span $\Delta-k v$ across a spectrum call's velocity grid, so the later average
 is a cheap index interpolation rather than a re-solve. The dedicated
-$(\Delta,T)$ squeezing map builds a master $\Delta_\eff$ axis from the exact union
-of all velocity samples needed by the scan and evaluates
-$\rhobar(\delta,\Delta_\eff)$ once on that master grid; each map point then only
-gathers the relevant columns and applies the Maxwell weights.
+$(\Delta,T)$ squeezing map (\code{analysis/scan\_squeezing\_delta\_T.py}) builds,
+per temperature, a master $\Delta_\eff$ axis from the exact union of all velocity
+samples needed by every $\Delta$ in the scan and evaluates
+$\rhobar(\delta,\Delta_\eff)$ once on that master grid with that temperature's
+collisional atom; each map point then only gathers the relevant columns and
+applies the Maxwell weights.
 
 % =====================================================================
 \section{The multimode steady state (truncated Floquet)}
@@ -540,8 +641,12 @@ independent Floquet solves at each two-photon detuning $\delta$ extract all four
   $\rhobar_{cc}$.
 \end{itemize}
 The off-diagonal $\rhobar_{cs},\rhobar_{sc}$ are the parametric coupling that does
-not exist without the pump; they are the heart of the four-wave mixing. In the
-compiled path, these two physical solves correspond to two calls to
+not exist without the pump; they are the heart of the four-wave mixing.
+\code{chi\_matrix\_table} accepts the atom model as an argument
+(\code{atom=}): \code{compute\_spectrum} passes the per-temperature collisional
+atom of Sec.~\ref{sec:collisional}, while the default natural-linewidth
+\code{ATOM} keeps the kernel/NumPy regression callers unchanged. In the
+compiled path, the two physical solves correspond to two calls to
 \code{kernels.floquet\_chi\_grid}: one with the seed reference field and one with
 the conjugate reference field. Each call fills the whole
 $(\delta,\Delta_\eff)$ grid and returns the probe-leg and conjugate-leg
@@ -590,10 +695,10 @@ averaging intensities --- would discard the inhomogeneous phase that sets the
 gain). The interpolation indices and fractions are precomputed once
 (\code{interpolation\_weights}) and applied to every row of the table
 (\code{apply\_doppler\_average}), so the average costs one matrix multiply. In the
-$(\Delta,T)$ squeezing-map script, the master $\Delta_\eff$ axis is the exact
-union of all requested $\Delta-kv$ samples. The Doppler step therefore becomes a
-direct column gather followed by the same weighted sum, with no interpolation
-error and no additional Floquet solve.
+$(\Delta,T)$ squeezing-map script, the per-temperature master $\Delta_\eff$ axis
+is the exact union of all requested $\Delta-kv$ samples at that temperature. The
+Doppler step therefore becomes a direct column gather followed by the same
+weighted sum, with no interpolation error and no additional Floquet solve.
 
 % =====================================================================
 \section{Maxwell--Bloch propagation: susceptibility \boldmath$\to$ gain}
@@ -669,32 +774,91 @@ susceptibility table fixed:
 
 The \code{phase\_detail} option selects how much of this propagation physics is
 included. \code{PHASE\_LEGACY} sets $\Delta k_z=0$ for regression-preserving
-direct calculations. The app's Fast and Balanced presets use Eq.~\eqref{eq:seededDk};
-High fidelity uses the refractive and segmented refinements. Ultra repeats the
-refractive phase update for a fixed small iteration count, uses 64 propagation
-segments, applies Gaussian overlap and an approximate segment-wise pump budget,
-and reports the active Zeeman diagnostic correction.
+direct calculations; the app's Fast and Balanced presets use
+Eq.~\eqref{eq:seededDk}; High fidelity uses the refractive and segmented
+refinements above; Ultra uses the dynamic-depletion propagation described next.
+
+\subsection{Ultra propagation: dynamic pump budget, overlap, diagnostics}
+\label{sec:ultraprop}
+
+Ultra (\code{\_ultra\_segmented\_gain}) slices the cell into 64 segments and
+propagates the two-component amplitude explicitly, segment by segment:
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{Refractive phase matching, one pass.} The refractive indices
+  $n_{s,c}(\chi)$ do not depend on $\Delta k_z$, so there is no fixed point to
+  iterate: a single refractive update of Eq.~\eqref{eq:seededDk} is exact
+  (\code{ULTRA\_PHASE\_ITERATIONS}\,$=1$). The reported diagnostic is the
+  vacuum$\to$refractive shift of $\Delta k_z$, not the last delta of a no-op
+  loop.
+  \item \textbf{Gaussian beam overlap.} The pump--probe crossing angle
+  separates the beams along the cell; the off-diagonal coupling in each
+  segment is weighted by the crossed-Gaussian amplitude overlap
+  $\exp\!\big[-z^2\tan^2\theta/(w_p^2+w_s^2)\big]$, normalized to its maximum
+  (\code{\_gaussian\_overlap\_profile}).
+  \item \textbf{Segment-wise pump budget.} After each segment the added seed
+  power and the generated conjugate power are subtracted from the remaining
+  pump budget, and the parametric (off-diagonal) coupling of the next segment
+  is scaled by $\sqrt{P_{\text{remaining}}/P_{\text{pump}}}$ --- an approximate
+  \emph{dynamic} pump depletion along $z$, on top of the global Manley--Rowe
+  cap. The minimum remaining pump along the scan is reported.
+  \item \textbf{In-cell loss is not applied here.} The absorptive segment
+  profile attenuates only the parametric coupling; the in-cell \emph{loss} is
+  charged once, downstream, as the beamsplitter vacuum admixture of
+  Sec.~\ref{sec:hardened}. (Applying it here as field attenuation too
+  double-counted the same optical depth in an earlier Ultra version.)
+  \item \textbf{Zeeman diagnostic.} The 24-level $^{85}$Rb $D_1$ Zeeman
+  manifold is built and its CG sums are checked against the lumped $3C_F^2$
+  strengths (consistency $\equiv1.0$ by construction). It is reported as a
+  diagnostic only --- deliberately \emph{not} multiplied into the coupling ---
+  and the full 24-level Floquet scan is not run in Ultra v1.
+\end{itemize}
 
 \subsection{From dimensionless to physical susceptibility}
+\label{sec:coupling}
 
 The dimensionless $\overline{\rhobar}$ becomes a physical susceptibility through
 the medium coupling constant (\code{observables.gain\_from\_chi}):
 \begin{equation}
 \chi_{xy}= -\,\frac{2 N\,|d_\eff|^2}{\varepsilon_0\hbar}\,\overline{\rhobar}_{xy},
 \qquad
-|d_\eff|^2=\xi_{\text{LS}}\,|d_{D_1}|^2,
+|d_\eff|^2=\ell_s\,\varrho_{\text{norm}}\,|d_{D_1}|^2,
 \label{eq:chiphys}
 \end{equation}
-where $N$ is the number density, $d_{D_1}$ the $D_1$ reduced dipole, and
-$\xi_{\text{LS}}$ is the residual \emph{FWM coupling scale}
-(\code{LINE\_STRENGTH\_FACTOR}, app default $\sim0.05$). The sign makes a passive
-transition absorptive ($\Imag\chi>0$ on resonance). $\xi_{\text{LS}}$ is the one
-remaining lumped calibration knob: the genuine hyperfine CG structure is already in
-$\rhobar$, so $\xi_{\text{LS}}$ stands in for residual not-yet-modelled physics
-(full propagation loss/noise, full Zeeman degeneracy, and other geometry details
-not captured by the seeded longitudinal $\Delta k_z$ term). It rescales the
-\emph{effective} $|d|^2$ in propagation only; it does \emph{not} touch the OBE
-solve (where $\Gamma$ and $\Omega$ are fixed by $I_{\text{sat}}$).
+where $N$ is the number density and $d_{D_1}$ the $D_1$ reduced dipole. The sign
+makes a passive transition absorptive ($\Imag\chi>0$ on resonance). The effective
+dipole factorizes into a \emph{first-principles} normalization and a
+\emph{residual} calibration:
+\begin{itemize}[leftmargin=1.6em]
+  \item $\varrho_{\text{norm}}=p_F/[2(2I+1)]$
+  (\code{fwm.physical\_coupling\_norm}) is the thermal ground-population
+  fraction of the probed manifold, $p_F=(2F+1)/12$, divided by the ground
+  Zeeman degeneracy $2(2I+1)=12$ ($I=5/2$). The AutoOD-validated absorption path
+  ($<0.1\,\%$ against measured cell transmission) carries exactly this factor;
+  the lumped 4-level solve instead normalizes $\Tr\rho=1$ over just four levels
+  and multiplies by the \emph{total} atomic density, so the factor would
+  otherwise be missing from the macroscopic scale. The seeded probe couples from
+  $F=3$ on the standard $(-)$ Raman branch, giving
+  $\varrho_{\text{norm}}=\tfrac{7}{12}\cdot\tfrac{1}{12}
+  =\tfrac{7}{144}\approx0.0486$
+  (and $\tfrac{5}{144}\approx0.0347$ on the $(+)$ branch). Quantitatively, this
+  is the factor the old hand-tuned fudge ``$\text{line\_strength}=0.05$'' was
+  standing in for.
+  \item $\ell_s$ (\code{LINE\_STRENGTH\_FACTOR}; the app's Advanced
+  ``line-strength factor'') is the dimensionless \emph{residual} left on top,
+  engine default $1.0$. The seeded app default is $\ell_s=0.74$, anchored so
+  that Ultra fidelity reproduces the measured $G_s\approx14$ and $-7.8\,$dB at
+  the Sim \emph{et al.}\ operating point; the departure from $1$ stands for the
+  $m$-sublevel participation / beam-geometry reduction not yet derived from
+  first principles. It is not an experimentally tunable quantity, which is why
+  the app parks it under \emph{Advanced}.
+\end{itemize}
+The bookkeeping is now clean: the genuine hyperfine CG structure is inside
+$\rhobar$ (drive $\times$ readout $=3C_F^2$ per leg), the population/degeneracy
+normalization is $\varrho_{\text{norm}}$, and the density is the validated CRC
+value --- the same normalization chain that reproduces measured linear
+absorption. $\ell_s$ rescales the \emph{effective} $|d|^2$ in propagation only;
+it does \emph{not} touch the OBE solve (where $\Gamma$ and $\Omega$ are fixed by
+$I_{\text{sat}}$).
 
 \subsection{The transfer matrix}
 
@@ -724,6 +888,15 @@ and $T=e^{ML}$, the gain grows \emph{exponentially} with density, i.e.\
 super-exponentially with temperature through $N(T)$. This is physically correct
 only while the pump is undepleted; pushed too far it over-amplifies, which the next
 section caps.
+
+\paragraph{Overflow clamp.} Numerically, \code{core.matrix\_exp\_2x2} clips the
+\emph{real part} of the exponent arguments $cL$ and $sL$ at $\pm350$ --- two such
+factors multiply, and float64 $e^{x}$ overflows near $x\simeq709$. Without the
+clamp, a runaway linear gain returns \code{inf}, and the downstream
+pump-depletion saturation then evaluates $\infty/(1+\infty)=\text{NaN}$,
+silently poisoning the whole gain/squeezing curve. With it, an unphysical linear
+gain stays huge-but-finite and is capped to the energy bound by the saturation.
+The clamp is a strict no-op in the validated regime ($|\Real(cL)|\ll350$).
 
 % =====================================================================
 \section{Pump depletion: the Manley--Rowe cap}
@@ -765,18 +938,59 @@ exceeds the cap by more than 10\,\% (\code{compute\_spectrum},
 % =====================================================================
 
 \subsection{Intensity-difference squeezing}
+\label{sec:ids}
 
 The twin beams are correlated, so the noise in $\hat n_s-\hat n_c$ can fall below
-the shot-noise level. For an ideal (lossless) two-mode parametric amplifier with
-gains $G_s,G_c$ the intensity-difference noise, normalized to shot noise, is
-(\code{observables.intensity\_difference\_squeezing\_dB}):
+the shot-noise level. For the lossless seeded parametric amplifier the correct
+starting point is the two-mode Bogoliubov transformation
+$\hat a_s\to u\,\hat a_s+v\,\hat a_c^\dagger$,
+$\hat a_c\to u\,\hat a_c+v\,\hat a_s^\dagger$ with $|u|^2-|v|^2=1$, i.e.\
+$G_s=|u|^2$, $G_c=|v|^2=G_s-1$. This transformation \emph{conserves the
+photon-number difference}: $\hat n_s-\hat n_c$ commutes with the two-mode squeeze
+operator, so
 \begin{equation}
-S_{\text{ideal}}=\frac{G_s+G_c-2\sqrt{G_s G_c-1}}{G_s+G_c}.
+\big(\hat n_s-\hat n_c\big)_{\text{out}}=\big(\hat n_s-\hat n_c\big)_{\text{in}}.
+\label{eq:conserved}
+\end{equation}
+With a bright coherent seed in port $s$ (Poissonian,
+$\mathrm{Var}=\langle n\rangle_{\text{in}}$) and vacuum in port $c$, the output
+difference noise is just the \emph{input} seed shot noise, while the shot-noise
+reference of the output beams is
+$\langle\hat n_s+\hat n_c\rangle_{\text{out}}=(G_s+G_c)\langle n\rangle_{\text{in}}$.
+Generalizing the prefactor to unequal gains (which the propagation over
+absorptive/dispersive $\chi$ produces), the ideal noise implemented in
+\code{observables.ideal\_twin\_beam\_noise} is
+\begin{equation}
+\boxed{\;
+S_{\text{ideal}}=\frac{(G_s-G_c)^2}{G_s+G_c}
+\;}
+\qquad\xrightarrow[\ G_s-G_c\,=\,1\ ]{\text{lossless}}\qquad
+\frac{1}{G_s+G_c}=\frac{1}{2G_s-1},
 \label{eq:Sideal}
 \end{equation}
-At unity gain $S_{\text{ideal}}=1$ (shot noise); as the gain grows, $G_c\to G_s-1$
-and $S_{\text{ideal}}\to0$ (perfect correlation). Symmetric detection efficiency
-$\eta$ on both arms mixes in uncorrelated vacuum,
+the standard result of the FWM squeezing literature (Sim \emph{et al.};
+McCormick \emph{et al.}, \emph{Opt.\ Lett.}\ \textbf{32}, 178 (2007)).
+At unity gain $S_{\text{ideal}}=1$ (shot noise); at high gain
+$S_{\text{ideal}}\to1/(2G_s-1)\to0$. The value is clipped to $[0,1]$ so that
+passive-loss regions of a probe scan --- no parametric gain, $G_s-G_c$ arbitrary
+--- cannot spuriously report sub-shot-noise values.
+
+\begin{remark}[The corrected formula]
+Until 2026-07-01 the code used
+$S_{\text{old}}=\big(G_s+G_c-2\sqrt{G_sG_c-1}\big)/(G_s+G_c)$. The two
+expressions agree only at $(G_s,G_c)=(2,1)$. On the twin-beam line $G_c=G_s-1$
+the old numerator is a catastrophic cancellation whose expansion gives
+$S_{\text{old}}\simeq\tfrac{5}{2}/(2G_s-1)^2$ instead of $1/(2G_s-1)$ --- a
+spurious extra squeezing factor $\approx(2G_s-1)/2.5$ that grows with gain
+(at $G_s\!\sim\!15$, about $+10\,$dB of fictitious squeezing). Under normal
+operation the error was masked because the detection floor $(1-\eta)$ dominates
+$S$, but it corrupted every ideal-detection study: re-evaluating the same
+$(\Delta,T)$ ideal-scan data gives $-84.7$\,dB with the old formula versus
+$-31.3$\,dB with the corrected one (squeezing report v4). The pinned regression
+baseline was re-captured with the corrected formula.
+\end{remark}
+
+Symmetric detection efficiency $\eta$ on both arms mixes in uncorrelated vacuum,
 \begin{equation}
 S(\eta)=\eta\,S_{\text{ideal}}+(1-\eta),
 \qquad
@@ -787,12 +1001,56 @@ with $\eta=\text{QE}\,(1-\text{loss})$. Equation~\eqref{eq:Seta} immediately giv
 the squeezing \emph{floor}: since $S_{\text{ideal}}\!\ge\!0$,
 \begin{equation}
 S_{\text{dB}}\ \ge\ 10\log_{10}(1-\eta),
+\label{eq:floor}
 \end{equation}
-a hard limit set purely by loss. (A 2-D $\xi(\Delta,T)$ scan confirms the model
-saturates exactly at this $10\log_{10}(1-\eta)$ plateau once the gain is large
-enough --- the gain-saturation and the loss-floor together cap the achievable
-squeezing.) Negative $S_{\text{dB}}$ means squeezed below shot noise; the Sim
-\emph{et al.} reference point reaches about $-8.33\,$dB in the focused scan.
+a hard limit set purely by loss. At the reference detection chain
+($\text{QE}=0.92$, $5.5\,\%$ optical loss, $\eta=0.8694$) the floor is
+$-8.84\,$dB. (The 2-D $\xi(\Delta,T)$ scan confirms the model saturates exactly
+at this plateau once the gain is large enough --- gain saturation and the loss
+floor together cap the achievable squeezing.) Negative $S_{\text{dB}}$ means
+squeezed below shot noise; the regression-pinned legacy scan at the Sim
+\emph{et al.}\ reference setting reaches $S_{\text{dB}}\approx-8.69\,$dB at
+$G_s\approx32$ (Sec.~\ref{sec:pipeline}).
+
+\subsection{Beyond symmetric loss: the balanced two-arm noise model}
+\label{sec:balanced}
+
+Real detection is rarely symmetric: the two arms can have different total
+transmissions, and the reference photocurrent can be electronically weighted.
+The generalized noise (\code{observables.balanced\_twin\_beam\_noise}) is the
+variance of the weighted difference photocurrent, normalized to the
+coherent-state shot noise of the same combination:
+\begin{equation}
+D=I_s-w\,I_c,
+\qquad
+S=\frac{\mathrm{Var}\,D}{\langle I_s\rangle+w^2\langle I_c\rangle},
+\qquad
+\langle I_s\rangle=\eta_s G_s,\quad \langle I_c\rangle=\eta_c G_c,
+\label{eq:balancedS}
+\end{equation}
+with total arm efficiencies $\eta_s,\eta_c$ (cell transmission $\times$ path
+loss $\times$ QE) and
+\begin{equation}
+\mathrm{Var}\,D=\eta_sG_s+w^2\eta_cG_c-2w\,\eta_s\eta_c\,\mathrm{cov}_0,
+\qquad
+\mathrm{cov}_0=\tfrac12\Big[(G_s+G_c)-(G_s-G_c)^2\Big],
+\label{eq:cov0}
+\end{equation}
+where $\mathrm{cov}_0$ is the source intensity covariance consistent with the
+conserved-difference result: at $w=1$, $\eta_s=\eta_c=\eta$ the model reduces
+\emph{exactly} to Eqs.~\eqref{eq:Sideal}--\eqref{eq:Seta}, and on the lossless
+twin-beam line $\mathrm{cov}_0=G_c$. It is clipped to the Cauchy--Schwarz bound
+$\sqrt{G_sG_c}$ (and to $\ge0$). The reference weight $w$ may be a scalar
+electronic gain or one of three lab conventions: \code{raw} ($w=1$), \code{dc}
+($w=\langle I_s\rangle/\langle I_c\rangle$, cancelling the mean photocurrents
+--- what a balanced detector with a DC servo does), and \code{shot}
+($w=\sqrt{\langle I_s\rangle/\langle I_c\rangle}$, minimizing the normalized
+quantum noise at fixed detected powers). An optional \code{source\_noise} input
+replaces the ideal source covariance with a measured/inferred value (used by
+paper-anchored resonant-FWM readouts elsewhere in GABES), and additive
+technical excess-noise terms enter as $S\to S+\mathcal{N}_{\text{tech}}$. This
+model is the noise engine of the hardened Ultra path
+(Sec.~\ref{sec:hardened}).
 
 \subsection{Twin-beam photon statistics}
 
@@ -812,47 +1070,198 @@ These are valid only where $G_s>1$ (set to NaN otherwise) and, like the squeezin
 above, do not include quantum-Langevin propagation loss.
 
 % =====================================================================
+\section{The Ultra noise model: in-cell loss, asymmetric arms, pump scatter}
+\label{sec:hardened}
+% =====================================================================
+
+The legacy/Balanced/Fine paths score squeezing with the symmetric formula
+Eq.~\eqref{eq:Seta}. The Ultra path models the noise budget more honestly, in
+two stages: a beamsplitter treatment of in-cell loss (pre-hardening Ultra), and
+--- intrinsic since the v5 hardening --- an excess-noise model that charges the
+penalties a gain-gap-only objective is blind to.
+
+\subsection{In-cell loss as a beamsplitter}
+
+Propagation loss inside the cell happens \emph{before} the detectors, so Ultra
+applies it to the source noise as a vacuum admixture with transmission
+$\tau_{\text{cell}}=e^{-\mathrm{OD}}$ (from the median absorptive optical depth
+of the segment profile), then the detection efficiency, then any additive
+technical noise (\code{observables.segmented\_loss\_noise\_squeezing\_dB}):
+\begin{equation}
+S_{\text{cell}}=\tau_{\text{cell}}\,S_{\text{ideal}}+(1-\tau_{\text{cell}}),
+\qquad
+S=\eta\,S_{\text{cell}}+(1-\eta)+\mathcal{N}_{\text{tech}}.
+\label{eq:segloss}
+\end{equation}
+Deliberately, this loss is \emph{not} also applied as field attenuation inside
+the segmented propagation --- doing both double-counts the same optical depth
+(an early Ultra bug). The technical-noise channels
+($\mathcal{N}_{\text{tech}}$: seed excess noise, pump scatter, EOM residual)
+were zero-default placeholders in this stage; Eq.~\eqref{eq:segloss} with
+$\mathcal{N}_{\text{tech}}=0$ is what \code{excess\_noise\_model=False} still
+computes, kept for A/B against pre-hardening results.
+
+\subsection{What a gap-only objective is blind to}
+
+$S_{\text{ideal}}=(G_s-G_c)^2/(G_s+G_c)$ sees only the \emph{gain gap}: any
+operating point with $G_s-G_c\approx1$ looks near-perfect regardless of how
+large the gains are, where the two sidebands sit relative to the absorption
+manifolds, and how much pump light reaches the detectors. Squeezing report v5
+documents the consequence: with probe-only in-cell loss the $(\Delta,T)$
+optimizer rewarded a near-resonance ultra-high-gain region ($G_s\sim636$ at an
+in-cell OD reported as $\approx0$ --- an internal contradiction of the lumped
+model) and pinned a spurious global optimum at $\Delta=-2.20\,$GHz,
+$T=135\,^\circ$C.
+
+\subsection{The hardened excess-noise model}
+
+The hardened model (intrinsic to Ultra; \code{compute\_spectrum} argument
+\code{excess\_noise\_model}, default on) adds exactly the two missing penalties.
+
+\paragraph{(i) Arm-resolved linear absorption.} The lumped double-$\Lambda$
+parametric susceptibilities $\chi_{ss},\chi_{cc}$ carry the FWM response but
+\emph{not} the ordinary linear absorption a real beam suffers when its optical
+frequency crosses the populated $F=2\!\to\!F'$ manifold --- the physics that
+kills squeezing when a sideband lands near resonance (the conjugate in the
+deep-red-$\Delta$ region, the probe in the deep-blue-$\Delta$ region; Sim
+\emph{et al.}\ document the conjugate case). \code{fwm.\_arm\_linear\_od}
+evaluates each arm's own linear optical depth from the AutoOD-validated
+hyperfine absorption ($<0.1\,\%$ vs lab), summing the manifold components with
+$F_g=2$ (branch $-1$) at the arm's own frequency; the conjugate frequency
+follows from energy conservation, $f_c=2\Delta_{\text{GHz}}-f_{\text{probe}}$.
+These enter as \emph{asymmetric arm transmissions} in the balanced model of
+Sec.~\ref{sec:balanced}:
+\begin{equation}
+\eta_s^{\text{arm}}=\eta\,e^{-(\mathrm{OD}_{\text{seg}}
++\mathrm{OD}^{\text{lin}}_{s})},
+\qquad
+\eta_c^{\text{arm}}=\eta\,e^{-\mathrm{OD}^{\text{lin}}_{c}},
+\label{eq:armloss}
+\end{equation}
+where $\mathrm{OD}_{\text{seg}}$ is the $\chi_{ss}$-based in-cell depth already
+used by the segment profile and $\mathrm{OD}^{\text{lin}}_{s,c}$ are the
+manifold linear depths (clipped to $[0,5]$). Asymmetric arm loss is precisely
+what breaks the intensity-difference correlation, so parking either sideband on
+a populated manifold is now charged its physical price.
+
+\paragraph{(ii) Pump-scatter excess noise.} The pump's own linear optical depth
+$\mathrm{OD}_p$ at its detuning $\Delta$ (same validated absorption path) fixes
+how much pump power the vapour scatters; a residual fraction $\kappa$ of that
+reaches the difference photocurrent (finite PBS extinction and spatial-filter
+leakage):
+\begin{equation}
+\mathcal{N}_{\text{ps}}=\kappa\,\big(1-e^{-\mathrm{OD}_p}\big),
+\qquad
+\kappa=0.1\ \text{(default, the one residual coefficient)}.
+\label{eq:pumpscatter}
+\end{equation}
+This is small far from resonance (the $+0.9\,$GHz window of Sim \emph{et al.})
+and large when the pump sits near a populous manifold (the
+$-2.1\,$GHz/$F{=}3$ region).
+
+\paragraph{Assembled noise.} The Ultra squeezing is then the balanced two-arm
+noise with the DC-cancelling weight and the pump scatter as additive excess
+noise:
+\begin{equation}
+S_{\text{Ultra}}
+=\mathrm{Var}\big(I_s-wI_c\big)\big/\big(\langle I_s\rangle+w^2\langle
+I_c\rangle\big)\Big|_{\eta_s^{\text{arm}},\,\eta_c^{\text{arm}},\,w=\text{dc}}
+\;+\;\mathcal{N}_{\text{ps}},
+\qquad
+S_{\text{dB}}=10\log_{10}S_{\text{Ultra}}.
+\label{eq:hardenedS}
+\end{equation}
+The absorption channels carry \emph{no} tuning coefficient (they are validated
+physics); $\kappa$ is the single residual.
+
+\subsection{What hardening changes (squeezing report v5)}
+
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{The extreme-gain artefact is removed.} The $(\Delta,T)$
+  global-optimum gain drops $G_s=636\to27$; the v4 artefact coordinate
+  ($-2.20\,$GHz, $135\,^\circ$C) is suppressed from $-8.83$ to $-5.41\,$dB by
+  the conjugate arm's absorption.
+  \item \textbf{The honest optimum stays slightly red-detuned.} The hardened
+  global optimum is $\Delta=-2.0\,$GHz, $T=120\,^\circ$C, $\xi=-8.07\,$dB at
+  $G_s=27$, with the Sim-side lobe ($\Delta=+1.3\,$GHz, $-7.79\,$dB) only
+  $0.28\,$dB shallower --- near-degenerate. The residual red preference is real
+  physics \emph{of this model}: the more populated $F=3$ ground manifold
+  ($7/12$ vs $5/12$) and the spectrally cleaner far-red probe position. What the
+  lumped steady-state model cannot contain is the optical-pumping depletion of
+  $F=3$ when the pump parks near the $F=3$ manifold, which is the leading
+  candidate for why the experiment prefers $+0.9\,$GHz.
+  \item \textbf{Even the ideal-detection limit is capped.} With $\eta\to1$ the
+  gap-only objective runs away to $-36.6\,$dB at the $G_s=636$ coordinate; the
+  hardened model caps the ideal optimum at $-15.5\,$dB / $G_s=27$.
+\end{itemize}
+The legacy/Balanced/Fine squeezing formulas and the pinned regression baseline
+are untouched by the hardening; \code{excess\_noise\_model=False} reproduces
+pre-hardening Ultra, and a dict (e.g.\
+\code{\{"pump\_scatter\_kappa": 0.2\}}) tunes $\kappa$.
+
+% =====================================================================
 \section{The seeded pipeline, end to end}
+\label{sec:pipeline}
 % =====================================================================
 
 Collecting the pieces, \code{compute\_spectrum} (one one-photon detuning
 $\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
 \begin{enumerate}[leftmargin=2.2em]
-  \item Convert powers to Rabi frequencies, Eq.~\eqref{eq:rabi}; density
-  $N(T)$.
+  \item Convert powers to Rabi frequencies, Eq.~\eqref{eq:rabi}; CRC density
+  $N(T)$, Eq.~\eqref{eq:crc}; coupling scale
+  $\ell_s\varrho_{\text{norm}}$ (Sec.~\ref{sec:coupling}).
+  \item Build the per-temperature collisional atom
+  (\code{collisional\_atom}: $\gamma_{gg}(T,N)$, $\gamma_{\text{opt}}(N)$,
+  Sec.~\ref{sec:collisional}).
   \item Build the probe-frequency scan axis around the chosen Raman branch, and map
   each point to a two-photon detuning $\delta$ (Sec.~\ref{sec:branch}).
   \item Build the velocity grid and the $\Delta_\eff$ axis (Sec.~\ref{sec:dopp}).
-  \item Build the $\rhobar$ table on $(\delta,\Delta_\eff)$
+  \item Build the $\rhobar$ table on $(\delta,\Delta_\eff)$ with that atom
   (Secs.~\ref{sec:floquet}--\ref{sec:chi}); with Numba available this is the
   fused \code{kernels.floquet\_chi\_grid} path, otherwise the NumPy
   \code{core.floquet\_solve} reference path.
   \item Doppler-average each of the four $\rhobar$ entries,
   Eq.~\eqref{eq:doppleravg}.
   \item Maxwell--Bloch propagate $\to$ $G_s,G_c$,
-  Eqs.~\eqref{eq:Mmatrix}--\eqref{eq:gains}. In the app path the propagation
-  matrix also carries the seeded phase-mismatch term, Eq.~\eqref{eq:Mdeltak};
-  High fidelity additionally uses the refractive and segmented propagation
-  refinements; Ultra uses the segmented depletion/loss/noise path.
+  Eqs.~\eqref{eq:Mmatrix}--\eqref{eq:gains}. From Balanced fidelity up the
+  propagation matrix carries the seeded phase-mismatch term,
+  Eq.~\eqref{eq:Mdeltak}; High fidelity adds the refractive correction and the
+  16-segment absorption profile; Ultra runs the 64-segment dynamic
+  depletion path with Gaussian overlap (Sec.~\ref{sec:ultraprop}).
   \item Apply the Manley--Rowe cap, Eq.~\eqref{eq:manleyrowe}.
-  \item Squeezing $S_{\text{dB}}(\delta)$, Eq.~\eqref{eq:Seta}.
+  \item Squeezing $S_{\text{dB}}(\delta)$: Eq.~\eqref{eq:Seta} on the
+  legacy/Balanced/Fine paths; the hardened balanced-arm noise
+  Eq.~\eqref{eq:hardenedS} on Ultra.
 \end{enumerate}
 The returned dictionary carries $G_s$, $G_c$, $S_{\text{dB}}$ versus probe
-detuning, plus derived diagnostics ($N$, $\sigma_v$, $\Omega_{\text{pump}}$,
-$\Omega_{\text{seed}}$, the small-signal peak, the depletion cap, the active
-phase-detail mode, $\Delta k_z$, the vacuum $\Delta k_z$, and any segment
-profile diagnostics). The TPD slider in the app reads a single operating point
-off this curve by interpolation (\code{operating\_point}) --- instant, no
-re-solve --- which is why the $\delta$ knob recomputes nothing.
+detuning, plus derived diagnostics: $N$, $\sigma_v$, $\Omega_{\text{pump}}$,
+$\Omega_{\text{seed}}$, the small-signal peak and the depletion cap, the
+first-principles \code{coupling\_norm} $\varrho_{\text{norm}}$, the
+\code{line\_strength\_residual} $\ell_s$ and their product
+(\code{effective\_line\_strength}), the active phase-detail mode, $\Delta k_z$
+(operating and vacuum), segment/overlap/pump-budget diagnostics, the Zeeman
+consistency status, and --- on Ultra --- the \code{hardened\_noise} block
+($\kappa$, pump OD, per-arm linear ODs). The TPD slider in the app reads a
+single operating point off this curve by interpolation
+(\code{operating\_point}) --- instant, no re-solve --- which is why the $\delta$
+knob recomputes nothing.
 
 \paragraph{Anchor.} The direct \code{compute\_spectrum} path remains
-regression-anchored. Around the Sim \emph{et al.}\ reference setting
-($\Delta=0.9\,$GHz, $T=121\,^\circ$C, $600\,$mW pump, $8\,\mu$W seed,
-$5.5\,\%$ loss), the focused two-photon-detuning scan returns
-$S_{\text{dB}}\approx-8.33\,$dB with $G_s\approx17.6$ at the local optimum.
-Regression tests hold the seeded gain/squeezing arrays to the frozen baseline,
-and the app presets select the appropriate phase-detail mode for interactive
-calculations.
+regression-anchored (\code{tests/test\_regression.py}, baseline
+\code{tests/baseline\_focused.npz}; re-captured after the coupling
+normalization, the collisional dissipator, and the IDS-formula correction). At
+the Sim \emph{et al.}\ reference setting ($\Delta=0.9\,$GHz, $T=121\,^\circ$C,
+$600\,$mW pump, $8\,\mu$W seed, $\ell_s=0.74$, $5.5\,\%$ loss,
+$\eta=0.8694$), the pinned legacy focused scan reaches
+$S_{\text{dB}}\approx-8.69\,$dB at $G_s\approx32.1$, against the
+$-8.84\,$dB detection floor of Eq.~\eqref{eq:floor}. The same residual
+$\ell_s=0.74$ makes the \emph{Ultra} path reproduce the paper's measured
+operating point ($G_s\approx14$, $-7.8\,$dB) --- that is the calibration
+statement; the legacy path, which omits the propagation refinements, runs
+hotter. Regression tests hold the seeded gain/squeezing arrays to the frozen
+baseline bit-for-bit, and the app presets select the phase-detail mode per
+fidelity (Fast/Balanced $\to$ \code{balanced}, High $\to$ \code{fine},
+Ultra $\to$ \code{ultra}).
 
 % =====================================================================
 \section{Spontaneous FWM: the biphoton mode}
@@ -860,14 +1269,25 @@ calculations.
 
 The second mode (\code{GenericFWMSolver}) drops the seed entirely and estimates the
 \emph{spontaneous} biphoton source: pairs generated from vacuum in a cascade or
-diamond level topology. It is a calibrated source model, not a Langevin
-propagation, but the physics it does contain is worth recording.
+diamond level topology. It now carries two source models
+(\code{biphoton\_model} toggle): the default \textbf{Predictive} path solves the
+Doppler-averaged biphoton amplitude from first principles --- waveform shape,
+temporal width, source bandwidth and their parameter dependences are
+\emph{computed} --- while \textbf{Calibrated} is the legacy reference-injected
+estimate kept for comparison. In both, the absolute pair rate stays
+reference-anchored with physical scaling: the lumped model does not pin the
+absolute collection coefficient, for the same reason the squeezing mode keeps
+the $\ell_s$ residual (Sec.~\ref{sec:coupling}).
 
 \subsection{Topologies and fields}
 
 A topology is a set of \code{LevelSpec} levels and \code{FieldSpec} fields (pump,
 coupling, signal, idler), each with a wavelength, propagation direction, and
-phase sign. Three are provided:
+phase sign. The driven-field Rabi frequencies are scaled from per-topology
+reference anchors as $\sqrt{P/P_{\text{ref}}}$
+(\code{beam.anchored\_rabi\_mhz}), so the power knobs move the physics without
+pretending to an absolute beam-geometry calibration. Three topologies are
+provided:
 \begin{itemize}[leftmargin=1.6em]
   \item \textbf{$^{87}$Rb telecom cascade} $5S_{1/2}\!\to\!5P_{3/2}\!\to\!4D_{5/2}$
   (780/1529 nm), calibrated to $\sim$38\,000 cps/mW, $g^{(2)}\!\approx\!44$,
@@ -927,36 +1347,153 @@ vectorized geometry is evaluated on a signal--idler grid
 $\Phi_{\text{vec}}(\theta_s,\theta_i)$ without touching the velocity-class source
 calculation.
 
-\subsection{Velocity-class coherent biphoton waveform}
+\subsection{Predictive first-principles waveform}
+\label{sec:predictive}
 
-The temporal wavefunction of the pair is built as a \emph{coherent sum over
-Maxwell velocity classes} (the hot-vapour analogue of the joint spectral
-amplitude). For a cascade, each class contributes a two-photon amplitude that is a
-product of the two intermediate-state resonances
-(\code{GenericFWMSolver.compute\_biphoton}):
+The predictive model (\code{\_predictive\_waveform}) evaluates the biphoton
+temporal amplitude as a \emph{coherent sum over Maxwell velocity classes} --- the
+hot-vapour analogue of the joint spectral amplitude --- following Kim
+\emph{et al.}\ [\emph{Quantum Sci.\ Technol.}\ \textbf{9}, 045006 (2024),
+Eq.~(2)], Chen \emph{et al.}\ [\emph{Phys.\ Rev.\ Research} \textbf{4}, 023132
+(2022), Eqs.~(3--5)] and Du, Wen, Rubin [\emph{J.\ Opt.\ Soc.\ Am.\ B}
+\textbf{25}, C98 (2008)]. Each velocity class contributes the two-photon
+amplitude
 \begin{equation}
-A(v)=w(v)\,\frac{\Omega_{\text{pump}}\,\Omega_{\text{coupling}}}
-{\big[\tfrac{\gamma_\ell}{2}+\ii(\Delta_{\text{pump}}-k_{\text{pump}}v)\big]\,
+\kappa(v)=w(v)\,
+\frac{\Omega_p\,\Omega_c}
+{4 f_1(v)\,f_2(v)+\Omega_c^2}\;\propto\;\mathrm{OD},
+\qquad
+\begin{aligned}
+f_1(v)&=\tfrac{\Gamma_i}{2}+\ii\big(\Delta_p-k_p v\big),\\
+f_2(v)&=\tfrac{\Gamma_e}{2}+\ii\big(\Delta_{2\gamma}-k_{\text{res}} v\big),
+\end{aligned}
+\label{eq:kappa}
+\end{equation}
+with $\Gamma_i,\Gamma_e$ the intermediate/upper natural linewidths,
+$\Delta_{2\gamma}=\Delta_p+\Delta_c$ the two-photon detuning, and
+$k_{\text{res}}=k_p+k_c$ (signed by propagation directions) the residual
+two-photon Doppler wavevector. Three points carry the physics:
+\begin{itemize}[leftmargin=1.6em]
+  \item \textbf{The $\Omega_c^2$ Autler--Townes term} in the denominator is kept
+  --- no weak-coupling approximation --- so a strong coupling laser splits the
+  two-photon resonance and reshapes (shortens) the waveform, as in the
+  references.
+  \item \textbf{The nonlinear response is $\propto$ OD}: $\kappa\propto\alpha$,
+  so the pair \emph{rate} scales as $\mathrm{OD}^2$ before collection factors.
+  \item \textbf{Two-photon (ground) dephasing} $\gamma_g=0.02\,\Gamma_i$
+  (\code{GROUND\_DEPHASING\_FRAC}; Chen \emph{et al.}\ fit
+  $\gamma\approx0.02$--$0.03\,\Gamma$) enters the longitudinal response below.
+\end{itemize}
+The time-domain nonlinear response is the coherent velocity sum with the
+single-photon Doppler phase and the \emph{natural} decay envelope of the
+idler-emitting intermediate state --- no injected lifetime:
+\begin{equation}
+\tilde\kappa(\tau)=\Big[\sum_v \kappa(v)\,e^{\,\ii k_p v\,\tau}\Big]\,
+e^{-\Gamma_i\tau/2},
+\qquad
+\psi(\tau)=\tilde\kappa(\tau)\,\sqrt{\Phi_{\text{vec}}},
+\label{eq:predpsi}
+\end{equation}
+where the velocity sum is a Doppler-dephasing integral (classes accumulate
+phase $k_p v\tau$ and wash out) whose interference sets the beat-then-decay
+biphoton temporal-waveform (BTW) shape; the wavelength-dependent width
+\emph{ordering} of the two Cs BTW channels (917 narrower than 795) emerges from
+this sum rather than being injected. The source bandwidth is measured from the
+waveform's own spectrum, and a regime diagnostic compares the Du group-delay
+time $\tau_g=(2\gamma_g/\Omega_c^2)\,\mathrm{OD}\,\Gamma_e$ against the Rabi
+time $2\pi/\Omega_c$ (``group-delay'' vs ``damped-Rabi'' regime). Chen's
+ultimate spectral-brightness ceiling, $\approx(\pi/2)\times10^{6}$
+pairs\,s$^{-1}$\,MHz$^{-1}$, is reported alongside.
+
+\paragraph{Optional OD reshaping (off by default).} At high optical depth the
+pair propagates through its own EIT/slow-light medium: in the conjugate
+(frequency) domain the joint amplitude is multiplied by the longitudinal
+function $\Phi(\delta)=\sinc\varrho\;e^{\ii\varrho}$ [Du Eq.~(14)], with
+$\varrho(\delta)$ the OD-weighted complex EIT phase [Chen Eq.~(5)],
+\begin{equation}
+\varrho(\delta)=\frac{\mathrm{OD}\,\Gamma_e}{2}
+\sum_v w(v)\,
+\frac{\delta+\ii\gamma_g}
+{\Omega_c^2-4\big(\delta+\ii\gamma_g\big)
+ \big(\delta+\Delta_{2\gamma}-k_{\text{res}}v+\ii\Gamma_e/2\big)},
+\label{eq:eitphase}
+\end{equation}
+implemented as an FFT convolution of $\tilde\kappa(\tau)$
+(\code{\_apply\_longitudinal\_response}), with $\varrho$ clipped to the
+dilute-regime range. At $\mathrm{OD}\to0$, $\Phi\to1$ and
+$\psi\to\tilde\kappa$ exactly. The path is a diagnostic opt-in
+(\code{biphoton\_od\_reshaping}) because the lumped model overestimates the
+group-delay broadening at high OD and would smear the validated narrow telecom
+BTW.
+
+\subsection{Velocity-grid auto-refinement}
+\label{sec:vrefine}
+
+The velocity sum in Eq.~\eqref{eq:predpsi} is a discretized Fourier integral of
+the \emph{narrow} source resonance $|\kappa(v)|$, whose velocity-space width is
+of order $\Gamma/k$ --- a few m/s, far narrower than the Doppler width
+$\sigma_v$ the navigate-only \code{biphoton\_velocity\_step} knob is sized for.
+A step coarser than that resonance \emph{aliases} the sum: before the fix, the
+reported telecom BTW width swung by a factor $\sim20$, non-monotonically, as
+the user step varied over $1$--$12$\,m/s --- numerics masquerading as physics.
+The predictive path therefore treats the user step only as an upper bound
+(\code{\_converged\_predictive\_waveform}):
+\begin{enumerate}[leftmargin=2.2em]
+  \item Measure the actual resonance FWHM of $|\kappa(v)|$ on a fine probe grid
+  (so Autler--Townes and detuning broadening are captured), and start from
+  $\dd v=\mathrm{FWHM}/16$ (\code{PRED\_V\_OVERSAMPLE}).
+  \item Halve the step until the $|\psi|^2$ FWHM is stable to $3\,\%$
+  (\code{PRED\_V\_FWHM\_TOL}), up to 10 halvings.
+  \item If the $40\,000$-point cap is reached first, flag the width as
+  \emph{unconverged} (qualitative only) in the readout.
+\end{enumerate}
+With this in place the $^{87}$Rb telecom predictive width converges to
+$\approx0.50$\,ns against the measured $0.56(4)$\,ns, and the Cs channels land
+within $\sim30\,\%$ --- the remaining gap is the deferred per-source
+absolute-width calibration (\code{docs/checklist.json}).
+
+\subsection{Absolute rate and optical depth: anchored, physically scaled}
+
+The absolute pair rate is reference-anchored with physical scaling
+(\code{compute\_biphoton}):
+\begin{equation}
+R_{\text{pair}}
+=R_{\text{ref}}\;P_{\text{pump}}[\mathrm{mW}]\;
+\sqrt{s_c}\;\;\Phi_{\text{vec}}\;
+\sqrt{N/N_{\text{ref}}},
+\label{eq:pairrate}
+\end{equation}
+with $R_{\text{ref}}$ the per-topology anchor (e.g.\ $38\,000$\,cps/mW for the
+telecom cascade), $s_c$ the relative coupling drive, $\Phi_{\text{vec}}$ the
+vector phase-matching weight of Eq.~\eqref{eq:sinc}, and $N(T)$ the isotope
+density. The optical depth that drives Eqs.~\eqref{eq:kappa} and
+\eqref{eq:eitphase} is likewise the \emph{measured} reference OD scaled by
+density and cell length, $\mathrm{OD}=\mathrm{OD}_{\text{ref}}\,
+(N/N_{\text{ref}})(L/L_{\text{ref}})$ --- OD is an experimentally reported
+quantity in these sources, like the cell temperature. Where a topology carries
+no reference OD, a physical leg OD is computed from the natural linewidth via
+the AutoOD-validated $\Gamma\to|d|^2$ route,
+$\alpha_0=2Nk|d|^2/(\varepsilon_0\hbar\Gamma)$
+(\code{species.reduced\_dipole\_sq}).
+
+\subsection{Calibrated (legacy) source model}
+
+The Calibrated model keeps the pre-2026-06-19 estimate for comparison: the
+velocity-class source is the weak-drive product of the two cascade resonances,
+\begin{equation}
+A(v)=w(v)\,\frac{\Omega_{p}\,\Omega_{c}}
+{\big[\tfrac{\gamma_\ell}{2}+\ii(\Delta_{p}-k_{p}v)\big]\,
  \big[\tfrac{\gamma_u}{2}+\ii(\Delta_{2\gamma}-k_{\text{res}}v)\big]}\,
- \sqrt{\Phi},
+ \sqrt{\Phi_{\text{vec}}},
 \label{eq:sourcev}
 \end{equation}
-with $\gamma_\ell,\gamma_u$ the intermediate/upper linewidths,
-$\Delta_{2\gamma}=\Delta_{\text{pump}}+\Delta_{\text{coupling}}$ the two-photon
-detuning, and $k_{\text{res}}=k_{\text{pump}}+k_{\text{coupling}}$ the residual
-two-photon Doppler wavevector. The time-domain waveform is the coherent sum with
-the idler-arm propagation phase and the exponential emission envelope:
-\begin{equation}
-\psi(\tau)=\Big[\sum_v A(v)\,e^{\,\ii k_{\text{idler}} v\,\tau}\Big]\,
-e^{-\tau/\tau_{\text{decay}}}.
-\label{eq:psitau}
-\end{equation}
-The first factor is a Doppler-dephasing sum (different velocity classes accumulate
-different phase $k v\tau$, so the pair correlation decays as the classes wash out);
-the second is the natural-lifetime envelope of the upper cascade state. The
-beating between the two cascade channels (e.g.\ the two Cs BTW channels) is exactly
-the velocity-class interference in Eq.~\eqref{eq:psitau} --- which is why the two
-channels give different temporal widths.
+summed with the idler-arm phase $e^{\ii k_{\text{idler}}v\tau}$ and multiplied
+by an \emph{injected} exponential lifetime envelope
+$e^{-\tau/\tau_{\text{decay}}}$ (the topology's reference emission decay); the
+source bandwidth is the reference value and the $g^{(2)}$ peak is forced to the
+reference anchor (below). Because the width is set by the injected lifetime
+rather than the velocity-sum dephasing, this model is insensitive to the
+velocity-step aliasing of Sec.~\ref{sec:vrefine}.
 
 \subsection{Correlation readout and calibration}
 
@@ -971,11 +1508,16 @@ g^{(2)}_{SI}(\tau)=1+\text{CAR}\cdot\frac{|\psi(\tau)|^2}{\max|\psi|^2},
 \text{CAR}=\frac{\text{coincidence}}{\text{accidental}}.
 \end{equation}
 Heralding efficiencies and the Cauchy--Schwarz ratio $R=[g^{(2)}_{\text{peak}}]^2/4$
-follow. Where a paper anchor exists (e.g.\ the $^{87}$Rb $g^{(2)}\!\approx\!44$),
-an explicit added-accidental term calibrates the peak to the reference value ---
-making clear that the absolute noise floor is \emph{calibrated}, not derived from
-first principles. A medium-complexity validation table checks the calibrated
-rate/OD/width anchors, energy bookkeeping, and phase matching.
+follow. The two source models differ in one honest detail: in the
+\emph{Calibrated} model, where a paper anchor exists (e.g.\ the $^{87}$Rb
+$g^{(2)}\!\approx\!44$), an explicit added-accidental term calibrates the peak
+to the reference value --- the absolute noise floor is \emph{calibrated}, not
+derived. The \emph{Predictive} model passes no $g^{(2)}$ target: its peak
+follows from the computed waveform and the physical accidentals alone. The
+in-app validation table marks each anchor accordingly --- calibrated entries as
+``by construction'', predictive entries as ``predicted (approx)'' --- and checks
+rate/OD/width anchors, energy bookkeeping, phase matching, and the velocity
+convergence flag.
 
 % =====================================================================
 \section{Numerical architecture (brief)}
@@ -986,51 +1528,80 @@ The physics dictates the architecture, so a short note suffices:
   \item \textbf{One template, shifted.} $\Lcal_0(\Delta_\eff)=\Lcal_0(0)-\Delta_\eff
   S_v$ (Eq.~\eqref{eq:deffshift}) lets every velocity share one Liouvillian and be
   assembled by cheap matrix shifts.
-  \item \textbf{$T$- and $\Delta$-independent table.} $\rhobar(\delta,\Delta_\eff)$
-  is computed on the needed grid; $T\to$ weights, $\Delta\to$ sampled columns or
-  interpolation coordinates (Eq.~\eqref{eq:doppleravg}). The $(\Delta,T)$ map
-  uses one exact-union master grid for all points.
+  \item \textbf{$\Delta$-independent, per-$T$ table.} $\rhobar(\delta,\Delta_\eff)$
+  is computed on the needed grid; $\Delta\to$ sampled columns or interpolation
+  coordinates, $T\to$ Maxwell weights \emph{plus} the collisional dissipator
+  (Sec.~\ref{sec:collisional}). The $(\Delta,T)$ map therefore builds one
+  exact-union master grid per temperature and reuses it across all $\Delta$.
   \item \textbf{Compiled OBE kernels.} \code{gabes/kernels.py} provides optional
   Numba kernels for the hot solve grids. FWM uses
   \code{floquet\_chi\_grid}; the absorption/Rydberg family uses the affine-scan
   kernel. The NumPy paths remain the reference fallback when Numba is unavailable.
   \item \textbf{Closed-form $2\times2$.} The transfer matrix exponential is
-  analytic (Appendix~\ref{app:expm}), avoiding a per-point \code{expm}.
+  analytic (Appendix~\ref{app:expm}), avoiding a per-point \code{expm}; its
+  exponent arguments are overflow-clamped so runaway linear gain degrades to
+  huge-but-finite values instead of NaN-poisoning the curve (Sec.~\ref{sec:mb}).
   \item \textbf{Thread hygiene.} The small dense systems are kept out of
   oversubscribed BLAS threading with \code{core.blas\_single\_thread}; compiled
   kernels parallelize at the grid level, and \code{full\_spectrum} computes the
   two Raman branches independently.
+  \item \textbf{Headless readout.} Every scheme's \code{observables} accepts
+  \code{include\_figures=False}, returning metrics/tables without building
+  Matplotlib figures --- the batch scanners and reports use this path (figure
+  construction, not the OBE solve, dominates a warmed interactive call).
 \end{itemize}
 
 % =====================================================================
 \section{Validation, scope, and what is \emph{not} modelled}
 % =====================================================================
 
-\paragraph{Validated.} The direct seeded $G_s$/$S_{\text{dB}}$ pipeline
-reproduces the Sim \emph{et al.} $^{85}$Rb operating point and is
-regression-locked bit-for-bit. The optional Numba kernels are tested against the
-NumPy reference paths, and the app-facing phase-detail modes add propagation
-physics without changing the atomic OBE definition. The genuine $^{85}$Rb $D_1$
-hyperfine CG factors $(10,35,35,28)/81$ drive the coherent coupling, the
-polarization readout, and the spontaneous-emission branching.
+\paragraph{Validated / first-principles.} The direct seeded
+$G_s$/$S_{\text{dB}}$ pipeline is regression-locked bit-for-bit, and at Ultra
+fidelity reproduces the Sim \emph{et al.}\ measured operating point
+($G_s\approx14$, $-7.8\,$dB) with the single residual $\ell_s=0.74$. The
+optional Numba kernels are pinned to the NumPy reference paths, and the
+app-facing phase-detail modes add propagation physics without changing the
+atomic OBE definition. The genuine $^{85}$Rb $D_1$ hyperfine CG factors
+$(10,35,35,28)/81$ drive the coherent coupling, the polarization readout, and
+the spontaneous-emission branching; the macroscopic scale chain --- CRC density,
+$p_F/[2(2I+1)]$ normalization, self-broadening $\beta$, and the hardened
+arm/pump absorption channels --- is tied to the AutoOD-validated absorption path
+($<0.1\,\%$ against measured cell transmission). The ideal
+intensity-difference noise is the conserved-difference result
+Eq.~\eqref{eq:Sideal}, and the collisional dissipator gives the observed
+interior temperature optimum.
 
-\paragraph{Lumped / calibrated.} A single residual coupling scale
-$\xi_{\text{LS}}\!\sim\!0.05$ stands in for unmodelled propagation physics; the
-biphoton pair rates and the $g^{(2)}$ noise floor are reference-calibrated source
-estimates.
+\paragraph{Lumped / calibrated residuals.} What still carries a knob: the
+dimensionless line-strength residual $\ell_s=0.74$ ($m$-sublevel participation /
+beam geometry, not yet derived); the pump-scatter leakage fraction
+$\kappa=0.1$ of the hardened Ultra noise (PBS extinction / spatial filtering,
+awaiting measurement); the biphoton absolute pair rate and (in the Calibrated
+model) the $g^{(2)}$ noise floor, which are reference-anchored; and the
+predictive biphoton \emph{absolute} widths, which are approximate
+(telecom $\approx0.50$ vs $0.56(4)$\,ns; Cs within $\sim30\,\%$) pending the
+per-source calibration deferred in \code{docs/checklist.json}.
 
 \paragraph{Ultra status and remaining future physics.}
 \begin{itemize}[leftmargin=1.6em]
-  \item Ultra v1 includes fixed-iteration refractive phase matching, Gaussian
-  beam-overlap weighting, segment-wise pump-budget depletion, and in-cell
-  beam-splitter loss/noise before detector efficiency.
-  \item Technical noise channels (seed excess noise, pump scattering, EOM
-  residual multimode noise) are present as zero-default internal terms until
-  calibrated measurements are available.
-  \item Full Zeeman ($m_F$) substructure is available as a 24-level 85Rb D1
-  diagnostic manifold whose CG sums reproduce the lumped FWM strengths. The
-  full 24-level Floquet scan is not run by default in Ultra v1; the diagnostics
-  table reports this explicitly.
+  \item Ultra includes single-pass refractive phase matching, Gaussian
+  beam-overlap weighting, 64-segment dynamic pump-budget depletion, in-cell
+  beam-splitter loss before detector efficiency, and --- intrinsic since v5 ---
+  the hardened excess-noise model (arm-resolved linear absorption, OD-anchored
+  pump scatter). \code{excess\_noise\_model=False} reproduces pre-hardening
+  Ultra for A/B.
+  \item Remaining zero-default technical noise channels (seed excess noise, EOM
+  residual multimode noise) await calibrated measurements.
+  \item Full Zeeman ($m_F$) substructure is available as a 24-level $^{85}$Rb
+  $D_1$ diagnostic manifold whose CG sums reproduce the lumped FWM strengths
+  (consistency $\equiv1.0$, reported but not multiplied in). The full 24-level
+  Floquet scan ($M=576$ vs $M=16$) remains future work.
+  \item Optical-pumping depletion of the $F=3$ ground manifold when the pump
+  parks near its resonances --- the leading candidate for the experiment's
+  $+0.9\,$GHz preference over the model's shallow $-2.0\,$GHz optimum --- is not
+  representable in the lumped steady-state model (Sec.~\ref{sec:hardened}).
+  \item Full quantum-Langevin propagation of loss/noise (beyond the
+  beamsplitter treatment) remains future work; the twin-beam photon statistics
+  stay ideal-parametric estimates.
 \end{itemize}
 
 % =====================================================================
@@ -1050,16 +1621,21 @@ $\Omega$ & Rabi frequency (drive strength) \\
 $\nu_{\HF}=3.0357\,$GHz & ground hyperfine splitting \\
 $\Omega_{\text{beat}}=\Omega_{\HF}\mp\delta$ & ground-coherence beat (Floquet) frequency \\
 $\Gamma/2\pi=5.746\,$MHz & natural linewidth \\
-$\gamma_{gg}/2\pi=100\,$kHz & ground-coherence dephasing \\
+$\gamma_{gg}(T,N)$ & ground Raman dephasing: $2\pi\!\cdot\!100\,$kHz floor $+\,N\sigma\bar v_{\text{rel}}$, Eq.~\eqref{eq:gammagg} \\
+$\gamma_{\text{opt}}=\beta N/2$ & collisional optical dephasing (self-broadening), Eq.~\eqref{eq:gammaopt} \\
 $C_F^2$ & hyperfine Clebsch--Gordan line strength \\
 $\rhobar_{xy}$ & dimensionless susceptibility (leg $x$, field $y$) \\
 $\chi_{xy}$ & physical susceptibility, Eq.~\eqref{eq:chiphys} \\
-$N$ & atomic number density \\
+$N$ & atomic number density (pure-$^{85}$Rb CRC, Eq.~\eqref{eq:crc}) \\
 $T$ (matrix) & $2\times2$ field transfer matrix $\exp(ML)$ \\
 $G_s,G_c$ & seed / conjugate power gain \\
+$S_{\text{ideal}}=(G_s-G_c)^2/(G_s+G_c)$ & ideal twin-beam noise, Eq.~\eqref{eq:Sideal} \\
 $S,S_{\text{dB}}$ & intensity-difference squeezing (linear / dB) \\
-$\eta=\text{QE}(1-\text{loss})$ & detection efficiency \\
-$\xi_{\text{LS}}$ & residual FWM coupling scale (\code{LINE\_STRENGTH\_FACTOR}) \\
+$\eta=\text{QE}(1-\text{loss})$ & detection efficiency ($0.8694$ at reference) \\
+$\varrho_{\text{norm}}=p_F/[2(2I+1)]$ & first-principles coupling norm ($7/144$ on branch $-$) \\
+$\ell_s$ & residual line-strength calibration (\code{LINE\_STRENGTH\_FACTOR}; app $0.74$) \\
+$\eta_{s,c}^{\text{arm}}$ & hardened per-arm efficiencies, Eq.~\eqref{eq:armloss} \\
+$\kappa$ & pump-scatter leakage fraction (hardened Ultra, default $0.1$) \\
 $\Delta k_z$ & seeded longitudinal phase mismatch \\
 $\Delta k_z^{\text{abs}},\Delta k_z^{\text{rel}}$ & biphoton longitudinal absolute / calibrated relative mismatch \\
 $\Delta k_x,\Delta k_{\text{vec}}$ & biphoton transverse and vector phase mismatch \\
@@ -1086,7 +1662,11 @@ This is evaluated entrywise and batched over all detuning points in
 \code{core.matrix\_exp\_2x2}; the $c\to0$ limit (where $\sinh(cL)/c\to L$) is
 handled explicitly to avoid the removable singularity. For the propagation matrix
 $M$ of Eq.~\eqref{eq:Mmatrix} this gives the transfer matrix $T=e^{ML}$ exactly,
-with no series truncation.
+with no series truncation. The real parts of $cL$ and $sL$ are clipped at
+$\pm350$ before $\cosh/\sinh/\exp$ (two factors multiply; float64 overflows near
+$709$): an unphysical runaway linear gain then saturates finite and is capped by
+the Manley--Rowe stage, instead of overflowing to \code{inf} and emerging as NaN
+from $\infty/(1+\infty)$ in the saturation formula.
 
 % =====================================================================
 \section{File / function map}
@@ -1099,9 +1679,14 @@ with no series truncation.
 physics & function & file \\
 \midrule
 Rabi from power & \code{rabi\_freq} & \code{constants.py} \\
-density $N(T)$ & \code{rb85\_density}, \code{number\_density} & \code{atoms.py}, \code{species.py} \\
+density $N(T)$ (seeded, pure-$^{85}$Rb CRC) & \code{number\_density} & \code{hyperfine.py} \\
+density (other schemes / biphoton) & \code{rb85\_density}, \code{number\_density} & \code{atoms.py}, \code{species.py} \\
 CG line strengths & \code{CF2}, \code{line\_strength}, \code{cf2} & \code{hyperfine.py}, \code{species.py} \\
-level model + Lindblad & \code{AtomModel}, \code{\_double\_lambda\_rb85} & \code{atoms.py} \\
+coupling norm $p_F/[2(2I+1)]$ & \code{physical\_coupling\_norm} & \code{schemes/fwm.py} \\
+level model + Lindblad & \code{AtomModel}, \code{double\_lambda\_rb85} & \code{atoms.py} \\
+collisional atom (per $T$) & \code{collisional\_atom} & \code{schemes/fwm.py} \\
+ground Raman rate $\gamma_{gg}(T,N)$ & \code{ground\_coherence\_dephasing} & \code{constants.py} \\
+self-broadening $\Gamma+\beta N$ & \code{self\_broadened\_gamma} & \code{hyperfine.py} \\
 commutator super-op & \code{comm\_super} & \code{core.py} \\
 Liouvillian & \code{build\_liouvillian} & \code{core.py} \\
 Hamiltonians & \code{static\_hamiltonian\_at\_Deff\_zero}, \code{sideband\_hamiltonian} & \code{schemes/fwm.py} \\
@@ -1110,12 +1695,19 @@ $\rhobar$ matrix table & \code{chi\_matrix\_table}, \code{floquet\_chi\_grid} & 
 velocity grid / $\Delta_\eff$ & \code{velocity\_grid}, \code{build\_Delta\_eff\_axis} & \code{doppler.py} \\
 Doppler average & \code{doppler\_average} & \code{doppler.py} \\
 Maxwell--Bloch gain / segmented propagation & \code{gain\_from\_chi} & \code{observables.py} \\
-$2\times2$ matrix exp & \code{matrix\_exp\_2x2} & \code{core.py} \\
+$2\times2$ matrix exp (overflow-clamped) & \code{matrix\_exp\_2x2} & \code{core.py} \\
 pump-depletion cap & \code{pump\_depletion\_saturation} & \code{observables.py} \\
-squeezing & \code{intensity\_difference\_squeezing\_dB} & \code{observables.py} \\
+ideal twin-beam noise & \code{ideal\_twin\_beam\_noise} & \code{observables.py} \\
+squeezing (symmetric $\eta$) & \code{intensity\_difference\_squeezing\_dB} & \code{observables.py} \\
+balanced two-arm noise & \code{balanced\_twin\_beam\_noise} & \code{observables.py} \\
+in-cell loss + technical noise & \code{segmented\_loss\_noise\_squeezing\_dB} & \code{observables.py} \\
+arm linear OD (hardened) & \code{\_arm\_linear\_od} & \code{schemes/fwm.py} \\
+pump-scatter noise (hardened) & \code{\_pump\_scatter\_noise} & \code{schemes/fwm.py} \\
+Ultra segmented propagation & \code{\_ultra\_segmented\_gain} & \code{schemes/fwm.py} \\
 twin-beam statistics & \code{coincidence\_stats} & \code{observables.py} \\
 full seeded pipeline & \code{compute\_spectrum} & \code{schemes/fwm.py} \\
 biphoton source & \code{GenericFWMSolver.compute\_biphoton} & \code{schemes/fwm.py} \\
+predictive biphoton waveform & \code{\_predictive\_waveform}, \code{\_converged\_predictive\_waveform} & \code{schemes/fwm.py} \\
 seeded $\Delta k_z$ & \code{seeded\_phase\_mismatch\_z} & \code{schemes/fwm.py} \\
 phase matching & \code{phase\_mismatch\_vector}, \code{phase\_mismatch\_vector\_grid}, \code{phase\_matching\_weight} & \code{schemes/fwm.py} \\
 biphoton readout & \code{biphoton\_stats} & \code{observables.py} \\
