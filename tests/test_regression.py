@@ -62,6 +62,16 @@ def test_branch_summation_rejected():
         raise AssertionError("multi-branch susceptibility summation must fail")
 
 
+def test_seeded_sideband_beat_matches_tpd_convention():
+    delta = 2 * np.pi * 12.0e6
+    assert np.isclose(
+        fwm.seeded_sideband_beat(delta, -1),
+        constants.OMEGA_HF - delta)
+    assert np.isclose(
+        fwm.seeded_sideband_beat(delta, +1),
+        constants.OMEGA_HF + delta)
+
+
 def test_fwm_uses_rb85_d1_hyperfine_strengths():
     mapping = {
         (fwm.G1, fwm.E2): (2, 2),
@@ -94,6 +104,7 @@ def test_fwm_defaults_match_sim_preset():
 if __name__ == "__main__":
     test_regression()
     test_branch_summation_rejected()
+    test_seeded_sideband_beat_matches_tpd_convention()
     test_fwm_uses_rb85_d1_hyperfine_strengths()
     test_fwm_defaults_match_sim_preset()
     print("Phase-0 regression OK - gabes FWM reproduces the baseline.")

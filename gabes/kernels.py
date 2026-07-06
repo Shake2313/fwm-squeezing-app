@@ -113,7 +113,7 @@ def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
     using the affine structure of the Hamiltonian:
 
         L0(δ, Δ_eff) = L0_base + δ·C_delta − Δ_eff·S_v
-        Ω_beat(δ)    = omega_hf − branch·δ
+        Ω_beat(δ)    = omega_hf + branch·δ
 
     Per grid point: factor A∓ = L0 ∓ iΩ_beat, form the sideband feedback
     A_eff = L0 − Cp·A₋⁻¹Cm − Cm·A₊⁻¹Cp, replace the trace row, solve for ρ₀,
@@ -133,7 +133,7 @@ def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
 
     for i in prange(n_d):
         delta = delta_axis[i]
-        ob = omega_hf - branch * delta
+        ob = omega_hf + branch * delta
         Am = np.empty((M, M), np.complex128)
         Ap = np.empty((M, M), np.complex128)
         Aeff = np.empty((M, M), np.complex128)

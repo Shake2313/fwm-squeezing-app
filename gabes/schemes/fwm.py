@@ -110,6 +110,18 @@ ULTRA_PROPAGATION_SEGMENTS = 64
 HARDENED_PUMP_SCATTER_KAPPA = 0.1
 
 
+def seeded_sideband_beat(delta, branch):
+    """Positive pump-sideband spacing for the seeded Raman branch.
+
+    The scan coordinate is probe = pump + branch*nu_HF + delta.  Therefore the
+    physical optical beat magnitude is nu_HF - delta on the (-) branch and
+    nu_HF + delta on the (+) branch.
+    """
+    if branch not in BRANCHES:
+        raise ValueError(f"branch must be one of {BRANCHES}, got {branch}")
+    return OMEGA_HF + branch * delta
+
+
 # =========================================================
 # Generic SFWM / biphoton topology layer
 # =========================================================
@@ -1151,7 +1163,7 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
     chi_cc = np.zeros((n_d, n_de), dtype=complex)
 
     for i, delta in enumerate(delta_axis):
-        Omega_beat = OMEGA_HF - branch * delta
+        Omega_beat = seeded_sideband_beat(delta, branch)
 
         # ---- Solve 1: probe drive only ----
         H0_1 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, delta, branch)
