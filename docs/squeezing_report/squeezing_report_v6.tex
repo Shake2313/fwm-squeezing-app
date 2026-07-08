@@ -7,6 +7,7 @@
 %   squeezing_frontier_ideal_qe1_v6.png
 %   squeezing_frontier_ideal_v6_tpd_angle_detail.png
 %   squeezing_frontier_ideal_v6_low_angle_ridge.png
+%   squeezing_v6_tolerance.png            (2026-07-08 tolerance 보충)
 \documentclass[11pt,a4paper]{article}
 
 \usepackage{kotex}
@@ -76,6 +77,12 @@ low-angle 보조 스캔은 $\theta\simeq0.02^\circ$에서 trusted 기준
 $-20.70\dB$까지 내려간다. 이 ridge는 실험 geometry, pump leakage,
 spatial filtering, phase matching calibration과 강하게 묶이므로 default
 geometry frontier의 대체값이 아니라 별도 진단값으로 다뤄야 한다.
+
+2026-07-08 보충(\S\ref{sec:tolerance})으로 최적점 기준 5변수 tolerance
+분석을 추가했다. $+0.5\dB$ 열화 기준 허용 drift는 loss $+2.1\%$p,
+TPD $-9.6/+4.2\MHz$, OPD $-32/+155\MHz$, $T$ $-3.3/+12\degC$이고 probe
+power는 1--64\,µW 전 구간 무감하다. 점검 우선순위는
+loss $\to$ TPD 재스캔 $\to$ OPD $\to$ $T$ $\to$ probe power다.
 \end{abstract}
 
 \section{변경점: seeded beat 부호}
@@ -281,6 +288,105 @@ v6의 결론은 v5의 일부를 유지하고 일부를 교체한다.
       $0.32^\circ$ 결과와 low-angle 가능성을 분리해서 써야 한다.
 \end{enumerate}
 
+\section{실험 변수 tolerance 분석 (2026-07-08 보충)}
+\label{sec:tolerance}
+
+v6 finite-loss 최적점 $(-1.50\GHz,\,110\degC,\,\delta=-280\MHz)$을 기준으로,
+실험적으로 조절 가능한 다섯 변수 --- OPD($\Delta$), TPD($\delta$), 셀 온도
+$T$, probe(seed) power, 검출 loss --- 를 한 번에 하나씩 돌리는 1D tolerance
+스캔을 수행했다. 엔진과 fidelity는 frontier 스캔과 동일한 hardened Ultra이며,
+$\delta$ 격자만 $5\MHz$로 세분했다(frontier의 $17.5\MHz$ 격자는 gap-gate
+경계 근처에서 유효한 $\delta$점을 놓쳐 best-$\delta$ readout이 실제보다
+나쁘게 보이는 아티팩트를 만든다). loss 축은 재계산 없이 포획된
+$(G_s,G_c,\mathrm{OD})$로부터의 해석적 $\eta$ 재사상이고, 기준
+loss $=0.055$에서 solve 값을 기계 정밀도로 재현함을 확인했다.
+
+각 재계산 스캔은 두 readout을 갖는다.
+\begin{itemize}[leftmargin=1.5em]
+\item \textbf{fixed-$\delta$ (순수 drift):} $\delta=-280\MHz$ 고정.
+      pump에서 AOM/EOM으로 probe를 파생시키는 표준 구성에서 OPD/$T$/power가
+      drift하는 상황에 해당한다.
+\item \textbf{best-$\delta$ (TPD 재조정):} 각 지점에서 gap-gate
+      ($0.5\le G_s-G_c\le1.5$)를 통과하는 가장 깊은 $\delta$를 다시 고른 값.
+      실험자가 $\delta$를 재스캔하는 상황이다.
+\end{itemize}
+
+열화 기준은 최적치 대비 $+0.25/+0.5/+1.0\dB$로 잡았다. 선형 노이즈 파워로는
+각각 $+5.9\%,\ +12.2\%,\ +25.9\%$에 해당하며, 본문에서는 $+0.5\dB$
+(노이즈 파워 $12\%$ 증가)를 대표 기준으로 쓴다.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{squeezing_v6_tolerance.png}
+\caption{v6 최적점 기준 1D tolerance 스캔(hardened Ultra, $\eta=0.8694$).
+파란 실선은 fixed-$\delta$(순수 drift), 초록 파선은 best-$\delta$(TPD 재조정),
+붉은 $\times$는 gap-gate를 벗어나 신뢰할 수 없는 fixed-$\delta$ 점이다.
+음영은 $+0.5\dB$ 허용 구간.}
+\label{fig:tolerance}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{v6 최적점 기준 tolerance 창(중심으로부터의 drift). fixed-$\delta$
+readout 기준이며, $[\,]$ 안은 TPD 재조정 시의 $+0.5\dB$ 창이다.}
+\label{tab:tolerance}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}Xlll>{\raggedright\arraybackslash}X}
+\toprule
+변수 & $+0.25\dB$ & $+0.5\dB$ & $+1.0\dB$ & 비고\\
+\midrule
+OPD [MHz] & $-16/+130$ & $-32/+155$ & $-55/+185$ &
+청(+)측은 gap-gate 붕괴 구간; TPD 재조정 시 $[-75/+158]$\\
+TPD [MHz] & $-8.0/+2.1$ & $-9.6/+4.2$ & $-10.4/+7.3$ &
+가장 좁은 절대 창; 청(+)측 절벽, 적(-)측 $-307\MHz$ 부근은 아티팩트 dip\\
+$T$ [$^\circ$C] & $-2.2/+9.5$ & $-3.3/+12.0$ & $-5.0/+18.1$ &
+저온측이 절벽; 1D 최저는 $\sim112\degC$($-8.17\dB$); TPD 재조정 시 $[-3.3/+10.9]$\\
+$P_{\rm probe}$ & \multicolumn{3}{l}{$0.125\times$--$8\times$ (1--64\,µW) 전 구간 무변화($<0.004\dB$)} &
+모델상 스퀴징은 seed power에 사실상 무감\\
+loss [\%p 절대] & $+1.0$ & $+2.1$ & $+4.5$ &
+기울기 $\simeq0.22\dB/\%$p; loss$\to0$이면 $-9.77\dB$ ($1.67\dB$ 이득)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{우선순위: 스퀴징이 안 나올 때 볼 순서}
+
+\begin{enumerate}[leftmargin=1.5em]
+\item \textbf{Loss (검출 효율).} 유일하게 도달 가능한 floor 자체를 움직이는
+      변수다. $+1\%$p마다 $+0.22\dB$씩 균일하게 잃고, 회복 수단이 없다.
+      창 투과율, 검출기 QE, 모드 매칭, 클리핑을 가장 먼저 점검할 것.
+      반대로 loss 개선은 최대 레버다($0.055\to0$에서 $1.67\dB$).
+\item \textbf{TPD ($\delta$).} 절대 창이 가장 좁다($+0.5\dB$에
+      $-9.6/+4.2\MHz$). 특히 청(+)측은 $4\MHz$ 절벽이고, 적(-)측
+      $-307\MHz$ 부근에는 gap이 붕괴하는 비물리 dip이 인접해 있어 그쪽으로
+      최적화가 흘러가면 안 된다. 다만 RF로 설정되는 양이라 drift 자체는
+      작으므로, 실질 위험은 ``목표값을 잘못 잡는 것''이다. 점검 비용이
+      가장 싸니(RF 스캔) loss 다음으로 먼저 재스캔할 것.
+\item \textbf{OPD ($\Delta$).} 순수 drift 기준 적(-)측 $-32\MHz$가 실질
+      한계이고, 청(+)측은 fixed-$\delta$ 수치가 좋아 보여도 곧바로
+      $G_s-G_c<0.5$ gap 붕괴 구간에 들어가 모델 신뢰도가 떨어진다.
+      pump lock을 $\sim10\MHz$ 수준으로 유지해야 하는 이유다. 단, OPD를
+      옮긴 뒤 TPD를 재스캔하면 허용 창이 $\pm0.1\GHz$ 수준으로 크게
+      풀린다 --- OPD와 TPD는 강하게 결합된 쌍이므로 항상 함께 조정할 것.
+\item \textbf{온도 $T$.} $-3.3/+12\degC$로 비대칭 관대하다. 컨트롤러
+      안정도($\pm0.1\degC$)로는 문제가 안 되고, 실질 위험은 센서 오프셋
+      등 절대 캘리브레이션이다. 절벽이 저온측이므로 명목값보다 $1$--$2\degC$
+      뜨겁게 잡는 편이 안전하다(1D 슬라이스의 실제 최저는 $\sim112\degC$).
+\item \textbf{Probe power.} 모델상 $1$--$64$\,µW 전 구간에서 스퀴징이
+      변하지 않는다($\bar\chi$가 seed 세기에 무관하고 pump 고갈 기여도
+      미미). 마지막에 점검할 변수다. 단 이 모델은 seed-power 의존
+      technical noise(검출기 포화, RIN)를 포함하지 않으므로, 실험적으로는
+      검출기 포화만 피하면 된다.
+\end{enumerate}
+
+요약하면, \emph{맞추기 어려운 순서}는 loss $>$ TPD $\approx$ OPD $>$ $T$
+$\gg$ probe power이고, \emph{점검 순서}는 loss $\to$ TPD 재스캔 $\to$
+OPD(pump lock) $\to$ $T$ $\to$ probe power가 합리적이다. TPD/OPD 쌍은
+$\sim10\MHz$ 정밀도의 주파수 기준이 필요하지만 둘을 함께 재스캔하면 창이
+한 자릿수 넓어지므로, ``스퀴징이 얕아졌다''의 1차 대응은 언제나
+$\delta$ 재스캔이다.
+
 \section{재현 명령}
 
 \begin{itemize}[leftmargin=1.5em]
@@ -302,6 +408,10 @@ python docs/squeezing_report/make_v6_ideal_figs.py
 \item v6 TPD/angle detail:
 \begin{verbatim}
 python analysis/scan_squeezing_v6_loss0_tpd_angle_detail.py
+\end{verbatim}
+\item v6 tolerance 보충 (\S\ref{sec:tolerance}):
+\begin{verbatim}
+python analysis/scan_squeezing_v6_tolerance.py
 \end{verbatim}
 \item full test suite after the beat-sign correction:
 \begin{verbatim}
