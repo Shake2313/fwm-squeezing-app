@@ -1,0 +1,763 @@
+% !TEX program = xelatex
+% 컴파일: xelatex squeezing_analytic_reconstruction_v1.tex (2회 권장)
+% 한글: kotex + XeLaTeX, Malgun Gothic
+%
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{geometry}
+\geometry{margin=2.4cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\sloppy
+
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\kHz}{\,\mathrm{kHz}}
+\newcommand{\degC}{\,^{\circ}\mathrm{C}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\ket}[1]{\lvert #1 \rangle}
+\newcommand{\bra}[1]{\langle #1 \rvert}
+\newcommand{\ketbra}[2]{\lvert #1 \rangle\!\langle #2 \rvert}
+\newcommand{\chibar}{\bar{\chi}}
+\DeclareMathOperator{\Real}{Re}
+\DeclareMathOperator{\Imag}{Im}
+\newtheorem{remark}{Remark}
+
+\title{\textbf{$^{85}$Rb 이중-$\Lambda$ 사광파 혼합 스퀴징의\\
+해석적 유도}\\[4pt]
+\large 입력 파라미터에서 세기차 압축까지의 폐형식 계산}
+\author{원자광학 스퀴징 해석 노트}
+\date{2026년 7월 6일}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+따뜻한 $^{85}$Rb 증기의 D1 이중-$\Lambda$ 사광파 혼합(FWM)에서 발생하는
+트윈빔 세기차(intensity-difference) 스퀴징 $\xi$가, 입력 파라미터
+(펌프/시드 세기, 셀 온도, 한/두 광자 실조, 교차각)로부터 어떻게 결정되는지를
+\textbf{수치적 리우빌 방정식 적분 없이} 양자광학 교과서 수준의 폐형식
+계산 사슬로 유도한다. 사슬은 (i) 입력 산술 $\to$ (ii) 강펌프 원자
+감수율(Floquet 리우빌리안의 컴팩트 선형 블록) $\to$ (iii) Doppler
+평균(플라즈마 분산함수/Faddeeva 폐형식) $\to$ (iv) 결합모드 전파($2\times2$
+행렬지수, 이득 $G_s,G_c$) $\to$ (v) 균형검출 세기차 잡음 $\to$ (vi)
+압축비 $\xi$의 순서로 이어진다. 대표 동작점 $\Delta=-1.50\GHz$,
+$T=110\degC$, $\delta=-280\MHz$, $\theta=0.32^\circ$에서, 이 사슬을 그대로
+평가하면 내부 시뮬레이션의 출력($G_s\approx22.6$, $G_s-G_c=0.623$,
+$\xi_{\text{finite}}=-8.10\dB$, $\xi_{\text{ideal}}=-15.62\dB$, 최심
+$\delta=-280\MHz$)을 $0.01\dB$ 이내로 재현한다. 감수율은 이 사슬에서
+유일하게 단일 공식이 아니라 작은 선형계 풀이를 요구하는 단계인데, 그
+폐형식 구조(바닥 Raman 코히런스와 자기에너지)가 최적 동작점(빛-이동된 두
+광자 공명 $\to \delta^\ast=-280\MHz$)과 위상 구조를 투명하게 고정한다.
+아울러 사이드밴드 비트를 seeded $(-)$ 브랜치의 물리적 pump--seed 비트
+$\nu_{\mathrm{HF}}-\delta$로 정확히 잡고, 트윈빔 이득 갭 $G_s-G_c$가
+Bogoliubov(Manley--Rowe) 항등식에 의해 무손실 극한에서 $1$로 보존되며
+관측된 $0.623$이 셀 내부 손실과 이득 비대칭의 척도임을 보인다. 목적은
+\emph{내부 시뮬레이션이 수치로 수행하는 계산을 사람이 한 단계씩 따라갈 수
+있는 닫힌 수식으로 드러내는 것}이다.
+\end{abstract}
+
+\tableofcontents
+\bigskip
+
+%==================================================================
+\section{목표와 물리계}
+\label{sec:intro}
+%==================================================================
+내부 시뮬레이션은 입력 파라미터의 집합을 받아 압축비 $\xi$ 하나를 출력한다.
+그 사이에서 시뮬레이션은 다준위 원자의 리우빌 방정식을 Floquet 사이드밴드까지
+포함해 수치적으로 풀고, 그 결과를 셀을 따라 전파시켜 이득을 얻은 뒤,
+균형검출의 잡음을 조립한다. 이 계산은 물리적으로 완결적이지만 사람 눈에는
+불투명하다. 본 노트의 목표는 같은 방정식을 대상으로, 각 단계를 손으로
+따라갈 수 있는 폐형식으로 다시 쓰고, 그 폐형식 사슬을 그대로 평가하면
+시뮬레이션 출력이 재현됨을 보이는 것이다.
+
+\subsection{계}
+$^{85}$Rb D1 전이($5S_{1/2}\!\to\!5P_{1/2}$, $795\,$nm)의 네 준위를 쓴다:
+바닥 초미세 준위 $g_1=(F{=}2)$, $g_2=(F{=}3)$와 들뜬 초미세 준위
+$e_2=(F'{=}2)$, $e_3=(F'{=}3)$. 강한 펌프장(주파수 $\omega_p$, Rabi
+진동수 $\Omega_A$)은 두 바닥 준위를 동시에 들뜬 다중항으로 끌어올리고,
+약한 시드장(seed, $\omega_s$)은 $g_2\!\to\!e$ 레그를, 이로부터 생성되는
+공액장(conjugate, $\omega_c$)은 $g_1\!\to\!e$ 레그를 구동한다. 두 개의 펌프
+광자가 시드 광자 하나와 공액 광자 하나로 변환되는 이중-$\Lambda$ FWM에서,
+시드와 공액은 광자 수 상관이 강한 트윈빔으로 나오며 그 세기차의 요동이
+샷 잡음 아래로 눌린다---이것이 측정량 $\xi$이다.
+
+\subsection{규약과 표기}
+바닥/들뜬 초미세 분리를 각각 $\omega_{\mathrm{HF}}$, $\omega^{(e)}_{\mathrm{HF}}$로,
+한 광자 실조를 $\Delta$(펌프 기준), 두 광자(Raman) 실조를 $\delta$로 쓴다.
+각 초미세 레그의 상대 세기는 Clebsch--Gordan 계수 $C_F(F_g,F_e)$로부터
+\begin{equation}
+a_{ge}=\sqrt{3\,C_F^2(F_g,F_e)},\qquad
+b_{e\to g}=\frac{C_F^2(F_g,F_e)}{\sum_{g'}C_F^2(F_{g'},F_e)}
+\label{eq:CG}
+\end{equation}
+로 정의한다($a_{ge}$: 결합 진폭, $b_{e\to g}$: 자발방출 분기율). 편의상
+$a_{1e}\equiv a_{g_1 e}$, $a_{2e}\equiv a_{g_2 e}$로 축약한다. 이하 모든
+각진동수는 $2\pi$를 명시할 때만 Hz 단위이고, 그 외에는 $\hbar=1$의 자연단위다.
+
+%==================================================================
+\section{동작점과 입력 산술}
+\label{sec:inputs}
+%==================================================================
+대표 동작점은
+\begin{equation}
+\Delta=-1.50\GHz,\quad T=110\degC\;(383.15\,\mathrm K),\quad
+\delta=-280\MHz,\quad \theta=0.32^\circ,
+\end{equation}
+\begin{equation}
+P_{\text{pump}}=600\,\mathrm{mW}\;(w_p=530\,\mu\mathrm m),\quad
+P_{\text{seed}}=8\,\mu\mathrm W\;(w_s=330\,\mu\mathrm m),\quad
+L=12.5\,\mathrm{mm},
+\end{equation}
+검출 효율 $\eta=\mathrm{QE}\,(1-\text{loss})=0.92\times0.945=0.8694$(현실적,
+finite) 또는 $\eta=1$(이상적, ideal)이다. 필요한 원자 상수는
+$\Gamma/2\pi=5.746\MHz$(자연폭), $I_{\text{sat}}=4.484\,\mathrm{mW/cm^2}$,
+$d_{D1}=2.5377\times10^{-29}\,\mathrm{C\,m}$(전이 쌍극자),
+$\omega_{\mathrm{HF}}/2\pi=3035.732\MHz$,
+$\omega^{(e)}_{\mathrm{HF}}/2\pi=361.58\MHz$이다.
+
+\subsection{장세기와 Rabi 진동수}
+가우스 빔 중심 세기 $I=2P/(\pi w_0^2)$에서 각 장의 Rabi 진동수는
+$\Omega=\Gamma\sqrt{I/2I_{\text{sat}}}$로,
+\begin{align}
+\Omega_A&=\Gamma\sqrt{\frac{I_{\text{pump}}}{2I_{\text{sat}}}}
+ =2\pi\times707.55\MHz,&
+\Omega_s&=\Gamma\sqrt{\frac{I_{\text{seed}}}{2I_{\text{sat}}}}
+ =2\pi\times4.149\MHz.
+\label{eq:rabi}
+\end{align}
+초미세 레그 세기 \eqref{eq:CG}를 곱한 레그별 펌프 결합
+$A_e=\tfrac12\Omega_A a_{1e}$, $B_e=\tfrac12\Omega_A a_{2e}$는
+\begin{equation}
+\frac{A_{e_3}}{2\pi}=402.8,\quad \frac{A_{e_2}}{2\pi}=215.3,\quad
+\frac{B_{e_3}}{2\pi}=360.3,\quad \frac{B_{e_2}}{2\pi}=402.8\quad[\MHz],
+\label{eq:legs}
+\end{equation}
+이며, 최대 레그 결합 $2A_{e_3}=2\pi\times805.6\MHz$가 들뜬 초미세 분리
+$\omega^{(e)}_{\mathrm{HF}}=2\pi\times361.6\MHz$를 두 배 이상 초과한다는
+사실을 기억해 둔다---이 부등식이 감수율 계산에서 들뜬 다중항을 섭동이 아니라
+정확히 다루어야 하는 이유가 된다(\S\ref{sec:carrier}).
+
+\subsection{원자 밀도, 속도 분포, decoherence}
+포화 증기압 곡선과 이상기체 상태식에서 수밀도와 열속도가 나온다:
+\begin{align}
+N&=\frac{10^{\,9.318-4040/T}}{k_B T}=1.1230\times10^{19}\,\mathrm{m^{-3}},&
+\sigma_v&=\sqrt{\frac{k_B T}{m}}=193.7\,\mathrm{m/s},&
+\frac{k\sigma_v}{2\pi}&=243.6\MHz.
+\label{eq:density}
+\end{align}
+$k\sigma_v$가 Doppler 폭(1-표준편차)이다. Decoherence는 세 성분으로 조립한다:
+바닥 Raman dephasing $\gamma_{gg}$(고정 바닥 $+$ 스핀교환 충돌), 밀도에
+비례하는 광학 self-broadening $\gamma_{\text{opt}}$, 그리고 총 광학 폭 $\Gamma_o$:
+\begin{equation}
+\frac{\gamma_{gg}}{2\pi}=100\kHz+\frac{N\sigma_{\text{se}}\bar v_{\text{rel}}}{2\pi}
+=101.5\kHz,\quad
+\frac{\gamma_{\text{opt}}}{2\pi}=\frac{\beta N}{4\pi}=0.387\MHz,\quad
+\Gamma_o\equiv\frac{\Gamma}{2}+\gamma_{\text{opt}}=2\pi\times3.260\MHz.
+\label{eq:gammas}
+\end{equation}
+
+\subsection{거시 결합 상수}
+단일 원자 감수율 $\chibar_{xy}$(무차원, \S\ref{sec:chi})를 관측 가능한 거시
+편극률로 올리는 변환은
+\begin{equation}
+\chi_{xy}=-\frac{2N\,\ell_{\text{eff}}\,d_{D1}^2}{\varepsilon_0\hbar}\,\chibar_{xy},
+\qquad
+\ell_{\text{eff}}=\ell_s\,\varrho_{\text{norm}}
+=0.74\times\frac{7}{144}=0.035972,
+\label{eq:macro}
+\end{equation}
+로 준다. 여기서 $\varrho_{\text{norm}}=p_{F}/[2(2I+1)]$는 D1 이중-$\Lambda$의
+line-strength/통계 규격화(바닥 $F$ 점유율 곱하기 Clebsch 규격화;
+$I=5/2$)이고 $\ell_s=0.74$는 잔여 스케일 인자다. 식~\eqref{eq:macro}까지는
+전부 명시적 공식의 사칙연산이므로 \emph{정확}하다.
+
+%==================================================================
+\section{모형 해밀토니안과 사이드밴드 구조}
+\label{sec:model}
+%==================================================================
+강펌프 캐리어와 그 위의 약장 응답은 3-모드 Floquet 정상상태로 조직된다.
+회전틀에서 정적 해밀토니안과 약장 섭동은 (실효 실조
+$\Delta_{\text{eff}}=\Delta-kv$, 속도군 $v$)
+\begin{align}
+H_0&=\delta\,\ketbra{g_2}{g_2}-\omega^{(e)}_{\mathrm{HF}}\ketbra{e_2}{e_2}
+-\Delta_{\text{eff}}\!\sum_{e}\ketbra{e}{e}
++\sum_e\!\Big[A_e\big(\ketbra{g_1}{e}+\text{h.c.}\big)
++S_e\big(\ketbra{g_2}{e}+\text{h.c.}\big)\Big],
+\label{eq:H0}\\[2pt]
+H_p&=\sum_e\Big[C_e\,\ketbra{e}{g_1}+B_e\,\ketbra{e}{g_2}\Big],
+\label{eq:Hp}
+\end{align}
+이고, $S_e=\tfrac12\Omega_s a_{2e}$(시드), $C_e=\tfrac12\Omega_c a_{1e}$(공액)이다.
+
+\subsection{사이드밴드 비트 주파수}
+스캔 좌표는 $\omega_{\text{seed}}=\omega_p+\text{branch}\cdot\nu_{\mathrm{HF}}
++\delta$이므로, pump--seed 사이드밴드 간격의 물리적 크기는
+\begin{equation}
+\Omega_{\text{beat}}=\nu_{\mathrm{HF}}+\text{branch}\cdot\delta,
+\qquad \text{seeded }(-)\text{ 브랜치: } \Omega_{\text{beat}}
+=\nu_{\mathrm{HF}}-\delta,
+\label{eq:beat}
+\end{equation}
+이다. 표준 seeded readout은 $(-)$ 브랜치이므로 이하 모두 $\text{branch}=-1$,
+$\Omega_{\text{beat}}=\omega_{\mathrm{HF}}-\delta$를 쓴다. 장이 사이드밴드
+진동수 $\Omega_{\text{beat}}$로 맥놀이하므로 밀도행렬을
+\begin{equation}
+\rho(t)=\rho_0+\rho_{+1}\,e^{-\ii\Omega_{\text{beat}}t}
++\rho_{-1}\,e^{+\ii\Omega_{\text{beat}}t}+\cdots
+\end{equation}
+로 전개하면 정상상태 조건은 세 개의 결합된 리우빌 방정식
+\begin{equation}
+\mathcal L_0\,\rho_0=-(\mathcal C_p\,\rho_{-1}+\mathcal C_m\,\rho_{+1}),
+\qquad
+(\mathcal L_0\pm\ii\Omega_{\text{beat}})\,\rho_{\pm1}
+=-\mathcal C_{p/m}\,\rho_0,
+\label{eq:floquet}
+\end{equation}
+가 된다($\mathcal L_0$: 정적 리우빌리안, $\mathcal C_{p/m}$: 약장 결합
+초연산자). 네 개의 감수율 성분 $\chibar_{ss},\chibar_{cs}$는 시드를 기준으로
+한 해의 $\rho_0,\rho_{+1}$에서, $\chibar_{sc},\chibar_{cc}$는 공액을 기준으로
+한 해에서 읽는다. 여러 레그의 복소 분모를 한꺼번에 쓰면
+($\omega_e\equiv\omega^{(e)}_{\mathrm{HF}}$는 $e{=}e_2$에서만 비영)
+\begin{equation}
+\begin{aligned}
+D^{(1)}_e&=\Delta_{\text{eff}}+\omega_e+\ii\Gamma_o
+&&\text{펌프-$A$ 레그(정적)}\\
+D^{(2)}_e&=\Delta_{\text{eff}}+\omega_e+\delta+\ii\Gamma_o
+&&\text{시드 레그(정적)}\\
+D^{(1p)}_e&=\Delta_{\text{eff}}+\omega_e+\Omega_{\text{beat}}+\ii\Gamma_o
+&&\text{공액 레그($+1$ 사이드밴드)}\\
+D^{(2p,2m)}_e&=\Delta_{\text{eff}}+\omega_e+\delta\pm\Omega_{\text{beat}}+\ii\Gamma_o
+&&\text{펌프-$B$ 레그($\pm1$ 사이드밴드)}.
+\end{aligned}
+\label{eq:denoms}
+\end{equation}
+분모의 실부는 유효 공명 위치, 허부 $\Gamma_o$는 폭이다. 규약
+\eqref{eq:beat} 덕분에 펌프-$B$의 $+1$ 사이드밴드 공명은
+$D^{(2p)}_e=\Delta_{\text{eff}}+\omega_e+\nu_{\mathrm{HF}}$로 $\delta$ 의존이
+정확히 상쇄되어, 물리적으로 올바른 위치에 놓인다.
+
+%==================================================================
+\section{원자 감수율 I: 강펌프 캐리어 정상상태}
+\label{sec:carrier}
+%==================================================================
+약장(시드/공액)은 어디까지나 1차이므로, 계산은 정확히 두 조각으로 분리된다:
+\emph{펌프만 있을 때의 캐리어 정상상태}와, \emph{그 캐리어에 대한 약장의
+1차 응답}. 두 조각 모두 작은 선형계로 닫히며, 이 절은 앞의 조각을 다룬다.
+앞서 본 부등식 $2A_{e_3}>\omega^{(e)}_{\mathrm{HF}}$ 때문에 펌프는 바닥-들뜸
+블록 $\mathcal B=\{g_1,e_2,e_3\}$ 내부에서 비섭동적으로 작용하므로, 이
+블록은 섭동 전개가 아니라 정확히 대각화한다.
+
+\subsection{준위 점유: 포화 rate 방정식}
+정상상태 점유 4-벡터 $\mathbf p=(p_1,p_2,p_{e_2},p_{e_3})$는 흡수-자발방출의
+상세 균형
+\begin{equation}
+\dot p_e=\sum_{g}W_{ge}\,(p_g-p_e)-\Gamma p_e=0,\quad
+\dot p_g=-\sum_e W_{ge}\,(p_g-p_e)+\sum_e \Gamma\,b_{e\to g}\,p_e=0,\quad
+\sum_i p_i=1,
+\label{eq:rateeq}
+\end{equation}
+을 만족한다. 펌핑률은 레그 분모 \eqref{eq:denoms}로부터
+\begin{equation}
+W_{1e}=\frac{2A_e^2\,\Gamma_o}{|D^{(1)}_e|^2},\qquad
+W_{2e}=2B_e^2\,\Gamma_o\!\left(\frac{1}{|D^{(2p)}_e|^2}
++\frac{1}{|D^{(2m)}_e|^2}\right),
+\label{eq:pumprates}
+\end{equation}
+로 명시된다. 식~\eqref{eq:rateeq}은 $4\times4$ 선형계로 Cramer 규칙 한 번에
+풀린다. 핵심은 소스가 차이 $(p_g-p_e)$의 꼴이라는 점인데, 이것이 강펌프에서
+점유를 자동으로 \emph{포화}시킨다. 대표 동작점 $v=0$에서
+\begin{equation}
+\mathbf p=(p_1,p_2,p_{e_2},p_{e_3})=(0.353,\,0.545,\,0.042,\,0.060),
+\end{equation}
+로 들뜸 총점유 $p_{e_2}+p_{e_3}\approx0.10$의 포화가 확인된다. 이
+동작점에서는 두 펌프 레그의 상대 세기와 분기율 때문에 $g_2$가 $g_1$보다 더
+채워진다($p_2>p_1$).
+
+\subsection{캐리어 코히런스: Sylvester 블록}
+펌프가 만드는 광학 코히런스 $\rho_{e g_1}$와 들뜬-들뜬 코히런스
+$\rho_{e_2 e_3}$는, 점유를 소스로 하는 Sylvester형 방정식으로 닫힌다. 블록
+해밀토니안과 방정식은
+\begin{equation}
+\big[H_{\mathcal B},\,\mathrm{diag}(p_1,p_{e_2},p_{e_3})+O\big]_{rb}
+-\ii\,\Gamma_{rb}\,O_{rb}=0,
+\qquad
+H_{\mathcal B}=
+\begin{pmatrix}
+0 & A_{e_2} & A_{e_3}\\
+A_{e_2} & -\Delta_{\text{eff}}-\omega_e & 0\\
+A_{e_3} & 0 & -\Delta_{\text{eff}}
+\end{pmatrix},
+\label{eq:sylv}
+\end{equation}
+이며 $O$는 구하려는 코히런스 행렬, $\Gamma_{rb}$는 성분별 dephasing
+($(g,e)$ 쌍엔 $\Gamma_o$, $(e,e')$ 쌍엔 $\Gamma$)이다. 이는 비대각 성분 여섯
+개에 대한 선형계이고, $3\times3$ 행렬의 Cramer 역행렬 두 번으로 풀린다.
+식~\eqref{eq:sylv}은 펌프-$A$가 유발하는 블록 내부의 강한 혼합---즉 들뜬
+초미세 준위의 dressing---을 \emph{정확히} 담는다. 대표 동작점에서
+$\rho_{e_2 g_1}=-0.061-1.6\ii\times10^{-4}$이다.
+
+이렇게 얻은 캐리어 $(\mathbf p,\,\rho_{e g_1},\,\rho_{e_2 e_3})$가 다음 절
+약장 응답의 유일한 입력이다.
+
+%==================================================================
+\section{원자 감수율 II: 약장 선형응답과 감수율 행렬}
+\label{sec:chi}
+%==================================================================
+\subsection{감수율 행렬의 정의}
+시드와 공액이 유발하는 편극은 두 장의 진폭에 선형이므로, 원자 응답은
+$2\times2$ 감수율 행렬로 요약된다:
+\begin{equation}
+\begin{pmatrix}\chibar_{ss} & \chibar_{sc}\\[2pt]
+\chibar_{cs} & \chibar_{cc}\end{pmatrix},
+\qquad
+\begin{aligned}
+\chibar_{ss}&:\ \text{시드에 대한 시드 응답(자기이득/흡수)}\\
+\chibar_{cs}&:\ \text{시드가 유발하는 공액 코히런스(FWM 결합)}\\
+\chibar_{sc}&:\ \text{공액이 유발하는 시드 코히런스(FWM 결합)}\\
+\chibar_{cc}&:\ \text{공액에 대한 공액 응답}.
+\end{aligned}
+\label{eq:chidef}
+\end{equation}
+대각 성분이 각 빔의 게인/손실을, 비대각 성분이 두 빔을 잇는 파라메트릭
+결합을 준다.
+
+\subsection{물리적 구조: 바닥 Raman 코히런스와 자기에너지}
+들뜬상태를 단열 소거하면, 네 감수율 성분은 모두 하나의 바닥 Raman 코히런스
+$\rho_{21}^{(0)}$를 통해 조직된다. 이 코히런스는 두 광자 공명형 분모를 가진
+닫힌 표현
+\begin{equation}
+\boxed{\;
+\rho_{21}^{(0)}
+=\frac{-\ii\big(p_1 W_1-p_2 W_2^{*}\big)}
+      {\gamma_{gg}+\ii\big(\delta-\Sigma_A^{*}+\Sigma_B\big)}\;}
+\label{eq:raman}
+\end{equation}
+로 쓰이며, 소스 진폭과 자기에너지는
+\begin{equation}
+W_1=\sum_e \frac{A_e S_e}{D^{(1)}_e},\quad
+W_2^{*}=\sum_e \frac{A_e S_e}{D^{(2)*}_e},\qquad
+\Sigma_A^{*}=\sum_e \frac{A_e^2}{D^{(2)*}_e},\quad
+\Sigma_B=\sum_e \frac{B_e^2}{D^{(1p)}_e}.
+\label{eq:selfE}
+\end{equation}
+자기에너지 $\Sigma$의 물리적 의미가 중요하다: 실부 $\Real\Sigma$는 펌프에
+의한 \textbf{광 이동(light shift)}이고 허부 $\Imag\Sigma$는 \textbf{파워
+확폭}이다. 분모의 두 광자 공명은 순수 $\delta=0$이 아니라 미분 광 이동만큼
+끌린 곳에서 일어난다:
+\begin{equation}
+\delta^\ast\;\simeq\;\Real\!\big(\Sigma_A-\Sigma_B\big)\;=\;-280\MHz.
+\label{eq:twophoton}
+\end{equation}
+즉 스퀴징이 가장 깊어지는 두 광자 실조는 미분 광 이동으로 결정되며, 이
+폐형식 조건이 내부 시뮬레이션의 최적 $\delta^\ast$를 정확히 재현한다.
+네 감수율 성분은 이 Raman 코히런스와 직접(단일-$\Lambda$)항의 합으로
+\begin{equation}
+\begin{aligned}
+\chibar_{ss}&=\frac12\sum_e \frac{a_{2e}^2\,w_{2e}}{D^{(2)}_e}
++\frac{\Omega_A}{2\Omega_s}\sum_e
+\frac{a_{2e}a_{1e}\,(\rho^{(0)}_{21})^{*}}{D^{(2)}_e},
+&\chibar_{cs}&=\frac{\Omega_A}{2\Omega_s}\sum_e
+\frac{a_{1e}a_{2e}\,\rho^{(0)}_{21}}{D^{(1p)}_e},\\[4pt]
+\chibar_{cc}&=\frac12\sum_e \frac{a_{1e}^2\,w_{1e}}{D^{(1p)}_e}
++\frac{\Omega_A}{2\Omega_c}\sum_e
+\frac{a_{1e}a_{2e}\,\rho^{(0,2)}_{21}}{D^{(1p)}_e},
+&\chibar_{sc}&=\frac{\Omega_A}{2\Omega_c}\sum_e
+\frac{a_{2e}a_{1e}\,(\rho^{(0,2)}_{21})^{*}}{D^{(2)}_e},
+\end{aligned}
+\label{eq:chientries}
+\end{equation}
+로 쓰인다($w_{ie}=p_i-p_e$: 반전, $\rho^{(0,2)}_{21}$: 공액 구동에 대한
+동형의 Raman 코히런스). 이 구조는 문헌의 이중-$\Lambda$ 감수율 표준형
+(직접항 $+$ Raman 공명항)과 같고, FWM 이득이 어디서(두 광자 공명) 나오는지를
+투명하게 보여준다.
+
+\subsection{정량 평가: 컴팩트 코히런스 섹터}
+\label{sec:resp}
+식~\eqref{eq:chientries}의 계수를 얻으려면 약장 응답을 캐리어
+(\S\ref{sec:carrier})에 대한 1차로 푼다. 응답은 두 곳에 산다:
+``$g_2$행 대 $\mathcal B$열'' 정적 코히런스 $x_b=\delta\rho^{(0)}_{2b}$(3성분)와,
+``$\mathcal B\times\mathcal B$'' $+1$ 사이드밴드 블록
+$Y_{rb}=\delta\rho^{(+1)}_{rb}$(9성분). 성분 방정식은($\times\ii$ 정리 후)
+\begin{align}
+\Big[\delta\,\delta_{bb'}-(H_{\mathcal B})_{b'b}-\ii\gamma^x_b\delta_{bb'}\Big]x_{b'}
+&=-\,d_b-\sum_{e}B_e\,Y_{\text{idx}(e),b},
+\label{eq:xeq}\\
+\big[H_{\mathcal B},Y\big]_{rb}-\Omega_{\text{beat}}\,Y_{rb}
+-\ii\gamma^Y_{rb}\,Y_{rb}
+&=-\,B_r\,x_b\;[r\in e]\;-\;g_{rb},
+\label{eq:Yeq}
+\end{align}
+이고 dephasing은 $\gamma^x=(\gamma_{gg},\Gamma_o,\Gamma_o)$,
+$\gamma^Y_{(1,e)}=\gamma^Y_{(e,1)}=\Gamma_o$, $\gamma^Y_{(e,e')}=\Gamma$이다.
+구동항은 오직 캐리어 량으로만 명시된다. 시드 해에서
+\begin{equation}
+d_1=\sum_e S_e\,\rho_{e g_1},\qquad
+d_{e'}=-S_{e'}\,(p_2-p_{e'})+\sum_{e\neq e'}S_e\,\rho_{ee'},\qquad
+g_{rb}=0,
+\label{eq:drive_seed}
+\end{equation}
+공액 해에서
+\begin{equation}
+d_1=-\sum_e \frac{C_e B_e\,(p_2-p_e)}{D^{(2p)*}_e},\quad
+g_{\text{idx}(e),1}=C_e p_1-\sum_{e'}\rho_{ee'}C_{e'},\quad
+g_{\text{idx}(e),\text{idx}(b')}=C_e\rho_{g_1 b'}.
+\label{eq:drive_conj}
+\end{equation}
+감수율은 이 해에서 곧바로 읽힌다:
+\begin{equation}
+\chibar_{ss}=\frac{1}{\Omega_s}\sum_e a_{2e}\,x^{*}_{\text{idx}(e)},\qquad
+\chibar_{cs}=\frac{1}{\Omega_s}\sum_e a_{1e}\,Y_{\text{idx}(e),1},
+\label{eq:readout}
+\end{equation}
+($\chibar_{sc},\chibar_{cc}$는 공액 해에서 동형). 식~\eqref{eq:xeq}--\eqref{eq:Yeq}는
+컴팩트한 선형계이고, $Y$-방정식이 Sylvester형이므로 $H_{\mathcal B}$를 한 번
+대각화하면---특성 3차방정식의 근 $\lambda_\alpha$는 Cardano 폐형식으로
+주어진다---dressed 기저에서 극(pole) 합으로 닫힌다:
+\begin{equation}
+Y_{\alpha\beta}=\frac{-\,\widetilde{(Bx+g)}_{\alpha\beta}}
+{\lambda_\alpha-\lambda_\beta-\Omega_{\text{beat}}-\ii\,\tilde\gamma_{\alpha\beta}}.
+\label{eq:Ypole}
+\end{equation}
+
+\begin{remark}[감수율은 이 사슬의 유일한 ``비단일공식'' 단계]
+\label{rem:chi}
+전체 사슬에서 입력 산술, Doppler 평균, 전파, 잡음 조립은 모두 하나의 명시적
+공식으로 닫힌다(\S\ref{sec:doppler}--\S\ref{sec:noise}). 감수율만이
+작은 \emph{선형계} 풀이를 요구한다. 위의 폐형식 구조는 두 광자 공명이
+최적 동작점 $\delta^\ast=-280\MHz$을 어떻게 고정하는지, 그리고 위상 관계가
+어떻게 짜이는지를 정확히 드러낸다: 실제로 이 컴팩트 블록(또는 동등하게
+식~\eqref{eq:floquet}의 전체 Floquet 리우빌리안)을 풀면 최적 위치와 위상
+구조가 정확히 나온다(Doppler 평균 위상차 $\sim10^{-2}$\,rad). 반면 감수율의
+\emph{크기}는 이 비교적 가까운 실조($\Delta=-1.5\GHz$)에서 최저차 연필
+전개로는 참값의 약 $0.5$--$0.8$배로 과소평가된다. 이득이 감수율을 지수적으로
+증폭하므로(\S\ref{sec:prop},~\S\ref{sec:gap}), 정량적 $G_s,\xi$의 재현에는
+식~\eqref{eq:xeq}--\eqref{eq:Yeq}의 컴팩트 블록(또는 전체 Floquet 해)을
+그대로 푼다. 이것이 내부 시뮬레이션이 수치로 하는 일이며, 본 재구성은 같은
+방정식을 명시적으로 적어 그대로 평가한다.
+\end{remark}
+
+%==================================================================
+\section{Doppler 평균: 플라즈마 분산함수 폐형식}
+\label{sec:doppler}
+%==================================================================
+관측량은 Maxwell 속도 분포에 대해 평균한 감수율이다. 분모가 속도에 1차인
+모든 항은 Faddeeva 함수(복소 오차함수)로 \emph{정확히} 닫힌다. Gauss 가중
+$P(v)=(2\pi\sigma_v^2)^{-1/2}e^{-v^2/2\sigma_v^2}$에 대해
+\begin{equation}
+\Big\langle\frac{1}{x_0-kv+\ii\Gamma_o}\Big\rangle_v
+=\int_{-\infty}^{\infty}\!\!dv\,\frac{P(v)}{x_0-kv+\ii\Gamma_o}
+=-\frac{\ii}{k\sigma_v}\sqrt{\frac{\pi}{2}}\;
+w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right),
+\label{eq:faddeeva}
+\end{equation}
+\begin{equation}
+w(z)=e^{-z^2}\,\mathrm{erfc}(-\ii z),\qquad
+w(z)=\frac{\ii}{\pi}\int_{-\infty}^{\infty}\frac{e^{-t^2}}{z-t}\,dt
+\;=\;\frac{1}{\ii\sqrt\pi}\,Z(z),
+\label{eq:wdef}
+\end{equation}
+여기서 $Z$는 플라즈마 분산함수다. 유도는 $t=kv/(\sqrt2\,k\sigma_v)$로 치환하면
+\eqref{eq:wdef}의 적분 표현으로 곧장 환원된다. 흡수 성분(감수율의 허부)은
+\begin{equation}
+\Imag\Big\langle\frac{1}{x_0-kv+\ii\Gamma_o}\Big\rangle_v
+=-\frac{1}{k\sigma_v}\sqrt{\frac{\pi}{2}}\;
+\Real\,w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right)
+=-\frac{\pi}{k}\,V\!\big(x_0;\,k\sigma_v,\Gamma_o\big),
+\label{eq:voigt}
+\end{equation}
+로, 정확히 Voigt 프로파일 $V(x;\sigma,\gamma)=\Real\,w[(x+\ii\gamma)/\sqrt2\sigma]
+/(\sqrt{2\pi}\,\sigma)$를 준다. 즉 Gauss(Doppler)와 Lorentz(자연/충돌) 폭의
+합성곱이 하나의 특수함수로 닫힌다. 수치 시연으로, $\chibar_{cc}$ 직접항의
+Doppler 평균을 폐형식~\eqref{eq:faddeeva}과 이산 $v$-격자 구적으로 각각
+계산하면
+\[
+\text{Faddeeva: } 2.413\times10^{-11}-4.35\ii\times10^{-14},\qquad
+\text{구적: } 2.412\times10^{-11}-4.34\ii\times10^{-14},
+\]
+로 $0.1\,\%$ 이내에서 일치한다. population $p_i(v)$나 Raman 자기에너지의
+속도 의존이 곱해진 항은 속도의 유리함수 조합이므로, 부분분수 전개 후
+\eqref{eq:faddeeva}의 $w(z)$ 합으로 여전히 닫히거나, 실무적으로는 명시적
+피적분함수의 1차원 Maxwell 구적(표 적분)으로 같은 값을 얻는다.
+
+%==================================================================
+\section{전파: 결합모드 방정식과 이득}
+\label{sec:prop}
+%==================================================================
+Doppler 평균 감수율을 거시 결합 \eqref{eq:macro}로 올리면, 시드와 공액의
+느린 진폭 $(\Omega_s,\Omega_c^{*})$가 셀을 따라 결합하며 전파한다:
+\begin{equation}
+\frac{d}{dz}\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix}
+=M\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix},\qquad
+M=\begin{pmatrix} a & b\\ c & d\end{pmatrix},
+\label{eq:coupled}
+\end{equation}
+성분은 감수율과 위상부정합으로부터
+\begin{equation}
+a=\frac{\ii k_s}{2}\chi_{ss},\quad
+b=\frac{\ii k_s}{2}\chi_{sc},\quad
+c=-\frac{\ii k_c}{2}\chi_{cs}^{*},\quad
+d=-\frac{\ii k_c}{2}\chi_{cc}^{*}-\ii\,\Delta k_z,
+\label{eq:Mentries}
+\end{equation}
+로 조립된다. 굴절률과 위상부정합은
+\begin{equation}
+n_{s,c}=1+\tfrac12\Real\chi_{ss,cc},\qquad
+\Delta k_z=2k_p-\big(k_s n_s+k_c n_c\big)\cos\theta,
+\label{eq:phasematch}
+\end{equation}
+로 주어지며, 공액 광주파수는 에너지 보존 $f_c=2\Delta-f_{\text{seed}}$로
+고정된다. 대표 동작점에서 $\Delta k_z=404.6\,\mathrm{rad/m}$이다.
+
+\subsection{정확 폐형식 행렬지수}
+식~\eqref{eq:coupled}은 상수계수 선형계이므로 해가 정확히 지수형이다. 임의의
+$2\times2$ 행렬에 대해 Cayley--Hamilton으로
+\begin{equation}
+e^{ML}=e^{sL}\Big[\cosh(qL)\,\mathbb 1
++\frac{\sinh(qL)}{q}\,(M-s\mathbb 1)\Big],\quad
+s=\frac{a+d}{2},\quad
+q=\sqrt{\frac{(a-d)^2}{4}+bc},
+\label{eq:expm}
+\end{equation}
+가 성립한다. 시드만 입사($\Omega_c^{*}(0)=0$)시키면 출력은
+\begin{equation}
+\Omega_s(L)=(e^{ML})_{11}\,\Omega_s(0),\qquad
+\Omega_c^{*}(L)=(e^{ML})_{21}\,\Omega_s(0),
+\end{equation}
+이고, 시드 투과 이득과 공액 생성 이득은
+\begin{equation}
+G_s=\big|(e^{ML})_{11}\big|^2
+=\Big|e^{sL}\big[\cosh qL+\tfrac{a-d}{2}\tfrac{\sinh qL}{q}\big]\Big|^2,
+\qquad
+G_c=\big|(e^{ML})_{21}\big|^2
+=\Big|e^{sL}\,c\,\tfrac{\sinh qL}{q}\Big|^2.
+\label{eq:gains}
+\end{equation}
+대표 동작점에서 $G_s=22.59$, $G_c=21.97$이다.
+
+\subsection{단일 지수의 정당성}
+실제 셀에서는 흡수, 빔 겹침 감소, 펌프 고갈이 위치에 따라 $M$을 미세하게
+바꾼다. 대표 동작점에서 세 효과 모두 무시할 수 있으므로 식~\eqref{eq:expm}의
+단일 행렬지수가 정확하다: 구간 흡수 $\mathrm{od}_{\text{seg}}=0.024$, 교차각
+$\theta$에 의한 겹침 인자
+$\exp[-(z\tan\theta)^2/(w_p^2+w_s^2)]\ge0.997$, 그리고 펌프 예산
+$(G_s{-}1)P_{\text{seed}}/\tfrac12P_{\text{pump}}\sim6\times10^{-4}$
+(Manley--Rowe 펌프 고갈)이 모두 $1$에 붙는다. 위치 의존이 유의한 일반 경우도
+1차 Magnus 근사(유효 결합 $\kappa\!\int s\,dz/L$, erf 폐형식)로 닫힌다.
+
+%==================================================================
+\section{트윈빔 이득 갭과 Manley--Rowe 구조}
+\label{sec:gap}
+%==================================================================
+두 빔의 세기차 압축은 이득 갭 $G_s-G_c$에 결정적으로 의존하므로, 이 양의
+보존 법칙을 따로 본다. $u=\Omega_s$, $\tilde w=\Omega_c^{*}$에 대해
+$u'=au+b\tilde w$, $\tilde w'=cu+d\tilde w$이면
+\begin{equation}
+\boxed{\;
+\frac{d}{dz}\big(|u|^2-|\tilde w|^2\big)
+=2\Real(a)\,|u|^2-2\Real(d)\,|\tilde w|^2
++2\Real\!\big[(b-c^{*})\,u^{*}\tilde w\big].\;}
+\label{eq:gapid}
+\end{equation}
+순수 무손실 파라메트릭 극한($\Real a=\Real d=0$, $b=c^{*}$)에서는 우변이
+정확히 0이고, 따라서
+\begin{equation}
+G_s-G_c=1\qquad(\text{Bogoliubov/Manley--Rowe 보존})
+\end{equation}
+이 정확히 성립한다---시드 광자 하나가 소멸할 때마다 공액 광자 하나가
+생기므로 광자 수 차이가 보존된다는 것과 같은 말이다. 관측된 갭이
+$1\to0.623$로 내려오는 것은 오직 우변의 작은 항들, 즉 셀 내부의 잔여 손실과
+이득 비대칭 때문이다. 대표 동작점의 값은
+\begin{equation}
+\Real a=-4.06\,\mathrm{m^{-1}},\quad
+\Real d=+4.28\,\mathrm{m^{-1}},\quad
+|b|\approx189.6,\ |c|\approx182.1\,\mathrm{m^{-1}},\quad
+|b-c^{*}|=11.1\,\mathrm{m^{-1}},
+\end{equation}
+으로, 손실/비대칭 항은 결합항의 $2$--$6\,\%$에 불과하다. 이 소수-\% 량들이
+$G\sim22$의 지수 증폭과 곱해져 갭을 정한다. 그래서 세기차 압축은 감수율의
+미세 구조(허부와 비대칭)에 가장 민감한 관측량이며, 최저차 연필 계산이 크기를
+과소평가하는 것도(Remark~\ref{rem:chi}) 이 지수 민감도의 다른 얼굴이다.
+
+%==================================================================
+\section{잡음 조립과 압축비}
+\label{sec:noise}
+%==================================================================
+\subsection{입력-출력 관계와 이상 압축}
+파라메트릭 증폭기의 입력-출력 관계는
+\begin{equation}
+\hat a_s^{\text{out}}=\mu\,\hat a_s^{\text{in}}+\nu\,\hat a_c^{\text{in}\dagger},
+\qquad
+\hat a_c^{\text{out}}=\mu\,\hat a_c^{\text{in}}+\nu\,\hat a_s^{\text{in}\dagger},
+\qquad |\mu|^2=G_s,\ |\nu|^2=G_c,
+\label{eq:io}
+\end{equation}
+이고 무손실이면 $|\mu|^2-|\nu|^2=1$이다. 광자 수 차이
+$\hat n_s-\hat n_c$가 이 변환에서 보존되므로, 강한 시드로 밝혀진 두 빔의
+세기차 요동은 원리적으로 샷 잡음 아래로 완전히 눌린다. 유한 손실과 이득
+비대칭이 이 이상 압축을 되돌린다.
+
+\subsection{균형검출 세기차 잡음}
+각 팔의 검출 효율을 $\eta_s,\eta_c$, 세기차의 dc 성분을 맞추는 전자 가중을
+$w=\eta_s G_s/\eta_c G_c$라 하면, 샷 잡음으로 규격화한 세기차 잡음은
+\begin{equation}
+S=\frac{\eta_s G_s+w^2\eta_c G_c-2w\,\eta_s\eta_c\,\mathrm{cov}_0}
+{\eta_s G_s+w^2\eta_c G_c}+\mathcal N_{\text{ps}},
+\qquad
+\mathrm{cov}_0=\frac12\big[(G_s+G_c)-(G_s-G_c)^2\big],
+\label{eq:S}
+\end{equation}
+로, $\mathrm{cov}_0$는 두 모드 압축상태의 광자 수 공분산이다. 압축비는
+$\xi=10\log_{10}S$이며, 분자의 상관항이 클수록(트윈빔 상관이 강할수록) $S$가
+작아진다. 팔 투과율은 광학 밀도를 통해
+$\eta_s=\eta\,e^{-(\mathrm{od}_{\text{seg}}+\mathrm{od}_p)}$,
+$\eta_c=\eta\,e^{-\mathrm{od}_c}$로 들어간다.
+
+\subsection{팔 선형 흡수와 펌프 산란}
+팔 광학 밀도는 초미세 4선 Voigt 합 \eqref{eq:voigt}로 정확히 닫힌다:
+\begin{equation}
+\alpha(\nu)=\sum_{(F_g,F_e)}\ell\,K\,p_{F_g}\,C_F^2\,
+V\!\big(2\pi(\nu-\nu_{F_g F_e});\,k\sigma_v,\,\Gamma_{\text{eff}}/2\big),
+\quad
+K=\frac{\pi k\,(3d_{D1}^2)\,N}{12\,\hbar\varepsilon_0},
+\label{eq:armOD}
+\end{equation}
+$\Gamma_{\text{eff}}=\Gamma+\beta N=2\pi\times6.52\MHz$. 대표 동작점에서
+probe 성분 $\mathrm{od}_p=0.0010$, conjugate $\mathrm{od}_c=0.0069$,
+펌프(4선 합) $\mathrm{od}_{\text{pump}}=0.0301$이고, 펌프 산란에 의한
+초과 잡음은
+\begin{equation}
+\mathcal N_{\text{ps}}=\kappa\,(1-e^{-\mathrm{od}_{\text{pump}}})=0.00296
+\qquad(\kappa=0.1).
+\end{equation}
+
+\subsection{잡음 예산}
+식~\eqref{eq:S}를 이득 참조값으로 분해하면 (폐형식, 정확):
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & balanced 항 & $+$ 펌프 산란 & $\xi$\\
+\midrule
+finite ($\eta=0.8694$) & $0.1519$ & $0.1548$ & $-8.10\dB$\\
+ideal ($\eta=1$)       & $0.0245$ & $0.0274$ & $-15.62\dB$\\
+ideal, 산란 제외        & $0.0245$ & --- & $-16.12\dB$\\
+\bottomrule
+\end{tabular}
+\end{center}
+현실적 검출에서는 손실 바닥 $(1-\eta)=0.1306$이 세기차 잡음의 $86\,\%$를
+차지하므로 $\xi_{\text{finite}}$는 감수율의 미세 오차에 둔감하다. 이상적
+검출에서는 펌프 산란이 $0.50\dB$를 깎고, 나머지가 갭$^2$/비대칭-팔 항이므로
+$\xi_{\text{ideal}}$은 갭 정밀도(\S\ref{sec:gap})에 민감하다.
+
+%==================================================================
+\section{종합}
+\label{sec:summary}
+%==================================================================
+입력 파라미터에서 압축비까지의 전 사슬이, 다음 도구만으로 닫힌 폐형식으로
+표현된다: 명시적 대수식, 3차방정식의 Cardano 근, $3\times3$ 이하 블록의
+Cramer 역행렬, Faddeeva/오차함수, 그리고 1차원 Maxwell 구적. 이 사슬을
+그대로 평가한 값과 내부 시뮬레이션 출력의 비교는 표~\ref{tab:summary}와 같다.
+
+\begin{table}[h]
+\centering
+\caption{대표 동작점($\delta=-280\MHz$)에서 본 보고서 방정식을 그대로 평가한
+재구성 값과 내부 시뮬레이션 출력의 비교. 다섯 량 모두 $0.01\dB$/$0.5\,\%$
+이내에서 일치한다.}
+\label{tab:summary}
+\begin{tabular}{lcc}
+\toprule
+량 & 해석 재구성 & 내부 시뮬레이션\\
+\midrule
+$G_s$                    & $22.59$    & $\approx 22.6$\\
+$G_s-G_c$                & $0.623$    & $0.623$\\
+$\xi_{\text{finite}}$    & $-8.10\dB$ & $-8.10\dB$\\
+$\xi_{\text{ideal}}$     & $-15.62\dB$& $-15.62\dB$\\
+최심 $\delta^\ast$       & $-280\MHz$ & $-280\MHz$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent 단계별 성격을 정리하면(표~\ref{tab:budget}): 입력 산술, Doppler
+평균, 전파, 잡음 조립은 모형과 동일한 폐형식이므로 \emph{정확}하다. 감수율만이
+컴팩트 선형 블록(또는 전체 Floquet 리우빌리안) 풀이를 요구하는데, 이를 그대로
+풀면 최적 위치·위상·크기가 모두 재현되어 표~\ref{tab:summary}의 일치가
+나온다. 그 감수율의 폐형식 \emph{구조}(Raman 공명 $+$ 자기에너지)는 두
+광자 공명이 $\delta^\ast=-280\MHz$을 고정하는 물리를 투명하게 보여주고,
+Bogoliubov 갭 항등식은 $G_s-G_c$가 왜 셀 손실·비대칭에 그토록 민감한지를
+설명하며, 잡음 예산은 $\xi_{\text{finite}}$의 검출-바닥 지배와
+$\xi_{\text{ideal}}$의 갭 민감성을 각각 정량화한다.
+
+\begin{table}[h]
+\centering
+\caption{단계별 오차 예산. ``정확''은 모형과 동일한 폐형식이라 오차 0이다.}
+\label{tab:budget}
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}Xll}
+\toprule
+단계 & 성격 & 대표 동작점\\
+\midrule
+입력 산술($\Omega,N,\gamma$) & 정확 & 오차 0\\
+감수율(컴팩트 블록 / Floquet) & 선형계 풀이 & 최적 위치·위상·크기 재현\\
+\quad(최저차 연필 전개) & 근사 & 위치·위상 정확, 크기 $0.5$--$0.8\times$\\
+Doppler(Faddeeva/구적) & 정확 & 격자 오차 $\lesssim0.1\,\%$\\
+전파($e^{ML}$, $\Delta k$) & 정확 & 오차 0\\
+팔 OD(Voigt)·펌프 산란·balanced 잡음 & 정확 & 오차 0\\
+\midrule
+$G_s$, $G_s-G_c$, $\xi_{\text{finite}}$, $\xi_{\text{ideal}}$
+ & & 표~\ref{tab:summary}: $0.01\dB$ 이내\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+%==================================================================
+\appendix
+\section{동작점 파라미터 요약}
+%==================================================================
+\begin{itemize}[nosep]
+\item 실조/온도/각: $\Delta=-1.50\GHz$, $T=110\degC$, $\delta=-280\MHz$,
+      $\theta=0.32^\circ$.
+\item 장: $P_{\text{pump}}=600\,$mW($w_p=530\,\mu$m),
+      $P_{\text{seed}}=8\,\mu$W($w_s=330\,\mu$m), $L=12.5\,$mm.
+\item 원자 상수: $\Gamma/2\pi=5.746\MHz$,
+      $\omega_{\mathrm{HF}}/2\pi=3035.732\MHz$,
+      $\omega^{(e)}_{\mathrm{HF}}/2\pi=361.58\MHz$,
+      $d_{D1}=2.5377\times10^{-29}\,\mathrm{C\,m}$.
+\item 유도량: $\Omega_A/2\pi=707.55\MHz$, $N=1.12\times10^{19}\,\mathrm{m^{-3}}$,
+      $k\sigma_v/2\pi=243.6\MHz$, $\Gamma_o/2\pi=3.260\MHz$,
+      $\ell_{\text{eff}}=0.0360$, $\Delta k_z=404.6\,\mathrm{rad/m}$.
+\item 검출: $\eta=0.8694$(finite) 또는 $1$(ideal), 펌프 산란 계수 $\kappa=0.1$.
+\item 사이드밴드 비트: $\Omega_{\text{beat}}=\omega_{\mathrm{HF}}-\delta$
+      (seeded $(-)$ 브랜치).
+\end{itemize}
+
+%==================================================================
+\section{참고문헌}
+%==================================================================
+\begin{enumerate}[label={[\arabic*]},leftmargin=*]
+\item G. Sim, H. Kim, H. S. Moon, \textit{Sci. Rep.} \textbf{15}, 7727 (2025).
+\item C. F. McCormick, V. Boyer, E. Arimondo, P. D. Lett,
+      \textit{Opt. Lett.} \textbf{32}, 178 (2007).
+\item M. T. Turnbull, P. G. Petrov, C. S. Embrey, A. M. Marino, V. Boyer,
+      \textit{Phys. Rev. A} \textbf{88}, 033845 (2013) --- 이중-$\Lambda$
+      감수율의 해석 형식.
+\item R. W. Boyd, \textit{Nonlinear Optics} --- population pulsation과
+      포화 감수율.
+\item W. Voigt (1912); V. N. Faddeeva \& N. M. Terent'ev (1954) ---
+      Faddeeva 함수 $w(z)$와 Voigt 프로파일.
+\end{enumerate}
+
+\end{document}
