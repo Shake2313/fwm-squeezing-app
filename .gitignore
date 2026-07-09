@@ -3,6 +3,13 @@ __pycache__/
 *.png
 *.npz
 *.log
+# LaTeX build artifacts (force-add sources/PDFs explicitly)
+*.aux
+*.toc
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
 .streamlit/secrets.toml
 st.log
 .venv/
