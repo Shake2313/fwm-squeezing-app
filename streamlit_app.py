@@ -137,6 +137,10 @@ GROUP_STYLES = {
     "cell & beams": dict(label="cell", color="#0F766E", bg="#EAF8F5"),
     "cell": dict(label="cell", color="#0F766E", bg="#EAF8F5"),
     "beams": dict(label="beams", color="#0891B2", bg="#E0F7FA"),
+    "cell geometry": dict(label="geometry", color="#0F766E", bg="#EAF8F5"),
+    "systematics": dict(label="systematics", color="#F43F5E", bg="#FFF1F3"),
+    "relaxation overrides": dict(label="relaxation", color="#475569", bg="#F1F5F9"),
+    "calibration": dict(label="calibration", color="#7C3AED", bg="#F3E8FF"),
     "detection & scaling": dict(label="readout", color="#7C3AED", bg="#F3E8FF"),
     "numerics": dict(label="numerics", color="#64748B", bg="#F1F5F9"),
     "default": dict(label="preset", color="#0284C7", bg="#E6F7FC"),
@@ -297,9 +301,14 @@ div[data-testid="stButton"] > button:hover {
 }
 
 [data-testid="stExpander"] {
-  border: 1px solid var(--gabes-border);
+  border: 1px solid rgba(220, 230, 239, 0.78);
   border-radius: 8px;
-  background: var(--gabes-surface);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: none;
+}
+
+[data-testid="stSidebar"] [data-testid="stExpander"] {
+  margin-top: 0.48rem;
 }
 
 .gabes-header {
@@ -362,9 +371,8 @@ div[data-testid="stButton"] > button:hover {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  margin: 1rem 0 0.35rem;
-  padding: 0.2rem 0 0.25rem;
-  border-bottom: 1px solid var(--gabes-border);
+  margin: 0.95rem 0 0.28rem;
+  padding: 0.12rem 0.04rem 0.1rem;
   color: var(--gabes-ink);
   font-size: 0.83rem;
   font-weight: 760;
@@ -374,6 +382,27 @@ div[data-testid="stButton"] > button:hover {
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
+  flex: 0 0 auto;
+}
+
+.gabes-advanced-subheader {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.72rem 0 0.18rem;
+  padding-top: 0.08rem;
+  color: var(--gabes-muted);
+  font-size: 0.74rem;
+  line-height: 1.2;
+  font-weight: 760;
+}
+
+.gabes-advanced-subheader::before {
+  content: "";
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 999px;
+  background: var(--sub-color);
   flex: 0 0 auto;
 }
 
@@ -531,6 +560,15 @@ def _render_group_header(container, group):
         f"<span class='gabes-group-dot' style='background:{style['color']}'></span>"
         f"<span>{escape(group)}</span>"
         "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_advanced_subheader(container, group):
+    style = _concept_style(group)
+    container.markdown(
+        "<div class='gabes-advanced-subheader' "
+        f"style='--sub-color:{style['color']}'>{escape(group)}</div>",
         unsafe_allow_html=True,
     )
 
@@ -749,9 +787,22 @@ for g in group_order:
 
 advanced = [sp for sp in visible_specs if sp.advanced]
 if advanced:
-    exp = st.sidebar.expander("Advanced / numerics")
+    exp = st.sidebar.expander("Advanced controls")
+    advanced_group_order = []
     for sp in advanced:
-        params[sp.name] = _render_param(exp, scheme.name, sp, scheme)
+        group = getattr(sp, "advanced_group", "") or sp.group
+        if group not in advanced_group_order:
+            advanced_group_order.append(group)
+    show_advanced_subgroups = len(advanced_group_order) > 1
+    for group in advanced_group_order:
+        group_specs = [
+            sp for sp in advanced
+            if (getattr(sp, "advanced_group", "") or sp.group) == group
+        ]
+        if show_advanced_subgroups:
+            _render_advanced_subheader(exp, group)
+        for sp in group_specs:
+            params[sp.name] = _render_param(exp, scheme.name, sp, scheme)
 
 for sp in specs:
     if sp.name not in params:

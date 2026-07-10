@@ -46,6 +46,7 @@ class ParamSpec:
     applies_defaults: bool = False      # choosing a value applies the scheme's
                                         # recommended_defaults[value] set, and
                                         # replaces the standalone "Default" buttons
+    advanced_group: str = ""            # optional heading inside Advanced
 
 
 @dataclass(frozen=True)
