@@ -1704,29 +1704,40 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 # =========================================================
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
-FIDELITY_FAST = "Fast  (~3 s)"
-FIDELITY_BALANCED = "Balanced  (~6 s)"
-FIDELITY_HIGH = "High fidelity  (~20 s)"
+# Three tiers. The old coarse "Fast" (121 pts) was dropped and the rest renamed
+# down — the real-basis + sideband-symmetry speedups (~1.6×) made it redundant.
+# Times are re-estimated for the reference (deployment) environment the old
+# labels used, scaled by the measured 1.6×: old ~6 s → ~4 s, old ~20 s → ~12 s.
+# The per-tier solver settings are unchanged; only the labels moved.
+FIDELITY_FAST = "Fast  (~4 s)"          # was "Balanced  (~6 s)" (181-pt) settings
+FIDELITY_BALANCED = "Balanced  (~12 s)"  # was "High fidelity  (~20 s)" (301-pt)
 FIDELITY_ULTRA = "Ultra  (slow)"
-FIDELITY_LEGACY_FINE = "Fine  (~20 s)"
 FWM_FIDELITY = {
-    FIDELITY_FAST:     dict(coarse_points=121, velocity_step=5.0,
+    FIDELITY_FAST:     dict(coarse_points=181, velocity_step=4.0,
                             velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
-    FIDELITY_BALANCED: dict(coarse_points=181, velocity_step=4.0,
-                            velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
-    FIDELITY_HIGH:     dict(coarse_points=301, velocity_step=2.0,
+    FIDELITY_BALANCED: dict(coarse_points=301, velocity_step=2.0,
                             velocity_cutoff=3.0, phase_detail=PHASE_FINE),
     FIDELITY_ULTRA:    dict(coarse_points=401, velocity_step=1.0,
                             velocity_cutoff=4.0, phase_detail=PHASE_ULTRA),
 }
 RESOLUTION = FWM_FIDELITY
 
+# Old saved fidelity labels → current labels. Settings-preserving where a tier
+# survived (old Balanced/High kept their solver settings under the new names);
+# the removed coarse tier falls to the cheapest survivor.
+_FIDELITY_LEGACY = {
+    "Fast  (~3 s)":           FIDELITY_FAST,      # removed 121-pt tier → cheapest now
+    "Balanced  (~6 s)":       FIDELITY_FAST,      # same 181-pt settings, renamed
+    "High fidelity  (~20 s)": FIDELITY_BALANCED,  # same 301-pt settings, renamed
+    "Fine  (~20 s)":          FIDELITY_BALANCED,  # legacy alias of the old High tier
+}
+
 
 def normalize_fidelity(value):
     """Map old saved labels onto current user-facing fidelity labels."""
-    if value == FIDELITY_LEGACY_FINE:
-        return FIDELITY_HIGH
-    return value if value in FWM_FIDELITY else FIDELITY_BALANCED
+    if value in FWM_FIDELITY:
+        return value
+    return _FIDELITY_LEGACY.get(value, FIDELITY_FAST)
 
 
 class FWMScheme(Scheme):
@@ -1796,7 +1807,7 @@ class FWMScheme(Scheme):
                       visible_if=seeded,
                       help="Pump-seed crossing angle θ. Real beam geometry: sets "
                            "the seeded-FWM longitudinal phase mismatch Δk_z (active "
-                           "from Balanced fidelity up), so it recomputes the gain."),
+                           "from Fast fidelity up), so it recomputes the gain."),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", visible_if=seeded,
                       help="Folds into eta = QE x (1 - loss)."),
@@ -1893,7 +1904,7 @@ class FWMScheme(Scheme):
                            "upper bound and auto-refines finer until the biphoton "
                            "width converges (a coarse step aliases the velocity-"
                            "class coherent sum)."),
-            ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_BALANCED,
+            ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_FAST,
                       choices=tuple(FWM_FIDELITY.keys()), advanced=True,
                       visible_if=seeded),
             ParamSpec("phase_detail", "Phase detail", "Phase matching", "Balanced",
@@ -1915,7 +1926,7 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
-                    line_strength=0.74, resolution=FIDELITY_BALANCED,
+                    line_strength=0.74, resolution=FIDELITY_FAST,
                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
@@ -2005,8 +2016,8 @@ class FWMScheme(Scheme):
             "coherence term), so the squeezing now peaks near 121–131 °C and "
             "decreases at higher temperature as Sim *et al.* observe, rather than "
             "improving monotonically with density. "
-            "Balanced fidelity includes the reference 0.32 deg seeded phase "
-            "mismatch; High fidelity also applies a chi-reused refractive "
+            "Fast fidelity includes the reference 0.32 deg seeded phase "
+            "mismatch; Balanced fidelity also applies a chi-reused refractive "
             "correction and segmented propagation profile. Ultra adds a slow "
             "self-consistent phase refinement, dynamic segmented depletion, "
             "in-cell loss/noise, Gaussian overlap, and a visible Zeeman "

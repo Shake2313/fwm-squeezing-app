@@ -246,7 +246,7 @@ def test_fwm_headless_observables_skip_figure_generation():
     assert scheme.supports_headless_observables is True
 
     seeded_params = scheme.defaults()
-    seeded_params["resolution"] = "Fast  (~3 s)"
+    seeded_params["resolution"] = fwm.FIDELITY_FAST
     seeded_raw = scheme.compute(seeded_params)
     biphoton_params = _recommended_params(
         topology=fwm.TOPOLOGY_RB87_TELECOM,
@@ -324,7 +324,7 @@ def test_biphoton_basic_ui_keeps_only_lab_controls():
 def test_squeezing_hides_twin_beam_coincidence_figure():
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
-    params["resolution"] = "Fast  (~3 s)"
+    params["resolution"] = fwm.FIDELITY_FAST
     raw = scheme.compute(params)
     view = scheme.observables(raw, params)
     assert view.get("figure") is not None
@@ -338,7 +338,7 @@ def test_squeezing_observables_tolerate_rapid_tpd_changes():
 
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
-    params["resolution"] = "Fast  (~3 s)"
+    params["resolution"] = fwm.FIDELITY_FAST
     raw = scheme.compute(params)
     for tpd in (-480.0, -8.0, 0.0, 245.0, 500.0):
         params["tpd"] = tpd
@@ -374,7 +374,7 @@ def test_seeded_phase_detail_modes_are_gated_by_resolution():
 
 
 def test_fidelity_alias_and_ultra_tiny_grid():
-    assert fwm.normalize_fidelity("Fine  (~20 s)") == fwm.FIDELITY_HIGH
+    assert fwm.normalize_fidelity("Fine  (~20 s)") == fwm.FIDELITY_BALANCED
 
     center = fwm.branch_center_GHz(0.9, -1)
     raw = fwm.compute_spectrum(

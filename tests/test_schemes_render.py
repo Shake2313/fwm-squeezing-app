@@ -24,7 +24,7 @@ def _fast(params):
     if "doppler" in p:
         p["doppler"] = "off"
     if "resolution" in p:
-        p["resolution"] = "Fast  (~3 s)"
+        p["resolution"] = "Fast  (~4 s)"
     return p
 
 
