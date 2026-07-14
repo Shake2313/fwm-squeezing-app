@@ -1,6 +1,7 @@
 {
   "_comment": "Deferred / planned work for GABES. Basics & current behaviour live in README.md; this file tracks things intentionally NOT done yet. Each item: {id, area, title, why, status}. status: deferred | in_progress | done.",
-  "_daily_report_sync": "Daily reports through 2026-06-27 have been reflected in this checklist.",
+  "_daily_report_sync": "Daily reports through 2026-07-09 have been reflected in this checklist.",
+  "_priority_policy": "Review/checklist priority uses P1/P2/P3 going forward. P1 blocks correctness, reproducibility, release, or user-facing trust. P2 is important and should be fixed before publication/release or broad reuse, but does not currently break tests. P3 is housekeeping, polish, or low-risk maintainability. This priority is separate from GROUP B/C implementation burden.",
   "_group_policy": "GROUP B items are safe but substantial coding work. GROUP C items are heavy / need design alignment; ask the user before coding any GROUP C item.",
   "items": [
     {
@@ -29,6 +30,30 @@
       "area": "schemes/* + streamlit_app.py",
       "title": "Split metric/table readout from Matplotlib figure generation across schemes",
       "why": "DONE for the current scheme API. Scheme.headless_observables now provides the public hook and centralized wrapper: schemes opt in by exposing observables(..., include_figures=False), while the base class performs the common headless dispatch. All current user-facing schemes (OD/SAS, Lambda, Rydberg-EIT, Magneto, FWM) plus the internal OD validation primitive support this path so metrics/tables can skip Matplotlib while preserving the existing UI figure path. tests/test_headless_observables.py proves the headless path does not call plt.subplots and that the base wrapper passes include_figures=False without forbidding future custom overrides; tests/test_schemes_render.py still proves normal figure rendering. No existing non-UI batch/report callsite needed rewiring; future batch/report callers should use headless_observables.",
+      "status": "done"
+    },
+    {
+      "id": "paper-data-availability-claim",
+      "area": "docs/squeezing_report/squeezing_paper.tex + README.md",
+      "title": "Align paper data-availability language with actual repository visibility",
+      "priority": "P2",
+      "why": "P2 DONE. The 2026-07-09 review found that the paper draft says the complete source, scan data, scripts, and tests are openly available on GitHub, while README.md recorded the GitHub remote as private. User confirmed this has been resolved; keep future paper/data-availability wording aligned with the real repository access state.",
+      "status": "done"
+    },
+    {
+      "id": "paper-zeeman-scope-wording",
+      "area": "docs/squeezing_report/squeezing_paper.tex",
+      "title": "Clarify that FWM Zeeman structure is CG diagnostic/bookkeeping, not a full Zeeman Floquet solve",
+      "priority": "P2",
+      "why": "P2 DONE. The 2026-07-09 review found that the consolidated paper could read as if the final propagation actively includes the full 24-level Zeeman substructure. User confirmed the wording has been resolved; future wording should preserve the distinction between CG-weighted/diagnostic Zeeman handling and a deferred full Zeeman Floquet solve.",
+      "status": "done"
+    },
+    {
+      "id": "latex-build-artifact-ignore",
+      "area": ".gitignore + docs/squeezing_report",
+      "title": "Keep LaTeX auxiliary build artifacts out of version control",
+      "priority": "P3",
+      "why": "P3. The 2026-07-09 review flagged .aux/.out/.toc files as low-risk build artifacts. .gitignore now excludes LaTeX auxiliary outputs; source .tex, figure pipeline, archived data, rendered figures, and the paper PDF can still be tracked intentionally.",
       "status": "done"
     },
     {
