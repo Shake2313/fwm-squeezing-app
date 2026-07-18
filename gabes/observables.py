@@ -181,15 +181,20 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     Reference-calibrated spontaneous-SFWM biphoton readout.
 
     `waveform` is the complex velocity-class coherent sum. Rates are a calibrated
-    source estimate; detector efficiency, background/dark counts, timing jitter,
-    coincidence window and finite filter bandwidth are folded into the returned
-    count-rate and correlation observables.
+    source estimate; detector efficiency, background/dark counts, the net
+    signal-idler timing-difference response, coincidence window and finite filter
+    bandwidth are folded into the returned count-rate and correlation observables.
+
+    ``source_fwhm_ns`` is measured from ``|waveform|^2`` before timing smoothing;
+    ``detected_fwhm_ns`` is measured after it. The legacy ``fwhm_ns`` key remains
+    an alias for the detected width.
     """
     tau_axis_ns = np.asarray(tau_axis_ns, dtype=float)
     waveform = np.asarray(waveform, dtype=complex)
     intensity = np.abs(waveform) ** 2
     if np.nanmax(intensity) > 0:
         intensity = intensity / np.nanmax(intensity)
+    source_fwhm_ns = fwhm_interp(tau_axis_ns, intensity)
 
     if filter_bandwidth_mhz and filter_bandwidth_mhz > 0:
         filter_transmission = min(1.0, float(filter_bandwidth_mhz)
@@ -201,6 +206,7 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     intensity = _smooth_same(intensity, tau_axis_ns, timing_jitter_ns)
     if np.nanmax(intensity) > 0:
         intensity = intensity / np.nanmax(intensity)
+    detected_fwhm_ns = fwhm_interp(tau_axis_ns, intensity)
 
     eta_s = np.clip(float(signal_eff), 0.0, 1.0)
     eta_i = np.clip(float(idler_eff), 0.0, 1.0)
@@ -226,7 +232,9 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     return {
         "g2_SI_tau": g2_tau,
         "tau_axis_ns": tau_axis_ns,
-        "fwhm_ns": fwhm_interp(tau_axis_ns, intensity),
+        "source_fwhm_ns": source_fwhm_ns,
+        "detected_fwhm_ns": detected_fwhm_ns,
+        "fwhm_ns": detected_fwhm_ns,
         "pair_rate_cps": pair_rate,
         "singles_signal_cps": singles_signal,
         "singles_idler_cps": singles_idler,

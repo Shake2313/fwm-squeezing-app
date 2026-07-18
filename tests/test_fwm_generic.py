@@ -5,8 +5,12 @@ Generic SFWM / biphoton checks.
 """
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
+import matplotlib
 import numpy as np
+
+matplotlib.use("Agg")
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -140,7 +144,11 @@ def test_timing_jitter_broadens_waveform():
     wave = np.exp(-tau / 0.8)
     sharp = observables.biphoton_stats(tau, wave, 1_000.0, timing_jitter_ns=0.0)
     broad = observables.biphoton_stats(tau, wave, 1_000.0, timing_jitter_ns=0.8)
-    assert broad["fwhm_ns"] > sharp["fwhm_ns"]
+    assert np.isclose(sharp["source_fwhm_ns"], sharp["detected_fwhm_ns"])
+    assert np.isclose(sharp["fwhm_ns"], sharp["detected_fwhm_ns"])
+    assert np.isclose(broad["source_fwhm_ns"], sharp["source_fwhm_ns"])
+    assert broad["detected_fwhm_ns"] > broad["source_fwhm_ns"]
+    assert broad["fwhm_ns"] == broad["detected_fwhm_ns"]
     assert broad["g2_SI_tau"].shape == tau.shape
 
 
@@ -173,15 +181,36 @@ def test_rb87_telecom_preset_smoke():
     assert np.isfinite(stats["g2_peak"]) and stats["g2_peak"] > 2
     assert stats["pair_rate_cps"] > 0
     assert stats["fwhm_ns"] < 1.0
-    # Predictive mode: waveform is solved (absolute width approximate for the
-    # extreme 780/1529 nm ratio), so only finiteness/positivity is asserted here.
+    # Predictive mode: the waveform is solved, but the absolute per-source width
+    # remains approximate, so only finiteness/positivity is asserted here.
     pred = _recommended_params(topology=fwm.TOPOLOGY_RB87_TELECOM,
                                biphoton_model=fwm.BIPHOTON_PREDICTIVE)
     praw = scheme.compute(pred)
     pstats = _stats(praw, pred, target=False)
     assert np.all(np.isfinite(praw["psi_tau"]))
     assert 0.0 < pstats["fwhm_ns"] < 50.0
+    assert pstats["fwhm_ns"] == pstats["detected_fwhm_ns"]
+    assert pstats["source_fwhm_ns"] < pstats["detected_fwhm_ns"]
     assert praw["regime"] in ("group-delay", "damped-Rabi")
+    pview = scheme.headless_observables(praw, pred)
+    rate_metric = next(m for m in pview["metrics"] if m["label"] == "Pair rate")
+    assert "sqrt(N/N_ref)" in rate_metric["help"]
+    assert "OD/cell length do not directly scale it" in rate_metric["help"]
+    metric_labels = {metric["label"] for metric in pview["metrics"]}
+    assert {"Source BTW FWHM", "Detected BTW FWHM"} <= metric_labels
+    unconverged_view = scheme.headless_observables(
+        dict(praw, velocity_converged=False), pred)
+    unconverged_metrics = {
+        metric["label"]: metric["value"]
+        for metric in unconverged_view["metrics"]
+    }
+    assert unconverged_metrics["Source BTW FWHM"] == "unconverged"
+    assert unconverged_metrics["Detected BTW FWHM"] == "unconverged"
+    unconverged_detection = next(
+        table["markdown"] for table in unconverged_view["tables"]
+        if table["title"] == "Biphoton detection model")
+    assert "| Source BTW FWHM | unconverged |" in unconverged_detection
+    assert "| Detected BTW FWHM | unconverged |" in unconverged_detection
 
 
 def test_cs_btw_channels_have_different_widths():
@@ -210,7 +239,8 @@ def test_cs_btw_predictive_width_ordering():
                                biphoton_model=fwm.BIPHOTON_PREDICTIVE)
     s917 = _stats(scheme.compute(p917), p917, target=False)
     s795 = _stats(scheme.compute(p795), p795, target=False)
-    assert s917["fwhm_ns"] < s795["fwhm_ns"]
+    assert s917["source_fwhm_ns"] < s795["source_fwhm_ns"]
+    assert s917["detected_fwhm_ns"] < s795["detected_fwhm_ns"]
 
 
 def test_predictive_coupling_rabi_broadens_two_photon_resonance():
@@ -254,7 +284,7 @@ def test_fwm_headless_observables_skip_figure_generation():
         phase_detail="Fine",
     )
     biphoton_raw = scheme.compute(biphoton_params)
-    assert biphoton_raw["phase_matching_2d"] is not None
+    assert biphoton_raw["phase_matching_2d"] is None
 
     original_subplots = plt.subplots
 
@@ -411,7 +441,7 @@ def test_rb85_fwm_zeeman_cg_sum_rules_match_lumped_strengths():
     assert np.isclose(atom.lumped_strength_correction, 1.0, rtol=1e-12)
 
 
-def test_biphoton_fine_phase_adds_absolute_and_2d_map():
+def test_biphoton_fine_phase_map_is_lazy_and_figure_only():
     scheme = fwm.FWMScheme()
     params = _recommended_params(
         topology=fwm.TOPOLOGY_RB87_TELECOM,
@@ -421,15 +451,50 @@ def test_biphoton_fine_phase_adds_absolute_and_2d_map():
     raw = scheme.compute(params)
     assert np.isfinite(raw["delta_k_absolute"])
     assert np.isfinite(raw["phase_match_weight_absolute"])
-    assert raw["phase_matching_2d"] is not None
-    assert raw["phase_matching_2d"].ndim == 2
+    assert raw["phase_matching_2d"] is None
+    phase_spec = {sp.name: sp for sp in scheme.param_schema()}["phase_detail"]
+    assert phase_spec.recompute is False
+    assert "phase_detail" not in scheme.recompute_keys()
 
-    idx = np.unravel_index(np.argmax(raw["phase_matching_2d"]),
-                           raw["phase_matching_2d"].shape)
-    best_signal = raw["signal_angle_axis_deg"][idx[0]]
-    best_idler = raw["idler_angle_axis_2d_deg"][idx[1]]
+    balanced_raw = scheme.compute(dict(params, phase_detail="Balanced"))
+    for key in ("tau_axis_ns", "psi_tau", "v_grid", "velocity_weights", "source_v"):
+        assert np.array_equal(raw[key], balanced_raw[key])
+    for key in ("pair_rate_cps", "phase_match_weight", "delta_k_vector"):
+        assert raw[key] == balanced_raw[key]
+
+    def unexpected_map(*args, **kwargs):
+        raise AssertionError("headless observables must not build the 2-D phase map")
+
+    with patch.object(fwm, "biphoton_phase_matching_map", unexpected_map):
+        headless = scheme.headless_observables(raw, params)
+    assert headless["figures"] == []
+
+    signal_axis, idler_axis, phase_map = fwm.biphoton_phase_matching_map(
+        raw["fields"], raw["cell_length_m"],
+        signal_angle_deg=params["signal_angle_deg"],
+        idler_angle_deg=params["idler_angle_deg"],
+        reference_delta_k=raw["topology"].reference_delta_k)
+    assert phase_map.shape == (121, 121)
+    inline_map = fwm.phase_matching_weight(
+        fwm.phase_mismatch_vector_grid(
+            raw["fields"], signal_axis, idler_axis,
+            reference_delta_k=raw["topology"].reference_delta_k),
+        raw["cell_length_m"])
+    assert np.array_equal(phase_map, inline_map)
+
+    idx = np.unravel_index(np.argmax(phase_map), phase_map.shape)
+    best_signal = signal_axis[idx[0]]
+    best_idler = idler_axis[idx[1]]
     assert abs(best_signal - params["signal_angle_deg"]) <= 0.06
     assert abs(best_idler - params["idler_angle_deg"]) <= 0.06
+
+    view = scheme.observables(raw, params)
+    assert "2D phase matching" in {title for title, _ in view["figures"]}
+
+    import matplotlib.pyplot as plt
+    plt.close(view["figure"])
+    for _, fig in view["figures"]:
+        plt.close(fig)
 
 
 def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
@@ -468,6 +533,65 @@ def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
     assert diamond_defaults["idler_side"] == fwm.SIDE_MINUS
 
 
+def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
+    scheme = fwm.FWMScheme()
+    info = scheme.info()
+    assert "not applied to the main solve" in info
+    assert "Zeeman diagnostic correction" not in info
+    assert "within ~30" not in info
+    assert "pump power, OD, phase matching" not in info
+    assert "OD/cell length do not directly scale the rate" in info
+    line_strength = next(
+        sp for sp in scheme.param_schema() if sp.name == "line_strength")
+    assert "not constrained to reproduce the exact −7.8 dB" in line_strength.help
+    assert "no measurements identify a unique split" in line_strength.help
+
+    factors = {
+        sp.name: sp for sp in scheme.param_schema()
+        if sp.name in {
+            "mode_overlap_penalty", "polarization_penalty",
+            "zeeman_participation_penalty"
+        }
+    }
+    assert set(factors) == {
+        "mode_overlap_penalty", "polarization_penalty",
+        "zeeman_participation_penalty"
+    }
+    assert all(sp.default == 1.0 for sp in factors.values())
+    assert all(sp.vmin == 0.0 and sp.vmax == 1.0 for sp in factors.values())
+    assert "count that geometry twice" in factors[
+        "mode_overlap_penalty"].help
+    assert "not a raw Stokes" in factors["polarization_penalty"].help
+    assert "does not turn on" in factors[
+        "zeeman_participation_penalty"].help
+
+
+def test_seeded_coupling_penalties_route_to_both_spectrum_paths():
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params.update(
+        mode_overlap_penalty=0.9,
+        polarization_penalty=0.75,
+        zeeman_participation_penalty=0.6,
+    )
+    marker = {"marker": True}
+
+    with patch.object(fwm, "compute_spectrum", return_value=marker) as solve:
+        assert scheme.compute(params) is marker
+    kwargs = solve.call_args.kwargs
+    assert kwargs["mode_overlap_penalty"] == 0.9
+    assert kwargs["polarization_penalty"] == 0.75
+    assert kwargs["zeeman_participation_penalty"] == 0.6
+
+    full_view = scheme.extra_views()[0]
+    with patch.object(fwm, "full_spectrum", return_value=marker) as full:
+        assert full_view.compute(params) is marker
+    kwargs = full.call_args.kwargs
+    assert kwargs["mode_overlap_penalty"] == 0.9
+    assert kwargs["polarization_penalty"] == 0.75
+    assert kwargs["zeeman_participation_penalty"] == 0.6
+
+
 def test_cs_btw_short_window_render_no_shape_error():
     scheme = fwm.FWMScheme()
     params = _recommended_params(
@@ -479,6 +603,14 @@ def test_cs_btw_short_window_render_no_shape_error():
     raw = scheme.compute(params)
     view = scheme.observables(raw, params)
     assert view.get("figure") is not None
+    metrics = {metric["label"]: metric for metric in view["metrics"]}
+    assert float(metrics["Detected BTW FWHM"]["value"].split()[0]) > float(
+        metrics["Source BTW FWHM"]["value"].split()[0])
+    detection = next(table["markdown"] for table in view["tables"]
+                     if table["title"] == "Biphoton detection model")
+    assert "Source BTW FWHM" in detection
+    assert "Detected BTW FWHM" in detection
+    assert "Net timing-difference response FWHM" in detection
     assert any(table["title"].startswith("Reference ")
                for table in view.get("tables", []))
 
@@ -502,7 +634,7 @@ if __name__ == "__main__":
     test_fidelity_alias_and_ultra_tiny_grid()
     test_loss_noise_never_improves_squeezing()
     test_rb85_fwm_zeeman_cg_sum_rules_match_lumped_strengths()
-    test_biphoton_fine_phase_adds_absolute_and_2d_map()
+    test_biphoton_fine_phase_map_is_lazy_and_figure_only()
     test_fwm_default_buttons_are_squeezing_and_contextual_biphoton()
     test_cs_btw_short_window_render_no_shape_error()
     print("Generic SFWM / biphoton checks OK.")

@@ -108,8 +108,10 @@ first-principles steady-state simulation of the double-$\Lambda$ system,
 calibrated once against the reference experiment of Sim \emph{et al.}
 \cite{Sim2025} and then used to scan the full operating plane. All
 computations were performed with an internal simulation code; the complete
-source, the archived scan data, and the scripts that regenerate every figure
-in this paper are publicly available on GitHub \cite{repo}.
+source, the retained raw scan archives, and the corresponding figure-generation
+scripts are publicly available on GitHub \cite{repo}. The rendered Stage-I--II
+figures are retained, but their superseded raw grids are not (see Data
+availability).
 
 We have chosen to present the study \emph{chronologically}, as a case study
 in five stages, rather than presenting only the final model. The reason is
@@ -304,8 +306,9 @@ I (\S\ref{sec:stage1}) & lossless parametric source + detection efficiency &
 ``maximum squeezing'' is ill-posed: everything collapses onto the detection
 floor; objective reframed as an \emph{efficient-frontier} search\\
 II (\S\ref{sec:stage2}) & full propagation: in-cell probe absorption,
-segmented pump depletion, phase mismatch, Gaussian overlap, CG-weighted
-Zeeman corrections; detection efficiency recalibrated &
+segmented pump depletion, phase mismatch, Gaussian overlap, hyperfine
+CG-weighted lumped couplings plus a 24-level Zeeman CG-sum diagnostic;
+detection efficiency recalibrated &
 in-cell loss creates a genuine interior optimum in $T$; transparency window
 identified\\
 III (\S\ref{sec:stage3}) & wide ideal-detection scan; then corrected
@@ -426,8 +429,9 @@ absorption they suffer \emph{inside} the cell is not part of the detection
 efficiency --- it depends on $(\Delta,T)$ and grows steeply with density.
 Stage II therefore upgraded the propagation to the full model of
 Sec.~\ref{sec:model} (segmented pump depletion, self-consistent phase
-mismatch, Gaussian overlap, CG-weighted Zeeman corrections) and, crucially,
-added the
+mismatch, Gaussian overlap, hyperfine CG-weighted lumped couplings, and a
+24-level Zeeman CG-sum diagnostic that is not applied as a correction) and,
+crucially, added the
 in-cell optical depth of the probe as a distributed loss,
 $S_{\mathrm{cell}}=\tau S_{\mathrm{src}}+(1-\tau)$ with
 $\tau=e^{-\mathrm{OD}}$. The detector quantum efficiency was simultaneously
@@ -1017,13 +1021,13 @@ simulation used to steer a squeezing experiment.
 %==================================================================
 \section*{Data availability}
 %==================================================================
-The complete simulation source code, the archived scan data underlying every
-figure, the figure-generation scripts, and the regression tests that pin the
-calibrated reference behavior are openly available in the GitHub repository
-of Ref.~\cite{repo}. The historical scans of Stages I--II are shown in
+The complete simulation source code, the retained raw scan archives and their
+figure-generation scripts, and the regression tests that pin the calibrated
+reference behavior are openly available in the GitHub repository of
+Ref.~\cite{repo}. The historical scans of Stages I--II are available only in
 their archived rendered form (Figs.~\ref{fig:stage1plateau} and
-\ref{fig:stage2od}), as their raw grids were later overwritten; all other
-figures are regenerated directly from the archived raw data.
+\ref{fig:stage2od}), because their raw grids were later overwritten; all other
+figures are regenerated directly from the retained raw data.
 
 %==================================================================
 \begin{thebibliography}{9}

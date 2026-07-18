@@ -64,10 +64,11 @@ the $^{85}$Rb $D_1$ double-$\Lambda$ system, through the Doppler average and the
 truncated-Floquet sideband steady state, to the Maxwell--Bloch propagation that
 turns the atomic susceptibility into seed/conjugate gain, intensity-difference
 squeezing, and (in the second mode) a spontaneous-FWM biphoton waveform.
-The macroscopic coupling is now first-principles: the hyperfine Clebsch--Gordan
-structure inside $\rhobar$ is completed by the explicit population/degeneracy
-normalization $p_F/[2(2I+1)]$ and the pure-$^{85}$Rb CRC vapour density, leaving
-only a dimensionless residual line-strength calibration ($\approx1$). The
+The structural macroscopic normalization is first-principles: the hyperfine
+Clebsch--Gordan structure inside $\rhobar$ is completed by the explicit
+population/degeneracy normalization $p_F/[2(2I+1)]$ and the pure-$^{85}$Rb CRC
+vapour density. A backward-compatible $0.74$ reference residual remains, now
+separated from three unit-default additional coupling penalties. The
 dissipator carries density- and temperature-dependent collisional decoherence
 (optical self-broadening $\Gamma+\beta N$ and ground-state Raman collisions), so
 the achievable squeezing peaks near $121$--$131\,^\circ$C and degrades at higher
@@ -821,7 +822,10 @@ the medium coupling constant (\code{observables.gain\_from\_chi}):
 \begin{equation}
 \chi_{xy}= -\,\frac{2 N\,|d_\eff|^2}{\varepsilon_0\hbar}\,\overline{\rhobar}_{xy},
 \qquad
-|d_\eff|^2=\ell_s\,\varrho_{\text{norm}}\,|d_{D_1}|^2,
+|d_\eff|^2=\ell_{\text{tot}}\,\varrho_{\text{norm}}\,|d_{D_1}|^2,
+\qquad
+\ell_{\text{tot}}=\ell_{\text{ref}}\eta_{\text{mode}}
+\eta_{\text{pol}}f_Z,
 \label{eq:chiphys}
 \end{equation}
 where $N$ is the number density and $d_{D_1}$ the $D_1$ reduced dipole. The sign
@@ -843,22 +847,30 @@ dipole factorizes into a \emph{first-principles} normalization and a
   (and $\tfrac{5}{144}\approx0.0347$ on the $(+)$ branch). Quantitatively, this
   is the factor the old hand-tuned fudge ``$\text{line\_strength}=0.05$'' was
   standing in for.
-  \item $\ell_s$ (\code{LINE\_STRENGTH\_FACTOR}; the app's Advanced
-  ``line-strength factor'') is the dimensionless \emph{residual} left on top,
-  engine default $1.0$. The seeded app default is $\ell_s=0.74$, anchored so
-  that Ultra fidelity reproduces the measured $G_s\approx14$ and $-7.8\,$dB at
-  the Sim \emph{et al.}\ operating point; the departure from $1$ stands for the
-  $m$-sublevel participation / beam-geometry reduction not yet derived from
-  first principles. It is not an experimentally tunable quantity, which is why
-  the app parks it under \emph{Advanced}.
+  \item $\ell_{\text{ref}}$ (the backward-compatible \code{line\_strength}
+  argument; the app's Advanced ``reference residual anchor'') is the
+  dimensionless residual left on top. The seeded app default is
+  $\ell_{\text{ref}}=0.74$, anchored to
+  the measured gain scale $G_s\approx14$ and the observed squeezing scale at
+  the Sim \emph{et al.}\ operating point. The hardened model is not constrained
+  to reproduce the exact measured $-7.8\,$dB readout there.
+  \item $\eta_{\text{mode}}$, $\eta_{\text{pol}}$, and $f_Z$ are explicit
+  one-sided lab-facing penalties for additional effective-coupling loss from
+  unresolved transverse mode mismatch, extra polarization-channel leakage, and
+  reduced $m_F$-path participation relative to the anchored setup. All default
+  to one, so the legacy API and reference output are unchanged. No independent
+  measurements identify a unique numerical split of $0.74$, so the code
+  deliberately does not invent one. These are not raw overlap, Stokes-purity, or
+  population fractions; $\eta_{\text{mode}}$ is also separate from Ultra's
+  normalized axial crossing-angle profile.
 \end{itemize}
 The bookkeeping is now clean: the genuine hyperfine CG structure is inside
 $\rhobar$ (drive $\times$ readout $=3C_F^2$ per leg), the population/degeneracy
 normalization is $\varrho_{\text{norm}}$, and the density is the validated CRC
 value --- the same normalization chain that reproduces measured linear
-absorption. $\ell_s$ rescales the \emph{effective} $|d|^2$ in propagation only;
-it does \emph{not} touch the OBE solve (where $\Gamma$ and $\Omega$ are fixed by
-$I_{\text{sat}}$).
+absorption. The combined residual $\ell_{\text{tot}}$ rescales the
+\emph{effective} $|d|^2$ in propagation only; it does \emph{not} touch the OBE
+solve (where $\Gamma$ and $\Omega$ are fixed by $I_{\text{sat}}$).
 
 \subsection{The transfer matrix}
 
@@ -1209,7 +1221,7 @@ $\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
 \begin{enumerate}[leftmargin=2.2em]
   \item Convert powers to Rabi frequencies, Eq.~\eqref{eq:rabi}; CRC density
   $N(T)$, Eq.~\eqref{eq:crc}; coupling scale
-  $\ell_s\varrho_{\text{norm}}$ (Sec.~\ref{sec:coupling}).
+  $\ell_{\text{tot}}\varrho_{\text{norm}}$ (Sec.~\ref{sec:coupling}).
   \item Build the per-temperature collisional atom
   (\code{collisional\_atom}: $\gamma_{gg}(T,N)$, $\gamma_{\text{opt}}(N)$,
   Sec.~\ref{sec:collisional}).
@@ -1236,9 +1248,13 @@ $\Delta=2\pi\,D_{\text{GHz}}\!\cdot\!10^9$) runs:
 The returned dictionary carries $G_s$, $G_c$, $S_{\text{dB}}$ versus probe
 detuning, plus derived diagnostics: $N$, $\sigma_v$, $\Omega_{\text{pump}}$,
 $\Omega_{\text{seed}}$, the small-signal peak and the depletion cap, the
-first-principles \code{coupling\_norm} $\varrho_{\text{norm}}$, the
-\code{line\_strength\_residual} $\ell_s$ and their product
-(\code{effective\_line\_strength}), the active phase-detail mode, $\Delta k_z$
+first-principles \code{coupling\_norm} $\varrho_{\text{norm}}$, the preserved
+\code{line\_strength\_residual} $\ell_{\text{ref}}$, the three lab-facing
+penalties (\code{mode\_overlap\_penalty}, \code{polarization\_penalty}, and
+\code{zeeman\_participation\_penalty}), \code{lab\_coupling\_factor}, and
+\code{combined\_line\_strength\_residual} $\ell_{\text{tot}}$. Its product with
+\code{coupling\_norm} is \code{effective\_line\_strength}; the remaining
+diagnostics include the active phase-detail mode, $\Delta k_z$
 (operating and vacuum), segment/overlap/pump-budget diagnostics, the Zeeman
 consistency status, and --- on Ultra --- the \code{hardened\_noise} block
 ($\kappa$, pump OD, per-arm linear ODs). The TPD slider in the app reads a
@@ -1251,14 +1267,16 @@ regression-anchored (\code{tests/test\_regression.py}, baseline
 \code{tests/baseline\_focused.npz}; re-captured after the coupling
 normalization, the collisional dissipator, and the IDS-formula correction). At
 the Sim \emph{et al.}\ reference setting ($\Delta=0.9\,$GHz, $T=121\,^\circ$C,
-$600\,$mW pump, $8\,\mu$W seed, $\ell_s=0.74$, $5.5\,\%$ loss,
+$600\,$mW pump, $8\,\mu$W seed, $\ell_{\text{ref}}=0.74$ and unit lab-facing
+penalties, $5.5\,\%$ loss,
 $\eta=0.8694$), the pinned legacy focused scan reaches
 $S_{\text{dB}}\approx-8.69\,$dB at $G_s\approx32.1$, against the
 $-8.84\,$dB detection floor of Eq.~\eqref{eq:floor}. The same residual
-$\ell_s=0.74$ makes the \emph{Ultra} path reproduce the paper's measured
-operating point ($G_s\approx14$, $-7.8\,$dB) --- that is the calibration
-statement; the legacy path, which omits the propagation refinements, runs
-hotter. Regression tests hold the seeded gain/squeezing arrays to the frozen
+$\ell_{\text{tot}}=0.74$ makes the \emph{Ultra} path reproduce the paper's
+measured gain scale ($G_s\approx14$) and the order of the squeezing depth, but it is not an
+exact dual-observable calibration to $-7.8\,$dB. The legacy path, which omits
+the propagation refinements, runs hotter. Regression tests hold the seeded
+gain/squeezing arrays to the frozen
 baseline bit-for-bit, and the app presets select the phase-detail mode per
 fidelity (Fast/Balanced $\to$ \code{balanced}, High $\to$ \code{fine},
 Ultra $\to$ \code{ultra}).
@@ -1275,9 +1293,10 @@ Doppler-averaged biphoton amplitude from first principles --- waveform shape,
 temporal width, source bandwidth and their parameter dependences are
 \emph{computed} --- while \textbf{Calibrated} is the legacy reference-injected
 estimate kept for comparison. In both, the absolute pair rate stays
-reference-anchored with physical scaling: the lumped model does not pin the
-absolute collection coefficient, for the same reason the squeezing mode keeps
-the $\ell_s$ residual (Sec.~\ref{sec:coupling}).
+reference-anchored with the explicit scalar dependence given below: the lumped
+model does not pin the absolute collection coefficient, for the same reason the
+squeezing mode keeps the anchored, factorized $\ell_{\text{tot}}$ residual
+(Sec.~\ref{sec:coupling}).
 
 \subsection{Topologies and fields}
 
@@ -1442,19 +1461,25 @@ The predictive path therefore treats the user step only as an upper bound
   \item Measure the actual resonance FWHM of $|\kappa(v)|$ on a fine probe grid
   (so Autler--Townes and detuning broadening are captured), and start from
   $\dd v=\mathrm{FWHM}/16$ (\code{PRED\_V\_OVERSAMPLE}).
-  \item Halve the step until the $|\psi|^2$ FWHM is stable to $3\,\%$
+  \item Halve the step until the intrinsic source $|\psi|^2$ FWHM is stable to
+  $3\,\%$
   (\code{PRED\_V\_FWHM\_TOL}), up to 10 halvings.
   \item If the $40\,000$-point cap is reached first, flag the width as
   \emph{unconverged} (qualitative only) in the readout.
 \end{enumerate}
-With this in place the $^{87}$Rb telecom predictive width converges to
-$\approx0.50$\,ns against the measured $0.56(4)$\,ns, and the Cs channels land
-within $\sim30\,\%$ --- the remaining gap is the deferred per-source
-absolute-width calibration (\code{docs/checklist.json}).
+With this in place the $^{87}$Rb telecom predictive \emph{source} width converges
+to $\approx0.17$\,ns. Convolution with the current $0.55$\,ns net signal--idler
+timing-difference response gives a \emph{detected} width of $\approx0.50$\,ns;
+that detected quantity, not the intrinsic source width, is compared with the
+measured $0.56(4)$\,ns. The anchor-adjacent agreement is not an independent
+validation: exact per-source widths and the Cs channel ratio remain approximate,
+while their wavelength ordering emerges.
+Topology-specific absolute-width calibration remains deferred
+(\code{docs/checklist.json}).
 
-\subsection{Absolute rate and optical depth: anchored, physically scaled}
+\subsection{Anchored absolute rate and separately scaled optical depth}
 
-The absolute pair rate is reference-anchored with physical scaling
+The absolute pair rate is reference-anchored with the explicit scalar law
 (\code{compute\_biphoton}):
 \begin{equation}
 R_{\text{pair}}
@@ -1507,6 +1532,19 @@ g^{(2)}_{SI}(\tau)=1+\text{CAR}\cdot\frac{|\psi(\tau)|^2}{\max|\psi|^2},
 \qquad
 \text{CAR}=\frac{\text{coincidence}}{\text{accidental}}.
 \end{equation}
+The readout reports two deliberately distinct temporal widths:
+\begin{align}
+\mathrm{FWHM}_{\rm source}
+  &= \mathrm{FWHM}\!\left[|\psi(\tau)|^2\right],\\
+\mathrm{FWHM}_{\rm detected}
+  &= \mathrm{FWHM}\!\left[G_{\rm timing}*|\psi(\tau)|^2\right].
+\end{align}
+They are exposed as \code{source\_fwhm\_ns} and \code{detected\_fwhm\_ns}; the
+legacy \code{fwhm\_ns} key remains an alias for the detected width. The Advanced
+\code{timing\_jitter\_ns} control denotes the net Gaussian signal--idler
+timing-difference response, not an intrinsic source parameter. The finite filter
+bandwidth currently changes throughput only and is not included in the temporal
+convolution.
 Heralding efficiencies and the Cauchy--Schwarz ratio $R=[g^{(2)}_{\text{peak}}]^2/4$
 follow. The two source models differ in one honest detail: in the
 \emph{Calibrated} model, where a paper anchor exists (e.g.\ the $^{87}$Rb
@@ -1556,9 +1594,10 @@ The physics dictates the architecture, so a short note suffices:
 % =====================================================================
 
 \paragraph{Validated / first-principles.} The direct seeded
-$G_s$/$S_{\text{dB}}$ pipeline is regression-locked bit-for-bit, and at Ultra
-fidelity reproduces the Sim \emph{et al.}\ measured operating point
-($G_s\approx14$, $-7.8\,$dB) with the single residual $\ell_s=0.74$. The
+$G_s$/$S_{\text{dB}}$ pipeline is regression-locked bit-for-bit. At Ultra
+fidelity the combined residual $\ell_{\text{tot}}=0.74$ reproduces the Sim \emph{et al.}
+gain scale ($G_s\approx14$) and the order of the measured squeezing, but not an
+exact $-7.8\,$dB readout at the nominal point. The
 optional Numba kernels are pinned to the NumPy reference paths, and the
 app-facing phase-detail modes add propagation physics without changing the
 atomic OBE definition. The genuine $^{85}$Rb $D_1$ hyperfine CG factors
@@ -1572,14 +1611,16 @@ Eq.~\eqref{eq:Sideal}, and the collisional dissipator gives the observed
 interior temperature optimum.
 
 \paragraph{Lumped / calibrated residuals.} What still carries a knob: the
-dimensionless line-strength residual $\ell_s=0.74$ ($m$-sublevel participation /
-beam geometry, not yet derived); the pump-scatter leakage fraction
+reference anchor $\ell_{\text{ref}}=0.74$ plus the unit-default lab-facing
+penalties $\eta_{\text{mode}}$, $\eta_{\text{pol}}$, and $f_Z$; their individual
+reference values are not independently calibrated. The pump-scatter leakage fraction
 $\kappa=0.1$ of the hardened Ultra noise (PBS extinction / spatial filtering,
 awaiting measurement); the biphoton absolute pair rate and (in the Calibrated
 model) the $g^{(2)}$ noise floor, which are reference-anchored; and the
-predictive biphoton \emph{absolute} widths, which are approximate
-(telecom $\approx0.50$ vs $0.56(4)$\,ns; Cs within $\sim30\,\%$) pending the
-per-source calibration deferred in \code{docs/checklist.json}.
+predictive biphoton intrinsic and timing-response-broadened \emph{absolute}
+widths and the Cs channel ratio, which remain approximate pending the per-source
+calibration deferred in
+\code{docs/checklist.json}.
 
 \paragraph{Ultra status and remaining future physics.}
 \begin{itemize}[leftmargin=1.6em]
@@ -1633,7 +1674,9 @@ $S_{\text{ideal}}=(G_s-G_c)^2/(G_s+G_c)$ & ideal twin-beam noise, Eq.~\eqref{eq:
 $S,S_{\text{dB}}$ & intensity-difference squeezing (linear / dB) \\
 $\eta=\text{QE}(1-\text{loss})$ & detection efficiency ($0.8694$ at reference) \\
 $\varrho_{\text{norm}}=p_F/[2(2I+1)]$ & first-principles coupling norm ($7/144$ on branch $-$) \\
-$\ell_s$ & residual line-strength calibration (\code{LINE\_STRENGTH\_FACTOR}; app $0.74$) \\
+$\ell_{\text{ref}}$ & backward-compatible seeded reference residual (app $0.74$) \\
+$\eta_{\text{mode}},\eta_{\text{pol}},f_Z$ & unit-default lab-facing effective-coupling penalties \\
+$\ell_{\text{tot}}$ & combined seeded residual $\ell_{\text{ref}}\eta_{\text{mode}}\eta_{\text{pol}}f_Z$ \\
 $\eta_{s,c}^{\text{arm}}$ & hardened per-arm efficiencies, Eq.~\eqref{eq:armloss} \\
 $\kappa$ & pump-scatter leakage fraction (hardened Ultra, default $0.1$) \\
 $\Delta k_z$ & seeded longitudinal phase mismatch \\

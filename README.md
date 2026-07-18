@@ -109,8 +109,10 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   coupling drive, pump detuning, two-photon detuning, collection geometry, filter
   bandwidth, and coincidence window. Detector calibration, manual wavelengths,
   source-model comparison, and numerical diagnostics live under Advanced.
-- Biphoton readout: `g²_SI(τ)`, FWHM, pair-rate estimate, singles, true and
-  accidental coincidences, CAR, heralding estimates, and Cauchy-Schwarz R.
+- Biphoton readout: `g²_SI(τ)`, intrinsic source FWHM, timing-response-broadened
+  detected FWHM, pair-rate estimate, singles, true and accidental coincidences,
+  CAR, heralding estimates, and Cauchy-Schwarz R. The legacy `fwhm_ns` API key is
+  retained as an alias for the detected width.
 - The waveform is a coherent sum over Doppler velocity classes. Biphoton v3 phase
   matching uses calibrated longitudinal Δk plus absolute transverse Δk, with a
   strict vector `sinc²(|Δk| L / 2)` collection weight.
@@ -131,16 +133,19 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   - **Calibrated** is the legacy reference-injected estimate (decay, bandwidth,
     g² target forced) kept for comparison.
 - **Honest limits of Predictive** (documented in `info()` / the in-app validation
-  table): absolute ns-widths are **approximate** — the Cs cascade channels land
-  within ~30 %, but the extreme 780/1529 nm telecom ratio over-weights the
-  natural-decay tail (use Calibrated for the telecom waveform). The absolute pair
-  rate stays **reference-anchored with physical scaling** (pump power, OD, phase
-  matching), because the lumped 4-level model does not pin the absolute collection
-  coefficient — the same reason the squeezing mode keeps a `line_strength`
-  residual. An OD waveform-reshaping path (Du/Chen ρ̄, group-delay/precursor) is
-  implemented but **off by default** (`biphoton_od_reshaping`) since the lumped
-  model overestimates it at high OD. Full quantum-Langevin noise is still future
-  work (`docs/checklist.json`).
+  table): absolute ns-widths and the Cs channel ratio are **approximate**; the
+  wavelength ordering emerges, while exact per-source widths still need the
+  deferred Rabi/dephasing calibration. At the default telecom point the modeled
+  source FWHM is about 0.17 ns; the 0.55 ns net signal-idler timing response
+  broadens the detected FWHM to about 0.50 ns, which is the quantity compared
+  with the measured 0.56(4) ns. That agreement is not an independent validation.
+  The absolute pair rate stays **reference-anchored** and currently
+  scales with pump power, coupling drive, vector phase matching, and the square
+  root of the density ratio; OD/cell length do not directly scale the rate. An OD
+  waveform-reshaping path (Du/Chen ρ̄, group-delay/precursor) is implemented but
+  **off by default** (`biphoton_od_reshaping`) since the lumped model overestimates
+  it at high OD. Full quantum-Langevin noise is still future work
+  (`docs/checklist.json`).
 
 ## Traps
 
@@ -152,17 +157,26 @@ ground-population fraction × ground-sublevel degeneracy, ≈0.0486 on the (−)
 branch) — the factor the validated absorption path applies explicitly and the
 lumped 4-level + total-density convention otherwise omits. Density also uses the
 pure-85Rb CRC fit (`hyperfine.number_density`), consistent with that path. The
-**Line-strength factor** is now only a dimensionless **residual** calibration
-(default `1.0`), parked under *Advanced* because it is not an experimentally
-tunable variable. Ultra fidelity adds the slow propagation refinements, but the
-full 24-level Zeeman Floquet scan is still reported as a diagnostic rather than
-used as the default full-scan solver.
+remaining seeded coupling is explicitly factorized under *Advanced* as
+`reference residual × additional mode-overlap penalty × additional polarization
+penalty × additional Zeeman-participation penalty`. The backward-compatible
+reference residual is `0.74`; the three lab-facing penalties default to `1.0`, so existing
+results are unchanged and no unsupported numerical split of `0.74` is implied.
+They represent one-sided extra coupling loss relative to the anchored setup,
+not independently predicted overlap, Stokes purity, or population fractions.
+Ultra fidelity adds the slow propagation refinements, but the full
+24-level Zeeman Floquet scan is still reported as a diagnostic rather than used
+as the default full-scan solver.
 
 1. **FWM gain is exponentially sensitive at high density.** At paper optimum
-   T=121 °C linear Maxwell-Bloch still over-amplifies; the residual Line-strength
-   factor multiplies the physical coupling on top of `p_F/[2(2I+1)]`, so leave it
-   at `1.0` unless an absolute-gain measurement says otherwise. Pump-depletion
-   (Manley-Rowe) saturation caps the runaway; squeezing depth is η-limited.
+   T=121 °C linear Maxwell-Bloch still over-amplifies. The `0.74` reference
+   residual and the three unit-default lab factors multiply the physical coupling
+   on top of `p_F/[2(2I+1)]`; change a lab factor only when a corresponding
+   effective-coupling measurement is available. `mode_overlap_penalty` is an
+   additional unresolved transverse mode-matching penalty and is separate from
+   Ultra's normalized axial crossing-angle profile. Pump-depletion (Manley-Rowe)
+   saturation caps the
+   runaway; squeezing depth is η-limited.
 2. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
    The Sim et al. 85Rb operating point uses the standard red-detuned seed on the
    (−) Raman branch. Compute `branch=-1` and `branch=+1` independently; do not add
@@ -231,5 +245,5 @@ Fixed geom: cell L=12.5 mm, QE 90.47 %, responsivity 0.58 A/W @ 795 nm, pump⊥p
 
 - **Streamlit Community Cloud** (easiest), or Render/Railway/Fly/Cloud Run via Docker.
 - Free tier = weak CPU → 6 s recompute slower. Real bottleneck = CPU, not host.
-- Git remote: `github.com/Shake2313/fwm-squeezing-app` (private). gh acct `Shake2313`.
+- Git remote: `github.com/Shake2313/fwm-squeezing-app` (public). gh acct `Shake2313`.
   Repo name ≠ folder name.
