@@ -357,13 +357,32 @@ class SASScheme(Scheme):
         metrics = [
             dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz",
                  help="Width of the Doppler-broadened background lines."),
-            dict(label="Narrowest sub-Doppler",
-                 value=(f"{sub_fwhm*1e3:.1f} MHz" if np.isfinite(sub_fwhm) else "—"),
-                 help=(f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz)."
-                       if np.isfinite(sub_fwhm) else "Pump off → no sub-Doppler features.")),
+        ]
+        if np.isfinite(sub_fwhm):
+            metrics.append(dict(
+                label="Narrowest sub-Doppler", value=f"{sub_fwhm*1e3:.1f} MHz",
+                help=f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz)."))
+        elif pump > 0:
+            metrics.append(dict(
+                label="SAS status", value="sub-Doppler unresolved", kind="status",
+                help="The pump is on, but no finite sub-Doppler feature width was "
+                     "resolved in the displayed spectrum."))
+        metrics.extend([
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
             dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ] + _lock_readout_metrics(x, T_trans, mhz_per_x=1000.0)
+        ])
+        metrics.extend(_lock_readout_metrics(
+            x, T_trans, mhz_per_x=1000.0,
+            feature_at=sub_at, feature_fwhm=sub_fwhm))
+        hero_labels = (
+            {"Narrowest sub-Doppler", "Lock slope"}
+            if np.isfinite(sub_fwhm)
+            else ({"SAS status", "Peak OD"}
+                  if pump > 0 else {"Peak OD", "Doppler FWHM"})
+        )
+        for metric in metrics:
+            if metric["label"] in hero_labels:
+                metric["tier"] = "hero"
         rows = "".join(f"| {lbl} | {gx*1e3:.1f} |\n" for gx, lbl in raw["markers"])
         table = ("Hyperfine transitions (Lamb-dip centres); crossovers appear at the "
                  "midpoint of any two sharing a ground state, enhanced/inverted by "
@@ -400,12 +419,35 @@ class SASScheme(Scheme):
         ic = int(np.argmin(np.abs(x - offs_mhz[0])))
         sub_fwhm = window_fwhm(x, T_trans, ic)
         dopp_mhz = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
+        pump_on = params["pump_power_mw"] > 0
         metrics = [
             dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz"),
-            dict(label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz"),
+        ]
+        if pump_on and np.isfinite(sub_fwhm):
+            metrics.append(dict(
+                label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz"))
+        elif pump_on:
+            metrics.append(dict(
+                label="SAS status", value="sub-Doppler unresolved", kind="status",
+                help="The pump is on, but no finite Lamb-dip width was resolved "
+                     "around the selected transition."))
+        metrics.extend([
             dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
             dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ] + _lock_readout_metrics(x, T_trans, mhz_per_x=1.0)
+        ])
+        metrics.extend(_lock_readout_metrics(
+            x, T_trans, mhz_per_x=1.0,
+            feature_at=(float(x[ic]) if pump_on else None),
+            feature_fwhm=(sub_fwhm if pump_on else None)))
+        hero_labels = (
+            {"Sub-Doppler dip FWHM", "Lock slope"}
+            if pump_on and np.isfinite(sub_fwhm)
+            else ({"SAS status", "Peak OD"}
+                  if pump_on else {"Peak OD", "Doppler FWHM"})
+        )
+        for metric in metrics:
+            if metric["label"] in hero_labels:
+                metric["tier"] = "hero"
         note = ("Two transitions: Lamb dips at ±splitting/2 and a **crossover** dip "
                 "at the midpoint (green)." if raw["two"]
                 else "Single transition: one Lamb dip at line centre.")
@@ -426,19 +468,48 @@ def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
     return pops
 
 
-def _lock_readout_metrics(x, T_trans, mhz_per_x):
-    """Finite-slope lock-point proxy from the displayed transmission curve."""
+def _lock_readout_metrics(x, T_trans, mhz_per_x,
+                          feature_at=None, feature_fwhm=None):
+    """Finite-slope lock-point proxy from the displayed transmission curve.
+
+    When a sub-Doppler feature has been detected, search only within one FWHM
+    of its centre.  This prevents a steeper Doppler-envelope flank (or another
+    hyperfine manifold) from being reported as the pump-on laser-lock point.
+    Pump-off and failed-feature-detection paths retain the full-spectrum search.
+    """
     if len(x) < 2:
         return []
     slope_per_x = np.gradient(T_trans, x)
-    if not np.isfinite(slope_per_x).any():
+    candidates = np.isfinite(slope_per_x)
+    local_search = (
+        feature_at is not None
+        and feature_fwhm is not None
+        and np.isfinite(feature_at)
+        and np.isfinite(feature_fwhm)
+        and float(feature_fwhm) > 0.0
+    )
+    if local_search:
+        local = np.abs(np.asarray(x) - float(feature_at)) <= float(feature_fwhm)
+        if np.any(candidates & local):
+            candidates &= local
+        else:
+            local_search = False
+    if not candidates.any():
         return []
-    i = int(np.nanargmax(np.abs(slope_per_x)))
+    indices = np.flatnonzero(candidates)
+    i = int(indices[np.argmax(np.abs(slope_per_x[indices]))])
     slope_per_mhz = abs(float(slope_per_x[i])) / float(mhz_per_x)
     detuning_mhz = float(x[i]) * float(mhz_per_x)
+    slope_help = (
+        "Largest |dT/dΔ| within one FWHM of the detected sub-Doppler "
+        "feature; proxy for a laser-lock discriminator."
+        if local_search else
+        "Largest |dT/dΔ| on the displayed spectrum; proxy for a laser-lock "
+        "discriminator."
+    )
     return [
         dict(label="Lock slope", value=f"{slope_per_mhz:.4f} /MHz",
-             help="Largest |dT/dΔ| on the displayed spectrum; proxy for a laser-lock discriminator."),
+             help=slope_help),
         dict(label="Lock detuning", value=f"{detuning_mhz:+.1f} MHz",
              help="Detuning where the lock-slope proxy is largest."),
     ]

@@ -192,6 +192,30 @@ def test_lambda_regime_defaults_are_mode_driven():
     assert "coupling_rabi" not in specs and "gamma_gg" not in specs
 
 
+def test_lambda_unresolved_features_use_status_heroes():
+    sc = schemes.get("lambda")
+
+    eit = sc.recommended_defaults(sc.defaults())["EIT"]
+    eit.update(temp_c=200.0, cell_mm=200.0, doppler="off")
+    eit_view = sc.headless_observables(sc.compute(eit), eit)
+    eit_heroes = [m for m in eit_view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in eit_heroes] == [
+        "Transmission at resonance", "Window status"]
+    assert eit_heroes[1].get("kind") == "status"
+    assert all("nan" not in str(m["value"]).lower() for m in eit_heroes)
+
+    at = sc.recommended_defaults(sc.defaults())["AT"]
+    at.update(coupling_rabi_mhz=0.1, coupling_power_mw=0.01,
+              coupling_diameter_mm=5.0, doppler="off")
+    at_view = sc.headless_observables(sc.compute(at), at)
+    at_heroes = [m for m in at_view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in at_heroes] == [
+        "AT status", "Transmission at center"]
+    assert at_heroes[0].get("kind") == "status"
+    split = next(m for m in at_view["metrics"] if m["label"] == "AT splitting")
+    assert split["value"] == "—"
+
+
 if __name__ == "__main__":
     test_od_cold_natural_linewidth()
     test_od_ne_buffer_pressure_broadens_cold_linewidth()

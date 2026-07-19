@@ -2228,15 +2228,16 @@ class FWMScheme(Scheme):
             fig.tight_layout()
 
         metrics = [
+            dict(label="Squeezing", value=f"{op['S_dB']:.2f} dB",
+                 delta="below shot noise" if op["S_dB"] < 0 else "above shot noise",
+                 delta_color="inverse", tier="hero"),
             dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
                  help="Power gain of the seeded probe through the cell. Absolute "
                       "scale uses the first-principles macroscopic normalization "
                       "(Clebsch-Gordan strengths × p_F/[2(2I+1)]). The Advanced "
                       "reference residual anchor and three explicit lab-facing "
-                      "penalties multiply the physical coupling normalization."),
-            dict(label="Squeezing", value=f"{op['S_dB']:.2f} dB",
-                 delta="below shot noise" if op["S_dB"] < 0 else "above shot noise",
-                 delta_color="inverse"),
+                      "penalties multiply the physical coupling normalization.",
+                 tier="hero"),
             dict(label="Conjugate gain  G_c", value=f"{op['G_c']:.2f}",
                  help="Generated conjugate power gain (drives the twin-beam squeezing)."),
         ]
@@ -2478,11 +2479,12 @@ class FWMScheme(Scheme):
                      "Source model to Predictive for the first-principles waveform.")
         metrics = [
             status,
-            dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}", help=g2_help),
+            dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}", help=g2_help,
+                 tier="hero"),
             dict(label="CAR", value=f"{stats['CAR']:.1f}",
                  help="True coincidence divided by accidental coincidence."),
             dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
-                 help=rate_help),
+                 help=rate_help, tier="hero"),
             dict(label="Source BTW FWHM",
                  value=source_width_value,
                  help=source_fwhm_help),

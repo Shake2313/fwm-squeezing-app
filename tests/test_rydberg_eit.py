@@ -91,6 +91,48 @@ def test_if_proxy_metric_and_temperature_dephasing_are_opt_in():
     assert abs(broadened["temperature_dephasing_mhz"] - 0.40) < 1e-12
 
 
+def test_at_heroes_prioritize_split_and_if_discriminator():
+    sc = schemes.get("rydberg_eit")
+    params = sc.recommended_defaults(sc.defaults())["AT electrometry"]
+    view = sc.headless_observables(sc.compute(params), params)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == [
+        "RF AT splitting", "IF discriminator"]
+
+
+def test_detuned_at_promotes_informative_center_shift():
+    sc = schemes.get("rydberg_eit")
+    params = sc.recommended_defaults(sc.defaults())["AT electrometry"]
+    params["mw_detuning_mhz"] = 4.0
+    view = sc.headless_observables(sc.compute(params), params)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == [
+        "RF AT splitting", "AT center shift"]
+
+
+def test_weak_lo_reports_unresolved_at_status():
+    sc = schemes.get("rydberg_eit")
+    params = sc.recommended_defaults(sc.defaults())["AT electrometry"]
+    params["lo_rabi_mhz"] = 0.1
+    view = sc.headless_observables(sc.compute(params), params)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == ["AT status", "IF discriminator"]
+    assert heroes[0].get("kind") == "status"
+
+
+def test_unresolved_eit_width_uses_status_hero():
+    sc = schemes.get("rydberg_eit")
+    params = sc.recommended_defaults(sc.defaults())["EIT"]
+    raw = sc.compute(params)
+    raw["chi_bar"] = np.zeros_like(raw["chi_bar"])
+    view = sc.headless_observables(raw, params)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == [
+        "Transmission at resonance", "EIT status"]
+    assert heroes[1].get("kind") == "status"
+    assert all("nan" not in str(m["value"]).lower() for m in heroes)
+
+
 def test_coupling_power_and_waist_drive_rabi():
     """481 nm coupling power/waist set Ω_c via √(P/d²), anchored at reference."""
     sc = schemes.get("rydberg_eit")

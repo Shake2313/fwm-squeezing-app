@@ -460,11 +460,13 @@ class RydbergEITScheme(Scheme):
             if_detuning = float("nan")
 
         metrics = []
+        at_resolved = None
         if raw["lo_rabi_mhz"] > 0:
             dmw = abs(float(params.get("mw_detuning_mhz", self._REF["mw_detuning_mhz"])))
             window = max(8.0, 2.0 * raw["lo_rabi_mhz"] + dmw)
             peaks = self._transparency_maxima(x, T_trans, window)
-            if len(peaks) >= 2:
+            at_resolved = len(peaks) >= 2
+            if at_resolved:
                 xs = sorted(p[0] for p in sorted(peaks, key=lambda p: p[1])[-2:])
                 metrics.append(dict(label="RF AT splitting", value=f"{xs[1] - xs[0]:.2f} MHz",
                                     help="Separation of the two tallest dressed peaks."))
@@ -478,9 +480,23 @@ class RydbergEITScheme(Scheme):
                                     help="Height-weighted centre of the dressed "
                                          "transparency peaks; nonzero when the microwave "
                                          "is detuned off the 40D–39F resonance."))
+            if not at_resolved:
+                metrics.append(dict(
+                    label="AT status", value="doublet unresolved", kind="status",
+                    help="The microwave dressing is on, but the optical spectrum "
+                         "does not contain two resolved transparency peaks."))
         else:
-            metrics.append(dict(label="EIT linewidth", value=f"{width:.2f} MHz",
-                                help="FWHM of the central transparency feature."))
+            width_valid = np.isfinite(width) and width > 0
+            metrics.append(dict(
+                label="EIT linewidth",
+                value=(f"{width:.2f} MHz" if width_valid else "—"),
+                help=("FWHM of the central transparency feature." if width_valid else
+                      "Withheld because no finite half-height crossings were found.")))
+            if not width_valid:
+                metrics.append(dict(
+                    label="EIT status", value="window unresolved", kind="status",
+                    help="The current opacity/coupling settings do not produce a "
+                         "measurable EIT-window FWHM in this scan."))
         metrics.extend([
             dict(label="Max spectral slope", value=f"{slope:.3f} /MHz",
                  help="Largest static dT/dnu; used internally for electrometry tests."),
@@ -491,6 +507,41 @@ class RydbergEITScheme(Scheme):
                  help="Probe detuning where the finite-IF discriminator is largest."),
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}"),
         ])
+        if raw["lo_rabi_mhz"] > 0:
+            mw_detuning = abs(float(params.get(
+                "mw_detuning_mhz", self._REF["mw_detuning_mhz"])))
+            # A centre shift is only informative once the microwave detuning
+            # exceeds both a visible control step and the finite-IF probe span.
+            materially_detuned = mw_detuning >= max(0.1, 2.0 * if_delta)
+            if at_resolved:
+                preferred_heroes = (
+                    ("RF AT splitting", "AT center shift", "IF discriminator",
+                     "Transmission at resonance")
+                    if materially_detuned else
+                    ("RF AT splitting", "IF discriminator",
+                     "Transmission at resonance")
+                )
+            else:
+                preferred_heroes = (
+                    "AT status", "IF discriminator", "Transmission at resonance")
+        else:
+            preferred_heroes = (
+                ("EIT linewidth", "Transmission at resonance", "IF discriminator")
+                if np.isfinite(width) and width > 0 else
+                ("Transmission at resonance", "EIT status", "IF discriminator")
+            )
+        by_label = {metric["label"]: metric for metric in metrics}
+        hero_labels = [
+            label for label in preferred_heroes if label in by_label
+        ][:2]
+        for label in hero_labels:
+            by_label[label]["tier"] = "hero"
+        # `partition_metrics` preserves source order, so put the chosen heroes in
+        # the scientific priority order above rather than merely tagging them.
+        selected = set(hero_labels)
+        metrics = ([by_label[label] for label in hero_labels]
+                   + [metric for metric in metrics
+                      if metric["label"] not in selected])
         return dict(x=x, T_trans=T_trans, xphys=xphys, width=width, metrics=metrics)
 
     def observables(self, raw, params, include_figures=True):

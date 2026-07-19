@@ -239,6 +239,21 @@ def test_invalid_transition_handled():
     assert raw["valid"] is False
     view = sc.observables(raw, p)
     assert view.get("figure") is not None
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == ["Status", "Transition"]
+    assert heroes[0].get("kind") == "status"
+
+
+def test_unresolved_central_width_uses_status_hero():
+    sc = schemes.get("magneto")
+    p = _fast_defaults(sc)
+    p.update(b_offset_ut=50.0)
+    view = sc.headless_observables(sc.compute(p), p)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == [
+        "Transmission at B=0", "Width status"]
+    assert heroes[1].get("kind") == "status"
+    assert all(str(m["value"]).lower() != "n/a" for m in heroes)
 
 
 if __name__ == "__main__":

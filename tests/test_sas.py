@@ -28,6 +28,7 @@ sys.path.insert(0, str(ROOT))
 from gabes import schemes, constants, observables, species, hyperfine  # noqa: E402
 from gabes.schemes.sas import GENERIC  # noqa: E402
 from gabes.schemes.absorption import ODScheme  # noqa: E402
+from gabes.lineshape import narrowest_subdoppler, window_fwhm  # noqa: E402
 
 G = constants.GAMMA
 GMHZ = G / (2 * np.pi) / 1e6
@@ -46,6 +47,11 @@ def _params(**over):
 def _spectrum(**over):
     raw = SAS.compute(_params(**over))
     return raw["scan"] / (2 * np.pi) / 1e9, raw["alpha_unit"], raw     # GHz, 1/m
+
+
+def _metric_number(view, label):
+    value = next(m["value"] for m in view["metrics"] if m["label"] == label)
+    return float(value.split()[0])
 
 
 # ---------------------------------------------------------------- data layer
@@ -106,11 +112,20 @@ def test_pump_off_reproduces_autood_85rb_d1():
 
 
 def test_pump_off_is_smooth_and_49_25():
-    x, a, _ = _spectrum(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=45.0)
+    p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=45.0)
+    raw = SAS.compute(p)
+    x, a = raw["scan"] / (2 * np.pi) / 1e9, raw["alpha_unit"]
     f2 = a[x > 0.5].sum()
     f3 = a[x < -0.5].sum()
     assert 1.90 <= f3 / f2 <= 2.02                    # validated 49/25 ≈ 1.96
     assert np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9) < 0.02   # no features
+
+    # Pump off has no sub-Doppler feature, so the legacy full-spectrum lock
+    # proxy remains unchanged.
+    T_trans = observables.transmission(a, p["cell_mm"] * 1e-3)
+    expected = x[int(np.nanargmax(np.abs(np.gradient(T_trans, x))))] * 1000.0
+    view = SAS.observables(raw, p, include_figures=False)
+    assert abs(_metric_number(view, "Lock detuning") - expected) <= 0.11
 
 
 # ------------------------------------------------------ pump on (SAS) physics
@@ -167,6 +182,29 @@ def test_observables_render_species():
     assert any(m["label"] == "Lock detuning" for m in view["metrics"])
 
 
+def test_default_lock_point_tracks_detected_subdoppler_feature():
+    p = _params()
+    raw = SAS.compute(p)
+    x = raw["scan"] / (2 * np.pi) / 1e9
+    alpha = raw["alpha_unit"] * p["line_strength"]
+    T_trans = observables.transmission(alpha, p["cell_mm"] * 1e-3)
+    feature_fwhm, feature_at = narrowest_subdoppler(x, T_trans)
+
+    view = SAS.observables(raw, p, include_figures=False)
+    lock_ghz = _metric_number(view, "Lock detuning") / 1000.0
+
+    assert np.isfinite(feature_fwhm)
+    assert abs(lock_ghz - feature_at) <= feature_fwhm + 0.00011
+
+
+def test_pump_on_unresolved_feature_uses_status_hero():
+    p = _params(pump_power_mw=0.01, temp_c=200.0, cell_mm=200.0)
+    view = SAS.headless_observables(SAS.compute(p), p)
+    heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
+    assert [m["label"] for m in heroes] == ["SAS status", "Peak OD"]
+    assert heroes[0].get("kind") == "status"
+
+
 # -------------------------------------------------------------- generic mode
 def test_generic_lamb_dip_and_crossover():
     raw = SAS.compute(_params(species=GENERIC, transitions="single line", pump_power_mw=1.0))
@@ -175,10 +213,21 @@ def test_generic_lamb_dip_and_crossover():
     ic, ish = int(np.argmin(np.abs(x))), int(np.argmin(np.abs(x - 15 * GMHZ)))
     assert a[ic] < 0.7 * a[ish]                       # sub-Doppler Lamb dip
 
-    raw2 = SAS.compute(_params(species=GENERIC, transitions="two lines (crossover)",
-                               splitting=60.0, pump_power_mw=1.0))
+    p2 = _params(species=GENERIC, transitions="two lines (crossover)",
+                 splitting=60.0, pump_power_mw=1.0)
+    raw2 = SAS.compute(p2)
     x2, a2 = raw2["scan"] / (2 * np.pi) / 1e6, raw2["alpha_unit"]
     assert a2[int(np.argmin(np.abs(x2)))] < a2[int(np.argmin(np.abs(x2 - 8 * GMHZ)))]
+
+    # The broad Doppler-envelope flank is steeper for this case.  The lock
+    # proxy must nevertheless stay on the detected Lamb-dip feature.
+    T2 = observables.transmission(a2, p2["cell_mm"] * 1e-3)
+    feature_i = int(np.argmin(np.abs(
+        x2 - raw2["offsets"][0] / (2 * np.pi) / 1e6)))
+    feature_fwhm = window_fwhm(x2, T2, feature_i)
+    view2 = SAS.observables(raw2, p2, include_figures=False)
+    lock_mhz = _metric_number(view2, "Lock detuning")
+    assert abs(lock_mhz - x2[feature_i]) <= feature_fwhm + 0.11
 
 
 if __name__ == "__main__":

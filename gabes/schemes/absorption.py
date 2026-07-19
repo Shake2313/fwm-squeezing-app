@@ -722,31 +722,74 @@ class LambdaScheme(Scheme):
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":
-            # Two absorption maxima straddling the (transparent) two-photon resonance.
-            left = x < center
-            right = x > center
-            xl = x[left][np.argmax(alpha[left])] if left.any() else np.nan
-            xr = x[right][np.argmax(alpha[right])] if right.any() else np.nan
-            split = abs(xr - xl)
+            # A real AT doublet needs two *resolved local maxima*. Taking the
+            # largest sample on either side of centre always returns a nonzero
+            # grid spacing, even in the weak-coupling single-peak limit.
+            local = np.flatnonzero(
+                (alpha[1:-1] > alpha[:-2]) & (alpha[1:-1] >= alpha[2:])) + 1
+            left = local[x[local] < center]
+            right = local[x[local] > center]
+            resolved = False
+            split = np.nan
+            if left.size and right.size:
+                il = int(left[np.nanargmax(alpha[left])])
+                ir = int(right[np.nanargmax(alpha[right])])
+                valley = float(np.nanmin(alpha[il:ir + 1]))
+                peak_l, peak_r = float(alpha[il]), float(alpha[ir])
+                contrast_scale = max(
+                    abs(peak_l), abs(peak_r), abs(valley), 1e-30)
+                resolved = (
+                    np.isfinite([peak_l, peak_r, valley]).all()
+                    and min(peak_l - valley, peak_r - valley)
+                    > 0.01 * contrast_scale
+                )
+                if resolved:
+                    split = abs(float(x[ir] - x[il]))
             expected = raw.get("coupling_rabi_mhz",
                                params.get("coupling_rabi", 0.0) * GAMMA_MHZ)
+            if not resolved:
+                return [
+                    dict(label="AT status", value="doublet unresolved", kind="status",
+                         help="No pair of absorption maxima with resolvable central "
+                              "contrast exists in the displayed spectrum.", tier="hero"),
+                    dict(label="AT splitting", value="—",
+                         help="Withheld because the spectrum does not contain a "
+                              "resolved Autler-Townes doublet."),
+                    dict(label="Expected ≈ Ω_c", value=f"{expected:.1f} MHz",
+                         help="Coupling Rabi frequency Ω_c/2π."),
+                    dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}",
+                         tier="hero"),
+                ]
             return [
                 dict(label="AT splitting", value=f"{split:.1f} MHz",
-                     help="Separation of the two absorption maxima."),
+                     help="Separation of the two absorption maxima.", tier="hero"),
                 dict(label="Expected ≈ Ω_c", value=f"{expected:.1f} MHz",
                      help="Coupling Rabi frequency Ω_c/2π."),
-                dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}"),
+                dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}",
+                     tier="hero"),
             ]
         # EIT / CPT: transparency at two-photon resonance + dark-resonance width.
         win_fwhm = window_fwhm(x, T_trans, ic)
         ng = observables.group_index(xphys, raw["scan"], raw.get("omega0", OMEGA_D1))[ic]
         unit = "kHz" if mode == "cpt" else "MHz"
         scale = 1e3 if mode == "cpt" else 1.0
-        return [
+        width_valid = np.isfinite(win_fwhm) and win_fwhm > 0
+        metrics = [
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}",
-                 help="Probe transmission at two-photon resonance (transparency)."),
-            dict(label="Window FWHM", value=f"{win_fwhm*scale:.2f} {unit}",
-                 help="Width of the transparency feature."),
+                 help="Probe transmission at two-photon resonance (transparency).",
+                 tier="hero"),
+            dict(label="Window FWHM",
+                 value=(f"{win_fwhm*scale:.2f} {unit}" if width_valid else "—"),
+                 help=("Width of the transparency feature." if width_valid else
+                       "Withheld because no finite half-height crossings were found."),
+                 **({"tier": "hero"} if width_valid else {})),
             dict(label="Group index n_g", value=f"{ng:.3e}",
                  help="n_g = n + ω dn/dω at resonance (slow light when ≫ 1)."),
         ]
+        if not width_valid:
+            metrics.append(dict(
+                label="Window status", value="unresolved", kind="status",
+                help="The current opacity/coupling settings do not produce a "
+                     "measurable transparency-window FWHM in this scan.",
+                tier="hero"))
+        return metrics

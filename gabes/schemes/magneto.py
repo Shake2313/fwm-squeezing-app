@@ -630,7 +630,13 @@ class MagnetoScheme(Scheme):
                         f"for this compact Zeeman model.",
                         ha="center", va="center", wrap=True)
                 ax.axis("off")
-            return dict(metrics=[dict(label="Status", value="invalid transition")],
+            return dict(metrics=[
+                            dict(label="Status", value="invalid transition",
+                                 kind="status", tier="hero"),
+                            dict(label="Transition",
+                                 value=f"F={raw['Fg']} → F'={raw['Fe']}",
+                                 tier="hero"),
+                        ],
                         figure=fig, tables=[])
 
         x = raw["b_ut"]
@@ -666,8 +672,10 @@ class MagnetoScheme(Scheme):
             slope = np.gradient(rotation, x)[ic]
             metrics = [
                 dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
-                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/µT"),
-                dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad"),
+                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/µT",
+                     tier="hero"),
+                dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad",
+                     tier="hero"),
             ]
             note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
             if include_figures:
@@ -683,11 +691,20 @@ class MagnetoScheme(Scheme):
                 fig.tight_layout()
         else:
             metrics = [
-                dict(label="Transmission at B=0", value=f"{T_trans[ic]:.3f}"),
-                dict(label="Zero-field feature", value=feature),
+                dict(label="Transmission at B=0", value=f"{T_trans[ic]:.3f}",
+                     **({"tier": "hero"} if not np.isfinite(central_hw) else {})),
+                dict(label="Zero-field feature", value=feature,
+                     **({"tier": "hero"} if np.isfinite(central_hw) else {})),
                 dict(label="Feature FWHM", value=fwhm_str),
-                dict(label="Central width", value=central_str),
+                dict(label="Central width", value=central_str,
+                     **({"tier": "hero"} if np.isfinite(central_hw) else {})),
             ]
+            if not np.isfinite(central_hw):
+                metrics.append(dict(
+                    label="Width status", value="unresolved in scan", kind="status",
+                    help="No finite half-height crossing was found around the "
+                         "commanded B=0 sample; widen or recenter the B scan.",
+                    tier="hero"))
             note = ("Transmission readout: feature sign is classified from absorption "
                     "at B=0 relative to the scan wings.")
             if include_figures:

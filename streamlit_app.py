@@ -24,6 +24,7 @@ from threading import RLock
 from gabes import schemes
 from gabes.core import blas_single_thread
 from gabes.plot_style import apply_gabes_plot_style
+from gabes.ui_metrics import partition_metrics, split_metric_value
 
 APP_DIR = Path(__file__).resolve().parent
 _PLOT_LOCK = RLock()
@@ -157,6 +158,7 @@ METRIC_STYLES = [
 
 DEFAULT_STYLE = dict(label="control", color="#0284C7", bg="#E6F7FC")
 DEFAULT_METRIC_STYLE = dict(kind="result", color="#2563EB", bg="#EFF6FF")
+READOUT_CACHE_VERSION = "hero-ribbon-v1"
 
 
 def _inject_css():
@@ -167,6 +169,7 @@ def _inject_css():
   --gabes-surface: #FFFFFF;
   --gabes-ink: #0F172A;
   --gabes-muted: #64748B;
+  --gabes-subtle-ink: #475569;
   --gabes-border: #DCE6EF;
   --gabes-grid: #E6EDF5;
   --gabes-primary: #0284C7;
@@ -414,45 +417,148 @@ div[data-testid="stButton"] > button:hover {
   font-size: 0.78rem;
 }
 
-.gabes-metric-grid {
+.gabes-readout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
-  gap: 0.32rem;
+  width: 100%;
+  max-width: 50rem;
+  margin-inline: auto;
+  gap: 0.46rem;
 }
 
-.gabes-metric-card {
-  min-height: 3.35rem;
-  padding: 0.38rem 0.48rem 0.4rem;
+.gabes-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.46rem;
+}
+
+.gabes-hero-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gabes-hero-card {
+  position: relative;
+  min-width: 0;
+  min-height: 5.15rem;
+  padding: 0.72rem 0.86rem 0.68rem;
+  overflow: hidden;
   background: var(--gabes-surface);
   border: 1px solid var(--gabes-border);
-  border-left: 3px solid var(--metric-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 9px rgba(15, 23, 42, 0.025);
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
 }
 
-.gabes-metric-label {
-  margin-top: 0;
+.gabes-hero-card--primary {
+  background: linear-gradient(125deg, var(--metric-bg) 0%, var(--gabes-surface) 82%);
+  border-color: var(--metric-color);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.055);
+}
+
+.gabes-hero-card--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--metric-color);
+}
+
+.gabes-hero-label,
+.gabes-ribbon-label {
+  min-width: 0;
   color: var(--gabes-muted);
-  font-size: 0.7rem;
+  font-weight: 680;
   line-height: 1.25;
-  font-weight: 650;
+}
+
+.gabes-hero-label {
+  font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.gabes-metric-value {
-  margin-top: 0.04rem;
+.gabes-hero-value {
+  min-width: 0;
+  margin-top: 0.18rem;
   color: var(--gabes-ink);
-  font-size: clamp(0.95rem, 1.22vw, 1.12rem);
-  line-height: 1.15;
-  font-weight: 760;
+  font-size: clamp(1.45rem, 2.65vw, 2.08rem);
+  font-weight: 780;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.gabes-hero-unit {
+  margin-left: 0.28em;
+  font-size: 0.58em;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.gabes-hero-card--primary .gabes-hero-label,
+.gabes-hero-card--primary .gabes-hero-value {
+  color: var(--gabes-ink);
 }
 
 .gabes-metric-delta {
-  margin-top: 0.06rem;
-  color: var(--gabes-muted);
+  margin-top: 0.13rem;
+  color: var(--gabes-subtle-ink);
   font-size: 0.68rem;
+  line-height: 1.2;
+}
+
+.gabes-metric-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--gabes-border);
+  border: 1px solid var(--gabes-border);
+  border-radius: 9px;
+}
+
+.gabes-ribbon-item {
+  min-width: 0;
+  min-height: 3.55rem;
+  padding: 0.48rem 0.68rem 0.5rem;
+  background: var(--gabes-surface);
+}
+
+.gabes-ribbon-label {
+  font-size: 0.68rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gabes-ribbon-value {
+  min-width: 0;
+  margin-top: 0.12rem;
+  color: var(--gabes-ink);
+  font-size: clamp(0.88rem, 1.15vw, 1.02rem);
+  font-weight: 740;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .gabes-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gabes-hero-card {
+    min-height: 4.65rem;
+  }
+
+  .gabes-metric-ribbon {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 330px) {
+  .gabes-metric-ribbon {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .gabes-section-gap {
@@ -664,7 +770,7 @@ def _render_scheme_header(scheme):
     )
 
 
-def _metric_card_html(metric):
+def _metric_card_html(metric, *, hero=False, primary=False):
     label = str(metric.get("label", ""))
     value = str(metric.get("value", ""))
     delta = metric.get("delta")
@@ -673,20 +779,58 @@ def _metric_card_html(metric):
     delta_html = ""
     if delta is not None:
         delta_html = f"<div class='gabes-metric-delta'>{escape(str(delta))}</div>"
+    title = escape(str(help_text))
+    if hero:
+        primary_class = " gabes-hero-card--primary" if primary else ""
+        number, unit = split_metric_value(value, kind=metric.get("kind"))
+        if unit is None:
+            value_html = escape(number)
+        else:
+            value_html = (
+                f"<span class='gabes-hero-number'>{escape(number)}</span> "
+                f"<span class='gabes-hero-unit'>{escape(unit)}</span>"
+            )
+        return (
+            f"<article class='gabes-hero-card{primary_class}' "
+            f"title='{title}' "
+            f"style='--metric-color:{style['color']};--metric-bg:{style['bg']}'>"
+            f"<div class='gabes-hero-label'>{escape(label)}</div>"
+            f"<div class='gabes-hero-value'>{value_html}</div>"
+            f"{delta_html}"
+            "</article>"
+        )
     return (
-        "<div class='gabes-metric-card' "
-        f"title='{escape(str(help_text))}' "
-        f"style='--metric-color:{style['color']};--metric-bg:{style['bg']}'>"
-        f"<div class='gabes-metric-label'>{escape(label)}</div>"
-        f"<div class='gabes-metric-value'>{escape(value)}</div>"
+        "<div class='gabes-ribbon-item' role='listitem' "
+        f"title='{title}'>"
+        f"<div class='gabes-ribbon-label'>{escape(label)}</div>"
+        f"<div class='gabes-ribbon-value'>{escape(value)}</div>"
         f"{delta_html}"
         "</div>"
     )
 
 
 def _render_metrics(metrics):
-    cards = "".join(_metric_card_html(metric) for metric in metrics)
-    st.markdown(f"<div class='gabes-metric-grid'>{cards}</div>", unsafe_allow_html=True)
+    heroes, ribbon = partition_metrics(metrics, hero_count=2)
+    single_class = " gabes-hero-grid--single" if len(heroes) == 1 else ""
+    hero_cards = "".join(
+        _metric_card_html(metric, hero=True, primary=(index == 0))
+        for index, metric in enumerate(heroes)
+    )
+    ribbon_html = ""
+    if ribbon:
+        ribbon_cards = "".join(
+            _metric_card_html(metric) for metric in ribbon
+        )
+        ribbon_html = (
+            "<div class='gabes-metric-ribbon' role='list'>"
+            f"{ribbon_cards}</div>"
+        )
+    st.markdown(
+        "<section class='gabes-readout' aria-label='Key results'>"
+        f"<div class='gabes-hero-grid{single_class}'>{hero_cards}</div>"
+        f"{ribbon_html}</section>",
+        unsafe_allow_html=True,
+    )
 
 
 # ----------------------------------------------------------------------
@@ -818,7 +962,10 @@ with st.spinner("Solving Bloch equations…"):
     raw = _cached_compute(scheme.name, recompute_items, cache_version)
 param_items = tuple(sorted(params.items()))
 if getattr(scheme, "cache_observables", False):
-    view = _cached_observables(scheme.name, raw, param_items, cache_version)
+    view = _cached_observables(
+        scheme.name, raw, param_items,
+        (cache_version, READOUT_CACHE_VERSION),
+    )
 else:
     with _PLOT_LOCK:
         view = scheme.observables(raw, params)
@@ -839,12 +986,6 @@ fig = view.get("figure")
 if fig is not None:
     _render_fig(fig)
 
-for _title, _extra_fig in view.get("figures", []):
-    st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
-    st.subheader(_title)
-    _render_fig(_extra_fig)
-
-
 # ----------------------------------------------------------------------
 # Reference / derived tables / optional heavy views
 # ----------------------------------------------------------------------
@@ -856,6 +997,10 @@ if info:
 for table in view.get("tables", []):
     with st.expander(table["title"]):
         st.markdown(table["markdown"])
+
+for _title, _extra_fig in view.get("figures", []):
+    with st.expander(f"Diagnostic plot · {_title}"):
+        _render_fig(_extra_fig)
 
 for view_def in scheme.extra_views():
     with st.expander(view_def.key):
