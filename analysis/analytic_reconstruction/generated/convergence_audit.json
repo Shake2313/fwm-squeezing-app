@@ -1,0 +1,1292 @@
+{
+  "scope": "Archived reduced-model numerical isolation test; no production/report edits",
+  "propagation_classification": {
+    "implementation": "analysis/analytic_reconstruction/ref_solver.py",
+    "inherits_dressed_k_plus_refractive_mismatch": true,
+    "corrected_option_a": false,
+    "permitted_use": "Floquet and velocity numerical-isolation diagnostics only"
+  },
+  "parameters": {
+    "D_GHz": -1.5,
+    "T": 383.15,
+    "P_pump": 0.6,
+    "P_probe": 8e-06,
+    "ls": 0.74,
+    "loss": 0.055,
+    "qe": 0.92,
+    "L": 0.0125,
+    "wp": 0.00053,
+    "ws": 0.00033,
+    "theta_deg": 0.32,
+    "kappa": 0.1,
+    "branch": -1,
+    "fixed_delta_mhz": -280.0
+  },
+  "solver_self_checks": {
+    "n_f_1_rho0_max_abs_difference": 0.0,
+    "n_f_1_rho1_max_abs_difference": 0.0,
+    "n_f_2_direct_block_rho0_max_abs_difference": 1.9779915630514253e-13,
+    "n_f_2_direct_block_rho1_max_abs_difference": 4.7981473531500255e-14,
+    "n_f_3_direct_block_rho0_max_abs_difference": 5.371851168706236e-13,
+    "n_f_3_direct_block_rho1_max_abs_difference": 1.2900638429571163e-13
+  },
+  "floquet_rows": [
+    {
+      "N_F": 1,
+      "velocity_step_m_per_s": 5.0,
+      "velocity_cutoff_sigma": 3.0,
+      "n_velocity": 235,
+      "n_delta_eff": 235,
+      "scan_points": 281,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 4.999999999999886,
+      "runtime_s": 3.095815099775791,
+      "segment_od": 0.0242564948763428,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 22.591287301750835,
+        "G_c": 21.96867787734956,
+        "gain_gap": 0.6226094244012756,
+        "arg_chi_sc_deg": 178.14177746635724,
+        "arg_chi_cs_deg": -179.33286036701963
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -280.0000000000003,
+        "G_s": 22.591287301750835,
+        "G_c": 21.96867787734956,
+        "gain_gap": 0.6226094244012756,
+        "arg_chi_sc_deg": 178.14177746635724,
+        "arg_chi_cs_deg": -179.33286036701963,
+        "legacy_xi_finite_db": -8.1023602015036,
+        "legacy_xi_ideal_db": -15.624459128185627
+      }
+    },
+    {
+      "N_F": 2,
+      "velocity_step_m_per_s": 5.0,
+      "velocity_cutoff_sigma": 3.0,
+      "n_velocity": 235,
+      "n_delta_eff": 235,
+      "scan_points": 281,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 4.999999999999886,
+      "runtime_s": 6.726069599855691,
+      "segment_od": 0.02524812594823929,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 19.34147169416177,
+        "G_c": 19.44715590909224,
+        "gain_gap": -0.10568421493046998,
+        "arg_chi_sc_deg": 178.17279973267333,
+        "arg_chi_cs_deg": -179.36600805450058
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -275.00000000000034,
+        "G_s": 8.978713017021922,
+        "G_c": 8.468398726127745,
+        "gain_gap": 0.5103142908941773,
+        "arg_chi_sc_deg": 178.4019801874697,
+        "arg_chi_cs_deg": -179.58195241043168,
+        "legacy_xi_finite_db": -7.947036806135918,
+        "legacy_xi_ideal_db": -14.70175067528898
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 5.0,
+      "velocity_cutoff_sigma": 3.0,
+      "n_velocity": 235,
+      "n_delta_eff": 235,
+      "scan_points": 281,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 4.999999999999886,
+      "runtime_s": 9.320455399807543,
+      "segment_od": 0.025248126022417806,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 19.341471620818954,
+        "G_c": 19.447155840386,
+        "gain_gap": -0.10568421956704555,
+        "arg_chi_sc_deg": 178.17279973317562,
+        "arg_chi_cs_deg": -179.3660080557388
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -275.00000000000034,
+        "G_s": 8.978712992836675,
+        "G_c": 8.468398705277911,
+        "gain_gap": 0.5103142875587636,
+        "arg_chi_sc_deg": 178.40198018770957,
+        "arg_chi_cs_deg": -179.581952411167,
+        "legacy_xi_finite_db": -7.947036808906439,
+        "legacy_xi_ideal_db": -14.701750690383317
+      }
+    }
+  ],
+  "floquet_successive_changes": [
+    {
+      "from_N_F": 1,
+      "to_N_F": 2,
+      "fixed_G_s_relative_change_pct": 16.802318142988184,
+      "fixed_G_c_relative_change_pct": 12.966019196043057,
+      "fixed_gain_gap_relative_change_pct": 689.1224387775342,
+      "fixed_arg_chi_sc_change_deg": 0.031022266316085734,
+      "fixed_arg_chi_cs_change_deg": 0.03314768748094821,
+      "delta_star_change_mhz": 4.999999999999943
+    },
+    {
+      "from_N_F": 2,
+      "to_N_F": 3,
+      "fixed_G_s_relative_change_pct": 3.7919976269745925e-07,
+      "fixed_G_c_relative_change_pct": 3.5329710670457207e-07,
+      "fixed_gain_gap_relative_change_pct": 4.387197622240601e-06,
+      "fixed_arg_chi_sc_change_deg": 5.0229687076353e-10,
+      "fixed_arg_chi_cs_change_deg": 1.238220193044981e-09,
+      "delta_star_change_mhz": 0.0
+    }
+  ],
+  "velocity_step_rows": [
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 10.0,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 195,
+      "n_delta_eff": 195,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 1.8924050997011364,
+      "segment_od": 0.0351738240618067,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.936590273513787,
+        "G_c": 19.024328306742273,
+        "gain_gap": -0.0877380332284865,
+        "arg_chi_sc_deg": 178.17298263612054,
+        "arg_chi_cs_deg": -179.36662226958995
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.038667550610738,
+        "G_c": 2.154147712891656,
+        "gain_gap": 0.8845198377190822,
+        "arg_chi_sc_deg": 178.74687871414386,
+        "arg_chi_cs_deg": -179.9033782569214,
+        "legacy_xi_finite_db": -5.550026840871248,
+        "legacy_xi_ideal_db": -7.700636463195783
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 5.0,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 389,
+      "n_delta_eff": 389,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 4.9600839000195265,
+      "segment_od": 0.035188164368540435,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.93629467998493,
+        "G_c": 19.02402108202627,
+        "gain_gap": -0.08772640204134063,
+        "arg_chi_sc_deg": 178.17298263301777,
+        "arg_chi_cs_deg": -179.36662226351737
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.038643288885737,
+        "G_c": 2.1541226647651763,
+        "gain_gap": 0.8845206241205608,
+        "arg_chi_sc_deg": 178.7468787083327,
+        "arg_chi_cs_deg": -179.90337824831533,
+        "legacy_xi_finite_db": -5.549936233419875,
+        "legacy_xi_ideal_db": -7.700465461183402
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 777,
+      "n_delta_eff": 777,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 7.905898599885404,
+      "segment_od": 0.03518823751486241,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.936294748474676,
+        "G_c": 19.024021166518583,
+        "gain_gap": -0.08772641804390702,
+        "arg_chi_sc_deg": 178.1729826314394,
+        "arg_chi_cs_deg": -179.36662226039087
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.038643314544258,
+        "G_c": 2.1541226913713696,
+        "gain_gap": 0.8845206231728886,
+        "arg_chi_sc_deg": 178.7468787053832,
+        "arg_chi_cs_deg": -179.90337824389871,
+        "legacy_xi_finite_db": -5.549935909082855,
+        "legacy_xi_ideal_db": -7.700464849072946
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 1.25,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 1551,
+      "n_delta_eff": 1551,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 15.988691299688071,
+      "segment_od": 0.03518835622994358,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.93629473033612,
+        "G_c": 19.024021168206506,
+        "gain_gap": -0.08772643787038703,
+        "arg_chi_sc_deg": 178.17298262903742,
+        "arg_chi_cs_deg": -179.36662225558646
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.0386433439471014,
+        "G_c": 2.154122721915891,
+        "gain_gap": 0.8845206220312103,
+        "arg_chi_sc_deg": 178.7468787009033,
+        "arg_chi_cs_deg": -179.90337823713134,
+        "legacy_xi_finite_db": -5.5499353714471455,
+        "legacy_xi_ideal_db": -7.70046383441108
+      }
+    }
+  ],
+  "velocity_step_errors": [
+    {
+      "velocity_step_m_per_s": 10.0,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 195,
+      "G_s": 18.936590273513787,
+      "G_c": 19.024328306742273,
+      "gain_gap": -0.0877380332284865,
+      "arg_chi_sc_deg": 178.17298263612054,
+      "arg_chi_cs_deg": -179.36662226958995,
+      "G_s_error_to_last_pct": 0.0015607233721082968,
+      "G_c_error_to_last_pct": 0.0016144774706224373,
+      "gain_gap_error_to_last_pct": 0.013217632427526172,
+      "arg_chi_sc_error_to_last_deg": 7.083116315698135e-09,
+      "arg_chi_cs_error_to_last_deg": 1.4003489923197776e-08
+    },
+    {
+      "velocity_step_m_per_s": 5.0,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 389,
+      "G_s": 18.93629467998493,
+      "G_c": 19.02402108202627,
+      "gain_gap": -0.08772640204134063,
+      "arg_chi_sc_deg": 178.17298263301777,
+      "arg_chi_cs_deg": -179.36662226351737,
+      "G_s_error_to_last_pct": 2.6589779363491266e-07,
+      "G_c_error_to_last_pct": 4.530074662901677e-07,
+      "gain_gap_error_to_last_pct": 4.084178870840023e-05,
+      "arg_chi_sc_error_to_last_deg": 3.98034671889036e-09,
+      "arg_chi_cs_error_to_last_deg": 7.930907486297656e-09
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 777,
+      "G_s": 18.936294748474676,
+      "G_c": 19.024021166518583,
+      "gain_gap": -0.08772641804390702,
+      "arg_chi_sc_deg": 178.1729826314394,
+      "arg_chi_cs_deg": -179.36662226039087,
+      "G_s_error_to_last_pct": 9.578725712238605e-08,
+      "G_c_error_to_last_pct": 8.872586271762846e-09,
+      "gain_gap_error_to_last_pct": 2.260034773394131e-05,
+      "arg_chi_sc_error_to_last_deg": 2.4019755073823035e-09,
+      "arg_chi_cs_error_to_last_deg": 4.8044057621154934e-09
+    },
+    {
+      "velocity_step_m_per_s": 1.25,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 1551,
+      "G_s": 18.93629473033612,
+      "G_c": 19.024021168206506,
+      "gain_gap": -0.08772643787038703,
+      "arg_chi_sc_deg": 178.17298262903742,
+      "arg_chi_cs_deg": -179.36662225558646,
+      "G_s_error_to_last_pct": 0.0,
+      "G_c_error_to_last_pct": 0.0,
+      "gain_gap_error_to_last_pct": 0.0,
+      "arg_chi_sc_error_to_last_deg": 0.0,
+      "arg_chi_cs_error_to_last_deg": 0.0
+    }
+  ],
+  "velocity_cutoff_rows": [
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 2.0,
+      "n_velocity": 311,
+      "n_delta_eff": 312,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 3.1069236998446286,
+      "segment_od": 0.023355948768965566,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 22.358387029744808,
+        "G_c": 22.617058150423475,
+        "gain_gap": -0.2586711206786667,
+        "arg_chi_sc_deg": 178.1651811773154,
+        "arg_chi_cs_deg": -179.35043194143762
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.311967788849382,
+        "G_c": 2.4371651789214184,
+        "gain_gap": 0.8748026099279635,
+        "arg_chi_sc_deg": 178.74391331560258,
+        "arg_chi_cs_deg": -179.89303336923217,
+        "legacy_xi_finite_db": -5.849013039933023,
+        "legacy_xi_ideal_db": -8.283326688790243
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 2.5,
+      "n_velocity": 389,
+      "n_delta_eff": 389,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 3.8615965000353754,
+      "segment_od": 0.023814981363760035,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 20.09059011229024,
+        "G_c": 20.233621053123105,
+        "gain_gap": -0.14303094083286538,
+        "arg_chi_sc_deg": 178.17150412562,
+        "arg_chi_cs_deg": -179.36286663545135
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.1368848542012917,
+        "G_c": 2.255796280553761,
+        "gain_gap": 0.8810885736475309,
+        "arg_chi_sc_deg": 178.74625635848486,
+        "arg_chi_cs_deg": -179.90057009185998,
+        "legacy_xi_finite_db": -5.695384905873593,
+        "legacy_xi_ideal_db": -7.979175021345678
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 3.0,
+      "n_velocity": 467,
+      "n_delta_eff": 467,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 4.659747399855405,
+      "segment_od": 0.02487788615631723,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 19.361947321936565,
+        "G_c": 19.468569084852344,
+        "gain_gap": -0.10662176291577907,
+        "arg_chi_sc_deg": 178.17278373447624,
+        "arg_chi_cs_deg": -179.36596201274298
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.0752596092560673,
+        "G_c": 2.1919806410389624,
+        "gain_gap": 0.8832789682171049,
+        "arg_chi_sc_deg": 178.74678432902968,
+        "arg_chi_cs_deg": -179.90280806926017,
+        "legacy_xi_finite_db": -5.633536272130116,
+        "legacy_xi_ideal_db": -7.859612857932815
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 3.5,
+      "n_velocity": 545,
+      "n_delta_eff": 545,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 5.416019499767572,
+      "segment_od": 0.02840785852514463,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 19.115274060559205,
+        "G_c": 19.21041285734047,
+        "gain_gap": -0.09513879678126358,
+        "arg_chi_sc_deg": 178.17296242237208,
+        "arg_chi_cs_deg": -179.36653174685836
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.0537425367320536,
+        "G_c": 2.169720642988367,
+        "gain_gap": 0.8840218937436868,
+        "arg_chi_sc_deg": 178.7468660063161,
+        "arg_chi_cs_deg": -179.90328920992525,
+        "legacy_xi_finite_db": -5.596384124616334,
+        "legacy_xi_ideal_db": -7.788545095311667
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 4.0,
+      "n_velocity": 621,
+      "n_delta_eff": 622,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 6.256616899743676,
+      "segment_od": 0.03321221134191148,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.982144575822783,
+        "G_c": 19.07171909124091,
+        "gain_gap": -0.08957451541812844,
+        "arg_chi_sc_deg": 178.17298393293592,
+        "arg_chi_cs_deg": -179.3666174466927
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.042483068732148,
+        "G_c": 2.1580879684790792,
+        "gain_gap": 0.8843951002530686,
+        "arg_chi_sc_deg": 178.74687744371425,
+        "arg_chi_cs_deg": -179.9033693089653,
+        "legacy_xi_finite_db": -5.562901056948704,
+        "legacy_xi_ideal_db": -7.7249660357707555
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 4.5,
+      "n_velocity": 699,
+      "n_delta_eff": 700,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 7.027890700381249,
+      "segment_od": 0.035175259653796774,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.9364166464396,
+        "G_c": 19.024143297839256,
+        "gain_gap": -0.08772665139965596,
+        "arg_chi_sc_deg": 178.17298570302765,
+        "arg_chi_cs_deg": -179.3666270129949
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.0386651137138423,
+        "G_c": 2.1541450662269055,
+        "gain_gap": 0.8845200474869368,
+        "arg_chi_sc_deg": 178.7468792669949,
+        "arg_chi_cs_deg": -179.9033798405341,
+        "legacy_xi_finite_db": -5.550017124893695,
+        "legacy_xi_ideal_db": -7.7006181262332305
+      }
+    },
+    {
+      "N_F": 3,
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 777,
+      "n_delta_eff": 777,
+      "scan_points": 81,
+      "scan_half_window_ghz": 0.7,
+      "scan_step_mhz": 17.500000000000057,
+      "runtime_s": 7.905898599885404,
+      "segment_od": 0.03518823751486241,
+      "fixed_operating_point": {
+        "delta_mhz": -280.0000000000003,
+        "G_s": 18.936294748474676,
+        "G_c": 19.024021166518583,
+        "gain_gap": -0.08772641804390702,
+        "arg_chi_sc_deg": 178.1729826314394,
+        "arg_chi_cs_deg": -179.36662226039087
+      },
+      "legacy_reduced_objective_optimum": {
+        "delta_star_mhz": -262.5000000000002,
+        "G_s": 3.038643314544258,
+        "G_c": 2.1541226913713696,
+        "gain_gap": 0.8845206231728886,
+        "arg_chi_sc_deg": 178.7468787053832,
+        "arg_chi_cs_deg": -179.90337824389871,
+        "legacy_xi_finite_db": -5.549935909082855,
+        "legacy_xi_ideal_db": -7.700464849072946
+      }
+    }
+  ],
+  "velocity_cutoff_errors": [
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 2.0,
+      "n_velocity": 311,
+      "G_s": 22.358387029744808,
+      "G_c": 22.617058150423475,
+      "gain_gap": -0.2586711206786667,
+      "arg_chi_sc_deg": 178.1651811773154,
+      "arg_chi_cs_deg": -179.35043194143762,
+      "G_s_error_to_last_pct": 18.071604433310704,
+      "G_c_error_to_last_pct": 18.886842862793248,
+      "gain_gap_error_to_last_pct": 194.86114496228717,
+      "arg_chi_sc_error_to_last_deg": 0.007801454124006568,
+      "arg_chi_cs_error_to_last_deg": 0.016190318953249516
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 2.5,
+      "n_velocity": 389,
+      "G_s": 20.09059011229024,
+      "G_c": 20.233621053123105,
+      "gain_gap": -0.14303094083286538,
+      "arg_chi_sc_deg": 178.17150412562,
+      "arg_chi_cs_deg": -179.36286663545135,
+      "G_s_error_to_last_pct": 6.095677000953645,
+      "G_c_error_to_last_pct": 6.358276602074872,
+      "gain_gap_error_to_last_pct": 63.04203912814323,
+      "arg_chi_sc_error_to_last_deg": 0.0014785058193922396,
+      "arg_chi_cs_error_to_last_deg": 0.003755624939515201
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 3.0,
+      "n_velocity": 467,
+      "G_s": 19.361947321936565,
+      "G_c": 19.468569084852344,
+      "gain_gap": -0.10662176291577907,
+      "arg_chi_sc_deg": 178.17278373447624,
+      "arg_chi_cs_deg": -179.36596201274298,
+      "G_s_error_to_last_pct": 2.247813413952988,
+      "G_c_error_to_last_pct": 2.336771571281393,
+      "gain_gap_error_to_last_pct": 21.538944930379976,
+      "arg_chi_sc_error_to_last_deg": 0.00019889696315544825,
+      "arg_chi_cs_error_to_last_deg": 0.0006602476478860808
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 3.5,
+      "n_velocity": 545,
+      "G_s": 19.115274060559205,
+      "G_c": 19.21041285734047,
+      "gain_gap": -0.09513879678126358,
+      "arg_chi_sc_deg": 178.17296242237208,
+      "arg_chi_cs_deg": -179.36653174685836,
+      "G_s_error_to_last_pct": 0.9451654321072802,
+      "G_c_error_to_last_pct": 0.9797702031047274,
+      "gain_gap_error_to_last_pct": 8.449425957009518,
+      "arg_chi_sc_error_to_last_deg": 2.02090673155908e-05,
+      "arg_chi_cs_error_to_last_deg": 9.051353251265937e-05
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 4.0,
+      "n_velocity": 621,
+      "G_s": 18.982144575822783,
+      "G_c": 19.07171909124091,
+      "gain_gap": -0.08957451541812844,
+      "arg_chi_sc_deg": 178.17298393293592,
+      "arg_chi_cs_deg": -179.3666174466927,
+      "G_s_error_to_last_pct": 0.24212670935426878,
+      "G_c_error_to_last_pct": 0.2507247248351182,
+      "gain_gap_error_to_last_pct": 2.106660018076257,
+      "arg_chi_sc_error_to_last_deg": 1.3014965247748478e-06,
+      "arg_chi_cs_error_to_last_deg": 4.813698183170345e-06
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 4.5,
+      "n_velocity": 699,
+      "G_s": 18.9364166464396,
+      "G_c": 19.024143297839256,
+      "gain_gap": -0.08772665139965596,
+      "arg_chi_sc_deg": 178.17298570302765,
+      "arg_chi_cs_deg": -179.3666270129949,
+      "G_s_error_to_last_pct": 0.000643726592466609,
+      "G_c_error_to_last_pct": 0.0006419847812600289,
+      "gain_gap_error_to_last_pct": 0.00026600396340091835,
+      "arg_chi_sc_error_to_last_deg": 3.0715882530785166e-06,
+      "arg_chi_cs_error_to_last_deg": 4.752604041868835e-06
+    },
+    {
+      "velocity_step_m_per_s": 2.5,
+      "velocity_cutoff_sigma": 5.0,
+      "n_velocity": 777,
+      "G_s": 18.936294748474676,
+      "G_c": 19.024021166518583,
+      "gain_gap": -0.08772641804390702,
+      "arg_chi_sc_deg": 178.1729826314394,
+      "arg_chi_cs_deg": -179.36662226039087,
+      "G_s_error_to_last_pct": 0.0,
+      "G_c_error_to_last_pct": 0.0,
+      "gain_gap_error_to_last_pct": 0.0,
+      "arg_chi_sc_error_to_last_deg": 0.0,
+      "arg_chi_cs_error_to_last_deg": 0.0
+    }
+  ],
+  "geometry_diagnostic": {
+    "theta_deg": 0.32,
+    "sigma_v_m_per_s": 193.69414808802588,
+    "lambda_nm": 794.9790149335433,
+    "angular_two_photon_sigma_mhz": 1.3607808256479865,
+    "implemented_in_audited_solver": false
+  },
+  "option_a_literature_point": {
+    "classification": {
+      "mean_field_propagation": "corrected Option A",
+      "dispersion_counting": "bare k in M; vacuum/geometric mismatch only",
+      "dilation": "minimum-vacuum mathematical Gaussian completion",
+      "microscopic_atomic_diffusion": false,
+      "frequency_dependent": false,
+      "physical_squeezing_prediction": false,
+      "weak_field_reference_linearity_tested": true,
+      "weak_field_reference_test_range_uW": [
+        2.0,
+        4.0,
+        8.0
+      ],
+      "canonical_mode_normalization": "assumes the classical two-component amplitudes are identified with photon-flux-normalized canonical modes; production code does not independently derive this scaling"
+    },
+    "parameters": {
+      "D_GHz": 0.9,
+      "delta_MHz": -8.0,
+      "T": 394.15,
+      "P_pump": 0.6,
+      "P_probe": 8e-06,
+      "line_strength_residual": 0.74,
+      "L": 0.0125,
+      "w_pump": 0.00053,
+      "w_probe": 0.00033,
+      "theta_deg": 0.32,
+      "branch": -1,
+      "velocity_step_m_per_s": 1.0,
+      "velocity_cutoff_sigma": 5.0,
+      "external_qe": 0.92,
+      "external_path_loss": 0.055,
+      "temperature_C": 121.0,
+      "n_velocity": 1967,
+      "n_delta_eff": 1967,
+      "atomic_density_per_m3": 2.149563741450344e+19,
+      "sigma_v_m_per_s": 196.4548931950632,
+      "angular_two_photon_doppler_included": false
+    },
+    "floquet_convergence": [
+      {
+        "N_F": 1,
+        "reduced_chi_seconds": {
+          "ss": {
+            "real": -2.823264941614477e-11,
+            "imag": -3.150924295631858e-13
+          },
+          "sc": {
+            "real": -4.641156988941516e-11,
+            "imag": -9.678469382065598e-14
+          },
+          "cs": {
+            "real": -4.638419794200567e-11,
+            "imag": 1.640999345051882e-13
+          },
+          "cc": {
+            "real": -1.1285410433047414e-11,
+            "imag": 8.062702256131673e-14
+          }
+        },
+        "effective_line_strength": 0.035972222222222225,
+        "probe_offset_GHz": -2.143732439,
+        "conjugate_offset_GHz": 3.9437324389999997,
+        "k_pump_per_m": 7903605.233001192,
+        "k_probe_per_m": 7903541.441086388,
+        "k_conjugate_per_m": 7903669.024915995,
+        "delta_k_vac_per_m": 246.53512446396053,
+        "M_per_m": [
+          [
+            {
+              "real": -1.328106700790334,
+              "imag": 242.26747258408562
+            },
+            {
+              "real": -0.40794506099480154,
+              "imag": 195.6236049523067
+            }
+          ],
+          [
+            {
+              "real": 0.6916882804046068,
+              "imag": -195.5113888935675
+            },
+            {
+              "real": 0.3398463671404904,
+              "imag": -170.83605249148113
+            }
+          ]
+        ],
+        "T": [
+          [
+            {
+              "real": -0.3774929428392773,
+              "imag": 2.3381604362760338
+            },
+            {
+              "real": -0.9298740688570708,
+              "imag": 1.9498444955681395
+            }
+          ],
+          [
+            {
+              "real": 0.9321739594614075,
+              "imag": -1.947382057062854
+            },
+            {
+              "real": 1.594193105184769,
+              "imag": -1.7755608497812905
+            }
+          ]
+        ],
+        "G_s": 5.60949514765999,
+        "G_c": 4.661245166868311,
+        "gain_gap": 0.9482499807916787,
+        "probe_power_uW": 8.0,
+        "probe_rabi_over_2pi_MHz": 4.149434724046682,
+        "arg_chi_sc_rad": -3.13950729957666,
+        "arg_chi_cs_rad": 3.1380548269775277,
+        "arg_chi_sc_deg": -179.88051801625681,
+        "arg_chi_cs_deg": 179.79729746646814,
+        "evaluation_type": "fixed literature operating point",
+        "delta_mhz": -8.0
+      },
+      {
+        "N_F": 2,
+        "reduced_chi_seconds": {
+          "ss": {
+            "real": -2.8252164233497734e-11,
+            "imag": -3.1561938077158584e-13
+          },
+          "sc": {
+            "real": -4.643153413321917e-11,
+            "imag": -9.72722491484742e-14
+          },
+          "cs": {
+            "real": -4.642420114142288e-11,
+            "imag": 1.6459703151707052e-13
+          },
+          "cc": {
+            "real": -1.1327573178282316e-11,
+            "imag": 8.098427190776937e-14
+          }
+        },
+        "effective_line_strength": 0.035972222222222225,
+        "probe_offset_GHz": -2.143732439,
+        "conjugate_offset_GHz": 3.9437324389999997,
+        "k_pump_per_m": 7903605.233001192,
+        "k_probe_per_m": 7903541.441086388,
+        "k_conjugate_per_m": 7903669.024915995,
+        "delta_k_vac_per_m": 246.53512446396053,
+        "M_per_m": [
+          [
+            {
+              "real": -1.3303277869390424,
+              "imag": 242.34972705058328
+            },
+            {
+              "real": -0.4100000944933184,
+              "imag": 195.70775374004202
+            }
+          ],
+          [
+            {
+              "real": 0.6937835656853715,
+              "imag": -195.6800040992896
+            },
+            {
+              "real": 0.341352188497876,
+              "imag": -171.01377027568748
+            }
+          ]
+        ],
+        "T": [
+          [
+            {
+              "real": -0.376875777607336,
+              "imag": 2.3392960427577636
+            },
+            {
+              "real": -0.9290135355266307,
+              "imag": 1.9509944566668382
+            }
+          ],
+          [
+            {
+              "real": 0.9317142134005438,
+              "imag": -1.9493763766626304
+            },
+            {
+              "real": 1.5933770784439558,
+              "imag": -1.777682804565374
+            }
+          ]
+        ],
+        "G_s": 5.614341327409266,
+        "G_c": 4.668159633342919,
+        "gain_gap": 0.9461816940663477,
+        "probe_power_uW": 8.0,
+        "probe_rabi_over_2pi_MHz": 4.149434724046682,
+        "arg_chi_sc_rad": -3.1394976957414276,
+        "arg_chi_cs_rad": 3.138047167877981,
+        "arg_chi_sc_deg": -179.87996775703084,
+        "arg_chi_cs_deg": 179.79685863238925,
+        "evaluation_type": "fixed literature operating point",
+        "delta_mhz": -8.0
+      },
+      {
+        "N_F": 3,
+        "reduced_chi_seconds": {
+          "ss": {
+            "real": -2.825216423278075e-11,
+            "imag": -3.156193807767438e-13
+          },
+          "sc": {
+            "real": -4.6431534133265106e-11,
+            "imag": -9.727224915826937e-14
+          },
+          "cs": {
+            "real": -4.6424201142453104e-11,
+            "imag": 1.6459703154104033e-13
+          },
+          "cc": {
+            "real": -1.132757317884393e-11,
+            "imag": 8.098427191674804e-14
+          }
+        },
+        "effective_line_strength": 0.035972222222222225,
+        "probe_offset_GHz": -2.143732439,
+        "conjugate_offset_GHz": 3.9437324389999997,
+        "k_pump_per_m": 7903605.233001192,
+        "k_probe_per_m": 7903541.441086388,
+        "k_conjugate_per_m": 7903669.024915995,
+        "delta_k_vac_per_m": 246.53512446396053,
+        "M_per_m": [
+          [
+            {
+              "real": -1.3303277869607832,
+              "imag": 242.3497270475612
+            },
+            {
+              "real": -0.41000009453460484,
+              "imag": 195.70775374023563
+            }
+          ],
+          [
+            {
+              "real": 0.6937835657864052,
+              "imag": -195.68000410363203
+            },
+            {
+              "real": 0.34135218853572147,
+              "imag": -171.0137702780547
+            }
+          ]
+        ],
+        "T": [
+          [
+            {
+              "real": -0.3768757774926908,
+              "imag": 2.339296042855646
+            },
+            {
+              "real": -0.9290135354893461,
+              "imag": 1.9509944567541078
+            }
+          ],
+          [
+            {
+              "real": 0.9317142133835924,
+              "imag": -1.9493763767910626
+            },
+            {
+              "real": 1.593377078474899,
+              "imag": -1.7776828046414928
+            }
+          ]
+        ],
+        "G_s": 5.6143413277808065,
+        "G_c": 4.668159633812056,
+        "gain_gap": 0.9461816939687502,
+        "probe_power_uW": 8.0,
+        "probe_rabi_over_2pi_MHz": 4.149434724046682,
+        "arg_chi_sc_rad": -3.139497695741219,
+        "arg_chi_cs_rad": 3.1380471678775437,
+        "arg_chi_sc_deg": -179.87996775701887,
+        "arg_chi_cs_deg": 179.79685863236418,
+        "evaluation_type": "fixed literature operating point",
+        "delta_mhz": -8.0
+      }
+    ],
+    "seed_reference_linearity": [
+      {
+        "probe_power_uW": 2.0,
+        "probe_rabi_over_2pi_MHz": 2.074717362023341,
+        "G_s": 5.614368372232124,
+        "G_c": 4.668742917347118,
+        "gain_gap": 0.9456254548850058,
+        "arg_chi_sc_deg": -179.87996291281507,
+        "arg_chi_cs_deg": 179.79684582561612,
+        "G_s_change_from_2uW_pct": 0.0,
+        "G_c_change_from_2uW_pct": 0.0,
+        "gain_gap_change_from_2uW_pct": 0.0
+      },
+      {
+        "probe_power_uW": 4.0,
+        "probe_rabi_over_2pi_MHz": 2.9340934314643383,
+        "G_s": 5.6143594207107865,
+        "G_c": 4.668548520358748,
+        "gain_gap": 0.945810900352039,
+        "arg_chi_sc_deg": -179.87996452757238,
+        "arg_chi_cs_deg": 179.7968500948715,
+        "G_s_change_from_2uW_pct": -0.0001594395084900547,
+        "G_c_change_from_2uW_pct": -0.004163797232191771,
+        "gain_gap_change_from_2uW_pct": 0.019610879347118682
+      },
+      {
+        "probe_power_uW": 8.0,
+        "probe_rabi_over_2pi_MHz": 4.149434724046682,
+        "G_s": 5.6143413277808065,
+        "G_c": 4.668159633812056,
+        "gain_gap": 0.9461816939687502,
+        "arg_chi_sc_deg": -179.87996775701887,
+        "arg_chi_cs_deg": 179.79685863236418,
+        "G_s_change_from_2uW_pct": -0.000481700692303573,
+        "G_c_change_from_2uW_pct": -0.012493374456208186,
+        "gain_gap_change_from_2uW_pct": 0.05882234671992845
+      }
+    ],
+    "option_a_N_F_3": {
+      "N_F": 3,
+      "reduced_chi_seconds": {
+        "ss": {
+          "real": -2.825216423278075e-11,
+          "imag": -3.156193807767438e-13
+        },
+        "sc": {
+          "real": -4.6431534133265106e-11,
+          "imag": -9.727224915826937e-14
+        },
+        "cs": {
+          "real": -4.6424201142453104e-11,
+          "imag": 1.6459703154104033e-13
+        },
+        "cc": {
+          "real": -1.132757317884393e-11,
+          "imag": 8.098427191674804e-14
+        }
+      },
+      "effective_line_strength": 0.035972222222222225,
+      "probe_offset_GHz": -2.143732439,
+      "conjugate_offset_GHz": 3.9437324389999997,
+      "k_pump_per_m": 7903605.233001192,
+      "k_probe_per_m": 7903541.441086388,
+      "k_conjugate_per_m": 7903669.024915995,
+      "delta_k_vac_per_m": 246.53512446396053,
+      "M_per_m": [
+        [
+          {
+            "real": -1.3303277869607832,
+            "imag": 242.3497270475612
+          },
+          {
+            "real": -0.41000009453460484,
+            "imag": 195.70775374023563
+          }
+        ],
+        [
+          {
+            "real": 0.6937835657864052,
+            "imag": -195.68000410363203
+          },
+          {
+            "real": 0.34135218853572147,
+            "imag": -171.0137702780547
+          }
+        ]
+      ],
+      "T": [
+        [
+          {
+            "real": -0.3768757774926908,
+            "imag": 2.339296042855646
+          },
+          {
+            "real": -0.9290135354893461,
+            "imag": 1.9509944567541078
+          }
+        ],
+        [
+          {
+            "real": 0.9317142133835924,
+            "imag": -1.9493763767910626
+          },
+          {
+            "real": 1.593377078474899,
+            "imag": -1.7776828046414928
+          }
+        ]
+      ],
+      "G_s": 5.6143413277808065,
+      "G_c": 4.668159633812056,
+      "gain_gap": 0.9461816939687502,
+      "probe_power_uW": 8.0,
+      "probe_rabi_over_2pi_MHz": 4.149434724046682,
+      "arg_chi_sc_rad": -3.139497695741219,
+      "arg_chi_cs_rad": 3.1380471678775437,
+      "arg_chi_sc_deg": -179.87996775701887,
+      "arg_chi_cs_deg": 179.79685863236418,
+      "evaluation_type": "fixed literature operating point",
+      "delta_mhz": -8.0
+    },
+    "minimum_vacuum_mathematical_dilation": {
+      "units": {
+        "J": "dimensionless",
+        "K": "m^-1",
+        "B": "m^-1/2",
+        "J_f": "dimensionless",
+        "D_min": "m^-1",
+        "commutator_integral": "dimensionless",
+        "V_out": "dimensionless"
+      },
+      "J": [
+        [
+          {
+            "real": 1.0,
+            "imag": 0.0
+          },
+          {
+            "real": 0.0,
+            "imag": 0.0
+          }
+        ],
+        [
+          {
+            "real": 0.0,
+            "imag": 0.0
+          },
+          {
+            "real": -1.0,
+            "imag": 0.0
+          }
+        ]
+      ],
+      "K_per_m": [
+        [
+          {
+            "real": 2.6606555739215665,
+            "imag": -0.0
+          },
+          {
+            "real": -1.10378366032101,
+            "imag": 0.027749636603601857
+          }
+        ],
+        [
+          {
+            "real": -1.10378366032101,
+            "imag": -0.027749636603601857
+          },
+          {
+            "real": 0.6827043770714429,
+            "imag": -0.0
+          }
+        ]
+      ],
+      "K_eigenvalues_per_m": [
+        0.1893908183468317,
+        3.1539691326461776
+      ],
+      "B_per_sqrt_m": [
+        [
+          {
+            "real": 0.17752500055877074,
+            "imag": 0.0
+          },
+          {
+            "real": -1.6214624411617355,
+            "imag": 0.0
+          }
+        ],
+        [
+          {
+            "real": 0.3972102356599458,
+            "imag": 0.00998605079150105
+          },
+          {
+            "real": 0.7242217752433028,
+            "imag": 0.01820727358617752
+          }
+        ]
+      ],
+      "J_f": [
+        [
+          {
+            "real": 1.0,
+            "imag": 0.0
+          },
+          {
+            "real": 0.0,
+            "imag": 0.0
+          }
+        ],
+        [
+          {
+            "real": 0.0,
+            "imag": 0.0
+          },
+          {
+            "real": 1.0,
+            "imag": 0.0
+          }
+        ]
+      ],
+      "D_min_per_m": [
+        [
+          {
+            "real": 1.330327786960783,
+            "imag": 0.0
+          },
+          {
+            "real": -0.551891830160505,
+            "imag": 0.013874818301800925
+          }
+        ],
+        [
+          {
+            "real": -0.551891830160505,
+            "imag": -0.013874818301800925
+          },
+          {
+            "real": 0.3413521885357215,
+            "imag": 2.599661665656026e-19
+          }
+        ]
+      ],
+      "commutator_integral": [
+        [
+          {
+            "real": 0.05510419162686599,
+            "imag": 1.038287166985619e-17
+          },
+          {
+            "real": -0.03720920793075716,
+            "imag": 0.01229582549339101
+          }
+        ],
+        [
+          {
+            "real": -0.037209207930757056,
+            "imag": -0.012295825493390995
+          },
+          {
+            "real": 0.030847034315190536,
+            "imag": -1.634447743662939e-17
+          }
+        ]
+      ],
+      "V_out": [
+        [
+          {
+            "real": 5.16944551940767,
+            "imag": 4.690512241988563e-18
+          },
+          {
+            "real": -4.9485181707643,
+            "imag": 1.4571784603049733
+          }
+        ],
+        [
+          {
+            "real": -4.9485181707643,
+            "imag": -1.4571784603049733
+          },
+          {
+            "real": 5.1990066681272475,
+            "imag": -6.303053146485202e-17
+          }
+        ]
+      ],
+      "quadrature_points": 400,
+      "factorization_residual_max": 4.440892098500626e-16,
+      "bare_commutator_residual_max": 0.05510419162686475,
+      "completed_commutator_residual_max": 1.3323159016685695e-15,
+      "completed_commutator_residual_relative_frobenius": 1.0403222647680845e-15,
+      "quadrature_200_to_400_commutator_change_max": 3.276194182479591e-16,
+      "quadrature_200_to_400_covariance_change_max": 1.67184959354316e-16,
+      "transfer_only_invalid_unweighted": {
+        "electronic_weight": 1.0,
+        "variance": 0.8966866405393562,
+        "shot_noise_reference": 10.282500961592863,
+        "S_linear": 0.08720511127484012,
+        "S_dB": -10.594580594091328
+      },
+      "completed_unweighted": {
+        "electronic_weight": 1.0,
+        "variance": 0.9490353790443212,
+        "shot_noise_reference": 10.282500961592863,
+        "S_linear": 0.09229616244035888,
+        "S_dB": -10.348163560231004
+      },
+      "completed_dc_balanced": {
+        "electronic_weight": 1.2026883757606401,
+        "variance": 1.20867273012392,
+        "shot_noise_reference": 12.366644380255341,
+        "S_linear": 0.09773651549758268,
+        "S_dB": -10.099431484994552
+      },
+      "ideal_bogoliubov_matched_to_G_s": {
+        "S_linear": 0.09776430002511348,
+        "S_dB": -10.098197048499964
+      },
+      "symmetric_external_efficiency": 0.8694,
+      "completed_unweighted_after_external_loss": {
+        "S_linear": 0.21084228362564805,
+        "S_dB": -6.760422886027509
+      },
+      "ideal_bogoliubov_after_external_loss": {
+        "S_linear": 0.2155962824418337,
+        "S_dB": -6.663587320238767
+      }
+    },
+    "repository_literature_benchmark_comparison": {
+      "benchmark_source": "README.md, Sim et al. 85Rb optimum repository benchmark",
+      "benchmark_G_s": 15.5,
+      "model_G_s": 5.6143413277808065,
+      "G_s_discrepancy": -9.885658672219193,
+      "G_s_relative_discrepancy_pct": -63.77844304657544,
+      "benchmark_squeezing_dB": -7.8,
+      "mathematical_dilation_detected_squeezing_dB": -6.760422886027509,
+      "squeezing_discrepancy_dB": 1.0395771139724905,
+      "benchmark_bandwidth_MHz": 3.5,
+      "model_bandwidth_MHz": null,
+      "comparison_status": "diagnostic only: mathematical dilation is not a microscopic or frequency-dependent experimental prediction"
+    }
+  }
+}

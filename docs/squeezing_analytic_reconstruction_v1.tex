@@ -1,763 +1,1862 @@
 % !TEX program = xelatex
-% 컴파일: xelatex squeezing_analytic_reconstruction_v1.tex (2회 권장)
-% 한글: kotex + XeLaTeX, Malgun Gothic
-%
+% Compile twice with XeLaTeX.
 \documentclass[11pt,a4paper]{article}
 
 \usepackage{kotex}
 \setmainhangulfont{Malgun Gothic}
 \setsanshangulfont{Malgun Gothic}
-
-\usepackage{amsmath,amssymb,mathtools}
-\usepackage{booktabs}
-\usepackage{array}
-\usepackage{tabularx}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,longtable,tabularx,array}
 \usepackage{geometry}
-\geometry{margin=2.4cm}
+\geometry{margin=2.15cm}
 \usepackage{caption}
 \captionsetup{font=small,labelfont=bf}
 \usepackage{enumitem}
 \usepackage{xcolor}
+\usepackage{fancyhdr}
 \usepackage[hidelinks]{hyperref}
-\sloppy
+\hypersetup{
+  pdftitle={Semianalytic Reconstruction of the Mean-Field Gain Model for 85Rb Double-Lambda Four-Wave Mixing},
+  pdfauthor={GABES validation report}
+}
 
-\newcommand{\dB}{\,\mathrm{dB}}
+\definecolor{navy}{HTML}{183B56}
+\definecolor{teal}{HTML}{207F79}
+\definecolor{amber}{HTML}{A96500}
+\definecolor{lightamber}{HTML}{FFF4DF}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small $^{85}$Rb double-$\Lambda$ FWM}
+\rhead{\small revised model audit}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\newcommand{\dd}{\mathrm d}
+\newcommand{\ii}{\mathrm i}
+\newcommand{\e}{\mathrm e}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Rea}{\operatorname{Re}}
+\newcommand{\Ima}{\operatorname{Im}}
 \newcommand{\GHz}{\,\mathrm{GHz}}
 \newcommand{\MHz}{\,\mathrm{MHz}}
 \newcommand{\kHz}{\,\mathrm{kHz}}
-\newcommand{\degC}{\,^{\circ}\mathrm{C}}
-\newcommand{\ii}{\mathrm{i}}
-\newcommand{\ket}[1]{\lvert #1 \rangle}
-\newcommand{\bra}[1]{\langle #1 \rvert}
-\newcommand{\ketbra}[2]{\lvert #1 \rangle\!\langle #2 \rvert}
-\newcommand{\chibar}{\bar{\chi}}
-\DeclareMathOperator{\Real}{Re}
-\DeclareMathOperator{\Imag}{Im}
-\newtheorem{remark}{Remark}
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\degC}{\,^{\circ}\mathrm C}
+\newcommand{\chibar}{\bar\chi}
+\newcommand{\ket}[1]{\lvert #1\rangle}
+\newcommand{\bra}[1]{\langle #1\rvert}
+\newcommand{\ketbra}[2]{\lvert #1\rangle\!\langle #2\rvert}
+\newcommand{\pending}{\textcolor{amber}{not yet available}}
+\newcommand{\pass}{\textcolor{teal}{PASS}}
+\newcommand{\fail}{\textcolor{red!70!black}{FAIL}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=2pt,topsep=4pt}
+\sloppy
 
-\title{\textbf{$^{85}$Rb 이중-$\Lambda$ 사광파 혼합 스퀴징의\\
-해석적 유도}\\[4pt]
-\large 입력 파라미터에서 세기차 압축까지의 폐형식 계산}
-\author{원자광학 스퀴징 해석 노트}
-\date{2026년 7월 6일}
+\title{\textbf{Semianalytic Reconstruction of the Mean-Field Gain Model\\
+for $^{85}$Rb Double-$\Lambda$ Four-Wave Mixing}\\[6pt]
+\large Separation of semiclassical gain, quantum fluctuations, and external detection loss}
+\author{GABES model-audit report}
+\date{Revised 15 July 2026}
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
 \noindent
-따뜻한 $^{85}$Rb 증기의 D1 이중-$\Lambda$ 사광파 혼합(FWM)에서 발생하는
-트윈빔 세기차(intensity-difference) 스퀴징 $\xi$가, 입력 파라미터
-(펌프/시드 세기, 셀 온도, 한/두 광자 실조, 교차각)로부터 어떻게 결정되는지를
-\textbf{수치적 리우빌 방정식 적분 없이} 양자광학 교과서 수준의 폐형식
-계산 사슬로 유도한다. 사슬은 (i) 입력 산술 $\to$ (ii) 강펌프 원자
-감수율(Floquet 리우빌리안의 컴팩트 선형 블록) $\to$ (iii) Doppler
-평균(플라즈마 분산함수/Faddeeva 폐형식) $\to$ (iv) 결합모드 전파($2\times2$
-행렬지수, 이득 $G_s,G_c$) $\to$ (v) 균형검출 세기차 잡음 $\to$ (vi)
-압축비 $\xi$의 순서로 이어진다. 대표 동작점 $\Delta=-1.50\GHz$,
-$T=110\degC$, $\delta=-280\MHz$, $\theta=0.32^\circ$에서, 이 사슬을 그대로
-평가하면 내부 시뮬레이션의 출력($G_s\approx22.6$, $G_s-G_c=0.623$,
-$\xi_{\text{finite}}=-8.10\dB$, $\xi_{\text{ideal}}=-15.62\dB$, 최심
-$\delta=-280\MHz$)을 $0.01\dB$ 이내로 재현한다. 감수율은 이 사슬에서
-유일하게 단일 공식이 아니라 작은 선형계 풀이를 요구하는 단계인데, 그
-폐형식 구조(바닥 Raman 코히런스와 자기에너지)가 최적 동작점(빛-이동된 두
-광자 공명 $\to \delta^\ast=-280\MHz$)과 위상 구조를 투명하게 고정한다.
-아울러 사이드밴드 비트를 seeded $(-)$ 브랜치의 물리적 pump--seed 비트
-$\nu_{\mathrm{HF}}-\delta$로 정확히 잡고, 트윈빔 이득 갭 $G_s-G_c$가
-Bogoliubov(Manley--Rowe) 항등식에 의해 무손실 극한에서 $1$로 보존되며
-관측된 $0.623$이 셀 내부 손실과 이득 비대칭의 척도임을 보인다. 목적은
-\emph{내부 시뮬레이션이 수치로 수행하는 계산을 사람이 한 단계씩 따라갈 수
-있는 닫힌 수식으로 드러내는 것}이다.
+\fcolorbox{amber}{lightamber}{%
+\begin{minipage}{0.94\textwidth}
+\textbf{Revision status.}
+The semiclassical mean-field chain is retained and corrected. The former
+gain-only squeezing values, $-8.10\dB$ and $-15.62\dB$, are invalidated as
+physical predictions because the assumed two-mode map gives
+$[\hat a_s^{\rm out},\hat a_s^{{\rm out}\dagger}]=0.623$ rather than one.
+This revision specifies a commutator-preserving quantum-Langevin model and
+tests a \emph{minimum-vacuum mathematical dilation} of the static drift.
+The microscopic atomic diffusion matrix $D(\Omega_{\rm SA})$ is not present in
+the current code, so no physically validated squeezing spectrum is claimed.
+\end{minipage}}
+
+\begin{abstract}
+The report reconstructs the warm-vapor $^{85}$Rb D1 double-$\Lambda$
+four-wave-mixing calculation in three explicitly separated layers:
+(i) a semiclassical atomic-response and mean-field gain model,
+(ii) a quantum-fluctuation propagation model with Langevin reservoirs, and
+(iii) an external detection model. The pump-only state is formulated as a
+finite-dimensional Liouvillian null-space problem, weak fluctuations are
+resolved at an independent spectrum-analyzer frequency
+$\Omega_{\rm SA}/2\pi\simeq0.1$--$4\MHz$, and the non-collinear two-photon
+Doppler shift is derived in the required multidimensional velocity average.
+The physical
+susceptibility is dimensionless while the reduced response has dimension
+time; the Voigt prefactor, conjugate energy relation, and all $2\pi$
+conventions are corrected.
+
+The constant-$M$ $2\times2$ matrix exponential and the classical gain-gap
+identity remain valid mean-field results. They are not, by themselves, a
+Bogoliubov quantum transformation in a dissipative cell. A new Floquet audit
+finds that the archived $N_F=1$ result is not converged: going to $N_F=2$
+changes $G_s$ by $16.8\%$, changes $G_c$ by $13.0\%$, and reverses the sign of
+$G_s-G_c$; $N_F=2$ and $N_F=3$ agree. The literature operating point
+$\Delta/2\pi\simeq+0.9\GHz$, $\delta/2\pi\simeq-8\MHz$, and $T=121\degC$ is
+kept distinct from the archived reduced-model point
+$(\Delta/2\pi,\delta/2\pi,T)=(-1.50\GHz,-280\MHz,110\degC)$.
+Agreement with the previous code is
+classified only as an algebraic and numerical consistency check within shared
+assumptions.
 \end{abstract}
 
 \tableofcontents
-\bigskip
+\clearpage
 
-%==================================================================
-\section{목표와 물리계}
-\label{sec:intro}
-%==================================================================
-내부 시뮬레이션은 입력 파라미터의 집합을 받아 압축비 $\xi$ 하나를 출력한다.
-그 사이에서 시뮬레이션은 다준위 원자의 리우빌 방정식을 Floquet 사이드밴드까지
-포함해 수치적으로 풀고, 그 결과를 셀을 따라 전파시켜 이득을 얻은 뒤,
-균형검출의 잡음을 조립한다. 이 계산은 물리적으로 완결적이지만 사람 눈에는
-불투명하다. 본 노트의 목표는 같은 방정식을 대상으로, 각 단계를 손으로
-따라갈 수 있는 폐형식으로 다시 쓰고, 그 폐형식 사슬을 그대로 평가하면
-시뮬레이션 출력이 재현됨을 보이는 것이다.
+%======================================================================
+\part{Definitions and conventions}
+%======================================================================
 
-\subsection{계}
-$^{85}$Rb D1 전이($5S_{1/2}\!\to\!5P_{1/2}$, $795\,$nm)의 네 준위를 쓴다:
-바닥 초미세 준위 $g_1=(F{=}2)$, $g_2=(F{=}3)$와 들뜬 초미세 준위
-$e_2=(F'{=}2)$, $e_3=(F'{=}3)$. 강한 펌프장(주파수 $\omega_p$, Rabi
-진동수 $\Omega_A$)은 두 바닥 준위를 동시에 들뜬 다중항으로 끌어올리고,
-약한 시드장(seed, $\omega_s$)은 $g_2\!\to\!e$ 레그를, 이로부터 생성되는
-공액장(conjugate, $\omega_c$)은 $g_1\!\to\!e$ 레그를 구동한다. 두 개의 펌프
-광자가 시드 광자 하나와 공액 광자 하나로 변환되는 이중-$\Lambda$ FWM에서,
-시드와 공액은 광자 수 상관이 강한 트윈빔으로 나오며 그 세기차의 요동이
-샷 잡음 아래로 눌린다---이것이 측정량 $\xi$이다.
+\section{Atomic references and frequency definitions}
 
-\subsection{규약과 표기}
-바닥/들뜬 초미세 분리를 각각 $\omega_{\mathrm{HF}}$, $\omega^{(e)}_{\mathrm{HF}}$로,
-한 광자 실조를 $\Delta$(펌프 기준), 두 광자(Raman) 실조를 $\delta$로 쓴다.
-각 초미세 레그의 상대 세기는 Clebsch--Gordan 계수 $C_F(F_g,F_e)$로부터
-\begin{equation}
-a_{ge}=\sqrt{3\,C_F^2(F_g,F_e)},\qquad
-b_{e\to g}=\frac{C_F^2(F_g,F_e)}{\sum_{g'}C_F^2(F_{g'},F_e)}
-\label{eq:CG}
-\end{equation}
-로 정의한다($a_{ge}$: 결합 진폭, $b_{e\to g}$: 자발방출 분기율). 편의상
-$a_{1e}\equiv a_{g_1 e}$, $a_{2e}\equiv a_{g_2 e}$로 축약한다. 이하 모든
-각진동수는 $2\pi$를 명시할 때만 Hz 단위이고, 그 외에는 $\hbar=1$의 자연단위다.
-
-%==================================================================
-\section{동작점과 입력 산술}
-\label{sec:inputs}
-%==================================================================
-대표 동작점은
-\begin{equation}
-\Delta=-1.50\GHz,\quad T=110\degC\;(383.15\,\mathrm K),\quad
-\delta=-280\MHz,\quad \theta=0.32^\circ,
-\end{equation}
-\begin{equation}
-P_{\text{pump}}=600\,\mathrm{mW}\;(w_p=530\,\mu\mathrm m),\quad
-P_{\text{seed}}=8\,\mu\mathrm W\;(w_s=330\,\mu\mathrm m),\quad
-L=12.5\,\mathrm{mm},
-\end{equation}
-검출 효율 $\eta=\mathrm{QE}\,(1-\text{loss})=0.92\times0.945=0.8694$(현실적,
-finite) 또는 $\eta=1$(이상적, ideal)이다. 필요한 원자 상수는
-$\Gamma/2\pi=5.746\MHz$(자연폭), $I_{\text{sat}}=4.484\,\mathrm{mW/cm^2}$,
-$d_{D1}=2.5377\times10^{-29}\,\mathrm{C\,m}$(전이 쌍극자),
-$\omega_{\mathrm{HF}}/2\pi=3035.732\MHz$,
-$\omega^{(e)}_{\mathrm{HF}}/2\pi=361.58\MHz$이다.
-
-\subsection{장세기와 Rabi 진동수}
-가우스 빔 중심 세기 $I=2P/(\pi w_0^2)$에서 각 장의 Rabi 진동수는
-$\Omega=\Gamma\sqrt{I/2I_{\text{sat}}}$로,
-\begin{align}
-\Omega_A&=\Gamma\sqrt{\frac{I_{\text{pump}}}{2I_{\text{sat}}}}
- =2\pi\times707.55\MHz,&
-\Omega_s&=\Gamma\sqrt{\frac{I_{\text{seed}}}{2I_{\text{sat}}}}
- =2\pi\times4.149\MHz.
-\label{eq:rabi}
-\end{align}
-초미세 레그 세기 \eqref{eq:CG}를 곱한 레그별 펌프 결합
-$A_e=\tfrac12\Omega_A a_{1e}$, $B_e=\tfrac12\Omega_A a_{2e}$는
-\begin{equation}
-\frac{A_{e_3}}{2\pi}=402.8,\quad \frac{A_{e_2}}{2\pi}=215.3,\quad
-\frac{B_{e_3}}{2\pi}=360.3,\quad \frac{B_{e_2}}{2\pi}=402.8\quad[\MHz],
-\label{eq:legs}
-\end{equation}
-이며, 최대 레그 결합 $2A_{e_3}=2\pi\times805.6\MHz$가 들뜬 초미세 분리
-$\omega^{(e)}_{\mathrm{HF}}=2\pi\times361.6\MHz$를 두 배 이상 초과한다는
-사실을 기억해 둔다---이 부등식이 감수율 계산에서 들뜬 다중항을 섭동이 아니라
-정확히 다루어야 하는 이유가 된다(\S\ref{sec:carrier}).
-
-\subsection{원자 밀도, 속도 분포, decoherence}
-포화 증기압 곡선과 이상기체 상태식에서 수밀도와 열속도가 나온다:
-\begin{align}
-N&=\frac{10^{\,9.318-4040/T}}{k_B T}=1.1230\times10^{19}\,\mathrm{m^{-3}},&
-\sigma_v&=\sqrt{\frac{k_B T}{m}}=193.7\,\mathrm{m/s},&
-\frac{k\sigma_v}{2\pi}&=243.6\MHz.
-\label{eq:density}
-\end{align}
-$k\sigma_v$가 Doppler 폭(1-표준편차)이다. Decoherence는 세 성분으로 조립한다:
-바닥 Raman dephasing $\gamma_{gg}$(고정 바닥 $+$ 스핀교환 충돌), 밀도에
-비례하는 광학 self-broadening $\gamma_{\text{opt}}$, 그리고 총 광학 폭 $\Gamma_o$:
-\begin{equation}
-\frac{\gamma_{gg}}{2\pi}=100\kHz+\frac{N\sigma_{\text{se}}\bar v_{\text{rel}}}{2\pi}
-=101.5\kHz,\quad
-\frac{\gamma_{\text{opt}}}{2\pi}=\frac{\beta N}{4\pi}=0.387\MHz,\quad
-\Gamma_o\equiv\frac{\Gamma}{2}+\gamma_{\text{opt}}=2\pi\times3.260\MHz.
-\label{eq:gammas}
-\end{equation}
-
-\subsection{거시 결합 상수}
-단일 원자 감수율 $\chibar_{xy}$(무차원, \S\ref{sec:chi})를 관측 가능한 거시
-편극률로 올리는 변환은
-\begin{equation}
-\chi_{xy}=-\frac{2N\,\ell_{\text{eff}}\,d_{D1}^2}{\varepsilon_0\hbar}\,\chibar_{xy},
-\qquad
-\ell_{\text{eff}}=\ell_s\,\varrho_{\text{norm}}
-=0.74\times\frac{7}{144}=0.035972,
-\label{eq:macro}
-\end{equation}
-로 준다. 여기서 $\varrho_{\text{norm}}=p_{F}/[2(2I+1)]$는 D1 이중-$\Lambda$의
-line-strength/통계 규격화(바닥 $F$ 점유율 곱하기 Clebsch 규격화;
-$I=5/2$)이고 $\ell_s=0.74$는 잔여 스케일 인자다. 식~\eqref{eq:macro}까지는
-전부 명시적 공식의 사칙연산이므로 \emph{정확}하다.
-
-%==================================================================
-\section{모형 해밀토니안과 사이드밴드 구조}
-\label{sec:model}
-%==================================================================
-강펌프 캐리어와 그 위의 약장 응답은 3-모드 Floquet 정상상태로 조직된다.
-회전틀에서 정적 해밀토니안과 약장 섭동은 (실효 실조
-$\Delta_{\text{eff}}=\Delta-kv$, 속도군 $v$)
-\begin{align}
-H_0&=\delta\,\ketbra{g_2}{g_2}-\omega^{(e)}_{\mathrm{HF}}\ketbra{e_2}{e_2}
--\Delta_{\text{eff}}\!\sum_{e}\ketbra{e}{e}
-+\sum_e\!\Big[A_e\big(\ketbra{g_1}{e}+\text{h.c.}\big)
-+S_e\big(\ketbra{g_2}{e}+\text{h.c.}\big)\Big],
-\label{eq:H0}\\[2pt]
-H_p&=\sum_e\Big[C_e\,\ketbra{e}{g_1}+B_e\,\ketbra{e}{g_2}\Big],
-\label{eq:Hp}
-\end{align}
-이고, $S_e=\tfrac12\Omega_s a_{2e}$(시드), $C_e=\tfrac12\Omega_c a_{1e}$(공액)이다.
-
-\subsection{사이드밴드 비트 주파수}
-스캔 좌표는 $\omega_{\text{seed}}=\omega_p+\text{branch}\cdot\nu_{\mathrm{HF}}
-+\delta$이므로, pump--seed 사이드밴드 간격의 물리적 크기는
-\begin{equation}
-\Omega_{\text{beat}}=\nu_{\mathrm{HF}}+\text{branch}\cdot\delta,
-\qquad \text{seeded }(-)\text{ 브랜치: } \Omega_{\text{beat}}
-=\nu_{\mathrm{HF}}-\delta,
-\label{eq:beat}
-\end{equation}
-이다. 표준 seeded readout은 $(-)$ 브랜치이므로 이하 모두 $\text{branch}=-1$,
-$\Omega_{\text{beat}}=\omega_{\mathrm{HF}}-\delta$를 쓴다. 장이 사이드밴드
-진동수 $\Omega_{\text{beat}}$로 맥놀이하므로 밀도행렬을
-\begin{equation}
-\rho(t)=\rho_0+\rho_{+1}\,e^{-\ii\Omega_{\text{beat}}t}
-+\rho_{-1}\,e^{+\ii\Omega_{\text{beat}}t}+\cdots
-\end{equation}
-로 전개하면 정상상태 조건은 세 개의 결합된 리우빌 방정식
-\begin{equation}
-\mathcal L_0\,\rho_0=-(\mathcal C_p\,\rho_{-1}+\mathcal C_m\,\rho_{+1}),
-\qquad
-(\mathcal L_0\pm\ii\Omega_{\text{beat}})\,\rho_{\pm1}
-=-\mathcal C_{p/m}\,\rho_0,
-\label{eq:floquet}
-\end{equation}
-가 된다($\mathcal L_0$: 정적 리우빌리안, $\mathcal C_{p/m}$: 약장 결합
-초연산자). 네 개의 감수율 성분 $\chibar_{ss},\chibar_{cs}$는 시드를 기준으로
-한 해의 $\rho_0,\rho_{+1}$에서, $\chibar_{sc},\chibar_{cc}$는 공액을 기준으로
-한 해에서 읽는다. 여러 레그의 복소 분모를 한꺼번에 쓰면
-($\omega_e\equiv\omega^{(e)}_{\mathrm{HF}}$는 $e{=}e_2$에서만 비영)
-\begin{equation}
-\begin{aligned}
-D^{(1)}_e&=\Delta_{\text{eff}}+\omega_e+\ii\Gamma_o
-&&\text{펌프-$A$ 레그(정적)}\\
-D^{(2)}_e&=\Delta_{\text{eff}}+\omega_e+\delta+\ii\Gamma_o
-&&\text{시드 레그(정적)}\\
-D^{(1p)}_e&=\Delta_{\text{eff}}+\omega_e+\Omega_{\text{beat}}+\ii\Gamma_o
-&&\text{공액 레그($+1$ 사이드밴드)}\\
-D^{(2p,2m)}_e&=\Delta_{\text{eff}}+\omega_e+\delta\pm\Omega_{\text{beat}}+\ii\Gamma_o
-&&\text{펌프-$B$ 레그($\pm1$ 사이드밴드)}.
-\end{aligned}
-\label{eq:denoms}
-\end{equation}
-분모의 실부는 유효 공명 위치, 허부 $\Gamma_o$는 폭이다. 규약
-\eqref{eq:beat} 덕분에 펌프-$B$의 $+1$ 사이드밴드 공명은
-$D^{(2p)}_e=\Delta_{\text{eff}}+\omega_e+\nu_{\mathrm{HF}}$로 $\delta$ 의존이
-정확히 상쇄되어, 물리적으로 올바른 위치에 놓인다.
-
-%==================================================================
-\section{원자 감수율 I: 강펌프 캐리어 정상상태}
-\label{sec:carrier}
-%==================================================================
-약장(시드/공액)은 어디까지나 1차이므로, 계산은 정확히 두 조각으로 분리된다:
-\emph{펌프만 있을 때의 캐리어 정상상태}와, \emph{그 캐리어에 대한 약장의
-1차 응답}. 두 조각 모두 작은 선형계로 닫히며, 이 절은 앞의 조각을 다룬다.
-앞서 본 부등식 $2A_{e_3}>\omega^{(e)}_{\mathrm{HF}}$ 때문에 펌프는 바닥-들뜸
-블록 $\mathcal B=\{g_1,e_2,e_3\}$ 내부에서 비섭동적으로 작용하므로, 이
-블록은 섭동 전개가 아니라 정확히 대각화한다.
-
-\subsection{준위 점유: 포화 rate 방정식}
-정상상태 점유 4-벡터 $\mathbf p=(p_1,p_2,p_{e_2},p_{e_3})$는 흡수-자발방출의
-상세 균형
-\begin{equation}
-\dot p_e=\sum_{g}W_{ge}\,(p_g-p_e)-\Gamma p_e=0,\quad
-\dot p_g=-\sum_e W_{ge}\,(p_g-p_e)+\sum_e \Gamma\,b_{e\to g}\,p_e=0,\quad
-\sum_i p_i=1,
-\label{eq:rateeq}
-\end{equation}
-을 만족한다. 펌핑률은 레그 분모 \eqref{eq:denoms}로부터
-\begin{equation}
-W_{1e}=\frac{2A_e^2\,\Gamma_o}{|D^{(1)}_e|^2},\qquad
-W_{2e}=2B_e^2\,\Gamma_o\!\left(\frac{1}{|D^{(2p)}_e|^2}
-+\frac{1}{|D^{(2m)}_e|^2}\right),
-\label{eq:pumprates}
-\end{equation}
-로 명시된다. 식~\eqref{eq:rateeq}은 $4\times4$ 선형계로 Cramer 규칙 한 번에
-풀린다. 핵심은 소스가 차이 $(p_g-p_e)$의 꼴이라는 점인데, 이것이 강펌프에서
-점유를 자동으로 \emph{포화}시킨다. 대표 동작점 $v=0$에서
-\begin{equation}
-\mathbf p=(p_1,p_2,p_{e_2},p_{e_3})=(0.353,\,0.545,\,0.042,\,0.060),
-\end{equation}
-로 들뜸 총점유 $p_{e_2}+p_{e_3}\approx0.10$의 포화가 확인된다. 이
-동작점에서는 두 펌프 레그의 상대 세기와 분기율 때문에 $g_2$가 $g_1$보다 더
-채워진다($p_2>p_1$).
-
-\subsection{캐리어 코히런스: Sylvester 블록}
-펌프가 만드는 광학 코히런스 $\rho_{e g_1}$와 들뜬-들뜬 코히런스
-$\rho_{e_2 e_3}$는, 점유를 소스로 하는 Sylvester형 방정식으로 닫힌다. 블록
-해밀토니안과 방정식은
-\begin{equation}
-\big[H_{\mathcal B},\,\mathrm{diag}(p_1,p_{e_2},p_{e_3})+O\big]_{rb}
--\ii\,\Gamma_{rb}\,O_{rb}=0,
-\qquad
-H_{\mathcal B}=
-\begin{pmatrix}
-0 & A_{e_2} & A_{e_3}\\
-A_{e_2} & -\Delta_{\text{eff}}-\omega_e & 0\\
-A_{e_3} & 0 & -\Delta_{\text{eff}}
-\end{pmatrix},
-\label{eq:sylv}
-\end{equation}
-이며 $O$는 구하려는 코히런스 행렬, $\Gamma_{rb}$는 성분별 dephasing
-($(g,e)$ 쌍엔 $\Gamma_o$, $(e,e')$ 쌍엔 $\Gamma$)이다. 이는 비대각 성분 여섯
-개에 대한 선형계이고, $3\times3$ 행렬의 Cramer 역행렬 두 번으로 풀린다.
-식~\eqref{eq:sylv}은 펌프-$A$가 유발하는 블록 내부의 강한 혼합---즉 들뜬
-초미세 준위의 dressing---을 \emph{정확히} 담는다. 대표 동작점에서
-$\rho_{e_2 g_1}=-0.061-1.6\ii\times10^{-4}$이다.
-
-이렇게 얻은 캐리어 $(\mathbf p,\,\rho_{e g_1},\,\rho_{e_2 e_3})$가 다음 절
-약장 응답의 유일한 입력이다.
-
-%==================================================================
-\section{원자 감수율 II: 약장 선형응답과 감수율 행렬}
-\label{sec:chi}
-%==================================================================
-\subsection{감수율 행렬의 정의}
-시드와 공액이 유발하는 편극은 두 장의 진폭에 선형이므로, 원자 응답은
-$2\times2$ 감수율 행렬로 요약된다:
-\begin{equation}
-\begin{pmatrix}\chibar_{ss} & \chibar_{sc}\\[2pt]
-\chibar_{cs} & \chibar_{cc}\end{pmatrix},
-\qquad
-\begin{aligned}
-\chibar_{ss}&:\ \text{시드에 대한 시드 응답(자기이득/흡수)}\\
-\chibar_{cs}&:\ \text{시드가 유발하는 공액 코히런스(FWM 결합)}\\
-\chibar_{sc}&:\ \text{공액이 유발하는 시드 코히런스(FWM 결합)}\\
-\chibar_{cc}&:\ \text{공액에 대한 공액 응답}.
-\end{aligned}
-\label{eq:chidef}
-\end{equation}
-대각 성분이 각 빔의 게인/손실을, 비대각 성분이 두 빔을 잇는 파라메트릭
-결합을 준다.
-
-\subsection{물리적 구조: 바닥 Raman 코히런스와 자기에너지}
-들뜬상태를 단열 소거하면, 네 감수율 성분은 모두 하나의 바닥 Raman 코히런스
-$\rho_{21}^{(0)}$를 통해 조직된다. 이 코히런스는 두 광자 공명형 분모를 가진
-닫힌 표현
-\begin{equation}
-\boxed{\;
-\rho_{21}^{(0)}
-=\frac{-\ii\big(p_1 W_1-p_2 W_2^{*}\big)}
-      {\gamma_{gg}+\ii\big(\delta-\Sigma_A^{*}+\Sigma_B\big)}\;}
-\label{eq:raman}
-\end{equation}
-로 쓰이며, 소스 진폭과 자기에너지는
-\begin{equation}
-W_1=\sum_e \frac{A_e S_e}{D^{(1)}_e},\quad
-W_2^{*}=\sum_e \frac{A_e S_e}{D^{(2)*}_e},\qquad
-\Sigma_A^{*}=\sum_e \frac{A_e^2}{D^{(2)*}_e},\quad
-\Sigma_B=\sum_e \frac{B_e^2}{D^{(1p)}_e}.
-\label{eq:selfE}
-\end{equation}
-자기에너지 $\Sigma$의 물리적 의미가 중요하다: 실부 $\Real\Sigma$는 펌프에
-의한 \textbf{광 이동(light shift)}이고 허부 $\Imag\Sigma$는 \textbf{파워
-확폭}이다. 분모의 두 광자 공명은 순수 $\delta=0$이 아니라 미분 광 이동만큼
-끌린 곳에서 일어난다:
-\begin{equation}
-\delta^\ast\;\simeq\;\Real\!\big(\Sigma_A-\Sigma_B\big)\;=\;-280\MHz.
-\label{eq:twophoton}
-\end{equation}
-즉 스퀴징이 가장 깊어지는 두 광자 실조는 미분 광 이동으로 결정되며, 이
-폐형식 조건이 내부 시뮬레이션의 최적 $\delta^\ast$를 정확히 재현한다.
-네 감수율 성분은 이 Raman 코히런스와 직접(단일-$\Lambda$)항의 합으로
-\begin{equation}
-\begin{aligned}
-\chibar_{ss}&=\frac12\sum_e \frac{a_{2e}^2\,w_{2e}}{D^{(2)}_e}
-+\frac{\Omega_A}{2\Omega_s}\sum_e
-\frac{a_{2e}a_{1e}\,(\rho^{(0)}_{21})^{*}}{D^{(2)}_e},
-&\chibar_{cs}&=\frac{\Omega_A}{2\Omega_s}\sum_e
-\frac{a_{1e}a_{2e}\,\rho^{(0)}_{21}}{D^{(1p)}_e},\\[4pt]
-\chibar_{cc}&=\frac12\sum_e \frac{a_{1e}^2\,w_{1e}}{D^{(1p)}_e}
-+\frac{\Omega_A}{2\Omega_c}\sum_e
-\frac{a_{1e}a_{2e}\,\rho^{(0,2)}_{21}}{D^{(1p)}_e},
-&\chibar_{sc}&=\frac{\Omega_A}{2\Omega_c}\sum_e
-\frac{a_{2e}a_{1e}\,(\rho^{(0,2)}_{21})^{*}}{D^{(2)}_e},
-\end{aligned}
-\label{eq:chientries}
-\end{equation}
-로 쓰인다($w_{ie}=p_i-p_e$: 반전, $\rho^{(0,2)}_{21}$: 공액 구동에 대한
-동형의 Raman 코히런스). 이 구조는 문헌의 이중-$\Lambda$ 감수율 표준형
-(직접항 $+$ Raman 공명항)과 같고, FWM 이득이 어디서(두 광자 공명) 나오는지를
-투명하게 보여준다.
-
-\subsection{정량 평가: 컴팩트 코히런스 섹터}
-\label{sec:resp}
-식~\eqref{eq:chientries}의 계수를 얻으려면 약장 응답을 캐리어
-(\S\ref{sec:carrier})에 대한 1차로 푼다. 응답은 두 곳에 산다:
-``$g_2$행 대 $\mathcal B$열'' 정적 코히런스 $x_b=\delta\rho^{(0)}_{2b}$(3성분)와,
-``$\mathcal B\times\mathcal B$'' $+1$ 사이드밴드 블록
-$Y_{rb}=\delta\rho^{(+1)}_{rb}$(9성분). 성분 방정식은($\times\ii$ 정리 후)
-\begin{align}
-\Big[\delta\,\delta_{bb'}-(H_{\mathcal B})_{b'b}-\ii\gamma^x_b\delta_{bb'}\Big]x_{b'}
-&=-\,d_b-\sum_{e}B_e\,Y_{\text{idx}(e),b},
-\label{eq:xeq}\\
-\big[H_{\mathcal B},Y\big]_{rb}-\Omega_{\text{beat}}\,Y_{rb}
--\ii\gamma^Y_{rb}\,Y_{rb}
-&=-\,B_r\,x_b\;[r\in e]\;-\;g_{rb},
-\label{eq:Yeq}
-\end{align}
-이고 dephasing은 $\gamma^x=(\gamma_{gg},\Gamma_o,\Gamma_o)$,
-$\gamma^Y_{(1,e)}=\gamma^Y_{(e,1)}=\Gamma_o$, $\gamma^Y_{(e,e')}=\Gamma$이다.
-구동항은 오직 캐리어 량으로만 명시된다. 시드 해에서
-\begin{equation}
-d_1=\sum_e S_e\,\rho_{e g_1},\qquad
-d_{e'}=-S_{e'}\,(p_2-p_{e'})+\sum_{e\neq e'}S_e\,\rho_{ee'},\qquad
-g_{rb}=0,
-\label{eq:drive_seed}
-\end{equation}
-공액 해에서
-\begin{equation}
-d_1=-\sum_e \frac{C_e B_e\,(p_2-p_e)}{D^{(2p)*}_e},\quad
-g_{\text{idx}(e),1}=C_e p_1-\sum_{e'}\rho_{ee'}C_{e'},\quad
-g_{\text{idx}(e),\text{idx}(b')}=C_e\rho_{g_1 b'}.
-\label{eq:drive_conj}
-\end{equation}
-감수율은 이 해에서 곧바로 읽힌다:
-\begin{equation}
-\chibar_{ss}=\frac{1}{\Omega_s}\sum_e a_{2e}\,x^{*}_{\text{idx}(e)},\qquad
-\chibar_{cs}=\frac{1}{\Omega_s}\sum_e a_{1e}\,Y_{\text{idx}(e),1},
-\label{eq:readout}
-\end{equation}
-($\chibar_{sc},\chibar_{cc}$는 공액 해에서 동형). 식~\eqref{eq:xeq}--\eqref{eq:Yeq}는
-컴팩트한 선형계이고, $Y$-방정식이 Sylvester형이므로 $H_{\mathcal B}$를 한 번
-대각화하면---특성 3차방정식의 근 $\lambda_\alpha$는 Cardano 폐형식으로
-주어진다---dressed 기저에서 극(pole) 합으로 닫힌다:
-\begin{equation}
-Y_{\alpha\beta}=\frac{-\,\widetilde{(Bx+g)}_{\alpha\beta}}
-{\lambda_\alpha-\lambda_\beta-\Omega_{\text{beat}}-\ii\,\tilde\gamma_{\alpha\beta}}.
-\label{eq:Ypole}
-\end{equation}
-
-\begin{remark}[감수율은 이 사슬의 유일한 ``비단일공식'' 단계]
-\label{rem:chi}
-전체 사슬에서 입력 산술, Doppler 평균, 전파, 잡음 조립은 모두 하나의 명시적
-공식으로 닫힌다(\S\ref{sec:doppler}--\S\ref{sec:noise}). 감수율만이
-작은 \emph{선형계} 풀이를 요구한다. 위의 폐형식 구조는 두 광자 공명이
-최적 동작점 $\delta^\ast=-280\MHz$을 어떻게 고정하는지, 그리고 위상 관계가
-어떻게 짜이는지를 정확히 드러낸다: 실제로 이 컴팩트 블록(또는 동등하게
-식~\eqref{eq:floquet}의 전체 Floquet 리우빌리안)을 풀면 최적 위치와 위상
-구조가 정확히 나온다(Doppler 평균 위상차 $\sim10^{-2}$\,rad). 반면 감수율의
-\emph{크기}는 이 비교적 가까운 실조($\Delta=-1.5\GHz$)에서 최저차 연필
-전개로는 참값의 약 $0.5$--$0.8$배로 과소평가된다. 이득이 감수율을 지수적으로
-증폭하므로(\S\ref{sec:prop},~\S\ref{sec:gap}), 정량적 $G_s,\xi$의 재현에는
-식~\eqref{eq:xeq}--\eqref{eq:Yeq}의 컴팩트 블록(또는 전체 Floquet 해)을
-그대로 푼다. 이것이 내부 시뮬레이션이 수치로 하는 일이며, 본 재구성은 같은
-방정식을 명시적으로 적어 그대로 평가한다.
-\end{remark}
-
-%==================================================================
-\section{Doppler 평균: 플라즈마 분산함수 폐형식}
-\label{sec:doppler}
-%==================================================================
-관측량은 Maxwell 속도 분포에 대해 평균한 감수율이다. 분모가 속도에 1차인
-모든 항은 Faddeeva 함수(복소 오차함수)로 \emph{정확히} 닫힌다. Gauss 가중
-$P(v)=(2\pi\sigma_v^2)^{-1/2}e^{-v^2/2\sigma_v^2}$에 대해
-\begin{equation}
-\Big\langle\frac{1}{x_0-kv+\ii\Gamma_o}\Big\rangle_v
-=\int_{-\infty}^{\infty}\!\!dv\,\frac{P(v)}{x_0-kv+\ii\Gamma_o}
-=-\frac{\ii}{k\sigma_v}\sqrt{\frac{\pi}{2}}\;
-w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right),
-\label{eq:faddeeva}
-\end{equation}
-\begin{equation}
-w(z)=e^{-z^2}\,\mathrm{erfc}(-\ii z),\qquad
-w(z)=\frac{\ii}{\pi}\int_{-\infty}^{\infty}\frac{e^{-t^2}}{z-t}\,dt
-\;=\;\frac{1}{\ii\sqrt\pi}\,Z(z),
-\label{eq:wdef}
-\end{equation}
-여기서 $Z$는 플라즈마 분산함수다. 유도는 $t=kv/(\sqrt2\,k\sigma_v)$로 치환하면
-\eqref{eq:wdef}의 적분 표현으로 곧장 환원된다. 흡수 성분(감수율의 허부)은
-\begin{equation}
-\Imag\Big\langle\frac{1}{x_0-kv+\ii\Gamma_o}\Big\rangle_v
-=-\frac{1}{k\sigma_v}\sqrt{\frac{\pi}{2}}\;
-\Real\,w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right)
-=-\frac{\pi}{k}\,V\!\big(x_0;\,k\sigma_v,\Gamma_o\big),
-\label{eq:voigt}
-\end{equation}
-로, 정확히 Voigt 프로파일 $V(x;\sigma,\gamma)=\Real\,w[(x+\ii\gamma)/\sqrt2\sigma]
-/(\sqrt{2\pi}\,\sigma)$를 준다. 즉 Gauss(Doppler)와 Lorentz(자연/충돌) 폭의
-합성곱이 하나의 특수함수로 닫힌다. 수치 시연으로, $\chibar_{cc}$ 직접항의
-Doppler 평균을 폐형식~\eqref{eq:faddeeva}과 이산 $v$-격자 구적으로 각각
-계산하면
+The four hyperfine states are
 \[
-\text{Faddeeva: } 2.413\times10^{-11}-4.35\ii\times10^{-14},\qquad
-\text{구적: } 2.412\times10^{-11}-4.34\ii\times10^{-14},
+g_1=5S_{1/2}(F=2),\quad g_2=5S_{1/2}(F=3),\quad
+e_2=5P_{1/2}(F'=2),\quad e_3=5P_{1/2}(F'=3).
 \]
-로 $0.1\,\%$ 이내에서 일치한다. population $p_i(v)$나 Raman 자기에너지의
-속도 의존이 곱해진 항은 속도의 유리함수 조합이므로, 부분분수 전개 후
-\eqref{eq:faddeeva}의 $w(z)$ 합으로 여전히 닫히거나, 실무적으로는 명시적
-피적분함수의 1차원 Maxwell 구적(표 적분)으로 같은 값을 얻는다.
+The optical reference is
+\[
+\omega_{13}\equiv(E_{e_3}-E_{g_1})/\hbar,\qquad
+\omega_{\rm HF}\equiv(E_{g_2}-E_{g_1})/\hbar .
+\]
+Every detuning and linewidth in an equation is an \emph{angular} frequency.
+Numerical values are always displayed after division by $2\pi$:
+\[
+\frac{\Delta}{2\pi}=-1.50\GHz,\qquad
+\frac{\delta}{2\pi}=-280\MHz,\qquad
+\frac{\Gamma}{2\pi}=5.746\MHz .
+\]
 
-%==================================================================
-\section{전파: 결합모드 방정식과 이득}
-\label{sec:prop}
-%==================================================================
-Doppler 평균 감수율을 거시 결합 \eqref{eq:macro}로 올리면, 시드와 공액의
-느린 진폭 $(\Omega_s,\Omega_c^{*})$가 셀을 따라 결합하며 전파한다:
-\begin{equation}
-\frac{d}{dz}\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix}
-=M\begin{pmatrix}\Omega_s\\ \Omega_c^{*}\end{pmatrix},\qquad
-M=\begin{pmatrix} a & b\\ c & d\end{pmatrix},
-\label{eq:coupled}
-\end{equation}
-성분은 감수율과 위상부정합으로부터
-\begin{equation}
-a=\frac{\ii k_s}{2}\chi_{ss},\quad
-b=\frac{\ii k_s}{2}\chi_{sc},\quad
-c=-\frac{\ii k_c}{2}\chi_{cs}^{*},\quad
-d=-\frac{\ii k_c}{2}\chi_{cc}^{*}-\ii\,\Delta k_z,
-\label{eq:Mentries}
-\end{equation}
-로 조립된다. 굴절률과 위상부정합은
-\begin{equation}
-n_{s,c}=1+\tfrac12\Real\chi_{ss,cc},\qquad
-\Delta k_z=2k_p-\big(k_s n_s+k_c n_c\big)\cos\theta,
-\label{eq:phasematch}
-\end{equation}
-로 주어지며, 공액 광주파수는 에너지 보존 $f_c=2\Delta-f_{\text{seed}}$로
-고정된다. 대표 동작점에서 $\Delta k_z=404.6\,\mathrm{rad/m}$이다.
+The pump and seed conventions are
+\begin{align}
+\Delta&=\omega_p-\omega_{13},\\
+\omega_s&=\omega_p-\omega_{\rm HF}+\delta,\\
+\Omega_{\rm beat}&=\omega_p-\omega_s=\omega_{\rm HF}-\delta,\\
+\omega_c&=2\omega_p-\omega_s .
+\label{eq:frequency-definitions}
+\end{align}
+Thus $\Omega_{\rm beat}$ is the optical pump-seed beat that organizes the
+Floquet harmonics. It is not the spectrum-analyzer frequency.
 
-\subsection{정확 폐형식 행렬지수}
-식~\eqref{eq:coupled}은 상수계수 선형계이므로 해가 정확히 지수형이다. 임의의
-$2\times2$ 행렬에 대해 Cayley--Hamilton으로
+The independent radio-frequency analysis variable is
+\[
+\frac{\Omega_{\rm SA}}{2\pi}\simeq0.1\text{--}4\MHz .
+\]
+It labels quantum sidebands at $\omega_s\pm\Omega_{\rm SA}$ and
+$\omega_c\mp\Omega_{\rm SA}$. With the Fourier convention used here,
 \begin{equation}
-e^{ML}=e^{sL}\Big[\cosh(qL)\,\mathbb 1
-+\frac{\sinh(qL)}{q}\,(M-s\mathbb 1)\Big],\quad
-s=\frac{a+d}{2},\quad
-q=\sqrt{\frac{(a-d)^2}{4}+bc},
-\label{eq:expm}
-\end{equation}
-가 성립한다. 시드만 입사($\Omega_c^{*}(0)=0$)시키면 출력은
-\begin{equation}
-\Omega_s(L)=(e^{ML})_{11}\,\Omega_s(0),\qquad
-\Omega_c^{*}(L)=(e^{ML})_{21}\,\Omega_s(0),
-\end{equation}
-이고, 시드 투과 이득과 공액 생성 이득은
-\begin{equation}
-G_s=\big|(e^{ML})_{11}\big|^2
-=\Big|e^{sL}\big[\cosh qL+\tfrac{a-d}{2}\tfrac{\sinh qL}{q}\big]\Big|^2,
-\qquad
-G_c=\big|(e^{ML})_{21}\big|^2
-=\Big|e^{sL}\,c\,\tfrac{\sinh qL}{q}\Big|^2.
-\label{eq:gains}
-\end{equation}
-대표 동작점에서 $G_s=22.59$, $G_c=21.97$이다.
-
-\subsection{단일 지수의 정당성}
-실제 셀에서는 흡수, 빔 겹침 감소, 펌프 고갈이 위치에 따라 $M$을 미세하게
-바꾼다. 대표 동작점에서 세 효과 모두 무시할 수 있으므로 식~\eqref{eq:expm}의
-단일 행렬지수가 정확하다: 구간 흡수 $\mathrm{od}_{\text{seg}}=0.024$, 교차각
-$\theta$에 의한 겹침 인자
-$\exp[-(z\tan\theta)^2/(w_p^2+w_s^2)]\ge0.997$, 그리고 펌프 예산
-$(G_s{-}1)P_{\text{seed}}/\tfrac12P_{\text{pump}}\sim6\times10^{-4}$
-(Manley--Rowe 펌프 고갈)이 모두 $1$에 붙는다. 위치 의존이 유의한 일반 경우도
-1차 Magnus 근사(유효 결합 $\kappa\!\int s\,dz/L$, erf 폐형식)로 닫힌다.
-
-%==================================================================
-\section{트윈빔 이득 갭과 Manley--Rowe 구조}
-\label{sec:gap}
-%==================================================================
-두 빔의 세기차 압축은 이득 갭 $G_s-G_c$에 결정적으로 의존하므로, 이 양의
-보존 법칙을 따로 본다. $u=\Omega_s$, $\tilde w=\Omega_c^{*}$에 대해
-$u'=au+b\tilde w$, $\tilde w'=cu+d\tilde w$이면
-\begin{equation}
-\boxed{\;
-\frac{d}{dz}\big(|u|^2-|\tilde w|^2\big)
-=2\Real(a)\,|u|^2-2\Real(d)\,|\tilde w|^2
-+2\Real\!\big[(b-c^{*})\,u^{*}\tilde w\big].\;}
-\label{eq:gapid}
-\end{equation}
-순수 무손실 파라메트릭 극한($\Real a=\Real d=0$, $b=c^{*}$)에서는 우변이
-정확히 0이고, 따라서
-\begin{equation}
-G_s-G_c=1\qquad(\text{Bogoliubov/Manley--Rowe 보존})
-\end{equation}
-이 정확히 성립한다---시드 광자 하나가 소멸할 때마다 공액 광자 하나가
-생기므로 광자 수 차이가 보존된다는 것과 같은 말이다. 관측된 갭이
-$1\to0.623$로 내려오는 것은 오직 우변의 작은 항들, 즉 셀 내부의 잔여 손실과
-이득 비대칭 때문이다. 대표 동작점의 값은
-\begin{equation}
-\Real a=-4.06\,\mathrm{m^{-1}},\quad
-\Real d=+4.28\,\mathrm{m^{-1}},\quad
-|b|\approx189.6,\ |c|\approx182.1\,\mathrm{m^{-1}},\quad
-|b-c^{*}|=11.1\,\mathrm{m^{-1}},
-\end{equation}
-으로, 손실/비대칭 항은 결합항의 $2$--$6\,\%$에 불과하다. 이 소수-\% 량들이
-$G\sim22$의 지수 증폭과 곱해져 갭을 정한다. 그래서 세기차 압축은 감수율의
-미세 구조(허부와 비대칭)에 가장 민감한 관측량이며, 최저차 연필 계산이 크기를
-과소평가하는 것도(Remark~\ref{rem:chi}) 이 지수 민감도의 다른 얼굴이다.
-
-%==================================================================
-\section{잡음 조립과 압축비}
-\label{sec:noise}
-%==================================================================
-\subsection{입력-출력 관계와 이상 압축}
-파라메트릭 증폭기의 입력-출력 관계는
-\begin{equation}
-\hat a_s^{\text{out}}=\mu\,\hat a_s^{\text{in}}+\nu\,\hat a_c^{\text{in}\dagger},
-\qquad
-\hat a_c^{\text{out}}=\mu\,\hat a_c^{\text{in}}+\nu\,\hat a_s^{\text{in}\dagger},
-\qquad |\mu|^2=G_s,\ |\nu|^2=G_c,
-\label{eq:io}
-\end{equation}
-이고 무손실이면 $|\mu|^2-|\nu|^2=1$이다. 광자 수 차이
-$\hat n_s-\hat n_c$가 이 변환에서 보존되므로, 강한 시드로 밝혀진 두 빔의
-세기차 요동은 원리적으로 샷 잡음 아래로 완전히 눌린다. 유한 손실과 이득
-비대칭이 이 이상 압축을 되돌린다.
-
-\subsection{균형검출 세기차 잡음}
-각 팔의 검출 효율을 $\eta_s,\eta_c$, 세기차의 dc 성분을 맞추는 전자 가중을
-$w=\eta_s G_s/\eta_c G_c$라 하면, 샷 잡음으로 규격화한 세기차 잡음은
-\begin{equation}
-S=\frac{\eta_s G_s+w^2\eta_c G_c-2w\,\eta_s\eta_c\,\mathrm{cov}_0}
-{\eta_s G_s+w^2\eta_c G_c}+\mathcal N_{\text{ps}},
-\qquad
-\mathrm{cov}_0=\frac12\big[(G_s+G_c)-(G_s-G_c)^2\big],
-\label{eq:S}
-\end{equation}
-로, $\mathrm{cov}_0$는 두 모드 압축상태의 광자 수 공분산이다. 압축비는
-$\xi=10\log_{10}S$이며, 분자의 상관항이 클수록(트윈빔 상관이 강할수록) $S$가
-작아진다. 팔 투과율은 광학 밀도를 통해
-$\eta_s=\eta\,e^{-(\mathrm{od}_{\text{seg}}+\mathrm{od}_p)}$,
-$\eta_c=\eta\,e^{-\mathrm{od}_c}$로 들어간다.
-
-\subsection{팔 선형 흡수와 펌프 산란}
-팔 광학 밀도는 초미세 4선 Voigt 합 \eqref{eq:voigt}로 정확히 닫힌다:
-\begin{equation}
-\alpha(\nu)=\sum_{(F_g,F_e)}\ell\,K\,p_{F_g}\,C_F^2\,
-V\!\big(2\pi(\nu-\nu_{F_g F_e});\,k\sigma_v,\,\Gamma_{\text{eff}}/2\big),
-\quad
-K=\frac{\pi k\,(3d_{D1}^2)\,N}{12\,\hbar\varepsilon_0},
-\label{eq:armOD}
-\end{equation}
-$\Gamma_{\text{eff}}=\Gamma+\beta N=2\pi\times6.52\MHz$. 대표 동작점에서
-probe 성분 $\mathrm{od}_p=0.0010$, conjugate $\mathrm{od}_c=0.0069$,
-펌프(4선 합) $\mathrm{od}_{\text{pump}}=0.0301$이고, 펌프 산란에 의한
-초과 잡음은
-\begin{equation}
-\mathcal N_{\text{ps}}=\kappa\,(1-e^{-\mathrm{od}_{\text{pump}}})=0.00296
-\qquad(\kappa=0.1).
+\delta\hat a_j(z,t)=
+\int_{-\infty}^{\infty}\frac{\dd\Omega_{\rm SA}}{2\pi}\,
+\delta\hat a_j(z,\Omega_{\rm SA})\e^{-\ii\Omega_{\rm SA}t}.
+\label{eq:fourier}
 \end{equation}
 
-\subsection{잡음 예산}
-식~\eqref{eq:S}를 이득 참조값으로 분해하면 (폐형식, 정확):
-\begin{center}
-\begin{tabular}{lccc}
-\toprule
- & balanced 항 & $+$ 펌프 산란 & $\xi$\\
-\midrule
-finite ($\eta=0.8694$) & $0.1519$ & $0.1548$ & $-8.10\dB$\\
-ideal ($\eta=1$)       & $0.0245$ & $0.0274$ & $-15.62\dB$\\
-ideal, 산란 제외        & $0.0245$ & --- & $-16.12\dB$\\
-\bottomrule
-\end{tabular}
-\end{center}
-현실적 검출에서는 손실 바닥 $(1-\eta)=0.1306$이 세기차 잡음의 $86\,\%$를
-차지하므로 $\xi_{\text{finite}}$는 감수율의 미세 오차에 둔감하다. 이상적
-검출에서는 펌프 산란이 $0.50\dB$를 깎고, 나머지가 갭$^2$/비대칭-팔 항이므로
-$\xi_{\text{ideal}}$은 갭 정밀도(\S\ref{sec:gap})에 민감하다.
-
-%==================================================================
-\section{종합}
-\label{sec:summary}
-%==================================================================
-입력 파라미터에서 압축비까지의 전 사슬이, 다음 도구만으로 닫힌 폐형식으로
-표현된다: 명시적 대수식, 3차방정식의 Cardano 근, $3\times3$ 이하 블록의
-Cramer 역행렬, Faddeeva/오차함수, 그리고 1차원 Maxwell 구적. 이 사슬을
-그대로 평가한 값과 내부 시뮬레이션 출력의 비교는 표~\ref{tab:summary}와 같다.
-
-\begin{table}[h]
+\begin{table}[ht]
 \centering
-\caption{대표 동작점($\delta=-280\MHz$)에서 본 보고서 방정식을 그대로 평가한
-재구성 값과 내부 시뮬레이션 출력의 비교. 다섯 량 모두 $0.01\dB$/$0.5\,\%$
-이내에서 일치한다.}
-\label{tab:summary}
-\begin{tabular}{lcc}
-\toprule
-량 & 해석 재구성 & 내부 시뮬레이션\\
-\midrule
-$G_s$                    & $22.59$    & $\approx 22.6$\\
-$G_s-G_c$                & $0.623$    & $0.623$\\
-$\xi_{\text{finite}}$    & $-8.10\dB$ & $-8.10\dB$\\
-$\xi_{\text{ideal}}$     & $-15.62\dB$& $-15.62\dB$\\
-최심 $\delta^\ast$       & $-280\MHz$ & $-280\MHz$\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\noindent 단계별 성격을 정리하면(표~\ref{tab:budget}): 입력 산술, Doppler
-평균, 전파, 잡음 조립은 모형과 동일한 폐형식이므로 \emph{정확}하다. 감수율만이
-컴팩트 선형 블록(또는 전체 Floquet 리우빌리안) 풀이를 요구하는데, 이를 그대로
-풀면 최적 위치·위상·크기가 모두 재현되어 표~\ref{tab:summary}의 일치가
-나온다. 그 감수율의 폐형식 \emph{구조}(Raman 공명 $+$ 자기에너지)는 두
-광자 공명이 $\delta^\ast=-280\MHz$을 고정하는 물리를 투명하게 보여주고,
-Bogoliubov 갭 항등식은 $G_s-G_c$가 왜 셀 손실·비대칭에 그토록 민감한지를
-설명하며, 잡음 예산은 $\xi_{\text{finite}}$의 검출-바닥 지배와
-$\xi_{\text{ideal}}$의 갭 민감성을 각각 정량화한다.
-
-\begin{table}[h]
-\centering
-\caption{단계별 오차 예산. ``정확''은 모형과 동일한 폐형식이라 오차 0이다.}
-\label{tab:budget}
+\caption{Frequency definitions used throughout the report.}
+\label{tab:frequency-definitions}
 \small
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}Xll}
+\begin{tabularx}{\textwidth}{L{2.5cm}L{4.2cm}L{3.3cm}Y}
 \toprule
-단계 & 성격 & 대표 동작점\\
+Symbol & Definition & Reported as & Role\\
 \midrule
-입력 산술($\Omega,N,\gamma$) & 정확 & 오차 0\\
-감수율(컴팩트 블록 / Floquet) & 선형계 풀이 & 최적 위치·위상·크기 재현\\
-\quad(최저차 연필 전개) & 근사 & 위치·위상 정확, 크기 $0.5$--$0.8\times$\\
-Doppler(Faddeeva/구적) & 정확 & 격자 오차 $\lesssim0.1\,\%$\\
-전파($e^{ML}$, $\Delta k$) & 정확 & 오차 0\\
-팔 OD(Voigt)·펌프 산란·balanced 잡음 & 정확 & 오차 0\\
-\midrule
-$G_s$, $G_s-G_c$, $\xi_{\text{finite}}$, $\xi_{\text{ideal}}$
- & & 표~\ref{tab:summary}: $0.01\dB$ 이내\\
+$\omega_{13}$ & $(E_{e_3}-E_{g_1})/\hbar$ &
+$\omega_{13}/2\pi$ & atomic optical reference\\
+$\Delta$ & $\omega_p-\omega_{13}$ &
+$\Delta/2\pi$ & pump one-photon detuning\\
+$\delta$ & $\omega_s-\omega_p+\omega_{\rm HF}$ &
+$\delta/2\pi$ & Raman detuning\\
+$\Omega_{\rm beat}$ & $\omega_p-\omega_s$ &
+$\Omega_{\rm beat}/2\pi$ & optical pump-seed beat\\
+$\Omega_{\rm SA}$ & sideband offset from an optical carrier &
+$\Omega_{\rm SA}/2\pi$ & RF spectrum-analyzer frequency\\
+$\Gamma$ & population-decay angular rate &
+$\Gamma/2\pi$ & natural linewidth\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-%==================================================================
-\appendix
-\section{동작점 파라미터 요약}
-%==================================================================
-\begin{itemize}[nosep]
-\item 실조/온도/각: $\Delta=-1.50\GHz$, $T=110\degC$, $\delta=-280\MHz$,
-      $\theta=0.32^\circ$.
-\item 장: $P_{\text{pump}}=600\,$mW($w_p=530\,\mu$m),
-      $P_{\text{seed}}=8\,\mu$W($w_s=330\,\mu$m), $L=12.5\,$mm.
-\item 원자 상수: $\Gamma/2\pi=5.746\MHz$,
-      $\omega_{\mathrm{HF}}/2\pi=3035.732\MHz$,
-      $\omega^{(e)}_{\mathrm{HF}}/2\pi=361.58\MHz$,
-      $d_{D1}=2.5377\times10^{-29}\,\mathrm{C\,m}$.
-\item 유도량: $\Omega_A/2\pi=707.55\MHz$, $N=1.12\times10^{19}\,\mathrm{m^{-3}}$,
-      $k\sigma_v/2\pi=243.6\MHz$, $\Gamma_o/2\pi=3.260\MHz$,
-      $\ell_{\text{eff}}=0.0360$, $\Delta k_z=404.6\,\mathrm{rad/m}$.
-\item 검출: $\eta=0.8694$(finite) 또는 $1$(ideal), 펌프 산란 계수 $\kappa=0.1$.
-\item 사이드밴드 비트: $\Omega_{\text{beat}}=\omega_{\mathrm{HF}}-\delta$
-      (seeded $(-)$ 브랜치).
+\section{Field, beam, and susceptibility normalization}
+
+Canonical traveling-wave amplitudes are photon-flux normalized:
+\begin{equation}
+[\delta\hat a_j(z,t),\delta\hat a_k^\dagger(z,t')]
+=\delta_{jk}\delta(t-t'),\qquad
+P_j=\hbar\omega_j|\alpha_j|^2 .
+\label{eq:flux-normalization}
+\end{equation}
+If the atomic code uses Rabi amplitudes
+$\Omega_j=\mathcal G_j\alpha_j$, its propagation matrix must be transformed
+before being interpreted quantum mechanically:
+\begin{equation}
+M_{\rm can}=\mathcal G^{-1}M_{\Omega}\mathcal G,\qquad
+\mathcal G=\operatorname{diag}(\mathcal G_s,\mathcal G_c^*).
+\label{eq:canonical-rescaling}
+\end{equation}
+The near equality of the two optical wavelengths does not remove this
+normalization requirement.
+
+The quoted beam sizes
+\[
+w_p=530\,\mu{\rm m},\qquad w_s=330\,\mu{\rm m}
+\]
+are $1/\e^2$ \emph{intensity radii}, not diameters.
+
+The reduced response is defined schematically by
+$\chibar_{jk}=\rho_{eg}^{(j\leftarrow k)}/\Omega_k$. Consequently
+\begin{equation}
+[\chibar_{jk}]={\rm s},\qquad
+\chi_{jk}=-\frac{2Nd^2}{\epsilon_0\hbar}\,\ell_{\rm norm}\chibar_{jk},
+\qquad [\chi_{jk}]=1 .
+\label{eq:susceptibility-dimension}
+\end{equation}
+The factor $\ell_{\rm norm}$ is dimensionless. Its decomposition is audited
+in Appendix~\ref{app:normalization}; the former
+$0.74\times7/144$ factor is inherited, not an exact first-principles result.
+
+\section{Operating-point classification}
+
+\begin{table}[ht]
+\centering
+\caption{Operating points are classified by provenance, not by numerical
+appearance in a scan.}
+\label{tab:operating-points}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}C{2.0cm}C{2.0cm}C{1.7cm}Y}
+\toprule
+Point and class & $\Delta/2\pi$ & $\delta/2\pi$ & $T$ & Meaning\\
+\midrule
+Archived reduced-model optimum &
+$-1.50\GHz$ & $-280\MHz$ & $110\degC$ &
+Numerical optimum of the deprecated gain-only squeezing objective.
+It is not an experimental optimum and its $N_F=1$ result is unconverged.\\
+Sim et al. literature benchmark \cite{Sim2025} &
+$+0.9\GHz$ & $-8\MHz$ & $121\degC$ &
+Experimentally measured operating point: $600$ mW pump, $8$--$10\,\mu$W
+seed, $12.5$ mm cell, $w_p=530\,\mu$m, $w_s=330\,\mu$m, and
+$\theta=0.32^\circ$.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The literature experiment reports a probe gain near $15$--$16$, a maximum
+intensity-difference reduction near $-7.8\dB$, and a squeezing bandwidth near
+$3.5\MHz$. It also reports a noise feature near $2\MHz$ arising from laser
+electronics. Those measurements are not properties of the archived
+$(\Delta/2\pi,\delta/2\pi)=(-1.50\GHz,-280\MHz)$ model point.
+
+%======================================================================
+\part{Pump-only atomic steady state}
+%======================================================================
+
+\section{Self-consistent finite-dimensional Liouvillian}
+
+For each velocity class and longitudinal position, the pump-only state is
+defined by
+\begin{equation}
+\mathcal L_{\rm pump}(z,\bm v)\rho_{\rm ss}(z,\bm v)=0,\qquad
+\Tr\rho_{\rm ss}(z,\bm v)=1 .
+\label{eq:pump-nullspace}
+\end{equation}
+A convenient pump rotating frame gives
+\begin{equation}
+\frac{H_{\rm pump}}{\hbar}=
+\omega_{\rm HF}\ketbra{g_2}{g_2}
+-\sum_e\Delta_e(\bm v)\ketbra{e}{e}
++\frac12\sum_{g,e}
+\left(\Omega^p_{ge}\ketbra{e}{g}+\Omega^{p*}_{ge}\ketbra{g}{e}\right),
+\label{eq:pump-hamiltonian}
+\end{equation}
+where $\Delta_e(\bm v)=\Delta_e-\bm k_p\cdot\bm v$.
+Spontaneous emission, collisional optical dephasing, transit relaxation, and
+ground-state decoherence enter the same Liouvillian. Vectorizing the
+$4\times4$ density matrix gives a $16\times16$ null-space problem; one row is
+replaced by the trace constraint. Solving that system would make populations
+and coherences feed back on one another self-consistently.
+
+This equation defines the required \emph{semianalytic pump-only steady
+state}: the matrix elements are analytic functions of parameters and the
+finite null space is to be solved numerically. That code migration has not
+been completed for this audit. All numerical gain tables below therefore
+retain the former rate/Sylvester pump approximation and are labeled
+accordingly. Even after implementation, the solution would be exact only
+within the four-level, Markov, rotating-wave, and specified-rate truncations.
+
+\section{Status of the former rate/Sylvester split}
+
+The previous report first solved saturation rate equations for populations and
+then solved a Sylvester equation for coherences. Because the resulting
+coherences did not feed back into the populations, that construction is not an
+exact strong-pump steady state. It may be retained only under all of the
+following assumptions:
+\begin{itemize}
+\item optical coherences can be adiabatically eliminated;
+\item excited-state interference and coherent population trapping are small;
+\item pump-induced level dressing is weak compared with relevant separations;
+\item population redistribution is slow compared with optical dephasing; and
+\item fitted rates represent the omitted coherent dynamics.
+\end{itemize}
+At the archived point the quoted pump Rabi rate is comparable with or larger
+than the excited-state hyperfine splitting, so these assumptions are not
+automatically satisfied. All archived population and coherence numbers are
+therefore classified as a controlled approximation only if a separate error
+study is supplied.
+
+\section{Phenomenological rates and truncations}
+
+The four-level pump model uses a Zeeman-averaged hyperfine basis. The
+$\gamma_{gg}/(2\pi)=100\kHz$ ground-coherence floor, density-dependent
+collisional term, and
+optical self-broadening are phenomenological inputs unless independently
+measured. Their provenance and sensitivity are listed in
+Appendix~\ref{app:parameters}. No calculation involving these quantities is
+labeled exact.
+
+%======================================================================
+\part{Weak-field linear response}
+%======================================================================
+
+\section{Frequency-dependent response matrix}
+
+Let $\mathcal V_k(\Omega_{\rm SA})$ be the perturbation generated by the weak
+seed or conjugate sideband. With Eqs.~\eqref{eq:fourier} and
+$\dot\rho=\mathcal L_{\rm pump}\rho+\mathcal V\rho_{\rm ss}$,
+\begin{equation}
+\delta\rho_k(\Omega_{\rm SA})=
+-\left(\mathcal L_{\rm pump}+\ii\Omega_{\rm SA}\right)^{-1}_{\Tr=0}
+\mathcal V_k(\Omega_{\rm SA})\rho_{\rm ss}.
+\label{eq:linear-resolvent}
+\end{equation}
+The inverse acts on the trace-zero subspace. Using the opposite Fourier sign
+would replace $+\ii\Omega_{\rm SA}$ with $-\ii\Omega_{\rm SA}$; mixing those
+conventions is not allowed.
+
+Polarization readout gives the full response matrix
+\begin{equation}
+\begin{pmatrix}P_s\\P_c^*\end{pmatrix}
+=\epsilon_0
+\begin{pmatrix}
+\chi_{ss}(\Omega_{\rm SA})&\chi_{sc}(\Omega_{\rm SA})\\
+\chi_{cs}^*(\Omega_{\rm SA})&\chi_{cc}^*(\Omega_{\rm SA})
+\end{pmatrix}
+\begin{pmatrix}E_s\\E_c^*\end{pmatrix}.
+\label{eq:chi-matrix}
+\end{equation}
+Thus $M_q$, the reservoir coupling $B$, and the diffusion matrix $D$ may all
+depend on $\Omega_{\rm SA}$.
+
+\section{Floquet harmonics and convergence requirement}
+
+If the chosen rotating frame leaves a periodic pump term at
+$\Omega_{\rm beat}$, expand
+\[
+\rho(t)=\sum_{n=-N_F}^{N_F}\rho_n\e^{-\ii n\Omega_{\rm beat}t}.
+\]
+The finite block equations have the form
+\begin{equation}
+\left(\mathcal L_0+\ii n\Omega_{\rm beat}\right)\rho_n
++\mathcal C_p\rho_{n-1}+\mathcal C_m\rho_{n+1}=0 .
+\label{eq:floquet-block}
+\end{equation}
+Trace one is imposed in the $n=0$ sector and trace zero in every other sector.
+The truncation is accepted only after $N_F$ convergence of $G_s$, $G_c$,
+$G_s-G_c$, the wrapped phases of $\chi_{sc}$ and $\chi_{cs}$, and the
+specified optimum $\delta^\ast$.
+
+The audit in Table~\ref{tab:floquet-convergence} uses a generalized
+continued-fraction
+solver that reproduces the production $N_F=1$ calculation exactly and agrees
+with direct finite-block solves to $5.4\times10^{-13}$. The displayed gains
+isolate the archived Floquet truncation and still inherit its old
+dressed-$k$ phase convention; they are \emph{not} corrected Option-A
+predictions.
+
+\section{Non-collinear Doppler geometry}
+
+Choose the pump along $z$ and the seed in the $x$-$z$ plane:
+\[
+\bm k_p=k_p\hat{\bm z},\qquad
+\bm k_s=k_s(\sin\theta\,\hat{\bm x}+\cos\theta\,\hat{\bm z}).
+\]
+Then
+\begin{align}
+\Delta_{\rm eff}&=\Delta-k_pv_z,\\
+\delta_{\rm eff}&=\delta-(k_p-k_s\cos\theta)v_z+k_s\sin\theta\,v_x .
+\label{eq:doppler-detunings}
+\end{align}
+The quantitative average is at least two-dimensional:
+\begin{equation}
+\langle X\rangle_v=
+\int\!\!\int\frac{\dd v_z\,\dd v_x}{2\pi\sigma_v^2}
+\exp\!\left[-\frac{v_z^2+v_x^2}{2\sigma_v^2}\right]
+X(\Delta_{\rm eff},\delta_{\rm eff}).
+\label{eq:two-dimensional-velocity}
+\end{equation}
+The unused $v_y$ projection integrates to one. For $k_p\simeq k_s=k$,
+\begin{equation}
+|\bm k_p-\bm k_s|=2k\sin(\theta/2)\simeq k\theta,\qquad
+\frac{\sigma_{\delta,\theta}}{2\pi}
+\simeq\frac{\theta\sigma_v}{\lambda}=1.361\MHz
+\label{eq:angular-doppler}
+\end{equation}
+for $\theta=0.32^\circ$, $\sigma_v=193.7\,{\rm m/s}$, and
+$\lambda=795$ nm. These requested values correspond to the archived
+$110\degC$ estimate. At the $121\degC$ literature point,
+$\sigma_v\simeq196.5\,{\rm m/s}$ and the width is about $1.38\MHz$.
+Both are much larger than the assumed
+$\gamma_{gg}/2\pi=0.10\MHz$. The angular term vanishes as
+$\theta\to0$; a roughly $2\kHz$ collinear residual remains because
+$\omega_p\ne\omega_s$.
+
+\section{Faddeeva base integral and corrected Voigt identity}
+
+For a single velocity projection,
+\begin{equation}
+\left\langle\frac1{x_0-kv+\ii\Gamma_o}\right\rangle_v
+=-\frac{\ii}{k\sigma_v}\sqrt{\frac{\pi}{2}}\,
+w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right),
+\qquad
+w(z)=\e^{-z^2}\operatorname{erfc}(-\ii z).
+\label{eq:faddeeva}
+\end{equation}
+With
+\[
+V(x;\sigma,\gamma)=
+\frac{\Rea w[(x+\ii\gamma)/(\sqrt2\sigma)]}
+{\sqrt{2\pi}\sigma},
+\]
+the dimensionally correct identity is
+\begin{equation}
+\boxed{\;
+\Ima\left\langle\frac1{x_0-kv+\ii\Gamma_o}\right\rangle_v
+=-\pi V(x_0;k\sigma_v,\Gamma_o).\;}
+\label{eq:voigt-correct}
+\end{equation}
+There is no additional factor $1/k$. Equation~\eqref{eq:faddeeva} is an exact
+base simple-pole integral; velocity-dependent populations, Raman
+self-energies, and the two-detuning geometry generally require multidimensional
+quadrature or a justified partial-fraction reduction. The former
+one-dimensional Faddeeva check is not a complete treatment of the experimental
+geometry.
+
+%======================================================================
+\part{Semiclassical field propagation and gain}
+%======================================================================
+
+\section{Classical coupled-mode equation}
+
+Use the carrier convention
+$E_j^{(+)}\propto\alpha_j(z)\e^{\ii(\omega_jt-k_{j,z}z)}$.
+Then the four-wave polarization $E_p^{(+)2}E_c^{(+)*}$ has the signal-envelope
+phase $\e^{-\ii(2k_{p,z}-k_{s,z}-k_{c,z})z}$, and the unrotated envelopes obey
+\[
+\alpha_s'=a\alpha_s+b\alpha_c^*\e^{-\ii\Delta k_{\rm geom}z},
+\qquad
+(\alpha_c^*)'=c\alpha_s\e^{+\ii\Delta k_{\rm geom}z}
++d_0\alpha_c^* ,
+\]
+which fixes the phase convention. Define the symmetric rotating frame
+\[
+\widetilde\alpha_s=\alpha_s\e^{+\ii\Delta k_{\rm geom}z/2},
+\qquad
+\widetilde\alpha_c^*=\alpha_c^*\e^{-\ii\Delta k_{\rm geom}z/2}.
+\]
+Direct differentiation then gives
+\begin{equation}
+\frac{\dd}{\dd z}
+\begin{pmatrix}\widetilde\alpha_s\\\widetilde\alpha_c^*\end{pmatrix}
+=M_{\rm cl}
+\begin{pmatrix}\widetilde\alpha_s\\\widetilde\alpha_c^*\end{pmatrix},
+\qquad
+M_{\rm cl}=Q^{-1}M_EQ,
+\label{eq:classical-propagation}
+\end{equation}
+where the Maxwell electric-field matrix is
+\begin{equation}
+M_E=
+\begin{pmatrix}
+\frac{\ii k_s}{2}\chi_{ss}+\frac{\ii\Delta k_{\rm geom}}2 &
+\frac{\ii k_s}{2}\chi_{sc}\\
+-\frac{\ii k_c}{2}\chi_{cs}^* &
+-\frac{\ii k_c}{2}\chi_{cc}^*-\frac{\ii\Delta k_{\rm geom}}2
+\end{pmatrix},\qquad
+Q=\operatorname{diag}\!\left(
+\sqrt{\frac{2\hbar\omega_s}{\epsilon_0cA_s}},
+\sqrt{\frac{2\hbar\omega_c}{\epsilon_0cA_c}}\right).
+\label{eq:electric-propagation}
+\end{equation}
+Here
+\begin{equation}
+\Delta k_{\rm geom}=2k_{p,z}-k_{s,z}-k_{c,z}
+\label{eq:geometric-mismatch}
+\end{equation}
+uses vacuum carrier wave numbers and geometry only.
+The effective mode areas $A_s,A_c$ must match the collected modes.
+Equation~\eqref{eq:classical-propagation} is the canonical photon-flux
+rescaling of the electric-field equation; a Rabi-amplitude implementation
+must equivalently apply Eq.~\eqref{eq:canonical-rescaling}.
+
+\subsection*{No double counting of dispersion}
+
+Equation~\eqref{eq:classical-propagation} is Option A. The real parts of
+$\chi_{ss}$ and $\chi_{cc}$ generate dispersive phase exactly once through the
+diagonal propagation terms. Refractive indices
+$n_j=1+\Rea\chi_{jj}/2$ are \emph{not} inserted again into
+$\Delta k_{\rm geom}$. The archived dressed-$k$ calculation that used both
+mechanisms is retained only for implementation-history and convergence
+diagnostics.
+
+\section{Constant-matrix exponential and mean-field gains}
+
+For an undepleted pump and $z$-independent coefficients,
+\begin{align}
+T_{\rm cl}(L)&=\e^{M_{\rm cl}L}\nonumber\\
+&=\e^{sL}\left[
+\cosh(qL)I+\frac{\sinh(qL)}q(M_{\rm cl}-sI)\right],\\
+s&=\frac{a+d}{2},\qquad
+q=\sqrt{\frac{(a-d)^2}{4}+bc},
+\label{eq:matrix-exponential}
+\end{align}
+where $a,b,c,d$ are the entries of $M_{\rm cl}$. The formula is an algebraic
+identity for constant $M_{\rm cl}$. Its physical assumptions are:
+\begin{itemize}
+\item undepleted pump;
+\item fixed density and temperature;
+\item no longitudinal pump attenuation;
+\item $z$-independent overlap and response coefficients; and
+\item a single collected transverse mode.
+\end{itemize}
+If those assumptions fail, use an ordered product or path-ordered exponential.
+
+For seed-only input,
+\begin{equation}
+G_s=|T_{{\rm cl},11}|^2,\qquad
+G_c=|T_{{\rm cl},21}|^2 .
+\label{eq:mean-field-gains}
+\end{equation}
+These are explicitly \textbf{semiclassical mean-field gains}. They do not
+determine a quantum covariance.
+
+\section{Classical gain-gap identity}
+
+For $u'=au+bv$ and $v'=cu+dv$,
+\begin{equation}
+\frac{\dd}{\dd z}(|u|^2-|v|^2)
+=2\Rea(a)|u|^2-2\Rea(d)|v|^2
++2\Rea[(b-c^*)u^*v].
+\label{eq:gain-gap}
+\end{equation}
+In a closed lossless parametric model,
+$\Rea a=\Rea d=0$ and $b=c^*$, so $G_s-G_c=1$.
+Equation~\eqref{eq:gain-gap} is retained as a property of the classical
+transfer matrix. If $G_s-G_c\ne1$, it is evidence that a two-operator quantum
+map needs additional channels; it is not permission to use a noncanonical
+Bogoliubov map.
+
+%======================================================================
+\part{Quantum fluctuation propagation}
+%======================================================================
+
+\section{Why the former two-mode formula fails}
+
+The former relation
+\[
+\hat a_s^{\rm out}=\mu\hat a_s^{\rm in}
++\nu\hat a_c^{{\rm in}\dagger},\qquad
+|\mu|^2=G_s,\quad|\nu|^2=G_c
+\]
+implies
+\[
+[\hat a_s^{\rm out},\hat a_s^{{\rm out}\dagger}]
+=G_s-G_c .
+\]
+At the archived representative result this equals $0.623$, not one. Therefore
+the map is invalid without additional noise operators. The formula
+\[
+\mathrm{cov}_0=\tfrac12[(G_s+G_c)-(G_s-G_c)^2]
+\]
+and every squeezing number derived only from $G_s$ and $G_c$ are removed as
+general results for the dissipative cell.
+
+\section{Quantum-Langevin propagation}
+
+Define the Nambu sideband vector
+\begin{equation}
+\hat{\bm A}(z,\Omega)=
+\begin{pmatrix}
+\delta\hat a_s(z,\Omega)\\
+\delta\hat a_c^\dagger(z,-\Omega)
+\end{pmatrix},\qquad
+[\hat{\bm A}(z,\Omega),\hat{\bm A}^\dagger(z,\Omega')]
+=2\pi J\delta(\Omega-\Omega'),
+\quad J=\operatorname{diag}(1,-1).
+\label{eq:nambu}
+\end{equation}
+The distributed fluctuation equation is
+\begin{equation}
+\frac{\partial}{\partial z}\hat{\bm A}(z,\Omega_{\rm SA})
+=M_q(z,\Omega_{\rm SA})\hat{\bm A}(z,\Omega_{\rm SA})
++B(z,\Omega_{\rm SA})\hat{\bm F}(z,\Omega_{\rm SA}).
+\label{eq:langevin}
+\end{equation}
+Its formal solution is
+\begin{align}
+T(z_2,z_1;\Omega)&=
+\mathcal P\exp\!\left[\int_{z_1}^{z_2}M_q(z,\Omega)\dd z\right],\\
+\hat{\bm A}_{\rm out}(\Omega)&=
+T(L,0;\Omega)\hat{\bm A}_{\rm in}(\Omega)
++\int_0^L T(L,z;\Omega)B(z,\Omega)\hat{\bm F}(z,\Omega)\dd z .
+\label{eq:langevin-solution}
+\end{align}
+For local Markov reservoirs,
+\[
+[\hat{\bm F}(z,\Omega),\hat{\bm F}^\dagger(z',\Omega')]
+=2\pi J_F\delta(z-z')\delta(\Omega-\Omega').
+\]
+Canonical preservation requires
+\begin{equation}
+\boxed{\;
+TJT^\dagger+\int_0^L
+T(L,z)BJ_FB^\dagger T^\dagger(L,z)\dd z=J .\;}
+\label{eq:commutator-integral}
+\end{equation}
+A sufficient local condition is
+\begin{equation}
+\boxed{\;
+M_qJ+JM_q^\dagger+BJ_FB^\dagger=0 .\;}
+\label{eq:physical-realizability}
+\end{equation}
+
+\section{Covariance and atomic diffusion}
+
+Define reservoir symmetrized correlations by
+\[
+\frac12\left\langle
+\{\hat{\bm F}(z,\Omega),\hat{\bm F}^\dagger(z',\Omega')\}\right\rangle
+=2\pi N_{\rm res}(z,\Omega)\delta(z-z')\delta(\Omega-\Omega'),
+\qquad D=BN_{\rm res}B^\dagger .
+\]
+Then
+\begin{equation}
+\boxed{\;
+V_{\rm out}(\Omega)=
+T(\Omega)V_{\rm in}(\Omega)T^\dagger(\Omega)
++\int_0^L T(L,z;\Omega)D(z,\Omega)T^\dagger(L,z;\Omega)\dd z .\;}
+\label{eq:covariance}
+\end{equation}
+Equation~\eqref{eq:covariance} is one $2\times2$ Nambu block. Before applying
+the detector model, solve its companion block and assemble
+\[
+\hat{\bm\Xi}(\Omega)=
+\bigl(\hat a_s(\Omega),\hat a_c(\Omega),
+\hat a_s^\dagger(-\Omega),\hat a_c^\dagger(-\Omega)\bigr)^T
+\]
+with spectral covariance $V_\Xi(\Omega)$. The quadrature-sideband covariance
+used below is
+\begin{equation}
+V_R(\Omega)=CV_\Xi(\Omega)C^\dagger,\qquad
+C=\frac1{\sqrt2}
+\begin{pmatrix}
+1&0&1&0\\
+-\ii&0&\ii&0\\
+0&1&0&1\\
+0&-\ii&0&\ii
+\end{pmatrix},
+\label{eq:nambu-quadrature}
+\end{equation}
+corresponding to $\hat{\bm R}=(X_s,P_s,X_c,P_c)^T$. This explicit assembly
+prevents the $2\times2$ Nambu covariance from being mixed dimensionally with
+the $4\times4$ detector matrices.
+The commutator condition fixes antisymmetric reservoir correlations, not the
+symmetrized diffusion that determines squeezing. A physical
+$D(z,\Omega_{\rm SA})$ must be derived from the pumped atomic Lindblad model,
+generalized Einstein relations, or an independently justified reservoir
+model. Independent velocity classes add as independent diffusion powers;
+one must not square a velocity-averaged noise amplitude.
+
+\subsection{Minimum-vacuum mathematical completion}
+
+For testing only, any constant drift may be given a quantum-limited local
+completion. Let
+\begin{equation}
+K=-(M_qJ+JM_q^\dagger)=U\Lambda U^\dagger,\quad
+B_{\min}=U|\Lambda|^{1/2},\quad
+J_F=\operatorname{diag}(\operatorname{sgn}\Lambda),\quad
+D_{\min}=\tfrac12B_{\min}B_{\min}^\dagger .
+\label{eq:minimal-dilation}
+\end{equation}
+This construction preserves the commutator and assumes vacuum reservoirs with
+the minimum compatible symmetrized noise. It is not a derivation of atomic
+spontaneous-emission noise, and additional diffusion can only be assessed from
+a microscopic model or data.
+
+At the literature point, an $N_F=3$, cutoff-converged, Option-A static drift
+gives, under the diagnostic approximation $Q\propto I$,
+\[
+G_s=5.6143,\qquad G_c=4.6682,\qquad G_s-G_c=0.9462 .
+\]
+The uncompleted drift has a maximum commutator defect $5.51\times10^{-2}$.
+The factorized minimum completion reduces the local residual to
+$4.44\times10^{-16}\,{\rm m^{-1}}$ and the end-to-end relative Frobenius
+residual to $1.04\times10^{-15}$. This is a test of
+Eq.~\eqref{eq:physical-realizability}, not evidence that $D_{\min}$ equals the
+atomic diffusion matrix.
+
+\section{Frequency-dependent observable and present limitation}
+
+The final in-cell observable must be a spectrum
+$S_-^{\rm out}(\Omega_{\rm SA})$, not a scalar. The current microscopic
+$M_q(\Omega_{\rm SA})$ and $D(\Omega_{\rm SA})$ are not implemented. The
+static minimum completion above is frequency independent and yields only a
+diagnostic flat curve. It cannot reproduce:
+\begin{itemize}
+\item the squeezing bandwidth;
+\item low-frequency excess noise;
+\item the approximately $2\MHz$ laser/electronic feature;
+\item frequency-dependent atomic Langevin noise;
+\item slow-light and group-delay effects; or
+\item the detector-frequency response.
 \end{itemize}
 
-%==================================================================
-\section{참고문헌}
-%==================================================================
-\begin{enumerate}[label={[\arabic*]},leftmargin=*]
-\item G. Sim, H. Kim, H. S. Moon, \textit{Sci. Rep.} \textbf{15}, 7727 (2025).
-\item C. F. McCormick, V. Boyer, E. Arimondo, P. D. Lett,
-      \textit{Opt. Lett.} \textbf{32}, 178 (2007).
-\item M. T. Turnbull, P. G. Petrov, C. S. Embrey, A. M. Marino, V. Boyer,
-      \textit{Phys. Rev. A} \textbf{88}, 033845 (2013) --- 이중-$\Lambda$
-      감수율의 해석 형식.
-\item R. W. Boyd, \textit{Nonlinear Optics} --- population pulsation과
-      포화 감수율.
-\item W. Voigt (1912); V. N. Faddeeva \& N. M. Terent'ev (1954) ---
-      Faddeeva 함수 $w(z)$와 Voigt 프로파일.
+%======================================================================
+\part{External detection model}
+%======================================================================
+
+\section{External loss only after the cell}
+
+In the quadrature basis
+$\hat{\bm R}=(X_s,P_s,X_c,P_c)^T$, define
+\[
+K_\eta=\operatorname{diag}(\sqrt{\eta_s},\sqrt{\eta_s},
+\sqrt{\eta_c},\sqrt{\eta_c}),\qquad
+K_\ell=\operatorname{diag}(\sqrt{1-\eta_s},\sqrt{1-\eta_s},
+\sqrt{1-\eta_c},\sqrt{1-\eta_c}).
+\]
+Only loss physically located after the cell is applied:
+\begin{equation}
+V_{R,\rm det}=K_\eta V_{R,\rm out}K_\eta^T
++K_\ell V_{\rm vac}K_\ell^T .
+\label{eq:detection-loss}
+\end{equation}
+For symmetric efficiency,
+\[
+V_{R,\rm det}=\eta_{\rm ext}V_{R,\rm out}
++(1-\eta_{\rm ext})V_{\rm vac}.
+\]
+Atomic absorption and spontaneous emission remain distributed inside
+Eqs.~\eqref{eq:langevin}--\eqref{eq:covariance}. Cell optical-depth factors
+$\exp(-{\rm OD}_{p,c,\rm seg})$ are not applied a second time after
+propagation.
+
+\section{Electronic weighting and shot-noise normalization}
+
+The linearized photocurrent is
+\begin{equation}
+\delta\hat i_j(\Omega)\propto H_j(\Omega)
+\left[\alpha_j^*\delta\hat a_j(\Omega)
++\alpha_j\delta\hat a_j^\dagger(-\Omega)\right],
+\qquad
+\delta\hat i_-=\delta\hat i_s-w(\Omega)\delta\hat i_c .
+\label{eq:photocurrent}
+\end{equation}
+The normalized spectrum is
+\begin{equation}
+\boxed{\;
+S_-(\Omega)=
+\frac{\bm m^\dagger(\Omega)V_{R,\rm det}(\Omega)\bm m(\Omega)
++S_{\rm el}(\Omega)}
+{S_{\rm SNL}^{(\rm exp)}(\Omega)} .\;}
+\label{eq:spectrum}
+\end{equation}
+Here $\bm m(\Omega)$ is the four-component measurement vector obtained from
+Eq.~\eqref{eq:photocurrent}; it contains the detected carrier amplitudes,
+$H_s,H_c$, their phases, and the factor $-w$ on the conjugate quadratures.
+With $V_{\rm vac}=I/2$ and independent detector vacua, the corresponding
+ideal electronic shot-noise term is proportional to
+\[
+S_{\rm SNL}(\Omega)\propto
+|H_s|^2\eta_s|\alpha_s|^2+
+w^2|H_c|^2\eta_c|\alpha_c|^2 ,
+\]
+before the experiment-specific electronic calibration.
+The shot-noise reference must use the same detected powers, electronic
+transfer functions, weight $w$, resolution bandwidth, and video bandwidth.
+The report must state whether electronic dark noise is included or subtracted.
+
+\begin{table}[ht]
+\centering
+\caption{Loss and noise ledger.}
+\label{tab:loss-ledger}
+\small
+\begin{tabularx}{\textwidth}{L{3.4cm}L{3.2cm}Y}
+\toprule
+Mechanism & Physical location & Correct treatment\\
+\midrule
+Atomic absorption and spontaneous emission & distributed in the vapor &
+Complex response in $M_q$ plus associated $B$ and $D$\\
+Cell windows, filters, and free propagation & after the cell &
+External beam-splitter efficiency $\eta_{\rm path}$\\
+Detector quantum efficiency & detector face &
+External beam-splitter efficiency $\eta_{\rm QE}$\\
+Electronic imbalance and bandwidth & after photodetection &
+$H_s(\Omega)$, $H_c(\Omega)$, $w(\Omega)$, and calibrated
+$S_{\rm el}(\Omega)$\\
+Pump scattering into the detected mode & apparatus dependent &
+Measured technical-noise spectrum; not a universal atomic-loss formula\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The former ansatz
+\[
+\mathcal N_{\rm ps}=\kappa(1-\e^{-{\rm OD}_{\rm pump}})
+\]
+is phenomenological. If retained, it must be written
+$\mathcal N_{\rm ps}(\Omega)=
+\kappa(1-\e^{-{\rm OD}_{\rm pump}})F_{\rm ps}(\Omega)$ and calibrated to the
+experimental spectral normalization. It is not used as a universal Langevin
+noise law in this report.
+
+\part{Validation}
+
+\clearpage
+\section{Validation hierarchy}
+
+Agreement between the revised algebra and the archived program is an
+independent reimplementation of the same reduced model. It is an algebraic
+and numerical consistency check, not independent physical validation. The
+levels below are therefore reported separately.
+
+\begin{table}[ht]
+\centering
+\caption{Validation hierarchy. No combined error column is used.}
+\label{tab:validation-hierarchy}
+\small
+\begin{tabularx}{\textwidth}{L{3.4cm}Y L{3.0cm}}
+\toprule
+Level & Test performed & Status\\
+\midrule
+Algebraic consistency & Closed-form matrix exponential versus direct
+exponential; dimensional and frequency audits & \pass\\
+Numerical implementation consistency & Independent Floquet assembly versus
+archived reduced equations & \pass\ within shared assumptions\\
+Truncation convergence & $N_F=1,2,3$ and velocity-grid/cutoff studies &
+$N_F=1$ \fail; $N_F=2$ converged for the tested point\\
+Independent microscopic calculation & Multilevel Zeeman-resolved
+Liouvillian and atomic diffusion matrix & \pending\\
+Experimental gain comparison & Reduced model evaluated at the documented
+$^{85}$Rb operating point & performed; substantial discrepancy\\
+Experimental squeezing-spectrum comparison & Full
+$S_-(\Omega_{\rm SA})$ using microscopic $D(\Omega_{\rm SA})$ &
+\pending\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Dimensional-consistency audit}
+
+\begin{table}[ht]
+\centering
+\caption{Dimensional audit in SI units.}
+\label{tab:dimension-audit}
+\small
+\begin{tabularx}{\textwidth}{L{4.1cm}L{3.0cm}Y}
+\toprule
+Quantity & Dimension & Check\\
+\midrule
+$\Delta,\delta,\Gamma,\Omega_{\rm SA},D_e$ &
+$\mathrm{s}^{-1}$ & All equations use angular frequency\\
+$\chibar_{ij}$ & $\mathrm{s}$ &
+Contains resolvent factors such as $D_e^{-1}$; it is not dimensionless\\
+$Nd^2/(\epsilon_0\hbar)$ & $\mathrm{s}^{-1}$ &
+Multiplying $\chibar$ gives dimensionless $\chi_{ij}$\\
+$\chi_{ij}$ & $1$ & Required by $k_j\chi_{ij}/2$ in propagation\\
+$M_{\rm cl},M_q$ & $\mathrm{m}^{-1}$ &
+Compatible with $\partial_z\bm a=M\bm a$\\
+$B\hat{\bm f}$ & field amplitude per metre &
+Uses delta-correlated reservoir fields in $z$\\
+$V(x;\sigma,\gamma)$ & $\mathrm{s}$ &
+$-\pi V$ has the dimension of an inverse angular frequency\\
+$G_s,G_c,S_-$ & $1$ & Power gains and normalized noise spectra\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\section{Frequency-convention audit}
+
+\begin{table}[ht]
+\centering
+\caption{Frequency variables and references.}
+\label{tab:frequency-audit}
+\small
+\begin{tabularx}{\textwidth}{L{3.0cm}L{4.2cm}Y}
+\toprule
+Symbol & Definition & Convention and role\\
+\midrule
+$\omega_p,\omega_s,\omega_c$ & absolute optical angular frequencies &
+$\omega_c=2\omega_p-\omega_s$\\
+$\Delta$ & $\omega_p-\omega_{13}$ &
+Reported only as $\Delta/(2\pi)$ in GHz or MHz\\
+$\delta$ & $\omega_s-\omega_p+\omega_{\rm HF}$ &
+Reported only as $\delta/(2\pi)$; sign fixes the seed convention\\
+$\Omega_{\rm beat}$ & $\omega_p-\omega_s=\omega_{\rm HF}-\delta$ &
+Optical pump--seed beat; not the analyzer frequency\\
+$\Omega_{\rm SA}$ & Fourier frequency of fluctuations &
+$\Omega_{\rm SA}/(2\pi)\simeq0.1$--$4\MHz$\\
+$\Gamma$ and $\gamma_{gg}$ & angular decay rates &
+For example $\Gamma/(2\pi)=5.75\MHz$ and
+$\gamma_{gg}/(2\pi)=0.10\MHz$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Floquet-truncation convergence}
+
+Table~\ref{tab:floquet-convergence} repeats the archived-model calculation at
+the legacy numerical optimum
+$\Delta/(2\pi)=-1.50\GHz$, $T=110\degC$ and approximately
+$\delta/(2\pi)=-280\MHz$. It deliberately retains the archived
+dressed-wave-vector phase convention only to isolate Floquet convergence;
+because that convention double counts dispersion, these numbers are not the
+corrected physical prediction.
+
+\begin{table}[ht]
+\centering
+\caption{Floquet convergence of the archived reduced model at the fixed point
+$\delta/(2\pi)=-280\MHz$. Sectors $n=-N_F,\ldots,N_F$ are retained.}
+\label{tab:floquet-convergence}
+\small
+\begin{tabular}{c r r r r r}
+\toprule
+$N_F$ & $G_s$ & $G_c$ & $G_s-G_c$ &
+$\arg\chi_{sc}$ & $\arg\chi_{cs}$\\
+\midrule
+1 & 22.5913 & 21.9687 & $+0.622609$ &
+$178.142^\circ$ & $-179.333^\circ$\\
+2 & 19.3415 & 19.4472 & $-0.105684$ &
+$178.173^\circ$ & $-179.366^\circ$\\
+3 & 19.3415 & 19.4472 & $-0.105684$ &
+$178.173^\circ$ & $-179.366^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Separate minimization of the archived gain-only objective. All
+observables in a row are evaluated at that row's $\delta^*$. The scan spacing
+is $5\MHz$.}
+\label{tab:legacy-delta-star}
+\small
+\begin{tabular}{c r r r r r r}
+\toprule
+$N_F$ & $\delta^*/(2\pi)$ [MHz] & $G_s$ & $G_c$ & $G_s-G_c$ &
+$\arg\chi_{sc}$ & $\arg\chi_{cs}$\\
+\midrule
+1 & $-280$ & 22.5913 & 21.9687 & $0.622609$ &
+$178.142^\circ$ & $-179.333^\circ$\\
+2 & $-275$ & 8.97871 & 8.46840 & $0.510314$ &
+$178.402^\circ$ & $-179.582^\circ$\\
+3 & $-275$ & 8.97871 & 8.46840 & $0.510314$ &
+$178.402^\circ$ & $-179.582^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The relative changes from $N_F=1$ to 2 are
+\[
+\frac{|G_s^{(2)}-G_s^{(1)}|}{G_s^{(2)}}=16.80\%,
+\qquad
+\frac{|G_c^{(2)}-G_c^{(1)}|}{G_c^{(2)}}=12.97\%.
+\]
+The gain gap even changes sign. Thus the original $N_F=1$ result is
+\emph{qualitative and unconverged}. The $N_F=2$ to 3 changes are below
+$4\times10^{-7}\%$ at this tested point. Direct block solves and the
+independent assembly agree to $5.4\times10^{-13}$ or better. Convergence at
+one operating point does not prove global convergence; every reported scan
+must repeat this test.
+
+For the propagation-only Option-A correction at the fixed literature point,
+the inherited approximate atomic response gives the results in
+Table~\ref{tab:floquet-option-a}. Here $N_F=1\to2$ changes $G_s$ by
+$0.0863\%$ and $G_c$ by $0.1481\%$; $N_F=2$ and 3 agree at the displayed
+precision. This establishes Floquet convergence of that fixed propagation
+benchmark, while leaving the pump-state and multidimensional-velocity
+approximations untouched.
+\begin{table}[ht]
+\centering
+\caption{Floquet convergence at the fixed literature point
+$\Delta/(2\pi)=+0.90\GHz$, $\delta/(2\pi)=-8\MHz$, and $T=121\degC$.
+This is not an optimization and does not use the new self-consistent pump
+state.}
+\label{tab:floquet-option-a}
+\small
+\begin{tabular}{c r r r r r}
+\toprule
+$N_F$ & $G_s$ & $G_c$ & $G_s-G_c$ &
+$\arg\chi_{sc}$ & $\arg\chi_{cs}$\\
+\midrule
+1 & 5.609495 & 4.661245 & 0.948250 &
+$-179.880518^\circ$ & $179.797297^\circ$\\
+2 & 5.614341 & 4.668160 & 0.946182 &
+$-179.879968^\circ$ & $179.796859^\circ$\\
+3 & 5.614341 & 4.668160 & 0.946182 &
+$-179.879968^\circ$ & $179.796859^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The inherited weak-response implementation also retains a finite reference
+seed. Its numerical linearity check is
+\begin{center}
+\begin{tabular}{c r r r}
+\toprule
+Reference seed & $G_s$ & $G_c$ & $G_s-G_c$\\
+\midrule
+$2\,\mu{\rm W}$ & 5.614368 & 4.668743 & 0.945625\\
+$4\,\mu{\rm W}$ & 5.614359 & 4.668549 & 0.945811\\
+$8\,\mu{\rm W}$ & 5.614341 & 4.668160 & 0.946182\\
+\bottomrule
+\end{tabular}
+\end{center}
+Between 2 and $8\,\mu{\rm W}$, $G_s$ changes by $-0.000482\%$, $G_c$ by
+$-0.012493\%$, and the gap by $+0.058822\%$. This supports numerical
+weak-reference linearity at this fixed point only; it does not validate the
+underlying pump-state approximation.
+
+\clearpage
+\section{Velocity-integration convergence}
+
+The following tests use $N_F=3$ and the archived one-dimensional Doppler
+integral. They validate only that integral, not the non-collinear geometry.
+At a fixed $5\sigma_v$ cutoff, velocity-step convergence is excellent:
+
+\begin{table}[ht]
+\centering
+\caption{One-dimensional velocity-step convergence at fixed
+$|v_z|\leq5\sigma_v$.}
+\label{tab:velocity-step}
+\small
+\begin{tabular}{r r r r r}
+\toprule
+$\Delta v$ [m/s] & Classes & $G_s$ & $G_c$ &
+Relative $G_s$ error\\
+\midrule
+10.00 & 195 & 18.936590 & 19.024328 & $1.56\times10^{-3}\%$\\
+5.00  & 389 & 18.936295 & 19.024021 & $2.66\times10^{-7}\%$\\
+2.50  & 777 & 18.936295 & 19.024021 & $9.58\times10^{-8}\%$\\
+1.25  & 1551 & 18.936295 & 19.024021 & reference\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The cutoff, however, is important:
+
+\begin{table}[ht]
+\centering
+\caption{One-dimensional cutoff convergence at
+$\Delta v=2.5\,\mathrm{m/s}$.}
+\label{tab:velocity-cutoff}
+\small
+\begin{tabular}{c r r r r}
+\toprule
+Cutoff & $G_s$ & $G_c$ & $G_s-G_c$ &
+Relative $G_s$ error\\
+\midrule
+$3.0\sigma_v$ & 19.36195 & 19.46857 & $-0.10662$ & $2.248\%$\\
+$3.5\sigma_v$ & 19.11527 & 19.21041 & $-0.09514$ & $0.945\%$\\
+$4.0\sigma_v$ & 18.98214 & 19.07172 & $-0.08957$ & $0.242\%$\\
+$4.5\sigma_v$ & 18.93642 & 19.02414 & $-0.08773$ & $6.4\times10^{-4}\%$\\
+$5.0\sigma_v$ & 18.93629 & 19.02402 & $-0.08773$ & reference\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the experimental crossing angle, a converged quantitative calculation
+must additionally integrate the mismatch projection in
+Eq.~\eqref{eq:two-dimensional-velocity}. The angular rms width
+$\sigma_{\delta,\theta}/(2\pi)=1.36\MHz$ is not negligible relative to
+$\gamma_{gg}/(2\pi)=0.10\MHz$.
+
+\clearpage
+\section{Commutator-preservation test}
+
+At the corrected literature operating point, assume for this diagnostic that
+the collected signal and conjugate have equal effective mode areas and use
+their near-equal optical frequencies, so $Q\propto I$ in
+Eq.~\eqref{eq:electric-propagation}. The resulting static drift in the
+symmetric mismatch gauge is
+\[
+M_q=
+\begin{pmatrix}
+-1.330328+242.349727\ii&-0.410000+195.707754\ii\\
+ 0.693784-195.680004\ii&0.341352-171.013770\ii
+\end{pmatrix}\ {\rm m}^{-1}.
+\]
+This is the same symmetric gauge as Eq.~\eqref{eq:electric-propagation}.
+If the actual collected mode areas or Rabi-to-field factors differ,
+$Q^{-1}M_EQ$ must be recomputed before applying the canonical metric $J$.
+The residuals below are therefore a conditional channel diagnostic, not a
+completed production normalization audit.
+For the numerical test only, factor the Hermitian matrix
+$K=-(M_qJ+JM_q^\dagger)$ as $K=BJ_FB^\dagger$. Here its eigenvalues are
+$0.189391\,{\rm m}^{-1}$ and $3.153969\,{\rm m}^{-1}$, so a
+minimum-vacuum dilation with $J_F=I$ exists. This construction proves that
+the drift can be embedded in a canonical channel; it is not a microscopic
+derivation of atomic noise.
+
+\begin{table}[ht]
+\centering
+\caption{Canonical-commutator audit.}
+\label{tab:commutator-test}
+\small
+\begin{tabularx}{\textwidth}{L{4.2cm}Y L{2.0cm}}
+\toprule
+Test & Residual & Result\\
+\midrule
+Old gain-only two-mode map &
+$|G_s-G_c-1|=0.377$ & \fail\\
+Corrected drift with reservoir omitted &
+$\max|TJT^\dagger-J|=5.51\times10^{-2}$ & \fail\\
+Local identity with minimum dilation, $Q\propto I$ &
+$\max|M_qJ+JM_q^\dagger+BJ_FB^\dagger|=4.44\times10^{-16}\,{\rm m}^{-1}$ &
+\pass\ conditional\\
+Integrated identity through the cell, $Q\propto I$ &
+$\|TJT^\dagger+\int T_zBJ_FB^\dagger T_z^\dagger\dd z-J\|_F/
+\|J\|_F=1.04\times10^{-15}$ & \pass\ conditional\\
+Microscopic $B(\Omega)$ and $D(\Omega)$ over 0.1--4 MHz &
+Not implemented in the current four-level code & \pending\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Canonical commutator preservation constrains the antisymmetric reservoir
+correlations. It does not determine the symmetrized diffusion matrix
+$D(\Omega)$, its temperature, or excess spontaneous-emission noise.
+Consequently the minimum-vacuum values below are an illustrative diagnostic
+for one chosen dilation, not a bound and not a Langevin-corrected physical
+prediction.
+
+\clearpage
+\section{Corrected model point and experimental comparison}
+
+This benchmark is a \emph{propagation-only correction}: it applies Option A
+and $N_F=3$ to the inherited rate/Sylvester atomic response. It is not an
+output of the new pump-null-space and frequency-resolvent formulation in
+Parts II--III. It uses a $5\sigma_v$ one-dimensional velocity range and the
+documented point
+\[
+\frac{\Delta}{2\pi}=+0.90\GHz,\quad
+\frac{\delta}{2\pi}=-8\MHz,\quad T=121\degC,\quad L=12.5\,{\rm mm},
+\]
+with 600 mW pump power, $8\,\mu{\rm W}$ seed power,
+$w_p=530\,\mu{\rm m}$, $w_s=330\,\mu{\rm m}$, and
+$\theta=0.32^\circ$. The radii are $1/\e^2$ intensity radii.
+The calculation still omits the transverse two-photon Doppler average and
+therefore remains a reduced-model benchmark. In the same symmetric mismatch
+gauge used for the commutator audit,
+
+\[
+T_{\rm cl}=
+\begin{pmatrix}
+-0.376876+2.339296\ii&-0.929014+1.950994\ii\\
+ 0.931714-1.949376\ii&1.593377-1.777683\ii
+\end{pmatrix},
+\]
+which gives $G_s=5.61434$, $G_c=4.66816$, and
+$G_s-G_c=0.946182$.
+
+\begin{table}[ht]
+\centering
+\caption{Separation of mean-field gain and quantum-noise layers at the
+literature operating point, conditional on the diagnostic $Q\propto I$
+normalization. The symmetric external efficiency used in the diagnostic
+columns is $\eta_{\rm ext}=0.8694$.}
+\label{tab:model-layer-comparison}
+\small
+\begin{tabularx}{\textwidth}{L{3.7cm}C{1.35cm}C{1.35cm}C{1.8cm}C{1.8cm}Y}
+\toprule
+Layer & $G_s$ & $G_c$ & $S_-^{\rm out}$ & $S_-^{\rm det}$ &
+Interpretation\\
+\midrule
+Semiclassical reduced model & 5.614 & 4.668 & --- & --- &
+Mean-field gain only\\
+Ideal Bogoliubov amplifier matched to $G_s$ & 5.614 & 4.614 &
+0.09776 ($-10.10\dB$) & 0.21560 ($-6.66\dB$) &
+Lossless limiting case, not the dissipative medium\\
+Minimum-vacuum static dilation & 5.614 & 4.668 &
+0.09230 ($-10.35\dB$) & 0.21084 ($-6.76\dB$) &
+Canonical diagnostic with $w=1$; $D$ is not microscopic\\
+Minimum-vacuum static dilation, DC balanced & 5.614 & 4.668 &
+0.09774 ($-10.10\dB$) & 0.21558 ($-6.67\dB$) &
+Same diagnostic with $w=G_s/G_c=1.20269$\\
+Microscopic quantum-Langevin model & 5.614 & 4.668 &
+\pending & \pending & Required physical calculation\\
+Experiment & $\sim15.5$ & apparent 13.6 & --- &
+0.166 ($-7.8\dB$) & Measured spectrum; conjugate ratio is not a separately
+calibrated transfer coefficient\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Spectrum-level comparison for the $w=1$ diagnostic. A constant entry
+is shown only to expose what the static model cannot reproduce; DC balancing
+would instead give a flat $-6.67\dB$.}
+\label{tab:spectrum-comparison}
+\small
+\begin{tabularx}{\textwidth}{C{2.1cm}C{2.6cm}C{2.9cm}Y}
+\toprule
+$\Omega_{\rm SA}/(2\pi)$ &
+Static minimum-vacuum diagnostic &
+Microscopic Langevin prediction & Experimental information\\
+\midrule
+0.10 MHz & $-6.76\dB$ & \pending &
+Low-frequency technical excess noise is present\\
+0.15 MHz & $-6.76\dB$ & \pending &
+$-8.7\dB$ ratio of fitted IDS/SQL power slopes at 150 kHz\\
+2.00 MHz & $-6.76\dB$ & \pending &
+Approximately 2 MHz laser-electronics feature\\
+4.00 MHz & $-6.76\dB$ & \pending &
+Beyond the approximately 3.5 MHz squeezing bandwidth\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The static gain model cannot reproduce squeezing bandwidth,
+low-frequency excess noise, the approximately $2\MHz$ feature,
+frequency-dependent atomic Langevin noise, or detector-frequency response.
+Therefore a single gain-derived squeezing number is not substituted for
+$S_-(\Omega_{\rm SA})$.
+
+\begin{table}[ht]
+\centering
+\caption{Discrepancies relative to the documented experimental point.}
+\label{tab:discrepancies}
+\small
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.5cm}L{3.2cm}Y}
+\toprule
+Observable & Reduced model & Experiment or benchmark & Discrepancy\\
+\midrule
+$G_s$ & 5.614 & approximately 15.5 & $-63.8\%$\\
+$G_c$ & 4.668 & apparent power ratio 13.6 & $-65.7\%$;
+definitions are not fully equivalent\\
+$\delta^*/(2\pi)$ & $-275\MHz$ in the archived reduced scan &
+$-8\MHz$ measured operating point & $-267\MHz$; different objective and
+incomplete geometry make this nonpredictive\\
+$\Delta^*/(2\pi)$ & $-1.50\GHz$ in the archived reduced scan &
+$+0.90\GHz$ measured operating point & $-2.40\GHz$\\
+Maximum squeezing & no physical prediction & $-7.8\dB$ &
+Microscopic diffusion and detector response missing\\
+Squeezing bandwidth & no physical prediction & approximately $3.5\MHz$ &
+Static model has no bandwidth\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The point
+$(\Delta/2\pi,\delta/2\pi,T)=(-1.50\GHz,-280\MHz,110\degC)$ is henceforth
+classified only as
+a \emph{numerical optimum under the archived reduced model}. It is not an
+experimentally established optimum.
+
+\clearpage
+\section{Required limiting cases}
+
+\begin{table}[ht]
+\centering
+\caption{Analytic limiting-case checks for the layered model.}
+\label{tab:limits}
+\small
+\begin{tabularx}{\textwidth}{L{3.5cm}Y L{2.2cm}}
+\toprule
+Limit & Required result & Status\\
+\midrule
+No atom--field coupling &
+$\chi_{ij}\to0$ implies $G_s\to1$, $G_c\to0$, $D\to0$, and $S_-\to1$ &
+\pass\ analytically\\
+Ideal lossless parametric amplifier &
+$M_qJ+JM_q^\dagger=0$, $B=D=0$, and $G_c=G_s-1$ &
+\pass\ analytically\\
+Bright seeded ideal amplifier &
+$S_-=1/(2G_s-1)$ in the stated balanced normalization &
+\pass\ analytically\\
+Symmetric external efficiency &
+$S_-^{\rm det}=1-\eta+\eta S_-^{\rm out}$ &
+\pass\ analytically\\
+Zero crossing angle &
+$\theta\to0$ removes $k\theta\sigma_v$ from the two-photon Doppler width &
+\pass\ analytically\\
+Zero dissipation &
+The Langevin contribution vanishes and $TJT^\dagger=J$ &
+\pass\ as a formal limit\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\section{Conclusions and validation status}
+
+The corrected result is deliberately layered.
+\begin{itemize}
+\item \textbf{Derived analytically:} detuning and frequency conventions,
+the base Faddeeva average, the constant-$M_{\rm cl}$ matrix exponential,
+the classical gain-gap identity, the local and integrated commutator
+identities, external-loss mixing, and the limiting cases in
+Table~\ref{tab:limits}.
+\item \textbf{Formulated as finite-dimensional matrix problems:} the
+self-consistent pump-only Liouvillian null space and frequency-dependent
+weak-field resolvent. They are specified here but are not yet implemented in
+the production FWM path.
+\item \textbf{Solved numerically under the inherited pump approximation:}
+the Floquet block system, classical propagation, convergence audits, and the
+illustrative minimum-vacuum channel dilation.
+\item \textbf{Inherited from the previous code:} the four-hyperfine-level
+truncation, effective line-strength factor, several relaxation rates,
+archived scan ranges, and empirical coefficients listed in
+Appendix~\ref{app:parameters}.
+\item \textbf{Inherited or phenomenological:} $\ell_s=0.74$,
+$\kappa=0.1$, the adopted $\gamma_{gg}$, and any pump-scattering spectrum.
+No historical fitting record was found, so none is relabeled as a measured
+quantity.
+\item \textbf{Compared with experiment:} the corrected reduced-model gains
+were evaluated at the documented 600 mW, 121\,$^\circ$C, 12.5 mm,
+$0.32^\circ$ point. The disagreement in Table~\ref{tab:discrepancies}
+precludes a claim of quantitative gain validation.
+\item \textbf{Unvalidated:} the microscopic diffusion matrix,
+$S_-(\Omega_{\rm SA})$, absolute spontaneous-emission noise, Raman
+linewidth, polarization and magnetic-field response, and the predicted
+optimum after a full non-collinear velocity average.
+\end{itemize}
+
+Thus the retained calculation is a semianalytic reconstruction of the
+\emph{semiclassical mean-field gain model}. The old values
+$\xi_{\rm finite}=-8.10\dB$ and $\xi_{\rm ideal}=-15.62\dB$ are historical,
+gain-derived numbers and are not physically validated squeezing predictions.
+The report title should include intensity-difference squeezing only after
+$B(\Omega_{\rm SA})$, $D(\Omega_{\rm SA})$, detector response, and the
+experimental spectrum have been implemented and validated.
+
+\appendix
+
+\section{Assumptions and validity domains}
+\label{app:assumptions}
+
+\begin{longtable}{L{3.4cm}L{5.0cm}L{5.6cm}}
+\caption{Assumption and validity-domain ledger.}
+\label{tab:assumptions}\\
+\toprule
+Layer & Assumption & Validity domain and failure mode\\
+\midrule
+\endfirsthead
+\toprule
+Layer & Assumption & Validity domain and failure mode\\
+\midrule
+\endhead
+Atomic basis & Four hyperfine manifolds with Zeeman structure averaged into
+effective strengths & Hyperfine-scale qualitative trends; fails for
+polarization, optical pumping, dark states, and magnetic response\\
+Pump steady state & Undepleted prescribed pump and finite-dimensional
+Markovian Liouvillian & Controlled only under the stated truncation and
+phenomenological decay channels\\
+Optional rate model & Populations solved without coherence feedback &
+Weak saturation or rapid dephasing; not an exact strong-pump steady state\\
+Weak fields & Seed and conjugate enter to first order & Below pump depletion,
+gain saturation, and nonlinear probe back-action\\
+Floquet expansion & Finite $N_F$ & Must be increased until observables
+converge; $N_F=1$ fails at the archived point\\
+Velocity average & Maxwell distribution, independent Cartesian components &
+Quantitative geometry requires at least the mismatch projection; the old
+one-dimensional average is incomplete\\
+Classical propagation & $z$-independent coefficients and fixed density,
+temperature, and pump & Closed-form exponential; fails with longitudinal
+pump attenuation, density gradients, or depletion\\
+Phase convention & Diagonal complex susceptibility plus vacuum/geometric
+mismatch only & Avoids double counting of $\Rea\chi$\\
+Quantum propagation & Linear Gaussian Langevin channel & Requires a
+microscopic reservoir matrix and appropriate Markov approximation\\
+Static dilation & Minimum-vacuum factorization of the corrected drift &
+Commutator diagnostic only; not an atomic-noise prediction\\
+Detection & External path and detector losses act after the cell &
+Valid only for losses physically distinct from distributed atomic absorption\\
+Electronics & Linear transfer functions and calibrated shot-noise reference &
+Requires measured $H_s,H_c,w,S_{\rm el}$ at every analysis frequency\\
+\bottomrule
+\end{longtable}
+
+\section{Parameter provenance and sensitivity}
+\label{app:parameters}
+
+The classifications below distinguish quantities measured for the cited
+apparatus, assumed in the reduced model, fitted or inherited
+phenomenologically, and algebraically derived. A dash means that the
+parameter does not enter that model layer.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{2.8cm}L{3.4cm}L{2.5cm}L{3.4cm}L{3.4cm}}
+\caption{Measured, assumed, fitted, inherited, and derived parameters.}
+\label{tab:parameter-provenance}\\
+\toprule
+Parameter & Physical definition & Class and source &
+Procedure or allowed range & Sensitivity of $G_s,G_c,S_-$\\
+\midrule
+\endfirsthead
+\toprule
+Parameter & Physical definition & Class and source &
+Procedure or allowed range & Sensitivity of $G_s,G_c,S_-$\\
+\midrule
+\endhead
+$L=12.5\,{\rm mm}$ &
+Vapor interaction length &
+Measured; experimental cell \cite{Sim2025} &
+Use manufacturing/calibration uncertainty when available &
+Gains depend through $\exp(M_{\rm cl}L)$; spectrum also depends on integrated
+diffusion\\
+$T=121\degC$ &
+Cell-reservoir operating temperature &
+Experimentally measured operating point \cite{Sim2025} &
+Not a fitted model optimum &
+Strong density and Doppler dependence; must be rescanned\\
+$P_p=600\,{\rm mW}$, $P_s=8\,\mu{\rm W}$ &
+Incident pump and seed powers used for squeezing &
+Experimentally measured operating point \cite{Sim2025} &
+Seed was approximately $10\,\mu{\rm W}$ in the apparatus description;
+$8\,\mu{\rm W}$ for the cited squeezing trace &
+Pump changes the steady state; seed sets bright-beam linearization and SNL\\
+$w_p=530\,\mu{\rm m}$, $w_s=330\,\mu{\rm m}$ &
+$1/\e^2$ intensity radii, not diameters &
+Measured \cite{Sim2025} &
+Use the reported beam convention &
+Set Rabi frequency and spatial overlap\\
+$\theta=0.32^\circ$ &
+Pump--seed crossing angle &
+Measured geometry \cite{Sim2025} &
+Zero-angle check required &
+Produces $1.36\MHz$ rms angular Raman broadening\\
+$\Delta/(2\pi)=+0.90\GHz$,
+$\delta/(2\pi)=-8\MHz$ &
+Experimental optical and two-photon operating detunings &
+Experimentally measured operating point \cite{Sim2025} &
+Not identified with the archived numerical optimum &
+Model evaluation gives $G_s=5.614$, $G_c=4.668$\\
+$\Gamma/(2\pi)=5.75\MHz$ &
+Natural optical linewidth used in the model &
+Literature benchmark &
+Ordinary-frequency value converted once to angular rate &
+Sets optical resolvents and Voigt width\\
+$\sigma_v=193.7\,{\rm m/s}$ at $110\degC$;
+$196.5\,{\rm m/s}$ at $121\degC$ &
+One-axis thermal rms speed at the archived and literature temperatures &
+Derived from Maxwell statistics &
+$\sigma_v=\sqrt{k_BT/m}$ &
+Sets both one-photon and mismatch-projected Doppler widths
+($1.36$ and $1.38\MHz$, respectively)\\
+$\ell_s=0.74$ &
+Effective line-strength or overlap multiplier in the archived response &
+Inherited from code; phenomenological coefficient with unknown fit provenance &
+Original fitting record unavailable; audit range 0.666--0.814 &
+$\partial\ln G_s/\partial\ln\ell_s\simeq3.53$,
+$\partial\ln G_c/\partial\ln\ell_s\simeq4.29$;
+physical $S_-$ unavailable\\
+$\kappa=0.1$ &
+Coupling of absorbed pump fraction to detected pump-scattering noise &
+Inherited from code; assumed phenomenological coefficient &
+No documented fit; illustrative range 0--0.2 pending apparatus calibration &
+No effect on $G_s,G_c$; ansatz noise is linear in $\kappa$, but normalized
+$S_-(\Omega)$ requires $F_{\rm ps}$ and detector calibration\\
+$\gamma_{gg}/(2\pi)=100\,{\rm kHz}$ &
+Effective ground-state decoherence rate &
+Inherited from code; assumed phenomenological rate &
+Audit range 90--110 kHz; independent linewidth fit absent &
+Across this range $G_s=5.6138\to5.6033$ and
+$G_c=4.6631\to4.6573$; physical $S_-$ unavailable\\
+$1-\eta_{\rm path}=5.5(2)\%$ &
+Post-cell optical-path loss &
+Measured \cite{Sim2025} &
+Allowed range 5.3--5.7\%; not cell absorption &
+No effect on gains; for symmetric loss
+$\partial S_{\rm det}/\partial\eta=S_{\rm out}-1$\\
+$1-\eta_{\rm det}=8.0(2)\%$ &
+Detector and remaining system inefficiency &
+Measured \cite{Sim2025} &
+Allowed range 7.8--8.2\% &
+No effect on gains; combines multiplicatively with path efficiency\\
+$\eta_{\rm ext}=0.8694$ &
+Illustrative total external efficiency
+$0.945\times0.920$ &
+Derived from measured losses &
+The paper also quotes total loss $13.5(2)\%$; definitions must be reconciled &
+Maps $S_{\rm out}$ to $1-\eta_{\rm ext}+\eta_{\rm ext}S_{\rm out}$\\
+$N_F$ &
+Retained Floquet sideband order &
+Numerical truncation &
+$N_F=2$ converged at the tested point; use $N_F\geq3$ for reported scans &
+$N_F=1$ changes gains by 13--17\% and reverses the gain-gap sign\\
+$\ell_{\rm eff}=0.74(7/144)$ &
+Archived combined line/population factor &
+Derived from inherited factors, with normalization unresolved &
+$\ell_{\rm eff}=0.0359722$; see Appendix~\ref{app:normalization} &
+Must not be applied if the same population and Zeeman weights are already in
+$\rho_{\rm ss}$\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+No entry involving $\ell_s$, $\kappa$, or the adopted $\gamma_{gg}$ is
+described as exact. Their source records and apparatus-level fitting
+likelihoods remain required metadata.
+
+\section{Dipole and population normalization ledger}
+\label{app:normalization}
+
+Let $d_{\rm D1}=\langle J_e\|er\|J_g\rangle$ be the fine-structure reduced
+matrix element. The archived coefficient is not the polarization-summed
+hyperfine strength. It is the following \emph{AutoOD $q=0$ convention}:
+\begin{align}
+\mathcal S_0(F_g,F_e)
+&=\sum_{m=-\min(F_g,F_e)}^{+\min(F_g,F_e)}
+\begin{pmatrix}F_e&1&F_g\\m&0&-m\end{pmatrix}^{\!2},\\
+C_F^2&=(2F_g+1)(2F_e+1)(2J_g+1)(2J_e+1)(2L_g+1)
+\mathcal S_0(F_g,F_e)\nonumber\\
+&\quad\times
+\begin{Bmatrix}J_g&J_e&1\\F_e&F_g&I\end{Bmatrix}^{\!2}
+\begin{Bmatrix}L_g&L_e&1\\J_e&J_g&S\end{Bmatrix}^{\!2}.
+\label{eq:CF-normalization}
+\end{align}
+For $I=5/2$, $S=1/2$, $L_g=0$, $L_e=1$, and
+$J_g=J_e=1/2$, $\mathcal S_0=1/3$ and this gives the stored exact values
+\[
+C_F^2=\{10,35,35,28\}/81
+\]
+for $(F_g,F_e)=(2,2),(2,3),(3,2),(3,3)$, respectively.
+
+The AutoOD orbital reduced dipole and the fine-structure reduced dipole used
+by GABES obey $|d_{\rm orb}|^2=3|d_{\rm D1}|^2$ in this D1 convention.
+Therefore
+\[
+|d_{\rm eff}|^2=C_F^2|d_{\rm orb}|^2
+=3C_F^2|d_{\rm D1}|^2,
+\]
+and the dimensionless amplitude multiplier that accompanies
+$d_{\rm D1}$ is
+\begin{equation}
+a_{ge}=\sqrt{3C_F^2}.
+\label{eq:age-normalization}
+\end{equation}
+This derivation explains the code factor but also its limitation:
+Eq.~\eqref{eq:CF-normalization} is a $q=0$, Zeeman-averaged absorption
+convention, not a universal incoherent sum over $q=0,\pm1$. A
+polarization-resolved Liouvillian must replace it with explicit
+Clebsch--Gordan amplitudes and must not multiply by $a_{ge}$ again.
+
+The archived effective factor was assembled as
+\begin{equation}
+\ell_{\rm eff}
+=\ell_s\,\frac{p_{F=3}}{2(2I+1)}
+=0.74\times\frac{7}{144}
+=0.0359722 .
+\label{eq:ell-effective}
+\end{equation}
+Here $\ell_s$ is the phenomenological line/overlap multiplier,
+$p_{F=3}=7/12$ is the assumed hyperfine statistical population, and
+$2(2I+1)=12$ for $I=5/2$ is the adopted manifold normalization. This
+decomposition is documented, but not independently derived from the present
+Liouvillian.
+
+The normalization rule for future implementations is:
+\begin{enumerate}
+\item use the fine-structure reduced dipole matrix element once;
+\item use either explicit Clebsch--Gordan matrix elements or the averaged
+$a_{ge}$, never both;
+\item include isotope abundance once in $N$;
+\item obtain ground-manifold population either from $\rho_{\rm ss}$ or an
+external $p_F$, never both;
+\item include spontaneous-emission branching ratios in the collapse
+operators, not again in susceptibility amplitudes; and
+\item apply external optical efficiencies only in the detection layer.
 \end{enumerate}
+
+\begin{table}[ht]
+\centering
+\caption{Code-path normalization audit for the current reduced FWM solver.}
+\label{tab:normalization-audit}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}Y L{2.5cm}}
+\toprule
+Factor & Where it enters & Verdict\\
+\midrule
+Reduced D1 dipole $d_{\rm D1}$ &
+Once in the macroscopic conversion in
+\texttt{gabes/observables.py} & no duplicate found\\
+Hyperfine/Zeeman strength &
+$\sqrt{3C_F^2}$ in the weak-field drive and once in polarization readout;
+their product gives $3C_F^2$. It is not also present in
+\texttt{physical\_coupling\_norm}. & no algebraic duplicate found\\
+Isotope abundance &
+The FWM path uses the pure-$^{85}$Rb density from
+\texttt{hyperfine.number\_density}; it does not multiply the natural
+$0.7217$ abundance. & no duplicate in this path\\
+Ground-manifold population &
+$\rho_{\rm ss}$ is trace normalized over the two lumped ground manifolds,
+while \texttt{physical\_coupling\_norm} also supplies
+$p_F/[2(2I+1)]$. & \textcolor{amber}{potential duplicate}\\
+Spontaneous branching &
+The $C_F^2$-normalized decay fractions occur in Liouvillian collapse
+channels; no additional branching multiplier is applied in
+\texttt{chi\_phys}. & no duplicate found\\
+Residual $\ell_s$ &
+Multiplies the macroscopic coupling once. & inherited, not derived\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The ground-population row prevents a blanket verification claim. Because the
+archived code combines $\ell_s$ and $7/144$ without a complete representative-
+state derivation, repeated ground-state population weighting remains
+unresolved even though the other listed factors have single, identifiable
+code paths. Equation~\eqref{eq:ell-effective} must not be carried into a
+trace-normalized explicit-state Liouvillian until that row is reconciled.
+
+\section{Four-level model limitations and unresolved physics}
+\label{app:limitations}
+
+The four-hyperfine-level model is suitable for qualitative gain structure,
+reduced hyperfine-scale intuition, and comparison with the existing reduced
+simulation. It is not automatically sufficient for absolute squeezing,
+polarization-sensitive effects, magnetic-field response, quantitative
+spontaneous-emission noise, or accurate Raman linewidths.
+
+Physics outside the current basis and reservoir model includes:
+\begin{itemize}
+\item polarization-dependent Clebsch--Gordan pathways and explicit
+$\sigma^\pm$ and $\pi$ selection rules;
+\item Zeeman optical pumping, ground-state orientation and alignment,
+dark-state formation, and magnetic-field-dependent coherences;
+\item interference among distinct $m_F$ pathways and
+polarization-dependent spontaneous emission;
+\item spatial pump depletion, longitudinal attenuation, transverse
+Gaussian averaging, diffraction, mode mismatch, and cell-window etalons;
+\item buffer-gas or wall-collision dynamics, transit-time distributions,
+radiation trapping, and non-Markovian reservoirs;
+\item multidimensional velocity-changing collisions and the full
+non-collinear Raman Doppler distribution;
+\item a microscopic frequency-dependent atomic diffusion matrix, excess
+fluorescence, and atom--reservoir correlations;
+\item detector transfer functions, electronic cross-talk, common-mode
+rejection, and the apparatus-specific 2 MHz laser-electronics feature; and
+\item an independently measured shot-noise calibration and gain definition
+matched exactly to the theoretical modes.
+\end{itemize}
+
+These are not small corrections by default. In particular, the observed
+gain discrepancy and the $1.36\MHz$ angular Doppler scale show that omitted
+geometry and level structure can be quantitatively important.
+
+\section{Change log mapped to the original report}
+\label{app:changelog}
+
+Line numbers in Table~\ref{tab:changelog} refer to the pre-revision
+version of this file. The equation labels are retained here only as audit
+anchors; the revised equations have new labels.
+
+\begin{longtable}{C{0.65cm}L{4.2cm}L{5.2cm}L{4.3cm}}
+\caption{Correction-by-correction change log.}
+\label{tab:changelog}\\
+\toprule
+No. & Original location & Revision & Validation or remaining status\\
+\midrule
+\endfirsthead
+\toprule
+No. & Original location & Revision & Validation or remaining status\\
+\midrule
+\endhead
+1 & Noise section, Eqs.~(old \texttt{io}, \texttt{S}), lines 597--628 &
+Removed the gain-only Bogoliubov interpretation and old
+$\mathrm{cov}_0$ formula; introduced Eqs.~\eqref{eq:langevin}--%
+\eqref{eq:covariance} with reservoir channels &
+Commutator identities pass for the mathematical dilation;
+microscopic $D(\Omega)$ remains pending\\
+2 & Beat-frequency subsection and scalar noise result, lines 207--214 and
+597--664 &
+Separated $\Omega_{\rm beat}$ from $\Omega_{\rm SA}$ and made
+$M_q,B,D,V,S_-$ frequency dependent &
+Static model limitations stated; spectrum prediction pending\\
+3 & Carrier rate equations and Sylvester block, old
+Eqs.~\texttt{rateeq}--\texttt{sylv}, lines 255--305 &
+Replaced the claimed strong-pump solution by a trace-constrained Liouvillian
+null-space problem; retained rate equations only as an explicitly controlled
+approximation &
+Self-consistent finite-dimensional formulation supplied; implementation
+requires code migration\\
+4 & Floquet expansion, old Eq.~\texttt{floquet}, lines 216--247 &
+Repeated $N_F=1,2,3$ and reported gains, gap, response phases, and
+$\delta^*$ &
+$N_F=1$ fails; $N_F=2$ and 3 agree at the tested point\\
+5 & One-dimensional Doppler section, old lines 455--494 &
+Added vector detunings, mismatch-projected two-dimensional average, and
+$1.36\MHz$ angular Raman width &
+One-dimensional quadrature converged; full geometry not yet implemented\\
+6 & Input and summary tables, old lines 113--188 and 667--742 &
+Classified the point with $\Delta/(2\pi)=-1.50\GHz$,
+$\delta/(2\pi)=-280\MHz$, and $T=110\degC$ as an archived-model
+optimum and evaluated the reduced model at the documented experimental point &
+Gain and optimum discrepancies reported separately\\
+7 & Abstract, summary, and error-budget claims, old lines 55--67 and
+667--718 &
+Recast agreement as algebraic and numerical implementation consistency and
+introduced a five-level validation hierarchy &
+No claim of zero physical error or experimental validation remains\\
+8a & Macroscopic coupling discussion, old lines 174--186 &
+Corrected $[\chibar]={\rm s}$ and
+$[Nd^2/(\epsilon_0\hbar)]={\rm s}^{-1}$ &
+Dimensional audit in Table~\ref{tab:dimension-audit}\\
+8b & Voigt identity, old Eq.~\texttt{voigt}, lines 472--486 &
+Removed the erroneous $1/k$ prefactor:
+$\Ima\langle(x_0-kv+\ii\Gamma)^{-1}\rangle=-\pi V$ &
+Dimensions rechecked\\
+8c & Phase-matching paragraph, old lines 520--524 &
+Replaced $f_c=2\Delta-f_{\rm seed}$ by
+$\omega_c=2\omega_p-\omega_s$ with explicit atomic references &
+Frequency audit supplied\\
+8d & Equations and captions throughout &
+All detunings and decay rates are angular quantities; displayed values use
+$x/(2\pi)$ in ordinary-frequency units &
+Frequency audit supplied\\
+9 & Old Eqs.~\texttt{Mentries} and \texttt{phasematch}, lines 498--524 &
+Selected Option A: complex diagonal susceptibilities plus vacuum/geometric
+$\Delta k_z$ only &
+Derivation in Part IV; no $\Rea\chi$ appears twice\\
+10 & Arm-OD and detector-noise sections, old lines 614--645 &
+Kept atomic loss inside $M_q,B,D$ and applied only physically external
+efficiency after the cell &
+Loss ledger in Table~\ref{tab:loss-ledger}\\
+11 & Old lines 167, 180--186, 627--645, and parameter summary &
+Classified $\ell_s,\kappa,\gamma_{gg}$, and external losses; documented
+definitions, sources, ranges, fitting status, and sensitivities &
+Missing historical fit records are marked unresolved\\
+12 & Four-hyperfine-level model and old CG normalization, lines 88--106 &
+Added limitations and normalization ledgers, including
+$a_{ge}=\sqrt{3C_F^2}$ and $\ell_{\rm eff}=0.74(7/144)$ &
+Potential repeated ground-population weighting explicitly unresolved\\
+13 & Mean-field, Faddeeva, propagation, and gain-gap sections &
+Retained the valid classical response chain, corrected base Faddeeva
+integral, constant-matrix exponential, classical gain identity, beat
+convention, and beam radii &
+Each retained result now carries its assumptions\\
+14 & Whole-report organization &
+Reorganized the text into Definitions, Pump steady state, Weak response,
+Semiclassical propagation, Quantum propagation, Detection, and Validation &
+Complete\\
+15 & Previously absent &
+Added six limiting-case checks &
+Analytic checks pass; microscopic numerical limits await implementation\\
+16 & Original title and conclusion, old lines 55--75 and 667--726 &
+Adopted a provisional mean-field title and invalidated the physical status
+of $-8.10\dB$ and $-15.62\dB$ &
+Conclusion now separates derived, solved, inherited, fitted, compared, and
+unvalidated content\\
+17 & Previously absent as an auditable set &
+Added convergence, commutator, comparison, provenance, dimensional,
+frequency, assumptions, limitations, and change-log deliverables &
+Machine-readable convergence artifacts accompany the report\\
+\bottomrule
+\end{longtable}
+
+\section{Reproducibility and acceptance audit}
+\label{app:reproducibility}
+
+The Floquet, velocity-grid, corrected Option-A, and commutator-diagnostic
+tables in this report are generated by
+\texttt{analysis/analytic\_reconstruction/convergence\_audit.py}.
+Its human-readable and machine-readable outputs are
+\texttt{generated/convergence\_audit.md} and
+\texttt{generated/convergence\_audit.json}. The script records the operating
+points, truncations, velocity grids, corrected phase convention, channel
+dilation, and residual norms used above.
+
+\begin{table}[ht]
+\centering
+\caption{Acceptance-criterion status of this provisional revision.}
+\label{tab:acceptance}
+\small
+\begin{tabularx}{\textwidth}{Y L{4.0cm}}
+\toprule
+Criterion & Status\\
+\midrule
+Canonical output commutators with the supplied reservoir channels &
+\pass\ conditionally for the $Q\propto I$ diagnostic; calibrated canonical
+scaling pending\\
+Frequency-resolved observable $S_-(\Omega_{\rm SA})$ &
+formulated; microscopic result \pending\\
+Atomic dissipation accompanied by Langevin noise &
+required by construction; microscopic $B,D$ \pending\\
+No repeated internal absorption in the detection layer & \pass\\
+No repeated dispersive phase in $\Delta k_z$ & \pass\\
+Self-consistent pump steady-state formulation & \pass;
+code migration pending\\
+Converged Floquet truncation & \pass\ at the tested point for $N_F\geq2$\\
+Non-collinear two-photon Doppler broadening &
+quantified and formulated; numerical 2D implementation \pending\\
+Consistent angular-frequency convention & \pass\\
+Correct susceptibility and Voigt dimensions & \pass\\
+Shared-model agreement not called experimental validation & \pass\\
+Empirical-parameter classification & \pass\\
+Ground-population normalization counted only once &
+\pending; potential duplicate isolated in Table~\ref{tab:normalization-audit}\\
+Mean-field and quantum layers separated & \pass\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Accordingly, this document is acceptable as a corrected
+\emph{mean-field reconstruction and quantum-model specification}. It does
+not yet satisfy the stronger acceptance condition for a physically validated
+squeezing calculation. That condition requires the pending microscopic
+$B(\Omega_{\rm SA})$, $D(\Omega_{\rm SA})$, two-dimensional velocity
+integration, and detector transfer functions.
+
+\begin{thebibliography}{9}
+
+\bibitem{Sim2025}
+G. Sim, H. Kim, and H. S. Moon,
+\emph{Intensity-difference squeezing from four-wave mixing in hot
+$^{85}$Rb and $^{87}$Rb atoms in single diode laser pumping system},
+\emph{Scientific Reports} \textbf{15}, 7727 (2025).
+
+\bibitem{McCormick2007}
+C. F. McCormick, V. Boyer, E. Arimondo, and P. D. Lett,
+\emph{Strong relative intensity squeezing by four-wave mixing in rubidium
+vapor}, \emph{Optics Letters} \textbf{32}, 178--180 (2007).
+
+\bibitem{Turnbull2013}
+M. T. Turnbull, P. G. Petrov, C. S. Embrey, A. M. Marino, and V. Boyer,
+\emph{Role of the phase-matching condition in nondegenerate four-wave mixing
+in hot vapors for the generation of squeezed states of light},
+\emph{Physical Review A} \textbf{88}, 033845 (2013).
+
+\bibitem{Lukin1999}
+M. D. Lukin, A. B. Matsko, M. Fleischhauer, and M. O. Scully,
+\emph{Quantum noise and correlations in resonantly enhanced wave mixing
+based on atomic coherence}, \emph{Physical Review Letters} \textbf{82},
+1847--1850 (1999).
+
+\bibitem{Faddeeva}
+V. N. Faddeeva and N. M. Terent'ev,
+\emph{Tables of Values of the Function $w(z)$ for Complex Argument}
+(Pergamon, 1961).
+
+\end{thebibliography}
 
 \end{document}
