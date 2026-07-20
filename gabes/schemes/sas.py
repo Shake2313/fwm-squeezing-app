@@ -387,8 +387,18 @@ class SASScheme(Scheme):
         table = ("Hyperfine transitions (Lamb-dip centres); crossovers appear at the "
                  "midpoint of any two sharing a ground state, enhanced/inverted by "
                  "hyperfine pumping.\n\n| Transition | Center [MHz] |\n|---|---|\n" + rows)
-        return dict(metrics=metrics, figure=fig,
-                    tables=[{"title": "Hyperfine lines", "markdown": table}])
+        return dict(
+            metrics=metrics,
+            figure=fig,
+            tables=[{"title": "Hyperfine lines", "markdown": table}],
+            comparison={
+                "axis_index": 0,
+                "x_unit": "GHz",
+                "raw_x_unit": "Arb. unit",
+                "raw_y_unit": "Arb. unit",
+                "label": "Experimental CSV",
+            },
+        )
 
     def _obs_generic(self, raw, params, alpha, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                  # MHz
@@ -451,8 +461,18 @@ class SASScheme(Scheme):
         note = ("Two transitions: Lamb dips at ±splitting/2 and a **crossover** dip "
                 "at the midpoint (green)." if raw["two"]
                 else "Single transition: one Lamb dip at line centre.")
-        return dict(metrics=metrics, figure=fig,
-                    tables=[{"title": "Notes", "markdown": note}])
+        return dict(
+            metrics=metrics,
+            figure=fig,
+            tables=[{"title": "Notes", "markdown": note}],
+            comparison={
+                "axis_index": 0,
+                "x_unit": "MHz",
+                "raw_x_unit": "Arb. unit",
+                "raw_y_unit": "Arb. unit",
+                "label": "Experimental CSV",
+            },
+        )
 
 
 # =====================================================================

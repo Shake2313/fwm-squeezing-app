@@ -15,11 +15,16 @@ Contract
   observables(raw, params,
               include_figures=True) -> dict  cheap; uses all knobs (incl. navigate)
                                              -> {"metrics":[...], "figure":fig,
-                                                 "tables":[...]}. Every registered
-                                                 UI mode must nominate exactly two
-                                                 metrics with tier="hero". The UI
-                                                 keeps an ordered fallback for legacy
-                                                 callers and puts the rest in a ribbon.
+                                                 "tables":[...], optionally
+                                                 "comparison":{...}}.
+                                             The optional comparison descriptor
+                                             nominates a figure axis for experimental
+                                             CSV overlays without adding uploaded data
+                                             to the physics/cache parameters. Every
+                                             registered UI mode must nominate exactly
+                                             two metrics with tier="hero". The UI
+                                             keeps an ordered fallback for legacy
+                                             callers and puts the rest in a ribbon.
   headless_observables(raw, params) -> dict  metric/table path that skips figure
                                              generation when supported.
 """

@@ -13,8 +13,11 @@ FWM two-photon detuning) update the readout instantly without re-solving.
 Run with:
     streamlit run streamlit_app.py
 """
+import hashlib
+import inspect
 import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
+import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
 from pathlib import Path
@@ -23,7 +26,12 @@ from threading import RLock
 
 from gabes import schemes
 from gabes.core import blas_single_thread
-from gabes.plot_style import apply_gabes_plot_style
+from gabes.experimental_csv import (
+    MAX_FILE_BYTES,
+    ExperimentalCSVError,
+    load_experimental_csv,
+)
+from gabes.plot_style import PALETTE, apply_gabes_plot_style
 from gabes.ui_metrics import partition_metrics, split_metric_value
 
 APP_DIR = Path(__file__).resolve().parent
@@ -617,6 +625,12 @@ def _cached_observables(scheme_name, raw, param_items, cache_version):
         return schemes.get(scheme_name).observables(raw, dict(param_items))
 
 
+@st.cache_data(show_spinner=False, max_entries=16)
+def _cached_experimental_csv(csv_bytes, denoise):
+    """Parse/correct uploaded scope data outside the physics solve cache."""
+    return load_experimental_csv(csv_bytes, denoise=denoise)
+
+
 def _close_fig(fig):
     import matplotlib.pyplot as plt
     plt.close(fig)
@@ -627,6 +641,236 @@ def _render_fig(fig):
     apply_gabes_plot_style(fig)
     st.pyplot(fig)
     _close_fig(fig)
+
+
+def _diagnostic_value(obj, *names, default=None):
+    for name in names:
+        if hasattr(obj, name):
+            return getattr(obj, name)
+    return default
+
+
+def _render_experimental_comparison(view, scheme_name):
+    """Render a scheme-declared CSV panel and overlay its corrected trace.
+
+    Uploaded bytes and alignment controls intentionally stay outside `params`:
+    changing them must reuse both the heavy solve and the cached base figure.
+    """
+    descriptor = view.get("comparison")
+    fig = view.get("figure")
+    if not descriptor or fig is None:
+        return
+
+    axis_index = int(descriptor.get("axis_index", 0))
+    if not 0 <= axis_index < len(fig.axes):
+        return
+    axis = fig.axes[axis_index]
+    xlim = tuple(float(v) for v in axis.get_xlim())
+    ylim = tuple(float(v) for v in axis.get_ylim())
+    x_unit = descriptor.get("x_unit", "plot unit")
+    raw_x_unit = descriptor.get("raw_x_unit", "Arb. unit")
+    raw_y_unit = descriptor.get("raw_y_unit", "Arb. unit")
+
+    panel = st.expander("Experimental CSV comparison")
+    with panel:
+        panel.caption(
+            "Column A = detuning, column B = detector signal. Later columns and "
+            "non-numeric oscilloscope metadata rows are ignored. GABES processes "
+            "up to 10 MiB or 500,000 rows."
+        )
+        uploader_options = {}
+        if "max_upload_size" in inspect.signature(panel.file_uploader).parameters:
+            # Streamlit added this per-widget guard after the project's oldest
+            # supported release; retain the backend byte check as the fallback.
+            uploader_options["max_upload_size"] = MAX_FILE_BYTES // (1024 * 1024)
+        uploaded = panel.file_uploader(
+            "Oscilloscope CSV",
+            type=("csv",),
+            key=_skey(scheme_name, "_csv_upload"),
+            help="A and B are read as arbitrary units; no header is required.",
+            **uploader_options,
+        )
+        auto_correct = panel.checkbox(
+            "Automatic noise correction",
+            value=True,
+            key=_skey(scheme_name, "_csv_auto_correct"),
+            help="Merge repeated A values, reject isolated spikes, and apply "
+                 "noise-adaptive local smoothing before 0-1 calibration.",
+        )
+        show_raw = panel.checkbox(
+            "Show unfiltered trace",
+            value=False,
+            disabled=not auto_correct,
+            key=_skey(scheme_name, "_csv_show_raw"),
+        )
+        if uploaded is None:
+            return
+
+        csv_bytes = uploaded.getvalue()
+        fingerprint = hashlib.sha256(csv_bytes).hexdigest()
+        fingerprint_key = _skey(scheme_name, "_csv_fingerprint")
+        scale_key = _skey(scheme_name, "_csv_x_scale")
+        shift_key = _skey(scheme_name, "_csv_x_shift")
+        reverse_key = _skey(scheme_name, "_csv_reverse")
+        invert_key = _skey(scheme_name, "_csv_invert")
+        alignment_identity = (
+            fingerprint,
+            axis_index,
+            str(x_unit),
+            str(raw_x_unit),
+        )
+        if st.session_state.get(fingerprint_key) != alignment_identity:
+            st.session_state[fingerprint_key] = alignment_identity
+            st.session_state[scale_key] = 1.0
+            st.session_state[shift_key] = 0.0
+            st.session_state[reverse_key] = False
+            st.session_state[invert_key] = False
+        st.session_state.setdefault(scale_key, 1.0)
+        st.session_state.setdefault(shift_key, 0.0)
+        st.session_state.setdefault(reverse_key, False)
+        st.session_state.setdefault(invert_key, False)
+
+        try:
+            trace = _cached_experimental_csv(csv_bytes, auto_correct)
+        except ExperimentalCSVError as exc:
+            panel.error(str(exc))
+            return
+
+        detuning = trace.detuning
+        n_detuning = len(detuning)
+        pivot = float(
+            (detuning[(n_detuning - 1) // 2] + detuning[n_detuning // 2]) / 2.0
+        )
+        raw_span = float(detuning[-1] - detuning[0])
+        plot_span = float(xlim[1] - xlim[0])
+        framed_scale = min(max(0.90 * plot_span / raw_span, 1e-9), 1e9)
+        framed_shift = 0.5 * (xlim[0] + xlim[1]) - pivot
+
+        action_cols = panel.columns(2)
+        if action_cols[0].button(
+            "Bring into view",
+            key=_skey(scheme_name, "_csv_frame"),
+            use_container_width=True,
+            help="Map the imported span into the current theoretical plot; "
+                 "this does not fit spectral features.",
+        ):
+            st.session_state[scale_key] = float(framed_scale)
+            st.session_state[shift_key] = float(framed_shift)
+        if action_cols[1].button(
+            "Reset alignment",
+            key=_skey(scheme_name, "_csv_reset"),
+            use_container_width=True,
+        ):
+            st.session_state[scale_key] = 1.0
+            st.session_state[shift_key] = 0.0
+            st.session_state[reverse_key] = False
+            st.session_state[invert_key] = False
+
+        align_cols = panel.columns(2)
+        scale_now = abs(float(st.session_state.get(scale_key, 1.0)))
+        scale_step = max(scale_now * 0.01, 1e-6)
+        x_scale = align_cols[0].number_input(
+            f"X scale  [{x_unit}/{raw_x_unit}]",
+            min_value=1e-9,
+            max_value=1e9,
+            step=float(scale_step),
+            format="%.6g",
+            key=scale_key,
+            help="Scale around the imported trace centre.",
+        )
+        shift_step = max(abs(plot_span) / 1000.0, 1e-6)
+        x_shift = align_cols[1].number_input(
+            f"X shift  [{x_unit}]",
+            step=float(shift_step),
+            format="%.6g",
+            key=shift_key,
+        )
+        option_cols = panel.columns(2)
+        reverse = option_cols[0].checkbox(
+            "Reverse sweep",
+            key=reverse_key,
+            help="Reverse the sign of the imported detuning sweep around its centre.",
+        )
+        invert = option_cols[1].checkbox(
+            "Invert transmission",
+            key=invert_key,
+            help="Use when detector voltage polarity is opposite to transmission.",
+        )
+
+        import_diag = trace.import_diagnostics
+        correction_diag = trace.correction_diagnostics
+        valid_rows = _diagnostic_value(
+            import_diag, "valid_rows", "accepted_rows", default="?"
+        )
+        ignored_rows = _diagnostic_value(
+            import_diag, "ignored_rows", "skipped_rows", default="?"
+        )
+        merged_rows = _diagnostic_value(
+            import_diag, "duplicate_rows_merged", "merged_rows",
+            "duplicate_rows", default="?"
+        )
+        panel.caption(
+            f"{uploaded.name}: {valid_rows} numeric A/B rows · "
+            f"{len(detuning)} unique detuning points · {merged_rows} duplicates "
+            f"merged · {ignored_rows} rows ignored"
+        )
+        floor = _diagnostic_value(correction_diag, "floor", "floor_level")
+        ceiling = _diagnostic_value(correction_diag, "ceiling", "ceiling_level")
+        window = _diagnostic_value(
+            correction_diag, "smoothing_window", "window_size", default=1
+        )
+        if floor is not None and ceiling is not None:
+            panel.caption(
+                f"Signal calibration [{raw_y_unit}]: floor {float(floor):.6g} · "
+                f"ceiling {float(ceiling):.6g} · smoothing window {window}"
+            )
+        warnings = _diagnostic_value(
+            correction_diag, "warnings", "warning", default=()
+        )
+        if isinstance(warnings, str):
+            warnings = (warnings,)
+        for warning in warnings or ():
+            panel.warning(str(warning))
+
+        aligned_x = trace.transformed_detuning(
+            scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
+        )
+        aligned_y = 1.0 - trace.transmission if invert else trace.transmission
+        in_view = ((aligned_x >= xlim[0]) & (aligned_x <= xlim[1])).any()
+        if not in_view:
+            panel.warning(
+                "The imported trace is outside the theoretical x range. "
+                "Use Bring into view, then refine X scale and X shift manually."
+            )
+
+        raw_overlay = None
+        if auto_correct and show_raw:
+            raw_x = trace.transformed_detuning(
+                scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
+            )
+            raw_y = np.clip(
+                (trace.raw_signal - correction_diag.floor)
+                / correction_diag.contrast,
+                0.0,
+                1.0,
+            )
+            raw_y = 1.0 - raw_y if invert else raw_y
+            raw_overlay = (raw_x, raw_y)
+
+    with _PLOT_LOCK:
+        if raw_overlay is not None:
+            axis.plot(
+                raw_overlay[0], raw_overlay[1], color=PALETTE["muted"],
+                ls=":", lw=1.0, alpha=0.45, label="CSV · unfiltered", zorder=2,
+            )
+        axis.plot(
+            aligned_x, aligned_y, color=PALETTE["rose"], lw=1.4, alpha=0.88,
+            label=descriptor.get("label", "Experimental CSV"), zorder=3,
+        )
+        # Arbitrary input units must never autoscale the theoretical plot away.
+        axis.set_xlim(xlim)
+        axis.set_ylim(ylim)
+        axis.legend(loc="best")
 
 
 def _skey(scheme_name, pname):
@@ -981,6 +1225,8 @@ metrics = view.get("metrics", [])
 if metrics:
     _render_metrics(metrics)
     st.markdown("<div class='gabes-section-gap'></div>", unsafe_allow_html=True)
+
+_render_experimental_comparison(view, scheme.name)
 
 fig = view.get("figure")
 if fig is not None:

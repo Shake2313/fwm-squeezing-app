@@ -177,6 +177,9 @@ def test_observables_render_species():
     p = _params(species=CS_KEY, line="D2", temp_c=35.0)
     view = SAS.observables(SAS.compute(p), p)
     assert view["figure"] is not None
+    assert view["comparison"]["axis_index"] == 0
+    assert view["comparison"]["x_unit"] == "GHz"
+    assert view["comparison"]["raw_x_unit"] == "Arb. unit"
     assert any(m["label"] == "Peak OD" for m in view["metrics"])
     assert any(m["label"] == "Lock slope" for m in view["metrics"])
     assert any(m["label"] == "Lock detuning" for m in view["metrics"])
@@ -226,6 +229,7 @@ def test_generic_lamb_dip_and_crossover():
         x2 - raw2["offsets"][0] / (2 * np.pi) / 1e6)))
     feature_fwhm = window_fwhm(x2, T2, feature_i)
     view2 = SAS.observables(raw2, p2, include_figures=False)
+    assert view2["comparison"]["x_unit"] == "MHz"
     lock_mhz = _metric_number(view2, "Lock detuning")
     assert abs(lock_mhz - x2[feature_i]) <= feature_fwhm + 0.11
 

@@ -9,7 +9,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
+| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT static spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; reference sensitivity numbers stay in internal tests |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
@@ -39,6 +39,8 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     the SAS hyperfine-manifold builder `build_manifold(iso, line)` (CG-branched
     decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
+  - `experimental_csv.py` — strict A/B oscilloscope CSV import, robust denoising,
+    0–1 transmission calibration, diagnostics, and manual x-axis transforms.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
     `absorption.py` (Lambda EIT/AT/CPT + the unregistered `ODScheme` validation
     primitive), `rydberg.py` (Rydberg-EIT electrometry), `sas.py`
@@ -64,6 +66,17 @@ streamlit run streamlit_app.py
 **Trap**: `python streamlit_app.py` does NOT work (no server, prints "run it with
 streamlit run"). FWM CLI backend: `python fwm_obe.py`.
 
+### Experimental CSV comparison (OD / SAS)
+
+Open **Experimental CSV comparison** above the OD/SAS plot and upload a CSV.
+Column A is always detuning and column B is always the detector signal; later
+columns and non-numeric oscilloscope metadata rows are ignored. Raw A/B values
+are treated as arbitrary units. GABES merges repeated detuning samples, removes
+isolated spikes, smooths according to the measured noise, and maps the robust
+signal floor/ceiling to transmission 0/1. Use x scale, x shift, and the sweep
+direction control to align the corrected trace with the simulated frequency
+axis. These display-only controls do not rerun the Bloch-equation solve.
+
 ## Tests
 
 ```
@@ -71,6 +84,7 @@ python tests/test_regression.py      # FWM bit-identical to the pre-refactor bas
 python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, Lambda AT/EIT/CPT
 python tests/test_rydberg_eit.py     # 85Rb Rydberg-EIT reference defaults, linewidth, RF AT split
 python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, generic
+python tests/test_experimental_csv.py # A/B parsing, correction, ReferenceOD, manual alignment
 
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
 python tests/test_coincidence.py     # twin-beam photon-pair statistics
