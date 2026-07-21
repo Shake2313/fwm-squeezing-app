@@ -13,13 +13,16 @@ FWM two-photon detuning) update the readout instantly without re-solving.
 Run with:
     streamlit run streamlit_app.py
 """
+import base64
 import hashlib
 import inspect
+import json
 import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
 import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
+from io import BytesIO
 from pathlib import Path
 from html import escape
 from threading import RLock
@@ -166,7 +169,7 @@ METRIC_STYLES = [
 
 DEFAULT_STYLE = dict(label="control", color="#0284C7", bg="#E6F7FC")
 DEFAULT_METRIC_STYLE = dict(kind="result", color="#2563EB", bg="#EFF6FF")
-READOUT_CACHE_VERSION = "hero-ribbon-v1"
+READOUT_CACHE_VERSION = "hero-ribbon-v3-single-hero"
 
 
 def _inject_css():
@@ -643,6 +646,209 @@ def _render_fig(fig):
     _close_fig(fig)
 
 
+def _figure_data_url(fig):
+    """Serialize one styled Matplotlib figure for the client-side carousel."""
+    buffer = BytesIO()
+    apply_gabes_plot_style(fig)
+    fig.savefig(
+        buffer,
+        format="png",
+        dpi=160,
+        bbox_inches="tight",
+        pad_inches=0.14,
+        facecolor=fig.get_facecolor(),
+        edgecolor="none",
+    )
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _plot_carousel_html(pages):
+    """Build an isolated, responsive carousel with arrows and touch dragging."""
+    labels = [str(page["label"]) for page in pages]
+    labels_json = json.dumps(labels, ensure_ascii=False).replace("<", "\\u003c")
+    slides = "".join(
+        '<div class="slide" role="group" '
+        f'aria-label="{escape(label, quote=True)}" '
+        f'aria-hidden="{"false" if index == 0 else "true"}">'
+        f'<img src="{url}" alt="{escape(label, quote=True)} graph" '
+        'draggable="false"></div>'
+        for index, (label, url) in enumerate(
+            zip(labels, (page["url"] for page in pages))
+        )
+    )
+    dots = "".join(
+        '<button class="dot" type="button" '
+        f'aria-label="Show {escape(label, quote=True)}" data-index="{index}"></button>'
+        for index, label in enumerate(labels)
+    )
+    surface = "#FFFFFF" if THEME_BASE != "dark" else "#0E1117"
+    ink = "#0F172A" if THEME_BASE != "dark" else "#F1F5F9"
+    muted = "#64748B" if THEME_BASE != "dark" else "#94A3B8"
+    border = "#DCE6EF" if THEME_BASE != "dark" else "#334155"
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><style>
+*{{box-sizing:border-box}}
+html,body{{margin:0;padding:0;background:transparent;overflow:hidden;
+  font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Segoe UI",sans-serif;
+  color:{ink};}}
+.shell{{position:relative;width:100%;padding:.15rem 3.15rem 0;}}
+.viewport{{width:100%;overflow:hidden;touch-action:pan-y pinch-zoom;border:1px solid {border};
+  border-radius:14px;background:{surface};box-shadow:0 2px 12px rgba(15,23,42,.05);
+  cursor:grab;}}
+.viewport.dragging{{cursor:grabbing;}}
+.track{{display:flex;width:100%;transform:translate3d(0,0,0);
+  transition:transform .28s cubic-bezier(.22,.75,.25,1);will-change:transform;}}
+.slide{{flex:0 0 100%;min-width:100%;display:grid;place-items:center;background:{surface};}}
+.slide img{{display:block;width:100%;height:auto;max-height:650px;object-fit:contain;
+  user-select:none;-webkit-user-drag:none;}}
+.nav{{position:absolute;z-index:3;top:calc(50% - 1.9rem);width:2.55rem;height:2.55rem;
+  border-radius:999px;border:1px solid #BAE6FD;background:#FFFFFF;color:#0369A1;
+  box-shadow:0 3px 12px rgba(2,132,199,.18);font-size:1.75rem;line-height:1;
+  display:grid;place-items:center;cursor:pointer;transition:.14s ease;}}
+.nav:hover:not(:disabled){{background:#E6F7FC;transform:scale(1.04);}}
+.nav:focus-visible,.dot:focus-visible,.shell:focus-visible{{outline:2px solid #0284C7;
+  outline-offset:2px;}}
+.nav:disabled{{opacity:.28;cursor:default;box-shadow:none;}}
+.prev{{left:.2rem}} .next{{right:.2rem}}
+.meta{{min-height:2.45rem;display:flex;align-items:center;justify-content:center;
+  gap:.75rem;color:{muted};font-size:.82rem;padding:.45rem .25rem .15rem;}}
+.label{{min-width:8.5rem;color:{ink};font-weight:700;text-align:right;}}
+.dots{{display:flex;gap:.38rem;align-items:center;}}
+.dot{{width:.5rem;height:.5rem;padding:0;border:0;border-radius:999px;background:{border};
+  cursor:pointer;transition:width .18s ease,background .18s ease;}}
+.dot.active{{width:1.35rem;background:#0284C7;}}
+.hint-mobile{{display:none}}
+@media (max-width:700px), (hover:none), (pointer:coarse){{
+  .shell{{padding:.1rem 0 0}} .nav{{display:none}}
+  .viewport{{border-radius:10px}} .meta{{font-size:.78rem;gap:.55rem}}
+  .label{{min-width:0;text-align:center}} .hint-desktop{{display:none}}
+  .hint-mobile{{display:inline}}
+}}
+</style></head><body>
+<div class="shell" id="shell" tabindex="0" aria-label="Spectrum graph carousel">
+  <button class="nav prev" type="button" aria-label="Previous graph">&#8249;</button>
+  <div class="viewport" id="viewport"><div class="track" id="track">{slides}</div></div>
+  <button class="nav next" type="button" aria-label="Next graph">&#8250;</button>
+  <div class="meta"><span class="label" id="label" aria-live="polite"></span>
+    <span class="dots">{dots}</span>
+    <span class="hint-desktop">Use arrows</span><span class="hint-mobile">Swipe</span>
+  </div>
+</div>
+<script>
+(function(){{
+  const labels={labels_json};
+  const shell=document.getElementById("shell");
+  const viewport=document.getElementById("viewport");
+  const track=document.getElementById("track");
+  const label=document.getElementById("label");
+  const prev=document.querySelector(".prev");
+  const next=document.querySelector(".next");
+  const dots=Array.from(document.querySelectorAll(".dot"));
+  const slideNodes=Array.from(document.querySelectorAll(".slide"));
+  let index=0,startX=null,startY=null,lastX=null,horizontal=false,activePointer=null;
+
+  function resizeHost(){{
+    const height=Math.ceil(shell.getBoundingClientRect().bottom+3);
+    try{{
+      const frames=Array.from(window.parent.document.querySelectorAll("iframe"));
+      const frame=frames.find(item => item.contentWindow===window);
+      if(frame){{ frame.style.height=height+"px"; frame.setAttribute("height",height); }}
+    }}catch(_error){{}}
+  }}
+  function show(nextIndex,animate=true){{
+    index=Math.max(0,Math.min(labels.length-1,nextIndex));
+    track.style.transition=animate?"transform .28s cubic-bezier(.22,.75,.25,1)":"none";
+    track.style.transform=`translate3d(${{-index*100}}%,0,0)`;
+    label.textContent=`${{labels[index]}}  ·  ${{index+1}}/${{labels.length}}`;
+    prev.disabled=index===0; next.disabled=index===labels.length-1;
+    slideNodes.forEach((slide,i)=>{{
+      const active=i===index;
+      slide.setAttribute("aria-hidden",active?"false":"true");
+      if("inert" in slide)slide.inert=!active;
+    }});
+    dots.forEach((dot,i)=>{{dot.classList.toggle("active",i===index);
+      dot.setAttribute("aria-current",i===index?"true":"false");}});
+    requestAnimationFrame(resizeHost);
+  }}
+  prev.addEventListener("click",()=>show(index-1));
+  next.addEventListener("click",()=>show(index+1));
+  dots.forEach(dot=>dot.addEventListener("click",()=>show(Number(dot.dataset.index))));
+  shell.addEventListener("keydown",event=>{{
+    if(event.key==="ArrowLeft"){{event.preventDefault();show(index-1);}}
+    if(event.key==="ArrowRight"){{event.preventDefault();show(index+1);}}
+  }});
+  viewport.addEventListener("pointerdown",event=>{{
+    if(!event.isPrimary || activePointer!==null)return;
+    if(event.pointerType==="mouse" && event.button!==0)return;
+    activePointer=event.pointerId;
+    startX=lastX=event.clientX;startY=event.clientY;horizontal=false;
+    viewport.classList.add("dragging");
+    try{{viewport.setPointerCapture(event.pointerId);}}catch(_error){{}}
+  }});
+  viewport.addEventListener("pointermove",event=>{{
+    if(startX===null || event.pointerId!==activePointer)return;
+    lastX=event.clientX;
+    const dx=lastX-startX,dy=event.clientY-startY;
+    if(!horizontal && Math.max(Math.abs(dx),Math.abs(dy))>7){{
+      horizontal=Math.abs(dx)>Math.abs(dy);
+    }}
+    if(!horizontal)return;
+    event.preventDefault();
+    const edge=(index===0 && dx>0)||(index===labels.length-1 && dx<0);
+    const drag=edge?dx*.24:dx;
+    track.style.transition="none";
+    track.style.transform=`translate3d(calc(${{-index*100}}% + ${{drag}}px),0,0)`;
+  }});
+  function finish(event){{
+    if(startX===null || event.pointerId!==activePointer)return;
+    const dx=(lastX===null?startX:lastX)-startX;
+    const threshold=Math.min(90,Math.max(42,viewport.clientWidth*.12));
+    viewport.classList.remove("dragging");
+    if(horizontal && Math.abs(dx)>=threshold)show(index+(dx<0?1:-1));
+    else show(index);
+    startX=startY=lastX=null;horizontal=false;activePointer=null;
+  }}
+  viewport.addEventListener("pointerup",finish);
+  viewport.addEventListener("pointercancel",finish);
+  document.querySelectorAll("img").forEach(img=>{{
+    img.addEventListener("dragstart",event=>event.preventDefault());
+    if(!img.complete)img.addEventListener("load",resizeHost,{{once:true}});
+  }});
+  window.addEventListener("resize",resizeHost);
+  if(window.ResizeObserver)new ResizeObserver(resizeHost).observe(shell);
+  show(0,false);setTimeout(resizeHost,60);
+}})();
+</script></body></html>"""
+
+
+def _render_figure_views(figure_views):
+    """Render labelled figures as a no-recompute desktop/mobile carousel."""
+    pages = [
+        {"label": item.get("label", f"View {index + 1}"), "figure": item.get("figure")}
+        for index, item in enumerate(figure_views)
+        if isinstance(item, dict) and item.get("figure") is not None
+    ]
+    if not pages:
+        return
+    if len(pages) == 1:
+        _render_fig(pages[0]["figure"])
+        return
+
+    figures = [page["figure"] for page in pages]
+    try:
+        with _PLOT_LOCK:
+            for page in pages:
+                page["url"] = _figure_data_url(page["figure"])
+        components.html(_plot_carousel_html(pages), height=720, scrolling=False)
+    finally:
+        closed = set()
+        for fig in figures:
+            if id(fig) not in closed:
+                _close_fig(fig)
+                closed.add(id(fig))
+
+
 def _diagnostic_value(obj, *names, default=None):
     for name in names:
         if hasattr(obj, name):
@@ -1061,8 +1267,8 @@ def _metric_card_html(metric, *, hero=False, primary=False):
     )
 
 
-def _render_metrics(metrics):
-    heroes, ribbon = partition_metrics(metrics, hero_count=2)
+def _render_metrics(metrics, *, hero_count=2):
+    heroes, ribbon = partition_metrics(metrics, hero_count=hero_count)
     single_class = " gabes-hero-grid--single" if len(heroes) == 1 else ""
     hero_cards = "".join(
         _metric_card_html(metric, hero=True, primary=(index == 0))
@@ -1231,14 +1437,18 @@ _render_scheme_header(scheme)
 
 metrics = view.get("metrics", [])
 if metrics:
-    _render_metrics(metrics)
+    _render_metrics(metrics, hero_count=view.get("hero_count", 2))
     st.markdown("<div class='gabes-section-gap'></div>", unsafe_allow_html=True)
 
 _render_experimental_comparison(view, scheme.name)
 
 fig = view.get("figure")
 if fig is not None:
-    _render_fig(fig)
+    figure_views = view.get("figure_views", [])
+    if figure_views:
+        _render_figure_views(figure_views)
+    else:
+        _render_fig(fig)
 
 # ----------------------------------------------------------------------
 # Reference / derived tables / optional heavy views

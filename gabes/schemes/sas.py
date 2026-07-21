@@ -328,68 +328,77 @@ class SASScheme(Scheme):
         x = raw["scan"] / (2 * np.pi) / 1e9                  # GHz (relative)
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
-        dopp_mhz = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         pump = params["pump_power_mw"]
+        pump_on = pump > 0
         regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
 
         fig = None
+        figure_views = []
         if include_figures:
             import matplotlib.pyplot as plt
 
-            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-            axT.plot(x, T_trans, color="#1f77b4", lw=1.3)
+            title = (f"{raw['species']} {raw['line']} — {regime}:  "
+                     f"T = {params['temp_c']:.0f} °C, "
+                     f"L = {params['cell_mm']:.0f} mm")
+            xlabel = "Relative frequency  [GHz]  (ref: line centroid)"
+            fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
+            axT.plot(x, T_trans, color="#0284C7", lw=1.3)
             axT.set_ylabel("Transmission")
-            axT.set_title(f"{raw['species']} {raw['line']} — {regime}:  "
-                          f"T = {params['temp_c']:.0f} °C, "
-                          f"L = {params['cell_mm']:.0f} mm")
-            axA.plot(x, OD, color="#d62728", lw=1.3)
+            axT.set_xlabel(xlabel)
+            axT.set_title(title)
+            fig_od, axA = plt.subplots(1, 1, figsize=(8.5, 4.35))
+            axA.plot(x, OD, color="#F43F5E", lw=1.3)
             axA.set_ylabel("Optical density")
-            axA.set_xlabel("Relative frequency  [GHz]  (ref: line centroid)")
+            axA.set_xlabel(xlabel)
+            axA.set_title(title)
             for gx, _lbl in raw["markers"]:
                 for ax in (axT, axA):
                     ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
             fig.tight_layout()
+            fig_od.tight_layout()
+            figure_views = [
+                {"label": "Transmission", "figure": fig},
+                {"label": "Optical density", "figure": fig_od},
+            ]
 
         sub_fwhm, sub_at = narrowest_subdoppler(x, T_trans)
         if pump <= 0:                                        # OD limit: no holes burned
             sub_fwhm = float("nan")
-        metrics = [
-            dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz",
-                 help="Width of the Doppler-broadened background lines."),
-        ]
+        feature_metric = None
         if np.isfinite(sub_fwhm):
-            metrics.append(dict(
+            feature_metric = dict(
                 label="Narrowest sub-Doppler", value=f"{sub_fwhm*1e3:.1f} MHz",
-                help=f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz)."))
-        elif pump > 0:
-            metrics.append(dict(
+                help=f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz).")
+        elif pump_on:
+            feature_metric = dict(
                 label="SAS status", value="sub-Doppler unresolved", kind="status",
                 help="The pump is on, but no finite sub-Doppler feature width was "
-                     "resolved in the displayed spectrum."))
-        metrics.extend([
-            dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
-            dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ])
-        metrics.extend(_lock_readout_metrics(
-            x, T_trans, mhz_per_x=1000.0,
-            feature_at=sub_at, feature_fwhm=sub_fwhm))
-        hero_labels = (
-            {"Narrowest sub-Doppler", "Lock slope"}
-            if np.isfinite(sub_fwhm)
-            else ({"SAS status", "Peak OD"}
-                  if pump > 0 else {"Peak OD", "Doppler FWHM"})
-        )
-        for metric in metrics:
-            if metric["label"] in hero_labels:
-                metric["tier"] = "hero"
+                     "resolved in the displayed spectrum.")
+        peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
+        if pump_on:
+            metrics = _lock_readout_metrics(
+                x, T_trans, mhz_per_x=1000.0,
+                feature_at=sub_at, feature_fwhm=sub_fwhm)
+            metrics[0]["tier"] = "hero"
+            metrics.append(peak_metric)
+            if feature_metric is not None:
+                metrics.append(feature_metric)
+        else:
+            peak_metric["tier"] = "hero"
+            metrics = [peak_metric]
+        if params.get("ne_pressure_torr", 0.0) != 0.0:
+            metrics.append(dict(
+                label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
         rows = "".join(f"| {lbl} | {gx*1e3:.1f} |\n" for gx, lbl in raw["markers"])
         table = ("Hyperfine transitions (Lamb-dip centres); crossovers appear at the "
                  "midpoint of any two sharing a ground state, enhanced/inverted by "
                  "hyperfine pumping.\n\n| Transition | Center [MHz] |\n|---|---|\n" + rows)
         return dict(
             metrics=metrics,
+            hero_count=1,
             figure=fig,
+            figure_views=figure_views,
             tables=[{"title": "Hyperfine lines", "markdown": table}],
             comparison={
                 "axis_index": 0,
@@ -408,62 +417,70 @@ class SASScheme(Scheme):
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
 
         fig = None
+        figure_views = []
         if include_figures:
             import matplotlib.pyplot as plt
 
-            fig, (axT, axA) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
-            axT.plot(x, T_trans, color="#1f77b4", lw=1.6)
+            title = (f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
+                     f"T = {params['temp_c']:.0f} °C")
+            xlabel = "Probe detuning  [MHz]"
+            fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
+            axT.plot(x, T_trans, color="#0284C7", lw=1.6)
             axT.set_ylabel("Transmission")
-            axT.set_title(f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
-                          f"T = {params['temp_c']:.0f} °C")
-            axA.plot(x, OD, color="#d62728", lw=1.6)
+            axT.set_xlabel(xlabel)
+            axT.set_title(title)
+            fig_od, axA = plt.subplots(1, 1, figsize=(8.5, 4.35))
+            axA.plot(x, OD, color="#F43F5E", lw=1.6)
             axA.set_ylabel("Optical density")
-            axA.set_xlabel("Probe detuning  [MHz]")
+            axA.set_xlabel(xlabel)
+            axA.set_title(title)
             for ax in (axT, axA):
                 for off in offs_mhz:
                     ax.axvline(off, color="gray", ls=":", lw=0.7)
                 if raw["two"]:
                     ax.axvline(0.0, color="green", ls=":", lw=0.7)
             fig.tight_layout()
+            fig_od.tight_layout()
+            figure_views = [
+                {"label": "Transmission", "figure": fig},
+                {"label": "Optical density", "figure": fig_od},
+            ]
 
         ic = int(np.argmin(np.abs(x - offs_mhz[0])))
         sub_fwhm = window_fwhm(x, T_trans, ic)
-        dopp_mhz = raw["dopp_fwhm"] / (2 * np.pi) / 1e6
         pump_on = params["pump_power_mw"] > 0
-        metrics = [
-            dict(label="Doppler FWHM", value=f"{dopp_mhz:.0f} MHz"),
-        ]
+        feature_metric = None
         if pump_on and np.isfinite(sub_fwhm):
-            metrics.append(dict(
-                label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz"))
+            feature_metric = dict(
+                label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz")
         elif pump_on:
-            metrics.append(dict(
+            feature_metric = dict(
                 label="SAS status", value="sub-Doppler unresolved", kind="status",
                 help="The pump is on, but no finite Lamb-dip width was resolved "
-                     "around the selected transition."))
-        metrics.extend([
-            dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}"),
-            dict(label="Ne broadening", value=f"{buffer_mhz:.1f} MHz"),
-        ])
-        metrics.extend(_lock_readout_metrics(
-            x, T_trans, mhz_per_x=1.0,
-            feature_at=(float(x[ic]) if pump_on else None),
-            feature_fwhm=(sub_fwhm if pump_on else None)))
-        hero_labels = (
-            {"Sub-Doppler dip FWHM", "Lock slope"}
-            if pump_on and np.isfinite(sub_fwhm)
-            else ({"SAS status", "Peak OD"}
-                  if pump_on else {"Peak OD", "Doppler FWHM"})
-        )
-        for metric in metrics:
-            if metric["label"] in hero_labels:
-                metric["tier"] = "hero"
+                     "around the selected transition.")
+        peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
+        if pump_on:
+            metrics = _lock_readout_metrics(
+                x, T_trans, mhz_per_x=1.0,
+                feature_at=float(x[ic]), feature_fwhm=sub_fwhm)
+            metrics[0]["tier"] = "hero"
+            metrics.append(peak_metric)
+            if feature_metric is not None:
+                metrics.append(feature_metric)
+        else:
+            peak_metric["tier"] = "hero"
+            metrics = [peak_metric]
+        if params.get("ne_pressure_torr", 0.0) != 0.0:
+            metrics.append(dict(
+                label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
         note = ("Two transitions: Lamb dips at ±splitting/2 and a **crossover** dip "
                 "at the midpoint (green)." if raw["two"]
                 else "Single transition: one Lamb dip at line centre.")
         return dict(
             metrics=metrics,
+            hero_count=1,
             figure=fig,
+            figure_views=figure_views,
             tables=[{"title": "Notes", "markdown": note}],
             comparison={
                 "axis_index": 0,
@@ -495,7 +512,7 @@ def _lock_readout_metrics(x, T_trans, mhz_per_x,
     When a sub-Doppler feature has been detected, search only within one FWHM
     of its centre.  This prevents a steeper Doppler-envelope flank (or another
     hyperfine manifold) from being reported as the pump-on laser-lock point.
-    Pump-off and failed-feature-detection paths retain the full-spectrum search.
+    Failed-feature-detection paths retain the full-spectrum search.
     """
     if len(x) < 2:
         return []
@@ -528,9 +545,9 @@ def _lock_readout_metrics(x, T_trans, mhz_per_x,
         "discriminator."
     )
     return [
-        dict(label="Lock slope", value=f"{slope_per_mhz:.4f} /MHz",
+        dict(label="Lock Slope", value=f"{slope_per_mhz:.4f} /MHz",
              help=slope_help),
-        dict(label="Lock detuning", value=f"{detuning_mhz:+.1f} MHz",
+        dict(label="Lock Detuning", value=f"{detuning_mhz:+.1f} MHz",
              help="Detuning where the lock-slope proxy is largest."),
     ]
 

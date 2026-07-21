@@ -44,17 +44,20 @@ def _fast(params):
     return p
 
 
-def _assert_metric_contract(name, metrics):
+def _assert_metric_contract(name, metrics, hero_count=2):
     assert metrics, f"{name}: no metrics"
+    assert type(hero_count) is int and hero_count in (1, 2), (
+        f"{name}: hero_count must be 1 or 2, got {hero_count!r}"
+    )
     for metric in metrics:
         assert "label" in metric and "value" in metric, f"{name}: bad metric {metric}"
 
     explicit_heroes = [metric for metric in metrics if metric.get("tier") == "hero"]
-    assert len(explicit_heroes) == 2, (
-        f"{name}: expected two explicitly prioritized hero metrics, "
+    assert len(explicit_heroes) == hero_count, (
+        f"{name}: expected {hero_count} explicitly prioritized hero metrics, "
         f"got {[metric.get('label') for metric in explicit_heroes]}"
     )
-    heroes, _ribbon = partition_metrics(metrics)
+    heroes, _ribbon = partition_metrics(metrics, hero_count=hero_count)
     assert heroes == explicit_heroes, f"{name}: partition changed explicit hero order"
 
     for metric in heroes:
@@ -140,8 +143,22 @@ def test_all_schemes_render():
         raw = scheme.compute(params)
         view = scheme.observables(raw, params)
         assert view.get("figure") is not None, f"{scheme.name}: no figure"
-        _assert_metric_contract(scheme.name, view.get("metrics"))
-        plt.close(view["figure"])
+        _assert_metric_contract(
+            scheme.name, view.get("metrics"), view.get("hero_count", 2))
+        figure_views = view.get("figure_views", [])
+        if figure_views:
+            assert figure_views[0]["figure"] is view["figure"], (
+                f"{scheme.name}: first figure view must be the default figure"
+            )
+        figures_to_close = [view["figure"]]
+        figures_to_close.extend(
+            item["figure"] for item in figure_views if item.get("figure") is not None
+        )
+        closed = set()
+        for figure in figures_to_close:
+            if id(figure) not in closed:
+                plt.close(figure)
+                closed.add(id(figure))
         for _title, extra in view.get("figures", []):
             plt.close(extra)
 
@@ -151,11 +168,13 @@ def test_all_schemes_render():
     _INTERNAL_MODE_CASES,
     ids=[case[0] for case in _INTERNAL_MODE_CASES],
 )
-def test_internal_modes_have_two_useful_heroes(case_name, scheme, params):
+def test_internal_modes_have_useful_heroes(case_name, scheme, params):
     raw = scheme.compute(params)
     view = scheme.headless_observables(raw, params)
     assert view.get("figure") is None, f"{case_name}: headless path built a figure"
-    _assert_metric_contract(case_name, view.get("metrics"))
+    assert not view.get("figure_views"), f"{case_name}: headless path built carousel views"
+    _assert_metric_contract(
+        case_name, view.get("metrics"), view.get("hero_count", 2))
 
 
 if __name__ == "__main__":

@@ -75,7 +75,9 @@ are treated as arbitrary units. GABES merges repeated detuning samples, removes
 isolated spikes, smooths according to the measured noise, and maps the robust
 signal floor/ceiling to transmission 0/1. Use x scale, x shift, and the sweep
 direction control to align the corrected trace with the simulated frequency
-axis. These display-only controls do not rerun the Bloch-equation solve.
+axis. The graph opens on **Transmission**; use desktop arrow buttons or a mobile
+left/right swipe to switch to **Optical density**. These display-only controls
+do not rerun the Bloch-equation solve.
 
 ## Tests
 

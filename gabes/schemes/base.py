@@ -13,18 +13,26 @@ Contract
   compute(params)          -> dict           heavy solve; uses ONLY recompute knobs
                                              so the UI can cache it.
   observables(raw, params,
-              include_figures=True) -> dict  cheap; uses all knobs (incl. navigate)
+               include_figures=True) -> dict  cheap; uses all knobs (incl. navigate)
                                              -> {"metrics":[...], "figure":fig,
                                                  "tables":[...], optionally
-                                                 "comparison":{...}}.
+                                                 "comparison":{...},
+                                                 "figure_views":[...],
+                                                 "hero_count":1}.
                                              The optional comparison descriptor
                                              nominates a figure axis for experimental
                                              CSV overlays without adding uploaded data
-                                             to the physics/cache parameters. Every
-                                             registered UI mode must nominate exactly
-                                             two metrics with tier="hero". The UI
-                                             keeps an ordered fallback for legacy
-                                             callers and puts the rest in a ribbon.
+                                             to the physics/cache parameters. Optional
+                                             figure_views declare ordered, labelled
+                                             figures for a swipe/arrow carousel; the
+                                             first entry is the default view and shares
+                                             the primary `figure` object. Every
+                                             registered UI mode nominates its key
+                                             metrics with tier="hero". The optional
+                                             hero_count controls whether one or two
+                                             are shown (default: two); the UI keeps
+                                             an ordered fallback for legacy callers
+                                             and puts the rest in a ribbon.
   headless_observables(raw, params) -> dict  metric/table path that skips figure
                                              generation when supported.
 """

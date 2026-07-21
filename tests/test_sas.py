@@ -120,12 +120,10 @@ def test_pump_off_is_smooth_and_49_25():
     assert 1.90 <= f3 / f2 <= 2.02                    # validated 49/25 ≈ 1.96
     assert np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9) < 0.02   # no features
 
-    # Pump off has no sub-Doppler feature, so the legacy full-spectrum lock
-    # proxy remains unchanged.
-    T_trans = observables.transmission(a, p["cell_mm"] * 1e-3)
-    expected = x[int(np.nanargmax(np.abs(np.gradient(T_trans, x))))] * 1000.0
     view = SAS.observables(raw, p, include_figures=False)
-    assert abs(_metric_number(view, "Lock detuning") - expected) <= 0.11
+    assert view["hero_count"] == 1
+    assert [metric["label"] for metric in view["metrics"]] == ["Peak OD"]
+    assert view["metrics"][0]["tier"] == "hero"
 
 
 # ------------------------------------------------------ pump on (SAS) physics
@@ -177,12 +175,26 @@ def test_observables_render_species():
     p = _params(species=CS_KEY, line="D2", temp_c=35.0)
     view = SAS.observables(SAS.compute(p), p)
     assert view["figure"] is not None
+    figure_views = view["figure_views"]
+    assert [item["label"] for item in figure_views] == [
+        "Transmission", "Optical density"
+    ]
+    assert figure_views[0]["figure"] is view["figure"]
+    assert all(len(item["figure"].axes) == 1 for item in figure_views)
+    assert figure_views[0]["figure"].axes[0].get_ylabel() == "Transmission"
+    assert figure_views[1]["figure"].axes[0].get_ylabel() == "Optical density"
     assert view["comparison"]["axis_index"] == 0
     assert view["comparison"]["x_unit"] == "GHz"
     assert view["comparison"]["raw_x_unit"] == "Arb. unit"
-    assert any(m["label"] == "Peak OD" for m in view["metrics"])
-    assert any(m["label"] == "Lock slope" for m in view["metrics"])
-    assert any(m["label"] == "Lock detuning" for m in view["metrics"])
+    assert view["hero_count"] == 1
+    assert [m["label"] for m in view["metrics"][:3]] == [
+        "Lock Slope", "Lock Detuning", "Peak OD"
+    ]
+    assert [m["label"] for m in view["metrics"] if m.get("tier") == "hero"] == [
+        "Lock Slope"
+    ]
+    assert "Doppler FWHM" not in {m["label"] for m in view["metrics"]}
+    assert "Buffer Gas Broadening" not in {m["label"] for m in view["metrics"]}
 
 
 def test_default_lock_point_tracks_detected_subdoppler_feature():
@@ -194,18 +206,54 @@ def test_default_lock_point_tracks_detected_subdoppler_feature():
     feature_fwhm, feature_at = narrowest_subdoppler(x, T_trans)
 
     view = SAS.observables(raw, p, include_figures=False)
-    lock_ghz = _metric_number(view, "Lock detuning") / 1000.0
+    lock_ghz = _metric_number(view, "Lock Detuning") / 1000.0
 
     assert np.isfinite(feature_fwhm)
     assert abs(lock_ghz - feature_at) <= feature_fwhm + 0.00011
 
 
-def test_pump_on_unresolved_feature_uses_status_hero():
+def test_pump_on_unresolved_feature_keeps_lock_slope_hero():
     p = _params(pump_power_mw=0.01, temp_c=200.0, cell_mm=200.0)
     view = SAS.headless_observables(SAS.compute(p), p)
     heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
-    assert [m["label"] for m in heroes] == ["SAS status", "Peak OD"]
-    assert heroes[0].get("kind") == "status"
+    assert [m["label"] for m in heroes] == ["Lock Slope"]
+    assert any(m["label"] == "SAS status" for m in view["metrics"])
+
+
+def test_mode_and_buffer_pressure_control_metric_hierarchy():
+    for atom in (RB85_KEY, GENERIC):
+        for pump_power in (0.0, 0.5):
+            for pressure in (0.0, 1.0):
+                p = _params(
+                    species=atom,
+                    pump_power_mw=pump_power,
+                    ne_pressure_torr=pressure,
+                    scan_points=401,
+                )
+                view = SAS.headless_observables(SAS.compute(p), p)
+                labels = [metric["label"] for metric in view["metrics"]]
+                heroes = [
+                    metric["label"] for metric in view["metrics"]
+                    if metric.get("tier") == "hero"
+                ]
+
+                assert view["hero_count"] == 1
+                assert "Doppler FWHM" not in labels
+                if pump_power > 0.0:
+                    assert heroes == ["Lock Slope"]
+                    assert labels[:3] == [
+                        "Lock Slope", "Lock Detuning", "Peak OD"
+                    ]
+                else:
+                    assert heroes == ["Peak OD"]
+                    assert labels[0] == "Peak OD"
+                    assert not any(label.startswith("Lock ") for label in labels)
+
+                if pressure > 0.0:
+                    assert labels[-1] == "Buffer Gas Broadening"
+                    assert _metric_number(view, "Buffer Gas Broadening") > 0.0
+                else:
+                    assert "Buffer Gas Broadening" not in labels
 
 
 # -------------------------------------------------------------- generic mode
@@ -228,9 +276,19 @@ def test_generic_lamb_dip_and_crossover():
     feature_i = int(np.argmin(np.abs(
         x2 - raw2["offsets"][0] / (2 * np.pi) / 1e6)))
     feature_fwhm = window_fwhm(x2, T2, feature_i)
+    rendered = SAS.observables(raw2, p2)
+    assert [item["label"] for item in rendered["figure_views"]] == [
+        "Transmission", "Optical density"
+    ]
+    assert rendered["figure_views"][0]["figure"] is rendered["figure"]
     view2 = SAS.observables(raw2, p2, include_figures=False)
+    assert view2["figure_views"] == []
     assert view2["comparison"]["x_unit"] == "MHz"
-    lock_mhz = _metric_number(view2, "Lock detuning")
+    assert view2["hero_count"] == 1
+    assert [m["label"] for m in view2["metrics"][:3]] == [
+        "Lock Slope", "Lock Detuning", "Peak OD"
+    ]
+    lock_mhz = _metric_number(view2, "Lock Detuning")
     assert abs(lock_mhz - x2[feature_i]) <= feature_fwhm + 0.11
 
 
