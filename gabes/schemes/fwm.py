@@ -1805,9 +1805,14 @@ class FWMScheme(Scheme):
     defaults_version = "seeded-coupling-factors-v2"
     cache_observables = True
     supports_headless_observables = True
-    caption = ("Squeezing keeps the legacy 85Rb double-Lambda gain model; "
-               "Biphoton shows generic SFWM source estimates for cascade and "
-               "diamond topologies.")
+    # Dev note: Squeezing is the original 85Rb double-Lambda seeded-gain
+    # model (regression-anchored); Biphoton is a newer, less-calibrated
+    # spontaneous-FWM source estimate shared across cascade/diamond level
+    # schemes rather than fit per atom/transition.
+    caption = ("85Rb D1 double-Lambda four-wave mixing. Squeezing solves the "
+               "seeded twin-beam gain and intensity-difference squeezing; "
+               "Biphoton estimates the spontaneous-pair source for cascade "
+               "and diamond level schemes.")
 
     def param_schema(self):
         seeded = {"mode": MODE_SEEDED}
