@@ -767,23 +767,31 @@ def _render_experimental_comparison(view, scheme_name):
             st.session_state[invert_key] = False
 
         align_cols = panel.columns(2)
-        scale_now = abs(float(st.session_state.get(scale_key, 1.0)))
+        scale_now = max(abs(float(st.session_state.get(scale_key, 1.0))), 1e-9)
         scale_step = max(scale_now * 0.01, 1e-6)
-        x_scale = align_cols[0].number_input(
+        scale_pivot = min(framed_scale, scale_now)
+        scale_min = max(scale_pivot / 1000.0, 1e-9)
+        scale_max = min(max(framed_scale, scale_now) * 1000.0, 1e9)
+        x_scale = align_cols[0].slider(
             f"X scale  [{x_unit}/{raw_x_unit}]",
-            min_value=1e-9,
-            max_value=1e9,
+            scale_min,
+            scale_max,
             step=float(scale_step),
-            format="%.6g",
             key=scale_key,
             help="Scale around the imported trace centre.",
         )
+        shift_now = float(st.session_state.get(shift_key, 0.0))
         shift_step = max(abs(plot_span) / 1000.0, 1e-6)
-        x_shift = align_cols[1].number_input(
+        shift_margin = 2.0 * max(abs(plot_span), 1e-9)
+        shift_min = min(xlim[0] - shift_margin, shift_now)
+        shift_max = max(xlim[1] + shift_margin, shift_now)
+        x_shift = align_cols[1].slider(
             f"X shift  [{x_unit}]",
+            shift_min,
+            shift_max,
             step=float(shift_step),
-            format="%.6g",
             key=shift_key,
+            help="Shift the imported trace along the plotted x axis.",
         )
         option_cols = panel.columns(2)
         reverse = option_cols[0].checkbox(
