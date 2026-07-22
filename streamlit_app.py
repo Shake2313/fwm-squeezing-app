@@ -37,6 +37,13 @@ from gabes.experimental_csv import (
 from gabes.plot_style import PALETTE, apply_gabes_plot_style
 from gabes.ui_metrics import partition_metrics, split_metric_value
 
+# Whether this Streamlit exposes the per-widget upload cap (added after the
+# project's oldest supported release). A static fact about the installed
+# version — probe once, not on every rerun.
+_FILE_UPLOADER_HAS_MAX_SIZE = (
+    "max_upload_size" in inspect.signature(st.file_uploader).parameters
+)
+
 APP_DIR = Path(__file__).resolve().parent
 _PLOT_LOCK = RLock()
 
@@ -169,6 +176,8 @@ METRIC_STYLES = [
 
 DEFAULT_STYLE = dict(label="control", color="#0284C7", bg="#E6F7FC")
 DEFAULT_METRIC_STYLE = dict(kind="result", color="#2563EB", bg="#EFF6FF")
+# Manual cache-buster for _cached_observables: bump when the metrics/figure
+# rendering *shape* changes (new tiers, ribbon layout) so stale cached views drop.
 READOUT_CACHE_VERSION = "hero-ribbon-v3-single-hero"
 
 
@@ -620,7 +629,13 @@ def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
 
 
 @st.cache_data(show_spinner=False, max_entries=64)
-def _cached_observables(scheme_name, raw, param_items, cache_version):
+def _cached_observables(scheme_name, recompute_items, param_items, cache_version):
+    # `raw` (the full solve output — large numpy arrays) is 1:1 determined by
+    # (scheme_name, recompute_items), so key on those small tuples and fetch raw
+    # from the compute cache instead of hashing the whole solve on every rerun.
+    # This keeps navigate-only knobs cheap (the two-tier design). cache_version is
+    # (compute_cache_version, READOUT_CACHE_VERSION); [0] matches _cached_compute.
+    raw = _cached_compute(scheme_name, recompute_items, cache_version[0])
     # Matplotlib's font/mathtext/layout caches are process-global. Streamlit can
     # briefly overlap reruns when sliders are moved quickly, so serialize figure
     # construction to avoid layout-time parser crashes.
@@ -849,13 +864,6 @@ def _render_figure_views(figure_views):
                 closed.add(id(fig))
 
 
-def _diagnostic_value(obj, *names, default=None):
-    for name in names:
-        if hasattr(obj, name):
-            return getattr(obj, name)
-    return default
-
-
 def _render_experimental_comparison(view, scheme_name):
     """Render a scheme-declared CSV panel and overlay its corrected trace.
 
@@ -885,9 +893,8 @@ def _render_experimental_comparison(view, scheme_name):
             "up to 10 MiB or 500,000 rows."
         )
         uploader_options = {}
-        if "max_upload_size" in inspect.signature(panel.file_uploader).parameters:
-            # Streamlit added this per-widget guard after the project's oldest
-            # supported release; retain the backend byte check as the fallback.
+        if _FILE_UPLOADER_HAS_MAX_SIZE:
+            # Backend byte check remains the fallback on releases without it.
             uploader_options["max_upload_size"] = MAX_FILE_BYTES // (1024 * 1024)
         uploaded = panel.file_uploader(
             "Oscilloscope CSV",
@@ -1013,38 +1020,20 @@ def _render_experimental_comparison(view, scheme_name):
 
         import_diag = trace.import_diagnostics
         correction_diag = trace.correction_diagnostics
-        valid_rows = _diagnostic_value(
-            import_diag, "valid_rows", "accepted_rows", default="?"
-        )
-        ignored_rows = _diagnostic_value(
-            import_diag, "ignored_rows", "skipped_rows", default="?"
-        )
-        merged_rows = _diagnostic_value(
-            import_diag, "duplicate_rows_merged", "merged_rows",
-            "duplicate_rows", default="?"
+        panel.caption(
+            f"{uploaded.name}: {import_diag.valid_rows} numeric A/B rows · "
+            f"{len(detuning)} unique detuning points · "
+            f"{import_diag.duplicate_rows_merged} duplicates merged · "
+            f"{import_diag.ignored_rows} rows ignored"
         )
         panel.caption(
-            f"{uploaded.name}: {valid_rows} numeric A/B rows · "
-            f"{len(detuning)} unique detuning points · {merged_rows} duplicates "
-            f"merged · {ignored_rows} rows ignored"
+            f"Signal calibration [{raw_y_unit}]: "
+            f"floor {correction_diag.floor:.6g} · "
+            f"ceiling {correction_diag.ceiling:.6g} · "
+            f"smoothing window {correction_diag.smoothing_window}"
         )
-        floor = _diagnostic_value(correction_diag, "floor", "floor_level")
-        ceiling = _diagnostic_value(correction_diag, "ceiling", "ceiling_level")
-        window = _diagnostic_value(
-            correction_diag, "smoothing_window", "window_size", default=1
-        )
-        if floor is not None and ceiling is not None:
-            panel.caption(
-                f"Signal calibration [{raw_y_unit}]: floor {float(floor):.6g} · "
-                f"ceiling {float(ceiling):.6g} · smoothing window {window}"
-            )
-        warnings = _diagnostic_value(
-            correction_diag, "warnings", "warning", default=()
-        )
-        if isinstance(warnings, str):
-            warnings = (warnings,)
-        for warning in warnings or ():
-            panel.warning(str(warning))
+        if correction_diag.warning:
+            panel.warning(str(correction_diag.warning))
 
         aligned_x = trace.transformed_detuning(
             scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
@@ -1336,7 +1325,7 @@ if callable(_rec_fn):
     try:
         # Probe with the live selection (not static defaults) so a scheme can
         # offer readout/mode-dependent default buttons (e.g. magneto shows
-        # transmission regimes vs an NMOR default). Keys are stable for SAS/FWM.
+        # transmission regimes vs an NMOR default).
         _rec_sets = _rec_fn(_current_params(scheme.name, scheme))
     except Exception:
         _rec_sets = None
@@ -1375,7 +1364,6 @@ if isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
 
 # Controls — grouped sections; advanced/numeric knobs fold into an expander.
 visible_specs = [sp for sp in specs if _param_visible(scheme.name, sp)]
-params = {}
 group_order = []
 for sp in visible_specs:
     if not sp.advanced and sp.group not in group_order:
@@ -1385,7 +1373,7 @@ for g in group_order:
     _render_group_header(st.sidebar, g)
     for sp in visible_specs:
         if sp.group == g and not sp.advanced:
-            params[sp.name] = _render_param(st.sidebar, scheme.name, sp, scheme)
+            _render_param(st.sidebar, scheme.name, sp, scheme)
 
 advanced = [sp for sp in visible_specs if sp.advanced]
 if advanced:
@@ -1404,11 +1392,12 @@ if advanced:
         if show_advanced_subgroups:
             _render_advanced_subheader(exp, group)
         for sp in group_specs:
-            params[sp.name] = _render_param(exp, scheme.name, sp, scheme)
+            _render_param(exp, scheme.name, sp, scheme)
 
-for sp in specs:
-    if sp.name not in params:
-        params[sp.name] = st.session_state[_skey(scheme.name, sp.name)]
+# Every rendered widget wrote its value to session_state under _skey; hidden and
+# currently-invisible specs weren't rendered but keep their last value (or
+# default). _current_params gathers both in one pass.
+params = _current_params(scheme.name, scheme)
 
 
 # ----------------------------------------------------------------------
@@ -1416,17 +1405,18 @@ for sp in specs:
 # ----------------------------------------------------------------------
 recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
 cache_version = getattr(scheme, "cache_version", "1")
-with st.spinner("Solving Bloch equations…"):
-    raw = _cached_compute(scheme.name, recompute_items, cache_version)
 param_items = tuple(sorted(params.items()))
 if getattr(scheme, "cache_observables", False):
-    view = _cached_observables(
-        scheme.name, raw, param_items,
-        (cache_version, READOUT_CACHE_VERSION),
-    )
+    with st.spinner("Solving Bloch equations…"):
+        view = _cached_observables(
+            scheme.name, recompute_items, param_items,
+            (cache_version, READOUT_CACHE_VERSION),
+        )
 else:
-    with _PLOT_LOCK:
-        view = scheme.observables(raw, params)
+    with st.spinner("Solving Bloch equations…"):
+        raw = _cached_compute(scheme.name, recompute_items, cache_version)
+        with _PLOT_LOCK:
+            view = scheme.observables(raw, params)
 
 
 # ----------------------------------------------------------------------

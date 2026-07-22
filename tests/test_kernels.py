@@ -38,12 +38,12 @@ def _chi_tables(branch):
     v_grid, _ = doppler.velocity_grid(394.15, dv=12.0, cutoff_sigma=3.0)
     deff_axis = doppler.build_Delta_eff_axis(Delta, Delta, v_grid)
 
-    fast = fwm.chi_matrix_table(Op, Op, Os, Os, delta_axis, deff_axis, branch)
+    fast = fwm.chi_matrix_table(Op, Os, Os, delta_axis, deff_axis, branch)
 
     orig = fwm.kernels.available
     fwm.kernels.available = lambda: False
     try:
-        ref = fwm.chi_matrix_table(Op, Op, Os, Os, delta_axis, deff_axis, branch)
+        ref = fwm.chi_matrix_table(Op, Os, Os, delta_axis, deff_axis, branch)
     finally:
         fwm.kernels.available = orig
     return fast, ref

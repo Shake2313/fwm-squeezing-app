@@ -83,30 +83,6 @@ class ExperimentalCSV:
     import_diagnostics: CSVImportDiagnostics
     correction_diagnostics: CorrectionDiagnostics
 
-    @property
-    def x(self) -> np.ndarray:
-        return self.detuning
-
-    @property
-    def raw(self) -> np.ndarray:
-        return self.raw_signal
-
-    @property
-    def denoised(self) -> np.ndarray:
-        return self.denoised_signal
-
-    @property
-    def normalized(self) -> np.ndarray:
-        return self.transmission
-
-    @property
-    def diagnostics(self) -> CSVImportDiagnostics:
-        return self.import_diagnostics
-
-    @property
-    def correction(self) -> CorrectionDiagnostics:
-        return self.correction_diagnostics
-
     def transformed_detuning(
         self,
         *,
@@ -396,11 +372,12 @@ def _hampel_filter(y: np.ndarray, half_window: int = 5) -> tuple[np.ndarray, int
     local_median = np.median(windows, axis=1)
     local_mad = np.median(np.abs(windows - local_median[:, None]), axis=1)
     local_sigma = 1.4826 * local_mad
+    noise = _estimate_noise(y)
     signal_scale = max(
         float(np.max(np.abs(y))), float(np.ptp(y)), np.finfo(float).tiny
     )
     sigma_floor = max(
-        0.2 * _estimate_noise(y), 32.0 * np.finfo(float).eps * signal_scale
+        0.2 * noise, 32.0 * np.finfo(float).eps * signal_scale
     )
     threshold = HAMPEL_THRESHOLD_MAD * np.maximum(local_sigma, sigma_floor)
     candidate_mask = np.abs(y - local_median) > threshold
@@ -418,13 +395,13 @@ def _hampel_filter(y: np.ndarray, half_window: int = 5) -> tuple[np.ndarray, int
         np.flatnonzero(np.diff(candidate_indices) > 1) + 1,
     )
     feature_threshold = max(
-        8.0 * _estimate_noise(y),
+        8.0 * noise,
         0.05 * float(np.ptp(y)),
         sigma_floor,
     )
     deviations = np.abs(y - local_median)
     singleton_feature_threshold = max(
-        8.0 * _estimate_noise(y),
+        8.0 * noise,
         0.50 * float(np.ptp(y)),
         sigma_floor,
     )

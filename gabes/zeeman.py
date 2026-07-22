@@ -140,12 +140,15 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
     return atom
 
 
+@functools.lru_cache(maxsize=4)
 def rb85_d1_double_lambda_zeeman(gamma=None, gamma_gg=None):
     """Full 85Rb D1 double-lambda Zeeman manifold used by FWM Ultra diagnostics.
 
     Levels are ordered as all ground states F=2,3 followed by all excited states
     F'=2,3. Coupling amplitudes are normalized so the unpolarized CG sum for each
-    Fg->Fe block reproduces the lumped FWM scale 3*C_F^2.
+    Fg->Fe block reproduces the lumped FWM scale 3*C_F^2. Cached (like
+    `zeeman_manifold`): the 24-level build is rerun every Ultra `compute_spectrum`
+    otherwise, purely to report a diagnostic that is ≡1.0 by construction.
     """
     gamma = constants.GAMMA if gamma is None else gamma
     gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg

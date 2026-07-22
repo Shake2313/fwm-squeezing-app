@@ -6,9 +6,9 @@ ground / excited, spontaneous-emission channels, dephasing channels, and which
 diagonal entries shift with velocity (Doppler). It precomputes the Lindblad
 super-operator and the velocity-shift super-operator once at construction.
 
-Today only the 85Rb D1 double-Λ 4-level model is registered (exactly the level
-structure the original fwm_obe.py hard-coded). Scalar 3-level schemes and Zeeman
-manifolds get added in later phases.
+The `REGISTRY` at the bottom holds the 85Rb D1 double-Λ 4-level model; the
+factories below also build 2-level and 3-level Λ atoms (Zeeman manifolds live in
+`zeeman.py`).
 """
 from dataclasses import dataclass, field
 

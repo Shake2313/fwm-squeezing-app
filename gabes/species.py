@@ -38,7 +38,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from . import constants
+from . import constants, hyperfine
 from .atoms import AtomModel
 from .zeeman import clebsch_gordan
 
@@ -201,9 +201,7 @@ def number_density(iso, T):
     tool's absolute scale. Cs uses the Steck liquid-phase fit.
     """
     if iso.name.startswith("Rb"):
-        P_pa = (10 ** (9.863 - 4215.0 / T) if T < 273.15 + 39.30
-                else 10 ** (9.318 - 4040.0 / T))
-        return P_pa / (constants.KB * T)
+        return hyperfine.vapor_pressure_pa(T) / (constants.KB * T)
     logP = 8.22127 - 4006.048 / T - 0.00060194 * T - 0.19623 * np.log10(T)
     return _density_from_logP(logP, T)
 

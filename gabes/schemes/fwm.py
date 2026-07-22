@@ -21,6 +21,7 @@ from .. import atoms, beam, constants, doppler, hyperfine, kernels, observables,
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
 from ..lineshape import fwhm_interp
+from . import absorption
 from .base import ExtraView, ParamSpec, Preset, Scheme
 
 # =========================================================
@@ -386,23 +387,6 @@ def _bandwidth_from_waveform_mhz(tau_s, psi):
     if above.size < 2:
         return float("nan")
     return float((freq[above[-1]] - freq[above[0]]) / 1e6)
-
-
-def phase_mismatch_grid(fields, signal_axis_deg, idler_axis_deg,
-                        reference_delta_k=0.0):
-    """Vectorized signal/idler longitudinal mismatch grid."""
-    signal_axis_deg = np.asarray(signal_axis_deg, dtype=float)
-    idler_axis_deg = np.asarray(idler_axis_deg, dtype=float)
-    sig, ide = np.meshgrid(signal_axis_deg, idler_axis_deg, indexing="ij")
-    total = np.zeros_like(sig, dtype=float)
-    for field in fields:
-        if field.role == "signal":
-            total += field.phase_sign * field.k * np.cos(np.deg2rad(sig))
-        elif field.role == "idler":
-            total += field.phase_sign * field.k * np.cos(np.deg2rad(ide))
-        else:
-            total += field.phase_sign * field.k * math.cos(math.radians(field.angle_deg))
-    return total - (reference_delta_k or 0.0)
 
 
 def phase_mismatch_vector_grid(fields, signal_axis_deg, idler_axis_deg,
@@ -1038,12 +1022,10 @@ class GenericFWMSolver:
             "v_grid": v_grid,
             "velocity_weights": weights,
             "source_v": source_v,
+            # 1-D acceptance curve is built lazily by the figure path (observables
+            # fills these when None); the 2-D map placeholder stays None here.
             "angle_axis_deg": None,
             "phase_matching": None,
-            # The optional 2-D map is built lazily by the figure path. Keep the
-            # legacy keys as None so existing raw-result consumers fail soft.
-            "signal_angle_axis_deg": None,
-            "idler_angle_axis_2d_deg": None,
             "phase_matching_2d": None,
             "delta_k": float(delta_k),
             "delta_k_absolute": float(delta_k_absolute),
@@ -1099,38 +1081,41 @@ def _polarization_coherence(rho, ground):
                for e in EXCITED_STATES)
 
 
-def static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os, delta, branch):
-    """H₀ with Δ_eff = 0, so the only v / Δ_eff dependence is added later."""
+def static_hamiltonian_at_Deff_zero(Op_pump, Os, delta, branch):
+    """H₀ with Δ_eff = 0, so the only v / Δ_eff dependence is added later.
+
+    A single physical pump beam drives both double-Λ ground legs (Op_pump on the
+    non-seeded ground state of the branch)."""
     H0 = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
     H0[G2, G2] = delta
     H0[E2, E2] = -OMEGA_EXCITED_HF
     H0[E3, E3] = 0.0
     if branch == -1:
-        _add_static_drive(H0, G1, Op_A)
+        _add_static_drive(H0, G1, Op_pump)
         _add_static_drive(H0, G2, Os)
         return H0
     if branch == +1:
         _add_static_drive(H0, G1, Os)
-        _add_static_drive(H0, G2, Op_B)
+        _add_static_drive(H0, G2, Op_pump)
         return H0
     raise ValueError(f"branch must be one of {BRANCHES}, got {branch}")
 
 
-def sideband_hamiltonian(Op_A, Op_B, Oc, branch):
+def sideband_hamiltonian(Op_pump, Oc, branch):
     Hp = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
     if branch == -1:
         _add_sideband_drive(Hp, G1, Oc)
-        _add_sideband_drive(Hp, G2, Op_B)
+        _add_sideband_drive(Hp, G2, Op_pump)
         return Hp
     if branch == +1:
-        _add_sideband_drive(Hp, G1, Op_A)
+        _add_sideband_drive(Hp, G1, Op_pump)
         _add_sideband_drive(Hp, G2, Oc)
         return Hp
     raise ValueError(f"branch must be one of {BRANCHES}, got {branch}")
 
 
-def sideband_template(Op_A, Op_B, Oc, branch):
-    Hp = sideband_hamiltonian(Op_A, Op_B, Oc, branch)
+def sideband_template(Op_pump, Oc, branch):
+    Hp = sideband_hamiltonian(Op_pump, Oc, branch)
     Cp = comm_super(Hp)
     Cm = comm_super(Hp.conj().T)
     return Cp, Cm
@@ -1147,7 +1132,7 @@ def _coherence_weights(ground):
     return w
 
 
-def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch,
+def chi_matrix_table(Op_pump, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch,
                      atom=ATOM):
     """
     Two solves per probe-detuning point to extract (χ̄_ss, χ̄_cs, χ̄_sc, χ̄_cc)
@@ -1167,8 +1152,8 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
     n_d = delta_axis.size
     n_de = Delta_eff_axis.size
 
-    Cp_no_c, Cm_no_c = sideband_template(Op_A, Op_B, 0.0, branch)      # solve 1
-    Cp_c, Cm_c = sideband_template(Op_A, Op_B, Oc_ref, branch)        # solve 2
+    Cp_no_c, Cm_no_c = sideband_template(Op_pump, 0.0, branch)        # solve 1
+    Cp_c, Cm_c = sideband_template(Op_pump, Oc_ref, branch)           # solve 2
 
     if kernels.available():
         # H₀(δ) is affine in δ (only H₀[G2,G2] = δ), so L₀(δ) = L₀(0) + δ·C_δ.
@@ -1181,13 +1166,13 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         deff_axis = np.ascontiguousarray(Delta_eff_axis, dtype=float)
 
         L0_1 = build_liouvillian(
-            static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), atom)
+            static_hamiltonian_at_Deff_zero(Op_pump, Os_ref, 0.0, branch), atom)
         probe_a, conj_a = kernels.floquet_chi_grid(
             L0_1, C_delta, atom.S_v, Cp_no_c, Cm_no_c, delta_axis, deff_axis,
             OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
 
         L0_2 = build_liouvillian(
-            static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), atom)
+            static_hamiltonian_at_Deff_zero(Op_pump, 0.0, 0.0, branch), atom)
         probe_b, conj_b = kernels.floquet_chi_grid(
             L0_2, C_delta, atom.S_v, Cp_c, Cm_c, delta_axis, deff_axis,
             OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
@@ -1203,7 +1188,7 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         Omega_beat = seeded_sideband_beat(delta, branch)
 
         # ---- Solve 1: probe drive only ----
-        H0_1 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, delta, branch)
+        H0_1 = static_hamiltonian_at_Deff_zero(Op_pump, Os_ref, delta, branch)
         L0_1 = build_liouvillian(H0_1, atom)
         rho0_a, rhop_a = floquet_solve(
             L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
@@ -1213,7 +1198,7 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         chi_cs[i] = conj_a / Os_ref
 
         # ---- Solve 2: conjugate seed only ----
-        H0_2 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, delta, branch)
+        H0_2 = static_hamiltonian_at_Deff_zero(Op_pump, 0.0, delta, branch)
         L0_2 = build_liouvillian(H0_2, atom)
         rho0_b, rhop_b = floquet_solve(
             L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
@@ -1313,7 +1298,6 @@ def _arm_linear_od(beam_GHz, T, L=L_CELL, ground_F=2):
     sum just those manifold components of the AutoOD-validated α (<0.1 % vs lab).
     Δ=0 is 85Rb F=2→F'=3, hence the ref-line shift.
     """
-    from . import absorption
     ref_hz = hyperfine.LINE_SHIFT_HZ[(2, 3)]
     scan = 2 * np.pi * (np.asarray(beam_GHz, dtype=float) * 1e9 + ref_hz)
     params = {"temp_c": float(T) - 273.15, "line_strength": 1.0, "doppler": "on"}
@@ -1336,7 +1320,6 @@ def _pump_scatter_noise(D_GHz, T, L, kappa):
     filtering leakage). Small far from resonance (Sim's +0.9 GHz window), large
     when the pump sits near a populous manifold (the −2.1 GHz / F=3 region).
     """
-    from . import absorption
     # `_hyperfine_alpha`'s scan axis is referenced to the 87Rb F=2→F'=2 marker
     # (hyperfine.LINE_SHIFT_HZ), whereas the FWM Δ is referenced to 85Rb F=2→F'=3.
     # Shift by that line's position so Δ=0 maps to the F=2→F'=3 line center.
@@ -1364,21 +1347,16 @@ def _ultra_phase_mismatch(D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg,
 
     The refractive indices depend only on χ (not on Δk), so there is no fixed
     point to iterate — one pass is exact. ``max_change`` reports the
-    vacuum→refractive shift in Δk (a meaningful diagnostic), rather than the
-    last-iteration delta of a no-op loop.
+    vacuum→refractive shift in Δk (a meaningful diagnostic).
     """
-    delta_k = seeded_phase_mismatch_z(D_GHz, probe_axis_GHz, angle_deg=angle_deg)
-    max_change = 0.0
-    n_seed = np.ones_like(probe_axis_GHz, dtype=float)
-    n_conj = np.ones_like(probe_axis_GHz, dtype=float)
-    for _ in range(ULTRA_PHASE_ITERATIONS):
-        n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
-        n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
-        new_delta_k = seeded_phase_mismatch_z(
-            D_GHz, probe_axis_GHz, angle_deg=angle_deg,
-            n_seed=n_seed, n_conj=n_conj)
-        max_change = float(np.nanmax(np.abs(new_delta_k - delta_k)))
-        delta_k = new_delta_k
+    vacuum_delta_k = seeded_phase_mismatch_z(
+        D_GHz, probe_axis_GHz, angle_deg=angle_deg)
+    n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
+    n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
+    delta_k = seeded_phase_mismatch_z(
+        D_GHz, probe_axis_GHz, angle_deg=angle_deg,
+        n_seed=n_seed, n_conj=n_conj)
+    max_change = float(np.nanmax(np.abs(delta_k - vacuum_delta_k)))
     return delta_k, n_seed, n_conj, max_change
 
 
@@ -1402,7 +1380,6 @@ def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     n = M.shape[0]
     amp = np.zeros((n, 2), dtype=complex)
     amp[:, 0] = math.sqrt(max(float(P_seed), 1e-30))
-    T_total = np.broadcast_to(np.eye(2, dtype=complex), (n, 2, 2)).copy()
     pump_remaining = np.full(n, max(float(P_pump), 1e-30), dtype=float)
 
     for coupling_scale, spatial_scale in zip(segment_profile, spatial_profile):
@@ -1414,14 +1391,13 @@ def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         Mz[:, 1, 0] *= scale
         Tseg = observables.matrix_exp_2x2(Mz, dz)
         amp = np.einsum("nij,nj->ni", Tseg, amp)
-        T_total = Tseg @ T_total
         seed_added = np.maximum(np.abs(amp[:, 0]) ** 2 - float(P_seed), 0.0)
         conj_power = np.maximum(np.abs(amp[:, 1]) ** 2, 0.0)
         pump_remaining = np.maximum(float(P_pump) - seed_added - conj_power, 0.0)
 
     G_s = np.abs(amp[:, 0]) ** 2 / max(float(P_seed), 1e-30)
     G_c = np.abs(amp[:, 1]) ** 2 / max(float(P_seed), 1e-30)
-    return G_s, G_c, T_total, pump_remaining
+    return G_s, G_c, pump_remaining
 
 
 def collisional_atom(T, density=None):
@@ -1514,8 +1490,7 @@ def compute_spectrum(D_GHz, *,
     coupling_ls = factors.combined_residual * coupling_norm
     eta = qe * (1.0 - loss_frac)
 
-    Op_A = rabi_freq(P_pump, w_pump)
-    Op_B = Op_A
+    Op_pump = rabi_freq(P_pump, w_pump)
     Os = rabi_freq(P_probe, w_probe)
     Os_ref = Os
     Oc_ref = Os                              # χ̄ is independent of |Ω_ref|
@@ -1546,7 +1521,7 @@ def compute_spectrum(D_GHz, *,
 
     delta_axis = two_photon_detuning_from_probe_scan(probe_axis_GHz, D_GHz, branch)
     ch_ss, ch_cs, ch_sc, ch_cc = chi_matrix_table(
-        Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch, atom=atom_T)
+        Op_pump, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch, atom=atom_T)
     # All four susceptibility tables share the same Δ_eff interpolation geometry.
     # Build it once for this solve instead of repeating the index/fraction work.
     idx_lo, frac = doppler.interpolation_weights(
@@ -1623,7 +1598,7 @@ def compute_spectrum(D_GHz, *,
         # zeeman_correction is a CG-sum consistency diagnostic (≡1.0 by
         # construction), not an active correction, so it is no longer multiplied
         # into the coupling.
-        G_s, G_c, _T, pump_remaining = _ultra_segmented_gain(
+        G_s, G_c, pump_remaining = _ultra_segmented_gain(
             chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
             k_probe_prop, k_conj_prop, L, N_atoms,
             coupling_ls, delta_k_z,
@@ -1729,7 +1704,7 @@ def compute_spectrum(D_GHz, *,
         "N_atoms": N_atoms,
         "sigma_v": np.sqrt(constants.KB * T / constants.MASS_85RB),
         "n_velocity": v_grid.size,
-        "Op_A_2pi_GHz": Op_A / (2 * np.pi) / 1e9,
+        "Op_pump_2pi_GHz": Op_pump / (2 * np.pi) / 1e9,
         "Os_2pi_MHz": Os / (2 * np.pi) / 1e6,
         "raman_center_minus_GHz": branch_center_GHz(D_GHz, -1),
         "raman_center_plus_GHz": branch_center_GHz(D_GHz, +1),
@@ -1761,11 +1736,9 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 # =========================================================
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
-# Three tiers. The old coarse "Fast" (121 pts) was dropped and the rest renamed
-# down — the real-basis + sideband-symmetry speedups (~1.6×) made it redundant.
-# Times are re-estimated for the reference (deployment) environment the old
-# labels used, scaled by the measured 1.6×: old ~6 s → ~4 s, old ~20 s → ~12 s.
-# The per-tier solver settings are unchanged; only the labels moved.
+# Three tiers, keyed by user-facing label → solver settings. The inline "was …"
+# notes record the old label each tier's settings carried, so `_FIDELITY_LEGACY`
+# below can remap saved sessions.
 FIDELITY_FAST = "Fast  (~4 s)"          # was "Balanced  (~6 s)" (181-pt) settings
 FIDELITY_BALANCED = "Balanced  (~12 s)"  # was "High fidelity  (~20 s)" (301-pt)
 FIDELITY_ULTRA = "Ultra  (slow)"
@@ -1777,7 +1750,6 @@ FWM_FIDELITY = {
     FIDELITY_ULTRA:    dict(coarse_points=401, velocity_step=1.0,
                             velocity_cutoff=4.0, phase_detail=PHASE_ULTRA),
 }
-RESOLUTION = FWM_FIDELITY
 
 # Old saved fidelity labels → current labels. Settings-preserving where a tier
 # survived (old Balanced/High kept their solver settings under the new names);
@@ -2276,7 +2248,7 @@ class FWMScheme(Scheme):
             f"| N(85Rb) | {raw['N_atoms']:.3e} /m³ |\n"
             f"| σ_v (1-D thermal) | {raw['sigma_v']:.1f} m/s |\n"
             f"| Velocity classes | {raw['n_velocity']} |\n"
-            f"| Ω_pump / 2π | {raw['Op_A_2pi_GHz']:.3f} GHz |\n"
+            f"| Ω_pump / 2π | {raw['Op_pump_2pi_GHz']:.3f} GHz |\n"
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
