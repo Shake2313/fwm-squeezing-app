@@ -393,12 +393,12 @@ $\delta$ 재스캔이다.
 \item finite-loss v6 frontier:
 \begin{verbatim}
 python .claude/skills/fwm-squeezing-frontier/scripts/scan_squeezing_frontier.py \
-  --fidelity ultra --out analysis/squeezing_frontier_finite_loss_v6
+  --fidelity ultra --out analysis/squeezing/squeezing_frontier_finite_loss_v6
 \end{verbatim}
 \item ideal detection v6 frontier:
 \begin{verbatim}
 python .claude/skills/fwm-squeezing-frontier/scripts/scan_squeezing_frontier.py \
-  --fidelity ultra --qe 1 --loss 0 --out analysis/squeezing_frontier_ideal_v6
+  --fidelity ultra --qe 1 --loss 0 --out analysis/squeezing/squeezing_frontier_ideal_v6
 \end{verbatim}
 \item v6 report figures:
 \begin{verbatim}
@@ -407,11 +407,11 @@ python docs/squeezing_report/make_v6_ideal_figs.py
 \end{verbatim}
 \item v6 TPD/angle detail:
 \begin{verbatim}
-python analysis/scan_squeezing_v6_loss0_tpd_angle_detail.py
+python analysis/squeezing/scan_squeezing_v6_loss0_tpd_angle_detail.py
 \end{verbatim}
 \item v6 tolerance 보충 (\S\ref{sec:tolerance}):
 \begin{verbatim}
-python analysis/scan_squeezing_v6_tolerance.py
+python analysis/squeezing/scan_squeezing_v6_tolerance.py
 \end{verbatim}
 \item full test suite after the beat-sign correction:
 \begin{verbatim}

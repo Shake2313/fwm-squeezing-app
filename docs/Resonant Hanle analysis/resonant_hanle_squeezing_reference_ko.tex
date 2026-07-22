@@ -1,7 +1,7 @@
 % !TEX program = xelatex
 % Compile from the repository root or from docs/:
-%   xelatex docs/resonant_hanle_squeezing_reference_ko.tex
-%   cd docs; xelatex resonant_hanle_squeezing_reference_ko.tex
+%   xelatex "docs/Resonant Hanle analysis/resonant_hanle_squeezing_reference_ko.tex"
+%   cd "docs/Resonant Hanle analysis"; xelatex resonant_hanle_squeezing_reference_ko.tex
 \documentclass[11pt,a4paper]{article}
 
 \usepackage{kotex}
@@ -20,7 +20,7 @@
 \usepackage{xcolor}
 \usepackage{longtable}
 \usepackage[hidelinks]{hyperref}
-\graphicspath{{../analysis/}{analysis/}{./}}
+\graphicspath{{../../analysis/squeezing/}{analysis/squeezing/}{./}}
 \setlength{\emergencystretch}{2em}
 
 \newcommand{\dB}{\,\mathrm{dB}}
@@ -342,8 +342,8 @@ B_uT,voltage
 
 실행 예시는 다음과 같다.
 \begin{verbatim}
-python analysis\resonant_hanle_squeezing_reference.py ^
-  --config-json analysis\resonant_hanle_experiment_config.example.json ^
+python analysis\squeezing\resonant_hanle_squeezing_reference.py ^
+  --config-json analysis\squeezing\resonant_hanle_experiment_config.example.json ^
   --hanle-calibration-csv path\to\measured_hanle.csv ^
   --hanle-calibration-b-column B_uT ^
   --hanle-calibration-signal-column voltage
@@ -367,7 +367,7 @@ measured Hanle trace가 모델보다 넓거나 좁으면, shot-noise pT/\(\sqrt{
 %==================================================================
 
 현재 산출물을 실제 실험 reference로 사용하려면 다음 값을 실제 장비에서 측정해
-\texttt{analysis/resonant\_hanle\_experiment\_config.example.json}에 반영하는 것이 좋다.
+\texttt{analysis/squeezing/resonant\_hanle\_experiment\_config.example.json}에 반영하는 것이 좋다.
 
 \begin{enumerate}[nosep]
 \item \textbf{Hanle 셀 직전 probe power와 waist}: \path{probe_input_power_uw},
@@ -408,7 +408,7 @@ source squeezing, Hanle slope, optical loss, detector noise를 같은 예산식 
 
 기본 fine 산출물은 다음 명령으로 재생성하였다.
 \begin{verbatim}
-python analysis\resonant_hanle_squeezing_reference.py --fidelity fine
+python analysis\squeezing\resonant_hanle_squeezing_reference.py --fidelity fine
 \end{verbatim}
 
 대표 검증은 다음과 같다.

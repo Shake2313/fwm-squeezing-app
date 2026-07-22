@@ -21,7 +21,7 @@ line numbers refer to the version in git before this revision.
 | 14. Organization | Whole report | Reorganized into the seven requested parts plus audit appendices. |
 | 15. Limiting cases | Previously absent | Part VII adds no-coupling, ideal-amplifier, bright-seed, external-loss, zero-angle, and zero-dissipation checks. |
 | 16. Title and conclusion | Original title and summary, lines 55–75 and 667–726 | Title is restricted to mean-field reconstruction. The conclusion separates analytic, matrix-solved, inherited, phenomenological, experimental, and unvalidated content and invalidates the physical status of the old -8.10 dB and -15.62 dB values. |
-| 17. Deliverables | Previously absent as an auditable set | The report now contains the assumptions, provenance, dimensional, frequency, convergence, commutator, comparison, limitations, and acceptance tables. Reproducible numerical artifacts are under analysis/analytic_reconstruction/generated. |
+| 17. Deliverables | Previously absent as an auditable set | The report now contains the assumptions, provenance, dimensional, frequency, convergence, commutator, comparison, limitations, and acceptance tables. Reproducible numerical artifacts are under analysis/squeezing/analytic_reconstruction/generated. |
 
 The revision is intentionally provisional with respect to physical squeezing:
 the current repository does not contain a microscopic frequency-dependent

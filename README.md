@@ -50,8 +50,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 - `streamlit_app.py` — generic UI. Renders only the selected scheme's
   `param_schema()`; caches the heavy solve on `recompute` knobs only (so
   navigate-only knobs like the FWM two-photon detuning update instantly).
-- `fwm_obe.py` — backward-compat shim re-exporting the FWM API and the
-  `python fwm_obe.py` CLI (physics now lives in `gabes/`).
+- `archive/` — retired legacy entry points and artifacts. It preserves the former
+  `fwm_obe.py` compatibility shim and its generated
+  `fwm_double_lambda_gain_squeezing.png`; the active physics lives in `gabes/`.
 - `tests/` — regression + physics validation; `baseline_focused.npz` is the
   frozen pre-refactor FWM anchor.
 - `requirements.txt` — streamlit, numpy, matplotlib.
@@ -64,7 +65,9 @@ streamlit run streamlit_app.py
 ```
 
 **Trap**: `python streamlit_app.py` does NOT work (no server, prints "run it with
-streamlit run"). FWM CLI backend: `python fwm_obe.py`.
+streamlit run"). The supported application entry point is the Streamlit command
+above. Root-level `fwm_obe` CLI/import compatibility is retired; its shim is kept
+under `archive/` for historical reference only.
 
 ### Experimental CSV comparison (OD / SAS)
 

@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "created_on": "2026-07-22",
+  "target_root": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "approved_scope": {
+    "move_or_rename_file_count": 138,
+    "temporary_file_count": 124,
+    "recursion": true
+  },
+  "temporary_file_backup": {
+    "path": "archive/.cleanup/2026-07-22-temp-backup.zip",
+    "file_count": 124,
+    "uncompressed_bytes": 21406816,
+    "zip_bytes": 19283351,
+    "sha256": "75E991FF248791DE48FB59D95E87EA2E818AA6EA0B2485C7B595300C57518030",
+    "restore": "Verify the SHA-256, then extract the ZIP into target_root. The archive preserves repository-relative paths."
+  },
+  "temporary_paths_removed": [
+    ".pytest_cache/",
+    ".tmp_pdf_check/",
+    "__pycache__/",
+    "output/",
+    "tmp/",
+    "analysis/__pycache__/",
+    "analysis/_probe/",
+    "analysis/analytic_reconstruction/__pycache__/",
+    "analysis/theory_max_run.log",
+    ".codex_streamlit.err.log",
+    ".codex_streamlit.out.log"
+  ],
+  "moves": [
+    {
+      "from": "docs/GABES_User_Guide.html",
+      "to": "docs/Userguide/GABES_User_Guide_v1.html"
+    },
+    {
+      "from": "docs/gabes_user_guide_GPT.html",
+      "to": "docs/Userguide/GABES_User_Guide_v1_GPT_alternative.html"
+    },
+    {
+      "from": "docs/GABES_User_Guide_v2.html",
+      "to": "docs/Userguide/GABES_User_Guide_v2.html"
+    },
+    {
+      "from": "docs/build_static_guide.py",
+      "to": "docs/Userguide/build_static_guide.py"
+    },
+    {
+      "from": "docs/userguide_assets/",
+      "to": "docs/Userguide/userguide_assets/",
+      "file_count": 9
+    },
+    {
+      "from": "docs/FWM_physics.pdf",
+      "to": "docs/FWM physics and analytic reconstruction/FWM_physics.pdf"
+    },
+    {
+      "from": "docs/FWM_physics.tex",
+      "to": "docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+    },
+    {
+      "from": "docs/squeezing_analytic_reconstruction_v1.pdf",
+      "to": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v1.pdf"
+    },
+    {
+      "from": "docs/squeezing_analytic_reconstruction_v1.tex",
+      "to": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v1.tex"
+    },
+    {
+      "from": "docs/squeezing_analytic_reconstruction_v1_CHANGELOG.md",
+      "to": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v1_CHANGELOG.md"
+    },
+    {
+      "from": "docs/resonant_hanle_squeezing_reference_ko.pdf",
+      "to": "docs/Resonant Hanle analysis/resonant_hanle_squeezing_reference_ko.pdf"
+    },
+    {
+      "from": "docs/resonant_hanle_squeezing_reference_ko.tex",
+      "to": "docs/Resonant Hanle analysis/resonant_hanle_squeezing_reference_ko.tex"
+    },
+    {
+      "from": "analysis/*",
+      "to": "analysis/squeezing/*",
+      "file_count": 116,
+      "note": "All persistent analysis entries present after temporary-file cleanup were moved; analysis/squeezing itself was the new destination."
+    },
+    {
+      "from": "fwm_obe.py",
+      "to": "archive/fwm_obe.py"
+    },
+    {
+      "from": "fwm_double_lambda_gain_squeezing.png",
+      "to": "archive/fwm_double_lambda_gain_squeezing.png"
+    }
+  ],
+  "runtime_exception": {
+    "path": "static/GABES_User_Guide.html",
+    "action": "kept_and_regenerated",
+    "reason": "Streamlit serves this generated standalone guide at app/static/GABES_User_Guide.html."
+  },
+  "excluded_from_move_or_cleanup": [
+    ".codex-remote-attachments/",
+    ".claude/",
+    ".streamlit/",
+    "references/",
+    "docs/squeezing_report/",
+    "docs/daily_report/"
+  ]
+}

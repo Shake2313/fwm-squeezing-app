@@ -25,11 +25,11 @@ Trust gate: same twin-beam gap gate as the frontier scan
   (GAP_MIN <= G_s - G_c <= GAP_MAX), delta-window edges excluded for best-delta.
 
 Outputs:
-  analysis/squeezing_v6_tolerance/squeezing_v6_tolerance.npz
+  analysis/squeezing/squeezing_v6_tolerance/squeezing_v6_tolerance.npz
   docs/squeezing_report/squeezing_v6_tolerance.png
 
 Run from the repo root:
-  python analysis/scan_squeezing_v6_tolerance.py
+  python analysis/squeezing/scan_squeezing_v6_tolerance.py
 """
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 for _stream in (sys.stdout, sys.stderr):
@@ -58,7 +58,7 @@ from gabes.core import blas_single_thread  # noqa: E402
 from gabes.schemes import fwm  # noqa: E402
 from gabes import observables  # noqa: E402
 
-OUT = ROOT / "analysis" / "squeezing_v6_tolerance"
+OUT = ROOT / "analysis" / "squeezing" / "squeezing_v6_tolerance"
 DOC_OUT = ROOT / "docs" / "squeezing_report" / "squeezing_v6_tolerance.png"
 
 # ---- v6 finite-loss optimum (center point) ---------------------------------

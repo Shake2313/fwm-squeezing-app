@@ -336,7 +336,7 @@ $\Delta\approx0$)은 $\mathrm{OD}$가 빠르게 커져 고온에서 손실제한
 \item 스캔: $66\times19=1254$점, OPD $[-3.5,3.0]\GHz$, $T\,[60,150]\degC$, $\delta$창 $\pm0.7\GHz$,
       coarse $81$, 속도격자 $5\,$m/s, fidelity \texttt{ultra}, 8스레드 약 $111\,$s.
 \item 생성 명령: \texttt{python .claude/skills/fwm-squeezing-frontier/scripts/scan\_squeezing\_frontier.py
-      --fidelity ultra} $\Rightarrow$ \texttt{analysis/squeezing\_frontier.npz}.
+      --fidelity ultra} $\Rightarrow$ \texttt{analysis/squeezing/squeezing\_frontier.npz}.
 \item 그림: \texttt{python docs/squeezing\_report/make\_v2\_figs.py}(같은 npz에서
       \texttt{squeezing\_frontier.png}, \texttt{squeezing\_frontier\_od.png} 생성).
 \item 드리프트 강건성: 레퍼런스는 bit-lock된 \texttt{CONFIGS['sim\_optimum']}에서 읽음

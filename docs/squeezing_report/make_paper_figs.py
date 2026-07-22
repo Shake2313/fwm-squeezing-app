@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
-ANA = REPO / "analysis"
+ANA = REPO / "analysis" / "squeezing"
 OUT = HERE / "paper_figs"
 OUT.mkdir(exist_ok=True)
 

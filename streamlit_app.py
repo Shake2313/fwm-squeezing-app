@@ -54,7 +54,7 @@ ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v
 # Streamlit exposes ./static/<f> at the relative URL "app/static/<f>", which
 # resolves correctly both locally and on Streamlit Community Cloud — so the link
 # opens from any computer. The file is fully self-contained (images base64-inlined
-# by docs/build_static_guide.py), so it needs no sibling assets.
+# by docs/Userguide/build_static_guide.py), so it needs no sibling assets.
 GUIDE_URL = "app/static/GABES_User_Guide.html"
 
 # BETA badge appended to the wordmark logo (this is "the GABES logo" the app shows).

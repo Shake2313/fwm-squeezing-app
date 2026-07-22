@@ -1,6 +1,6 @@
 """
 Build the v2 report figures from the ultra-fidelity frontier scan output
-(analysis/squeezing_frontier.npz, produced by
+(analysis/squeezing/squeezing_frontier.npz, produced by
 .claude/skills/fwm-squeezing-frontier/scripts/scan_squeezing_frontier.py
 --fidelity ultra). Run from the repo root:
 
@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
-SRC = REPO / "analysis" / "squeezing_frontier.npz"
+SRC = REPO / "analysis" / "squeezing" / "squeezing_frontier.npz"
 
 d = np.load(SRC)
 D, T = d["delta_ghz"], d["temp_c"]
@@ -32,7 +32,7 @@ xi_opt = float(d["xi_opt_dB"])
 oiD, oiT = int(d["opt_iD"]), int(d["opt_iT"])
 
 # main 3-panel figure: just copy it next to the report
-shutil.copyfile(REPO / "analysis" / "squeezing_frontier.png",
+shutil.copyfile(REPO / "analysis" / "squeezing" / "squeezing_frontier.png",
                 OUT / "squeezing_frontier.png")
 
 fig, (axOD, axS) = plt.subplots(1, 2, figsize=(13, 4.8))

@@ -1,5 +1,5 @@
 """
-Detailed v5 ideal-detection scan around the known loss=0 optimum.
+Detailed v6 ideal-detection scan around the beat-sign-corrected loss=0 optimum.
 
 This extends the existing (Delta, T) ideal scan by treating two-photon detuning
 (TPD, the probe-axis offset from the branch center) and pump-probe beam angle as
@@ -7,11 +7,11 @@ explicit scan variables. The engine is unchanged: each (Delta, T, angle) point
 uses the hardened Ultra path, and the returned TPD axis is sampled directly.
 
 Outputs:
-  analysis/squeezing_frontier_ideal_v5_tpd_angle_detail/squeezing_tpd_angle_detail.npz
-  docs/squeezing_report/squeezing_frontier_ideal_v5_tpd_angle_detail.png
+  analysis/squeezing/squeezing_frontier_ideal_v6_tpd_angle_detail/squeezing_tpd_angle_detail.npz
+  docs/squeezing_report/squeezing_frontier_ideal_v6_tpd_angle_detail.png
 
 Run from the repo root:
-  python Analysis/scan_squeezing_v5_loss0_tpd_angle_detail.py
+  python analysis/squeezing/scan_squeezing_v6_loss0_tpd_angle_detail.py
 """
 from __future__ import annotations
 
@@ -28,15 +28,15 @@ os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gabes.core import blas_single_thread  # noqa: E402
 from gabes.schemes import fwm  # noqa: E402
 
 
-OUT = ROOT / "analysis" / "squeezing_frontier_ideal_v5_tpd_angle_detail"
-DOC_OUT = ROOT / "docs" / "squeezing_report" / "squeezing_frontier_ideal_v5_tpd_angle_detail.png"
+OUT = ROOT / "analysis" / "squeezing" / "squeezing_frontier_ideal_v6_tpd_angle_detail"
+DOC_OUT = ROOT / "docs" / "squeezing_report" / "squeezing_frontier_ideal_v6_tpd_angle_detail.png"
 
 P_PUMP = 0.6
 P_SEED = 8e-6
@@ -45,14 +45,14 @@ BRANCH = -1
 QE = 1.0
 LOSS = 0.0
 
-# Local ranges around the v5 loss=0 optimum:
-# Delta=-2.00 GHz, T=120 C, TPD about -0.30 GHz, default angle=0.32 deg.
-# The T and angle spans are slightly extended downward because a first local
-# pass showed a low-angle ridge that would otherwise sit on the scan boundary.
-D_AXIS_GHZ = np.round(np.arange(-2.06, -1.94 + 1e-9, 0.02), 3)
-TEMP_AXIS_C = np.round(np.arange(106.0, 124.0 + 1e-9, 1.0), 3)
+# Local ranges around the v6 loss=0 optimum after fixing the seeded sideband
+# beat sign: Delta=-1.50 GHz, T=110 C, TPD about -280 MHz at the default
+# 0.32 deg geometry. Keep the lower-T/low-angle side open enough to diagnose
+# whether the geometry ridge persists.
+D_AXIS_GHZ = np.round(np.arange(-1.56, -1.44 + 1e-9, 0.02), 3)
+TEMP_AXIS_C = np.round(np.arange(96.0, 114.0 + 1e-9, 1.0), 3)
 ANGLE_AXIS_DEG = np.round(np.arange(0.00, 0.36 + 1e-9, 0.02), 3)
-TPD_AXIS_MHZ = np.round(np.linspace(-500.0, -180.0, 81), 3)
+TPD_AXIS_MHZ = np.round(np.linspace(-420.0, -160.0, 81), 3)
 
 VELOCITY_STEP = 4.0
 VELOCITY_CUTOFF = 3.0
@@ -215,7 +215,7 @@ def _plot(xi, trusted, summary_rows) -> None:
     )
     fig.colorbar(im2, ax=axes[2], label="best trusted xi [dB]")
     axes[2].scatter([best["T_C"]], [best["Delta_GHz"]], c="cyan", edgecolor="k", s=70, zorder=5)
-    axes[2].scatter([120.0], [-2.0], c="white", edgecolor="k", s=45, zorder=5, label="coarse v5 ideal")
+    axes[2].scatter([110.0], [-1.5], c="white", edgecolor="k", s=45, zorder=5, label="coarse v6 ideal")
     axes[2].set_xlabel("T [C]")
     axes[2].set_ylabel("Delta [GHz]")
     axes[2].set_title("min over TPD,angle")
@@ -248,7 +248,7 @@ def main() -> None:
             for iT in range(TEMP_AXIS_C.size)
             for iA in range(ANGLE_AXIS_DEG.size)]
     workers = min(os.cpu_count() or 1, 8)
-    print("Detailed v5 loss=0 TPD/angle scan")
+    print("Detailed v6 loss=0 TPD/angle scan")
     print(f"  grid: Delta {D_AXIS_GHZ.size} x T {TEMP_AXIS_C.size} x angle {ANGLE_AXIS_DEG.size} "
           f"x TPD {TPD_AXIS_MHZ.size} = {np.prod(shape4)} sampled points")
     print(f"  compute calls: {len(jobs)} on {workers} workers")

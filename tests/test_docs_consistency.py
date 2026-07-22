@@ -7,11 +7,17 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def test_repository_visibility_wording_is_consistently_public():
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    guide = (ROOT / "docs" / "GABES_User_Guide_v2.html").read_text(
-        encoding="utf-8")
+    guide = (
+        ROOT / "docs" / "Userguide" / "GABES_User_Guide_v2.html"
+    ).read_text(encoding="utf-8")
     paper = (ROOT / "docs" / "squeezing_report" / "squeezing_paper.tex").read_text(
         encoding="utf-8")
-    physics = (ROOT / "docs" / "FWM_physics.tex").read_text(encoding="utf-8")
+    physics = (
+        ROOT
+        / "docs"
+        / "FWM physics and analytic reconstruction"
+        / "FWM_physics.tex"
+    ).read_text(encoding="utf-8")
     readme_flat = " ".join(readme.split())
     paper_flat = " ".join(paper.split())
     physics_flat = " ".join(physics.split())

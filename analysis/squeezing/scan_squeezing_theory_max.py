@@ -14,7 +14,7 @@ Key efficiency: G_s, G_c do not depend on the detection efficiency η, and the
 S_ideal). So we run the (Δ,T) grid ONCE, store the deepest-squeezing operating
 point's gains, and read off squeezing for any η afterwards.
 
-    python analysis/scan_squeezing_theory_max.py
+    python analysis/squeezing/scan_squeezing_theory_max.py
 """
 import os
 import sys
@@ -26,7 +26,7 @@ os.environ.setdefault("OMP_NUM_THREADS", str(os.cpu_count() or 1))
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gabes.schemes import fwm                       # noqa: E402
@@ -223,7 +223,7 @@ def main():
 
     rows = cap_sweep()
 
-    out = ROOT / "analysis"
+    out = ROOT / "analysis" / "squeezing"
     np.savez(out / "squeezing_theory_max.npz",
              delta_ghz=DELTA_GHZ, temp_c=TEMP_C, S_ideal_dB=Sid,
              G_s=Gs, G_c=Gc, delta_mhz=Dlt,

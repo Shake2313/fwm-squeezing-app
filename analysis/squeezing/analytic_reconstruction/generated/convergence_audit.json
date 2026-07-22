@@ -1,7 +1,7 @@
 {
   "scope": "Archived reduced-model numerical isolation test; no production/report edits",
   "propagation_classification": {
-    "implementation": "analysis/analytic_reconstruction/ref_solver.py",
+    "implementation": "analysis/squeezing/analytic_reconstruction/ref_solver.py",
     "inherits_dressed_k_plus_refractive_mismatch": true,
     "corrected_option_a": false,
     "permitted_use": "Floquet and velocity numerical-isolation diagnostics only"

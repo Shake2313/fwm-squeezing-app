@@ -499,7 +499,8 @@ manifold (\code{atoms.\_build\_velocity\_shift}). Consequently:
 The $\Delta_\eff$ sampling axis is built (\code{doppler.build\_Delta\_eff\_axis})
 to span $\Delta-k v$ across a spectrum call's velocity grid, so the later average
 is a cheap index interpolation rather than a re-solve. The dedicated
-$(\Delta,T)$ squeezing map (\code{analysis/scan\_squeezing\_delta\_T.py}) builds,
+$(\Delta,T)$ squeezing map
+(\code{analysis/squeezing/scan\_squeezing\_delta\_T.py}) builds,
 per temperature, a master $\Delta_\eff$ axis from the exact union of all velocity
 samples needed by every $\Delta$ in the scan and evaluates
 $\rhobar(\delta,\Delta_\eff)$ once on that master grid with that temperature's

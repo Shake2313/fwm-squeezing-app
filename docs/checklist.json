@@ -37,7 +37,7 @@
       "area": "docs/squeezing_report/squeezing_paper.tex + README.md",
       "title": "Align paper data-availability language with actual repository visibility",
       "priority": "P2",
-      "why": "P2 DONE and reverified 2026-07-17. The unauthenticated GitHub repository API reports Shake2313/fwm-squeezing-app as public (private=false, visibility=public). README.md and docs/GABES_User_Guide_v2.html now say public, matching the paper. The paper also distinguishes retained raw scan archives from the rendered-only Stage-I--II figures whose raw grids were overwritten, so it no longer claims that every figure has archived raw data. tests/test_docs_consistency.py pins the local wording and archive-scope caveat; if repository visibility changes, update all three documents together.",
+      "why": "P2 DONE and reverified 2026-07-17. The unauthenticated GitHub repository API reports Shake2313/fwm-squeezing-app as public (private=false, visibility=public). README.md and docs/Userguide/GABES_User_Guide_v2.html now say public, matching the paper. The paper also distinguishes retained raw scan archives from the rendered-only Stage-I--II figures whose raw grids were overwritten, so it no longer claims that every figure has archived raw data. tests/test_docs_consistency.py pins the local wording and archive-scope caveat; if repository visibility changes, update all three documents together.",
       "status": "done"
     },
     {

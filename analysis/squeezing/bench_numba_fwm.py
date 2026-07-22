@@ -2,7 +2,7 @@
 A/B benchmark: FWM compute_spectrum with the numba fused kernel vs the NumPy
 δ-loop reference path.
 
-    python analysis/bench_numba_fwm.py
+    python analysis/squeezing/bench_numba_fwm.py
 
 Three workloads:
   scan-point : the squeezing-scan unit of work (coarse 81, dv=5, ±0.55 GHz)
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from gabes import kernels  # noqa: E402

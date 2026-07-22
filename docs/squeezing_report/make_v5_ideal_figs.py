@@ -23,7 +23,7 @@ OUT = Path(__file__).resolve().parent
 sys.path.insert(0, str(REPO))
 from gabes import observables  # noqa: E402
 
-d = np.load(REPO / "analysis" / "squeezing_frontier_ideal_v5" / "squeezing_frontier.npz")
+d = np.load(REPO / "analysis" / "squeezing" / "squeezing_frontier_ideal_v5" / "squeezing_frontier.npz")
 D, T = d["delta_ghz"], d["temp_c"]
 Xi, Gs, Gc, OD = d["xi_dB"], d["G_s"], d["G_c"], d["in_cell_od"]
 Untrusted = d["edge"] | d["gap_bad"]

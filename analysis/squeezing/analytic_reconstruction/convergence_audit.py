@@ -20,9 +20,9 @@ mathematical dilation, not microscopic atomic diffusion or a squeezing spectrum.
 
 Run from the repository root::
 
-    python analysis/analytic_reconstruction/convergence_audit.py
+    python analysis/squeezing/analytic_reconstruction/convergence_audit.py
 
-Outputs are written below ``analysis/analytic_reconstruction/generated/``.
+Outputs are written below ``analysis/squeezing/analytic_reconstruction/generated/``.
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ import numpy as np
 
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
+ROOT = HERE.parents[2]
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 if str(ROOT) not in sys.path:
@@ -845,7 +845,7 @@ def make_markdown(audit: dict) -> str:
     lines = [
         "# Reduced-model Floquet and velocity convergence audit",
         "",
-        "This is an analysis-only audit of `analysis/analytic_reconstruction/ref_solver.py`; "
+        "This is an analysis-only audit of `analysis/squeezing/analytic_reconstruction/ref_solver.py`; "
         "it does not modify the LaTeX report or production solver.",
         "",
         "**Classification warning:** the initial Floquet/velocity gain tables inherit the archived "
@@ -1188,7 +1188,7 @@ def main() -> None:
     audit = {
         "scope": "Archived reduced-model numerical isolation test; no production/report edits",
         "propagation_classification": {
-            "implementation": "analysis/analytic_reconstruction/ref_solver.py",
+            "implementation": "analysis/squeezing/analytic_reconstruction/ref_solver.py",
             "inherits_dressed_k_plus_refractive_mismatch": True,
             "corrected_option_a": False,
             "permitted_use": "Floquet and velocity numerical-isolation diagnostics only",

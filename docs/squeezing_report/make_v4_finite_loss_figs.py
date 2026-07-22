@@ -1,6 +1,6 @@
 """
 Build the v4 finite-loss report figures from
-analysis/squeezing_frontier_finite_loss_v4/squeezing_frontier.npz (produced by
+analysis/squeezing/squeezing_frontier_finite_loss_v4/squeezing_frontier.npz (produced by
 .claude/skills/fwm-squeezing-frontier/scripts/scan_squeezing_frontier.py at the
 default Ultra grid, current corrected physics: ideal-noise formula
 (G_s-G_c)^2/(G_s+G_c), density/T-dependent collisional decoherence, twin-beam
@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
-SRC = REPO / "analysis" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.npz"
+SRC = REPO / "analysis" / "squeezing" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.npz"
 
 d = np.load(SRC)
 D, T = d["delta_ghz"], d["temp_c"]
@@ -31,7 +31,7 @@ det_floor = float(d["det_floor_dB"])
 xi_opt = float(d["xi_opt_dB"])
 oiD, oiT = int(d["opt_iD"]), int(d["opt_iT"])
 
-shutil.copyfile(REPO / "analysis" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.png",
+shutil.copyfile(REPO / "analysis" / "squeezing" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.png",
                 OUT / "squeezing_frontier_v4.png")
 
 fig, (axOD, axS) = plt.subplots(1, 2, figsize=(13, 4.8))

@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 
 REPO = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
-V5 = REPO / "analysis" / "squeezing_frontier_finite_loss_v5" / "squeezing_frontier.npz"
-V4 = REPO / "analysis" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.npz"
+V5 = REPO / "analysis" / "squeezing" / "squeezing_frontier_finite_loss_v5" / "squeezing_frontier.npz"
+V4 = REPO / "analysis" / "squeezing" / "squeezing_frontier_finite_loss_v4" / "squeezing_frontier.npz"
 
 d = np.load(V5)
 D, T = d["delta_ghz"], d["temp_c"]
@@ -34,7 +34,7 @@ xi_opt = float(d["xi_opt_dB"])
 oiD, oiT = int(d["opt_iD"]), int(d["opt_iT"])
 
 # 1) copy the scan's own 3-panel figure
-src_png = REPO / "analysis" / "squeezing_frontier_finite_loss_v5" / "squeezing_frontier.png"
+src_png = REPO / "analysis" / "squeezing" / "squeezing_frontier_finite_loss_v5" / "squeezing_frontier.png"
 if src_png.exists():
     shutil.copyfile(src_png, OUT / "squeezing_frontier_v5.png")
     print("wrote", OUT / "squeezing_frontier_v5.png")

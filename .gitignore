@@ -15,3 +15,23 @@ st.log
 .venv/
 .claude/
 references/
+
+# Local reversible backups created by scoped repository cleanups.
+archive/.cleanup/
+
+# Keep the archived legacy CLI output even though generated PNGs are ignored.
+!archive/fwm_double_lambda_gain_squeezing.png
+
+# Preserve User Guide assets that were already tracked before reorganization.
+!docs/Userguide/userguide_assets/*.png
+
+# Preserve the tracked squeezing data archives at their reorganized paths.
+!analysis/squeezing/squeezing_frontier_finite_loss_v4/squeezing_frontier.npz
+!analysis/squeezing/squeezing_frontier_finite_loss_v6/squeezing_frontier.npz
+!analysis/squeezing/squeezing_frontier_ideal_v4_merged.npz
+!analysis/squeezing/squeezing_frontier_ideal_v5/squeezing_frontier.npz
+!analysis/squeezing/squeezing_frontier_ideal_v5_tpd_angle_detail/squeezing_tpd_angle_detail.npz
+!analysis/squeezing/squeezing_frontier_ideal_v6/squeezing_frontier.npz
+!analysis/squeezing/squeezing_frontier_ideal_v6_low_angle_ridge/squeezing_low_angle_ridge.npz
+!analysis/squeezing/squeezing_frontier_ideal_v6_tpd_angle_detail/squeezing_tpd_angle_detail.npz
+!analysis/squeezing/squeezing_v6_tolerance/squeezing_v6_tolerance.npz

@@ -1,12 +1,12 @@
 """
-Merge the per-T-value chunk .npz files (analysis/squeezing_frontier_ideal_v4_chunks/
+Merge the per-T-value chunk .npz files (analysis/squeezing/squeezing_frontier_ideal_v4_chunks/
 T_<T>/squeezing_frontier.npz) into one combined ideal (QE=1, loss=0) wide-dense
 grid, matching v3's Delta in [-6,8] step 0.05, T in [50,220] step 2.5 range.
 Each chunk covers the FULL Delta axis for ONE T value (chunked this way because
 long-running single background processes were unreliable in this sandbox; see
 SKILL.md / v4 report appendix). Recomputes the global optimum, gap-gate
 guardrail, and efficient frontier over the merged 2D grid, and writes:
-  analysis/squeezing_frontier_ideal_v4_merged.npz
+  analysis/squeezing/squeezing_frontier_ideal_v4_merged.npz
   docs/squeezing_report/squeezing_frontier_ideal_qe1_v4.png
 """
 import sys
@@ -15,8 +15,8 @@ from pathlib import Path
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
-CHUNK_DIR = REPO / "analysis" / "squeezing_frontier_ideal_v4_chunks"
-OUT_NPZ = REPO / "analysis" / "squeezing_frontier_ideal_v4_merged.npz"
+CHUNK_DIR = REPO / "analysis" / "squeezing" / "squeezing_frontier_ideal_v4_chunks"
+OUT_NPZ = REPO / "analysis" / "squeezing" / "squeezing_frontier_ideal_v4_merged.npz"
 OUT_DIR = Path(__file__).resolve().parent
 
 sys.path.insert(0, str(REPO))

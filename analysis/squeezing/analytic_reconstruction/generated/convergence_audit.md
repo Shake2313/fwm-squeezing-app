@@ -1,6 +1,6 @@
 # Reduced-model Floquet and velocity convergence audit
 
-This is an analysis-only audit of `analysis/analytic_reconstruction/ref_solver.py`; it does not modify the LaTeX report or production solver.
+This is an analysis-only audit of `analysis/squeezing/analytic_reconstruction/ref_solver.py`; it does not modify the LaTeX report or production solver.
 
 **Classification warning:** the initial Floquet/velocity gain tables inherit the archived `ref_solver.py` propagation, which uses dressed optical wave numbers and a refractive phase mismatch together. They isolate Floquet/velocity numerics inside that shared implementation; they are **not** predictions of the corrected no-double-count Option-A propagation. A separate corrected Option-A literature-point diagnostic appears later.
 

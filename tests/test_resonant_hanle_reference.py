@@ -8,7 +8,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from analysis import resonant_hanle_squeezing_reference as ref  # noqa: E402
+from analysis.squeezing import resonant_hanle_squeezing_reference as ref  # noqa: E402
 
 
 def test_oe_probe_locked_source_places_probe_on_87rb_d1_f2_f2():
