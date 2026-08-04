@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import matplotlib
 import numpy as np
+import pytest
 
 matplotlib.use("Agg")
 
@@ -615,6 +616,89 @@ def test_cs_btw_short_window_render_no_shape_error():
                for table in view.get("tables", []))
 
 
+def test_beam_geometry_knobs_default_to_the_legacy_constants():
+    """Promoting the fixed geometry to knobs must not move the anchored point."""
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    assert params["pump_waist_um"] == fwm.W_PUMP * 1e6
+    assert params["probe_waist_um"] == fwm.W_PROBE * 1e6
+    assert params["qe_pct"] == fwm.QE_DETECTOR * 100.0
+
+    raw = scheme.compute(params)
+    center = fwm.branch_center_GHz(params["opd"], -1)
+    res = fwm.FWM_FIDELITY[fwm.normalize_fidelity(params["resolution"])]
+    legacy = fwm.compute_spectrum(
+        params["opd"], T=params["temp_c"] + 273.15,
+        P_pump=params["pump_mw"] * 1e-3, P_probe=params["probe_uw"] * 1e-6,
+        line_strength=params["line_strength"],
+        L=params["cell_mm"] * 1e-3, loss_frac=params["loss_pct"] / 100.0,
+        coarse_points=res["coarse_points"], fine_points=0,
+        scan_min=center - fwm.WINDOW_GHZ, scan_max=center + fwm.WINDOW_GHZ,
+        velocity_step=res["velocity_step"],
+        velocity_cutoff=res.get("velocity_cutoff", 3.0),
+        phase_detail=res["phase_detail"],
+        pump_probe_angle_deg=params["seeded_angle_deg"],
+        model_fidelity=fwm.normalize_fidelity(params["resolution"]),
+        branch=-1)
+    for key in ("probe_axis_GHz", "G_s", "G_c", "S_dB"):
+        assert np.array_equal(np.asarray(raw[key]), np.asarray(legacy[key])), \
+            f"{key} drifted when the geometry became a knob"
+    assert raw["w_pump_m"] == fwm.W_PUMP
+    assert raw["w_probe_m"] == fwm.W_PROBE
+    assert raw["qe"] == fwm.QE_DETECTOR
+
+
+def test_beam_geometry_knobs_route_to_both_spectrum_paths():
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params.update(pump_waist_um=800.0, probe_waist_um=450.0, qe_pct=90.45)
+    marker = {"marker": True}
+
+    with patch.object(fwm, "compute_spectrum", return_value=marker) as solve:
+        assert scheme.compute(params) is marker
+    kwargs = solve.call_args.kwargs
+    assert kwargs["w_pump"] == pytest.approx(800e-6)
+    assert kwargs["w_probe"] == pytest.approx(450e-6)
+    assert kwargs["qe"] == pytest.approx(0.9045)
+
+    full_view = scheme.extra_views()[0]
+    with patch.object(fwm, "full_spectrum", return_value=marker) as full:
+        assert full_view.compute(params) is marker
+    kwargs = full.call_args.kwargs
+    assert kwargs["w_pump"] == pytest.approx(800e-6)
+    assert kwargs["w_probe"] == pytest.approx(450e-6)
+    assert kwargs["qe"] == pytest.approx(0.9045)
+
+
+def test_qe_knob_sets_detection_eta_and_the_squeezing_floor():
+    """eta = QE·(1−loss) is the hard ceiling 10·log10(1−eta) on any readout."""
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params.update(qe_pct=90.45, loss_pct=5.5, resolution=fwm.FIDELITY_FAST)
+    raw = scheme.compute(params)
+    eta = 0.9045 * (1.0 - 0.055)
+    assert raw["qe"] == pytest.approx(0.9045)
+    assert raw["eta"] == pytest.approx(eta)
+    floor_dB = 10.0 * np.log10(1.0 - eta)
+    assert np.nanmin(np.asarray(raw["S_dB"])) >= floor_dB - 1e-9
+
+
+def test_pump_waist_moves_the_gain():
+    """A geometry knob that cannot change the solve would be cosmetic."""
+    scheme = fwm.FWMScheme()
+    base = scheme.defaults()
+    wide = dict(base, pump_waist_um=900.0)
+    g_base = np.nanmax(np.asarray(scheme.compute(base)["G_s"]))
+    g_wide = np.nanmax(np.asarray(scheme.compute(wide)["G_s"]))
+    assert not np.isclose(g_base, g_wide, rtol=1e-6)
+
+
+def test_responsivity_tracks_quantum_efficiency():
+    # Display-only conversion R = QE·λ/hc; the legacy caption showed 0.59 A/W.
+    assert abs(fwm.responsivity_AW(0.92) - 0.59) < 5e-3
+    assert abs(fwm.responsivity_AW(0.9045) - 0.58) < 5e-3
+
+
 if __name__ == "__main__":
     test_topology_energy_and_roles()
     test_phase_matching_reference_angle_is_maximum()
@@ -637,4 +721,9 @@ if __name__ == "__main__":
     test_biphoton_fine_phase_map_is_lazy_and_figure_only()
     test_fwm_default_buttons_are_squeezing_and_contextual_biphoton()
     test_cs_btw_short_window_render_no_shape_error()
+    test_beam_geometry_knobs_default_to_the_legacy_constants()
+    test_beam_geometry_knobs_route_to_both_spectrum_paths()
+    test_qe_knob_sets_detection_eta_and_the_squeezing_floor()
+    test_pump_waist_moves_the_gain()
+    test_responsivity_tracks_quantum_efficiency()
     print("Generic SFWM / biphoton checks OK.")

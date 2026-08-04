@@ -1,0 +1,266 @@
+{
+  "bpd_bandwidth_hz": {
+    "value": 4000000.0,
+    "unit": "Hz",
+    "provenance": "datasheet",
+    "note": "PDB450A RF bandwidth at the 1e5 V/A gain setting (150/45/4/0.3/0.1 MHz for 1e3..1e7 V/A)."
+  },
+  "bpd_cw_saturation_w": {
+    "value": 0.009,
+    "unit": "W",
+    "provenance": "datasheet",
+    "note": "PDB450A CW saturation power at 820 nm. Optical damage threshold is 20 mW."
+  },
+  "bpd_nep_w_per_rthz": {
+    "value": 3.3e-12,
+    "unit": "W/rtHz",
+    "provenance": "datasheet",
+    "note": "PDB450A minimum NEP, DC to 4 MHz, gain 1e5 V/A. WARNING: specified with the STOCK photodiode. This unit has S3883 diodes fitted, which changes junction capacitance and therefore the amplifier noise gain. Replace with a measured dark trace before trusting any clearance number."
+  },
+  "bpd_transimpedance_v_per_a": {
+    "value": 100000.0,
+    "unit": "V/A",
+    "provenance": "paper",
+    "note": "Transimpedance gain stated in Sim et al."
+  },
+  "cell_length_mm": {
+    "value": 12.5,
+    "unit": "mm",
+    "provenance": "paper",
+    "note": "Rb vapour cell length."
+  },
+  "cell_to_dmirror_m": {
+    "value": 0.5842,
+    "unit": "m",
+    "provenance": "lab",
+    "note": "23 inch from the cell to the D-shaped mirrors. The crossing angle is set in practice by overlapping at the cell and separating by a stated number of mm here."
+  },
+  "etalon_fsr_hz": {
+    "value": 17000000000.0,
+    "unit": "Hz",
+    "provenance": "paper",
+    "note": "Free spectral range. Deliberately incommensurate with 3.036 GHz, so no unwanted sideband lands on a transmission peak."
+  },
+  "etalon_fwhm_hz": {
+    "value": 950000000.0,
+    "unit": "Hz",
+    "provenance": "paper",
+    "note": "Passband FWHM; with the FSR this gives finesse 17.9."
+  },
+  "etalon_leak": {
+    "value": 0.076497,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Stopband floor per stage, solved from the paper's two-etalon carrier:seed ratio of ~0.5 percent. An ideal Airy cascade predicts far deeper suppression, so without this floor the model overestimates seed purity and therefore squeezing. It lumps surface scatter, the finite angular spread of a real beam washing out the resonance, alignment, and the measurement floor. It is fitted to ONE published number, not measured: a real transmission scan should replace it."
+  },
+  "etalon_peak_transmission": {
+    "value": 0.8,
+    "unit": "fraction",
+    "provenance": "lab",
+    "note": "Per-stage peak transmission including realistic alignment. The paper quotes 85 percent as the etalon specification."
+  },
+  "etalon_stages": {
+    "value": 3.0,
+    "unit": "count",
+    "provenance": "paper",
+    "note": "Three sequential etalons. The paper reports ~0.5 percent carrier:seed with two and much less with three."
+  },
+  "eom_insertion_loss_db": {
+    "value": 5.3,
+    "unit": "dB",
+    "provenance": "lab",
+    "note": "Fiber-EOM insertion loss including connectors. Back-solved so that J1(beta)^2 times this loss reproduces the reported ~10 percent minus-first-order efficiency; it is not a separately measured figure."
+  },
+  "eom_max_input_w": {
+    "value": 0.01,
+    "unit": "W",
+    "provenance": "lab",
+    "note": "Optical power above which the fiber EOM stops modulating properly. This is the binding constraint on the whole seed path."
+  },
+  "eom_orthogonal_leakage": {
+    "value": 0.0,
+    "unit": "fraction",
+    "provenance": "datasheet",
+    "note": "Fraction of polarization-mismatched light that leaves the modulator as unmodulated carrier. Zero for a single-polarization LiNbO3 waveguide: the mismatched component becomes coupling loss instead of carrier contamination."
+  },
+  "eom_v_pi_v": {
+    "value": 4.4,
+    "unit": "V",
+    "provenance": "nominal",
+    "note": "RF half-wave voltage at ~3 GHz for an EOSPACE AZ-0S5-10 class modulator. Placeholder: measure the sideband ratio versus RF power to fix it. At 18 dBm this gives beta = 1.79, close to the J1 maximum at 1.841, which is consistent with 18 dBm having been chosen to maximise the seed."
+  },
+  "loss_cell_windows": {
+    "value": 0.96,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Both cell windows, uncoated-glass order of magnitude. Placeholder."
+  },
+  "loss_ecdl_to_ta": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Isolator and steering optics between the ECDL and the amplifier. Placeholder."
+  },
+  "loss_post_cell_optics": {
+    "value": 0.945,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Lumped transmission of the mirrors, PBS, waveplates and lenses between the cell and the photodiodes, EXCLUDING iris clipping which SABES computes from geometry. Set so the wide-iris limit reproduces the 5.5 percent post-cell loss quoted in the paper; tightening the iris then adds loss on top of it rather than being hidden inside it."
+  },
+  "loss_pump_path": {
+    "value": 0.9,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Lumped pump-path optics after the split. Placeholder."
+  },
+  "loss_seed_path": {
+    "value": 0.9,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Lumped seed-path optics outside the etalon chain. Placeholder."
+  },
+  "loss_ta_to_split": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Isolator and steering optics between the amplifier and the pump/seed PBS. Placeholder."
+  },
+  "pbs_extinction_ratio": {
+    "value": 3000.0,
+    "unit": "ratio",
+    "provenance": "paper",
+    "note": "Extinction of the PBS used for polarization rejection of the pump after the cell."
+  },
+  "pd_active_diameter_mm": {
+    "value": 1.5,
+    "unit": "mm",
+    "provenance": "datasheet",
+    "note": "Hamamatsu S3883 photosensitive diameter, 1.7 mm^2. The stock PDB450A diode is 0.8 mm."
+  },
+  "pd_lens_distance_m": {
+    "value": 0.9,
+    "unit": "m",
+    "provenance": "nominal",
+    "note": "Cell to focusing-lens path length, following the beams through the D-shaped mirrors, irises, flip mirrors and prisms in the setup drawing. Placeholder: it sets the beam size at the lens and hence the focal spot, so a tape-measure value would be worth having."
+  },
+  "pd_max_power_density_w_per_cm2": {
+    "value": 4.0,
+    "unit": "W/cm^2",
+    "provenance": "datasheet",
+    "note": "Thorlabs linearity limit for the PDB450A. The manual also asks that the beam illuminate the whole active area, so a hard focus onto the diode is doubly discouraged."
+  },
+  "pd_responsivity_a_per_w": {
+    "value": 0.58,
+    "unit": "A/W",
+    "provenance": "datasheet",
+    "note": "Hamamatsu S3883 photosensitivity at 795 nm, read off the spectral-response curve. Implies QE = 1240*0.58/795 = 90.45 percent, matching the 90.47 percent quoted in the paper. The stock PDB450A Si diode peaks at 0.53 A/W, i.e. QE <= 82.7 percent."
+  },
+  "post_cell_loss_pct": {
+    "value": 5.5,
+    "unit": "%",
+    "provenance": "paper",
+    "note": "Optical loss between the cell and the detector, the `loss_pct` knob in the GABES FWM scheme."
+  },
+  "pump_collimator_diameter_mm": {
+    "value": 2.0,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "Collimated 1/e^2 diameter out of the pump fiber collimator, from the setup drawing."
+  },
+  "pump_fiber_efficiency": {
+    "value": 0.7,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Free space to fiber coupling on the pump path. Placeholder; this one directly sets the available pump power."
+  },
+  "pump_scatter_pedestal": {
+    "value": 1e-05,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Fraction of pump power reaching a twin-beam collection mode by diffuse scattering (cell windows, optics) rather than through the Gaussian tail. Without it the model claims essentially perfect spatial rejection -- the Gaussian tail at 5 beam radii is 1e-9 -- while the paper identifies pump scatter as a significant limit on squeezing efficiency. Placeholder, and note the residual pump POWER is not the whole story: what matters is the classical intensity noise it carries, which is not common-mode and is not modelled here. GABES has a pump-scatter noise coefficient (kappa) at Ultra fidelity that is the proper home for that."
+  },
+  "pump_seed_angle_deg": {
+    "value": 0.32,
+    "unit": "deg",
+    "provenance": "paper",
+    "note": "Crossing angle in the cell. Stated as an empirical choice, so it is a candidate for optimisation rather than a fixed constant."
+  },
+  "pump_telescope_f1_mm": {
+    "value": 300.0,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "First lens of the pump telescope (from the setup drawing)."
+  },
+  "pump_telescope_f2_mm": {
+    "value": 150.0,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "Second lens of the pump telescope; magnification 150/300 = 0.5."
+  },
+  "seed_collimator_diameter_mm": {
+    "value": 1.6,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "Collimated 1/e^2 diameter out of the seed fiber collimator, from the setup drawing."
+  },
+  "seed_fiber_in_efficiency": {
+    "value": 0.6,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Coupling into the fiber EOM. Placeholder. Not power-critical: the seed path has large headroom and is deliberately attenuated afterwards."
+  },
+  "seed_fiber_out_efficiency": {
+    "value": 0.5,
+    "unit": "fraction",
+    "provenance": "lab",
+    "note": "Coupling out of the seed chain into the delivery fiber."
+  },
+  "seed_telescope_f1_mm": {
+    "value": 400.0,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "First lens of the seed telescope (from the setup drawing)."
+  },
+  "seed_telescope_f2_mm": {
+    "value": 150.0,
+    "unit": "mm",
+    "provenance": "lab",
+    "note": "Second lens of the seed telescope; magnification 150/400 = 0.375."
+  },
+  "ta_ase_fraction": {
+    "value": 0.03,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Broadband amplified spontaneous emission as a fraction of amplifier output. Placeholder. Removed from coherent power rather than tracked as a spectral line: it is not at any FWM-relevant frequency and the etalons erase it in the seed path."
+  },
+  "ta_m2_out": {
+    "value": 1.6,
+    "unit": "M^2",
+    "provenance": "nominal",
+    "note": "Beam-quality factor out of the tapered amplifier. Placeholder, but it matters: it is what makes fiber coupling after the amplifier lossy."
+  },
+  "ta_saturation_w": {
+    "value": 0.02,
+    "unit": "W",
+    "provenance": "nominal",
+    "note": "Seed power at which the amplifier reaches half its maximum output. Placeholder; fix it together with the slope from one P-I curve at known seed power."
+  },
+  "ta_slope_w_per_a": {
+    "value": 1.05,
+    "unit": "W/A",
+    "provenance": "nominal",
+    "note": "Slope of the amplifier's maximum output versus drive current. Placeholder chosen so the nominal operating point gives about 1.4 W."
+  },
+  "ta_threshold_a": {
+    "value": 0.5,
+    "unit": "A",
+    "provenance": "nominal",
+    "note": "Amplifier current threshold. Placeholder."
+  },
+  "waist_scale_factor": {
+    "value": 1.08,
+    "unit": "ratio",
+    "provenance": "fitted",
+    "note": "Collimator diameter times telescope magnification underestimates the paper's cell waists by a consistent 6-10 percent (500 vs 530 um pump, 300 vs 330 um seed). One shared factor absorbs it. The consistency across two independent paths suggests a definition difference (1/e^2 versus 4-sigma or FWHM in the quoted collimator diameters) rather than two coincidences."
+  }
+}

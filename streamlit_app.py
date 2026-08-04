@@ -1292,6 +1292,33 @@ def _render_metrics(metrics, *, hero_count=2):
 
 
 # ----------------------------------------------------------------------
+# Router — SABES is a separate site living in the same deployment
+# ----------------------------------------------------------------------
+# SABES is not a scheme: it is a lab-facing layer over one specific experiment,
+# with primary variables (waveplate angles, generator frequency, lens choices)
+# instead of processed physics parameters. Routing on a query parameter keeps it
+# out of the scheme dropdown and off this page entirely, while still deploying as
+# one app. The helpers defined above are handed over explicitly rather than
+# imported back, so `sabes_page` never depends on this module's import state.
+SABES_QUERY_VALUE = "sabes"
+
+
+def _sabes_host():
+    from types import SimpleNamespace
+    return SimpleNamespace(render_fig=_render_fig, theme_base=THEME_BASE)
+
+
+def _open_sabes():
+    st.query_params["app"] = SABES_QUERY_VALUE
+
+
+if st.query_params.get("app") == SABES_QUERY_VALUE:
+    import sabes_page
+    sabes_page.render(host=_sabes_host())
+    st.stop()
+
+
+# ----------------------------------------------------------------------
 # Sidebar — scheme selection
 # ----------------------------------------------------------------------
 st.sidebar.image(SIDEBAR_LOGO_SVG, width=230)
@@ -1409,6 +1436,17 @@ if advanced:
 for sp in specs:
     if sp.name not in params:
         params[sp.name] = st.session_state[_skey(scheme.name, sp.name)]
+
+# Foot of the sidebar: the way across to SABES. Kept last and visually separate
+# because it leaves this app rather than changing anything in it.
+st.sidebar.divider()
+st.sidebar.button("SABES — specific setup simulator →", on_click=_open_sabes,
+                  use_container_width=True,
+                  help="A separate, lab-facing simulator for one experiment: the "
+                       "EOM-based 85Rb twin-beam squeezing setup. Drives this "
+                       "engine from primary settings (waveplate angles, generator "
+                       "frequency, lens choices) instead of processed physics "
+                       "parameters.")
 
 
 # ----------------------------------------------------------------------

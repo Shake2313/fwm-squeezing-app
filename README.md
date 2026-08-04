@@ -113,7 +113,12 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 - OPD Δ (one-photon): ω_pump = ω(F=2→F'=3) + Δ.
 - TPD δ (two-photon): ω_seed = ω_pump − ν_HF + δ.   ν_HF = 3.0357 GHz.
 - Plot x-axis ref = **F=2→F'=3** line. (−) Raman branch = standard FWM seed, at Δ − ν_HF.
-- Beam waists W_PUMP=530 µm, W_PROBE=330 µm = **1/e² radius** (paper convention). Not diameter.
+- Beam waists = **1/e² radius** (paper convention), not diameter. They are sidebar
+  knobs (`pump_waist_um`, `probe_waist_um`) whose defaults are the paper geometry
+  530 / 330 µm; `W_PUMP` / `W_PROBE` remain as those defaults. The pump waist sets
+  the pump Rabi through I=2P/πw² **and** the Gaussian crossing overlap; the seed
+  waist is nearly inert (its own Rabi is weak and the overlap is already ≈1), so it
+  matters mainly for the downstream divergence λ/πw₀, which this scheme does not model.
 
 ### Generic SFWM / biphoton mode
 
@@ -258,7 +263,18 @@ G. Sim, H. Kim, H. S. Moon, Sci. Rep. **15**, 7727 (2025). 85Rb squeezing-optima
 |---|---|---|---|---|---|---|
 | 0.9 GHz | −8 MHz | 121 °C | 600 mW | 8 µW | 5.5 % | gain ≈ 15, IDS −7.8 dB |
 
-Fixed geom: cell L=12.5 mm, QE 90.47 %, responsivity 0.58 A/W @ 795 nm, pump⊥probe.
+Geometry: cell L=12.5 mm, pump⊥probe. Pump/seed waist, crossing angle and detector
+QE are knobs; their defaults reproduce this operating point exactly.
+
+**QE caveat.** The scheme default is `qe_pct = 92 %`, the value the `0.74` reference
+residual was anchored with. The paper's detector — a PDB450A whose photodiodes are
+swapped for Hamamatsu S3883 (0.58 A/W @ 795 nm, φ1.5 mm) — is **90.45 %**
+(=1240·0.58/795), matching the 90.47 % quoted above. Using the true device QE lowers
+the lossless floor `10·log10(1−η)` from −8.84 dB to −8.38 dB. Both are kept available
+rather than silently re-anchored: 92 % is baseline-compatible, 90.45 % is the measured
+device. For reference the stock PDB450A Si diode (0.53 A/W peak, φ0.8 mm) gives
+QE ≤ 82.7 % → floor −6.60 dB, i.e. the paper's −7.8 dB was not reachable without the
+photodiode swap.
 
 ## Deploy
 

@@ -99,11 +99,24 @@ T_CELL = 394.15
 # Detection efficiency matched to Sim et al. (Sci. Rep. 15, 7727 (2025)): the
 # reported system (detection) loss is 8.0% -> QE 0.92; the 5.5% optical loss is
 # the separate `loss_pct` knob. Together QE·(1−0.055)=0.869 reproduces the paper's
-# ~13.5% total detection loss. (RESPONSIVITY_AW is display-only: 0.92·795/1240.)
+# ~13.5% total detection loss. QE_DETECTOR is only the *default* of the `qe_pct`
+# knob now. RESPONSIVITY_AW is the legacy display constant for that default
+# (0.92·795/1240) kept for `archive/fwm_obe.py`; live readouts use
+# `responsivity_AW(qe)` below so the shown A/W tracks the knob.
 QE_DETECTOR = 0.92
 RESPONSIVITY_AW = 0.59
 LOSS_FRAC = 0.0
 ETA_TOTAL = QE_DETECTOR * (1.0 - LOSS_FRAC)
+
+# Photon energy in eV·nm, so R[A/W] = QE · λ[nm] / 1239.84. Display-only: the
+# solve uses QE directly. Kept as a function because QE is a knob now.
+_HC_EV_NM = 1239.841984
+PROBE_WAVELENGTH_NM = 795.0
+
+
+def responsivity_AW(qe=QE_DETECTOR, wavelength_nm=PROBE_WAVELENGTH_NM):
+    """Photodiode responsivity [A/W] implied by a quantum efficiency."""
+    return float(qe) * float(wavelength_nm) / _HC_EV_NM
 
 OMEGA_C_SEED = 0.0
 SCAN_MIN_GHZ = -8.0
@@ -1714,6 +1727,9 @@ def compute_spectrum(D_GHz, *,
         "zeeman_status": zeeman_status,
         "zeeman_correction": zeeman_correction,
         "eta": eta,
+        "qe": qe,
+        "w_pump_m": w_pump,
+        "w_probe_m": w_probe,
         "cell_length_m": L,
         "branch": branch,
         "coupling_norm": coupling_norm,
@@ -1801,7 +1817,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-coupling-factors-v3"
+    cache_version = "fwm-beam-geometry-v4"
     defaults_version = "seeded-coupling-factors-v2"
     cache_observables = True
     supports_headless_observables = True
@@ -1864,6 +1880,23 @@ class FWMScheme(Scheme):
                       50.0, 1200.0, 10.0, "mW", visible_if=seeded),
             ParamSpec("probe_uw", "Seed / probe power", "Beams", 8.0,
                       1.0, 200.0, 1.0, "µW", visible_if=seeded),
+            ParamSpec("pump_waist_um", "Pump waist w₀", "Beams",
+                      W_PUMP * 1e6, 50.0, 2000.0, 10.0, "µm",
+                      visible_if=seeded,
+                      help="Pump 1/e² radius in the cell (paper convention: radius, "
+                           "not diameter). Sets the pump Rabi through I = 2P/πw², so "
+                           "it recomputes the gain, and it also scales the Gaussian "
+                           "pump-seed crossing overlap at Ultra fidelity. In a real "
+                           "setup this is fixed by the collimator diameter times the "
+                           "telescope magnification."),
+            ParamSpec("probe_waist_um", "Seed / probe waist w₀", "Beams",
+                      W_PROBE * 1e6, 50.0, 2000.0, 10.0, "µm",
+                      visible_if=seeded,
+                      help="Seed 1/e² radius in the cell. The seed is weak, so this "
+                           "barely moves the gain through its own Rabi; its real "
+                           "effect is the Gaussian crossing overlap with the pump "
+                           "(Ultra fidelity). Downstream beam divergence is λ/πw₀ — "
+                           "not modelled here, it belongs to the detection path."),
             ParamSpec("seeded_angle_deg", "Pump-probe angle", "Beams",
                       SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
                       visible_if=seeded,
@@ -1873,6 +1906,20 @@ class FWMScheme(Scheme):
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
                       0.0, 50.0, 0.5, "%", visible_if=seeded,
                       help="Folds into eta = QE x (1 - loss)."),
+            ParamSpec("qe_pct", "Detector quantum efficiency",
+                      "Detection & scaling", QE_DETECTOR * 100.0,
+                      50.0, 100.0, 0.01, "%", visible_if=seeded, advanced=True,
+                      advanced_group="Detector",
+                      help="Photodiode QE. With the loss knob it forms "
+                           "eta = QE·(1−loss), which sets the lossless squeezing "
+                           "floor 10·log10(1−eta) — the hard ceiling on any result "
+                           "here, so this is the single highest-leverage number in "
+                           "the detection chain. The 92% default is the value the "
+                           "0.74 reference residual was anchored with; the Sim et al. "
+                           "detector (Hamamatsu S3883, 0.58 A/W @ 795 nm) is 90.45%, "
+                           "which lowers the floor by about 0.46 dB. Changing this "
+                           "moves the anchor, so treat 92% as the baseline-compatible "
+                           "setting rather than a measured device QE."),
             ParamSpec("line_strength", "Reference residual anchor",
                       "Detection & scaling", 0.74,
                       0.2, 5.0, 0.01, "×",
@@ -2026,6 +2073,8 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
+                    pump_waist_um=W_PUMP * 1e6, probe_waist_um=W_PROBE * 1e6,
+                    qe_pct=QE_DETECTOR * 100.0,
                     line_strength=0.74, mode_overlap_penalty=1.0,
                     polarization_penalty=1.0,
                     zeeman_participation_penalty=1.0,
@@ -2182,6 +2231,9 @@ class FWMScheme(Scheme):
             zeeman_participation_penalty=params.get(
                 "zeeman_participation_penalty", 1.0),
             L=params["cell_mm"] * 1e-3,
+            w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
+            w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
+            qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
             loss_frac=params["loss_pct"] / 100.0,
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
@@ -2305,9 +2357,11 @@ class FWMScheme(Scheme):
                "energy conservation. Lower T / raise seed power to stay in the "
                "linear regime.\n\n" if depletion_limited else "")
             + f"Cell L = {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm · "
-            f"Fixed: pump w₀ {W_PUMP*1e6:.0f} µm · "
-            f"seed w₀ {W_PROBE*1e6:.0f} µm · QE {QE_DETECTOR*100:.2f}% · "
-            f"responsivity {RESPONSIVITY_AW} A/W @ 795 nm · pump⊥probe at PBS."
+            f"pump w₀ {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm · "
+            f"seed w₀ {raw.get('w_probe_m', W_PROBE)*1e6:.0f} µm · "
+            f"QE {raw.get('qe', QE_DETECTOR)*100:.2f}% · "
+            f"responsivity {responsivity_AW(raw.get('qe', QE_DETECTOR)):.2f} "
+            f"A/W @ 795 nm · pump⊥probe at PBS."
         )
         return {
             "metrics": metrics,
@@ -2718,7 +2772,10 @@ class FWMScheme(Scheme):
                 mode_overlap_penalty=params.get("mode_overlap_penalty", 1.0),
                 polarization_penalty=params.get("polarization_penalty", 1.0),
                 zeeman_participation_penalty=params.get(
-                    "zeeman_participation_penalty", 1.0))
+                    "zeeman_participation_penalty", 1.0),
+                w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
+                w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
+                qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0)
 
         def _render_full(full):
             import matplotlib.pyplot as plt
@@ -2758,7 +2815,8 @@ class FWMScheme(Scheme):
 def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                   L=L_CELL, *, mode_overlap_penalty=1.0,
                   polarization_penalty=1.0,
-                  zeeman_participation_penalty=1.0):
+                  zeeman_participation_penalty=1.0,
+                  w_pump=W_PUMP, w_probe=W_PROBE, qe=QE_DETECTOR):
     """Wide scan with the two Raman channels calculated independently.
 
     The ∓ branches are independent pure solves, so run them concurrently. With
@@ -2771,6 +2829,7 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         polarization_penalty=polarization_penalty,
         zeeman_participation_penalty=zeeman_participation_penalty,
         L=L, loss_frac=loss_pct / 100.0,
+        w_pump=w_pump, w_probe=w_probe, qe=qe,
         coarse_points=301, fine_points=401, velocity_step=2.0)
 
     def _branch(b):
