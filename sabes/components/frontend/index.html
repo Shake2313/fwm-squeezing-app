@@ -10,8 +10,10 @@
   .hit .body { transition: filter .12s ease, stroke-width .12s ease; }
   .hit:hover .body { filter: brightness(1.06); stroke-width: 2.6; }
   .hit.selected .body { stroke: #0F766E; stroke-width: 3; }
-  .label { font-size: 11px; fill: #334155; pointer-events: none;
-    user-select: none; text-anchor: middle; }
+  .label { font-size: 10.5px; fill: #334155; pointer-events: none;
+    user-select: none; text-anchor: middle; font-weight: 600; }
+  /* Decorative hardware is drawn but owns no parameter, so it recedes. */
+  .label-muted { fill: #94A3B8; font-weight: 500; }
   .beam { pointer-events: none; }
   #empty { fill: transparent; cursor: crosshair; }
   .probe { pointer-events: none; }
@@ -69,6 +71,43 @@ function el(name, attrs) {
   return node;
 }
 
+// A `part` is a sub-primitive positioned relative to the node's centre. Optics
+// are built from them -- a polarizing cube is a square plus its diagonal, a
+// waveplate is a plate plus its hatch -- so the whole glyph stays inside one
+// clickable, hoverable group instead of fragmenting into separate targets.
+function drawPart(part, cx, cy) {
+  const kind = part.kind || "rect";
+  if (kind === "rect") {
+    return el("rect", {
+      x: cx + (part.dx || 0) - (part.w || 0) / 2,
+      y: cy + (part.dy || 0) - (part.h || 0) / 2,
+      width: part.w, height: part.h, rx: part.rx || 0,
+      fill: part.fill || "none", stroke: part.stroke || "none",
+      "stroke-width": part.stroke_width || 1,
+      opacity: part.opacity === undefined ? 1 : part.opacity,
+    });
+  }
+  if (kind === "circle") {
+    return el("circle", {
+      cx: cx + (part.dx || 0), cy: cy + (part.dy || 0), r: part.r || 3,
+      fill: part.fill || "none", stroke: part.stroke || "none",
+      "stroke-width": part.stroke_width || 1,
+      opacity: part.opacity === undefined ? 1 : part.opacity,
+    });
+  }
+  if (kind === "line") {
+    return el("line", {
+      x1: cx + part.x1, y1: cy + part.y1,
+      x2: cx + part.x2, y2: cy + part.y2,
+      stroke: part.stroke || "#1F4E79",
+      "stroke-width": part.stroke_width || 1.2,
+      "stroke-linecap": "round",
+      opacity: part.opacity === undefined ? 1 : part.opacity,
+    });
+  }
+  return null;
+}
+
 function drawShape(shape) {
   const kind = shape.kind || "rect";
   let body;
@@ -79,10 +118,6 @@ function drawShape(shape) {
       fill: shape.fill || "#E2E8F0", stroke: shape.stroke || "#1F4E79",
       "stroke-width": shape.stroke_width || 1.6,
     });
-    if (shape.angle) {
-      body.setAttribute("transform",
-        `rotate(${shape.angle} ${shape.x} ${shape.y})`);
-    }
   } else if (kind === "circle") {
     body = el("circle", {
       cx: shape.x, cy: shape.y, r: shape.r || 6,
@@ -102,7 +137,47 @@ function drawShape(shape) {
     return null;
   }
   body.setAttribute("class", "body");
+  if (shape.opacity !== undefined && kind !== "path") {
+    body.setAttribute("opacity", shape.opacity);
+  }
+
+  if (shape.parts && shape.parts.length) {
+    const group = el("g", {});
+    group.appendChild(body);
+    shape.parts.forEach(part => {
+      const node = drawPart(part, shape.x, shape.y);
+      if (node) group.appendChild(node);
+    });
+    group.setAttribute("class", "body");
+    body.removeAttribute("class");
+    if (shape.angle) {
+      group.setAttribute("transform",
+        `rotate(${shape.angle} ${shape.x} ${shape.y})`);
+    }
+    return group;
+  }
+  if (shape.angle && kind === "rect") {
+    body.setAttribute("transform",
+      `rotate(${shape.angle} ${shape.x} ${shape.y})`);
+  }
   return body;
+}
+
+// A faint breadboard grid. Purely atmosphere -- it says "optical table" at a
+// glance -- and it is explicitly NOT a scale: display units are not millimetres.
+function drawGrid(stage, spec) {
+  const pitch = spec.grid;
+  if (!pitch) return;
+  const dots = [];
+  for (let x = pitch; x < spec.width; x += pitch) {
+    for (let y = pitch; y < spec.height; y += pitch) {
+      dots.push(`M${x} ${y}h0.9`);
+    }
+  }
+  stage.appendChild(el("path", {
+    d: dots.join(""), stroke: spec.grid_color || "#CBD5E1",
+    "stroke-width": 1.6, "stroke-linecap": "round", opacity: 0.5,
+  }));
 }
 
 function render(spec) {
@@ -120,6 +195,7 @@ function render(spec) {
       fill: spec.background, rx: 6,
     }));
   }
+  drawGrid(stage, spec);
 
   // Full-area target underneath everything: a click that hits no optic is a
   // point on the table, which is how instrument heads get placed.
@@ -175,13 +251,13 @@ function render(spec) {
     emit({kind: "point", x: point.x, y: point.y});
   });
 
-  setHeight(Math.ceil(stage.getBoundingClientRect().height) + 4);
+  reportHeight();
 }
 
 function labelFor(shape) {
   const node = el("text", {
     x: shape.x, y: shape.y + (shape.label_dy === undefined ? -10 : shape.label_dy),
-    class: "label",
+    class: "label" + (shape.clickable ? "" : " label-muted"),
   });
   node.textContent = shape.label;
   return node;
@@ -210,12 +286,27 @@ window.addEventListener("message", event => {
   render(lastSpec);
 });
 
-window.addEventListener("resize", () => {
+// Height has to be re-reported whenever the drawing's own size changes, not
+// just on window resize. A component that mounts inside a hidden Streamlit tab
+// measures zero, so without this the canvas stays collapsed to a few pixels
+// until something else happens to trigger a resize.
+let lastHeight = 0;
+
+function reportHeight() {
   const stage = document.getElementById("stage");
-  if (stage.getBoundingClientRect().height) {
-    setHeight(Math.ceil(stage.getBoundingClientRect().height) + 4);
+  if (!stage) return;
+  const height = Math.ceil(stage.getBoundingClientRect().height);
+  if (height > 0 && height !== lastHeight) {
+    lastHeight = height;
+    setHeight(height + 4);
   }
-});
+}
+
+window.addEventListener("resize", reportHeight);
+
+if (window.ResizeObserver) {
+  new ResizeObserver(reportHeight).observe(document.body);
+}
 
 send("streamlit:componentReady", {apiVersion: 1});
 </script>

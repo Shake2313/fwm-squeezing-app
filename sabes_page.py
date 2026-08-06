@@ -30,7 +30,8 @@ from gabes import constants
 from gabes.core import blas_single_thread
 from gabes.schemes import fwm
 
-from sabes import bridge, detection as detection_model
+from sabes import bridge, detection as detection_model, layout
+from sabes.components import canvas as canvas_module
 from sabes.beamline import (SetupSettings, build_source_chain,
                             solve_seed_polarizer_deg, solve_seed_trim_deg,
                             solve_split_angle_deg)
@@ -284,6 +285,146 @@ def _render_sidebar(host):
 # ----------------------------------------------------------------------
 # Main panel
 # ----------------------------------------------------------------------
+def _twin_states(result):
+    """Probe and conjugate as drawable beams, once the solve knows their gain.
+
+    Scaling the seed state is right for a stroke width and only that: the twins
+    do not carry the seed's residual carrier line. Real per-arm numbers come from
+    the detection readout, which is what the panels show.
+    """
+    if result.raw is None:
+        return None
+    gain_s, gain_c = result.gains
+    transmission = result.geometry.optics_transmission
+    seed = result.chain.seed
+    return {"probe": seed.scaled(gain_s * transmission),
+            "conjugate": seed.scaled(gain_c * transmission)}
+
+
+def _probe_key(part_key):
+    return _key(f"probe_{part_key}")
+
+
+def _handle_canvas_event(event, part_key):
+    """Route a click: an optic selects, empty table drops a probe.
+
+    Returns whether anything changed. The caller reruns on True, because the
+    component's value only reaches Python at the *start* of a run -- the panels
+    below have already read the old selection by the time this fires, so without
+    a rerun the drawing and the readout would trail one click behind.
+    """
+    if not event:
+        return False
+    seen = _key(f"seq_{part_key}")
+    if st.session_state.get(seen) == event.get("seq"):
+        return False
+    st.session_state[seen] = event.get("seq")
+    if event.get("kind") == canvas_module.KIND_OPTIC:
+        st.session_state[_key("selected")] = event.get("id")
+    else:
+        st.session_state[_probe_key(part_key)] = [event["x"], event["y"]]
+        st.session_state[_key("selected")] = None
+    return True
+
+
+def _render_optic_panel(part, node_id, settings, detection):
+    """What the selected optic is and what it owns.
+
+    Read-only for now: turning these into editors is the next step, and showing
+    the values first makes it obvious the picture and the model agree.
+    """
+    try:
+        node = part.node(node_id)
+    except KeyError:
+        return
+    values = {f.name: getattr(settings, f.name) for f in fields(settings)}
+    values.update({f.name: getattr(detection, f.name) for f in fields(detection)})
+    values["eom_offset_mhz"] = (settings.eom_frequency_hz
+                                - constants.NU_GROUND_HF) / 1e6
+    values["etalon_detune_ghz"] = settings.etalon_detune_ghz[0]
+
+    st.markdown(f"**{node.label or node.id}**")
+    if node.note:
+        st.caption(node.note)
+    rows = [(name, f"{values.get(name, float('nan')):.4g}")
+            for name in node.params]
+    if rows:
+        st.markdown(_markdown_table(("Parameter", "Value"), rows))
+        st.caption("Editing these in place is the next stage; for now they live "
+                   "in the sidebar.")
+
+
+def _render_probe_panel(reading):
+    if reading is None:
+        st.caption("No beam there. Click a beam to probe it, or an optic to "
+                   "select it.")
+        return
+    link = reading.link
+    st.markdown(f"**{link.beam} beam** · {link.a} → {link.b}")
+    rows = [
+        ("Power", f"{reading.power_w * 1e3:.4g} mW"),
+        ("1/e² radius", f"{reading.radius_m * 1e6:.1f} µm"),
+        ("Along this segment", f"{reading.distance_along_m * 1e3:.1f} mm"
+                               + ("" if link.path_m is not None
+                                  else "  (segment has no modelled length)")),
+        ("Spectral lines", str(len(reading.beam.lines))),
+    ]
+    if link.path_m is not None:
+        rows.append(("Segment length",
+                     f"{link.path_m * 1e3:.1f} mm  ({link.provenance})"))
+    st.markdown(_markdown_table(("Quantity", "Value"), rows))
+
+
+def _render_table_tab(result, host):
+    settings, detection = _current()
+    twin = _twin_states(result)
+    selected = st.session_state.get(_key("selected"))
+
+    # A radio rather than nested tabs: Streamlit does not re-lay-out custom
+    # components inside an inactive tab, so a canvas that first mounts hidden
+    # stays collapsed at zero height. Drawing one part at a time sidesteps that
+    # and halves the work per rerun.
+    names = [p.title.split("—")[0].strip() for p in layout.LAYOUTS]
+    choice = st.radio("Setup", names, key=_key("part"), horizontal=True,
+                      label_visibility="collapsed")
+    part = layout.LAYOUTS[names.index(choice)]
+
+    st.caption(part.title)
+    probe = st.session_state.get(_probe_key(part.key))
+    spec = layout.build_spec(part, result.chain, selected=selected,
+                             probe=probe, twin_states=twin)
+    event = canvas_module.svg_canvas(spec, selected=selected,
+                                     key=f"sabes_table_{part.key}")
+    if _handle_canvas_event(event, part.key):
+        st.rerun()
+
+    swatches = " ".join(
+        f"<span class='sabes-key'><i style='background:{colour};"
+        f"{'opacity:.75' if dashed else ''}'></i>{escape(name)}</span>"
+        for colour, dashed, name in layout.legend_rows())
+    st.markdown(
+        f"<div class='sabes-legend'>{swatches}"
+        "<span class='sabes-key sabes-key--note'>stroke width encodes "
+        "power on a log scale — it is not the beam size</span></div>",
+        unsafe_allow_html=True)
+
+    left, right = st.columns([1, 1])
+    with left:
+        st.markdown("###### Selected optic")
+        if selected:
+            _render_optic_panel(part, selected, settings, detection)
+        else:
+            st.caption("Click a highlighted optic. Greyed hardware is drawn "
+                       "for orientation but owns no parameter.")
+    with right:
+        st.markdown("###### Probe")
+        reading = None
+        if probe:
+            reading = layout.beam_at(part, probe[0], probe[1], result.chain,
+                                     twin_states=twin)
+        _render_probe_panel(reading)
+
+
 def _markdown_table(header, rows):
     head = "| " + " | ".join(header) + " |\n"
     rule = "|" + "|".join("---" for _ in header) + "|\n"
@@ -440,10 +581,13 @@ def render(host=None):
     for warning in result.warnings:
         st.warning(warning, icon="⚠️")
 
-    tabs = st.tabs(["Spectrum", "Derived parameters", "Power budget",
-                    "Detection", "Calibration"])
+    tabs = st.tabs(["Optical table", "Spectrum", "Derived parameters",
+                    "Power budget", "Detection", "Calibration"])
 
     with tabs[0]:
+        _render_table_tab(result, host)
+
+    with tabs[1]:
         observables = _cached_observables(
             raw, tuple(sorted(params.items(), key=lambda kv: kv[0])),
             fwm.FWMScheme().cache_version)
@@ -453,7 +597,7 @@ def render(host=None):
         elif figure is not None:
             st.pyplot(figure)
 
-    with tabs[1]:
+    with tabs[2]:
         st.markdown(
             "Left column is what you set on the table; right column is what "
             "GABES receives. Every SABES number can be checked by driving GABES "
@@ -463,10 +607,10 @@ def render(host=None):
             ("Setting", "Value", "GABES quantity", "Derived"),
             bridge.derived_table(result)))
 
-    with tabs[2]:
+    with tabs[3]:
         st.markdown(_budget_table(result.chain))
 
-    with tabs[3]:
+    with tabs[4]:
         geom = result.geometry
         rows = [
             ("Twin radius at D-mirrors",
@@ -493,7 +637,7 @@ def render(host=None):
             ]
         st.markdown(_markdown_table(("Quantity", "Value"), rows))
 
-    with tabs[4]:
+    with tabs[5]:
         _provenance_panel(calibration)
 
 
@@ -530,6 +674,12 @@ def _inject_css():
             letter-spacing: .06em; color: #0F766E; font-weight: 700; }
         .sabes-metric-value { font-size: 1.35rem; font-weight: 700; color: #0F172A;
             margin-top: .15rem; }
+        .sabes-legend { display: flex; flex-wrap: wrap; gap: .1rem 1.1rem;
+            margin: .35rem 0 .9rem 0; font-size: .78rem; color: #475569; }
+        .sabes-key { display: inline-flex; align-items: center; gap: .35rem; }
+        .sabes-key i { width: 18px; height: 4px; border-radius: 2px;
+            display: inline-block; }
+        .sabes-key--note { color: #94A3B8; font-style: italic; }
         </style>
         """,
         unsafe_allow_html=True,
