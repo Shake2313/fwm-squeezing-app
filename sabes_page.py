@@ -39,88 +39,96 @@ from sabes.calibration import default_calibration
 from sabes.detection import DetectionSettings
 
 SESSION_PREFIX = "_sabes_"
-SETTINGS_VERSION = "sabes-p4-v1"
+SETTINGS_VERSION = "sabes-stage-d-v1"
 
 FIDELITIES = (fwm.FIDELITY_FAST, fwm.FIDELITY_ULTRA)
 
-#: (session key, label, unit, min, max, step, help). Grouped exactly the way the
-#: table is laid out, because that is how someone walks the setup.
-CONTROL_GROUPS = (
-    ("Laser & amplifier", (
-        ("ecdl_power_mw", "ECDL output", "mW", 1.0, 200.0, 1.0,
-         "Seed power into the tapered amplifier."),
-        ("ta_current_a", "TA current", "A", 0.5, 4.0, 0.05,
-         "Amplifier drive current. Output saturates, so this is not a linear knob."),
-        ("hwp_ta_deg", "HWP before TA", "°", 0.0, 90.0, 0.5,
-         "Rotates the seed onto the amplifier's gain axis."),
-    )),
-    ("Pump / seed split", (
-        ("hwp_split_deg", "Split HWP", "°", 0.0, 45.0, 0.01,
-         "Sets how the amplifier output divides between pump and seed. This is "
-         "the pump-power knob."),
-        ("seed_polarizer_deg", "Seed polarizer", "°", 0.0, 90.0, 0.05,
-         "Holds the fiber EOM below its optical rating. Independent of the "
-         "split, because the split alone cannot satisfy both constraints."),
-    )),
-    ("Seed modulation", (
-        ("eom_offset_mhz", "Generator offset from ν_HF", "MHz", -200.0, 200.0, 0.1,
-         "Signal-generator frequency relative to the 3.0357324 GHz ground "
-         "hyperfine splitting. This IS the two-photon detuning, with the sign "
-         "flipped and no calibration coefficient in between."),
-        ("eom_rf_dbm", "EOM RF drive", "dBm", 0.0, 30.0, 0.5,
-         "Sets the modulation index β = π V_peak / V_π and hence how much power "
-         "lands in the wanted −1 sideband."),
-        ("hwp_eom_deg", "HWP before EOM", "°", 0.0, 90.0, 0.5,
-         "Aligns the input to the modulator's polarization axis."),
-        ("etalon_detune_ghz", "Etalon detuning", "GHz", -2.0, 2.0, 0.01,
-         "Common tilt/temperature detuning of all three filter stages from the "
-         "wanted sideband."),
-    )),
-    ("Seed trim", (
-        ("seed_trim_hwp_deg", "Trim HWP", "°", 0.0, 45.0, 0.01,
-         "With the Glan-Taylor, sets the seed power at the cell. The seed arm "
-         "carries far more than the FWM needs, so this mostly throws power away."),
-        ("seed_trim_qwp_deg", "Trim QWP", "°", 0.0, 90.0, 0.5,
-         "Fine polarization control ahead of the Glan-Taylor."),
-        ("seed_gtp_deg", "Glan-Taylor", "°", 0.0, 90.0, 0.5,
-         "Analyser angle for the trim pair."),
-    )),
-    ("Beam shaping", (
-        ("pump_telescope_f1_mm", "Pump telescope L1", "mm", 25.0, 1000.0, 5.0,
-         "First lens. Cell waist = collimator diameter × f2/f1 × scale factor."),
-        ("pump_telescope_f2_mm", "Pump telescope L2", "mm", 25.0, 1000.0, 5.0,
-         "Second lens."),
-        ("seed_telescope_f1_mm", "Seed telescope L1", "mm", 25.0, 1000.0, 5.0,
-         "First lens of the seed telescope."),
-        ("seed_telescope_f2_mm", "Seed telescope L2", "mm", 25.0, 1000.0, 5.0,
-         "Second lens of the seed telescope."),
-    )),
-    ("Cell & geometry", (
-        ("opd_ghz", "One-photon detuning Δ", "GHz", -3.0, 3.0, 0.05,
-         "Where the pump sits. Set by the ECDL lock, not modelled from its "
-         "temperature / current / PZT — mode hops make that unpredictable."),
-        ("cell_temp_c", "Cell temperature", "°C", 60.0, 150.0, 1.0,
-         "Vapour temperature from the heater controller."),
-        ("dmirror_separation_mm", "Separation at D-mirrors", "mm", 0.5, 15.0, 0.05,
-         "Alignment is done by overlapping at the cell and separating by this "
-         "much 23 inch downstream, so this is the crossing-angle knob."),
-    )),
-    ("Detection", (
-        ("iris_radius_mm", "Iris radius", "mm", 0.2, 6.0, 0.05,
-         "Spatial filter for pump rejection. Closing it past the twin beam "
-         "turns straight into detection loss."),
-        ("probe_lens_focal_mm", "Probe lens", "mm", 25.0, 500.0, 5.0,
-         "Focusing lens onto the probe photodiode."),
-        ("conjugate_lens_focal_mm", "Conjugate lens", "mm", 25.0, 500.0, 5.0,
-         "Focusing lens onto the conjugate photodiode."),
-        ("pd_defocus_mm", "Photodiode defocus", "mm", 0.0, 100.0, 1.0,
-         "Distance of the diode from the focal plane. Spreading the spot is the "
-         "cheapest way out of the linearity limit."),
-    )),
-)
+#: Every knob, keyed by name. One definition serves the optic dialog and the
+#: sidebar, so the two cannot drift apart -- which matters now that almost
+#: everything lives behind a click on the drawing rather than in a fixed list.
+#:
+#: (label, unit, min, max, step, help)
+CONTROLS = {
+    "ecdl_power_mw": ("ECDL output", "mW", 1.0, 200.0, 1.0,
+                      "Seed power into the tapered amplifier."),
+    "ta_current_a": ("TA current", "A", 0.5, 4.0, 0.05,
+                     "Amplifier drive current. Output saturates, so this is "
+                     "not a linear knob."),
+    "hwp_ta_deg": ("HWP angle", "°", 0.0, 90.0, 0.5,
+                   "Rotates the seed onto the amplifier's gain axis."),
+    "hwp_split_deg": ("HWP angle", "°", 0.0, 45.0, 0.01,
+                      "Sets how the amplifier output divides between pump and "
+                      "seed. This is the pump-power knob."),
+    "seed_polarizer_deg": ("Polarizer angle", "°", 0.0, 90.0, 0.05,
+                           "Holds the fiber EOM below its optical rating. "
+                           "Independent of the split, because the split alone "
+                           "cannot satisfy both constraints."),
+    "eom_offset_mhz": ("Generator offset from ν_HF", "MHz", -200.0, 200.0, 0.1,
+                       "Signal-generator frequency relative to the 3.0357324 "
+                       "GHz ground hyperfine splitting. This IS the two-photon "
+                       "detuning, with the sign flipped and no calibration "
+                       "coefficient in between."),
+    "eom_rf_dbm": ("RF drive", "dBm", 0.0, 30.0, 0.5,
+                   "Sets the modulation index β = π V_peak / V_π and hence how "
+                   "much power lands in the wanted −1 sideband."),
+    "hwp_eom_deg": ("HWP angle", "°", 0.0, 90.0, 0.5,
+                    "Aligns the input to the modulator's polarization axis."),
+    "etalon_detune_ghz_1": ("Detuning", "GHz", -2.0, 2.0, 0.01,
+                            "Tilt/temperature detuning of this stage from the "
+                            "wanted sideband."),
+    "etalon_detune_ghz_2": ("Detuning", "GHz", -2.0, 2.0, 0.01,
+                            "Tilt/temperature detuning of this stage from the "
+                            "wanted sideband."),
+    "etalon_detune_ghz_3": ("Detuning", "GHz", -2.0, 2.0, 0.01,
+                            "Tilt/temperature detuning of this stage from the "
+                            "wanted sideband."),
+    "seed_trim_hwp_deg": ("HWP angle", "°", 0.0, 45.0, 0.01,
+                          "With the Glan-Taylor, sets the seed power at the "
+                          "cell. The seed arm carries far more than the FWM "
+                          "needs, so this mostly throws power away."),
+    "seed_trim_qwp_deg": ("QWP angle", "°", 0.0, 90.0, 0.5,
+                          "Fine polarization control ahead of the "
+                          "Glan-Taylor."),
+    "seed_gtp_deg": ("Analyser angle", "°", 0.0, 90.0, 0.5,
+                     "Glan-Taylor analyser angle for the trim pair."),
+    "pump_telescope_f1_mm": ("Focal length", "mm", 25.0, 1000.0, 5.0,
+                             "Cell waist = collimator diameter × f2/f1 × the "
+                             "shared scale factor."),
+    "pump_telescope_f2_mm": ("Focal length", "mm", 25.0, 1000.0, 5.0,
+                             "Second lens of the pump telescope."),
+    "seed_telescope_f1_mm": ("Focal length", "mm", 25.0, 1000.0, 5.0,
+                             "First lens of the seed telescope."),
+    "seed_telescope_f2_mm": ("Focal length", "mm", 25.0, 1000.0, 5.0,
+                             "Second lens of the seed telescope."),
+    "opd_ghz": ("One-photon detuning Δ", "GHz", -3.0, 3.0, 0.05,
+                "Where the pump sits. Set by the ECDL lock, not modelled from "
+                "its temperature / current / PZT — mode hops make that "
+                "unpredictable."),
+    "cell_temp_c": ("Temperature", "°C", 60.0, 150.0, 1.0,
+                    "Vapour temperature from the heater controller."),
+    "dmirror_separation_mm": ("Separation here", "mm", 0.5, 15.0, 0.05,
+                              "Alignment is done by overlapping at the cell "
+                              "and separating by this much 23 inch "
+                              "downstream, so this is the crossing-angle "
+                              "knob."),
+    "iris_radius_mm": ("Radius", "mm", 0.2, 6.0, 0.05,
+                       "Spatial filter for pump rejection. Closing it past "
+                       "the twin beam turns straight into detection loss."),
+    "probe_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
+                            "Focusing lens onto the probe photodiode."),
+    "conjugate_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
+                                "Focusing lens onto the conjugate photodiode."),
+    "pd_defocus_mm": ("Defocus", "mm", 0.0, 100.0, 1.0,
+                      "Distance of the diode from the focal plane. Spreading "
+                      "the spot is the cheapest way out of the linearity "
+                      "limit."),
+}
 
-DETECTION_KEYS = {"iris_radius_mm", "probe_lens_focal_mm",
-                  "conjugate_lens_focal_mm", "pd_defocus_mm"}
+#: The etalon stages, in chain order. Each owns its own detuning: the model has
+#: always accepted a 3-tuple and only the UI was collapsing it, while in the lab
+#: each stage has its own knob and its own temperature.
+ETALON_KEYS = ("etalon_detune_ghz_1", "etalon_detune_ghz_2",
+               "etalon_detune_ghz_3")
 
 
 # ----------------------------------------------------------------------
@@ -154,7 +162,9 @@ def _defaults():
     # "3.0437 GHz" is nine digits of which only the last three ever move.
     values["eom_offset_mhz"] = (base.eom_frequency_hz
                                 - constants.NU_GROUND_HF) / 1e6
-    values["etalon_detune_ghz"] = float(base.etalon_detune_ghz[0])
+    for index, name in enumerate(ETALON_KEYS):
+        values[name] = float(base.etalon_detune_ghz[index])
+    values.pop("etalon_detune_ghz", None)
     values["resolution"] = FIDELITIES[0]
     return values
 
@@ -174,7 +184,6 @@ def _seed_session_state():
 def _current():
     """Session state -> (SetupSettings, DetectionSettings)."""
     get = lambda name: st.session_state[_key(name)]
-    detune = float(get("etalon_detune_ghz"))
     settings = SetupSettings(
         ecdl_power_mw=get("ecdl_power_mw"),
         ta_current_a=get("ta_current_a"),
@@ -185,7 +194,7 @@ def _current():
         eom_frequency_hz=(constants.NU_GROUND_HF
                           + get("eom_offset_mhz") * 1e6),
         eom_rf_dbm=get("eom_rf_dbm"),
-        etalon_detune_ghz=(detune, detune, detune),
+        etalon_detune_ghz=tuple(float(get(name)) for name in ETALON_KEYS),
         seed_trim_qwp_deg=get("seed_trim_qwp_deg"),
         seed_trim_hwp_deg=get("seed_trim_hwp_deg"),
         seed_gtp_deg=get("seed_gtp_deg"),
@@ -272,14 +281,37 @@ def _render_sidebar(host):
              "that carries the Gaussian crossing overlap — geometry optimisation "
              "must use it.")
 
-    for group, controls in CONTROL_GROUPS:
-        with st.sidebar.expander(group, expanded=(group == "Pump / seed split")):
-            for name, label, unit, low, high, step, help_text in controls:
-                st.number_input(
-                    f"{label} [{unit}]" if unit else label,
-                    min_value=float(low), max_value=float(high),
-                    step=float(step), key=_key(name), help=help_text,
-                    format="%.4f" if step < 0.05 else "%.2f")
+    st.sidebar.divider()
+    st.sidebar.caption(
+        "Every optic's parameters live on the optic. Click it in the "
+        "**Optical table** tab to open its editor.")
+
+    # Safety net, not a feature: anything the drawing does not claim would
+    # otherwise be unreachable. A test asserts every knob has an owner, so in a
+    # healthy build this expander never appears.
+    orphans = sorted(set(CONTROLS) - _owned_parameters())
+    if orphans:
+        with st.sidebar.expander(f"Unplaced knobs ({len(orphans)})",
+                                 expanded=False):
+            st.caption("No optic on the drawing owns these yet.")
+            for name in orphans:
+                _render_control(st, name)
+
+
+def _owned_parameters():
+    """Every parameter some optic on some layout claims."""
+    return {name for part in layout.LAYOUTS
+            for node in part.nodes for name in node.params}
+
+
+def _render_control(container, name):
+    """One numeric input, from the single shared definition."""
+    label, unit, low, high, step, help_text = CONTROLS[name]
+    container.number_input(
+        f"{label} [{unit}]" if unit else label,
+        min_value=float(low), max_value=float(high), step=float(step),
+        key=_key(name), help=help_text,
+        format="%.4f" if step < 0.05 else "%.2f")
 
 
 # ----------------------------------------------------------------------
@@ -321,18 +353,53 @@ def _handle_canvas_event(event, part_key):
     st.session_state[seen] = event.get("seq")
     if event.get("kind") == canvas_module.KIND_OPTIC:
         st.session_state[_key("selected")] = event.get("id")
+        # Clicking an optic opens its editor straight away; the flag survives
+        # the rerun the dialog needs, and the dialog clears it on close.
+        st.session_state[_key("open_optic")] = event.get("id")
     else:
         st.session_state[_probe_key(part_key)] = [event["x"], event["y"]]
         st.session_state[_key("selected")] = None
     return True
 
 
-def _render_optic_panel(part, node_id, settings, detection):
-    """What the selected optic is and what it owns.
+@st.dialog("Optic")
+def _optic_dialog(part_key, node_id):
+    """Edit one optic's parameters, in a modal on top of the drawing.
 
-    Read-only for now: turning these into editors is the next step, and showing
-    the values first makes it obvious the picture and the model agree.
+    The controls are the same `CONTROLS` entries the sidebar would render, so an
+    optic's knob behaves identically wherever it appears. Streamlit writes each
+    widget straight into session state, so there is nothing to apply -- closing
+    the dialog is enough, and the drawing behind it is already current.
     """
+    part = layout.get(part_key)
+    try:
+        node = part.node(node_id)
+    except KeyError:
+        st.warning("That optic is not on this part of the table.")
+        return
+
+    st.markdown(f"### {node.label or node.id}")
+    if node.note:
+        st.caption(node.note)
+
+    editable = [name for name in node.params if name in CONTROLS]
+    for name in editable:
+        _render_control(st, name)
+
+    missing = [name for name in node.params if name not in CONTROLS]
+    if missing:
+        st.caption("Recorded but not modelled here: " + ", ".join(missing))
+    if not editable and not missing:
+        st.caption("This optic is in the physics but owns no adjustable "
+                   "parameter.")
+
+    if st.button("Done", use_container_width=True):
+        st.session_state.pop(_key("open_optic"), None)
+        st.rerun()
+
+
+def _render_optic_panel(part, node_id, settings, detection):
+    """Summary of the selected optic, with a way into its editor."""
     try:
         node = part.node(node_id)
     except KeyError:
@@ -341,17 +408,22 @@ def _render_optic_panel(part, node_id, settings, detection):
     values.update({f.name: getattr(detection, f.name) for f in fields(detection)})
     values["eom_offset_mhz"] = (settings.eom_frequency_hz
                                 - constants.NU_GROUND_HF) / 1e6
-    values["etalon_detune_ghz"] = settings.etalon_detune_ghz[0]
+    for index, name in enumerate(ETALON_KEYS):
+        values[name] = settings.etalon_detune_ghz[index]
 
     st.markdown(f"**{node.label or node.id}**")
     if node.note:
         st.caption(node.note)
-    rows = [(name, f"{values.get(name, float('nan')):.4g}")
+    rows = [(CONTROLS[name][0] if name in CONTROLS else name,
+             f"{values.get(name, float('nan')):.4g}"
+             + (f" {CONTROLS[name][1]}" if name in CONTROLS else ""))
             for name in node.params]
     if rows:
         st.markdown(_markdown_table(("Parameter", "Value"), rows))
-        st.caption("Editing these in place is the next stage; for now they live "
-                   "in the sidebar.")
+    if st.button("Edit…", key=f"edit_{part.key}_{node_id}",
+                 use_container_width=True):
+        st.session_state[_key("open_optic")] = node_id
+        st.rerun()
 
 
 def _render_probe_panel(reading):
@@ -397,6 +469,10 @@ def _render_table_tab(result, host):
                                      key=f"sabes_table_{part.key}")
     if _handle_canvas_event(event, part.key):
         st.rerun()
+
+    pending = st.session_state.get(_key("open_optic"))
+    if pending:
+        _optic_dialog(part.key, pending)
 
     swatches = " ".join(
         f"<span class='sabes-key'><i style='background:{colour};"

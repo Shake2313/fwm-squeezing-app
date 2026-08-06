@@ -204,7 +204,8 @@ def test_clickable_optics_name_real_settings_fields():
     from dataclasses import fields
     known = {f.name for f in fields(SetupSettings)}
     known |= {f.name for f in fields(DetectionSettings)}
-    known |= {"eom_offset_mhz", "etalon_detune_ghz"}
+    known |= {"eom_offset_mhz"}
+    known |= {f"etalon_detune_ghz_{n}" for n in (1, 2, 3)}
     for part in layout.LAYOUTS:
         for node in part.clickable_nodes():
             for param in node.params:
@@ -223,6 +224,10 @@ def test_every_settings_knob_has_an_optic_that_owns_it():
     # Recorded-only annotations and internal numerics are deliberately unowned.
     knobs -= {"ecdl_temp_c", "ecdl_current_ma", "ecdl_pzt_v", "ta_temp_c",
               "eom_frequency_hz", "bpd_gain_v_per_a", "analysis_bandwidth_hz"}
+    # Exposed per stage rather than as one tuple, so the owner check is on the
+    # per-stage names instead.
+    knobs.discard("etalon_detune_ghz")
+    assert {f"etalon_detune_ghz_{n}" for n in (1, 2, 3)} <= owned
     missing = knobs - owned
     assert not missing, f"no optic owns: {sorted(missing)}"
 

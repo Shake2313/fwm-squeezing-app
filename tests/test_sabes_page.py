@@ -29,31 +29,53 @@ import sabes_page  # noqa: E402
 def test_every_control_names_a_real_setting_field():
     known = {f.name for f in fields(SetupSettings)}
     known |= {f.name for f in fields(DetectionSettings)}
-    known |= {"eom_offset_mhz", "etalon_detune_ghz", "resolution"}
-    for group, controls in sabes_page.CONTROL_GROUPS:
-        assert controls, group
-        for name, label, unit, low, high, step, help_text in controls:
-            assert name in known, f"{group}/{name} is not a settings field"
-            assert help_text, f"{group}/{name} has no help text"
-            assert low < high and step > 0
+    known |= {"eom_offset_mhz"} | set(sabes_page.ETALON_KEYS)
+    for name, (label, unit, low, high, step, help_text) in \
+            sabes_page.CONTROLS.items():
+        assert name in known, f"{name} is not a settings field"
+        assert label and help_text, f"{name} is missing label or help"
+        assert low < high and step > 0
 
 
 def test_defaults_cover_every_control_and_land_on_the_paper_point():
     defaults = sabes_page._defaults()
-    for _group, controls in sabes_page.CONTROL_GROUPS:
-        for name, *_ in controls:
-            assert name in defaults, name
+    for name in sabes_page.CONTROLS:
+        assert name in defaults, name
     # The generator control is an offset from the hyperfine splitting, and the
     # default offset is what produces the -8 MHz operating point.
     assert defaults["eom_offset_mhz"] == pytest.approx(8.0, abs=1e-6)
     assert defaults["resolution"] in sabes_page.FIDELITIES
+    # The shared etalon knob is gone; each stage carries its own.
+    assert "etalon_detune_ghz" not in defaults
+    for name in sabes_page.ETALON_KEYS:
+        assert name in defaults
 
 
-def test_control_names_are_unique_across_groups():
-    seen = []
-    for _group, controls in sabes_page.CONTROL_GROUPS:
-        seen += [name for name, *_ in controls]
-    assert len(seen) == len(set(seen))
+def test_every_control_is_owned_by_an_optic_on_the_drawing():
+    """Stage D's whole point: the sidebar no longer holds the parameters.
+
+    A knob no optic claims would be unreachable once the sidebar stops listing
+    them, so this is the check that keeps the drawing complete.
+    """
+    orphans = set(sabes_page.CONTROLS) - sabes_page._owned_parameters()
+    assert not orphans, f"no optic owns: {sorted(orphans)}"
+
+
+def test_the_sidebar_no_longer_carries_the_parameter_wall():
+    """Parameters live on their optic; the sidebar keeps only global controls.
+
+    Checked as a property rather than a widget count: the sidebar may render a
+    parameter *only* as the orphan fallback, which a healthy build never enters.
+    """
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    sidebar = source[source.index("def _render_sidebar"):
+                     source.index("def _owned_parameters")]
+    assert "st.number_input" not in sidebar
+    assert sidebar.count("_render_control") == 1        # the fallback only
+    assert sidebar.index("if orphans:") < sidebar.index("_render_control")
+    assert "Click it in the" in sidebar          # points at the drawing instead
+    # And the fallback is empty in this build, so nothing is actually listed.
+    assert not set(sabes_page.CONTROLS) - sabes_page._owned_parameters()
 
 
 # --------------------------------------------------------------- the tiers

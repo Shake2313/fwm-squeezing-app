@@ -176,9 +176,9 @@
       "id": "sabes-optic-popup-editors",
       "area": "sabes_page.py",
       "title": "Click an optic to edit its parameters in a dialog",
-      "why": "GROUP B. Needs sabes-optical-table-view. This -- not the drawing -- is what actually fixes the parameter-count problem: 23 sidebar controls in 7 groups migrate into per-optic popups, leaving roughly five global controls (fidelity, Solve knobs, Reset, instrument selector, part tabs). st.dialog is native in the pinned Streamlit, so the work is hit-testing and migration, not the modal. Side benefit: per-etalon detuning becomes possible -- the model already accepts a 3-tuple and only the UI was collapsing it, while in the lab each stage has its own knob and temperature.",
+      "why": "GROUP B. DONE, and the parameter-count problem is what it actually fixed. The 23-control sidebar is gone: clicking an optic on the drawing opens an st.dialog holding exactly the knobs that optic owns, and the sidebar now carries only the global controls (fidelity, Solve knobs, Reset, the link back to GABES) with ZERO number inputs. Control definitions moved from a sidebar-shaped list of groups to a `CONTROLS` registry keyed by parameter name, so the dialog and any remaining sidebar control render from one definition and cannot drift. A test asserts every entry in CONTROLS is owned by some optic on some layout -- a knob nothing claims would be unreachable now that the sidebar no longer lists them -- and the sidebar keeps an orphan fallback that a healthy build never enters. Side benefit delivered: per-etalon detuning. The model always accepted a 3-tuple and only the UI collapsed it; each stage now owns etalon_detune_ghz_{1,2,3} and detuning one stage alone changes seed power and carrier ratio independently, which matches a lab where each etalon has its own knob and temperature. Verified in-browser end to end: clicking the split half-wave plate opened its dialog, editing the angle to 20 deg moved the pump from 726 to 426 mW and the squeezing to -6.72 dB, and Done closed it. Note the click sets a session flag that survives the rerun the dialog needs, because a component value only reaches Python at the start of a run; the dialog clears the flag on close.",
       "priority": "P2",
-      "status": "deferred"
+      "status": "done"
     },
     {
       "id": "sabes-virtual-instruments",
