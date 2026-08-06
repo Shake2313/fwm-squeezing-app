@@ -23,14 +23,16 @@ to the cell are the same solve.
 """
 from dataclasses import fields, replace
 from html import escape
+from threading import RLock
 
+import numpy as np
 import streamlit as st
 
 from gabes import constants
 from gabes.core import blas_single_thread
 from gabes.schemes import fwm
 
-from sabes import bridge, detection as detection_model, layout
+from sabes import bridge, detection as detection_model, instruments, layout
 from sabes.components import canvas as canvas_module
 from sabes.beamline import (SetupSettings, build_source_chain,
                             solve_seed_polarizer_deg, solve_seed_trim_deg,
@@ -42,6 +44,11 @@ SESSION_PREFIX = "_sabes_"
 SETTINGS_VERSION = "sabes-stage-d-v1"
 
 FIDELITIES = (fwm.FIDELITY_FAST, fwm.FIDELITY_ULTRA)
+
+# Matplotlib's font and layout caches are process-global and Streamlit can
+# overlap reruns, so figure construction is serialised the same way the
+# GABES app does it.
+_PLOT_LOCK = RLock()
 
 #: Every knob, keyed by name. One definition serves the optic dialog and the
 #: sidebar, so the two cannot drift apart -- which matters now that almost
@@ -166,6 +173,8 @@ def _defaults():
         values[name] = float(base.etalon_detune_ghz[index])
     values.pop("etalon_detune_ghz", None)
     values["resolution"] = FIDELITIES[0]
+    values["instrument"] = INSTRUMENTS[0]
+    values["scope_mode"] = "Scan"
     return values
 
 
@@ -426,6 +435,114 @@ def _render_optic_panel(part, node_id, settings, detection):
         st.rerun()
 
 
+#: What can be dropped on a point of the table. The last two need a photodiode,
+#: exactly as on the bench, so they read through one rather than off the beam.
+INSTRUMENTS = ("Power meter", "Beam profiler", "Wavemeter", "Photodiode",
+               "Oscilloscope", "Spectrum analyser")
+
+
+def _detector_from_calibration(calibration):
+    c = calibration.value
+    return instruments.Photodiode(
+        responsivity_a_per_w=c("pd_responsivity_a_per_w"),
+        transimpedance_v_per_a=c("bpd_transimpedance_v_per_a"),
+        bandwidth_hz=c("bpd_bandwidth_hz"),
+        nep_w_per_rthz=c("bpd_nep_w_per_rthz"),
+        saturation_w=c("bpd_cw_saturation_w"))
+
+
+def _read_instrument(choice, reading, result, calibration):
+    """Run the chosen instrument against a probed beam."""
+    beam = reading.beam
+    seed_offset = result.chain.seed_offset_hz
+    # Only the seed path has a "wanted" line; asking the pump about one would
+    # report zero and mean nothing.
+    wanted = seed_offset if reading.link.beam in ("seed", "probe") else None
+
+    if choice == "Power meter":
+        return instruments.PowerMeter(wanted_offset_hz=wanted).measure(beam)
+    if choice == "Beam profiler":
+        return instruments.BeamProfiler().measure(beam)
+    if choice == "Wavemeter":
+        return instruments.Wavemeter(wanted_offset_hz=wanted).measure(beam)
+
+    detector = _detector_from_calibration(calibration)
+    if choice == "Photodiode":
+        return detector.measure(beam)
+
+    signal = detector.convert(beam)
+    if choice == "Oscilloscope":
+        return _scope_reading(signal, result)
+    if choice == "Spectrum analyser":
+        readout = result.readout
+        total = readout.total_power_w if readout else beam.total_power_w
+        return instruments.SpectrumAnalyzer().analyze(
+            signal, result.squeezing_db or 0.0, total_power_w=total)
+    raise KeyError(choice)
+
+
+def _scope_reading(signal, result):
+    """Scan mode by default: it is what a scope shows here, and it is computed."""
+    mode = st.session_state.get(_key("scope_mode"), "Scan")
+    if mode == "Scan" and result.raw is not None:
+        axis = np.asarray(result.raw["probe_axis_GHz"])
+        gain = np.asarray(result.raw["G_s"])
+        power = gain * result.chain.seed_power_w
+        return instruments.Oscilloscope().scan(
+            signal, axis, power, x_label="Probe frequency", x_unit="GHz")
+    return instruments.Oscilloscope().timeseries(signal)
+
+
+def _render_reading(reading):
+    """Quantities, warnings, trace -- and the provenance badge if synthesised."""
+    if reading.synthesised:
+        st.markdown(
+            "<div class='sabes-synth'>SYNTHESISED — built from the modelled "
+            "noise budget, not simulated. It reproduces the shape, and is not "
+            "evidence.</div>", unsafe_allow_html=True)
+    if reading.note and not reading.synthesised:
+        st.caption(reading.note)
+
+    st.markdown(_markdown_table(
+        ("Quantity", "Value"),
+        [(q.label, q.formatted()) for q in reading.quantities]))
+    for warning in reading.warnings:
+        st.warning(warning, icon="⚠️")
+    if reading.trace is not None:
+        _render_trace(reading.trace)
+
+
+def _render_trace(trace):
+    import matplotlib.pyplot as plt
+
+    from gabes.plot_style import apply_gabes_plot_style
+
+    with _PLOT_LOCK:
+        figure, axis = plt.subplots(figsize=(7.2, 3.0))
+        for name, values in trace.series.items():
+            if trace.kind == "stem":
+                axis.vlines(trace.x, 0 if min(values) >= 0 else min(values),
+                            values, linewidth=2.0)
+                axis.plot(trace.x, values, "o", markersize=4, label=name)
+            else:
+                axis.plot(trace.x, values, linewidth=1.4, label=name)
+        axis.set_xlabel(_axis_label(trace.x_label, trace.x_unit))
+        axis.set_ylabel(_axis_label(trace.y_label, trace.y_unit))
+        if len(trace.series) > 1:
+            axis.legend(fontsize=8, loc="best")
+        axis.grid(alpha=0.3)
+        apply_gabes_plot_style(figure)
+        st.pyplot(figure)
+        plt.close(figure)
+
+
+def _axis_label(label, unit):
+    """Matplotlib strings stay ASCII -- the mathtext layout lock in the GABES
+    app is there because unicode in axis labels has crashed layout before."""
+    text = f"{label} [{unit}]" if unit else label
+    return text.replace("µ", "u").replace("√", "sqrt").replace("²", "^2")
+
+
 def _render_probe_panel(reading):
     if reading is None:
         st.caption("No beam there. Click a beam to probe it, or an optic to "
@@ -447,7 +564,7 @@ def _render_probe_panel(reading):
     st.markdown(_markdown_table(("Quantity", "Value"), rows))
 
 
-def _render_table_tab(result, host):
+def _render_table_tab(result, calibration, host):
     settings, detection = _current()
     twin = _twin_states(result)
     selected = st.session_state.get(_key("selected"))
@@ -493,12 +610,28 @@ def _render_table_tab(result, host):
             st.caption("Click a highlighted optic. Greyed hardware is drawn "
                        "for orientation but owns no parameter.")
     with right:
-        st.markdown("###### Probe")
-        reading = None
+        st.markdown("###### Instrument")
+        choice = st.selectbox(
+            "Instrument", INSTRUMENTS, key=_key("instrument"),
+            label_visibility="collapsed",
+            help="Click anywhere on the table to put its head there. The "
+                 "oscilloscope and the spectrum analyser read through a "
+                 "photodiode, as they do on the bench.")
+        if choice == "Oscilloscope":
+            st.radio("Mode", ("Scan", "Time series"), key=_key("scope_mode"),
+                     horizontal=True, label_visibility="collapsed",
+                     help="Scan is a swept-laser trace and is computed. Time "
+                          "series is sampled from the modelled noise PSD.")
+        probed = None
         if probe:
-            reading = layout.beam_at(part, probe[0], probe[1], result.chain,
-                                     twin_states=twin)
-        _render_probe_panel(reading)
+            probed = layout.beam_at(part, probe[0], probe[1], result.chain,
+                                    twin_states=twin)
+        _render_probe_panel(probed)
+
+    if probed is not None:
+        st.divider()
+        st.markdown(f"###### {choice} on the {probed.link.beam} beam")
+        _render_reading(_read_instrument(choice, probed, result, calibration))
 
 
 def _markdown_table(header, rows):
@@ -661,7 +794,7 @@ def render(host=None):
                     "Power budget", "Detection", "Calibration"])
 
     with tabs[0]:
-        _render_table_tab(result, host)
+        _render_table_tab(result, calibration, host)
 
     with tabs[1]:
         observables = _cached_observables(
@@ -756,6 +889,9 @@ def _inject_css():
         .sabes-key i { width: 18px; height: 4px; border-radius: 2px;
             display: inline-block; }
         .sabes-key--note { color: #94A3B8; font-style: italic; }
+        .sabes-synth { border-left: 3px solid #B45309;
+            background: #FEF3C7; color: #78350F; padding: .45rem .7rem;
+            border-radius: 4px; font-size: .78rem; margin-bottom: .6rem; }
         </style>
         """,
         unsafe_allow_html=True,
