@@ -31,10 +31,11 @@ from gabes import constants
 
 from .beamstate import BeamState, monochromatic
 from .calibration import default_calibration
-from .devices import (EtalonFilter, FiberCollimator, FiberCoupling,
+from .layout.parts import CELL_TO_DMIRROR_M
+from .devices import (EtalonFilter, FiberCollimator, FiberCoupling, FreeSpace,
                       HalfWavePlate, LossElement, PhaseModulator, Polarizer,
                       PolarizingBeamSplitter, QuarterWavePlate,
-                      TaperedAmplifier, Telescope, WaistRescale)
+                      TaperedAmplifier, ThinLens, WaistRescale)
 
 WAVELENGTH_M = constants.WAVELENGTH_D1_85RB
 NU_HF_HZ = constants.NU_GROUND_HF
@@ -115,12 +116,7 @@ class SetupSettings:
         primary variable and the angle is derived.
         """
         return math.degrees(math.atan(
-            self.dmirror_separation_mm * 1e-3 / _DMIRROR_DISTANCE_PLACEHOLDER))
-
-
-# Filled from the calibration when a chain is built; the property above needs a
-# module-level fallback so `SetupSettings` stays independent of a calibration.
-_DMIRROR_DISTANCE_PLACEHOLDER = 0.5842
+            self.dmirror_separation_mm * 1e-3 / CELL_TO_DMIRROR_M))
 
 
 @dataclass(frozen=True)
@@ -192,6 +188,23 @@ class SourceChain:
             for s in self.stages if path is None or s.path in ("common", path))
 
 
+def _telescope_recorded(beam, f1_m, f2_m, record, path):
+    """Afocal pair, but recording the state between the lenses.
+
+    `Telescope.apply` collapses the whole thing into one step, which is fine for
+    a power budget and wrong for a table view: a probe dropped between L1 and L2
+    would otherwise be handed the state from *after* the telescope. Recording the
+    intermediate makes the layout's labels true. The optics are identical, so the
+    delivered waist is unchanged.
+    """
+    stage = FreeSpace(f1_m).apply(beam)
+    stage = ThinLens(f1_m).apply(stage)
+    record(path, "telescope L1", stage)
+    stage = FreeSpace(f1_m + f2_m).apply(stage)
+    stage = ThinLens(f2_m).apply(stage)
+    return FreeSpace(f2_m).apply(stage)
+
+
 def _etalon(calibration, seed_offset_hz, detune_ghz):
     """One filter stage, tuned so the wanted sideband sits on the passband."""
     return EtalonFilter(
@@ -248,8 +261,10 @@ def build_source_chain(settings=None, calibration=None):
     record("pump", "delivery fiber", pump)
 
     pump = FiberCollimator(c("pump_collimator_diameter_mm") * 1e-3).apply(pump)
-    pump = Telescope(settings.pump_telescope_f1_mm * 1e-3,
-                     settings.pump_telescope_f2_mm * 1e-3).apply(pump)
+    record("pump", "collimator", pump)
+    pump = _telescope_recorded(pump, settings.pump_telescope_f1_mm * 1e-3,
+                               settings.pump_telescope_f2_mm * 1e-3,
+                               record, "pump")
     pump = WaistRescale(c("waist_scale_factor")).apply(pump)
     record("pump", "collimator + telescope", pump)
 
@@ -296,8 +311,10 @@ def build_source_chain(settings=None, calibration=None):
 
     seed = QuarterWavePlate(settings.seed_trim_qwp_deg).apply(seed)
     seed = HalfWavePlate(settings.seed_trim_hwp_deg).apply(seed)
-    seed = Telescope(settings.seed_telescope_f1_mm * 1e-3,
-                     settings.seed_telescope_f2_mm * 1e-3).apply(seed)
+    record("seed", "collimator", seed)
+    seed = _telescope_recorded(seed, settings.seed_telescope_f1_mm * 1e-3,
+                               settings.seed_telescope_f2_mm * 1e-3,
+                               record, "seed")
     seed = WaistRescale(c("waist_scale_factor")).apply(seed)
     seed = Polarizer(settings.seed_gtp_deg).apply(seed)
     record("seed", "trim + telescope", seed)

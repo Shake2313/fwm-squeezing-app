@@ -163,7 +163,7 @@ def solve_key(params, scheme=None):
 
 
 def run(settings=None, calibration=None, detection=None, *,
-        solve=True, scheme=None, **param_overrides):
+        layout=None, solve=True, scheme=None, **param_overrides):
     """Full pipeline: source chain -> geometry -> GABES solve -> detector readout.
 
     `solve=False` stops after the parameter dict, which is the cheap path the UI
@@ -176,7 +176,8 @@ def run(settings=None, calibration=None, detection=None, *,
     scheme = scheme or fwm.FWMScheme()
 
     chain = build_source_chain(settings, calibration)
-    geom = detection_module.geometry(chain, settings, detection, calibration)
+    geom = detection_module.geometry(chain, settings, detection, calibration,
+                                     layout=layout)
     params = to_gabes_params(chain, settings, geom, **param_overrides)
 
     if not solve:

@@ -25,6 +25,7 @@ from typing import Tuple
 import math
 
 from .calibration import default_calibration
+from .layout import parts as layout_parts
 
 ELEMENTARY_CHARGE = 1.602176634e-19
 
@@ -79,10 +80,13 @@ class DetectionGeometry:
     def separation_margin(self):
         """Pump-to-twin centre separation in twin beam radii.
 
-        In the far field this tends to `theta * pi * w0 / lambda`, i.e. the
-        crossing angle divided by the divergence angle -- independent of how far
-        away the mirrors are. Moving the D-shaped mirrors back therefore does not
-        help; only a larger waist or a larger angle does.
+        It rises with distance and saturates at `theta * pi * w0 / lambda`, the
+        crossing angle divided by the divergence angle. Near the cell separation
+        outruns the beam's growth; far away the two grow together and the ratio
+        locks onto that ceiling. So moving the D-shaped mirrors back buys a
+        bounded amount -- at the actual 23 inch the margin is already ~82 % of
+        the ceiling -- and raising the ceiling itself needs a larger waist or a
+        larger angle.
         """
         return self.pump_separation_m / self.twin_radius_at_iris_m
 
@@ -134,13 +138,19 @@ def _propagate(mode, distance_m):
     return mode.propagated(distance_m)
 
 
-def geometry(chain, settings, detection=None, calibration=None):
-    """Beam sizes, separation, iris clipping and the loss GABES should solve with."""
+def geometry(chain, settings, detection=None, calibration=None, layout=None):
+    """Beam sizes, separation, iris clipping and the loss GABES should solve with.
+
+    Distances come from `layout`, not from calibration coefficients: the
+    table geometry and the physics are then the same edit, and each segment
+    carries its own provenance instead of hiding behind a single number.
+    """
     detection = detection or DetectionSettings()
     calibration = calibration or default_calibration()
+    layout = layout or layout_parts.PART2
     c = calibration.value
 
-    distance = c("cell_to_dmirror_m")
+    distance = layout_parts.cell_to_dmirror_m(layout)
     angle_rad = math.radians(settings.crossing_angle_deg)
     iris_radius = detection.iris_radius_mm * 1e-3
 
@@ -158,7 +168,7 @@ def geometry(chain, settings, detection=None, calibration=None):
     twin_transmission = twin_at_iris.clipping_transmission(iris_radius)
     pump_leak = pump_at_iris.clipping_transmission(iris_radius, pump_separation)
 
-    lens_distance = c("pd_lens_distance_m")
+    lens_distance = layout_parts.cell_to_lens_m(layout)
     arms = []
     for name, focal_mm in (("probe", detection.probe_lens_focal_mm),
                            ("conjugate", detection.conjugate_lens_focal_mm)):

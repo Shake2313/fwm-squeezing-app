@@ -139,6 +139,70 @@
       "title": "Full time-domain superheterodyne / lock-in demodulation chain",
       "why": "GROUP C. Heavy / needs design alignment. Static IF/slope proxies are safe, but a real detector/lock-in/superheterodyne chain introduces separate time-domain signal processing and noise assumptions. Ask the user for the desired readout model before coding.",
       "status": "deferred"
+    },
+    {
+      "id": "sabes-layout-model",
+      "area": "sabes/layout/ (new) + sabes/beamline.py",
+      "title": "Position-aware layout model that drives the physics",
+      "why": "GROUP B. DONE. sabes/layout/ holds two coordinate systems that never mix: `display` (Node.x/y/angle, Link.via) draws the table, `path_m` does the physics, and neither is derived from the other. A test pins that separation by showing the metres-per-display-unit ratio spans more than an order of magnitude across links -- a schematic has no single scale, which is precisely why reading distances off the drawing would have been wrong. Detection now asks the layout for cell->D-mirror and cell->lens instead of carrying `cell_to_dmirror_m` and `pd_lens_distance_m` as coefficients (both removed), and the crossing angle derives from the same measured 23 inch. beam_at(layout, x, y, chain) returns the beam at a point with its mode propagated TO that point, which is what makes a beam profiler on a long arm mean anything; it is the single input every virtual instrument will take. Two bugs were caught building it: stages were keyed by name alone, so the pump and seed arms -- both of which have a stage called 'at cell' -- collided and a probe on the pump reported the seed's power; and `Telescope.apply` collapsed the pair into one step, so a probe between L1 and L2 was handed the state from after the telescope (the beamline now records the intermediate). Results are unchanged, and the bridge in fact now reproduces a hand-driven GABES run to exactly zero at both Fast and Ultra. Still nominal, and worth measuring: D-mirror->iris (100 mm) and iris->lens (216 mm), which together set the photodiode spot.",
+      "priority": "P1",
+      "status": "done"
+    },
+    {
+      "id": "sabes-beamline-order-corrections",
+      "area": "sabes/beamline.py",
+      "title": "Reconcile the seed path with the part 1 setup drawing",
+      "why": "DONE, as part of sabes-layout-model. The part 1 drawing's Glan-Taylor after the etalon chain, the half-wave plate between etalons 1 and 2, and the distinct collimators (F230 pump, F220 seed) are all in the layout, along with the elements the physics still does not model but the table has: optical isolators, the MOPA's cylindrical lens, the seed-path noise eater, and the Rb-natural locking arm. Those are drawn and inert -- `Node.clickable` is true exactly when the physics owns a parameter, so 'clickable' and 'modelled' cannot drift apart. A test asserts every SetupSettings and DetectionSettings knob is owned by some optic, which is what Stage D needs in order to empty the sidebar without orphaning anything.",
+      "priority": "P2",
+      "status": "done"
+    },
+    {
+      "id": "sabes-canvas-component-spike",
+      "area": "sabes/components/ (new)",
+      "title": "Bidirectional Streamlit canvas component: click -> Python",
+      "why": "GROUP B. DONE, and the fallback is not needed. A hand-written bidirectional component works: sabes/components/canvas.py declares the component over a static frontend/index.html that implements the postMessage protocol (streamlit:componentReady / setFrameHeight / setComponentValue) in vanilla JS, with no npm, no lockfile and no build step -- it ships as package data. Verified against the running app at ?app=sabes&dev=canvas: the component loads and sizes its own frame; clicking an optic returns its id; clicking empty table returns a coordinate in SPEC units, checked at three different render scales including 0.42x, where a naive screen-pixel reading would have been wrong by more than a factor of two; and a repeat click on the same optic still re-fires, because Streamlit reruns only when a component value CHANGES and every event therefore carries a monotonic seq. One real bug was caught and fixed on the way: exporting the drawing function as `canvas` from the package __init__ shadowed the submodule of the same name, so it is now `svg_canvas`. Remaining before Stage C: confirm on Streamlit Community Cloud, since proving it on a laptop was never the point. Delete sabes/components/spike.py and its ?dev=canvas route once the table view lands.",
+      "priority": "P1",
+      "status": "done"
+    },
+    {
+      "id": "sabes-optical-table-view",
+      "area": "sabes_page.py + sabes/layout/",
+      "title": "Optical-table view reproducing the two setup drawings",
+      "why": "GROUP B. Needs sabes-layout-model and sabes-canvas-component-spike. Two tabs matching references/IDS setup part 1.png and part 2.png. Every optic is drawn, including ones the physics does not model (isolators, steering mirrors, beam blocks), but only modelled optics are interactive -- so 'clickable' and 'in the physics' mean the same thing. Beam thickness CANNOT be to scale (530 um on a 1 m table is 0.05 percent of the width): it is a deliberate log-scaled visual encoding, and the legend has to say so. Path colours follow the drawings' own convention: orange pump, red dashed seed, blue conjugate.",
+      "priority": "P2",
+      "status": "deferred"
+    },
+    {
+      "id": "sabes-optic-popup-editors",
+      "area": "sabes_page.py",
+      "title": "Click an optic to edit its parameters in a dialog",
+      "why": "GROUP B. Needs sabes-optical-table-view. This -- not the drawing -- is what actually fixes the parameter-count problem: 23 sidebar controls in 7 groups migrate into per-optic popups, leaving roughly five global controls (fidelity, Solve knobs, Reset, instrument selector, part tabs). st.dialog is native in the pinned Streamlit, so the work is hit-testing and migration, not the modal. Side benefit: per-etalon detuning becomes possible -- the model already accepts a 3-tuple and only the UI was collapsing it, while in the lab each stage has its own knob and temperature.",
+      "priority": "P2",
+      "status": "deferred"
+    },
+    {
+      "id": "sabes-virtual-instruments",
+      "area": "sabes/instruments/ (new)",
+      "title": "Virtual lab instruments driven by the real model",
+      "why": "GROUP B. Needs sabes-layout-model for beam_at(); needs the table view only for placement. Kept free of layout and UI dependencies so the package is reusable: input is a BeamState or a photocurrent signal, output is a Reading. Power meter, beam profiler, wavemeter and photodiode take an optical head placed on the table; the oscilloscope and spectrum analyser take a photodiode as their head, as in the lab. Priority is the spectrum analyser (it is the instrument that measures squeezing, so it reproduces the paper's Fig. 3/4) and the wavemeter (dropped either side of the etalon chain it shows the filtering in one picture). Suggested first demo: a photodiode plus oscilloscope on the part 1 Rb-natural reference arm, showing the SAS trace the ECDL is locked to -- GABES already has an SAS scheme, so the physics is free.",
+      "priority": "P2",
+      "status": "deferred"
+    },
+    {
+      "id": "sabes-instrument-trace-honesty",
+      "area": "sabes/instruments/oscilloscope.py + spectrum_analyzer.py",
+      "title": "Label synthesised instrument traces as synthesised",
+      "why": "Cheap, and load-bearing for trust. The model is steady-state: there is no stochastic time evolution and no quantum Langevin noise (see fwm-quantum-langevin-noise). The oscilloscope's scan mode is a swept-laser trace, which is genuinely what a scope shows here and carries no extra assumptions -- that is the default. Its time-series mode samples from the modelled noise PSD, and the spectrum analyser is constructed from the noise budget (shot noise, squeezed level, electronic floor) rather than simulated. Both re-express what is already known instead of deriving anything new, and both must carry that label ON SCREEN: a plot that looks like instrument output invites being read as evidence.",
+      "priority": "P1",
+      "status": "deferred"
+    },
+    {
+      "id": "sabes-calibration-measurements",
+      "area": "sabes/calibration_sim2025.json",
+      "title": "Replace the placeholder coefficients with measurements",
+      "why": "Blocked on lab data rather than on code. 25 of 42 coefficients are unverified (nominal or lab), so results that depend on them are predicted, not reproduced. The three that matter most: (1) the EOM V_pi -- currently back-solved jointly with a 5.3 dB insertion loss to reproduce the reported ~10 percent minus-first-order efficiency, so the two coefficients are entangled and one sideband-ratio-versus-RF-power sweep frees both; (2) the tapered-amplifier P-I curve, which fixes threshold/slope/saturation from one measurement at known seed power; (3) the detector NEP -- the 3.3 pW/rtHz figure is the PDB450A spec with its STOCK photodiode, and this unit has S3883 diodes fitted, which changes junction capacitance and therefore the amplifier noise gain. Every clearance number currently rests on that stock figure. A measured etalon transmission scan would additionally replace the etalon_leak floor, which is presently fitted to a single published number.",
+      "priority": "P2",
+      "status": "deferred"
     }
   ]
 }

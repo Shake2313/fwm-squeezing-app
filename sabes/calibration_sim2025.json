@@ -29,12 +29,6 @@
     "provenance": "paper",
     "note": "Rb vapour cell length."
   },
-  "cell_to_dmirror_m": {
-    "value": 0.5842,
-    "unit": "m",
-    "provenance": "lab",
-    "note": "23 inch from the cell to the D-shaped mirrors. The crossing angle is set in practice by overlapping at the cell and separating by a stated number of mm here."
-  },
   "etalon_fsr_hz": {
     "value": 17000000000.0,
     "unit": "Hz",
@@ -136,12 +130,6 @@
     "unit": "mm",
     "provenance": "datasheet",
     "note": "Hamamatsu S3883 photosensitive diameter, 1.7 mm^2. The stock PDB450A diode is 0.8 mm."
-  },
-  "pd_lens_distance_m": {
-    "value": 0.9,
-    "unit": "m",
-    "provenance": "nominal",
-    "note": "Cell to focusing-lens path length, following the beams through the D-shaped mirrors, irises, flip mirrors and prisms in the setup drawing. Placeholder: it sets the beam size at the lens and hence the focal spot, so a tape-measure value would be worth having."
   },
   "pd_max_power_density_w_per_cm2": {
     "value": 4.0,

@@ -25,6 +25,7 @@ from sabes import bridge, detection  # noqa: E402
 from sabes.beamline import SetupSettings, build_source_chain  # noqa: E402
 from sabes.calibration import default_calibration  # noqa: E402
 from sabes.detection import DetectionSettings  # noqa: E402
+from sabes.layout import parts as layout_parts  # noqa: E402
 
 
 def _reference_overrides():
@@ -135,12 +136,14 @@ def test_separation_margin_saturates_with_distance():
     """
     settings = SetupSettings()
     chain = build_source_chain(settings)
-    cal = default_calibration()
     margins = []
     for distance in (0.2, 0.5842, 2.0, 8.0):
+        # Swept through the layout, not a coefficient: moving the mirrors is a
+        # change to the table, and that is now where distances live.
         geom = detection.geometry(
             chain, settings, DetectionSettings(),
-            cal.with_value("cell_to_dmirror_m", distance))
+            layout=layout_parts.with_detection_distances(
+                cell_to_dmirror=distance))
         margins.append(geom.separation_margin)
     assert margins == sorted(margins)                 # monotone increasing
     limit = (math.radians(settings.crossing_angle_deg)

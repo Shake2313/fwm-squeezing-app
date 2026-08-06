@@ -231,6 +231,10 @@ def _back_to_gabes():
     st.query_params.clear()
 
 
+def _leave_dev():
+    st.query_params.pop("dev", None)
+
+
 def _reset_defaults():
     for name, value in _defaults().items():
         st.session_state[_key(name)] = value
@@ -361,6 +365,16 @@ def render(host=None):
     """Entry point called by `streamlit_app.py`."""
     _set_browser_title("SABES — Specific Atomic Bloch Equation Solver")
     _inject_css()
+
+    # Development route for the canvas spike (Stage B of the optical-table
+    # plan). It rides the deployment so the component can be verified where it
+    # will actually run, but stays off the normal page. Remove with the spike.
+    if st.query_params.get("dev") == "canvas":
+        from sabes.components import spike
+        st.sidebar.button("← Back to SABES", on_click=_leave_dev,
+                          use_container_width=True)
+        spike.render()
+        return
     _seed_session_state()
     _render_sidebar(host)
 

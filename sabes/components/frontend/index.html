@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent;
+    font-family: "Source Sans Pro", -apple-system, system-ui, sans-serif; }
+  #stage { display: block; width: 100%; height: auto; }
+  .hit { cursor: pointer; }
+  .hit .body { transition: filter .12s ease, stroke-width .12s ease; }
+  .hit:hover .body { filter: brightness(1.06); stroke-width: 2.6; }
+  .hit.selected .body { stroke: #0F766E; stroke-width: 3; }
+  .label { font-size: 11px; fill: #334155; pointer-events: none;
+    user-select: none; text-anchor: middle; }
+  .beam { pointer-events: none; }
+  #empty { fill: transparent; cursor: crosshair; }
+  .probe { pointer-events: none; }
+</style>
+</head>
+<body>
+<svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<script>
+// ---------------------------------------------------------------------------
+// Streamlit component protocol, implemented by hand.
+//
+// The official helper library is an npm package; the protocol underneath it is
+// three postMessage shapes, so a build step buys nothing here. Doing it this way
+// keeps the component a plain static folder that ships as package data and
+// deploys with no toolchain.
+// ---------------------------------------------------------------------------
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+function send(type, extra) {
+  window.parent.postMessage(
+    Object.assign({isStreamlitMessage: true, type: type}, extra || {}), "*");
+}
+
+function setValue(value) {
+  send("streamlit:setComponentValue", {value: value, dataType: "json"});
+}
+
+function setHeight(height) {
+  send("streamlit:setFrameHeight", {height: height});
+}
+
+// Streamlit only reruns when the component's value CHANGES. Two identical
+// clicks on the same optic would otherwise be swallowed, which reads as a
+// broken UI, so every event carries a monotonic sequence number.
+let seq = 0;
+let selected = null;
+
+function emit(payload) {
+  seq += 1;
+  payload.seq = seq;
+  setValue(payload);
+}
+
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
+function el(name, attrs) {
+  const node = document.createElementNS(SVG_NS, name);
+  for (const key in attrs) {
+    if (attrs[key] !== null && attrs[key] !== undefined) {
+      node.setAttribute(key, attrs[key]);
+    }
+  }
+  return node;
+}
+
+function drawShape(shape) {
+  const kind = shape.kind || "rect";
+  let body;
+  if (kind === "rect") {
+    body = el("rect", {
+      x: shape.x - (shape.w || 0) / 2, y: shape.y - (shape.h || 0) / 2,
+      width: shape.w, height: shape.h, rx: shape.rx || 2,
+      fill: shape.fill || "#E2E8F0", stroke: shape.stroke || "#1F4E79",
+      "stroke-width": shape.stroke_width || 1.6,
+    });
+    if (shape.angle) {
+      body.setAttribute("transform",
+        `rotate(${shape.angle} ${shape.x} ${shape.y})`);
+    }
+  } else if (kind === "circle") {
+    body = el("circle", {
+      cx: shape.x, cy: shape.y, r: shape.r || 6,
+      fill: shape.fill || "#E2E8F0", stroke: shape.stroke || "#1F4E79",
+      "stroke-width": shape.stroke_width || 1.6,
+    });
+  } else if (kind === "path") {
+    body = el("polyline", {
+      points: (shape.points || []).map(p => p.join(",")).join(" "),
+      fill: "none", stroke: shape.stroke || "#E8873A",
+      "stroke-width": shape.width || 3,
+      "stroke-linecap": "round", "stroke-linejoin": "round",
+      "stroke-dasharray": shape.dash || null,
+      opacity: shape.opacity === undefined ? 1 : shape.opacity,
+    });
+  } else {
+    return null;
+  }
+  body.setAttribute("class", "body");
+  return body;
+}
+
+function render(spec) {
+  const stage = document.getElementById("stage");
+  while (stage.firstChild) stage.removeChild(stage.firstChild);
+
+  const width = spec.width || 900;
+  const height = spec.height || 360;
+  stage.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  stage.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+  if (spec.background) {
+    stage.appendChild(el("rect", {
+      x: 0, y: 0, width: width, height: height,
+      fill: spec.background, rx: 6,
+    }));
+  }
+
+  // Full-area target underneath everything: a click that hits no optic is a
+  // point on the table, which is how instrument heads get placed.
+  const empty = el("rect", {id: "empty", x: 0, y: 0, width: width, height: height});
+  stage.appendChild(empty);
+
+  (spec.shapes || []).forEach(shape => {
+    const body = drawShape(shape);
+    if (!body) return;
+    if (!shape.clickable) {
+      body.setAttribute("class", "body beam");
+      stage.appendChild(body);
+      if (shape.label) stage.appendChild(labelFor(shape));
+      return;
+    }
+    const group = el("g", {class: "hit" + (shape.id === selected ? " selected" : "")});
+    group.appendChild(body);
+    if (shape.label) group.appendChild(labelFor(shape));
+    const title = el("title", {});
+    title.textContent = shape.title || shape.label || shape.id;
+    group.appendChild(title);
+    group.addEventListener("click", event => {
+      event.stopPropagation();
+      selected = shape.id;
+      render(lastSpec);
+      emit({kind: "optic", id: shape.id});
+    });
+    stage.appendChild(group);
+  });
+
+  if (spec.probe) {
+    const probe = el("g", {class: "probe"});
+    probe.appendChild(el("circle", {
+      cx: spec.probe[0], cy: spec.probe[1], r: 7,
+      fill: "none", stroke: "#0F766E", "stroke-width": 2,
+    }));
+    probe.appendChild(el("line", {
+      x1: spec.probe[0] - 11, y1: spec.probe[1],
+      x2: spec.probe[0] + 11, y2: spec.probe[1],
+      stroke: "#0F766E", "stroke-width": 1.4,
+    }));
+    probe.appendChild(el("line", {
+      x1: spec.probe[0], y1: spec.probe[1] - 11,
+      x2: spec.probe[0], y2: spec.probe[1] + 11,
+      stroke: "#0F766E", "stroke-width": 1.4,
+    }));
+    stage.appendChild(probe);
+  }
+
+  empty.addEventListener("click", event => {
+    const point = toSpecCoords(stage, event);
+    selected = null;
+    emit({kind: "point", x: point.x, y: point.y});
+  });
+
+  setHeight(Math.ceil(stage.getBoundingClientRect().height) + 4);
+}
+
+function labelFor(shape) {
+  const node = el("text", {
+    x: shape.x, y: shape.y + (shape.label_dy === undefined ? -10 : shape.label_dy),
+    class: "label",
+  });
+  node.textContent = shape.label;
+  return node;
+}
+
+// Screen pixels -> spec coordinates, so a click means the same thing no matter
+// how the browser scaled the SVG.
+function toSpecCoords(svg, event) {
+  const point = svg.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  const local = point.matrixTransform(svg.getScreenCTM().inverse());
+  return {x: Math.round(local.x * 100) / 100, y: Math.round(local.y * 100) / 100};
+}
+
+// ---------------------------------------------------------------------------
+// Wiring
+// ---------------------------------------------------------------------------
+let lastSpec = {};
+
+window.addEventListener("message", event => {
+  if (!event.data || event.data.type !== "streamlit:render") return;
+  const args = event.data.args || {};
+  lastSpec = args.spec || {};
+  if (args.selected !== undefined) selected = args.selected;
+  render(lastSpec);
+});
+
+window.addEventListener("resize", () => {
+  const stage = document.getElementById("stage");
+  if (stage.getBoundingClientRect().height) {
+    setHeight(Math.ceil(stage.getBoundingClientRect().height) + 4);
+  }
+});
+
+send("streamlit:componentReady", {apiVersion: 1});
+</script>
+</body>
+</html>
