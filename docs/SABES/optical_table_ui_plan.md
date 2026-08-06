@@ -251,7 +251,13 @@ coordinate **in spec units** (checked at three render scales including 0.42×,
 where reading screen pixels would have been wrong by more than 2×), and a repeat
 click on the same optic still re-fires thanks to a monotonic `seq` — Streamlit
 reruns only when a component value *changes*, so without it the second click
-would vanish. **Still outstanding: confirm on Streamlit Community Cloud.**
+would vanish.
+
+**Confirmed on Streamlit Community Cloud**, which was the actual point: all
+four checks pass on the deployed app. Deployment surfaced one thing local
+testing could not — Community Cloud wraps the app in a second same-origin
+iframe, so the browser-tab retitling reached only the wrapper and the real tab
+kept its old name. The title observer now targets `window.top`.
 
 **A: the layout drives the physics.** `sabes/layout/` holds the two coordinate
 systems, and `detection` now asks it for `cell → D-mirror` and `cell → lens`

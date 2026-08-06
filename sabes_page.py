@@ -319,11 +319,15 @@ def _set_browser_title(title):
 
     `st.set_page_config` can only run once per app and GABES already called it,
     so the tab would otherwise still say GABES on a page meant to read as a
-    separate site. A zero-height component reaching into its same-origin parent
-    fixes that -- but Streamlit re-asserts its configured title on every rerun,
-    so a one-shot assignment flips back on the next interaction. An observer
-    re-applies it, and disconnects itself the moment the URL stops being SABES so
-    it cannot follow the user back to GABES.
+    separate site. A zero-height component reaching out to the top document fixes
+    that -- but Streamlit re-asserts its configured title on every rerun, so a
+    one-shot assignment flips back on the next interaction. An observer re-applies
+    it, and disconnects itself the moment the URL stops being SABES so it cannot
+    follow the user back to GABES.
+
+    It targets `window.top`, not `window.parent`: Streamlit Community Cloud wraps
+    the app in a second same-origin iframe, so reaching only one level up retitles
+    a document nobody sees while the real browser tab keeps its old name.
     """
     import streamlit.components.v1 as components
     components.html(
@@ -331,20 +335,26 @@ def _set_browser_title(title):
         <script>
         (function () {
           var want = %s;
-          var doc;
-          try { doc = window.parent.document; } catch (e) { return; }
-          if (window.parent.__sabesTitleObserver) {
-            window.parent.__sabesTitleObserver.disconnect();
-          }
+          // Highest same-origin ancestor: the real tab locally, and the tab
+          // rather than the Community Cloud wrapper when deployed.
+          var host = window.parent, doc = null;
+          try {
+            window.top.document.title;
+            host = window.top;
+          } catch (e) { host = window.parent; }
+          try { doc = host.document; } catch (e) { return; }
+
+          if (host.__sabesTitleObserver) { host.__sabesTitleObserver.disconnect(); }
           function inSabes() {
-            try {
-              return window.parent.location.search.indexOf('app=sabes') !== -1;
-            } catch (e) { return false; }
+            try { return host.location.search.indexOf('app=sabes') !== -1; }
+            catch (e) { return false; }
           }
           function apply() {
             if (!inSabes()) {
-              window.parent.__sabesTitleObserver.disconnect();
-              window.parent.__sabesTitleObserver = null;
+              if (host.__sabesTitleObserver) {
+                host.__sabesTitleObserver.disconnect();
+                host.__sabesTitleObserver = null;
+              }
               return;
             }
             if (doc.title !== want) { doc.title = want; }
@@ -352,7 +362,7 @@ def _set_browser_title(title):
           var head = doc.querySelector('head');
           var obs = new MutationObserver(apply);
           obs.observe(head, {subtree: true, childList: true, characterData: true});
-          window.parent.__sabesTitleObserver = obs;
+          host.__sabesTitleObserver = obs;
           apply();
         })();
         </script>
