@@ -34,9 +34,8 @@ from gabes.schemes import fwm
 
 from sabes import bridge, detection as detection_model, instruments, layout
 from sabes.components import canvas as canvas_module
-from sabes.beamline import (SetupSettings, build_source_chain,
-                            solve_seed_polarizer_deg, solve_seed_trim_deg,
-                            solve_split_angle_deg)
+from sabes.beamline import (SetupSettings, solve_seed_polarizer_deg,
+                            solve_seed_trim_deg, solve_split_angle_deg)
 from sabes.calibration import default_calibration
 from sabes.detection import DetectionSettings
 
@@ -118,9 +117,14 @@ CONTROLS = {
                               "and separating by this much 23 inch "
                               "downstream, so this is the crossing-angle "
                               "knob."),
-    "iris_radius_mm": ("Radius", "mm", 0.2, 6.0, 0.05,
-                       "Spatial filter for pump rejection. Closing it past "
-                       "the twin beam turns straight into detection loss."),
+    "pump_leakage_dbm": ("Pump leakage", "dBm", -120.0, -10.0, 1.0,
+                         "OBSERVED pump power reaching the detector — measure "
+                         "it, do not derive it. A Gaussian tail claims 1e-9 "
+                         "rejection, which is useless and contradicted by the "
+                         "paper naming pump scatter as a real limit. It enters "
+                         "the spectrum analyser as its own shot noise plus the "
+                         "classical intensity noise it carries, and only the "
+                         "second is large."),
     "probe_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
                             "Focusing lens onto the probe photodiode."),
     "conjugate_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
@@ -136,6 +140,11 @@ CONTROLS = {
 #: each stage has its own knob and its own temperature.
 ETALON_KEYS = ("etalon_detune_ghz_1", "etalon_detune_ghz_2",
                "etalon_detune_ghz_3")
+
+#: Session keys holding per-optic transmission overrides carry this prefix. They
+#: are calibration coefficients rather than settings, so editing one flips its
+#: provenance to `hand` -- the honest record of a number somebody adjusted by eye.
+TRANSMISSION_PREFIX = SESSION_PREFIX + "t_"
 
 
 # ----------------------------------------------------------------------
@@ -216,7 +225,7 @@ def _current():
         dmirror_separation_mm=get("dmirror_separation_mm"),
     )
     detection = DetectionSettings(
-        iris_radius_mm=get("iris_radius_mm"),
+        pump_leakage_dbm=get("pump_leakage_dbm"),
         probe_lens_focal_mm=get("probe_lens_focal_mm"),
         conjugate_lens_focal_mm=get("conjugate_lens_focal_mm"),
         pd_defocus_mm=get("pd_defocus_mm"),
@@ -307,6 +316,25 @@ def _render_sidebar(host):
                 _render_control(st, name)
 
 
+def _session_calibration():
+    """The shipped calibration with any per-optic transmission edits applied."""
+    calibration = default_calibration()
+    for state_key, value in list(st.session_state.items()):
+        if not str(state_key).startswith(TRANSMISSION_PREFIX):
+            continue
+        name = str(state_key)[len(SESSION_PREFIX):]
+        if name in calibration:
+            calibration = calibration.with_value(name, value)
+    return calibration
+
+
+def _seed_transmission_state(calibration):
+    for coefficient in calibration:
+        if coefficient.name.startswith("t_"):
+            st.session_state.setdefault(SESSION_PREFIX + coefficient.name,
+                                        coefficient.value)
+
+
 def _owned_parameters():
     """Every parameter some optic on some layout claims."""
     return {name for part in layout.LAYOUTS
@@ -387,7 +415,7 @@ def _optic_dialog(part_key, node_id):
         st.warning("That optic is not on this part of the table.")
         return
 
-    st.markdown(f"### {node.label or node.id}")
+    st.markdown(f"### {node.display_label or node.id}")
     if node.note:
         st.caption(node.note)
 
@@ -395,10 +423,22 @@ def _optic_dialog(part_key, node_id):
     for name in editable:
         _render_control(st, name)
 
+    if node.transmission_key:
+        st.markdown("**Transmission**")
+        st.number_input(
+            "Per-pass transmission", min_value=0.0, max_value=1.0, step=0.001,
+            key=SESSION_PREFIX + node.transmission_key, format="%.4f",
+            help="Fraction of power this optic passes. Editing it marks the "
+                 "coefficient as hand-set, which is what it is until somebody "
+                 "measures it.")
+        if node.lumped:
+            st.caption("This optic is **lumped**: a transmission is the whole "
+                       "of what the model knows about it.")
+
     missing = [name for name in node.params if name not in CONTROLS]
     if missing:
         st.caption("Recorded but not modelled here: " + ", ".join(missing))
-    if not editable and not missing:
+    if not editable and not missing and not node.transmission_key:
         st.caption("This optic is in the physics but owns no adjustable "
                    "parameter.")
 
@@ -420,7 +460,7 @@ def _render_optic_panel(part, node_id, settings, detection):
     for index, name in enumerate(ETALON_KEYS):
         values[name] = settings.etalon_detune_ghz[index]
 
-    st.markdown(f"**{node.label or node.id}**")
+    st.markdown(f"**{node.display_label or node.id}**")
     if node.note:
         st.caption(node.note)
     rows = [(CONTROLS[name][0] if name in CONTROLS else name,
@@ -739,7 +779,8 @@ def render(host=None):
     _render_sidebar(host)
 
     settings, detection = _current()
-    calibration = default_calibration()
+    calibration = _session_calibration()
+    _seed_transmission_state(calibration)
     fidelity = st.session_state[_key("resolution")]
 
     # ---- Tier A: optics ----
@@ -823,13 +864,15 @@ def render(host=None):
         geom = result.geometry
         rows = [
             ("Twin radius at D-mirrors",
-             f"{geom.twin_radius_at_iris_m * 1e6:.0f} µm"),
+             f"{geom.twin_radius_at_dmirror_m * 1e6:.0f} µm"),
             ("Pump–twin separation",
              f"{geom.pump_separation_m * 1e3:.2f} mm"),
             ("Separation margin",
              f"{geom.separation_margin:.1f} twin radii"),
-            ("Iris transmission",
-             f"{geom.arms[0].iris_transmission * 100:.3f} %"),
+            ("Post-cell transmission",
+             f"{geom.optics_transmission * 100:.2f} %"),
+            ("Observed pump leakage",
+             f"{detection.pump_leakage_dbm:.0f} dBm"),
             ("Total power on the detector",
              f"{readout.total_power_w * 1e6:.1f} µW"),
             ("Margin above electronic noise",

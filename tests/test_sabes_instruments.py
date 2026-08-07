@@ -202,7 +202,7 @@ def test_the_analyser_stacks_the_three_levels_in_the_right_order(chain):
     reading = I.SpectrumAnalyzer().analyze(signal, -7.0, total_power_w=2e-3)
     snl = reading.quantity("Shot-noise level").value
     squeezed = reading.quantity("Squeezed level").value
-    floor = reading.quantity("Amplifier floor").value
+    floor = reading.quantity("Noise floor").value
     assert squeezed == pytest.approx(snl - 7.0, abs=1e-9)
     assert floor < squeezed < snl
     assert reading.provenance == I.SYNTHESISED
@@ -221,13 +221,13 @@ def test_the_analyser_clearance_follows_the_power_it_was_given(chain):
             - quiet.quantity("Clearance").value) == pytest.approx(10.0, abs=0.1)
 
 
-def test_the_amplifier_floor_eats_into_the_observable_squeezing(chain):
+def test_the_noise_floor_eats_into_the_observable_squeezing(chain):
     """What the measurement can show, not what the atoms produced."""
     signal = I.Photodiode().convert(chain.seed)
     reading = I.SpectrumAnalyzer().analyze(signal, -8.0, total_power_w=2e-4)
     observable = reading.quantity("Observable squeezing").value
     assert -8.0 < observable < 0.0
-    assert any("above the amplifier floor" in w for w in reading.warnings)
+    assert any("above the noise floor" in w for w in reading.warnings)
 
 
 def test_plenty_of_power_recovers_the_full_squeezing(chain):
@@ -258,7 +258,7 @@ def test_the_analyser_trace_carries_every_level_it_reports(chain):
     trace = I.SpectrumAnalyzer().analyze(signal, -7.0,
                                          total_power_w=2e-3).trace
     assert set(trace.series) == {"shot-noise level", "squeezed", "observed",
-                                 "amplifier floor"}
+                                 "noise floor"}
     assert trace.x_unit == "MHz" and trace.y_unit == "dBm"
 
 

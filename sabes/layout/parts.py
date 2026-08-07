@@ -43,9 +43,10 @@ def _decor(node_id, label, x, y, **kw):
     return Node(node_id, label, x, y, **kw)
 
 
-def _mirror(node_id, x, y, angle=45.0):
+def _mirror(node_id, x, y, angle=45.0, **kw):
+    """A steering mirror: it shapes the path and costs a little transmission."""
     return _decor(node_id, "", x, y, shape="rect", w=22, h=6, angle=angle,
-                  kind="mirror")
+                  kind="mirror", **kw)
 
 
 # ---------------------------------------------------------------------------
@@ -59,78 +60,113 @@ _PART1_NODES = (
            note="Detuning is set by locking to the reference arm, not by "
                 "predicting frequency from temperature / current / PZT."),
     _decor("oi_ecdl", "OI", 880, 140, shape="circle", w=22, h=22,
-           note="Optical isolator. Loss only; not modelled."),
-    _optic("hwp_lock", "HWP", 880, 186, w=8, h=24, modelled=False),
-    _optic("pbs_lock", "PBS", 806, 214, w=26, h=26, modelled=False),
-    _decor("lens_lock", "f=300", 806, 168, shape="circle", w=14, h=14),
+           note="Optical isolator. Loss only; not modelled.",
+           lumped=True),
+    _optic("hwp_lock", "HWP", 880, 186, w=8, h=24, modelled=False,
+           lumped=True),
+    _optic("pbs_lock", "PBS", 806, 214, w=26, h=26, modelled=False,
+           lumped=True),
+    _decor("lens_lock", "f=300", 806, 168, shape="circle", w=14, h=14,
+           lumped=True),
     _decor("rb_ref", "Rb natural", 560, 56, kind="cell", w=74, h=26,
            note="Saturated-absorption reference. The oscilloscope demo lives "
-                "here: this trace is what the detuning is actually set by."),
-    _decor("pbs_ref", "PBS", 450, 56, w=22, h=22),
-    _decor("pd_ref", "PD", 356, 56, kind="detector", w=24, h=34),
-    _mirror("m_lock", 806, 56, angle=-45),
+                "here: this trace is what the detuning is actually set by.",
+           lumped=True),
+    _decor("pbs_ref", "PBS", 450, 56, w=22, h=22,
+           lumped=True),
+    _decor("pd_ref", "PD", 356, 56, kind="detector", w=24, h=34,
+           lumped=True),
+    _mirror("m_lock", 806, 56, angle=-45,
+           lumped=True),
 
     # --- amplifier chain ---
-    _mirror("m_ecdl_1", 806, 260, angle=45),
+    _mirror("m_ecdl_1", 806, 260, angle=45,
+           lumped=True),
     _optic("hwp_mopa", "HWP", 742, 260, w=8, h=24, modelled=True,
            params=("hwp_ta_deg",)),
-    _mirror("m_ecdl_2", 690, 292, angle=-45),
+    _mirror("m_ecdl_2", 690, 292, angle=-45,
+           lumped=True),
     _decor("cl", "CL", 500, 330, shape="circle", w=12, h=18,
            note="Cylindrical lens shaping the amplifier input. It is what sets "
-                "the amplifier's output beam quality, i.e. ta_m2_out."),
+                "the amplifier's output beam quality, i.e. ta_m2_out.",
+           lumped=True),
     _optic("mopa", "MOPA", 620, 340, kind="source", w=110, h=54, modelled=True,
            params=("ta_current_a",)),
-    _mirror("m_mopa_out", 436, 330, angle=45),
-    _decor("oi_mopa", "OI", 350, 480, shape="circle", w=22, h=22),
+    _mirror("m_mopa_out", 436, 330, angle=45,
+           transmission_key="t_m_mopa_out", lumped=True),
+    _decor("oi_mopa", "OI", 350, 480, shape="circle", w=22, h=22,
+           transmission_key="t_oi_mopa", lumped=True),
     _optic("hwp_split", "HWP", 292, 480, w=8, h=24, modelled=True,
            params=("hwp_split_deg",),
-           note="The pump-power knob: it sets how the amplifier output divides."),
-    _mirror("m_split_1", 236, 480, angle=-45),
-    _mirror("m_split_2", 236, 424, angle=45),
+           note="The pump-power knob: it sets how the amplifier output divides.",
+           transmission_key="t_hwp_split"),
+    _mirror("m_split_1", 236, 480, angle=-45,
+           transmission_key="t_m_split_1", lumped=True),
+    _mirror("m_split_2", 236, 424, angle=45,
+           transmission_key="t_m_split_2", lumped=True),
     _optic("pbs_split", "PBS", 176, 424, w=26, h=26, modelled=False,
-           note="Pump transmits, seed reflects."),
+           note="Pump transmits, seed reflects.",
+           transmission_key="t_pbs_split", lumped=True),
 
     # --- pump arm out of part 1 ---
     _optic("f230_pump", "F230", 86, 424, kind="fiber", w=30, h=40,
-           modelled=False, note="Pump delivery collimator; continues in part 2."),
+           modelled=False, note="Pump delivery collimator; continues in part 2.",
+           transmission_key="t_f230_pump", lumped=True),
 
     # --- seed arm: attenuate, modulate, filter ---
     _optic("pol_seed", "Polarizer", 176, 350, w=26, h=8, modelled=True,
            params=("seed_polarizer_deg",),
            note="Holds the fiber EOM under its ~10 mW rating. The split alone "
-                "cannot satisfy both that and the pump power."),
+                "cannot satisfy both that and the pump power.",
+           transmission_key="t_pol_seed"),
     _decor("noise_eater", "Noise eater", 250, 306, w=62, h=24,
            note="Intensity-noise servo. Not modelled, but it acts on exactly "
-                "the noise a squeezing measurement cares about."),
-    _mirror("m_seed_1", 176, 258, angle=45),
+                "the noise a squeezing measurement cares about.",
+           transmission_key="t_noise_eater", lumped=True),
+    _mirror("m_seed_1", 176, 258, angle=45,
+           transmission_key="t_m_seed_1", lumped=True),
     _optic("hwp_eom", "HWP", 240, 258, w=8, h=24, modelled=True,
-           params=("hwp_eom_deg",)),
+           params=("hwp_eom_deg",),
+           transmission_key="t_hwp_eom"),
     _optic("f220_eom_in", "F220", 306, 258, kind="fiber", w=26, h=34,
-           modelled=False),
+           modelled=False,
+           transmission_key="t_f220_eom_in", lumped=True),
     _optic("eom", "fiber EOM", 306, 190, w=92, h=22, modelled=True,
            params=("eom_offset_mhz", "eom_rf_dbm"),
            note="EOSPACE LiNbO3 phase modulator. Its drive frequency IS the "
-                "two-photon detuning, exactly and with no calibration factor."),
+                "two-photon detuning, exactly and with no calibration factor.",
+           transmission_key="t_eom"),
     _optic("f220_eom_out", "F220", 400, 190, kind="fiber", w=26, h=34,
-           modelled=False),
+           modelled=False,
+           transmission_key="t_f220_eom_out", lumped=True),
     _optic("etalon_1", "Etalon 1", 470, 190, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_1",)),
-    _mirror("m_et_1", 560, 190, angle=45),
+           params=("etalon_detune_ghz_1",),
+           transmission_key="t_etalon_1"),
+    _mirror("m_et_1", 560, 190, angle=45,
+           transmission_key="t_m_et_1", lumped=True),
     _optic("hwp_etalon", "HWP", 560, 244, w=8, h=24, modelled=False,
-           note="Between etalon 1 and etalon 2 in the drawing."),
-    _mirror("m_et_2", 560, 292, angle=-45),
+           note="Between etalon 1 and etalon 2 in the drawing.",
+           transmission_key="t_hwp_etalon", lumped=True),
+    _mirror("m_et_2", 560, 292, angle=-45,
+           transmission_key="t_m_et_2", lumped=True),
     _optic("etalon_2", "Etalon 2", 484, 292, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_2",)),
+           params=("etalon_detune_ghz_2",),
+           transmission_key="t_etalon_2"),
     _optic("etalon_3", "Etalon 3", 402, 292, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_3",)),
+           params=("etalon_detune_ghz_3",),
+           transmission_key="t_etalon_3"),
     _optic("gt_seed", "GT", 330, 292, w=18, h=28, modelled=True,
            params=("seed_gtp_deg",),
            note="Glan-Taylor after the filter chain. Part 2 has further GTPs on "
-                "each arm; the model previously had only one."),
-    _mirror("m_seed_out", 262, 292, angle=45),
-    _mirror("m_seed_down", 262, 396, angle=-45),
+                "each arm; the model previously had only one.",
+           transmission_key="t_gt_seed"),
+    _mirror("m_seed_out", 262, 292, angle=45,
+           transmission_key="t_m_seed_out", lumped=True),
+    _mirror("m_seed_down", 262, 396, angle=-45,
+           transmission_key="t_m_seed_down", lumped=True),
     _optic("f220_seed", "F220", 86, 350, kind="fiber", w=30, h=40,
-           modelled=False, note="Seed delivery collimator; continues in part 2."),
+           modelled=False, note="Seed delivery collimator; continues in part 2.",
+           transmission_key="t_f220_seed", lumped=True),
 )
 
 _PART1_LINKS = (
@@ -197,59 +233,87 @@ _PART2_NODES = (
     # --- seed delivery (red in the drawing) ---
     _optic("col_seed", "5724 · 1.6 mm", 890, 60, kind="fiber", w=34, h=42,
            modelled=False, note="Seed collimator. Its diameter times the "
-                                "telescope magnification is the cell waist."),
+                                "telescope magnification is the cell waist.",
+           transmission_key="t_col_seed", lumped=True),
     _optic("qwp_seed", "QWP", 836, 60, w=8, h=24, modelled=True,
-           params=("seed_trim_qwp_deg",)),
+           params=("seed_trim_qwp_deg",),
+           transmission_key="t_qwp_seed"),
     _optic("hwp_seed", "HWP", 812, 60, w=8, h=24, modelled=True,
            params=("seed_trim_hwp_deg",),
-           note="With the Glan-Taylor, sets the seed power at the cell."),
+           note="With the Glan-Taylor, sets the seed power at the cell.",
+           transmission_key="t_hwp_seed"),
     _optic("seed_l1", "f=400", 720, 60, shape="circle", w=16, h=16,
-           modelled=True, params=("seed_telescope_f1_mm",)),
+           modelled=True, params=("seed_telescope_f1_mm",),
+           transmission_key="t_seed_l1"),
     _optic("seed_l2", "f=150", 330, 60, shape="circle", w=16, h=16,
-           modelled=True, params=("seed_telescope_f2_mm",)),
-    _mirror("m_seed_a", 250, 60, angle=45),
-    _optic("gtp_seed", "GTP", 250, 132, w=18, h=28, modelled=False),
+           modelled=True, params=("seed_telescope_f2_mm",),
+           transmission_key="t_seed_l2"),
+    _mirror("m_seed_a", 250, 60, angle=45,
+           transmission_key="t_m_seed_a", lumped=True),
+    _optic("gtp_seed", "GTP", 250, 132, w=18, h=28, modelled=False,
+           transmission_key="t_gtp_seed", lumped=True),
 
     # --- pump delivery (orange in the drawing) ---
     _optic("col_pump", "5725 · 2.0 mm", 890, 152, kind="fiber", w=34, h=42,
-           modelled=False),
-    _optic("qwp_pump", "QWP", 836, 152, w=8, h=24, modelled=False),
-    _optic("hwp_pump", "HWP", 812, 152, w=8, h=24, modelled=False),
+           modelled=False,
+           transmission_key="t_col_pump", lumped=True),
+    _optic("qwp_pump", "QWP", 836, 152, w=8, h=24, modelled=False,
+           transmission_key="t_qwp_pump", lumped=True),
+    _optic("hwp_pump", "HWP", 812, 152, w=8, h=24, modelled=False,
+           transmission_key="t_hwp_pump", lumped=True),
     _optic("pump_l1", "f=300", 720, 152, shape="circle", w=16, h=16,
-           modelled=True, params=("pump_telescope_f1_mm",)),
+           modelled=True, params=("pump_telescope_f1_mm",),
+           transmission_key="t_pump_l1"),
     _optic("pump_l2", "f=150", 400, 152, shape="circle", w=16, h=16,
-           modelled=True, params=("pump_telescope_f2_mm",)),
-    _mirror("m_pump_a", 330, 152, angle=45),
-    _optic("gtp_pump", "GTP", 330, 208, w=18, h=28, modelled=False),
+           modelled=True, params=("pump_telescope_f2_mm",),
+           transmission_key="t_pump_l2"),
+    _mirror("m_pump_a", 330, 152, angle=45,
+           transmission_key="t_m_pump_a", lumped=True),
+    _optic("gtp_pump", "GTP", 330, 208, w=18, h=28, modelled=False,
+           transmission_key="t_gtp_pump", lumped=True),
 
     # --- the cell ---
     _optic("pbs_in", "PBS", 250, 256, w=26, h=26, modelled=False,
-           note="Combines pump and seed at the crossing angle."),
+           note="Combines pump and seed at the crossing angle.",
+           transmission_key="t_pbs_in", lumped=True),
     _optic("cell", "Rb cell", 372, 256, kind="cell", w=76, h=32, modelled=True,
            params=("cell_temp_c", "opd_ghz"),
-           note="Where the four-wave mixing happens. 12.5 mm."),
+           note="Where the four-wave mixing happens. 12.5 mm.",
+           transmission_key="t_cell"),
     _optic("pbs_out", "PBS", 496, 256, w=26, h=26, modelled=True,
-           params=(), note="Polarization rejection of the pump, 3000:1."),
+           params=(), note="Polarization rejection of the pump, 3000:1.",
+           transmission_key="t_pbs_out", lumped=True),
     _decor("dump", "Beam block", 496, 322, w=54, h=22),
 
     # --- twin-beam separation and detection ---
     _optic("dm_probe", "D-mirror", 700, 214, w=24, h=8, angle=45,
            modelled=True, params=("dmirror_separation_mm",),
            note="Alignment is done by overlapping at the cell and separating "
-                "by a stated number of mm here, so this is the crossing angle."),
+                "by a stated number of mm here, so this is the crossing angle.",
+           transmission_key="t_dm_probe", lumped=True),
     _optic("dm_conj", "D-mirror", 700, 300, w=24, h=8, angle=-45,
-           modelled=True, params=("dmirror_separation_mm",)),
+           modelled=True, params=("dmirror_separation_mm",),
+           transmission_key="t_dm_conj", lumped=True),
     _optic("iris_probe", "Iris", 790, 214, shape="circle", w=16, h=16,
-           modelled=True, params=("iris_radius_mm",)),
+           modelled=False,
+           note="Opened past the twin beam. Pump rejection is not derived from "
+                "it -- see the detector's observed pump leakage.",
+           transmission_key="t_iris_probe", lumped=True),
     _optic("iris_conj", "Iris", 790, 300, shape="circle", w=16, h=16,
-           modelled=True, params=("iris_radius_mm",)),
+           modelled=False,
+           note="Opened past the twin beam. Pump rejection is not derived from "
+                "it -- see the detector's observed pump leakage.",
+           transmission_key="t_iris_conj", lumped=True),
     _optic("lens_probe", "f=75", 862, 214, shape="circle", w=14, h=14,
-           modelled=True, params=("probe_lens_focal_mm",)),
+           modelled=True, params=("probe_lens_focal_mm",),
+           transmission_key="t_lens_probe"),
     _optic("lens_conj", "f=100", 862, 300, shape="circle", w=14, h=14,
-           modelled=True, params=("conjugate_lens_focal_mm",)),
+           modelled=True, params=("conjugate_lens_focal_mm",),
+           transmission_key="t_lens_conj"),
     _optic("bpd", "Balanced detector", 920, 257, kind="detector", w=54, h=76,
-           modelled=True, params=("pd_defocus_mm",),
-           note="PDB450A with Hamamatsu S3883 photodiodes fitted."),
+           modelled=True, params=("pd_defocus_mm", "pump_leakage_dbm"),
+           note="PDB450A with Hamamatsu S3883 photodiodes fitted.",
+           transmission_key="t_bpd"),
 )
 
 _PART2_LINKS = (
@@ -330,6 +394,48 @@ def get(key) -> Layout:
 #: table change and a physics change are the same edit.
 ROUTE_TO_DMIRROR = ("cell", "pbs_out", "dm_probe")
 ROUTE_TO_LENS = ("cell", "pbs_out", "dm_probe", "iris_probe", "lens_probe")
+
+# --- transmission routes -----------------------------------------------------
+# The chain used to carry one lumped loss coefficient per arm. These routes
+# replace them with the product of the optics actually on the path, so "where
+# did the power go" has an answer per element. Routes span both layouts, which is
+# why they are looked up through `transmission_of` rather than a Layout method.
+ROUTE_TA_TO_SPLIT = ("m_mopa_out", "oi_mopa", "hwp_split", "m_split_1",
+                     "m_split_2")
+ROUTE_PUMP_TO_FIBER = ("pbs_split", "f230_pump")
+ROUTE_PUMP_DELIVERY = ("col_pump", "qwp_pump", "hwp_pump", "pump_l1", "pump_l2",
+                       "m_pump_a", "gtp_pump", "pbs_in", "cell")
+ROUTE_SEED_TO_EOM = ("pbs_split", "pol_seed", "noise_eater", "m_seed_1",
+                     "hwp_eom", "f220_eom_in")
+ROUTE_SEED_FILTERS = ("f220_eom_out", "m_et_1", "hwp_etalon", "m_et_2",
+                      "gt_seed", "m_seed_out", "m_seed_down", "f220_seed")
+ROUTE_SEED_DELIVERY = ("col_seed", "qwp_seed", "hwp_seed", "seed_l1", "seed_l2",
+                       "m_seed_a", "gtp_seed", "pbs_in", "cell")
+ROUTE_POST_CELL = ("pbs_out", "dm_probe", "iris_probe", "lens_probe", "bpd")
+
+
+def find_node(node_id):
+    """A node from whichever layout holds it. Routes cross the two drawings."""
+    for layout in LAYOUTS:
+        try:
+            return layout.node(node_id)
+        except KeyError:
+            continue
+    raise KeyError(f"no node {node_id!r} in any layout")
+
+
+def transmission_of(route, calibration):
+    """Product of the per-optic transmissions along a route.
+
+    A missing coefficient is an error rather than a silent 1.0: an optic that
+    nothing knows the throughput of should be visible, not free.
+    """
+    total = 1.0
+    for node_id in route:
+        key = find_node(node_id).transmission_key
+        if key:
+            total *= calibration.value(key)
+    return total
 
 
 def cell_to_dmirror_m(layout=None):

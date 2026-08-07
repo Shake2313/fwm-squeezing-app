@@ -31,6 +31,7 @@ from gabes import constants
 
 from .beamstate import BeamState, monochromatic
 from .calibration import default_calibration
+from .layout import parts as layout_parts
 from .layout.parts import CELL_TO_DMIRROR_M
 from .devices import (EtalonFilter, FiberCollimator, FiberCoupling, FreeSpace,
                       HalfWavePlate, LossElement, PhaseModulator, Polarizer,
@@ -60,14 +61,14 @@ class SetupSettings:
     # coefficient changes, this angle no longer hits 600 mW -- that is the point.
     # `nominal_settings()` re-solves all three power knobs against whatever
     # calibration is in force.
-    hwp_split_deg: float = 12.3106
+    hwp_split_deg: float = 8.1161
 
     # --- seed modulation ---
     # The fiber EOM stops modulating cleanly above ~10 mW, well below what the
     # split alone leaves in the seed arm once the pump is set. A linear polarizer
     # in front of the modulator is what actually holds the input inside its
     # rating, so its angle is a primary variable, not a fixed loss.
-    seed_polarizer_deg: float = 12.1500
+    seed_polarizer_deg: float = 19.1172
     hwp_eom_deg: float = 0.0
     eom_frequency_hz: float = NU_HF_HZ + 8.0e6
     eom_rf_dbm: float = 18.0
@@ -75,7 +76,7 @@ class SetupSettings:
 
     # --- seed power trim (QWP + HWP + GTP) ---
     seed_trim_qwp_deg: float = 0.0
-    seed_trim_hwp_deg: float = 38.6033
+    seed_trim_hwp_deg: float = 37.6353
     seed_gtp_deg: float = 0.0
 
     # --- beam shaping (lenses are swappable, so they are settings) ---
@@ -249,14 +250,16 @@ def build_source_chain(settings=None, calibration=None):
     beam = amplifier.apply(beam)
     record("common", "tapered amplifier", beam)
 
-    beam = LossElement(c("loss_ta_to_split")).apply(beam)
+    beam = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_TA_TO_SPLIT, calibration)).apply(beam)
     beam = HalfWavePlate(settings.hwp_split_deg).apply(beam)
     pump, seed = PolarizingBeamSplitter().split(beam)
     record("pump", "PBS transmitted", pump)
     record("seed", "PBS reflected", seed)
 
     # ---------------- pump path ----------------
-    pump = LossElement(c("loss_pump_path")).apply(pump)
+    pump = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_PUMP_TO_FIBER, calibration)).apply(pump)
     pump = FiberCoupling(c("pump_fiber_efficiency")).apply(pump)
     record("pump", "delivery fiber", pump)
 
@@ -268,13 +271,15 @@ def build_source_chain(settings=None, calibration=None):
     pump = WaistRescale(c("waist_scale_factor")).apply(pump)
     record("pump", "collimator + telescope", pump)
 
-    pump = LossElement(c("loss_cell_windows")).apply(pump)
+    pump = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_PUMP_DELIVERY, calibration)).apply(pump)
     record("pump", "at cell", pump)
 
     # ---------------- seed path ----------------
     seed_offset_hz = -settings.eom_frequency_hz
 
-    seed = LossElement(c("loss_seed_path")).apply(seed)
+    seed = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_SEED_TO_EOM, calibration)).apply(seed)
     seed = Polarizer(settings.seed_polarizer_deg).apply(seed)
     record("seed", "input polarizer", seed)
 
@@ -305,6 +310,8 @@ def build_source_chain(settings=None, calibration=None):
         seed = _etalon(calibration, seed_offset_hz, detunes[index]).apply(seed)
         record("seed", f"etalon {index + 1}", seed)
 
+    seed = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_SEED_FILTERS, calibration)).apply(seed)
     seed = FiberCoupling(c("seed_fiber_out_efficiency")).apply(seed)
     seed = FiberCollimator(c("seed_collimator_diameter_mm") * 1e-3).apply(seed)
     record("seed", "delivery fiber + collimator", seed)
@@ -319,7 +326,8 @@ def build_source_chain(settings=None, calibration=None):
     seed = Polarizer(settings.seed_gtp_deg).apply(seed)
     record("seed", "trim + telescope", seed)
 
-    seed = LossElement(c("loss_cell_windows")).apply(seed)
+    seed = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_SEED_DELIVERY, calibration)).apply(seed)
     record("seed", "at cell", seed)
 
     if seed.power_at(seed_offset_hz) <= 0.0:

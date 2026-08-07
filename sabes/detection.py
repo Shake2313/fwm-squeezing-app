@@ -4,10 +4,10 @@ photodiodes, and decide whether the measurement can see squeezing at all.
 
 Split in two on purpose.
 
-  `geometry()`  runs BEFORE the atomic solve. Beam sizes, crossing separation,
-                iris clipping and the resulting optical transmission depend only
-                on where the optics are, so they can produce the `loss_pct` that
-                GABES needs as a solve input.
+  `geometry()`  runs BEFORE the atomic solve. Beam sizes, crossing separation
+                and the post-cell transmission depend only on where the optics
+                are, so they can produce the `loss_pct` GABES needs as a solve
+                input.
   `readout()`   runs AFTER, because photodiode power density, amplifier
                 saturation and shot-noise clearance all need the parametric
                 gains that only the solve knows.
@@ -15,9 +15,14 @@ Split in two on purpose.
 That ordering is what keeps the pipeline acyclic.
 
 What this module adds over GABES: GABES takes a detection efficiency as a number.
-Here it is a consequence -- of how far the D-shaped mirrors are, how tight the
-iris is, which lens is in the mount, and how far the diode sits from focus. Three
-of those are things that can be wrong in a way GABES cannot express.
+Here it is a consequence -- of how far the D-shaped mirrors are, the per-optic
+transmissions along the way, which lens is in the mount, and how far the diode
+sits from focus. Every one of those can be wrong in a way GABES cannot express.
+
+Pump rejection is NOT derived. A Gaussian tail at five beam radii says 1e-9,
+which is an answer so good it is useless and one the paper contradicts by
+naming pump scatter as a real limit. `pump_leakage_dbm` is an observed number
+instead: measure it at the detector, and the spectrum analyser uses it.
 """
 from dataclasses import dataclass
 from typing import Tuple
@@ -43,8 +48,15 @@ CLEARANCE_WARN_DB = 15.0
 
 @dataclass(frozen=True)
 class DetectionSettings:
-    """Post-cell knobs. Every one of these is something adjustable on the table."""
-    iris_radius_mm: float = 1.5
+    """Post-cell knobs. Every one of these is something adjustable on the table.
+
+    The iris is deliberately absent. It is opened past the twin beams in
+    practice, and modelling pump rejection as a Gaussian tail claimed 1e-9
+    suppression -- an answer so good it was useless, and one the paper
+    contradicts. Pump leakage is now an OBSERVED quantity, `pump_leakage_dbm`,
+    measured at the detector and fed to the spectrum analyser.
+    """
+    pump_leakage_dbm: float = -60.0
     probe_lens_focal_mm: float = 75.0
     conjugate_lens_focal_mm: float = 100.0
     pd_defocus_mm: float = 0.0
@@ -56,9 +68,7 @@ class DetectionSettings:
 class ArmGeometry:
     """One twin-beam arm from the cell to its photodiode."""
     name: str
-    radius_at_iris_m: float
-    iris_transmission: float
-    pump_leak_fraction: float
+    radius_at_dmirror_m: float
     spot_radius_m: float
     lens_focal_m: float
 
@@ -69,8 +79,8 @@ class DetectionGeometry:
     arms: Tuple[ArmGeometry, ...]
     twin_separation_m: float
     pump_separation_m: float
-    pump_radius_at_iris_m: float
-    twin_radius_at_iris_m: float
+    pump_radius_at_dmirror_m: float
+    twin_radius_at_dmirror_m: float
     optics_transmission: float
     loss_pct: float
     qe_pct: float
@@ -88,7 +98,7 @@ class DetectionGeometry:
         the ceiling -- and raising the ceiling itself needs a larger waist or a
         larger angle.
         """
-        return self.pump_separation_m / self.twin_radius_at_iris_m
+        return self.pump_separation_m / self.twin_radius_at_dmirror_m
 
     @property
     def eta(self):
@@ -139,7 +149,7 @@ def _propagate(mode, distance_m):
 
 
 def geometry(chain, settings, detection=None, calibration=None, layout=None):
-    """Beam sizes, separation, iris clipping and the loss GABES should solve with.
+    """Beam sizes, separation, and the post-cell loss GABES should solve with.
 
     Distances come from `layout`, not from calibration coefficients: the
     table geometry and the physics are then the same edit, and each segment
@@ -152,21 +162,17 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
 
     distance = layout_parts.cell_to_dmirror_m(layout)
     angle_rad = math.radians(settings.crossing_angle_deg)
-    iris_radius = detection.iris_radius_mm * 1e-3
 
     # The conjugate is born in the cell; phase matching ties its transverse mode
     # to the probe's, so both twins are propagated as the seed mode.
     twin_mode = chain.seed.mode
     pump_mode = chain.pump.mode
 
-    twin_at_iris = _propagate(twin_mode, distance)
-    pump_at_iris = _propagate(pump_mode, distance)
+    twin_at_dmirror = _propagate(twin_mode, distance)
+    pump_at_dmirror = _propagate(pump_mode, distance)
 
     pump_separation = distance * math.tan(angle_rad)
     twin_separation = 2.0 * pump_separation
-
-    twin_transmission = twin_at_iris.clipping_transmission(iris_radius)
-    pump_leak = pump_at_iris.clipping_transmission(iris_radius, pump_separation)
 
     lens_distance = layout_parts.cell_to_lens_m(layout)
     arms = []
@@ -179,35 +185,33 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
         at_pd = focused.propagated(-focused.z_m + detection.pd_defocus_mm * 1e-3)
         arms.append(ArmGeometry(
             name=name,
-            radius_at_iris_m=twin_at_iris.radius_m,
-            iris_transmission=twin_transmission,
-            pump_leak_fraction=pump_leak,
+            radius_at_dmirror_m=twin_at_dmirror.radius_m,
             spot_radius_m=at_pd.radius_m,
             lens_focal_m=focal_m,
         ))
 
-    optics = c("loss_post_cell_optics")
-    transmission = optics * twin_transmission
+    # Per-optic transmissions along the post-cell route, times the residual that
+    # reconciles those nominal guesses with the one measured total.
+    transmission = (layout_parts.transmission_of(layout_parts.ROUTE_POST_CELL,
+                                                 calibration)
+                    * c("loss_post_cell_residual"))
     qe_pct = _quantum_efficiency_pct(calibration)
 
     warnings = []
-    margin = pump_separation / twin_at_iris.radius_m
+    margin = pump_separation / twin_at_dmirror.radius_m
     if margin < SEPARATION_MARGIN_WARN:
         warnings.append(
             f"pump sits {margin:.1f} twin radii away at the D-shaped mirrors; "
             f"below {SEPARATION_MARGIN_WARN:.0f} the beams are not cleanly "
-            f"resolved and iris rejection stops being trustworthy")
-    if twin_transmission < 0.98:
-        warnings.append(
-            f"iris clips {100 * (1 - twin_transmission):.1f} % of each twin, "
-            f"which is pure detection loss")
+            f"resolved, and the assumption that the pump is cleanly "
+            f"rejected stops holding")
 
     return DetectionGeometry(
         arms=tuple(arms),
         twin_separation_m=twin_separation,
         pump_separation_m=pump_separation,
-        pump_radius_at_iris_m=pump_at_iris.radius_m,
-        twin_radius_at_iris_m=twin_at_iris.radius_m,
+        pump_radius_at_dmirror_m=pump_at_dmirror.radius_m,
+        twin_radius_at_dmirror_m=twin_at_dmirror.radius_m,
         optics_transmission=transmission,
         loss_pct=100.0 * (1.0 - transmission),
         qe_pct=qe_pct,
@@ -243,15 +247,13 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
     warnings = []
     arms = []
     total = 0.0
-    pedestal = c("pump_scatter_pedestal")
+    # Pump leakage is measured at the detector, not derived: a Gaussian tail
+    # claims 1e-9 rejection, which the paper contradicts, and the part that
+    # actually matters is diffuse scatter no spatial filter removes.
+    leakage_w = 1e-3 * 10.0 ** (detection.pump_leakage_dbm / 10.0)
     for arm, gain in zip(geom.arms, gains):
         power = seed_w * float(gain) * geom.optics_transmission
-        # The Gaussian tail alone would say the pump is rejected to 1e-9, which
-        # is not what the paper observes. The pedestal is the diffusely scattered
-        # part that no amount of spatial filtering removes.
-        residual = (pump_out_w * pbs_leak
-                    * (arm.pump_leak_fraction + pedestal)
-                    * c("loss_post_cell_optics"))
+        residual = leakage_w
         density = 2.0 * power / (math.pi * arm.spot_radius_m ** 2) / 1e4
         total += power
         arms.append(ArmReadout(

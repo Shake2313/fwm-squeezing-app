@@ -83,41 +83,11 @@
     "provenance": "nominal",
     "note": "RF half-wave voltage at ~3 GHz for an EOSPACE AZ-0S5-10 class modulator. Placeholder: measure the sideband ratio versus RF power to fix it. At 18 dBm this gives beta = 1.79, close to the J1 maximum at 1.841, which is consistent with 18 dBm having been chosen to maximise the seed."
   },
-  "loss_cell_windows": {
-    "value": 0.96,
-    "unit": "fraction",
-    "provenance": "nominal",
-    "note": "Both cell windows, uncoated-glass order of magnitude. Placeholder."
-  },
   "loss_ecdl_to_ta": {
     "value": 0.95,
     "unit": "fraction",
     "provenance": "nominal",
     "note": "Isolator and steering optics between the ECDL and the amplifier. Placeholder."
-  },
-  "loss_post_cell_optics": {
-    "value": 0.945,
-    "unit": "fraction",
-    "provenance": "fitted",
-    "note": "Lumped transmission of the mirrors, PBS, waveplates and lenses between the cell and the photodiodes, EXCLUDING iris clipping which SABES computes from geometry. Set so the wide-iris limit reproduces the 5.5 percent post-cell loss quoted in the paper; tightening the iris then adds loss on top of it rather than being hidden inside it."
-  },
-  "loss_pump_path": {
-    "value": 0.9,
-    "unit": "fraction",
-    "provenance": "nominal",
-    "note": "Lumped pump-path optics after the split. Placeholder."
-  },
-  "loss_seed_path": {
-    "value": 0.9,
-    "unit": "fraction",
-    "provenance": "nominal",
-    "note": "Lumped seed-path optics outside the etalon chain. Placeholder."
-  },
-  "loss_ta_to_split": {
-    "value": 0.95,
-    "unit": "fraction",
-    "provenance": "nominal",
-    "note": "Isolator and steering optics between the amplifier and the pump/seed PBS. Placeholder."
   },
   "pbs_extinction_ratio": {
     "value": 3000.0,
@@ -160,12 +130,6 @@
     "unit": "fraction",
     "provenance": "nominal",
     "note": "Free space to fiber coupling on the pump path. Placeholder; this one directly sets the available pump power."
-  },
-  "pump_scatter_pedestal": {
-    "value": 1e-05,
-    "unit": "fraction",
-    "provenance": "nominal",
-    "note": "Fraction of pump power reaching a twin-beam collection mode by diffuse scattering (cell windows, optics) rather than through the Gaussian tail. Without it the model claims essentially perfect spatial rejection -- the Gaussian tail at 5 beam radii is 1e-9 -- while the paper identifies pump scatter as a significant limit on squeezing efficiency. Placeholder, and note the residual pump POWER is not the whole story: what matters is the classical intensity noise it carries, which is not common-mode and is not modelled here. GABES has a pump-scatter noise coefficient (kappa) at Ultra fidelity that is the proper home for that."
   },
   "pump_seed_angle_deg": {
     "value": 0.32,
@@ -250,5 +214,299 @@
     "unit": "ratio",
     "provenance": "fitted",
     "note": "Collimator diameter times telescope magnification underestimates the paper's cell waists by a consistent 6-10 percent (500 vs 530 um pump, 300 vs 330 um seed). One shared factor absorbs it. The consistency across two independent paths suggests a definition difference (1/e^2 versus 4-sigma or FWHM in the quoted collimator diameters) rather than two coincidences."
+  },
+  "t_m_mopa_out": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_mopa_out. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_oi_mopa": {
+    "value": 0.92,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of OI. Optical isolator. The lossiest passive element on the table."
+  },
+  "t_hwp_split": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+  },
+  "t_m_split_1": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_split_1. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_m_split_2": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_split_2. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_pbs_split": {
+    "value": 0.97,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+  },
+  "t_f230_pump": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of F230. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_pol_seed": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Polarizer. Sheet/Glan polarizer."
+  },
+  "t_noise_eater": {
+    "value": 0.97,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Noise eater. Intensity-noise servo; only its throughput is modelled."
+  },
+  "t_m_seed_1": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_seed_1. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_hwp_eom": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+  },
+  "t_f220_eom_in": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_in_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_eom": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of fiber EOM. Set to 1 deliberately: this element's throughput is already carried by `eom_insertion_loss_db`, and counting it twice would quietly halve the budget."
+  },
+  "t_f220_eom_out": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_etalon_1": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of Etalon 1. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+  },
+  "t_m_et_1": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_et_1. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_hwp_etalon": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+  },
+  "t_m_et_2": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_et_2. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_etalon_2": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of Etalon 2. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+  },
+  "t_etalon_3": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of Etalon 3. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+  },
+  "t_gt_seed": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of GT. Glan-Taylor: calcite plus two surfaces."
+  },
+  "t_m_seed_out": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_seed_out. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_m_seed_down": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_seed_down. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_f220_seed": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_col_seed": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of 5724 · 1.6 mm. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_qwp_seed": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+  },
+  "t_hwp_seed": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+  },
+  "t_seed_l1": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=400. Telescope lens, AR-coated."
+  },
+  "t_seed_l2": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+  },
+  "t_m_seed_a": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_seed_a. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_gtp_seed": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+  },
+  "t_col_pump": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Per-pass transmission of 5725 · 2.0 mm. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+  },
+  "t_qwp_pump": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+  },
+  "t_hwp_pump": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+  },
+  "t_pump_l1": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=300. Telescope lens, AR-coated."
+  },
+  "t_pump_l2": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+  },
+  "t_m_pump_a": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of m_pump_a. Steering mirror, protected-silver order of magnitude."
+  },
+  "t_gtp_pump": {
+    "value": 0.95,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+  },
+  "t_pbs_in": {
+    "value": 0.97,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+  },
+  "t_cell": {
+    "value": 0.96,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Rb cell. Both vapour-cell windows, uncoated-glass order of magnitude."
+  },
+  "t_pbs_out": {
+    "value": 0.97,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+  },
+  "t_dm_probe": {
+    "value": 0.985,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+  },
+  "t_dm_conj": {
+    "value": 0.985,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+  },
+  "t_iris_probe": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+  },
+  "t_iris_conj": {
+    "value": 0.995,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+  },
+  "t_lens_probe": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=75. Singlet, AR-coated."
+  },
+  "t_lens_conj": {
+    "value": 0.99,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of f=100. Singlet, AR-coated."
+  },
+  "t_bpd": {
+    "value": 1.0,
+    "unit": "fraction",
+    "provenance": "nominal",
+    "note": "Per-pass transmission of Balanced detector. Detector face; its quantum efficiency is the separate pd_responsivity_a_per_w."
+  },
+  "loss_post_cell_residual": {
+    "value": 1.004074,
+    "unit": "fraction",
+    "provenance": "fitted",
+    "note": "Residual factor on the post-cell transmission, on top of the per-optic values. Solved so the wide-open limit reproduces the 5.5 percent post-cell loss quoted in Sim et al.: the per-optic numbers are nominal guesses while the total is the one measured quantity, so the discrepancy lives here rather than being spread silently over optics nobody measured."
   }
 }

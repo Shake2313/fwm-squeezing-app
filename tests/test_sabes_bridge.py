@@ -112,18 +112,27 @@ def test_geometry_is_computable_without_the_solve():
 
 # --------------------------------------------------------------- detection
 
-def test_loss_pct_reproduces_the_paper_in_the_wide_iris_limit():
-    wide = bridge.run(detection=DetectionSettings(iris_radius_mm=5.0),
-                      solve=False)
-    assert wide.params["loss_pct"] == pytest.approx(5.5, abs=0.01)
-    assert wide.geometry.arms[0].iris_transmission == pytest.approx(1.0, abs=1e-6)
+def test_loss_pct_is_the_per_optic_product_times_the_measured_residual():
+    """The per-optic numbers are guesses; 5.5 % is the one measured total."""
+    result = bridge.run(solve=False)
+    assert result.params["loss_pct"] == pytest.approx(5.5, abs=0.01)
+
+    calibration = default_calibration()
+    product = layout_parts.transmission_of(layout_parts.ROUTE_POST_CELL,
+                                           calibration)
+    residual = calibration.value("loss_post_cell_residual")
+    assert result.geometry.optics_transmission == pytest.approx(
+        product * residual, rel=1e-9)
 
 
-def test_closing_the_iris_adds_loss_on_top_of_the_optics():
-    wide = bridge.run(detection=DetectionSettings(iris_radius_mm=5.0), solve=False)
-    tight = bridge.run(detection=DetectionSettings(iris_radius_mm=0.4), solve=False)
-    assert tight.params["loss_pct"] > wide.params["loss_pct"] + 5.0
-    assert any("iris clips" in w for w in tight.geometry.warnings)
+def test_dirtying_one_post_cell_optic_shows_up_in_the_loss():
+    """Which is the point of per-optic transmissions over one lumped number."""
+    calibration = default_calibration()
+    dirty = calibration.with_value("t_lens_probe", 0.80)
+    clean = bridge.run(solve=False)
+    smudged = bridge.run(calibration=dirty, solve=False)
+    assert smudged.params["loss_pct"] > clean.params["loss_pct"] + 15.0
+    assert dirty.get("t_lens_probe").provenance == "hand"
 
 
 def test_separation_margin_saturates_with_distance():
@@ -167,22 +176,24 @@ def test_a_much_larger_waist_breaks_the_pump_separation():
     assert any("twin radii" in w for w in wide.warnings)
 
 
-def test_pump_rejection_is_not_structurally_perfect():
-    """Without a scatter pedestal the Gaussian tail claims 1e-9 rejection."""
+def test_pump_leakage_is_observed_rather_than_derived():
+    """A Gaussian tail claimed 1e-9 rejection: useless, and contradicted.
+
+    The paper names pump scatter as a real limit on squeezing efficiency, so the
+    leakage is now a number you measure at the detector and type in.
+    """
     settings = SetupSettings()
     chain = build_source_chain(settings)
-    cal = default_calibration()
+    geom = detection.geometry(chain, settings)
 
-    geom = detection.geometry(chain, settings, calibration=cal)
-    assert geom.arms[0].pump_leak_fraction < 1e-6      # Gaussian tail alone
-
-    read = detection.readout(geom, chain, (14.0, 13.0), settings, calibration=cal)
-    assert read.arms[0].residual_pump_w > 0.0
-
-    without = cal.with_value("pump_scatter_pedestal", 0.0)
-    bare = detection.readout(geom, chain, (14.0, 13.0), settings,
-                             calibration=without)
-    assert bare.arms[0].residual_pump_w < read.arms[0].residual_pump_w / 100.0
+    quiet = detection.readout(geom, chain, (14.0, 13.0), settings,
+                              detection=DetectionSettings(pump_leakage_dbm=-80.0))
+    loud = detection.readout(geom, chain, (14.0, 13.0), settings,
+                             detection=DetectionSettings(pump_leakage_dbm=-50.0))
+    assert loud.arms[0].residual_pump_w == pytest.approx(
+        1000.0 * quiet.arms[0].residual_pump_w, rel=1e-6)
+    # And it no longer depends on beam geometry at all.
+    assert not hasattr(geom.arms[0], "pump_leak_fraction")
 
 
 def test_clearance_matches_the_closed_form_and_scales_with_power():
@@ -298,9 +309,11 @@ def test_derived_table_pairs_every_setting_with_its_gabes_quantity():
 
 
 def test_warnings_aggregate_from_every_stage():
-    result = bridge.run(detection=DetectionSettings(iris_radius_mm=0.4),
-                        resolution=fwm.FIDELITY_ULTRA)
-    assert any("iris clips" in w for w in result.warnings)
+    """A fat seed beam makes the pump-separation warning fire in geometry, and
+    the readout adds its own on top."""
+    fat = replace(SetupSettings(), seed_telescope_f1_mm=100.0)
+    result = bridge.run(fat, resolution=fwm.FIDELITY_ULTRA)
+    assert any("twin radii" in w for w in result.geometry.warnings)
     assert len(result.warnings) >= len(result.geometry.warnings)
 
 

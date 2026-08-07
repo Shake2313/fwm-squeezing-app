@@ -20,7 +20,7 @@ The load-bearing field is `Reading.provenance`.
 The distinction matters because a plot that looks like an oscilloscope invites
 being read as evidence. Anything SYNTHESISED must carry that label on screen.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
 import numpy as np

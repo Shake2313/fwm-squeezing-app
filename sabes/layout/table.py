@@ -18,7 +18,7 @@ Only segments where the beam meaningfully diverges need a real `path_m`; the
 rest carry `None` and are geometry for the eye alone. That is why this does not
 require surveying the table with a tape measure.
 """
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass
 from typing import Optional, Tuple
 
 import math
@@ -42,10 +42,19 @@ PROVENANCE_NOMINAL = "nominal"
 class Node:
     """One thing on the table.
 
-    `modelled` is the honest distinction the table view has to draw: it is true
-    exactly when the physics knows about this element, and therefore exactly when
-    clicking it can open something worth editing. Steering mirrors are `False` --
-    they shape the path polyline but own no parameter.
+    Two independent honesty flags, and they answer different questions.
+
+    `modelled`  does the physics know what this element *does*? A half-wave
+                plate rotates polarization; an optical isolator, as far as this
+                model is concerned, does nothing but attenuate.
+    `lumped`    is a single transmission the whole story? Anything on the table
+                that is not detail-modelled is drawn with "(lumped)" after its
+                label, so the picture never implies more than the model has.
+
+    Every element downstream of the amplifier carries `transmission_key`, the
+    calibration coefficient holding its per-pass transmission. That is what makes
+    alignment loss a variable you can set per optic rather than one lumped number
+    per arm, and it is why a lumped optic is still worth clicking.
     """
     id: str
     label: str
@@ -57,12 +66,19 @@ class Node:
     h: float = 26.0
     angle: float = 0.0
     modelled: bool = False
+    lumped: bool = False
     params: Tuple[str, ...] = ()     # settings fields this optic owns
+    transmission_key: str = ""       # calibration coefficient, "" = not tracked
     note: str = ""
 
     @property
     def clickable(self):
-        return self.modelled and bool(self.params)
+        """Anything with something to edit: a physics knob or a transmission."""
+        return bool(self.params) or bool(self.transmission_key)
+
+    @property
+    def display_label(self):
+        return f"{self.label} (lumped)" if self.lumped and self.label else self.label
 
 
 @dataclass(frozen=True)
@@ -123,6 +139,25 @@ class Layout:
 
     def clickable_nodes(self):
         return tuple(n for n in self.nodes if n.clickable)
+
+    def transmission_nodes(self):
+        """Everything downstream of the amplifier, in declaration order."""
+        return tuple(n for n in self.nodes if n.transmission_key)
+
+    def transmission_along(self, *node_ids, calibration=None, default=1.0):
+        """Product of the per-optic transmissions over a route.
+
+        Replaces the one lumped loss coefficient an arm used to carry, so that
+        "where did the power go" has an answer per optic instead of per arm.
+        """
+        total = 1.0
+        for node_id in node_ids:
+            key = self.node(node_id).transmission_key
+            if not key:
+                continue
+            total *= (default if calibration is None
+                      else calibration.value(key, default))
+        return total
 
     def links_for(self, beam):
         return tuple(l for l in self.links if l.beam == beam)

@@ -23,13 +23,12 @@ exposes that as an explicit knob and defaults to zero, so the shape stays honest
 unless someone deliberately puts a measured number in.
 """
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
-from .base import (COMPUTED, ELEMENTARY_CHARGE, HEAD_OPTICAL,
-                   HEAD_PHOTOCURRENT, PhotocurrentSignal, Quantity, Reading,
-                   SYNTHESISED, Trace, shot_noise_a_per_rthz)
+from .base import (COMPUTED, HEAD_OPTICAL, HEAD_PHOTOCURRENT,
+                   PhotocurrentSignal, Quantity, Reading, SYNTHESISED,
+                   Trace, shot_noise_a_per_rthz)
 
 
 @dataclass(frozen=True)
@@ -167,13 +166,21 @@ class SpectrumAnalyzer:
     #: measurement.
     technical_corner_hz: float = 0.0
 
-    def analyze(self, signal, squeezing_db, *, total_power_w=None) -> Reading:
+    def analyze(self, signal, squeezing_db, *, total_power_w=None,
+                pump_leakage_dbm=None, pump_rin_db_per_hz=-140.0) -> Reading:
         """`total_power_w` overrides the power setting the shot-noise level.
 
         A balanced measurement sees the shot noise of BOTH arms while the head is
         one diode, so the caller needs to be able to say so. The clearance is
         recomputed from the same power: quoting a shot-noise level from one
         number and a clearance from another would be quietly inconsistent.
+
+        `pump_leakage_dbm` is the OBSERVED pump power reaching the detector. It
+        is not derived from beam geometry -- a Gaussian tail claims 1e-9
+        rejection, which is useless and contradicted -- and it enters twice: its
+        own shot noise, and the classical intensity noise it carries at
+        `pump_rin_db_per_hz`. The second is the one that matters, because leaked
+        pump is not common-mode and so survives the balanced subtraction.
         """
         frequency = np.linspace(self.start_hz, self.stop_hz, self.points)
         response = _detector_response(frequency, signal.bandwidth_hz)
@@ -185,12 +192,25 @@ class SpectrumAnalyzer:
         clearance = (20.0 * np.log10(shot_a / signal.electronic_noise_a_per_rthz)
                      if signal.electronic_noise_a_per_rthz > 0 else float("inf"))
 
+        # Observed pump leakage: shot noise of its own photocurrent, plus the
+        # classical RIN it carries. Only the latter is large.
+        leak_shot_a = leak_rin_a = 0.0
+        if pump_leakage_dbm is not None and np.isfinite(pump_leakage_dbm):
+            leak_w = 1e-3 * 10.0 ** (float(pump_leakage_dbm) / 10.0)
+            leak_current = signal.responsivity_a_per_w * leak_w
+            leak_shot_a = shot_noise_a_per_rthz(signal.responsivity_a_per_w,
+                                                leak_w)
+            leak_rin_a = leak_current * np.sqrt(
+                10.0 ** (float(pump_rin_db_per_hz) / 10.0))
+        leak_a = float(np.hypot(leak_shot_a, leak_rin_a))
+
         # Noise POWER into 50 ohm, which is what an analyser displays.
         def to_dbm(current_asd):
             volts = current_asd * gain * np.sqrt(bandwidth)
             return 10.0 * np.log10(np.maximum(volts ** 2 / 50.0, 1e-30) / 1e-3)
 
-        electronic = to_dbm(signal.electronic_noise_a_per_rthz * np.sqrt(response))
+        floor_a = float(np.hypot(signal.electronic_noise_a_per_rthz, leak_a))
+        electronic = to_dbm(floor_a * np.sqrt(response))
         snl = to_dbm(shot_a * np.sqrt(response))
 
         squeezing = np.full_like(frequency, float(squeezing_db))
@@ -200,39 +220,43 @@ class SpectrumAnalyzer:
             squeezing = squeezing * spoil
         squeezed = snl + squeezing
 
-        # The analyser sees shot and amplifier noise together, so the floor is
-        # the incoherent sum -- which is exactly why clearance limits what a
-        # squeezed trace can show.
+        # The analyser sees the squeezed light and the floor together, so the
+        # observed trace is their incoherent sum -- which is exactly why
+        # clearance limits what a squeezed measurement can show.
         observed = 10.0 * np.log10(10 ** (squeezed / 10.0)
                                    + 10 ** (electronic / 10.0))
 
         quantities = (
             Quantity("Shot-noise level", float(snl[0]), "dBm"),
             Quantity("Squeezed level", float(squeezed[0]), "dBm"),
-            Quantity("Amplifier floor", float(electronic[0]), "dBm"),
+            Quantity("Noise floor", float(electronic[0]), "dBm",
+                     "Amplifier noise and leaked-pump noise together."),
+            Quantity("Pump leakage", float(pump_leakage_dbm)
+                     if pump_leakage_dbm is not None else float("nan"), "dBm",
+                     "Observed at the detector, not derived from geometry."),
             Quantity("Clearance", clearance, "dB"),
             Quantity("Observable squeezing", float(observed[0] - snl[0]), "dB",
-                     "What survives once the amplifier floor is added in, "
-                     "before any electronic-noise subtraction."),
+                     "What survives once the noise floor is added in, before "
+                     "any electronic-noise subtraction."),
             Quantity("Resolution bandwidth", bandwidth / 1e3, "kHz"),
         )
         warnings = []
         deficit = clearance - abs(float(squeezing_db))
         if deficit < 6.0:
             warnings.append(
-                f"the squeezed trace sits {deficit:.1f} dB above the amplifier "
+                f"the squeezed trace sits {deficit:.1f} dB above the noise "
                 f"floor; below about 6 dB the electronic-noise subtraction "
                 f"dominates the reported number")
 
         trace = Trace(
             x=frequency / 1e6,
             series={"shot-noise level": snl, "squeezed": squeezed,
-                    "observed": observed, "amplifier floor": electronic},
+                    "observed": observed, "noise floor": electronic},
             x_label="RF frequency", x_unit="MHz",
             y_label="Noise power", y_unit="dBm",
         )
         return Reading(
             self.name, quantities, trace, tuple(warnings), SYNTHESISED,
-            note="Assembled from the noise budget (shot, squeezed, amplifier), "
-                 "not simulated. Reproduces the measured shape; it is not a "
-                 "quantum-Langevin calculation.")
+            note="Assembled from the noise budget (shot, squeezed, amplifier, "
+                 "observed pump leakage), not simulated. Reproduces the measured "
+                 "shape; it is not a quantum-Langevin calculation.")

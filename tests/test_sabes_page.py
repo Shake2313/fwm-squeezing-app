@@ -96,15 +96,16 @@ def test_detection_knobs_never_touch_the_solve_key():
     for detection in (DetectionSettings(probe_lens_focal_mm=400.0),
                       DetectionSettings(conjugate_lens_focal_mm=250.0),
                       DetectionSettings(pd_defocus_mm=30.0),
-                      DetectionSettings(iris_radius_mm=3.0)):
+                      DetectionSettings(pump_leakage_dbm=-40.0)):
         assert bridge.solve_key(_params(detection=detection)) == base, detection
 
 
-def test_a_clipping_iris_does_change_the_solve_key():
+def test_pump_leakage_is_a_readout_input_not_a_solve_input():
+    """It changes what the analyser shows, never what the atoms do."""
     base = bridge.solve_key(_params())
-    clipped = bridge.solve_key(
-        _params(detection=DetectionSettings(iris_radius_mm=0.4)))
-    assert clipped != base
+    leaky = bridge.solve_key(
+        _params(detection=DetectionSettings(pump_leakage_dbm=-30.0)))
+    assert leaky == base
 
 
 def test_cell_facing_knobs_do_change_the_solve_key():
@@ -176,3 +177,56 @@ def test_sabes_is_not_reachable_from_the_scheme_registry():
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
+
+
+# ------------------------------------------------- page/model drift
+
+def test_every_model_attribute_the_page_reads_actually_exists():
+    """Catches the class of bug a browser would find and a unit test would not.
+
+    Renaming a field on the geometry or readout leaves the page compiling and
+    the suite green, and blows up only when someone opens that tab. This walks
+    the page's attribute accesses on the model objects and checks them for real.
+    """
+    import ast
+
+    from sabes import bridge
+    from sabes.beamline import build_source_chain
+    from sabes.detection import DetectionSettings, geometry, readout
+
+    settings = SetupSettings()
+    detection_settings = DetectionSettings()
+    chain = build_source_chain(settings)
+    geom = geometry(chain, settings, detection_settings)
+    read = readout(geom, chain, (14.0, 13.0), settings, detection_settings)
+    live = {"geom": geom, "readout": read, "chain": chain,
+            "detection": detection_settings, "settings": settings}
+
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    missing = []
+    for node in ast.walk(ast.parse(source)):
+        if not isinstance(node, ast.Attribute):
+            continue
+        if not isinstance(node.value, ast.Name) or node.value.id not in live:
+            continue
+        target = live[node.value.id]
+        if not hasattr(target, node.attr):
+            missing.append(f"{node.value.id}.{node.attr} (line {node.lineno})")
+    assert not missing, "page reads attributes the model does not have: " + \
+        ", ".join(missing)
+
+
+def test_arm_readouts_expose_what_the_detection_tab_prints():
+    from sabes.beamline import build_source_chain
+    from sabes.detection import DetectionSettings, geometry, readout
+
+    settings = SetupSettings()
+    chain = build_source_chain(settings)
+    geom = geometry(chain, settings, DetectionSettings())
+    read = readout(geom, chain, (14.0, 13.0), settings, DetectionSettings())
+    for attribute in ("power_w", "spot_radius_m", "power_density_w_per_cm2",
+                      "residual_pump_w"):
+        assert hasattr(read.arms[0], attribute), attribute
+    for attribute in ("twin_radius_at_dmirror_m", "pump_separation_m",
+                      "separation_margin", "optics_transmission"):
+        assert hasattr(geom, attribute), attribute

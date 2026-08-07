@@ -61,7 +61,7 @@ def test_the_pump_is_drawn_heavier_than_the_seed(chain):
 
 # ------------------------------------------------------------ honesty
 
-def test_clickable_and_modelled_cannot_drift_apart(chain):
+def test_clickability_in_the_drawing_matches_the_model(chain):
     for part in layout.LAYOUTS:
         spec = layout.build_spec(part, chain)
         for shape in _shapes(spec):
@@ -70,11 +70,15 @@ def test_clickable_and_modelled_cannot_drift_apart(chain):
             assert shape["clickable"] == part.node(shape["id"]).clickable
 
 
-def test_decorative_hardware_recedes(chain):
+def test_lumped_hardware_recedes_but_still_opens(chain):
+    """Muting follows `lumped`; clicking follows `clickable`. Different questions:
+    a lumped optic owns its transmission and is still worth opening."""
     spec = layout.build_spec(parts.PART1, chain)
     by_id = {s["id"]: s for s in _shapes(spec) if s.get("id")}
     assert by_id["noise_eater"]["opacity"] < 1.0
-    assert "not modelled" in by_id["noise_eater"]["title"]
+    assert "lumped" in by_id["noise_eater"]["title"]
+    assert by_id["noise_eater"]["label"].endswith("(lumped)")
+    assert by_id["noise_eater"]["clickable"] is True
     assert "opacity" not in by_id["eom"] or by_id["eom"]["opacity"] == 1.0
 
 

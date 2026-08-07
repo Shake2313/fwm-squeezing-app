@@ -269,7 +269,7 @@ def test_seed_arm_carries_far_more_power_than_the_fwm_wants():
     """The trim throws most of it away -- so the seed budget is not a constraint."""
     chain = build_source_chain()
     before_trim = chain.stage_power("seed", "delivery fiber + collimator")
-    assert before_trim > 20.0 * chain.seed_power_w
+    assert before_trim > 10.0 * chain.seed_power_w
 
 
 def test_split_and_polarizer_knobs_solve_independently():

@@ -16,9 +16,11 @@ quietly lie:
   red for the seed and the probe it becomes, blue for the conjugate. Reusing the
   lab's own key means nobody has to translate.
 
-Modelled optics are drawn saturated and are clickable; hardware the physics does
-not know about is drawn muted and inert. `Node.clickable` decides both, so the
-picture cannot claim more than the model delivers.
+Detail-modelled optics are drawn saturated; anything whose only modelled
+behaviour is a transmission is drawn muted and labelled "(lumped)". Muting
+follows `Node.lumped` while clicking follows `Node.clickable` -- they are no
+longer the same question, because a lumped optic still owns its transmission
+and is still worth opening.
 """
 import math
 
@@ -152,17 +154,18 @@ _FILL = {
 def node_shape(node, *, selected=False):
     """One optic as a canvas shape, glyph and styling included."""
     glyph = glyph_for(node)
-    active = node.clickable
+    # Two different questions: how prominent it looks, and whether it opens.
+    detailed = not node.lumped
     fill = _FILL.get(glyph, "#E2E8F0")
-    stroke = INK if active else MUTED_INK
+    stroke = INK if detailed else MUTED_INK
     common = dict(
-        label=node.label or None,
+        label=node.display_label or None,
         title=(node.note or node.label or node.id) + (
-            "" if active else "  (drawn, not modelled)"),
+            "" if detailed else "  (lumped: only its transmission is modelled)"),
         fill=fill,
         stroke="#0F766E" if selected else stroke,
-        stroke_width=2.6 if selected else (1.5 if active else 1.0),
-        clickable=active,
+        stroke_width=2.6 if selected else (1.5 if detailed else 1.0),
+        clickable=node.clickable,
         label_dy=-(node.h / 2.0) - 5.0,
     )
     if node.shape == "circle":
@@ -171,8 +174,8 @@ def node_shape(node, *, selected=False):
     else:
         shape = canvas_module.rect(node.id, node.x, node.y, node.w, node.h,
                                    angle=node.angle, **common)
-    shape["parts"] = _parts_for(glyph, node, active)
-    if not active:
+    shape["parts"] = _parts_for(glyph, node, detailed)
+    if not detailed:
         shape["opacity"] = 0.55
     return shape
 

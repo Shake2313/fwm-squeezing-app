@@ -118,7 +118,7 @@ def test_detection_geometry_reads_distances_from_the_layout(chain):
     moved = detection.geometry(
         chain, settings,
         layout=parts.with_detection_distances(cell_to_dmirror=1.4))
-    assert moved.twin_radius_at_iris_m > base.twin_radius_at_iris_m
+    assert moved.twin_radius_at_dmirror_m > base.twin_radius_at_dmirror_m
     assert moved.pump_separation_m > base.pump_separation_m
 
 
@@ -190,14 +190,15 @@ def test_segments_without_a_length_do_not_fake_propagation(chain):
 
 # ---------------------------------------------------------- clickability
 
-def test_only_modelled_optics_with_parameters_are_clickable():
+def test_clickable_means_there_is_something_to_edit():
+    """Anything with a physics knob OR a transmission opens; nothing else does."""
     for part in layout.LAYOUTS:
         for node in part.nodes:
-            if node.clickable:
-                assert node.modelled and node.params
-    # Steering mirrors shape the path but own no parameter.
-    assert not parts.PART2.node("m_pump_a").clickable
-    assert not parts.PART1.node("noise_eater").clickable
+            assert node.clickable == bool(node.params or node.transmission_key)
+    # A steering mirror after the amplifier owns its transmission and opens...
+    assert parts.PART2.node("m_pump_a").clickable
+    # ...while one before it has nothing to edit.
+    assert not parts.PART1.node("m_ecdl_1").clickable
 
 
 def test_clickable_optics_name_real_settings_fields():
@@ -255,11 +256,16 @@ def test_the_two_collimators_are_distinct_parts():
     assert parts.PART1.node("f220_seed").label == "F220"
 
 
-def test_unmodelled_hardware_is_present_but_inert():
-    """Drawn so the table looks like the table; inert so nothing is implied."""
+def test_unmodelled_hardware_is_drawn_and_labelled_lumped():
+    """Drawn so the table looks like the table, and labelled so nothing is
+    implied about how much of it the physics actually knows."""
     for node_id in ("oi_ecdl", "oi_mopa", "cl", "noise_eater", "rb_ref"):
         node = parts.PART1.node(node_id)
-        assert not node.clickable
+        assert node.lumped
+        if node.label:
+            assert node.display_label.endswith("(lumped)")
+    # A detail-modelled optic must not be labelled that way.
+    assert not parts.PART2.node("cell").display_label.endswith("(lumped)")
     assert "locking" in parts.PART1.node("ecdl").note.lower() or \
         "reference arm" in parts.PART1.node("ecdl").note.lower()
 
