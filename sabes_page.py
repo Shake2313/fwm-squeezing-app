@@ -20,9 +20,19 @@ Three compute tiers, which is what makes an optics-heavy UI usable:
 The tier split is the reason the cache key is `bridge.solve_key(params)` and not
 the settings: two different sets of waveplate angles that deliver the same power
 to the cell are the same solve.
+
+Pictures are a fourth thing, and they used to break the split. `st.tabs` runs
+every tab body on every rerun, and `st.pyplot` re-rasterises whatever it is
+handed -- so selecting an optic, a click that changes no physics at all, was
+redrawing the spectrum from scratch. Figures are therefore cached as **PNG
+bytes** (`_cached_spectrum_png`, `_cached_trace_png`) rather than as Matplotlib
+objects: a `Figure` costs more to unpickle out of `st.cache_data` than the image
+it draws, and bytes let Streamlit's media store recognise an unchanged picture
+and re-send only its URL.
 """
 from dataclasses import fields, replace
 from html import escape
+from io import BytesIO
 from threading import RLock
 
 import numpy as np
@@ -150,7 +160,23 @@ TRANSMISSION_PREFIX = SESSION_PREFIX + "t_"
 # ----------------------------------------------------------------------
 # Tier B — the only cached layer
 # ----------------------------------------------------------------------
-@st.cache_data(show_spinner=False, max_entries=64)
+#: Spinner text on a genuine recompute. The heavy tiers are cached, so a spinner
+#: shows up exactly when the app is really working -- which is the difference
+#: between a wait that reads as progress and one that reads as a hang.
+SOLVE_SPINNER = "Solving the Bloch equations…"
+FIGURE_SPINNER = "Drawing the spectrum…"
+
+#: Streamlit's `MAXIMUM_CONTENT_WIDTH`, and the resolution ceiling `st.pyplot`
+#: renders at. An image wider than the first gets re-opened, resized and
+#: re-encoded *on every rerun* -- 190 ms for a picture nobody changed -- so
+#: figures are rasterised to land under it once instead. That is also what
+#: `st.pyplot` ends up showing, since it renders at 200 dpi and then has
+#: Streamlit shrink the result back down to the same width.
+MAX_IMAGE_WIDTH_PX = 1460
+_MAX_PNG_DPI = 200.0
+
+
+@st.cache_data(show_spinner=SOLVE_SPINNER, max_entries=64)
 def _cached_solve(solve_items, cache_version):
     scheme = fwm.FWMScheme()
     params = dict(scheme.defaults())
@@ -159,14 +185,87 @@ def _cached_solve(solve_items, cache_version):
         return scheme.compute(params)
 
 
-@st.cache_data(show_spinner=False, max_entries=64)
-def _cached_observables(raw, param_items, cache_version):
+def _figure_png(figure):
+    """Rasterise and release a figure, at a width Streamlit will pass through.
+
+    The dpi follows from the figure's own width so a wider plot comes out
+    coarser rather than over the cap; `bbox_inches="tight"` only ever trims, so
+    the result cannot exceed it. Should some figure manage to anyway, Streamlit
+    resizes it as it always did -- slower, never wrong.
+
+    The lock is process-wide because Matplotlib's font and layout caches are,
+    and Streamlit can overlap reruns.
+    """
+    import matplotlib.pyplot as plt
+
+    from gabes.plot_style import apply_gabes_plot_style
+
+    with _PLOT_LOCK:
+        apply_gabes_plot_style(figure)
+        width_in = max(float(figure.get_size_inches()[0]), 0.1)
+        buffer = BytesIO()
+        figure.savefig(buffer, format="png", bbox_inches="tight",
+                       dpi=min(_MAX_PNG_DPI, MAX_IMAGE_WIDTH_PX / width_in))
+        plt.close(figure)
+    return buffer.getvalue()
+
+
+@st.cache_data(show_spinner=FIGURE_SPINNER, max_entries=64)
+def _cached_spectrum_png(raw, param_items, cache_version):
+    """The spectrum tab's picture, built and rasterised once per solve.
+
+    Everything after the solve -- assembling the observables, laying out the
+    figure, encoding it -- happens inside the cache, so a rerun that moved no
+    physics costs a dictionary lookup. The figure itself never leaves this
+    function: returning one would put a Matplotlib object through
+    `st.cache_data`'s pickle round trip on every hit, for no gain.
+    """
     scheme = fwm.FWMScheme()
-    return scheme.observables(raw, dict(param_items))
+    figure = scheme.observables(raw, dict(param_items)).get("figure")
+    return None if figure is None else _figure_png(figure)
 
 
 def _key(name):
     return SESSION_PREFIX + name
+
+
+# ----------------------------------------------------------------------
+# Numeric inputs — why they do not own what they edit
+# ----------------------------------------------------------------------
+#: Widget state does not outlive the widget. `st.number_input` defaults to
+#: `value="min"`, and a widget inside a dialog is torn down the moment the
+#: dialog closes -- which leaves the key it was bound to holding that default.
+#: Bound straight to the settings, "open an optic and close it again without
+#: touching anything" therefore set every knob on it to its minimum, silently:
+#: the 40 mW ECDL became 1 mW, the pump fell from 600 mW to 41 mW, and a
+#: transmission dropped to zero, which takes the Bloch solve down with it.
+#:
+#: So the widgets get a namespace of their own that nothing else reads, and
+#: copy into the real state on change. Only `_commit_edit` ever writes a
+#: setting, so a widget disappearing cannot.
+WIDGET_PREFIX = SESSION_PREFIX + "edit_"
+
+
+def _widget_key(state_key):
+    return WIDGET_PREFIX + state_key[len(SESSION_PREFIX):]
+
+
+def _commit_edit(state_key):
+    st.session_state[state_key] = st.session_state[_widget_key(state_key)]
+
+
+def _edit_number(container, state_key, label, **kwargs):
+    """A number input that edits `state_key` without owning it.
+
+    The widget is re-pointed at the stored value on every render, which is safe
+    precisely because the commit happens in `on_change`: by the time a rerun
+    redraws the input, the number it is being handed is the one the user just
+    typed.
+    """
+    widget_key = _widget_key(state_key)
+    st.session_state[widget_key] = st.session_state[state_key]
+    container.number_input(label, key=widget_key, on_change=_commit_edit,
+                           args=(state_key,), **kwargs)
 
 
 def _defaults():
@@ -344,11 +443,10 @@ def _owned_parameters():
 def _render_control(container, name):
     """One numeric input, from the single shared definition."""
     label, unit, low, high, step, help_text = CONTROLS[name]
-    container.number_input(
-        f"{label} [{unit}]" if unit else label,
+    _edit_number(
+        container, _key(name), f"{label} [{unit}]" if unit else label,
         min_value=float(low), max_value=float(high), step=float(step),
-        key=_key(name), help=help_text,
-        format="%.4f" if step < 0.05 else "%.2f")
+        help=help_text, format="%.4f" if step < 0.05 else "%.2f")
 
 
 # ----------------------------------------------------------------------
@@ -377,10 +475,13 @@ def _probe_key(part_key):
 def _handle_canvas_event(event, part_key):
     """Route a click: an optic selects, empty table drops a probe.
 
-    Returns whether anything changed. The caller reruns on True, because the
-    component's value only reaches Python at the *start* of a run -- the panels
-    below have already read the old selection by the time this fires, so without
-    a rerun the drawing and the readout would trail one click behind.
+    Returns whether anything changed, so the caller can re-read the selection it
+    captured before the canvas ran. A click used to cost a second full script
+    run: the component's value only reaches Python at the *start* of a run, so
+    the page had already been built from the previous selection by the time this
+    fired. Nothing above the canvas depends on the selection, though, and the
+    canvas applies the click optimistically on its own side -- so the panels
+    below, which have not been drawn yet, can simply be given the new value.
     """
     if not event:
         return False
@@ -390,8 +491,7 @@ def _handle_canvas_event(event, part_key):
     st.session_state[seen] = event.get("seq")
     if event.get("kind") == canvas_module.KIND_OPTIC:
         st.session_state[_key("selected")] = event.get("id")
-        # Clicking an optic opens its editor straight away; the flag survives
-        # the rerun the dialog needs, and the dialog clears it on close.
+        # Clicking an optic opens its editor straight away.
         st.session_state[_key("open_optic")] = event.get("id")
     else:
         st.session_state[_probe_key(part_key)] = [event["x"], event["y"]]
@@ -404,9 +504,13 @@ def _optic_dialog(part_key, node_id):
     """Edit one optic's parameters, in a modal on top of the drawing.
 
     The controls are the same `CONTROLS` entries the sidebar would render, so an
-    optic's knob behaves identically wherever it appears. Streamlit writes each
-    widget straight into session state, so there is nothing to apply -- closing
-    the dialog is enough, and the drawing behind it is already current.
+    optic's knob behaves identically wherever it appears. Each commits into the
+    setup as it is changed (see `_edit_number`), so there is nothing to apply --
+    closing the dialog is enough, and the drawing behind it is already current.
+
+    A dialog is a fragment, so turning a knob in here reruns only this function.
+    The page behind it -- and the solve -- catches up once, when the dialog
+    closes, instead of once per digit typed.
     """
     part = layout.get(part_key)
     try:
@@ -425,9 +529,10 @@ def _optic_dialog(part_key, node_id):
 
     if node.transmission_key:
         st.markdown("**Transmission**")
-        st.number_input(
+        _edit_number(
+            st, SESSION_PREFIX + node.transmission_key,
             "Per-pass transmission", min_value=0.0, max_value=1.0, step=0.001,
-            key=SESSION_PREFIX + node.transmission_key, format="%.4f",
+            format="%.4f",
             help="Fraction of power this optic passes. Editing it marks the "
                  "coefficient as hand-set, which is what it is until somebody "
                  "measures it.")
@@ -443,7 +548,6 @@ def _optic_dialog(part_key, node_id):
                    "parameter.")
 
     if st.button("Done", use_container_width=True):
-        st.session_state.pop(_key("open_optic"), None)
         st.rerun()
 
 
@@ -469,10 +573,14 @@ def _render_optic_panel(part, node_id, settings, detection):
             for name in node.params]
     if rows:
         st.markdown(_markdown_table(("Parameter", "Value"), rows))
-    if st.button("Edit…", key=f"edit_{part.key}_{node_id}",
-                 use_container_width=True):
-        st.session_state[_key("open_optic")] = node_id
-        st.rerun()
+    # A callback rather than a body: it fires before the rerun the click already
+    # causes, so the dialog opens in that run instead of needing a second one.
+    st.button("Edit…", key=f"edit_{part.key}_{node_id}",
+              use_container_width=True, on_click=_open_optic, args=(node_id,))
+
+
+def _open_optic(node_id):
+    st.session_state[_key("open_optic")] = node_id
 
 
 #: What can be dropped on a point of the table. The last two need a photodiode,
@@ -552,12 +660,34 @@ def _render_reading(reading):
         _render_trace(reading.trace)
 
 
-def _render_trace(trace):
+def _trace_hash(trace):
+    """Hash input for a `Trace`: its numbers, spelled out.
+
+    Streamlit hashes arrays and tuples directly, and falls back to pickling an
+    object it does not recognise. That fallback happens to work here, but the
+    cache below is only worth having if it *hits*, and that should rest on the
+    trace's own numbers rather than on how a dataclass reduces today.
+    """
+    return (np.asarray(trace.x).tobytes(), trace.kind, trace.x_label,
+            trace.y_label, trace.x_unit, trace.y_unit,
+            tuple((name, np.asarray(values).tobytes())
+                  for name, values in sorted(trace.series.items(),
+                                             key=lambda kv: kv[0])))
+
+
+@st.cache_data(show_spinner=False, max_entries=32,
+               hash_funcs={instruments.Trace: _trace_hash})
+def _cached_trace_png(trace):
+    """An instrument trace as a PNG, keyed on the trace itself.
+
+    An instrument head left on a beam otherwise re-rasterises its trace on every
+    rerun, including the ones that only moved a selection -- and a `Reading` is
+    deterministic in its trace, so the same numbers can only ever draw the same
+    picture.
+    """
     import matplotlib.pyplot as plt
 
-    from gabes.plot_style import apply_gabes_plot_style
-
-    with _PLOT_LOCK:
+    with _PLOT_LOCK:                       # reentrant: `_figure_png` takes it too
         figure, axis = plt.subplots(figsize=(7.2, 3.0))
         for name, values in trace.series.items():
             if trace.kind == "stem":
@@ -571,9 +701,38 @@ def _render_trace(trace):
         if len(trace.series) > 1:
             axis.legend(fontsize=8, loc="best")
         axis.grid(alpha=0.3)
-        apply_gabes_plot_style(figure)
-        st.pyplot(figure)
-        plt.close(figure)
+        return _figure_png(figure)
+
+
+def _render_trace(trace):
+    _show_png(_cached_trace_png(trace))
+
+
+def _image_fit_kwargs():
+    """`st.image`'s fit-to-column argument, whichever spelling this build has.
+
+    Streamlit renamed it: `use_container_width=True` became `width="stretch"`,
+    and current builds deprecate the old name while the floor in
+    `requirements.txt` predates the new one. The new signature is recognisable
+    by `width` defaulting to a string, so the choice is made once at import
+    rather than guessed per call.
+    """
+    import inspect
+
+    try:
+        default = inspect.signature(st.image).parameters["width"].default
+    except (KeyError, TypeError, ValueError):        # pragma: no cover
+        return {"use_container_width": True}
+    return {"width": "stretch"} if isinstance(default, str) \
+        else {"use_container_width": True}
+
+
+_IMAGE_FIT = _image_fit_kwargs()
+
+
+def _show_png(image):
+    """Draw a pre-rasterised figure at column width."""
+    st.image(image, **_IMAGE_FIT)
 
 
 def _axis_label(label, unit):
@@ -625,9 +784,17 @@ def _render_table_tab(result, calibration, host):
     event = canvas_module.svg_canvas(spec, selected=selected,
                                      key=f"sabes_table_{part.key}")
     if _handle_canvas_event(event, part.key):
-        st.rerun()
+        # The drawing above was built from the previous click and the canvas has
+        # already corrected itself on its own side; only the panels below still
+        # hold stale values, and they have not been drawn yet.
+        selected = st.session_state.get(_key("selected"))
+        probe = st.session_state.get(_probe_key(part.key))
 
-    pending = st.session_state.get(_key("open_optic"))
+    # Popped rather than read: the flag's whole job is to carry one click into
+    # one dialog. Leaving it set means a dialog the user dismissed with ESC pops
+    # back open on the next unrelated rerun, and dialog knobs rerun the fragment
+    # rather than the page, so nothing below needs it to survive.
+    pending = st.session_state.pop(_key("open_optic"), None)
     if pending:
         _optic_dialog(part.key, pending)
 
@@ -838,14 +1005,11 @@ def render(host=None):
         _render_table_tab(result, calibration, host)
 
     with tabs[1]:
-        observables = _cached_observables(
+        image = _cached_spectrum_png(
             raw, tuple(sorted(params.items(), key=lambda kv: kv[0])),
             fwm.FWMScheme().cache_version)
-        figure = observables.get("figure")
-        if figure is not None and host is not None:
-            host.render_fig(figure)
-        elif figure is not None:
-            st.pyplot(figure)
+        if image is not None:
+            _show_png(image)
 
     with tabs[2]:
         st.markdown(

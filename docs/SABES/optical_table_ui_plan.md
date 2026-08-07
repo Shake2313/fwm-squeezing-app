@@ -186,6 +186,23 @@ Side benefit: per-etalon detuning becomes possible. The model already accepts a
 3-tuple; only the UI was collapsing it, and in the lab each stage has its own
 knob and its own temperature.
 
+**The trap Stage D walked into** (fixed; `sabes-interaction-cost`). `st.dialog`
+is free, but a widget inside one is *torn down when the dialog closes*, and
+Streamlit leaves the key it was bound to holding the widget's default — which
+for `st.number_input` is `min_value`. Keying each input on the setting it edits
+therefore turned "open an optic and close it again without typing anything" into
+"set every knob on that optic to its minimum", silently: 40 mW of ECDL became
+1 mW, and a lumped optic's transmission went to zero and took the Bloch solve
+with it. Inputs go through `_edit_number` instead: the widget keys on a private
+namespace nothing else reads, and copies into the real state in `on_change`, so
+only a deliberate edit can ever write a setting.
+
+The other Stage D cost was per-click rather than per-edit: a canvas click had to
+rerun the whole page a second time so the panels *below* the drawing could see
+the new selection. They are drawn after the canvas, so they are handed it
+directly now, and both click kinds paint themselves in the browser before Python
+hears about them.
+
 ## Stage E — virtual instruments
 
 Kept free of any layout or UI dependency so the package is reusable elsewhere.

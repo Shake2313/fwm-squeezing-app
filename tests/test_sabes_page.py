@@ -157,6 +157,149 @@ def test_solve_key_holds_only_recompute_knobs():
         assert essential in keys
 
 
+# ------------------------------------------ widget state vs. real state
+#
+# Streamlit widget state does not outlive the widget, and every editable knob on
+# this page lives inside a dialog that is torn down as soon as it closes. These
+# pin the separation that keeps a closing dialog from rewriting the setup.
+
+def _numeric_input_calls():
+    """Every `*.number_input(...)` call in the page, with its enclosing def."""
+    import ast
+
+    tree = ast.parse((ROOT / "sabes_page.py").read_text(encoding="utf-8"))
+    found = []
+    for parent in ast.walk(tree):
+        if not isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        for node in ast.walk(parent):
+            if (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr == "number_input"):
+                found.append((parent.name, node))
+    return found
+
+
+def test_no_numeric_input_is_keyed_on_a_setting():
+    """The bug this exists to prevent, in one sentence.
+
+    A `number_input` keyed straight on a setting loses that setting the moment
+    its dialog closes: Streamlit leaves the key holding the widget's default,
+    which for these inputs is `min_value`. Opening an optic and closing it again
+    without touching anything used to set every knob on it to its minimum --
+    silently, and a zeroed transmission then took the Bloch solve down with it.
+    Every input therefore goes through `_edit_number`, which keys on the edit
+    namespace and copies into the real state in `on_change`.
+    """
+    calls = _numeric_input_calls()
+    assert calls, "expected the page to render numeric inputs"
+    owners = {owner for owner, _ in calls}
+    assert owners == {"_edit_number"}, (
+        f"numeric inputs outside _edit_number: {sorted(owners - {'_edit_number'})}")
+
+
+def test_the_edit_namespace_is_invisible_to_everything_that_reads_state():
+    """A widget key must not look like a setting or a calibration coefficient.
+
+    `_session_calibration` scans session state by prefix, so an edit-namespace
+    key that matched would feed a torn-down widget's value into the physics.
+    """
+    for name in ("t_m_mopa_out", "ecdl_power_mw"):
+        widget = sabes_page._widget_key(sabes_page._key(name))
+        assert widget != sabes_page._key(name)
+        assert not widget.startswith(sabes_page.TRANSMISSION_PREFIX)
+        assert widget.startswith(sabes_page.WIDGET_PREFIX)
+
+
+def test_every_optic_transmission_has_a_coefficient_to_edit():
+    """`_edit_number` edits stored state, so the state has to exist.
+
+    A node naming a `transmission_key` the shipped calibration does not carry
+    would have nothing seeded for its dialog to point at.
+    """
+    from sabes import layout
+    from sabes.calibration import default_calibration
+
+    calibration = default_calibration()
+    orphans = sorted({node.transmission_key
+                      for part in layout.LAYOUTS for node in part.nodes
+                      if node.transmission_key
+                      and node.transmission_key not in calibration})
+    assert not orphans, f"no calibration coefficient for: {orphans}"
+
+
+def test_commit_copies_the_widget_value_into_the_real_state():
+    state_key = sabes_page._key("ecdl_power_mw")
+    session = {state_key: 40.0, sabes_page._widget_key(state_key): 12.5}
+    original = sabes_page.st.session_state
+    sabes_page.st.session_state = session
+    try:
+        sabes_page._commit_edit(state_key)
+    finally:
+        sabes_page.st.session_state = original
+    assert session[state_key] == 12.5
+
+
+# ------------------------------------------------- clicking an optic
+
+def test_a_canvas_click_does_not_cost_a_second_script_run():
+    """The drawing applies a click on its own side, so Python need not rerun.
+
+    Selecting an optic used to run the whole page twice -- once to receive the
+    click and once so the panels below could see it -- and each run redrew every
+    tab. Re-reading the selection after the canvas is what removed the second.
+    """
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    body = source[source.index("def _render_table_tab"):
+                  source.index("def _markdown_table")]
+    handled = body.index("_handle_canvas_event")
+    panels = body.index("Selected optic")
+    assert "st.rerun()" not in body[handled:panels], \
+        "handling a canvas click must not force a rerun"
+    # ...and the panels below must be given the click's own value.
+    assert body.count('st.session_state.get(_key("selected"))') >= 2
+
+    frontend = (ROOT / "sabes" / "components" / "frontend" / "index.html").read_text(
+        encoding="utf-8")
+    # Both click kinds paint themselves before telling Python, which is what
+    # makes skipping the rerun invisible to the user.
+    assert "lastSpec.probe = [point.x, point.y]" in frontend
+    assert frontend.count("render(lastSpec);") >= 2
+
+
+def test_the_open_dialog_flag_is_consumed_not_read():
+    """Otherwise a dialog dismissed with ESC pops back open on the next rerun."""
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    assert 'st.session_state.pop(_key("open_optic"), None)' in source
+    assert 'st.session_state.get(_key("open_optic"))' not in source
+
+
+# ------------------------------------------------------- figure caching
+
+def test_figures_are_cached_as_bytes_under_streamlit_image_width():
+    """`st.pyplot` re-rasterises on every rerun; that was most of a click.
+
+    Two separate costs: drawing the figure, and Streamlit re-opening anything
+    wider than its content width to resize and re-encode it. Caching PNG bytes
+    that already fit removes both.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from PIL import Image
+    from io import BytesIO
+
+    figure, axis = plt.subplots(figsize=(12.0, 4.0))     # wider than the cap
+    axis.plot([0, 1], [0, 1])
+    data = sabes_page._figure_png(figure)
+    assert isinstance(data, bytes)
+    image = Image.open(BytesIO(data))
+    assert image.width <= sabes_page.MAX_IMAGE_WIDTH_PX, image.size
+
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    assert "st.pyplot(" not in source, "figures must go through the PNG cache"
+
+
 # ------------------------------------------------------------------ routing
 
 def test_the_router_constant_matches_what_the_page_expects():

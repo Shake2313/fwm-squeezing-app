@@ -248,6 +248,12 @@ function render(spec) {
   empty.addEventListener("click", event => {
     const point = toSpecCoords(stage, event);
     selected = null;
+    // Move the crosshair here before telling Python, exactly as an optic click
+    // applies its own highlight. Python's answer comes back a round trip later
+    // and agrees, so the drawing never has to wait to look right -- which is
+    // what lets the page skip the extra rerun a click used to need.
+    lastSpec.probe = [point.x, point.y];
+    render(lastSpec);
     emit({kind: "point", x: point.x, y: point.y});
   });
 
