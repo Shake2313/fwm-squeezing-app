@@ -1470,7 +1470,6 @@ else:
 # ----------------------------------------------------------------------
 # Header + readout
 # ----------------------------------------------------------------------
-_guide_launcher(height=44, align="end")        # top bar: open the guide (new tab)
 _render_scheme_header(scheme)
 
 metrics = view.get("metrics", [])
