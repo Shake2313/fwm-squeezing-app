@@ -864,7 +864,7 @@ def write_markdown(res, path):
               f"{r['ac_stark_estimate_mhz']:+.1f} | "
               f"{r['dressed_shift_mhz']:+.1f} | {f(r['G_peak'],'{:.1f}')} |")
         a(f"\n자유 멱법칙 적합 δ* ∝ Ω^n → **n = {blk['exponent_n']:.2f}** "
-          f"(R² = {blk['fit_r2']:.4f}). ")
+          f"(R² = {blk['fit_r2']:.4f}).")
     a("\n두 기하 모두 지수가 **n ≈ 1.5**로 나온다. 이것이 dressing이라는 "
       "직접적인 증거다: n = 2는 섭동적 light shift Ω²/4Δ, n = 1은 강한 dressing "
       "극한(일반화 라비 √(Δ²+Ω²) → Ω)이고, 이 동작점은 Ω/Δ ≈ 0.2–1.6이라 "

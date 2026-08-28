@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "analysis_id": "rydberg-cell-heating-validation-template",
+  "generated_at_utc": "2026-08-28T09:11:40+00:00",
+  "config": {
+    "path": "analysis/rydberg_cell_heating/example_config.json",
+    "sha256": "715e13f48feced9ea620dd1a9603781b929a4425d373dbfa6f963463e444cf89",
+    "bytes": 3819
+  },
+  "inputs": [
+    {
+      "id": "raw_eit_spectra",
+      "kind": "eit_spectrum",
+      "declared_status": "PENDING",
+      "required": false,
+      "state": "not_configured",
+      "status": "PENDING"
+    },
+    {
+      "id": "rf_sensitivity_summary",
+      "kind": "sensitivity",
+      "declared_status": "PENDING",
+      "required": false,
+      "state": "not_configured",
+      "status": "PENDING"
+    },
+    {
+      "id": "heater_temperature_log",
+      "kind": "temperature_log",
+      "declared_status": "PENDING",
+      "required": false,
+      "state": "not_configured",
+      "status": "PENDING"
+    }
+  ],
+  "code": [
+    {
+      "path": "analysis/rydberg_cell_heating/workflow.py",
+      "sha256": "4bb7ff356d05938e1874f61c23ed768c5ec28f9c83ffebb93d90014bf0c8f2f6",
+      "bytes": 54965
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/adapters.py",
+      "sha256": "d13c74822da4117db7b867f2055eaa81090cf424df904a9cbdd958db4012d165",
+      "bytes": 23497
+    },
+    {
+      "path": "gabes/schemes/rydberg.py",
+      "sha256": "b76eb0d87f1053a08a82b48b465861044ee0c3f8a898df35b1e66f0cdb11e9da",
+      "bytes": 83805
+    },
+    {
+      "path": "gabes/rydberg_electrometry.py",
+      "sha256": "563f4ca08806a3a8c9b4596e74708fd0b1fd660e53198a705fe478a2212bd7a5",
+      "bytes": 22768
+    },
+    {
+      "path": "gabes/rydberg_experiment.py",
+      "sha256": "f6f7c89bd0e772c8a7af610d32da98c1744b9827ff402e56ae14cabea7079cc2",
+      "bytes": 32677
+    },
+    {
+      "path": "gabes/rydberg_experimental_csv.py",
+      "sha256": "9aabb79f60eb9c9a7843353ae010eb1dafa39e1bb3e1209d0fd446b9cb9d046b",
+      "bytes": 24270
+    }
+  ],
+  "runtime": {
+    "python": "3.14.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.4.1"
+  },
+  "git": {
+    "commit": "d03e0244c0224885f9b268606269303121e29f9b",
+    "branch": "main",
+    "dirty": false
+  },
+  "artifacts": [
+    {
+      "path": "analysis/rydberg_cell_heating/generated/results.json",
+      "role": "machine-readable results"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/results_macros.tex",
+      "role": "generated TeX macros"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/eit_temperature_spectra.png",
+      "format": "png",
+      "description": "EIT spectrum sweep",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/eit_temperature_spectra.pdf",
+      "format": "pdf",
+      "description": "EIT spectrum sweep",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/at_temperature_spectra.png",
+      "format": "png",
+      "description": "AT electrometry spectrum sweep",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/at_temperature_spectra.pdf",
+      "format": "pdf",
+      "description": "AT electrometry spectrum sweep",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/temperature_metrics.png",
+      "format": "png",
+      "description": "Static temperature-dependent metrics",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/temperature_metrics.pdf",
+      "format": "pdf",
+      "description": "Static temperature-dependent metrics",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/sensitivity_comparison.png",
+      "format": "png",
+      "description": "Status-tagged sensitivity comparison",
+      "status": "PREDICTED"
+    },
+    {
+      "path": "analysis/rydberg_cell_heating/generated/sensitivity_comparison.pdf",
+      "format": "pdf",
+      "description": "Status-tagged sensitivity comparison",
+      "status": "PREDICTED"
+    }
+  ],
+  "scope_note": "The workflow neither embeds nor modifies the source PPTX. A PPT-only transcription must be supplied as a status=PPT CSV or source note."
+}
