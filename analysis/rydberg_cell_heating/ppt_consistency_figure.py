@@ -24,7 +24,13 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .workflow import _json_dump, _sha256, _utc_now, load_clean_csv
+from .workflow import (
+    _json_dump,
+    _serialized_path,
+    _sha256,
+    _utc_now,
+    load_clean_csv,
+)
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_CSV = HERE / "ppt_rf_sensitivity_2026-07-15.csv"
@@ -159,7 +165,7 @@ def register_in_manifest(output_path: Path) -> None:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     script_path = Path(__file__).resolve()
     code_entry = {
-        "path": str(script_path),
+        "path": _serialized_path(script_path),
         "sha256": _sha256(script_path),
         "bytes": script_path.stat().st_size,
     }
@@ -168,7 +174,7 @@ def register_in_manifest(output_path: Path) -> None:
         if entry.get("path") != code_entry["path"]
     ] + [code_entry]
     artifact_entry: dict[str, Any] = {
-        "path": str(output_path),
+        "path": _serialized_path(output_path),
         "format": "pdf",
         "description": "PPT-internal consistency diagnostic (deck transcription only)",
         "status": "PPT",
