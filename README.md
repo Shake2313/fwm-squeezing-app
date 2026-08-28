@@ -9,7 +9,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
+| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. An Advanced paraffin-cell switch adds ground-hyperfine population memory between velocity-randomized beam passages without adding a coating-throughput loss. Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT static spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; reference sensitivity numbers stay in internal tests |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
@@ -234,6 +234,15 @@ as the default full-scan solver.
    A transit-time relaxation `γ_t` (atoms leaving the beam, an Advanced knob)
    regularises the pumping: without it the dark ground state saturates, and a
    smaller `γ_t` gives stronger inverted crossovers.
+   The Advanced **Paraffin-coated cell** checkbox replaces the immediate thermal
+   reset with a two-ground-F reservoir: velocity is rethermalized between beam
+   passages, while hyperfine population relaxes with the nominal `T1 = 25.1 ms`
+   measured for one paraffin-coated ⁸⁷Rb cell at 300 K
+   ([Bandi *et al.*, J. Appl. Phys. 111, 124906 (2012)](https://doi.org/10.1063/1.4729925)).
+   The existing `γ_t` closes the MVP as both beam-exit and return cadence, so the
+   coated result is semi-quantitative until cell/beam geometry and a cell-specific
+   T1 are supplied. The switch changes atomic populations only: direct coating or
+   window transmission remains exactly unity.
 
 ## Speed (why the architecture)
 

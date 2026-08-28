@@ -26,6 +26,20 @@
       "status": "deferred"
     },
     {
+      "id": "od-sas-paraffin-population-memory",
+      "area": "gabes/schemes/sas.py + streamlit_app.py + tests/test_sas.py",
+      "title": "Add opt-in paraffin-coated-cell population memory to OD/SAS",
+      "why": "DONE. OD/SAS exposes an Advanced checkbox that is off by default. When enabled with the pump on, basis-conditioned transit Liouvillians construct a velocity-randomized two-ground-hyperfine reservoir; natural excited-state decay is projected into that reservoir and a fixed 25.1 ms reference T1 relaxes it toward the thermal population. The existing transit rate supplies the one-zone beam-exit/return cadence. Pump-off OD is array-identical with and without coating, the Generic toy is unchanged, and no direct coating/window throughput factor is applied. This is explicitly a semi-quantitative population-memory MVP, not a calibrated geometry, Zeeman-coherence, or time-domain wall model.",
+      "status": "done"
+    },
+    {
+      "id": "paraffin-coated-cell-extensions",
+      "area": "schemes/sas.py + schemes/absorption.py + schemes/magneto.py + schemes/rydberg.py + schemes/fwm.py",
+      "title": "Calibrate coated-cell transport and extend coating physics beyond OD/SAS",
+      "why": "GROUP C. Deferred. The OD/SAS checkbox retains only ground-hyperfine populations in a quasi-static one-zone reservoir. Reusing the transit rate for both beam exit and return omits cell/beam volume ratio and dark-flight statistics; a single Rb T1 is not transferable across cells, species, coating recipes, temperatures, or ageing. Lambda/EIT, Magneto, Rydberg, and FWM additionally require topology-specific ground coherence or Zeeman-multipole dynamics. Select one next scheme and provide cell dimensions, beam geometry, coating/species/temperature-specific relaxation data, and calibration/held-out spectra before implementation. Direct window/coating throughput remains a separate measured baseline with default unity.",
+      "status": "deferred"
+    },
+    {
       "id": "figureless-observables-paths",
       "area": "schemes/* + streamlit_app.py",
       "title": "Split metric/table readout from Matplotlib figure generation across schemes",

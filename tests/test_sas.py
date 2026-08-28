@@ -25,8 +25,16 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import schemes, constants, observables, species, hyperfine  # noqa: E402
-from gabes.schemes.sas import GENERIC  # noqa: E402
+from gabes import core, schemes, constants, observables, species, hyperfine  # noqa: E402
+from gabes.schemes.sas import (  # noqa: E402
+    GENERIC,
+    _basis_reset_pump_pops,
+    _coated_ground_transfer,
+    _pump_detuning_axis,
+    _pump_pops,
+    _stationary_ground_populations,
+    _velocity_correlated_average,
+)
 from gabes.schemes.absorption import ODScheme  # noqa: E402
 from gabes.lineshape import narrowest_subdoppler, window_fwhm  # noqa: E402
 
@@ -97,6 +105,111 @@ def test_decay_branching_sums_and_values():
     assert abs(br[e2][1] - 7.0 / 9.0) < 1e-6          # → Fg=3
 
 
+def test_paraffin_checkbox_schema_is_advanced_and_recomputes():
+    spec = {item.name: item for item in SAS.param_schema()}["paraffin_coated"]
+    assert spec.default is False
+    assert spec.advanced
+    assert spec.control == "checkbox"
+    assert spec.recompute
+    assert GENERIC not in spec.visible_if["species"]
+
+
+def test_basis_resets_span_the_legacy_thermal_transit_state():
+    """Basis-conditioned reloads reproduce any incoherent transit reservoir."""
+    gt = 2 * np.pi * 100e3
+    bare = species.build_manifold(species.RB85, "D1", transit_rate=0.0)
+    thermal = species.build_manifold(species.RB85, "D1", transit_rate=gt)
+    pump = species.pump_hamiltonian(bare, 0.35 * bare.gamma)
+    deff = bare.omega[0] + bare.gamma * np.array([-1.0, 0.0, 1.0])
+    basis = _basis_reset_pump_pops(bare, pump, deff, gt)
+    mixed = np.einsum("g,gdl->dl", bare.p_ground, basis)
+    expected = _pump_pops(
+        core.build_liouvillian(pump, thermal.atom), deff,
+        thermal.atom.S_v, thermal.n_levels)
+    np.testing.assert_allclose(mixed, expected, rtol=2e-11, atol=2e-12)
+
+    transfer = _coated_ground_transfer(
+        bare, basis, deff, deff[None, :], np.full(deff.size, 1.0 / deff.size))
+    assert np.isfinite(transfer).all()
+    assert np.all(transfer >= 0.0)
+    np.testing.assert_allclose(transfer.sum(axis=1), 1.0,
+                               rtol=0.0, atol=2e-15)
+    cycle_rate = 2 * np.pi * 100e3
+    stationary = _stationary_ground_populations(
+        transfer, bare.p_ground, cycle_rate=cycle_rate)
+    mapped = np.einsum("sgh,sh->sg", transfer, stationary)
+    wall_rate = 1.0 / 25.1e-3
+    residual = (cycle_rate * (mapped - stationary)
+                + wall_rate * (bare.p_ground - stationary))
+    assert np.max(np.abs(residual)) < 2e-10
+
+
+def test_coated_pump_axis_far_wings_converge_without_edge_clamping():
+    man = species.build_manifold(species.RB85, "D1", transit_rate=0.0)
+    gamma = man.gamma
+    gt = 2 * np.pi * 100e3
+    pump = species.pump_hamiltonian(man, 0.5 * gamma)
+    scan_detuning = np.array([
+        man.omega.min() - 80 * gamma,
+        man.omega.mean(),
+        man.omega.max() + 80 * gamma,
+    ])
+    velocity_shift = np.linspace(-60 * gamma, 60 * gamma, 9)
+    reached = scan_detuning[:, None] + velocity_shift[None, :]
+    z = np.linspace(-2.0, 2.0, velocity_shift.size)
+    weights = np.exp(-0.5 * z**2)
+    weights /= weights.sum()
+
+    def reservoir(axis):
+        basis = _basis_reset_pump_pops(man, pump, axis, gt)
+        transfer = _coated_ground_transfer(
+            man, basis, axis, reached, weights)
+        return _stationary_ground_populations(
+            transfer, man.p_ground, cycle_rate=gt)
+
+    legacy_axis = _pump_detuning_axis(man.omega, gamma)
+    covered_axis = _pump_detuning_axis(
+        man.omega, gamma, (reached.min(), reached.max()))
+    padded_axis = _pump_detuning_axis(
+        man.omega, gamma,
+        (reached.min() - 30 * gamma, reached.max() + 30 * gamma))
+    clamped = reservoir(legacy_axis)
+    covered = reservoir(covered_axis)
+    padded = reservoir(padded_axis)
+
+    assert covered_axis[0] <= reached.min()
+    assert covered_axis[-1] >= reached.max()
+    np.testing.assert_allclose(covered, padded, rtol=0.0, atol=1e-6)
+    assert np.max(np.abs(clamped - covered)) > 1e-3
+
+
+def test_coated_reservoir_identity_map_returns_thermal_population():
+    transfer = np.broadcast_to(np.eye(2), (4, 2, 2)).copy()
+    thermal = np.array([5.0 / 12.0, 7.0 / 12.0])
+    populations = _stationary_ground_populations(
+        transfer, thermal, cycle_rate=2 * np.pi * 100e3)
+    np.testing.assert_allclose(populations, np.broadcast_to(thermal, (4, 2)),
+                               rtol=0.0, atol=2e-13)
+    np.testing.assert_allclose(populations.sum(axis=1), 1.0,
+                               rtol=0.0, atol=2e-15)
+
+    zero_cycle = _stationary_ground_populations(
+        np.broadcast_to(np.array([[[0.8, 0.1], [0.2, 0.9]]]), (4, 2, 2)),
+        thermal, cycle_rate=0.0)
+    np.testing.assert_allclose(zero_cycle, np.broadcast_to(thermal, (4, 2)),
+                               rtol=0.0, atol=2e-15)
+
+
+def test_velocity_average_keeps_pump_and_probe_in_the_same_class():
+    prepared = np.array([[0.0, 1.0]])
+    probe = np.array([[1.0, 0.0]])
+    weights = np.array([0.5, 0.5])
+    correlated = _velocity_correlated_average(prepared, probe, weights)
+    factorized = (prepared @ weights) * (probe @ weights)
+    np.testing.assert_array_equal(correlated, np.array([0.0]))
+    assert factorized[0] == 0.25
+
+
 # ---------------------------------------------------- pump off (OD) fidelity
 def test_pump_off_reproduces_autood_85rb_d1():
     """Pump = 0, ⁸⁵Rb D1 reproduces the AutoOD-validated OD scheme to <1 %."""
@@ -109,6 +222,41 @@ def test_pump_off_reproduces_autood_85rb_d1():
     peak_ratio = raw["alpha_unit"].max() / ro["alpha"].max()
     assert abs(int_ratio - 1.0) < 0.01
     assert abs(peak_ratio - 1.0) < 0.01
+
+
+def test_paraffin_coating_has_no_direct_pump_off_optical_loss():
+    common = dict(species=RB85_KEY, line="D1", pump_power_mw=0.0,
+                  temp_c=45.0, scan_points=401)
+    plain = SAS.compute(_params(**common, paraffin_coated=False))
+    coated = SAS.compute(_params(**common, paraffin_coated=True))
+    np.testing.assert_array_equal(coated["scan"], plain["scan"])
+    np.testing.assert_array_equal(coated["alpha_unit"], plain["alpha_unit"])
+    assert coated["paraffin_t1_s"] > 0.0
+
+
+def test_paraffin_population_memory_is_opt_in_and_changes_pumped_sas():
+    common = dict(species=RB85_KEY, line="D1", pump_power_mw=0.5,
+                  temp_c=45.0, scan_points=401)
+    explicit_off = SAS.compute(_params(**common, paraffin_coated=False))
+    missing = _params(**common)
+    missing.pop("paraffin_coated")
+    legacy = SAS.compute(missing)
+    coated = SAS.compute(_params(**common, paraffin_coated=True))
+
+    np.testing.assert_array_equal(legacy["alpha_unit"],
+                                  explicit_off["alpha_unit"])
+    assert np.isfinite(coated["alpha_unit"]).all()
+    assert np.all(coated["alpha_unit"] >= 0.0)
+    change = np.max(np.abs(coated["alpha_unit"] - explicit_off["alpha_unit"]))
+    assert change > 1e-3 * explicit_off["alpha_unit"].max()
+
+
+def test_paraffin_checkbox_is_inert_for_generic_toy():
+    common = dict(species=GENERIC, transitions="single line", scan_points=401)
+    plain = SAS.compute(_params(**common, paraffin_coated=False))
+    coated = SAS.compute(_params(**common, paraffin_coated=True))
+    np.testing.assert_array_equal(coated["scan"], plain["scan"])
+    np.testing.assert_array_equal(coated["alpha_unit"], plain["alpha_unit"])
 
 
 def test_pump_off_is_smooth_and_49_25():

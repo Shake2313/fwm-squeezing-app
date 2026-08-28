@@ -43,7 +43,7 @@ from typing import Any, Callable, Optional
 
 @dataclass(frozen=True)
 class ParamSpec:
-    """One UI control. Numeric slider unless `choices` is given (-> selectbox)."""
+    """One UI control. Numeric slider unless another control is requested."""
     name: str
     label: str
     group: str
@@ -58,7 +58,7 @@ class ParamSpec:
     advanced: bool = False        # render inside an "Advanced" expander
     endpoints: Optional[tuple] = None   # (left, right) caption under a slider
     hidden: bool = False          # keep in params/session state, but do not render
-    control: str = "auto"         # auto / segmented
+    control: str = "auto"         # auto / segmented / checkbox
     visible_if: Optional[dict] = None   # {param_name: allowed value(s)}
     applies_defaults: bool = False      # choosing a value applies the scheme's
                                         # recommended_defaults[value] set, and

@@ -1157,6 +1157,12 @@ def _render_param(container, scheme_name, sp, scheme_obj=None):
     on_change = None
     if getattr(sp, "applies_defaults", False) and scheme_obj is not None:
         on_change = lambda: _apply_recommended_defaults(scheme_name, scheme_obj, key)
+    if getattr(sp, "control", "auto") == "checkbox":
+        if has_state:
+            return container.checkbox(label, key=key, help=help_,
+                                      on_change=on_change)
+        return container.checkbox(label, value=bool(current), key=key,
+                                  help=help_, on_change=on_change)
     if getattr(sp, "control", "auto") == "segmented":
         options = list(sp.choices or ())
         if hasattr(container, "segmented_control"):

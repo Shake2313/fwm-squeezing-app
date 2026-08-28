@@ -47,6 +47,7 @@ from .base import ParamSpec, Scheme
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
 GENERIC = "Generic (Γ units)"
+PARAFFIN_REFERENCE_T1_S = 25.1e-3   # 87Rb population T1 at 300 K (Bandi et al.)
 _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))   # numpy ≥2.0 rename
 
 
@@ -54,7 +55,7 @@ class SASScheme(Scheme):
     name = "sas"
     cluster = "A — Absorption"
     title = "Absorption spectroscopy (OD / SAS)"
-    cache_version = "2"            # merged model: bust the old SAS compute cache
+    cache_version = "3"            # optional coated-cell population-memory model
     defaults_version = "2"         # new param schema: reseed sidebar defaults
     supports_headless_observables = True
     caption = ("Weak-probe absorption with a counter-propagating pump. Pump off → "
@@ -81,6 +82,14 @@ class SASScheme(Scheme):
                       help="Sets the vapor density (absorption scale) and Doppler width."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 75.0, 0.5, 200.0, 0.5, "mm",
                       recompute=False),
+            ParamSpec(
+                "paraffin_coated", "Paraffin-coated cell", "Cell & beams", False,
+                advanced=True, control="checkbox",
+                visible_if={"species": tuple(species.SPECIES_ORDER)},
+                help="Preserve ground-hyperfine population between velocity-randomized "
+                     "beam passages using a nominal coated-cell reservoir. This changes "
+                     "atomic pumping only; it does not apply a coating transmission loss.",
+            ),
             ParamSpec("ne_pressure_torr", "Ne buffer pressure", "Cell & beams", 0.0,
                       0.0, 200.0, 1.0, "Torr", advanced=True,
                       help="Fixed-neon pressure broadening only; pressure shift and "
@@ -135,6 +144,13 @@ class SASScheme(Scheme):
             "read the populations linearly; it is not a user knob. The **pump power** "
             "maps to a Rabi frequency via I = 2P/(πw²), Ω = Γ·√(I/2I_sat) with "
             "I_sat = 4.484 mW/cm² and the beam waist *w* (Advanced).\n\n"
+            "The Advanced **Paraffin-coated cell** switch retains the two ground-"
+            "hyperfine populations between beam passages while rethermalizing velocity. "
+            "It uses the existing transit rate for beam exchange and a fixed reference "
+            "population lifetime T1 = 25.1 ms, measured for a paraffin-coated 87Rb cell "
+            "at 300 K. This is a quasi-static population-memory model, not a calibrated "
+            "cell-geometry model; it preserves no Zeeman coherence and adds no window "
+            "or coating throughput loss.\n\n"
             "Atomic data (hyperfine A/B, line centres, masses, linewidths) from the "
             "Steck D-line data sheets; Wigner-6j/3j line strengths in the AutoOD "
             "convention. Rb densities use the CRC vapor pressure (AutoOD), Cs the "
@@ -142,6 +158,8 @@ class SASScheme(Scheme):
             "**References**\n"
             "- D. A. Smith & I. G. Hughes, *Am. J. Phys.* **72**, 631 (2004).\n"
             "- D. W. Preston, *Am. J. Phys.* **64**, 1432 (1996).\n"
+            "- T. Bandi, C. Affolderbach & G. Mileti, *J. Appl. Phys.* **111**, "
+            "124906 (2012), https://doi.org/10.1063/1.4729925.\n"
             "- D. A. Steck, *Rubidium 85 / 87 & Cesium D Line Data*, http://steck.us/alkalidata."
         )
 
@@ -160,6 +178,10 @@ class SASScheme(Scheme):
         T = params["temp_c"] + 273.15
         gt = 2 * np.pi * params["transit_khz"] * 1e3
         power, waist = params["pump_power_mw"], params["waist_mm"]
+        paraffin_coated = bool(params.get("paraffin_coated", False))
+        # With no pump, coating memory cannot change a thermal OD spectrum. Keep
+        # that limit on the legacy path exactly (and avoid an unnecessary solve).
+        paraffin_memory = paraffin_coated and power > 0.0
         buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
 
         iso_ref = max(comps, key=lambda c: c[1])[0]
@@ -167,7 +189,8 @@ class SASScheme(Scheme):
 
         built, omega_all, dopp_fwhm, gamma_max = [], [], 0.0, 0.0
         for iso, weight in comps:
-            man = species.build_manifold(iso, line, transit_rate=gt)
+            man = species.build_manifold(
+                iso, line, transit_rate=0.0 if paraffin_memory else gt)
             offset = 2 * np.pi * (man.nu0 - nu_ref)
             sigma_v = np.sqrt(constants.KB * T / iso.mass)
             dopp_fwhm = max(dopp_fwhm, np.sqrt(8 * np.log(2)) * man.k_vec * sigma_v)
@@ -176,7 +199,8 @@ class SASScheme(Scheme):
             gamma_eff = man.gamma + species.self_broadened_gamma(iso, N) + buffer_gamma
             gamma_max = max(gamma_max, gamma_eff)
             built.append(dict(man=man, offset=offset, N=N, Op=Op, iso=iso,
-                              gamma_eff=gamma_eff))
+                              gamma_eff=gamma_eff, transit_rate=gt,
+                              paraffin_memory=paraffin_memory))
             omega_all.append(man.omega + offset)
         omega_all = np.concatenate(omega_all)
 
@@ -200,7 +224,10 @@ class SASScheme(Scheme):
         return dict(mode="species", scan=scan, alpha_unit=alpha,
                     dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
                     gamma_eff_max=gamma_max, markers=markers,
-                    species=params["species"], line=line)
+                    species=params["species"], line=line,
+                    paraffin_coated=paraffin_coated,
+                    paraffin_t1_s=(PARAFFIN_REFERENCE_T1_S
+                                   if paraffin_coated else None))
 
     def _component_alpha(self, b, scan, T):
         """Σ_(Fg→Fe) A_t · ĝ_t(δ) for one isotope (1/m, line strength 1)."""
@@ -214,11 +241,20 @@ class SASScheme(Scheme):
 
         # Pump steady state ρ(Δ_eff): scan-independent H, one fine table.
         Hp = species.pump_hamiltonian(man, Op)
-        L0 = core.build_liouvillian(Hp, man.atom)
         om = man.omega
-        de_lo, de_hi = om.min() - 14 * gamma_eff, om.max() + 14 * gamma_eff
-        deff = np.linspace(de_lo, de_hi, int((de_hi - de_lo) / (gamma_eff / 8.0)) + 2)
-        pops = _pump_pops(L0, deff, man.atom.S_v, man.n_levels)
+        DS = scan - offset
+        covered_detunings = None
+        if b.get("paraffin_memory", False):
+            covered_detunings = (
+                float(DS.min() + kv.min()), float(DS.max() + kv.max()))
+        deff = _pump_detuning_axis(
+            om, gamma_eff, covered_detunings=covered_detunings)
+        if b.get("paraffin_memory", False):
+            basis_pops = _basis_reset_pump_pops(
+                man, Hp, deff, b["transit_rate"])
+        else:
+            L0 = core.build_liouvillian(Hp, man.atom)
+            pops = _pump_pops(L0, deff, man.atom.S_v, man.n_levels)
 
         # Homogeneous unit-area lineshape: the weak-probe 2-level absorption is a
         # Lorentzian of FWHM Γ_eff, ∫L̂ dδ = 1. Evaluated analytically at the probe
@@ -228,12 +264,29 @@ class SASScheme(Scheme):
         # Absolute per-line integrated absorption A_t (AutoOD normalisation, ls=1).
         Aline = species.line_integrated_alpha(iso, line=man.line, N=N)
 
-        DS = scan - offset
         deff_grid = DS[:, None] + kv[None, :]                # pump Δ_eff (ns, nv)
         probe_base = DS[:, None] - kv[None, :]               # probe arg base
         levels = set(man.g_idx.tolist()) | set(man.e_idx.tolist())
-        pop_at = {lvl: np.interp(deff_grid.ravel(), deff, pops[:, lvl]).reshape(deff_grid.shape)
-                  for lvl in levels}
+        if b.get("paraffin_memory", False):
+            reservoir = _coated_ground_populations(
+                man, basis_pops, deff, deff_grid, wt,
+                cycle_rate=b["transit_rate"])
+            pop_at = {}
+            flat_deff = deff_grid.ravel()
+            for lvl in levels:
+                local = np.zeros_like(deff_grid)
+                for source in range(ng):
+                    conditioned = np.interp(
+                        flat_deff, deff, basis_pops[source, :, lvl]
+                    ).reshape(deff_grid.shape)
+                    local += reservoir[:, source, None] * conditioned
+                pop_at[lvl] = local
+        else:
+            pop_at = {
+                lvl: np.interp(deff_grid.ravel(), deff, pops[:, lvl]).reshape(
+                    deff_grid.shape)
+                for lvl in levels
+            }
 
         alpha = np.zeros(scan.size)
         for t in range(om.size):
@@ -243,7 +296,7 @@ class SASScheme(Scheme):
             w = (pop_at[g] - pop_at[e]) / man.p_ground[g]    # 1 at pump off
             arg = probe_base - om[t]
             Lp = (hwhm / np.pi) / (arg ** 2 + hwhm ** 2)     # unit-area Lorentzian
-            alpha += A_t * ((w * Lp) @ wt)
+            alpha += A_t * _velocity_correlated_average(w, Lp, wt)
         return alpha
 
     # ---- generic Γ-unit hole-burning toy (pedagogical) ----
@@ -495,6 +548,152 @@ class SASScheme(Scheme):
 # =====================================================================
 # helpers
 # =====================================================================
+def _pump_detuning_axis(omega, gamma_eff, covered_detunings=None):
+    """Fine pump-state axis, optionally covering every requested detuning.
+
+    The legacy path uses the historical ±14Γ extent. A long-lived coated
+    reservoir must instead solve (not edge-clamp) the full scan+velocity domain,
+    because tiny one-pass errors accumulate over many returns.
+    """
+    omega = np.asarray(omega, dtype=float)
+    gamma_eff = float(gamma_eff)
+    de_lo = float(omega.min() - 14.0 * gamma_eff)
+    de_hi = float(omega.max() + 14.0 * gamma_eff)
+    if covered_detunings is not None:
+        covered_lo, covered_hi = map(float, covered_detunings)
+        de_lo = min(de_lo, covered_lo)
+        de_hi = max(de_hi, covered_hi)
+    count = int((de_hi - de_lo) / (gamma_eff / 8.0)) + 2
+    return np.linspace(de_lo, de_hi, count)
+
+
+def _velocity_correlated_average(prepared_population, probe_profile, weights):
+    """Average population×probe response in the same velocity class."""
+    return (prepared_population * probe_profile) @ weights
+
+
+def _basis_reset_atom(atom, transit_rate, source_ground):
+    """Clone a species manifold atom with transit reload into one ground F.
+
+    The basis-reset steady states span the response to any incoherent incoming
+    ground-hyperfine distribution. The uncoated path does not call this helper.
+    """
+    reset = tuple(
+        (state, source_ground, float(transit_rate))
+        for state in range(atom.n_levels)
+    )
+    atom_kwargs = dict(
+        name=f"{atom.name}_reset_g{source_ground}",
+        n_levels=atom.n_levels,
+        labels=atom.labels,
+        ground=atom.ground,
+        excited=atom.excited,
+        decay=atom.decay + reset,
+        dephasing=atom.dephasing,
+        doppler_levels=atom.doppler_levels,
+        doppler_ratios=atom.doppler_ratios,
+        emission_ops=atom.emission_ops,
+    )
+    if hasattr(atom, "collapse_ops"):
+        atom_kwargs["collapse_ops"] = atom.collapse_ops
+    return atoms.AtomModel(**atom_kwargs)
+
+
+def _basis_reset_pump_pops(man, pump_hamiltonian, deff_axis, transit_rate):
+    """Pump populations conditioned on each incoming ground hyperfine state."""
+    conditioned = []
+    for source_ground in man.atom.ground:
+        atom = _basis_reset_atom(man.atom, transit_rate, source_ground)
+        L0 = core.build_liouvillian(pump_hamiltonian, atom)
+        conditioned.append(
+            _pump_pops(L0, deff_axis, atom.S_v, atom.n_levels)
+        )
+    return np.asarray(conditioned)
+
+
+def _ground_decay_branching(man):
+    """Return B[g,e], including only natural excited-state decay channels."""
+    grounds = tuple(man.atom.ground)
+    excited = tuple(man.atom.excited)
+    g_pos = {level: i for i, level in enumerate(grounds)}
+    e_pos = {level: i for i, level in enumerate(excited)}
+    branching = np.zeros((len(grounds), len(excited)))
+    for source, target, rate in man.atom.decay:
+        if source in e_pos and target in g_pos:
+            branching[g_pos[target], e_pos[source]] += float(rate)
+    totals = branching.sum(axis=0)
+    if np.any(totals <= 0.0):
+        raise ValueError("every excited hyperfine state needs a ground decay path")
+    return branching / totals[None, :]
+
+
+def _coated_ground_transfer(man, basis_pops, deff_axis, deff_grid, weights):
+    """Velocity-averaged ground-F transfer matrix for one pump scan.
+
+    ``transfer[scan, destination, source]`` includes spontaneous decay of any
+    excited population after the atom exits the illuminated region. Velocity is
+    averaged only for this dark reservoir map; the absorption calculation keeps
+    each pump/probe velocity correlation intact.
+    """
+    grounds = np.asarray(man.atom.ground, dtype=int)
+    excited = np.asarray(man.atom.excited, dtype=int)
+    branching = _ground_decay_branching(man)
+    exit_pops = basis_pops[:, :, grounds].copy()
+    exit_pops += np.einsum(
+        "sxe,ge->sxg", basis_pops[:, :, excited], branching)
+
+    n_scan = deff_grid.shape[0]
+    n_ground = grounds.size
+    transfer = np.empty((n_scan, n_ground, n_ground))
+    flat_deff = deff_grid.ravel()
+    for source in range(n_ground):
+        for destination in range(n_ground):
+            local = np.interp(
+                flat_deff, deff_axis, exit_pops[source, :, destination]
+            ).reshape(deff_grid.shape)
+            transfer[:, destination, source] = local @ weights
+
+    # Interpolation/linear-solve roundoff can make a probability about -1e-16.
+    transfer = np.maximum(transfer, 0.0)
+    column_sum = transfer.sum(axis=1, keepdims=True)
+    if np.any(column_sum <= 0.0):
+        raise ValueError("coated-cell ground transfer lost probability")
+    return transfer / column_sum
+
+
+def _stationary_ground_populations(
+        transfer, thermal_populations, cycle_rate,
+        wall_t1=PARAFFIN_REFERENCE_T1_S):
+    """Solve the quasi-static coated-cell ground-population reservoir.
+
+    The existing transit rate closes the one-zone model as both bright-region
+    exit and return cadence. Wall relaxation drives the reservoir toward the
+    thermal hyperfine populations at 1/T1 (not 2π/T1).
+    """
+    transfer = np.asarray(transfer, dtype=float)
+    thermal = np.asarray(thermal_populations, dtype=float)
+    n_ground = thermal.size
+    identity = np.eye(n_ground)
+    wall_rate = 1.0 / float(wall_t1)
+    A = (float(cycle_rate) * (identity[None, :, :] - transfer)
+         + wall_rate * identity[None, :, :])
+    rhs = np.broadcast_to(wall_rate * thermal, transfer.shape[:1] + (n_ground,))
+    populations = np.linalg.solve(A, rhs[..., None])[..., 0]
+    populations = np.maximum(populations, 0.0)
+    totals = populations.sum(axis=1, keepdims=True)
+    if np.any(totals <= 0.0):
+        raise ValueError("coated-cell reservoir has no ground population")
+    return populations / totals
+
+
+def _coated_ground_populations(
+        man, basis_pops, deff_axis, deff_grid, weights, cycle_rate):
+    transfer = _coated_ground_transfer(
+        man, basis_pops, deff_axis, deff_grid, weights)
+    return _stationary_ground_populations(
+        transfer, man.p_ground, cycle_rate=cycle_rate)
+
+
 def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
     """Diagonal populations ρ_ii(Δ_eff) on a fine axis, in memory-safe chunks."""
     pops = np.empty((deff_axis.size, n))
