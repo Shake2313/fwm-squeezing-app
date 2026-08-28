@@ -3,6 +3,8 @@ __pycache__/
 *.png
 *.npz
 *.log
+*.bbl
+*.blg
 # LaTeX build artifacts (force-add sources/PDFs explicitly)
 *.aux
 *.toc

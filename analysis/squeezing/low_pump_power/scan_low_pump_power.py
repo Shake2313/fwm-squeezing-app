@@ -629,7 +629,7 @@ def make_figure(res, path):
     axD.set_title("(d) focusing buys gain at constant power")
 
     apply_gabes_plot_style(fig)
-    fig.suptitle("85Rb D1 double-Lambda FWM: why 100-200 mW of pump is enough",
+    fig.suptitle("85Rb D1 double-Lambda FWM: low-pump gain/ideal-law diagnostic",
                  fontsize=13)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(path, dpi=150)
@@ -640,8 +640,13 @@ def write_markdown(res, path):
     L = []
     a = L.append
     pub = res["published"]
-    a("# 저출력 펌프(100–200 mW) FWM 스퀴징의 이론적 근거\n")
+    a("# 저출력 펌프(100–200 mW) FWM gain/ideal-law 진단\n")
     a("자동 생성 파일 — `analysis/squeezing/low_pump_power/scan_low_pump_power.py`\n")
+    a("**Claim gate — `MEAN_FIELD_IDEAL_LAW_DIAGNOSTIC`.** GABES의 절대 이득은 "
+      "예측값이 아니며, 아래 ξ 값은 측정 이득 또는 mean-field gain에 조건부 "
+      "ideal twin-beam 법칙을 적용한 진단이다. microscopic Langevin "
+      "diffusion/covariance와 동일 조건의 측정 SQL이 없으므로 물리적 squeezing, "
+      "대역폭 또는 SQL 상하를 독립적으로 예측하지 않는다.\n")
     a(f"검출 효율 η = {ETA_EXT:.4f} (v2 문서 η_ext), 검출 바닥 "
       f"10·log₁₀(1−η) = {10*math.log10(1-ETA_EXT):.3f} dB. "
       f"평균장 이득은 GABES legacy fidelity의 `G_s_smallsignal` (δ 최대점), "
@@ -894,6 +899,14 @@ def main():
         eta_ext=ETA_EXT, line_strength_residual=LS_RESIDUAL,
         mean_field_layer="GABES legacy fidelity G_s_smallsignal, peak over delta",
         noise_layer="observables.intensity_difference_squeezing_dB with G_c=G_s-1",
+        diagnostic_claim_gate=dict(
+            status="MEAN_FIELD_IDEAL_LAW_DIAGNOSTIC",
+            physical_squeezing_prediction=False,
+            bandwidth_prediction=False,
+            sql_crossing_prediction=False,
+            reason=("No microscopic Langevin diffusion/covariance or "
+                    "same-condition measured SQL is included."),
+        ),
         sim=dict(SIM), jain=dict(JAIN), dowran=dict(DOWRAN),
         runtime_s=time.time() - t0)
 
