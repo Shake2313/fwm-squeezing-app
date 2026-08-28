@@ -1,0 +1,40 @@
+{
+  "schema_version": 4,
+  "artifact": "baseline_focused.npz",
+  "sha256": "e6adff1479c1a6b4ed58943809e3be77a2944b7df170c0ec46e00f231eea0324",
+  "classification": "legacy-propagation compatibility snapshot with converged-order finite-Floquet atomic response",
+  "change_reason": "The trace-normalized atomic density matrix already supplies the ground-manifold population, so the external macroscopic factor changed from p_F/12 to 1/12. The 100 kHz ground-coherence floor is now a trace-preserving thermal transit reset, while the density-dependent collision term remains pure dephasing. The atomic response changed from the fixed N_F=1 three-mode solve to N_F=3 with a full-scan N_F=2 comparison. No hidden refit of the inherited 0.74 residual was made.",
+  "contracts_not_covered": [
+    "Option-A mismatch sign",
+    "canonical photon-flux Q normalization",
+    "microscopic squeezing noise",
+    "the machine-readable Floquet convergence metrics, which are pinned separately in tests/test_fwm_floquet.py"
+  ],
+  "pre_correction_anchors": {
+    "sim_optimum_max_G_s": 37.49013500241326,
+    "sim_optimum_max_G_c": 36.86583489068379,
+    "detuned_max_G_s": 6.560332744767079,
+    "detuned_max_G_c": 5.744947924068925
+  },
+  "pre_transit_reset_anchors": {
+    "sim_optimum_max_G_s": 795.6029165082227,
+    "sim_optimum_max_G_c": 800.6773062060894,
+    "detuned_max_G_s": 24.66668342976409,
+    "detuned_max_G_c": 23.9644262732356
+  },
+  "pre_floquet_order_promotion_anchors": {
+    "floquet_order": 1,
+    "sim_optimum_max_G_s": 548.1760129620349,
+    "sim_optimum_max_G_c": 551.8692541657566,
+    "detuned_max_G_s": 18.82156933575262,
+    "detuned_max_G_c": 18.231716250875863
+  },
+  "current_anchors": {
+    "floquet_order": 3,
+    "comparison_order": 2,
+    "sim_optimum_max_G_s": 552.4054712179246,
+    "sim_optimum_max_G_c": 556.1895262800975,
+    "detuned_max_G_s": 18.856341089958093,
+    "detuned_max_G_c": 18.2678767871881
+  }
+}

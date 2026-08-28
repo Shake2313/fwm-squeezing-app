@@ -44,8 +44,8 @@ K_VEC = 2 * np.pi / WAVELENGTH_D1_85RB
 OMEGA_D1 = 2 * np.pi * NU_D1_85RB
 
 # ---- Ground-coherence (Raman) relaxation ----
-# GAMMA_GG is the transit-time / residual floor (≈ v̄/w for the FWM beams),
-# anchored at the validated operating point. On top of it, binary Rb–Rb
+# GAMMA_GG is an inherited transit-time / residual floor (≈ v̄/w for the FWM
+# beams); it has no independent fit or uncertainty estimate. On top of it, binary Rb–Rb
 # collisions add a density-dependent term n·σ·v̄_rel (see
 # `ground_coherence_dephasing`); it is subdominant to the transit floor in the
 # pure-cell FWM temperature range but scales correctly with density.
@@ -68,8 +68,8 @@ def ground_coherence_dephasing(T, density, *, floor=None,
 
         γ_gg(T, N) = γ_floor + N · σ · v̄_rel(T)
 
-    `floor` (default GAMMA_GG) is the transit-time/residual rate anchored at the
-    validated point; the collisional term is the Rb–Rb spin-exchange
+    `floor` (default GAMMA_GG) is the inherited transit-time/residual rate; the
+    collisional term is the Rb–Rb spin-exchange
     contribution. Reduces to GAMMA_GG as N → 0.
     """
     floor = GAMMA_GG if floor is None else floor

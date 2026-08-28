@@ -14,13 +14,14 @@ Langevin noise, so:
     scope genuinely shows here, and the sweep comes from the Bloch solve;
   * its TIME-SERIES mode is `SYNTHESISED` -- samples drawn from a PSD the model
     already knows. Statistically correct, and informationally empty;
-  * the spectrum analyser is `SYNTHESISED` -- assembled from the noise budget
-    (shot noise, squeezed level, amplifier floor), not simulated.
+  * the spectrum analyser is `SYNTHESISED` -- an electronics-headroom overlay
+    (shot noise, gain-referred algebraic level, amplifier floor), not a source
+    noise spectrum.
 
-The squeezing is drawn flat in frequency because that is all the model supports.
-A real trace degrades at low frequency from technical noise; `technical_corner_hz`
-exposes that as an explicit knob and defaults to zero, so the shape stays honest
-unless someone deliberately puts a measured number in.
+The atomic model supplies no frequency-dependent covariance. Its scalar dB
+diagnostic is drawn flat only to test detector headroom and must not be called
+squeezing or experimental-shape reproduction. ``technical_corner_hz`` is an
+explicit illustrative transfer overlay and defaults to zero.
 """
 from dataclasses import dataclass
 
@@ -74,9 +75,8 @@ class Photodiode:
             Quantity("Amplifier noise",
                      signal.electronic_noise_a_per_rthz * 1e12, "pA/√Hz"),
             Quantity("Clearance", signal.clearance_db, "dB",
-                     "Shot noise above the amplifier floor. A squeezed trace "
-                     "sits |S| dB below shot noise, so this has to exceed |S| "
-                     "with margin."),
+                     "Shot noise above the amplifier floor; detector headroom "
+                     "only, independent of any atomic squeezing claim."),
         )
         return Reading(self.name, quantities, None, tuple(warnings), COMPUTED)
 
@@ -147,13 +147,12 @@ class Oscilloscope:
 
 @dataclass(frozen=True)
 class SpectrumAnalyzer:
-    """Intensity-difference noise power against RF frequency.
+    """Detector-headroom view against RF frequency.
 
-    This is the instrument that measures squeezing, so it is the one whose
-    honesty matters most. The three traces are the shot-noise level, the squeezed
-    level `SNL + S_dB`, and the amplifier floor, each rolled off by the
-    detector's single-pole response. It reproduces the SHAPE Sim et al. report;
-    it is not a quantum-Langevin simulation, and it is labelled SYNTHESISED.
+    The three traces are the shot-noise level, ``SNL + gain diagnostic``, and the
+    electronics floor, each rolled off by the detector response.  No microscopic
+    source covariance is present, so this is not a physical squeezing spectrum
+    or a reproduction of the measured RF shape.
     """
     head = HEAD_PHOTOCURRENT
     name: str = "Spectrum analyser"
@@ -161,13 +160,12 @@ class SpectrumAnalyzer:
     stop_hz: float = 5.0e6
     points: int = 401
     resolution_bandwidth_hz: float = 3.0e4
-    #: Low-frequency technical-noise corner. Zero by default: a real trace does
-    #: degrade towards DC, but inventing that shape would dress a guess up as a
-    #: measurement.
+    #: Optional illustrative low-frequency transfer corner; never evidence for
+    #: atomic noise. Zero by default.
     technical_corner_hz: float = 0.0
 
-    def analyze(self, signal, squeezing_db, *, total_power_w=None,
-                pump_leakage_dbm=None, pump_rin_db_per_hz=-140.0) -> Reading:
+    def analyze(self, signal, gain_referred_noise_db, *, total_power_w=None,
+                pump_leakage_dbm=None, pump_rin_db_per_hz=None) -> Reading:
         """`total_power_w` overrides the power setting the shot-noise level.
 
         A balanced measurement sees the shot noise of BOTH arms while the head is
@@ -178,9 +176,9 @@ class SpectrumAnalyzer:
         `pump_leakage_dbm` is the OBSERVED pump power reaching the detector. It
         is not derived from beam geometry -- a Gaussian tail claims 1e-9
         rejection, which is useless and contradicted -- and it enters twice: its
-        own shot noise, and the classical intensity noise it carries at
-        `pump_rin_db_per_hz`. The second is the one that matters, because leaked
-        pump is not common-mode and so survives the balanced subtraction.
+        own shot noise. Classical intensity noise is added only when an explicit
+        measured or predeclared `pump_rin_db_per_hz` is supplied; no hidden RIN
+        calibration is assumed.
         """
         frequency = np.linspace(self.start_hz, self.stop_hz, self.points)
         response = _detector_response(frequency, signal.bandwidth_hz)
@@ -192,16 +190,18 @@ class SpectrumAnalyzer:
         clearance = (20.0 * np.log10(shot_a / signal.electronic_noise_a_per_rthz)
                      if signal.electronic_noise_a_per_rthz > 0 else float("inf"))
 
-        # Observed pump leakage: shot noise of its own photocurrent, plus the
-        # classical RIN it carries. Only the latter is large.
+        # Observed pump leakage: shot noise is calculable from the power. The
+        # classical RIN term remains absent unless the caller explicitly supplies
+        # a measured/predeclared spectral density.
         leak_shot_a = leak_rin_a = 0.0
         if pump_leakage_dbm is not None and np.isfinite(pump_leakage_dbm):
             leak_w = 1e-3 * 10.0 ** (float(pump_leakage_dbm) / 10.0)
             leak_current = signal.responsivity_a_per_w * leak_w
             leak_shot_a = shot_noise_a_per_rthz(signal.responsivity_a_per_w,
                                                 leak_w)
-            leak_rin_a = leak_current * np.sqrt(
-                10.0 ** (float(pump_rin_db_per_hz) / 10.0))
+            if pump_rin_db_per_hz is not None:
+                leak_rin_a = leak_current * np.sqrt(
+                    10.0 ** (float(pump_rin_db_per_hz) / 10.0))
         leak_a = float(np.hypot(leak_shot_a, leak_rin_a))
 
         # Noise POWER into 50 ohm, which is what an analyser displays.
@@ -213,50 +213,57 @@ class SpectrumAnalyzer:
         electronic = to_dbm(floor_a * np.sqrt(response))
         snl = to_dbm(shot_a * np.sqrt(response))
 
-        squeezing = np.full_like(frequency, float(squeezing_db))
+        diagnostic = np.full_like(frequency, float(gain_referred_noise_db))
         if self.technical_corner_hz > 0:
-            # Squeezing degrades towards DC; the corner is an explicit input.
+            # Illustrative electronics transfer only; not an atomic-noise model.
             spoil = 1.0 / (1.0 + (self.technical_corner_hz / frequency) ** 2)
-            squeezing = squeezing * spoil
-        squeezed = snl + squeezing
+            diagnostic = diagnostic * spoil
+        diagnostic_level = snl + diagnostic
 
-        # The analyser sees the squeezed light and the floor together, so the
-        # observed trace is their incoherent sum -- which is exactly why
-        # clearance limits what a squeezed measurement can show.
-        observed = 10.0 * np.log10(10 ** (squeezed / 10.0)
+        # Electronics-headroom overlay: combine the algebraic level and floor as
+        # powers. This does not promote the input diagnostic to a source PSD.
+        observed = 10.0 * np.log10(10 ** (diagnostic_level / 10.0)
                                    + 10 ** (electronic / 10.0))
 
         quantities = (
             Quantity("Shot-noise level", float(snl[0]), "dBm"),
-            Quantity("Squeezed level", float(squeezed[0]), "dBm"),
+            Quantity("Gain-diagnostic level", float(diagnostic_level[0]), "dBm",
+                     "Algebraic overlay only; physical squeezing unavailable."),
             Quantity("Noise floor", float(electronic[0]), "dBm",
                      "Amplifier noise and leaked-pump noise together."),
             Quantity("Pump leakage", float(pump_leakage_dbm)
                      if pump_leakage_dbm is not None else float("nan"), "dBm",
                      "Observed at the detector, not derived from geometry."),
+            Quantity("Pump RIN", float(pump_rin_db_per_hz)
+                     if pump_rin_db_per_hz is not None else float("nan"),
+                     "dBc/Hz", "Explicit measured/predeclared input; unavailable "
+                     "means its classical-noise contribution is unapplied."),
             Quantity("Clearance", clearance, "dB"),
-            Quantity("Observable squeezing", float(observed[0] - snl[0]), "dB",
-                     "What survives once the noise floor is added in, before "
-                     "any electronic-noise subtraction."),
+            Quantity("Diagnostic after electronics", float(observed[0] - snl[0]),
+                     "dB", "Detector-headroom overlay; not a measured or modeled "
+                     "atomic noise spectrum."),
             Quantity("Resolution bandwidth", bandwidth / 1e3, "kHz"),
         )
         warnings = []
-        deficit = clearance - abs(float(squeezing_db))
+        deficit = clearance - abs(float(gain_referred_noise_db))
         if deficit < 6.0:
             warnings.append(
-                f"the squeezed trace sits {deficit:.1f} dB above the noise "
-                f"floor; below about 6 dB the electronic-noise subtraction "
-                f"dominates the reported number")
+                f"the diagnostic overlay sits {deficit:.1f} dB above the noise "
+                f"floor; below about 6 dB electronics dominate this headroom view")
 
         trace = Trace(
             x=frequency / 1e6,
-            series={"shot-noise level": snl, "squeezed": squeezed,
-                    "observed": observed, "noise floor": electronic},
+            series={"shot-noise level": snl,
+                    "gain diagnostic": diagnostic_level,
+                    "diagnostic + electronics": observed,
+                    "noise floor": electronic},
             x_label="RF frequency", x_unit="MHz",
             y_label="Noise power", y_unit="dBm",
         )
         return Reading(
             self.name, quantities, trace, tuple(warnings), SYNTHESISED,
-            note="Assembled from the noise budget (shot, squeezed, amplifier, "
-                 "observed pump leakage), not simulated. Reproduces the measured "
-                 "shape; it is not a quantum-Langevin calculation.")
+            note="MEAN_FIELD_DIAGNOSTIC / PHYSICAL_SQUEEZING_UNAVAILABLE. "
+                 "Electronics-headroom overlay assembled from shot noise, the "
+                 "scalar gain diagnostic, amplifier noise, and observed pump "
+                 "leakage shot noise. Pump RIN is applied only when explicitly "
+                 "supplied; no atomic covariance or measured RF shape is supplied.")

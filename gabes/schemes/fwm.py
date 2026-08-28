@@ -1,25 +1,34 @@
-"""
-Cluster D — 85Rb D1 double-Λ four-wave mixing.
+"""Cluster D — 85Rb D1 double-Λ four-wave mixing.
 
-The physics is ported verbatim from the original fwm_obe.py (Hamiltonians,
-χ̄-matrix table, probe scan, Doppler average, Maxwell-Bloch propagation). The
-only change is that shared engine pieces now come from gabes.core / .doppler /
-.observables and the 4-level structure from gabes.atoms.
+The seeded path is a maintained descendant of ``fwm_obe.py``.  It now differs
+materially in normalization, Maxwell-sign/phase conventions, collected-mode
+conversion, transit reset, and validation metadata.  Its present atomic response
+is a finite-reference-field density-matrix Floquet solve, reported at N_F>=3
+only after an adjacent-order full-scan check; it remains a mean-field diagnostic,
+not a quantum-Langevin model.  A separate slow reference now solves the exact
+static pump state and its infinitesimal trace-zero Nambu response for the
+standard minus Raman branch; it is not silently substituted into production.
 
-`compute_spectrum` / `operating_point` keep their original signatures so the CLI
-shim and the regression test can call them directly. `FWMScheme` wraps them for
-the generic Streamlit front-end.
+``compute_spectrum`` / ``operating_point`` retain compatibility keys for older
+callers.  ``FWMScheme`` wraps them for the generic Streamlit front-end.
 """
 import functools
 import math
-from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import numpy as np
 
 from .. import atoms, beam, constants, doppler, hyperfine, kernels, observables, species
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
-from ..core import blas_single_thread, build_liouvillian, comm_super, floquet_solve
+from ..core import (
+    blas_single_thread,
+    build_liouvillian,
+    comm_super,
+    floquet_solve_truncated,
+    liouvillian_pole_residue_response,
+    steady_state_batched,
+    trace_zero_liouvillian_response,
+)
 from ..lineshape import fwhm_interp
 from .base import ExtraView, ParamSpec, Preset, Scheme
 
@@ -40,32 +49,49 @@ for _g in GROUND_STATES:
             3.0 * hyperfine.CF2[(GROUND_F[_g], EXCITED_F[_e])])
 
 
-def physical_coupling_norm(branch):
-    """First-principles macroscopic-coupling normalization for the lumped
-    4-level double-Λ model — the factor the old hand-tuned ``line_strength=0.05``
-    was standing in for.
+def physical_coupling_ledger(branch):
+    """One-use ledger for the reduced four-level susceptibility scale.
 
-    The AutoOD-validated absorption scale (`schemes.absorption._hyperfine_alpha`,
-    <0.1 % vs lab) carries an explicit ``p_F / [2(2I+1)]``: the ground-population
-    fraction times the ground-sublevel degeneracy. The lumped FWM solve instead
-    normalizes Tr(ρ)=1 over just 4 levels and multiplies by the *total* atomic
-    density, so this population/degeneracy factor is otherwise omitted. The χ̄
-    already carries the Clebsch-Gordan strengths (C² = 3·C_F² via drive×readout),
-    so this is the only structural piece missing relative to the validated path.
+    ``rho_ss`` is trace normalized over the two representative hyperfine
+    manifolds, so its ground-state diagonal already supplies the pump-modified
+    manifold population. Multiplying by the equilibrium ``p_F`` again would
+    duplicate that population. The remaining structural factor is the
+    ``1/[2(2I+1)] = 1/12`` sublevel average used by the AutoOD reference.
 
-    The seeded probe couples from F=3 on the (−) Raman branch and F=2 on (+);
-    the residual asymmetry between the two ground manifolds folds into the
-    dimensionless ``line_strength`` residual knob.
+    The microscopic drive and polarization readout each contain
+    ``sqrt(3 C_F^2)``; their product supplies ``3 C_F^2`` exactly once. Isotope
+    abundance is absent here because ``hyperfine.number_density`` already
+    returns the pure-85Rb cell density. Residual experimental factors are
+    applied separately by ``SeededCouplingFactors``.
     """
+    if branch not in BRANCHES:
+        raise ValueError(f"branch must be one of {BRANCHES}, got {branch}")
     probe_F = GROUND_F[G2] if branch == -1 else GROUND_F[G1]
-    return hyperfine.GROUND_POP[probe_F] / hyperfine.N_GROUND_SUBLEVELS
+    return {
+        "probe_ground_F": probe_F,
+        "atomic_density_source": "pure-85Rb total density",
+        "isotope_factor_applied_here": 1.0,
+        "manifold_population_source": "trace-normalized rho_ss",
+        "equilibrium_manifold_population_reference": hyperfine.GROUND_POP[probe_F],
+        "external_manifold_population_factor": 1.0,
+        "ground_sublevel_average": 1.0 / hyperfine.N_GROUND_SUBLEVELS,
+        "dipole_strength_source": "sqrt(3 C_F^2) in drive and readout",
+        "macroscopic_coupling_norm": 1.0 / hyperfine.N_GROUND_SUBLEVELS,
+    }
+
+
+def physical_coupling_norm(branch):
+    """Macroscopic factor from :func:`physical_coupling_ledger`."""
+    return physical_coupling_ledger(branch)["macroscopic_coupling_norm"]
 
 
 @dataclass(frozen=True)
 class SeededCouplingFactors:
     """Scalar residuals multiplying the seeded-FWM macroscopic coupling.
 
-    ``reference_residual`` preserves the historical Sim-et-al. gain anchor.
+    ``reference_residual`` preserves an inherited historical factor.  It has not
+    been refitted after the normalization and propagation corrections and is not
+    an experimental gain or squeezing calibration.
     The three lab-facing terms are one-sided *additional effective-coupling
     penalties*, not independently calibrated power fractions. Keeping their
     defaults at one avoids inventing an arbitrary decomposition of the reference
@@ -86,6 +112,92 @@ class SeededCouplingFactors:
     @property
     def combined_residual(self):
         return float(self.reference_residual) * self.lab_factor
+
+
+@dataclass(frozen=True)
+class PumpWeakResponseReference:
+    """Slow pump-only, infinitesimal Nambu-response reference.
+
+    ``chi_matrix`` has axes
+    ``(analysis_frequency, two_photon_detuning, velocity, output, input)``
+    with output/input order ``(probe, conjugate-star)``.  Its four entries are
+    reduced susceptibilities per unit angular Rabi frequency and therefore have
+    units of seconds.  The named ``chi_cs``/``chi_cc`` properties conjugate the
+    second Nambu output row to match the historical positive-frequency tuple
+    returned by ``chi_matrix_table``.
+    """
+
+    branch: int
+    delta_axis_rad_s: np.ndarray
+    analysis_frequency_axis_rad_s: np.ndarray
+    relative_frequency_rad_s: np.ndarray
+    delta_eff_axis_rad_s: np.ndarray
+    pump_state: np.ndarray
+    chi_matrix: np.ndarray
+    diagnostics: dict
+    provenance: dict
+
+    @property
+    def chi_ss(self):
+        return self.chi_matrix[..., 0, 0]
+
+    @property
+    def chi_cs(self):
+        return np.conj(self.chi_matrix[..., 1, 0])
+
+    @property
+    def chi_sc(self):
+        return self.chi_matrix[..., 0, 1]
+
+    @property
+    def chi_cc(self):
+        return np.conj(self.chi_matrix[..., 1, 1])
+
+
+@dataclass(frozen=True)
+class NoncollinearPumpWeakResponseReference:
+    """Slow ``(v_z,v_x)`` Maxwell average of the pump-only Nambu response.
+
+    The laboratory optical beat, RF analysis frequency, velocity-shifted Raman
+    detuning, and one-photon detuning are stored separately.  ``chi_matrix`` has
+    axes ``(analysis_frequency, lab_two_photon_detuning, output, input)`` in the
+    raw ``(probe, conjugate-star)`` Nambu convention.
+    """
+
+    branch: int
+    lab_delta_axis_rad_s: np.ndarray
+    lab_optical_beat_axis_rad_s: np.ndarray
+    analysis_frequency_axis_rad_s: np.ndarray
+    one_photon_detuning_rad_s: float
+    pump_k_rad_m: float
+    probe_k_axis_rad_m: np.ndarray
+    crossing_angle_rad: float
+    vx_axis_m_s: np.ndarray
+    vz_axis_m_s: np.ndarray
+    vx_weights: np.ndarray
+    vz_weights: np.ndarray
+    raman_shift_grid_rad_s: np.ndarray
+    one_photon_effective_axis_rad_s: np.ndarray
+    pump_state: np.ndarray
+    chi_matrix: np.ndarray
+    diagnostics: dict
+    provenance: dict
+
+    @property
+    def chi_ss(self):
+        return self.chi_matrix[..., 0, 0]
+
+    @property
+    def chi_cs(self):
+        return np.conj(self.chi_matrix[..., 1, 0])
+
+    @property
+    def chi_sc(self):
+        return self.chi_matrix[..., 0, 1]
+
+    @property
+    def chi_cc(self):
+        return np.conj(self.chi_matrix[..., 1, 1])
 
 # =========================================================
 # FWM experiment configuration (cell, beams, detection, scan)
@@ -135,19 +247,386 @@ PHASE_BALANCED = "balanced"
 PHASE_FINE = "fine"
 PHASE_ULTRA = "ultra"
 SEEDED_PHASE_ANGLE_DEG = 0.32
-ULTRA_PHASE_ITERATIONS = 1   # n(χ) has no Δk feedback; one refractive pass is exact
+ULTRA_PHASE_ITERATIONS = 0   # Option A keeps dispersion in diagonal χ, not in Δk
 ULTRA_PROPAGATION_SEGMENTS = 64
+SEEDED_REFERENCE_RESIDUAL = 0.74
+SEEDED_FLOQUET_ORDER = 3
+FLOQUET_COMPLEX_RTOL = 0.01
+FLOQUET_TRANSFER_ATOL = 1e-10
+FLOQUET_RESPONSE_FLOOR_FRACTION = 1e-8
+FLOQUET_GAIN_RTOL = 0.01
+FLOQUET_PHASE_TOL_DEG = 0.5
+FLOQUET_PHASE_AMPLITUDE_FLOOR = 1e-8
 
-# Hardened excess-noise model — now INTRINSIC to the Ultra path (see
-# `compute_spectrum`). It adds the two penalties the gap-only squeezing objective
-# is blind to: (i) the CONJUGATE arm's own in-cell absorption (asymmetric twin-arm
-# loss, the squeezing killer Sim et al. document when the conjugate sits near
-# resonance), and (ii) pump-scatter excess noise anchored to the validated
-# hyperfine pump OD. `kappa` is the one residual coefficient: the fraction of
-# scattered-pump OD that leaks into the difference photocurrent. The pinned
-# regression baseline is the LEGACY path, so folding this into Ultra leaves it
-# untouched; pass `excess_noise_model=False` to recover pre-hardening Ultra (A/B).
+# Optional Ultra diagnostic.  The Maxwell diagonal already carries mean-field arm
+# absorption, so this path applies only the phenomenological pump-scatter term.
+# Distributed loss vacuum and atomic Langevin diffusion remain unavailable.
+# ``kappa`` is an inherited, uncalibrated coefficient; disabling the option removes
+# that diagnostic term but does not recover a physical squeezing prediction.
 HARDENED_PUMP_SCATTER_KAPPA = 0.1
+
+
+def assess_floquet_scan_convergence(
+        *, high_order, low_order, high_response, low_response,
+        high_transfer, low_transfer, scan_axis,
+        complex_rtol=FLOQUET_COMPLEX_RTOL,
+        transfer_atol=FLOQUET_TRANSFER_ATOL,
+        response_floor_fraction=FLOQUET_RESPONSE_FLOOR_FRACTION,
+        gain_rtol=FLOQUET_GAIN_RTOL,
+        phase_tol_deg=FLOQUET_PHASE_TOL_DEG,
+        phase_amplitude_floor=FLOQUET_PHASE_AMPLITUDE_FLOOR):
+    """Apply the declared full-scan Floquet truncation criteria.
+
+    ``high_response`` and ``low_response`` are mappings of named complex arrays;
+    the transfer arrays have shape ``(scan, 2, 2)`` in the canonical photon-flux
+    basis.  A single operating point cannot make this gate pass.
+    """
+    high_order = int(high_order)
+    low_order = int(low_order)
+    if high_order < 2 or low_order != high_order - 1:
+        raise ValueError("Floquet convergence requires adjacent orders N and N-1")
+    if set(high_response) != set(low_response):
+        raise ValueError("high/low response components must have identical names")
+    high_transfer = np.asarray(high_transfer, dtype=complex)
+    low_transfer = np.asarray(low_transfer, dtype=complex)
+    scan_axis = np.asarray(scan_axis, dtype=float)
+    if scan_axis.ndim != 1 or scan_axis.size < 2:
+        raise ValueError("a full-scan Floquet gate requires at least two scan points")
+    expected_transfer_shape = (scan_axis.size, 2, 2)
+    if (high_transfer.shape != expected_transfer_shape
+            or low_transfer.shape != expected_transfer_shape):
+        raise ValueError(
+            f"high/low transfer arrays must have shape {expected_transfer_shape}")
+    nonfinite_entries = int(
+        high_transfer.size - np.count_nonzero(np.isfinite(high_transfer))
+        + low_transfer.size - np.count_nonzero(np.isfinite(low_transfer))
+        + scan_axis.size - np.count_nonzero(np.isfinite(scan_axis)))
+
+    complex_components = {}
+    complex_pass = True
+    for name in sorted(high_response):
+        high = np.asarray(high_response[name], dtype=complex)
+        low = np.asarray(low_response[name], dtype=complex)
+        if high.shape != (scan_axis.size,) or low.shape != (scan_axis.size,):
+            raise ValueError(
+                f"response component {name!r} must have full-scan shape "
+                f"({scan_axis.size},)")
+        component_nonfinite = int(
+            high.size - np.count_nonzero(np.isfinite(high))
+            + low.size - np.count_nonzero(np.isfinite(low)))
+        nonfinite_entries += component_nonfinite
+        difference = np.abs(high - low)
+        finite_magnitudes = np.concatenate((
+            np.abs(high[np.isfinite(high)]),
+            np.abs(low[np.isfinite(low)]),
+        ))
+        component_scale = max(
+            float(np.max(finite_magnitudes, initial=0.0)),
+            np.finfo(float).tiny)
+        # Reduced susceptibilities carry seconds, whereas transfer coefficients
+        # are dimensionless.  A fixed 1e-10 absolute term would therefore allow
+        # order-unity changes in a 1e-12 s response.  Use a full-scan component
+        # scale for the response floor and reserve the fixed SI-free atol for T.
+        response_floor = float(response_floor_fraction) * component_scale
+        allowed = response_floor + float(complex_rtol) * np.maximum(
+            np.abs(high), np.abs(low))
+        ratio = np.full(difference.shape, np.inf, dtype=float)
+        finite = np.isfinite(difference) & np.isfinite(allowed)
+        ratio[finite] = difference[finite] / np.maximum(
+            allowed[finite], np.finfo(float).tiny)
+        passed = bool(np.all(ratio <= 1.0))
+        complex_pass = complex_pass and passed
+        complex_components[name] = {
+            "max_abs_difference": (
+                float("inf") if component_nonfinite else
+                float(np.max(difference, initial=0.0))),
+            "component_scale": component_scale,
+            "absolute_floor": response_floor,
+            "max_tolerance_ratio": float(np.max(ratio, initial=0.0)),
+            "failed_points": int(np.count_nonzero(ratio > 1.0)),
+            "nonfinite_entries": component_nonfinite,
+            "passed": passed,
+        }
+
+    transfer_difference = np.abs(high_transfer - low_transfer)
+    transfer_allowed = float(transfer_atol) + float(complex_rtol) * np.maximum(
+        np.abs(high_transfer), np.abs(low_transfer))
+    transfer_ratio = np.full(transfer_difference.shape, np.inf, dtype=float)
+    finite_transfer = np.isfinite(transfer_difference) & np.isfinite(transfer_allowed)
+    transfer_ratio[finite_transfer] = transfer_difference[finite_transfer] / np.maximum(
+        transfer_allowed[finite_transfer], np.finfo(float).tiny)
+    transfer_pass = bool(np.all(transfer_ratio <= 1.0))
+
+    gain_high = {
+        "probe_power": np.abs(high_transfer[:, 0, 0]) ** 2,
+        "conjugate_photon_flux": np.abs(high_transfer[:, 1, 0]) ** 2,
+    }
+    gain_low = {
+        "probe_power": np.abs(low_transfer[:, 0, 0]) ** 2,
+        "conjugate_photon_flux": np.abs(low_transfer[:, 1, 0]) ** 2,
+    }
+    gain_components = {}
+    gain_pass = True
+    for name in gain_high:
+        relative = np.full(gain_high[name].shape, np.inf, dtype=float)
+        finite_gain = np.isfinite(gain_high[name]) & np.isfinite(gain_low[name])
+        relative[finite_gain] = (
+            np.abs(gain_high[name][finite_gain] - gain_low[name][finite_gain])
+            / np.maximum(1.0, np.abs(gain_high[name][finite_gain])))
+        passed = bool(np.all(relative < float(gain_rtol)))
+        gain_pass = gain_pass and passed
+        gain_components[name] = {
+            "max_relative_difference": float(np.max(relative, initial=0.0)),
+            "failed_points": int(np.count_nonzero(relative >= float(gain_rtol))),
+            "passed": passed,
+        }
+
+    transfer_scale = np.maximum(
+        1.0,
+        np.maximum(
+            np.max(np.abs(high_transfer), axis=(-2, -1)),
+            np.max(np.abs(low_transfer), axis=(-2, -1))),
+    )
+    amplitude_threshold = float(phase_amplitude_floor) * transfer_scale[:, None, None]
+    phase_mask = ((np.abs(high_transfer) > amplitude_threshold)
+                  & (np.abs(low_transfer) > amplitude_threshold))
+    wrapped_phase = np.degrees(np.angle(high_transfer * np.conj(low_transfer)))
+    reported_phase = np.abs(wrapped_phase[phase_mask])
+    max_phase = float(np.max(reported_phase, initial=0.0))
+    phase_pass = bool(
+        nonfinite_entries == 0 and max_phase < float(phase_tol_deg))
+
+    probe_high = gain_high["probe_power"]
+    probe_low = gain_low["probe_power"]
+    optimum_finite = (
+        probe_high.size > 0
+        and np.isfinite(scan_axis).all()
+        and np.isfinite(probe_high).all()
+        and np.isfinite(probe_low).all())
+    if optimum_finite:
+        high_index = int(np.nanargmax(probe_high))
+        low_index = int(np.nanargmax(probe_low))
+        optimum_index_shift = abs(high_index - low_index)
+        optimum_axis_shift = float(abs(scan_axis[high_index] - scan_axis[low_index]))
+        optimum_pass = optimum_index_shift <= 1
+    else:
+        high_index = low_index = None
+        optimum_index_shift = None
+        optimum_axis_shift = None
+        optimum_pass = False
+
+    passed = bool(
+        nonfinite_entries == 0 and complex_pass and transfer_pass
+        and gain_pass and phase_pass and optimum_pass)
+    return {
+        "status": "CONVERGED" if passed else "UNCONVERGED",
+        "passed": passed,
+        "high_order": high_order,
+        "comparison_order": low_order,
+        "full_scan_points": int(scan_axis.size),
+        "finite": nonfinite_entries == 0,
+        "nonfinite_entries": nonfinite_entries,
+        "criteria": {
+            "complex_rtol": float(complex_rtol),
+            "transfer_atol": float(transfer_atol),
+            "response_floor_fraction_of_component_scan_max": float(
+                response_floor_fraction),
+            "gain_rtol": float(gain_rtol),
+            "phase_tolerance_deg": float(phase_tol_deg),
+            "phase_amplitude_floor": float(phase_amplitude_floor),
+            "optimum_max_grid_intervals": 1,
+        },
+        "response_components": complex_components,
+        "transfer": {
+            "max_abs_difference": (
+                float("inf") if not np.isfinite(transfer_difference).all()
+                else float(np.max(transfer_difference, initial=0.0))),
+            "max_tolerance_ratio": float(np.max(transfer_ratio, initial=0.0)),
+            "failed_coefficients": int(np.count_nonzero(transfer_ratio > 1.0)),
+            "passed": transfer_pass,
+        },
+        "gains": gain_components,
+        "wrapped_phase": {
+            "max_difference_deg": max_phase,
+            "reported_coefficients": int(np.count_nonzero(phase_mask)),
+            "passed": phase_pass,
+        },
+        "probe_gain_optimum": {
+            "high_index": high_index,
+            "comparison_index": low_index,
+            "index_shift": optimum_index_shift,
+            "axis_shift": optimum_axis_shift,
+            "passed": bool(optimum_pass),
+        },
+    }
+
+
+def pump_weak_response_reference_provenance():
+    """Machine-readable boundary of the independent pump-only reference."""
+    return {
+        "solver_id": "static_pump_trace_zero_nambu_reference",
+        "state_equation": "self-consistent trace-one 4-level pump Liouvillian",
+        "rotating_frame": (
+            "U=exp(+i*Omega_beat*t*|g2><g2|), default minus Raman branch"),
+        "frame_equivalence": (
+            "unitarily equivalent to the pump-only finite-Floquet state; "
+            "executable gauge-parity fixture required"),
+        "weak_response": (
+            "analytic complex-amplitude derivative on the trace-zero subspace"),
+        "dc_solver": "trace-constrained stationary-subspace projection",
+        "analysis_frequency": "independent angular-frequency input",
+        "reference_fields": "none",
+        "supported_branches": (-1,),
+        "unsupported_branches": {
+            +1: (
+                "the inherited plus-branch finite-seed frame is not gauge-"
+                "equivalent to the physical static pump frame")},
+        "production_default": False,
+        "doppler_geometry": "longitudinal one-dimensional reference only",
+        "quantum_noise": "not implemented",
+    }
+
+
+def noncollinear_doppler_reference_provenance():
+    """Machine-readable boundary of the two-dimensional Maxwell reference."""
+    return {
+        "solver_id": "pump_trace_zero_nambu_2d_maxwell_reference",
+        "atomic_response": pump_weak_response_reference_provenance()["solver_id"],
+        "velocity_geometry": "tensor (v_z,v_x) truncated-Maxwell quadrature",
+        "one_photon_detuning": "Delta_eff=Delta_lab-k_pump*v_z",
+        "two_photon_detuning": (
+            "delta_eff=delta_lab+(k_pump-k_probe*cos(theta))*v_z"
+            "-k_probe*sin(theta)*v_x"),
+        "lab_optical_beat": "independent input; never velocity shifted",
+        "analysis_frequency": "independent angular-frequency input",
+        "floquet_certificate": (
+            "minus-branch static pump frame pinned to the N_F=3 pump-only "
+            "Floquet state"),
+        "supported_branches": (-1,),
+        "production_default": False,
+        "quadrature": "Gauss-Legendre nodes with explicit Maxwell weights/cutoff",
+        "angular_distribution": "single declared crossing angle; no beam divergence",
+        "segmentwise_pump_recomputation": False,
+        "quantum_noise": "not implemented",
+    }
+
+
+def seeded_atomic_solver_provenance(*, floquet_order=SEEDED_FLOQUET_ORDER,
+                                    convergence=None):
+    """Machine-readable provenance for the production seeded atomic response."""
+    floquet_order = int(floquet_order)
+    convergence_status = (
+        "not evaluated" if convergence is None else convergence.get("status"))
+    return {
+        "solver_id": "finite_seed_finite_floquet_density_matrix",
+        "state_equation": "full density-matrix Liouvillian null solve",
+        "reference_fields": "finite probe/conjugate reference fields",
+        "floquet_order": floquet_order,
+        "floquet_modes": tuple(range(-floquet_order, floquet_order + 1)),
+        "floquet_convergence_status": convergence_status,
+        "floquet_comparison_order": (
+            None if convergence is None else convergence.get("comparison_order")),
+        "pump_only_self_consistent_nullspace": False,
+        "pump_only_weak_response_reference_available": True,
+        "noncollinear_doppler_reference_available": True,
+        "pump_only_reference_solver_id": (
+            pump_weak_response_reference_provenance()["solver_id"]),
+        "rate_sylvester_approximation": False,
+        "scope": "production seeded-FWM response",
+        "target_model_status": (
+            "pump-only weak-response and two-dimensional non-collinear Doppler "
+            "references are separate from production; quantum-noise response "
+            "is not implemented"),
+    }
+
+
+def seeded_parameter_provenance(*, line_strength, transit_rate,
+                                pump_scatter_kappa=HARDENED_PUMP_SCATTER_KAPPA):
+    """Provenance ledger; sweep ranges are illustrative, not uncertainties."""
+    return {
+        "ell_s": {
+            "value": float(line_strength),
+            "source": "inherited historical residual",
+            "calibration_status": "not refitted after normalization/sign corrections",
+            "illustrative_sweep": (0.666, 0.74, 0.814),
+            "range_kind": "illustrative sensitivity sweep; not an uncertainty interval",
+        },
+        "kappa": {
+            "value": float(pump_scatter_kappa),
+            "source": "phenomenological pump-scatter diagnostic coefficient",
+            "calibration_status": "unvalidated and not fitted",
+            "illustrative_sweep": (0.0, 0.1, 0.2),
+            "range_kind": "illustrative sensitivity sweep; not an uncertainty interval",
+        },
+        "gamma_transit": {
+            "value_rad_s": float(transit_rate),
+            "value_hz": float(transit_rate) / (2.0 * np.pi),
+            "source": "inherited transit/residual floor",
+            "calibration_status": "independent fit unavailable",
+            "illustrative_sweep_hz": (90e3, 100e3, 110e3),
+            "range_kind": "illustrative sensitivity sweep; not an uncertainty interval",
+        },
+    }
+
+
+def seeded_validation_claim_gate(*, canonical_mode_status,
+                                 commutator_defect_max,
+                                 floquet_convergence=None,
+                                 eom_residual_carrier_power=0.0,
+                                 eom_other_sidebands_power=0.0,
+                                 eom_spectrum_status="not supplied",
+                                 eom_spectrum_application="unapplied"):
+    """Return the explicit validation boundary for seeded-FWM outputs."""
+    defect = float(np.nanmax(np.asarray(commutator_defect_max, dtype=float)))
+    reasons = [
+        "atomic response uses finite probe/conjugate reference fields",
+        "pump-only weak response exists only as a separate slow reference",
+        "two-dimensional non-collinear Doppler averaging exists only as a "
+        "separate slow reference; production remains one-dimensional",
+        "ell_s, kappa, and gamma_transit lack independent calibration",
+        "frequency-dependent atomic Langevin diffusion/covariance is unavailable",
+    ]
+    floquet_status = (
+        "NOT_EVALUATED" if floquet_convergence is None
+        else str(floquet_convergence.get("status", "NOT_EVALUATED")))
+    if floquet_status != "CONVERGED":
+        reasons.append(
+            f"full-scan Floquet truncation status is {floquet_status}")
+    if "conditional" in str(canonical_mode_status).lower():
+        reasons.append("conjugate collected-mode area is assumed rather than measured")
+    eom_unapplied = str(eom_spectrum_application).strip().lower() != "applied"
+    eom_unsupported = str(eom_spectrum_status).strip().lower() not in {
+        "supported", "calibrated"}
+    if (float(eom_residual_carrier_power) > 0.0
+            or float(eom_other_sidebands_power) > 0.0
+            or eom_unapplied or eom_unsupported):
+        reasons.append(
+            "declared EOM residual components are passed through but their "
+            f"spectrum model is {eom_spectrum_status}/{eom_spectrum_application}")
+    badges = [
+        "MEAN_FIELD_DIAGNOSTIC",
+        "QUANTITATIVE_GAIN_UNSUPPORTED",
+        "PHYSICAL_SQUEEZING_UNAVAILABLE",
+    ]
+    if floquet_status != "CONVERGED":
+        badges.append("FLOQUET_UNCONVERGED")
+    return {
+        "level": "MEAN_FIELD_DIAGNOSTIC",
+        "badges": tuple(badges),
+        "mean_field_gain_diagnostic_available": True,
+        "quantitative_gain_supported": False,
+        "physical_squeezing_prediction": False,
+        "experimental_agreement_claim_allowed": False,
+        "physical_claims_allowed": False,
+        "commutator_defect_max": defect,
+        "floquet_convergence_status": floquet_status,
+        "blocked_claims": (
+            "absolute quantitative gain",
+            "physical squeezing spectrum or bandwidth",
+            "agreement with experimental gain/squeezing",
+        ),
+        "reasons": tuple(reasons),
+    }
 
 
 def seeded_sideband_beat(delta, branch):
@@ -168,7 +647,8 @@ def seeded_sideband_beat(delta, branch):
 NM = 1e-9
 MHZ_ANG = 2 * np.pi * 1e6
 
-MODE_SEEDED = "Squeezing"
+MODE_SEEDED = "Gain diagnostic"
+MODE_SEEDED_LEGACY = "Squeezing"  # accepted implicitly by compute() as seeded
 MODE_BIPHOTON = "Biphoton"
 
 # Biphoton source model. "Predictive" solves the Doppler-averaged cascade/double-Λ
@@ -186,7 +666,7 @@ BIPHOTON_MODELS = (BIPHOTON_PREDICTIVE, BIPHOTON_CALIBRATED)
 # sets the EIT/Raman two-photon linewidth. Chen et al. fit γ ≈ 0.02–0.03 Γ.
 GROUND_DEPHASING_FRAC = 0.02
 # Regularization clip for the complex longitudinal function ρ̄ at high OD
-# (mirrors the dilute-vapor clip in `_safe_refractive_index`).
+# (a numerical regularizer for the separate biphoton longitudinal model).
 PRED_RHO_CLIP = 60.0
 
 # Predictive velocity-grid auto-refinement. The nonlinear source |amp(v)| that the
@@ -1112,6 +1592,415 @@ def _polarization_coherence(rho, ground):
                for e in EXCITED_STATES)
 
 
+def pump_hamiltonian_at_Deff_zero(Op_A, Op_B):
+    """Static physical pump frame, before the longitudinal Doppler shift.
+
+    For the standard minus Raman branch, applying
+    ``U(t)=exp(+i*Omega_beat*t*|g2><g2|)`` to the seeded frame makes the second
+    pump leg static and changes its diagonal from ``delta`` to
+    ``delta + Omega_beat = OMEGA_HF``.  The resulting pump Hamiltonian is
+    independent of probe detuning, as a pump-only state must be.
+    """
+    H = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
+    H[G2, G2] = OMEGA_HF
+    H[E2, E2] = -OMEGA_EXCITED_HF
+    H[E3, E3] = 0.0
+    _add_static_drive(H, G1, Op_A)
+    _add_static_drive(H, G2, Op_B)
+    return H
+
+
+def pump_frame_to_seeded_harmonics(pump_state, n_f=1, branch=-1):
+    """Reconstruct seeded-frame pump harmonics from the static pump state.
+
+    This executable gauge map is currently certified only for the standard
+    minus Raman branch.  In that frame coherences with ``g2`` in the row occupy
+    harmonic ``-1`` and those with ``g2`` in the column occupy ``+1``; every
+    ``|n|>=2`` block is identically zero.
+    """
+    if branch != -1:
+        raise NotImplementedError(
+            "the inherited plus-branch seeded frame is not gauge-equivalent "
+            "to the physical static pump frame")
+    n_f = int(n_f)
+    if n_f < 1:
+        raise ValueError("n_f must be at least 1")
+    rho = np.asarray(pump_state, dtype=complex)
+    if rho.shape[-2:] != (N_LEVELS, N_LEVELS):
+        raise ValueError(
+            f"pump_state must end in shape {(N_LEVELS, N_LEVELS)}")
+    harmonics = np.zeros(
+        rho.shape[:-2] + (2 * n_f + 1, N_LEVELS, N_LEVELS), dtype=complex)
+    for row in range(N_LEVELS):
+        for column in range(N_LEVELS):
+            if row == G2 and column != G2:
+                harmonic = -1
+            elif row != G2 and column == G2:
+                harmonic = +1
+            else:
+                harmonic = 0
+            harmonics[..., n_f + harmonic, row, column] = rho[..., row, column]
+    return harmonics
+
+
+def _pump_nambu_operators(branch):
+    """Return weak Nambu drive superoperators and polarization readouts."""
+    if branch != -1:
+        raise NotImplementedError(
+            "pump-only weak response is certified only for the standard minus "
+            "Raman branch; the inherited plus-branch frame fails gauge parity")
+    probe_ground = G2
+    conjugate_ground = G1
+
+    probe_raise = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
+    conjugate_star_lower = np.zeros_like(probe_raise)
+    readouts = np.zeros((2, N_LEVELS * N_LEVELS), dtype=complex)
+    for excited in EXCITED_STATES:
+        probe_scale = TRANSITION_DIPOLE_SCALE[probe_ground, excited]
+        conjugate_scale = TRANSITION_DIPOLE_SCALE[conjugate_ground, excited]
+        probe_raise[excited, probe_ground] = 0.5 * probe_scale
+        conjugate_star_lower[conjugate_ground, excited] = 0.5 * conjugate_scale
+        readouts[0, excited * N_LEVELS + probe_ground] = probe_scale
+        readouts[1, conjugate_ground * N_LEVELS + excited] = conjugate_scale
+    drives = np.stack((comm_super(probe_raise),
+                       comm_super(conjugate_star_lower)))
+    return drives, readouts
+
+
+def _pump_reference_system(Op_A, Op_B, Delta_eff_axis, atom, branch):
+    """Build the shared state/source/readout pieces for the slow reference."""
+    if branch != -1:
+        _pump_nambu_operators(branch)  # raises the documented frame error
+    deff = np.asarray(Delta_eff_axis, dtype=float)
+    if deff.ndim != 1 or deff.size < 1 or not np.isfinite(deff).all():
+        raise ValueError("Delta_eff_axis must be a finite non-empty 1-D array")
+    H_pump = pump_hamiltonian_at_Deff_zero(Op_A, Op_B)
+    L0 = build_liouvillian(H_pump, atom)
+    L_batch = L0[None, :, :] - deff[:, None, None] * atom.S_v[None, :, :]
+    rho = steady_state_batched(L0, deff, atom.S_v, N_LEVELS)
+    rho_vec = rho.reshape(deff.size, N_LEVELS * N_LEVELS)
+    drives, readouts = _pump_nambu_operators(branch)
+    sources = np.einsum("rij,bj->bir", drives, rho_vec)
+    return deff, L0, L_batch, rho, rho_vec, sources, readouts
+
+
+def pump_only_weak_response_reference(
+        Op_A, Op_B, delta_axis, Delta_eff_axis, *, branch=-1, atom=None,
+        analysis_frequency_axis_rad_s=(0.0,), T=T_CELL):
+    """Solve the self-consistent pump state and infinitesimal 2x2 response.
+
+    ``delta_axis`` is the optical two-photon detuning and
+    ``analysis_frequency_axis_rad_s`` is an independent RF/sideband analysis
+    frequency.  They are never folded into one input.  In the static physical
+    pump frame the Nambu sector frequency is
+
+    ``omega_relative = -OMEGA_HF + delta + Omega_SA``
+
+    for the supported minus Raman branch.  If ``atom`` is omitted, the reference
+    uses the same temperature-dependent collisional and thermal-transit-reset
+    model as :func:`compute_spectrum`.  The DC singularity is handled by the
+    trace-zero stationary-subspace projection in
+    :func:`gabes.core.trace_zero_liouvillian_response`.
+    """
+    if branch != -1:
+        _pump_nambu_operators(branch)  # raises with the explicit limitation
+    delta = np.atleast_1d(np.asarray(delta_axis, dtype=float))
+    analysis = np.atleast_1d(
+        np.asarray(analysis_frequency_axis_rad_s, dtype=float))
+    if delta.ndim != 1 or delta.size < 1 or not np.isfinite(delta).all():
+        raise ValueError("delta_axis must be a finite non-empty 1-D array")
+    if analysis.ndim != 1 or analysis.size < 1 or not np.isfinite(analysis).all():
+        raise ValueError(
+            "analysis_frequency_axis_rad_s must be a finite non-empty 1-D array")
+    if atom is None:
+        atom = collisional_atom(T)
+
+    (deff, _L0, L_batch, rho, rho_vec, sources, readouts) = (
+        _pump_reference_system(
+            Op_A, Op_B, Delta_eff_axis, atom, branch))
+    relative = -OMEGA_HF + delta[None, :] + analysis[:, None]
+    chi = np.empty(
+        (analysis.size, delta.size, deff.size, 2, 2), dtype=complex)
+    max_response_trace = 0.0
+    max_response_residual = 0.0
+    eye = np.eye(N_LEVELS * N_LEVELS, dtype=complex)
+    diagonal = np.arange(N_LEVELS) * (N_LEVELS + 1)
+    for analysis_index in range(analysis.size):
+        for delta_index in range(delta.size):
+            omega = float(relative[analysis_index, delta_index])
+            response = trace_zero_liouvillian_response(
+                L_batch, sources, omega, N_LEVELS)
+            chi[analysis_index, delta_index] = np.einsum(
+                "oi,bik->bok", readouts, response)
+            traces = np.sum(response[:, diagonal, :], axis=1)
+            max_response_trace = max(
+                max_response_trace,
+                float(np.max(np.abs(traces), initial=0.0)))
+            residual = np.einsum(
+                "bij,bjk->bik", L_batch + 1j * omega * eye, response)
+            residual += sources
+            scale = (
+                np.linalg.norm(
+                    np.einsum("bij,bjk->bik", L_batch, response), axis=1)
+                + abs(omega) * np.linalg.norm(response, axis=1)
+                + np.linalg.norm(sources, axis=1))
+            normalized = np.linalg.norm(residual, axis=1) / np.maximum(
+                scale, np.finfo(float).tiny)
+            max_response_residual = max(
+                max_response_residual,
+                float(np.max(normalized, initial=0.0)))
+
+    pump_residual = np.einsum("bij,bj->bi", L_batch, rho_vec)
+    pump_scale = np.linalg.norm(L_batch, axis=(1, 2)) * np.linalg.norm(
+        rho_vec, axis=1)
+    pump_normalized = np.linalg.norm(pump_residual, axis=1) / np.maximum(
+        pump_scale, np.finfo(float).tiny)
+    traces = np.trace(rho, axis1=-2, axis2=-1)
+    hermiticity = rho - rho.conj().swapaxes(-1, -2)
+    minimum_eigenvalue = float(np.min(np.linalg.eigvalsh(rho)))
+    diagnostics = {
+        "finite": bool(np.isfinite(rho).all() and np.isfinite(chi).all()),
+        "max_pump_normalized_residual": float(
+            np.max(pump_normalized, initial=0.0)),
+        "max_pump_trace_error": float(
+            np.max(np.abs(traces - 1.0), initial=0.0)),
+        "max_pump_hermiticity_error": float(
+            np.max(np.abs(hermiticity), initial=0.0)),
+        "minimum_pump_eigenvalue": minimum_eigenvalue,
+        "max_response_normalized_residual": max_response_residual,
+        "max_response_trace_error": max_response_trace,
+        "velocity_classes": int(deff.size),
+        "two_photon_points": int(delta.size),
+        "analysis_frequency_points": int(analysis.size),
+    }
+    return PumpWeakResponseReference(
+        branch=branch,
+        delta_axis_rad_s=delta.copy(),
+        analysis_frequency_axis_rad_s=analysis.copy(),
+        relative_frequency_rad_s=relative,
+        delta_eff_axis_rad_s=deff.copy(),
+        pump_state=rho,
+        chi_matrix=chi,
+        diagnostics=diagnostics,
+        provenance=pump_weak_response_reference_provenance(),
+    )
+
+
+def pump_only_weak_response_noncollinear_reference(
+        Op_A, Op_B, lab_delta_axis_rad_s, one_photon_detuning_rad_s, *,
+        T, pump_k_rad_m, probe_k_axis_rad_m, crossing_angle_rad,
+        lab_optical_beat_axis_rad_s=None, branch=-1, atom=None,
+        analysis_frequency_axis_rad_s=(0.0,), quadrature_order=24,
+        cutoff_sigma=5.0):
+    """Two-dimensional Maxwell reference with separated lab/atomic frequencies.
+
+    The standard minus branch is evaluated in the certified static pump frame.
+    The laboratory beat is fixed for every velocity class, while the atomic
+    weak-field frequency acquires the Raman shift returned by
+    :func:`gabes.doppler.noncollinear_raman_shift_rad_s`.  Passing
+    ``delta_eff`` through :func:`chi_matrix_table` would be wrong because that
+    finite-seed API also reconstructs the laboratory beat from its delta input.
+
+    This is an opt-in slow reference.  It does not replace the production
+    one-dimensional finite-seed gain path.
+    """
+    if branch != -1:
+        _pump_nambu_operators(branch)  # raises the certified frame limitation
+    T = float(T)
+    one_photon = float(one_photon_detuning_rad_s)
+    pump_k = float(pump_k_rad_m)
+    theta = float(crossing_angle_rad)
+    delta_lab = np.atleast_1d(np.asarray(lab_delta_axis_rad_s, dtype=float))
+    analysis = np.atleast_1d(
+        np.asarray(analysis_frequency_axis_rad_s, dtype=float))
+    if delta_lab.ndim != 1 or delta_lab.size < 1 or not np.isfinite(delta_lab).all():
+        raise ValueError(
+            "lab_delta_axis_rad_s must be a finite non-empty one-dimensional array")
+    if analysis.ndim != 1 or analysis.size < 1 or not np.isfinite(analysis).all():
+        raise ValueError(
+            "analysis_frequency_axis_rad_s must be a finite non-empty 1-D array")
+    if not all(np.isfinite(value) for value in (T, one_photon, pump_k, theta)):
+        raise ValueError("T, one-photon detuning, pump k, and angle must be finite")
+    if T <= 0.0 or pump_k <= 0.0:
+        raise ValueError("T and pump_k_rad_m must be positive")
+
+    probe_k = np.asarray(probe_k_axis_rad_m, dtype=float)
+    try:
+        probe_k = np.broadcast_to(probe_k, delta_lab.shape).astype(float, copy=True)
+    except ValueError as exc:
+        raise ValueError(
+            "probe_k_axis_rad_m must be scalar or match lab_delta_axis_rad_s") from exc
+    if not np.isfinite(probe_k).all() or np.any(probe_k <= 0.0):
+        raise ValueError("probe wave numbers must be finite and positive")
+
+    if lab_optical_beat_axis_rad_s is None:
+        lab_beat = seeded_sideband_beat(delta_lab, branch)
+    else:
+        try:
+            lab_beat = np.broadcast_to(
+                np.asarray(lab_optical_beat_axis_rad_s, dtype=float),
+                delta_lab.shape,
+            ).astype(float, copy=True)
+        except ValueError as exc:
+            raise ValueError(
+                "lab_optical_beat_axis_rad_s must be scalar or match the delta axis") from exc
+    if not np.isfinite(lab_beat).all() or np.any(lab_beat <= 0.0):
+        raise ValueError("laboratory optical beat values must be finite and positive")
+    if atom is None:
+        atom = collisional_atom(T)
+
+    velocity, weights = doppler.maxwell_legendre_grid(
+        T, order=quadrature_order, cutoff_sigma=cutoff_sigma)
+    vx = velocity.copy()
+    vz = velocity.copy()
+    wx = weights.copy()
+    wz = weights.copy()
+    deff_z = one_photon - pump_k * vz
+    (_deff, _L0, L_z, rho_z, rho_vec_z, sources_z, readouts) = (
+        _pump_reference_system(Op_A, Op_B, deff_z, atom, branch))
+
+    nz = vz.size
+    nx = vx.size
+    M = N_LEVELS * N_LEVELS
+    L_pairs = np.broadcast_to(L_z[:, None, :, :], (nz, nx, M, M))
+    source_pairs = np.broadcast_to(
+        sources_z[:, None, :, :], (nz, nx, M, sources_z.shape[-1]))
+    pair_weights = wz[:, None] * wx[None, :]
+    shift = np.empty((delta_lab.size, nz, nx), dtype=float)
+    chi_average = np.empty(
+        (analysis.size, delta_lab.size, 2, 2), dtype=complex)
+    diagonal = np.arange(N_LEVELS) * (N_LEVELS + 1)
+    max_response_trace = 0.0
+    max_response_residual = 0.0
+    eye = np.eye(M, dtype=complex)
+
+    for delta_index, probe_wave_number in enumerate(probe_k):
+        shift[delta_index] = doppler.noncollinear_raman_shift_rad_s(
+            vx[None, :], vz[:, None], pump_k, probe_wave_number, theta)
+        for analysis_index, analysis_frequency in enumerate(analysis):
+            relative = (
+                -lab_beat[delta_index]
+                + analysis_frequency
+                + shift[delta_index]
+            )
+            response = trace_zero_liouvillian_response(
+                L_pairs, source_pairs, relative, N_LEVELS)
+            class_chi = np.einsum("om,zxmi->zxoi", readouts, response)
+            chi_average[analysis_index, delta_index] = np.einsum(
+                "zx,zxoi->oi", pair_weights, class_chi)
+
+            traces = np.sum(response[..., diagonal, :], axis=-2)
+            max_response_trace = max(
+                max_response_trace,
+                float(np.max(np.abs(traces), initial=0.0)))
+            residual = np.einsum("zxij,zxjk->zxik", L_pairs, response)
+            residual += 1j * relative[..., None, None] * response
+            residual += source_pairs
+            response_action = np.einsum(
+                "zxij,zxjk->zxik", L_pairs, response)
+            scale = (
+                np.linalg.norm(response_action, axis=-2)
+                + np.abs(relative)[..., None] * np.linalg.norm(response, axis=-2)
+                + np.linalg.norm(source_pairs, axis=-2)
+            )
+            normalized = np.linalg.norm(residual, axis=-2) / np.maximum(
+                scale, np.finfo(float).tiny)
+            max_response_residual = max(
+                max_response_residual,
+                float(np.max(normalized, initial=0.0)))
+
+    rho_vector = rho_z.reshape(nz, M)
+    pump_residual = np.einsum("zij,zj->zi", L_z, rho_vector)
+    pump_scale = np.linalg.norm(L_z, axis=(1, 2)) * np.linalg.norm(
+        rho_vector, axis=1)
+    pump_normalized = np.linalg.norm(pump_residual, axis=1) / np.maximum(
+        pump_scale, np.finfo(float).tiny)
+    pump_traces = np.trace(rho_z, axis1=-2, axis2=-1)
+    pump_hermiticity = rho_z - rho_z.conj().swapaxes(-1, -2)
+
+    quadrature_rms = []
+    analytic_rms = []
+    for delta_index, probe_wave_number in enumerate(probe_k):
+        mean = float(np.sum(pair_weights * shift[delta_index]))
+        variance = float(np.sum(
+            pair_weights * (shift[delta_index] - mean)**2))
+        quadrature_rms.append(np.sqrt(max(variance, 0.0)))
+        analytic_rms.append(doppler.noncollinear_raman_rms_budget(
+            T, pump_k, probe_wave_number, theta)["total_rms_rad_s"])
+
+    diagnostics = {
+        "finite": bool(np.isfinite(rho_z).all() and np.isfinite(chi_average).all()),
+        "max_pump_normalized_residual": float(
+            np.max(pump_normalized, initial=0.0)),
+        "max_pump_trace_error": float(
+            np.max(np.abs(pump_traces - 1.0), initial=0.0)),
+        "max_pump_hermiticity_error": float(
+            np.max(np.abs(pump_hermiticity), initial=0.0)),
+        "minimum_pump_eigenvalue": float(np.min(np.linalg.eigvalsh(rho_z))),
+        "max_response_normalized_residual": max_response_residual,
+        "max_response_trace_error": max_response_trace,
+        "quadrature_order_per_axis": int(vx.size),
+        "velocity_pairs": int(nx * nz),
+        "cutoff_sigma": float(cutoff_sigma),
+        "quadrature_raman_rms_rad_s": np.asarray(quadrature_rms),
+        "analytic_raman_rms_rad_s": np.asarray(analytic_rms),
+        "lab_beat_velocity_invariant": True,
+        "two_photon_points": int(delta_lab.size),
+        "analysis_frequency_points": int(analysis.size),
+    }
+    return NoncollinearPumpWeakResponseReference(
+        branch=branch,
+        lab_delta_axis_rad_s=delta_lab.copy(),
+        lab_optical_beat_axis_rad_s=lab_beat.copy(),
+        analysis_frequency_axis_rad_s=analysis.copy(),
+        one_photon_detuning_rad_s=one_photon,
+        pump_k_rad_m=pump_k,
+        probe_k_axis_rad_m=probe_k,
+        crossing_angle_rad=theta,
+        vx_axis_m_s=vx,
+        vz_axis_m_s=vz,
+        vx_weights=wx,
+        vz_weights=wz,
+        raman_shift_grid_rad_s=shift,
+        one_photon_effective_axis_rad_s=deff_z,
+        pump_state=rho_z,
+        chi_matrix=chi_average,
+        diagnostics=diagnostics,
+        provenance=noncollinear_doppler_reference_provenance(),
+    )
+
+
+def pump_only_pole_residue_reference(
+        Op_A, Op_B, delta, Delta_eff, *, branch=-1, atom=None,
+        analysis_frequency_rad_s=0.0, T=T_CELL):
+    """One-velocity pole/residue audit of the pump-only Nambu response.
+
+    Omitting ``atom`` selects the production collisional/transit-reset model at
+    ``T``; an explicit atom keeps archived or adversarial audits reproducible.
+    """
+    if atom is None:
+        atom = collisional_atom(T)
+    (deff, _L0, L_batch, rho, rho_vec, sources, readouts) = (
+        _pump_reference_system(
+            Op_A, Op_B, np.asarray([Delta_eff], dtype=float), atom, branch))
+    carrier_relative = -OMEGA_HF + float(delta)
+    omega = carrier_relative + float(analysis_frequency_rad_s)
+    result = liouvillian_pole_residue_response(
+        L_batch[0], sources[0], readouts, omega)
+    result.update({
+        "branch": branch,
+        "delta_rad_s": float(delta),
+        "delta_eff_rad_s": float(deff[0]),
+        "analysis_frequency_rad_s": float(analysis_frequency_rad_s),
+        "carrier_relative_frequency_rad_s": carrier_relative,
+        "resolvent_frequency_rad_s": omega,
+        "analysis_pole_centers_rad_s": (
+            -carrier_relative - np.imag(result["eigenvalues"])),
+        "pump_state": rho[0],
+    })
+    return result
+
+
 def static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os, delta, branch):
     """H₀ with Δ_eff = 0, so the only v / Δ_eff dependence is added later."""
     H0 = np.zeros((N_LEVELS, N_LEVELS), dtype=complex)
@@ -1150,7 +2039,7 @@ def sideband_template(Op_A, Op_B, Oc, branch):
 
 
 # =========================================================
-# χ-matrix table   (T- and Δ-independent)
+# χ-matrix table for one fixed atom/dissipator on (δ, Δ_eff)
 # =========================================================
 def _coherence_weights(ground):
     """w such that Σ_k w[k]·vec(ρ)[k] = Σ_e scale[g,e]·ρ[e,g] (vec row-major)."""
@@ -1161,20 +2050,24 @@ def _coherence_weights(ground):
 
 
 def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch,
-                     atom=ATOM):
+                     atom=ATOM, n_f=1):
     """
-    Two solves per probe-detuning point to extract (χ̄_ss, χ̄_cs, χ̄_sc, χ̄_cc)
-    on a 2-D (δ, Δ_eff) grid. Returns each array (n_delta, n_deff), complex.
+    Two finite-Floquet solves per probe-detuning point to extract
+    (chi_ss, chi_cs, chi_sc, chi_cc) on a 2-D (delta, Delta_eff) grid.
+    ``n_f`` selects the retained harmonics ``-n_f,...,+n_f``.
 
     `atom` carries the level scheme and its dissipator; pass a temperature-
     dependent model (collisional ground/optical dephasing) to fold density-
     dependent decoherence into the solve. Defaults to the natural-linewidth
     module `ATOM` so the kernel/NumPy regression callers are unchanged.
 
-    With numba available the whole grid runs in one fused compiled kernel
-    (`kernels.floquet_chi_grid`); the NumPy δ-loop below is the fallback and
-    the reference implementation (tests/test_kernels.py pins them together).
+    With numba available the whole grid runs in one fused compiled continued-
+    fraction kernel (`kernels.floquet_chi_grid`); the NumPy delta-loop below is
+    the fallback and reference implementation.  Both paths support ``n_f>=1``.
     """
+    n_f = int(n_f)
+    if n_f < 1:
+        raise ValueError("n_f must be at least 1")
     probe_ground = G2 if branch == -1 else G1
     conj_ground = G1 if branch == -1 else G2
     n_d = delta_axis.size
@@ -1197,13 +2090,13 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
             static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), atom)
         probe_a, conj_a = kernels.floquet_chi_grid(
             L0_1, C_delta, atom.S_v, Cp_no_c, Cm_no_c, delta_axis, deff_axis,
-            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
+            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS, n_f)
 
         L0_2 = build_liouvillian(
             static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), atom)
         probe_b, conj_b = kernels.floquet_chi_grid(
             L0_2, C_delta, atom.S_v, Cp_c, Cm_c, delta_axis, deff_axis,
-            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS)
+            OMEGA_HF, float(branch), w_probe, w_conj, N_LEVELS, n_f)
 
         return probe_a / Os_ref, conj_a / Os_ref, probe_b / Oc_ref, conj_b / Oc_ref
 
@@ -1218,8 +2111,9 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         # ---- Solve 1: probe drive only ----
         H0_1 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, delta, branch)
         L0_1 = build_liouvillian(H0_1, atom)
-        rho0_a, rhop_a = floquet_solve(
-            L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
+        rho0_a, rhop_a = floquet_solve_truncated(
+            L0_1, Cp_no_c, Cm_no_c, Omega_beat, Delta_eff_axis,
+            atom.S_v, N_LEVELS, n_f)
         probe_a = _polarization_coherence(rho0_a, probe_ground)
         conj_a = _polarization_coherence(rhop_a, conj_ground)
         chi_ss[i] = probe_a / Os_ref
@@ -1228,8 +2122,9 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
         # ---- Solve 2: conjugate seed only ----
         H0_2 = static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, delta, branch)
         L0_2 = build_liouvillian(H0_2, atom)
-        rho0_b, rhop_b = floquet_solve(
-            L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis, atom.S_v, N_LEVELS)
+        rho0_b, rhop_b = floquet_solve_truncated(
+            L0_2, Cp_c, Cm_c, Omega_beat, Delta_eff_axis,
+            atom.S_v, N_LEVELS, n_f)
         probe_b = _polarization_coherence(rho0_b, probe_ground)
         conj_b = _polarization_coherence(rhop_b, conj_ground)
         chi_sc[i] = probe_b / Oc_ref
@@ -1280,51 +2175,53 @@ def _optical_k_from_offset(offset_rad_s):
     return (constants.OMEGA_D1 + np.asarray(offset_rad_s, dtype=float)) / constants.C_LIGHT
 
 
-def seeded_phase_mismatch_z(D_GHz, probe_axis_GHz, angle_deg=SEEDED_PHASE_ANGLE_DEG,
-                            n_seed=None, n_conj=None):
-    """Longitudinal seeded-FWM mismatch: Delta k_z = 2k_p - k_s - k_c."""
-    theta = math.radians(float(angle_deg))
+def seeded_option_a_wavenumbers(D_GHz, probe_axis_GHz):
+    """Bare frequency-specific pump, probe, and conjugate wave numbers."""
     pump_offset = 2 * np.pi * float(D_GHz) * 1e9
     seed_offset = 2 * np.pi * np.asarray(probe_axis_GHz, dtype=float) * 1e9
     conj_offset = 2.0 * pump_offset - seed_offset
     k_pump = _optical_k_from_offset(pump_offset)
     k_seed = _optical_k_from_offset(seed_offset)
     k_conj = _optical_k_from_offset(conj_offset)
-    if n_seed is not None:
-        k_seed = k_seed * np.asarray(n_seed, dtype=float)
-    if n_conj is not None:
-        k_conj = k_conj * np.asarray(n_conj, dtype=float)
+    return k_pump, k_seed, k_conj
+
+
+def seeded_phase_mismatch_z(D_GHz, probe_axis_GHz,
+                            angle_deg=SEEDED_PHASE_ANGLE_DEG):
+    """Option-A vacuum/geometric mismatch ``2k_p-(k_s+k_c)cos(theta)``.
+
+    Susceptibility, including its real dispersive part, stays in the diagonal
+    Maxwell response. Refractive indices must not be folded into this mismatch.
+    """
+    theta = math.radians(float(angle_deg))
+    k_pump, k_seed, k_conj = seeded_option_a_wavenumbers(
+        D_GHz, probe_axis_GHz)
     return 2.0 * k_pump - (k_seed + k_conj) * math.cos(theta)
 
 
-def _safe_refractive_index(chi_bar, N_atoms, line_strength):
-    chi = observables.chi_phys(chi_bar, N_atoms, line_strength=line_strength)
-    # Keep the cheap refractive correction in the dilute-vapor regime. Very large
-    # dispersive excursions usually mean the simplified propagation model is being
-    # pushed outside its calibrated range, so clip rather than letting k explode.
-    return 1.0 + np.clip(0.5 * np.real(chi), -1e-5, 1e-5)
+def _uniform_segment_profile_and_probe_od(
+        chi_bar, N_atoms, line_strength, nseg, L=L_CELL):
+    """Return a neutral coupling profile plus a probe-OD diagnostic.
 
-
-def _segment_profile_from_absorption(chi_bar, N_atoms, line_strength, nseg, L=L_CELL):
+    ``chi_bar`` already supplies the probe's local diagonal attenuation in the
+    Maxwell matrix.  It cannot also be used as a pump-depletion law for the
+    off-diagonal FWM coupling.  Until a pump-frequency propagation solve is
+    available, keep that coupling uniform and report the probe OD separately.
+    """
     chi = observables.chi_phys(chi_bar, N_atoms, line_strength=line_strength)
     alpha = np.maximum(K_VEC * np.imag(chi), 0.0)
     od = float(np.nanmedian(alpha) * L) if alpha.size else 0.0
-    od = float(np.clip(od, 0.0, 2.0))
-    z_frac = (np.arange(nseg, dtype=float) + 0.5) / nseg
-    return np.exp(-0.5 * od * z_frac), od
+    od = max(od, 0.0)
+    return np.ones(int(nseg), dtype=float), od
 
 
 def _arm_linear_od(beam_GHz, T, L=L_CELL, ground_F=2):
-    """Linear in-cell absorption suffered by a twin-beam arm (probe or conjugate)
-    at its own optical frequency (per δ), from the validated hyperfine path.
+    """Independent linear-OD diagnostic at a twin-beam arm's optical frequency.
 
-    The lumped 4-level parametric susceptibilities `chi_ss`/`chi_cc` carry the FWM
-    response but NOT the ordinary linear absorption a real beam suffers from the
-    vapor when it crosses the F=`ground_F`→F' manifold — the physics that kills
-    squeezing when a sideband lands near resonance (the conjugate near F=2→F'=3 in
-    the deep-red-Δ region; the probe near F=2→F'=3 in the deep-blue-Δ region). We
-    sum just those manifold components of the AutoOD-validated α (<0.1 % vs lab).
-    Δ=0 is 85Rb F=2→F'=3, hence the ref-line shift.
+    It is not applied as a second arm efficiency because the diagonal Maxwell
+    response already attenuates the propagated fields.  We sum the requested
+    ground-manifold components of the independently validated absorption model.
+    Δ=0 is 85Rb F=2→F'=3, hence the reference-line shift.
     """
     from . import absorption
     ref_hz = hyperfine.LINE_SHIFT_HZ[(2, 3)]
@@ -1371,40 +2268,16 @@ def _gaussian_overlap_profile(nseg, L, w_pump, w_probe, angle_deg):
     return profile / max(float(np.nanmax(profile)), 1e-30)
 
 
-def _ultra_phase_mismatch(D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg,
-                          N_atoms, line_strength, angle_deg):
-    """Single-pass refractive phase-mismatch correction for Ultra.
-
-    The refractive indices depend only on χ (not on Δk), so there is no fixed
-    point to iterate — one pass is exact. ``max_change`` reports the
-    vacuum→refractive shift in Δk (a meaningful diagnostic), rather than the
-    last-iteration delta of a no-op loop.
-    """
-    delta_k = seeded_phase_mismatch_z(D_GHz, probe_axis_GHz, angle_deg=angle_deg)
-    max_change = 0.0
-    n_seed = np.ones_like(probe_axis_GHz, dtype=float)
-    n_conj = np.ones_like(probe_axis_GHz, dtype=float)
-    for _ in range(ULTRA_PHASE_ITERATIONS):
-        n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, line_strength)
-        n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, line_strength)
-        new_delta_k = seeded_phase_mismatch_z(
-            D_GHz, probe_axis_GHz, angle_deg=angle_deg,
-            n_seed=n_seed, n_conj=n_conj)
-        max_change = float(np.nanmax(np.abs(new_delta_k - delta_k)))
-        delta_k = new_delta_k
-    return delta_k, n_seed, n_conj, max_change
-
-
 def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
                           k_probe, k_conj, L, N_atoms, line_strength,
                           delta_k_z, segment_profile, spatial_profile,
-                          P_pump, P_seed):
+                          P_pump, P_seed, conjugate_power_ratio=1.0):
     """Segmented propagation with approximate dynamic pump depletion.
 
-    In-cell propagation loss is applied once, downstream, as the
-    ``segmented_loss_noise_squeezing_dB`` vacuum admixture (the codebase's
-    beamsplitter loss convention); it is deliberately not re-applied here as
-    field attenuation, which double-counted the same ``segment_od``.
+    Diagonal susceptibility already attenuates each field.  ``segment_profile``
+    may scale only independently known pump/crossing overlap; a probe-absorption
+    estimate must not be recycled as an off-diagonal pump profile or as a second
+    post-source loss.
     """
     nseg = int(segment_profile.size)
     dz = L / max(nseg, 1)
@@ -1429,7 +2302,8 @@ def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         amp = np.einsum("nij,nj->ni", Tseg, amp)
         T_total = Tseg @ T_total
         seed_added = np.maximum(np.abs(amp[:, 0]) ** 2 - float(P_seed), 0.0)
-        conj_power = np.maximum(np.abs(amp[:, 1]) ** 2, 0.0)
+        conj_power = np.maximum(
+            np.abs(amp[:, 1]) ** 2 * float(conjugate_power_ratio), 0.0)
         pump_remaining = np.maximum(float(P_pump) - seed_added - conj_power, 0.0)
 
     G_s = np.abs(amp[:, 0]) ** 2 / max(float(P_seed), 1e-30)
@@ -1437,16 +2311,48 @@ def _ultra_segmented_gain(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     return G_s, G_c, T_total, pump_remaining
 
 
-def collisional_atom(T, density=None):
-    """Per-temperature double-Λ atom carrying density-dependent collisional
-    decoherence (Sim et al. note collision-driven decoherence dominates at high
-    vapor temperature):
+def thermal_transit_reset_superoperator(rate, populations=None):
+    """Trace-preserving ``rate·(rho_th Tr(rho) - rho)`` superoperator.
+
+    ``rho_th`` defaults to an unpolarized thermal mixture of the representative
+    F=2/F=3 ground manifolds with degeneracy weights 5/12 and 7/12.  The reset
+    models atoms leaving the optical mode and fresh thermal atoms entering it;
+    unlike pure ground-coherence dephasing, it also replenishes populations.
+    """
+    rate = float(rate)
+    if rate < 0.0:
+        raise ValueError("transit reset rate must be non-negative")
+    if populations is None:
+        populations = (
+            hyperfine.GROUND_POP[GROUND_F[G1]],
+            hyperfine.GROUND_POP[GROUND_F[G2]],
+            0.0,
+            0.0,
+        )
+    populations = np.asarray(populations, dtype=float)
+    if populations.shape != (N_LEVELS,):
+        raise ValueError(f"populations must have shape ({N_LEVELS},)")
+    if np.any(populations < 0.0) or not np.isfinite(populations).all():
+        raise ValueError("transit target populations must be finite and non-negative")
+    total = float(np.sum(populations))
+    if total <= 0.0:
+        raise ValueError("transit target populations must have positive trace")
+    rho_target = np.diag(populations / total).reshape(-1)
+    trace_row = np.zeros(N_LEVELS * N_LEVELS, dtype=float)
+    trace_row[np.arange(N_LEVELS) * (N_LEVELS + 1)] = 1.0
+    return rate * (np.outer(rho_target, trace_row)
+                   - np.eye(N_LEVELS * N_LEVELS, dtype=float))
+
+
+def collisional_atom(T, density=None, *, transit_rate=None):
+    """Per-temperature double-Λ atom with collisions and thermal transit reset.
 
       • optical (g,e) coherence — Rb self-broadening, added collisional
         half-width (Γ_eff − Γ)/2 via the AutoOD-validated
         `hyperfine.self_broadened_gamma`;
-      • ground Raman (g₁,g₂) coherence — transit-time floor + Rb–Rb collisions
-        (`constants.ground_coherence_dephasing`).
+      • ground Raman (g₁,g₂) coherence — Rb–Rb pure dephasing plus a
+        trace-preserving thermal transit reset.  The reset supplies the inherited
+        transit/residual floor exactly once while replenishing populations.
 
     Because χ̄ now depends on temperature through this dissipator, any cached-χ̄
     scanner must rebuild its table per temperature with this atom (a single
@@ -1455,10 +2361,24 @@ def collisional_atom(T, density=None):
     """
     if density is None:
         density = hyperfine.number_density(T)
-    gamma_gg = constants.ground_coherence_dephasing(T, density)
+    transit_rate = constants.GAMMA_GG if transit_rate is None else float(transit_rate)
+    if transit_rate < 0.0:
+        raise ValueError("transit_rate must be non-negative")
+    gamma_collision = constants.ground_coherence_dephasing(
+        T, density, floor=0.0)
     gamma_opt = 0.5 * (hyperfine.self_broadened_gamma(density) - constants.GAMMA)
-    return atoms.double_lambda_rb85(gamma_gg=gamma_gg,
-                                    gamma_opt=max(gamma_opt, 0.0))
+    atom = atoms.double_lambda_rb85(
+        gamma_gg=gamma_collision, gamma_opt=max(gamma_opt, 0.0))
+    atom.lindblad = atom.lindblad + thermal_transit_reset_superoperator(transit_rate)
+    atom.transit_reset_rate = transit_rate
+    atom.ground_collision_dephasing_rate = gamma_collision
+    atom.thermal_reset_populations = (
+        hyperfine.GROUND_POP[GROUND_F[G1]],
+        hyperfine.GROUND_POP[GROUND_F[G2]],
+        0.0,
+        0.0,
+    )
+    return atom
 
 
 def _single_branch(branch, branches):
@@ -1481,11 +2401,11 @@ def _single_branch(branch, branches):
 
 
 # =========================================================
-# High-level spectrum  (one call → gain + squeezing curves)
+# High-level spectrum  (one call → gain + gain-referred diagnostic curves)
 # =========================================================
 def compute_spectrum(D_GHz, *,
                      T=T_CELL, P_pump=P_PUMP, P_probe=P_PROBE,
-                     w_pump=W_PUMP, w_probe=W_PROBE,
+                     w_pump=W_PUMP, w_probe=W_PROBE, w_conj=None,
                      line_strength=None,
                      mode_overlap_penalty=1.0, polarization_penalty=1.0,
                      zeeman_participation_penalty=1.0,
@@ -1498,22 +2418,33 @@ def compute_spectrum(D_GHz, *,
                      phase_detail=PHASE_LEGACY,
                      pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
                      model_fidelity=None,
-                     excess_noise_model=None):
-    """Full pipeline for one one-photon detuning Δ = 2π·D_GHz·1e9 (see README).
+                     excess_noise_model=None,
+                     floquet_order=SEEDED_FLOQUET_ORDER,
+                     enforce_floquet_convergence=True,
+                     transit_rate=constants.GAMMA_GG,
+                     eom_residual_carrier_power=0.0,
+                     eom_other_sidebands_power=0.0,
+                     eom_seed_spectrum_provenance="not supplied",
+                     eom_seed_spectrum_status="not supplied",
+                     eom_seed_spectrum_application="unapplied"):
+    """Mean-field seeded-FWM pipeline at Δ = 2π·D_GHz·1e9.
 
-    The Ultra path folds in the hardened excess-noise model by default: the
-    conjugate arm's own in-cell absorption (asymmetric twin-arm loss) and
-    pump-scatter excess noise, which penalise the near-resonance/high-gain regions
-    the gap-only objective otherwise rewards for free. `excess_noise_model`:
-    None/True → on (default); a dict tunes it (e.g. ``{"pump_scatter_kappa":0.2}``);
-    ``False`` recovers the pre-hardening Ultra squeezing (kept for A/B and for
-    reproducing pre-hardening reports). No effect outside the Ultra path — the
-    legacy/balanced/fine squeezing formulas (and the pinned regression) are
-    unchanged.
+    ``excess_noise_model`` controls only an optional phenomenological pump-scatter
+    term in the Ultra gain-referred diagnostic.  Arm attenuation is already in
+    the Maxwell drift; distributed loss vacuum and atomic diffusion are not
+    supplied.  EOM residual carrier/sideband powers are carried as explicit input
+    provenance but remain unapplied until a measured coupling model exists.
     """
     branch = _single_branch(branch, branches)
+    floquet_order = int(floquet_order)
+    if floquet_order < 1:
+        raise ValueError("floquet_order must be at least 1")
+    if enforce_floquet_convergence and floquet_order < 3:
+        raise ValueError(
+            "reported scans require floquet_order >= 3; set "
+            "enforce_floquet_convergence=False only for an explicitly historical fixture")
     if line_strength is None:
-        line_strength = constants.LINE_STRENGTH_FACTOR
+        line_strength = SEEDED_REFERENCE_RESIDUAL
     factors = SeededCouplingFactors(
         reference_residual=line_strength,
         mode_overlap_penalty=mode_overlap_penalty,
@@ -1523,9 +2454,43 @@ def compute_spectrum(D_GHz, *,
     # The reference residual and the three lab-facing relative factors sit on
     # top of the first-principles macroscopic normalization. ``coupling_ls`` is
     # what enters every χ_phys / gain call below.
-    coupling_norm = physical_coupling_norm(branch)
+    coupling_ledger = physical_coupling_ledger(branch)
+    coupling_norm = coupling_ledger["macroscopic_coupling_norm"]
     coupling_ls = factors.combined_residual * coupling_norm
     eta = qe * (1.0 - loss_frac)
+
+    eom_residual_carrier_power = float(eom_residual_carrier_power)
+    eom_other_sidebands_power = float(eom_other_sidebands_power)
+    if eom_residual_carrier_power < 0.0 or eom_other_sidebands_power < 0.0:
+        raise ValueError("EOM component powers must be non-negative")
+    eom_seed_spectrum_status = str(eom_seed_spectrum_status).strip().lower()
+    eom_seed_spectrum_application = str(
+        eom_seed_spectrum_application).strip().lower()
+    if eom_seed_spectrum_status not in {"not supplied", "unsupported"}:
+        raise ValueError(
+            "EOM spectrum status cannot be promoted without a calibrated "
+            "carrier/sideband transfer model")
+    if eom_seed_spectrum_application != "unapplied":
+        raise ValueError(
+            "EOM residual components must remain unapplied until their atomic "
+            "and detector transfer is calibrated")
+    wanted_power = max(float(P_probe), 0.0)
+    wanted_denominator = max(wanted_power, 1e-30)
+    eom_seed_spectrum = {
+        "wanted_sideband_power_w": wanted_power,
+        "residual_carrier_power_w": eom_residual_carrier_power,
+        "other_sidebands_power_w": eom_other_sidebands_power,
+        "residual_carrier_to_wanted_ratio": (
+            eom_residual_carrier_power / wanted_denominator),
+        "other_sidebands_to_wanted_ratio": (
+            eom_other_sidebands_power / wanted_denominator),
+        "provenance": str(eom_seed_spectrum_provenance),
+        "status": eom_seed_spectrum_status,
+        "application": eom_seed_spectrum_application,
+        "physics_effect": (
+            "unapplied: carrier/sideband coupling, phase, polarization, and "
+            "technical-noise transfer are not calibrated"),
+    }
 
     Op_A = rabi_freq(P_pump, w_pump)
     Op_B = Op_A
@@ -1539,41 +2504,57 @@ def compute_spectrum(D_GHz, *,
     N_atoms = hyperfine.number_density(T)
     Delta = 2 * np.pi * D_GHz * 1e9
 
-    # Density/temperature-dependent collisional decoherence (optical Rb
-    # self-broadening + ground Raman collisions). See `collisional_atom`.
-    atom_T = collisional_atom(T, N_atoms)
+    # Density-dependent collisions plus trace-preserving transit replenishment.
+    atom_T = collisional_atom(T, N_atoms, transit_rate=transit_rate)
+    transit_rate = atom_T.transit_reset_rate
 
     probe_axis_GHz = probe_scan_axis_GHz(
         D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max,
         branches=(branch,))
+    k_pump_vac, k_probe_vac, k_conj_vac = seeded_option_a_wavenumbers(
+        D_GHz, probe_axis_GHz)
+    omega_probe = constants.C_LIGHT * k_probe_vac
+    omega_conj = constants.C_LIGHT * k_conj_vac
+    area_probe = float(observables.gaussian_mode_area(w_probe))
+    if w_conj is None:
+        w_conj_effective = float(w_probe)
+        canonical_mode_status = (
+            "conditional: conjugate collection waist not supplied; matched to probe")
+    else:
+        w_conj_effective = float(w_conj)
+        canonical_mode_status = "explicit probe and conjugate collected-mode waists"
+    area_conj = float(observables.gaussian_mode_area(w_conj_effective))
     velocity_step = VELOCITY_STEP_MPS if velocity_step is None else velocity_step
     velocity_cutoff = VELOCITY_CUTOFF_SIGMA if velocity_cutoff is None else velocity_cutoff
     v_grid, weights = doppler.velocity_grid(
         T, dv=velocity_step, cutoff_sigma=velocity_cutoff)
     Delta_eff_axis = doppler.build_Delta_eff_axis(Delta, Delta, v_grid)
 
-    chi_ss_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
-    chi_cs_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
-    chi_sc_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
-    chi_cc_avg = np.zeros(probe_axis_GHz.size, dtype=complex)
-
     delta_axis = two_photon_detuning_from_probe_scan(probe_axis_GHz, D_GHz, branch)
-    ch_ss, ch_cs, ch_sc, ch_cc = chi_matrix_table(
-        Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, branch, atom=atom_T)
     # All four susceptibility tables share the same Δ_eff interpolation geometry.
     # Build it once for this solve instead of repeating the index/fraction work.
     idx_lo, frac = doppler.interpolation_weights(
         Delta_eff_axis, Delta, v_grid)
-    chi_ss_avg += doppler.apply_doppler_average(ch_ss, idx_lo, frac, weights)
-    chi_cs_avg += doppler.apply_doppler_average(ch_cs, idx_lo, frac, weights)
-    chi_sc_avg += doppler.apply_doppler_average(ch_sc, idx_lo, frac, weights)
-    chi_cc_avg += doppler.apply_doppler_average(ch_cc, idx_lo, frac, weights)
+
+    def averaged_response_at_order(order):
+        tables = chi_matrix_table(
+            Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis,
+            branch, atom=atom_T, n_f=order)
+        return tuple(
+            doppler.apply_doppler_average(table, idx_lo, frac, weights)
+            for table in tables)
+
+    chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg = (
+        averaged_response_at_order(floquet_order))
+    lower_order_response = None
+    if enforce_floquet_convergence:
+        lower_order_response = averaged_response_at_order(floquet_order - 1)
 
     phase_detail = (phase_detail or PHASE_LEGACY).lower()
     delta_k_z = None
     delta_k_z_vacuum = None
-    k_probe_prop = K_VEC
-    k_conj_prop = K_VEC
+    k_probe_prop = np.full_like(probe_axis_GHz, K_VEC, dtype=float)
+    k_conj_prop = np.full_like(probe_axis_GHz, K_VEC, dtype=float)
     propagation_segments = 1
     segment_profile = None
     segment_od = 0.0
@@ -1587,32 +2568,17 @@ def compute_spectrum(D_GHz, *,
         delta_k_z_vacuum = seeded_phase_mismatch_z(
             D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg)
         delta_k_z = delta_k_z_vacuum
+        # Option A: frequency-specific bare k in the Maxwell matrix and vacuum /
+        # geometric mismatch only. Re(chi) remains in the diagonal response.
+        k_probe_prop = k_probe_vac
+        k_conj_prop = k_conj_vac
         if phase_detail == PHASE_FINE:
-            n_seed = _safe_refractive_index(chi_ss_avg, N_atoms, coupling_ls)
-            n_conj = _safe_refractive_index(chi_cc_avg, N_atoms, coupling_ls)
-            seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
-            pump_offset = 2 * np.pi * float(D_GHz) * 1e9
-            conj_offset = 2.0 * pump_offset - seed_offset
-            k_probe_prop = _optical_k_from_offset(seed_offset) * n_seed
-            k_conj_prop = _optical_k_from_offset(conj_offset) * n_conj
-            delta_k_z = seeded_phase_mismatch_z(
-                D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg,
-                n_seed=n_seed, n_conj=n_conj)
             propagation_segments = 16
-            segment_profile, segment_od = _segment_profile_from_absorption(
+            segment_profile, segment_od = _uniform_segment_profile_and_probe_od(
                 chi_ss_avg, N_atoms, coupling_ls, propagation_segments, L=L)
         elif phase_detail == PHASE_ULTRA:
-            delta_k_z, n_seed, n_conj, ultra_phase_max_change = _ultra_phase_mismatch(
-                D_GHz, probe_axis_GHz, chi_ss_avg, chi_cc_avg, N_atoms,
-                coupling_ls, pump_probe_angle_deg)
-            ultra_phase_iterations = ULTRA_PHASE_ITERATIONS
-            seed_offset = 2 * np.pi * probe_axis_GHz * 1e9
-            pump_offset = 2 * np.pi * float(D_GHz) * 1e9
-            conj_offset = 2.0 * pump_offset - seed_offset
-            k_probe_prop = _optical_k_from_offset(seed_offset) * n_seed
-            k_conj_prop = _optical_k_from_offset(conj_offset) * n_conj
             propagation_segments = ULTRA_PROPAGATION_SEGMENTS
-            segment_profile, segment_od = _segment_profile_from_absorption(
+            segment_profile, segment_od = _uniform_segment_profile_and_probe_od(
                 chi_ss_avg, N_atoms, coupling_ls, propagation_segments, L=L)
             spatial_profile = _gaussian_overlap_profile(
                 propagation_segments, L, w_pump, w_probe, pump_probe_angle_deg)
@@ -1636,38 +2602,100 @@ def compute_spectrum(D_GHz, *,
         # zeeman_correction is a CG-sum consistency diagnostic (≡1.0 by
         # construction), not an active correction, so it is no longer multiplied
         # into the coupling.
-        G_s, G_c, _T, pump_remaining = _ultra_segmented_gain(
+        G_s_effective, G_c_effective, _T_effective, pump_remaining = _ultra_segmented_gain(
             chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
             k_probe_prop, k_conj_prop, L, N_atoms,
             coupling_ls, delta_k_z,
-            segment_profile, spatial_profile, P_pump, P_probe)
+            segment_profile, spatial_profile, P_pump, P_probe,
+            conjugate_power_ratio=area_conj / area_probe)
         ultra_pump_remaining_min = float(np.nanmin(pump_remaining))
+        # Canonical diagnostics require a linear map. Remove the seed-dependent
+        # dynamic-depletion scale while retaining the fixed spatial/pump profile.
+        _, _, T_small_signal = observables.gain_from_chi(
+            chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+            k_probe_prop, k_conj_prop, L, N_atoms, line_strength=coupling_ls,
+            delta_k_z=delta_k_z, propagation_segments=propagation_segments,
+            segment_profile=segment_profile * spatial_profile)
     else:
-        G_s, G_c, _ = observables.gain_from_chi(
+        G_s_effective, G_c_effective, T_small_signal = observables.gain_from_chi(
             chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
             k_probe_prop, k_conj_prop, L, N_atoms, line_strength=coupling_ls,
             delta_k_z=delta_k_z, propagation_segments=propagation_segments,
             segment_profile=segment_profile)
 
+    canonical = observables.canonical_transfer_diagnostics(
+        T_small_signal, omega_probe, omega_conj, area_probe, area_conj)
+    if lower_order_response is not None:
+        low_ss, low_cs, low_sc, low_cc = lower_order_response
+        _, _, T_lower_order = observables.gain_from_chi(
+            low_ss, low_sc, low_cs, low_cc,
+            k_probe_prop, k_conj_prop, L, N_atoms, line_strength=coupling_ls,
+            delta_k_z=delta_k_z, propagation_segments=propagation_segments,
+            segment_profile=(
+                segment_profile * spatial_profile
+                if phase_detail == PHASE_ULTRA else segment_profile),
+        )
+        canonical_lower = observables.canonical_transfer_diagnostics(
+            T_lower_order, omega_probe, omega_conj, area_probe, area_conj)
+        floquet_convergence = assess_floquet_scan_convergence(
+            high_order=floquet_order,
+            low_order=floquet_order - 1,
+            high_response={
+                "chi_ss": chi_ss_avg,
+                "chi_cs": chi_cs_avg,
+                "chi_sc": chi_sc_avg,
+                "chi_cc": chi_cc_avg,
+            },
+            low_response={
+                "chi_ss": low_ss,
+                "chi_cs": low_cs,
+                "chi_sc": low_sc,
+                "chi_cc": low_cc,
+            },
+            high_transfer=canonical["transfer_canonical"],
+            low_transfer=canonical_lower["transfer_canonical"],
+            scan_axis=probe_axis_GHz,
+        )
+    else:
+        floquet_convergence = {
+            "status": "NOT_EVALUATED",
+            "passed": False,
+            "high_order": floquet_order,
+            "comparison_order": None,
+            "full_scan_points": int(probe_axis_GHz.size),
+            "reason": (
+                "adjacent-order full-scan comparison explicitly disabled; "
+                "result is a historical/numerical fixture only"),
+        }
+    G_s_smallsignal = canonical["probe_power_gain"]
+    G_c_smallsignal = canonical["conjugate_power_gain"]
+    if phase_detail == PHASE_ULTRA:
+        # The dynamic-depletion path propagates sqrt(power) amplitudes. Convert
+        # its conjugate coefficient for an explicitly unequal collected area.
+        G_s = G_s_effective
+        G_c = G_c_effective * area_conj / area_probe
+    else:
+        G_s = G_s_smallsignal
+        G_c = G_c_smallsignal
+
     # The propagation above is linear in the (undepleted) pump. At high density
-    # it overshoots the energy the pump can supply, so apply Manley-Rowe pump-
-    # depletion saturation. This is negligible in the validated regime and only
-    # caps the runaway when (G_s−1)·P_seed approaches P_pump/2.
-    G_s_smallsignal = G_s
+    # it overshoots the energy the pump can supply, so apply a post-hoc Manley-Rowe
+    # cap.  This preserves an energy ledger but is not a self-consistent depleted
+    # three-field solve and therefore does not validate the absolute gain.
     G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
     hardened_noise = None
+    pump_scatter_kappa_used = HARDENED_PUMP_SCATTER_KAPPA
     if phase_detail == PHASE_ULTRA:
-        in_cell_loss_frac = float(np.clip(1.0 - np.exp(-segment_od), 0.0, 1.0))
         if excess_noise_model is False:
-            # Pre-hardening Ultra (gap-only S_ideal + probe-only in-cell loss),
-            # kept for A/B and for reproducing pre-hardening reports.
-            S_dB = observables.segmented_loss_noise_squeezing_dB(
-                G_s, G_c, eta, in_cell_loss_frac=in_cell_loss_frac,
-                seed_excess_noise=0.0, pump_scatter_noise=0.0,
-                eom_residual_noise=0.0)
+            # The diagonal Maxwell drift already contains the arm attenuation.
+            # A second post-source transmission would double count it; explicit
+            # distributed Langevin diffusion is a separate, unfinished model.
+            gain_referred_noise_db = observables.gain_referred_noise_dB(
+                G_s, G_c, eta)
         else:
             cfg = {} if excess_noise_model in (None, True) else dict(excess_noise_model)
             kappa = cfg.get("pump_scatter_kappa", HARDENED_PUMP_SCATTER_KAPPA)
+            pump_scatter_kappa_used = float(kappa)
             # The F=2→F'=3 manifold is the linear absorption the lumped double-Λ
             # omits for the generated sidebands. Apply it at BOTH sidebands' own
             # optical frequencies: without the probe term the deep-blue-Δ region
@@ -1679,16 +2707,16 @@ def compute_spectrum(D_GHz, *,
             od_conj_arr = _arm_linear_od(conj_GHz, T, L, ground_F=manifold_F)
             od_probe_lin = _arm_linear_od(probe_axis_GHz, T, L, ground_F=manifold_F)
             pump_scatter, od_pump = _pump_scatter_noise(D_GHz, T, L, kappa)
-            # Probe arm: model chi_ss in-cell OD (segment_od) PLUS the omitted
-            # manifold linear absorption at its frequency. Conjugate arm: the
-            # manifold linear absorption (the parametric chi_cc omits it entirely).
-            # Asymmetric arm loss -> validated balanced two-arm noise model.
-            eta_s_arm = eta * np.exp(-(float(segment_od) + od_probe_lin))
-            eta_c_arm = eta * np.exp(-od_conj_arr)
+            # These OD curves remain useful diagnostics, but applying them as
+            # post-source efficiencies would count absorption already present in
+            # the diagonal Maxwell drift a second time.  Atomic vacuum/excess
+            # noise needs the future distributed covariance solve instead.
+            eta_s_arm = eta
+            eta_c_arm = eta
             S_lin = observables.balanced_twin_beam_noise(
                 G_s, G_c, eta_s_arm, eta_c_arm, reference_weight="dc",
                 seed_excess_noise=pump_scatter)
-            S_dB = 10.0 * np.log10(np.maximum(S_lin, 1e-30))
+            gain_referred_noise_db = 10.0 * np.log10(np.maximum(S_lin, 1e-30))
             hardened_noise = {
                 "kappa": float(kappa),
                 "pump_scatter_noise": float(pump_scatter),
@@ -1698,21 +2726,68 @@ def compute_spectrum(D_GHz, *,
                 "od_probe_lin_max": float(np.nanmax(od_probe_lin)),
                 "od_conj_arr": od_conj_arr,
                 "od_probe_lin_arr": od_probe_lin,
+                "atomic_od_application": (
+                    "diagnostic only; distributed Langevin covariance unavailable"),
             }
     else:
-        S_dB = observables.intensity_difference_squeezing_dB(G_s, G_c, eta)
+        gain_referred_noise_db = observables.gain_referred_noise_dB(G_s, G_c, eta)
+
+    atomic_solver_provenance = seeded_atomic_solver_provenance(
+        floquet_order=floquet_order, convergence=floquet_convergence)
+    parameter_provenance = seeded_parameter_provenance(
+        line_strength=line_strength,
+        transit_rate=transit_rate,
+        pump_scatter_kappa=pump_scatter_kappa_used,
+    )
+    claim_gate = seeded_validation_claim_gate(
+        canonical_mode_status=canonical_mode_status,
+        commutator_defect_max=canonical["commutator_defect_max"],
+        floquet_convergence=floquet_convergence,
+        eom_residual_carrier_power=eom_residual_carrier_power,
+        eom_other_sidebands_power=eom_other_sidebands_power,
+        eom_spectrum_status=eom_seed_spectrum_status,
+        eom_spectrum_application=eom_seed_spectrum_application,
+    )
 
     return {
         "D_GHz": D_GHz,
         "probe_axis_GHz": probe_axis_GHz,
         "G_s": G_s,
         "G_c": G_c,
-        "S_dB": S_dB,
+        "gain_referred_noise_dB": gain_referred_noise_db,
+        # Deliberately unavailable until the frequency-dependent microscopic
+        # Langevin drift/diffusion and detector transfer are implemented.
+        "physical_squeezing_dB": None,
+        # Backward-compatible data key.  It is the same algebraic diagnostic,
+        # not a physical squeezing prediction.
+        "S_dB": gain_referred_noise_db,
+        "G_s_smallsignal": G_s_smallsignal,
+        "G_c_smallsignal": G_c_smallsignal,
         "G_s_smallsignal_peak": float(np.nanmax(G_s_smallsignal)),
+        "G_c_smallsignal_peak": float(np.nanmax(G_c_smallsignal)),
+        "T_field_small_signal": T_small_signal,
+        "Q_photon_flux": canonical["Q"],
+        "T_canonical_small_signal": canonical["transfer_canonical"],
+        "conjugate_photon_flux_gain_smallsignal": canonical[
+            "conjugate_photon_flux_gain"],
+        "photon_flux_gap_smallsignal": canonical["photon_flux_gap"],
+        "commutator_defect_smallsignal": canonical["commutator_defect"],
+        "commutator_defect_max_smallsignal": canonical["commutator_defect_max"],
+        "canonical_mode_status": canonical_mode_status,
+        "canonical_mode_area_probe_m2": area_probe,
+        "canonical_mode_area_conjugate_m2": area_conj,
+        "omega_probe_rad_s": omega_probe,
+        "omega_conjugate_rad_s": omega_conj,
+        "displayed_gains_posthoc_saturated": True,
         "pump_depletion_cap": 1.0 + 0.5 * P_pump / max(P_probe, 1e-30),
         "phase_detail": phase_detail,
         "model_fidelity": model_fidelity or phase_detail,
         "pump_probe_angle_deg": pump_probe_angle_deg,
+        "propagation_convention": (
+            "legacy fixed-k" if phase_detail == PHASE_LEGACY
+            else "Option A: bare frequency-specific k plus vacuum mismatch"),
+        "k_probe_propagation_per_m": k_probe_prop,
+        "k_conjugate_propagation_per_m": k_conj_prop,
         "delta_k_z": delta_k_z,
         "delta_k_z_vacuum": delta_k_z_vacuum,
         "phase_segments": propagation_segments,
@@ -1720,7 +2795,25 @@ def compute_spectrum(D_GHz, *,
         "ultra_phase_iterations": ultra_phase_iterations,
         "ultra_phase_max_change": ultra_phase_max_change,
         "ultra_dynamic_depletion": phase_detail == PHASE_ULTRA,
-        "ultra_in_cell_loss_noise": phase_detail == PHASE_ULTRA,
+        "ultra_in_cell_loss_noise": False,
+        "squeezing_status": (
+            "unavailable: gain-referred diagnostic only; microscopic distributed "
+            "atomic diffusion is not implemented"),
+        "validation_level": claim_gate["level"],
+        "claim_gate": claim_gate,
+        "atomic_solver_provenance": atomic_solver_provenance,
+        "pump_weak_response_reference_provenance": (
+            pump_weak_response_reference_provenance()),
+        "noncollinear_doppler_reference_provenance": (
+            noncollinear_doppler_reference_provenance()),
+        "floquet_convergence": floquet_convergence,
+        "floquet_order": floquet_order,
+        "floquet_convergence_enforced": bool(enforce_floquet_convergence),
+        "parameter_provenance": parameter_provenance,
+        "eom_seed_spectrum": eom_seed_spectrum,
+        "transit_reset_rate_rad_s": float(transit_rate),
+        "ground_collision_dephasing_rate_rad_s": float(
+            atom_T.ground_collision_dephasing_rate),
         "ultra_pump_remaining_min": ultra_pump_remaining_min,
         "ultra_spatial_overlap_min": (float(np.nanmin(spatial_profile))
                                       if spatial_profile is not None else 1.0),
@@ -1730,9 +2823,11 @@ def compute_spectrum(D_GHz, *,
         "qe": qe,
         "w_pump_m": w_pump,
         "w_probe_m": w_probe,
+        "w_conjugate_m": w_conj_effective,
         "cell_length_m": L,
         "branch": branch,
         "coupling_norm": coupling_norm,
+        "coupling_normalization_ledger": coupling_ledger,
         # Keep the historical key equal to the direct API input.  Consumers can
         # opt into the factorized bookkeeping through the new explicit keys.
         "line_strength_residual": line_strength,
@@ -1754,16 +2849,31 @@ def compute_spectrum(D_GHz, *,
 
 
 def operating_point(spectrum, delta_mhz, branch=-1):
-    """Read G_s / G_c / squeezing at a chosen δ (MHz) on the selected branch."""
+    """Read gains and the gain-referred diagnostic at a selected δ (MHz)."""
     probe_GHz = (spectrum["raman_center_minus_GHz"] if branch == -1
                  else spectrum["raman_center_plus_GHz"]) + delta_mhz * 1e-3
     x = spectrum["probe_axis_GHz"]
+    diagnostic = spectrum.get("gain_referred_noise_dB")
+    if diagnostic is None:
+        diagnostic = spectrum["S_dB"]
+    diagnostic_value = float(np.interp(probe_GHz, x, diagnostic))
     out = {
         "probe_GHz": probe_GHz,
         "G_s": float(np.interp(probe_GHz, x, spectrum["G_s"])),
         "G_c": float(np.interp(probe_GHz, x, spectrum["G_c"])),
-        "S_dB": float(np.interp(probe_GHz, x, spectrum["S_dB"])),
+        "gain_referred_noise_dB": diagnostic_value,
+        "physical_squeezing_dB": None,
+        "S_dB": diagnostic_value,  # compatibility alias; not physical squeezing
     }
+    for source, target in (
+        ("G_s_smallsignal", "G_s_smallsignal"),
+        ("G_c_smallsignal", "G_c_smallsignal"),
+        ("conjugate_photon_flux_gain_smallsignal", "G_c_flux_smallsignal"),
+        ("photon_flux_gap_smallsignal", "photon_flux_gap_smallsignal"),
+        ("commutator_defect_max_smallsignal", "commutator_defect_max_smallsignal"),
+    ):
+        if source in spectrum:
+            out[target] = float(np.interp(probe_GHz, x, spectrum[source]))
     if spectrum.get("delta_k_z") is not None:
         out["delta_k_z"] = float(np.interp(probe_GHz, x, spectrum["delta_k_z"]))
     if spectrum.get("delta_k_z_vacuum") is not None:
@@ -1816,17 +2926,18 @@ def normalize_fidelity(value):
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
-    title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-beam-geometry-v4"
-    defaults_version = "seeded-coupling-factors-v2"
+    title = "Four-wave mixing (Gain diagnostic / Biphoton)"
+    cache_version = "fwm-angular-doppler-reference-v7"
+    defaults_version = "seeded-validation-inputs-v3"
     cache_observables = True
     supports_headless_observables = True
-    # Dev note: Squeezing is the original 85Rb double-Lambda seeded-gain
+    # Dev note: Gain diagnostic is the original 85Rb double-Lambda seeded-gain
     # model (regression-anchored); Biphoton is a newer, less-calibrated
     # spontaneous-FWM source estimate shared across cascade/diamond level
     # schemes rather than fit per atom/transition.
-    caption = ("85Rb D1 double-Lambda four-wave mixing. Squeezing solves the "
-               "seeded twin-beam gain and intensity-difference squeezing; "
+    caption = ("85Rb D1 double-Lambda four-wave mixing. The seeded mode solves "
+               "mean-field twin-beam gain and a gain-referred noise diagnostic; "
+               "microscopic atomic Langevin diffusion is not yet implemented. "
                "Biphoton estimates the spontaneous-pair source for cascade "
                "and diamond level schemes.")
 
@@ -1876,10 +2987,32 @@ class FWMScheme(Scheme):
                       1.0, 100.0, 0.5, "mm", visible_if=seeded,
                       help="Vapor-cell length L. Enters the Maxwell-Bloch "
                            "propagation exp(M·L), so it recomputes the gain."),
+            ParamSpec("transit_rate_khz", "Transit reset rate", "Cell", 100.0,
+                      1.0, 1000.0, 1.0, "kHz", visible_if=seeded, advanced=True,
+                      advanced_group="Model provenance",
+                      help="Trace-preserving thermal replacement rate. The 100 kHz "
+                           "default is inherited rather than independently fitted; "
+                           "90–110 kHz is an illustrative sensitivity sweep, not an "
+                           "uncertainty interval."),
             ParamSpec("pump_mw", "Pump power", "Beams", 600.0,
                       50.0, 1200.0, 10.0, "mW", visible_if=seeded),
-            ParamSpec("probe_uw", "Seed / probe power", "Beams", 8.0,
-                      1.0, 200.0, 1.0, "µW", visible_if=seeded),
+            ParamSpec("probe_uw", "Wanted seed sideband power", "Beams", 8.0,
+                      1.0, 200.0, 1.0, "µW", visible_if=seeded,
+                      help="Optical power in the selected EOM sideband that drives "
+                           "the seeded response."),
+            ParamSpec("eom_residual_carrier_uw", "Residual EOM carrier power",
+                      "Beams", 0.0, 0.0, 5000.0, 0.1, "µW",
+                      visible_if=seeded, advanced=True,
+                      advanced_group="EOM spectrum provenance",
+                      help="Cell-plane residual carrier power. It is recorded and "
+                           "claim-gated but not applied because its coupling, phase, "
+                           "polarization, and noise transfer are uncalibrated."),
+            ParamSpec("eom_other_sidebands_uw", "Other EOM sidebands power",
+                      "Beams", 0.0, 0.0, 5000.0, 0.1, "µW",
+                      visible_if=seeded, advanced=True,
+                      advanced_group="EOM spectrum provenance",
+                      help="Total cell-plane power outside the wanted sideband and "
+                           "carrier. Recorded as unapplied provenance only."),
             ParamSpec("pump_waist_um", "Pump waist w₀", "Beams",
                       W_PUMP * 1e6, 50.0, 2000.0, 10.0, "µm",
                       visible_if=seeded,
@@ -1910,31 +3043,23 @@ class FWMScheme(Scheme):
                       "Detection & scaling", QE_DETECTOR * 100.0,
                       50.0, 100.0, 0.01, "%", visible_if=seeded, advanced=True,
                       advanced_group="Detector",
-                      help="Photodiode QE. With the loss knob it forms "
-                           "eta = QE·(1−loss), which sets the lossless squeezing "
-                           "floor 10·log10(1−eta) — the hard ceiling on any result "
-                           "here, so this is the single highest-leverage number in "
-                           "the detection chain. The 92% default is the value the "
-                           "0.74 reference residual was anchored with; the Sim et al. "
-                           "detector (Hamamatsu S3883, 0.58 A/W @ 795 nm) is 90.45%, "
-                           "which lowers the floor by about 0.46 dB. Changing this "
-                           "moves the anchor, so treat 92% as the baseline-compatible "
-                           "setting rather than a measured device QE."),
-            ParamSpec("line_strength", "Reference residual anchor",
-                      "Detection & scaling", 0.74,
+                      help="Photodiode QE. With the post-cell loss knob it forms "
+                           "eta = QE·(1−loss) in the gain-referred diagnostic. The "
+                           "92% default is a historical model input, not a validation "
+                           "of physical squeezing or a measured device calibration."),
+            ParamSpec("line_strength", "Inherited residual factor",
+                      "Detection & scaling", SEEDED_REFERENCE_RESIDUAL,
                       0.2, 5.0, 0.01, "×",
                       visible_if=seeded, advanced=True,
                       advanced_group="Seeded coupling factorization",
-                      help="Backward-compatible dimensionless coupling anchor. The physical "
+                      help="Backward-compatible dimensionless residual. The physical "
                            "macroscopic normalization — Rb85 D1 hyperfine Clebsch-Gordan "
-                           "strengths × p_F/[2(2I+1)] (ground population × sublevel "
-                           "degeneracy) — is computed from first principles in code; this "
-                           "reference residual (0.74) is anchored to Sim et al. (Sci. Rep. "
-                           "15, 7727 "
-                           "(2025)): at Ultra fidelity it anchors the measured gain "
-                           "scale G_s≈14 and the observed squeezing scale. The hardened "
-                           "model is not constrained to reproduce the exact −7.8 dB "
-                           "readout at the nominal operating point. It remains separate "
+                           "strengths × 1/[2(2I+1)] — is computed from first principles. "
+                           "The trace-normalized rho_ss supplies the manifold population "
+                           "exactly once. The inherited 0.74 residual has not been "
+                           "refitted after the normalization and Maxwell-convention "
+                           "corrections, so it does not anchor measured gain or squeezing. "
+                           "It remains separate "
                            "because no measurements identify a unique split of 0.74 among "
                            "overlap, polarization, and Zeeman participation; the three "
                            "unit-default penalties below represent only additional loss "
@@ -2051,6 +3176,13 @@ class FWMScheme(Scheme):
             ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_FAST,
                       choices=tuple(FWM_FIDELITY.keys()), advanced=True,
                       visible_if=seeded),
+            ParamSpec("floquet_order", "Floquet order N_F", "Numerics",
+                      SEEDED_FLOQUET_ORDER, choices=(3, 4, 5), advanced=True,
+                      visible_if=seeded,
+                      help="Retained harmonics -N_F,...,+N_F. Every reported scan "
+                           "is compared with N_F-1 over all complex response and "
+                           "transfer coefficients; a failed gate is returned as "
+                           "UNCONVERGED."),
             ParamSpec("phase_detail", "Phase detail", "Phase matching", "Balanced",
                       choices=("Balanced", "Fine"), visible_if=biphoton,
                       advanced=True, recompute=False,
@@ -2073,13 +3205,18 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
+                    transit_rate_khz=100.0,
+                    eom_residual_carrier_uw=0.0,
+                    eom_other_sidebands_uw=0.0,
                     pump_waist_um=W_PUMP * 1e6, probe_waist_um=W_PROBE * 1e6,
                     qe_pct=QE_DETECTOR * 100.0,
-                    line_strength=0.74, mode_overlap_penalty=1.0,
+                    line_strength=SEEDED_REFERENCE_RESIDUAL,
+                    mode_overlap_penalty=1.0,
                     polarization_penalty=1.0,
-                    zeeman_participation_penalty=1.0,
-                    resolution=FIDELITY_FAST,
-                    seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
+                     zeeman_participation_penalty=1.0,
+                     resolution=FIDELITY_FAST,
+                     floquet_order=SEEDED_FLOQUET_ORDER,
+                     seeded_angle_deg=SEEDED_PHASE_ANGLE_DEG)
 
     def _biphoton_defaults(self, params):
         topology = params.get("topology", TOPOLOGY_RB87_TELECOM)
@@ -2154,26 +3291,41 @@ class FWMScheme(Scheme):
 
     def info(self):
         return (
-            "**85Rb D1 double-Lambda four-wave mixing.** The legacy seeded gain "
-            "and intensity-difference squeezing remain regression-anchored to Sim "
-            "*et al.*\n\n"
+            "**85Rb D1 double-Lambda four-wave mixing.** The seeded path computes "
+            "a mean-field gain diagnostic. Its displayed dB trace is only a gain-referred "
+            "diagnostic: microscopic frequency-dependent atomic Langevin diffusion "
+            "has not been implemented, so it is not a physical squeezing spectrum.\n\n"
             "The propagation is linear in the undepleted pump, so the bare gain "
             "grows exponentially with density and would exceed the pump's energy "
             "budget at high T. A Manley-Rowe pump-depletion saturation "
             "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
-            "conservation bound; it is negligible in the validated regime. "
+            "conservation bound. This post-hoc cap is not a self-consistent depleted "
+            "three-field solution and does not validate the absolute gain. "
+            "The finite-reference-field atomic response defaults to N_F=3 and is "
+            "compared with N_F=2 across the complete reported scan. Complex "
+            "susceptibilities and transfer coefficients, gains, wrapped phases, and "
+            "the probe-gain optimum must all pass; otherwise the result is explicitly "
+            "UNCONVERGED. "
+            "Separately, a slow reference derives a static physical pump frame, "
+            "solves its self-consistent trace-one state, and evaluates the full "
+            "2x2 infinitesimal Nambu response with an independent analysis "
+            "frequency and projected DC solve. It is gauge-certified for the "
+            "standard minus Raman branch and is not substituted into these "
+            "finite-reference production curves; the inherited plus-branch frame "
+            "remains unsupported by that reference. "
             "The solve also folds in density-dependent collisional decoherence "
             "(Rb self-broadening of the optical coherence via the AutoOD-validated "
-            "Γ_eff = Γ + β·N, plus a transit-time-floor + Rb–Rb ground Raman-"
-            "coherence term), so the squeezing now peaks near 121–131 °C and "
-            "decreases at higher temperature as Sim *et al.* observe, rather than "
-            "improving monotonically with density. "
-            "Fast fidelity includes the reference 0.32 deg seeded phase "
-            "mismatch; Balanced fidelity also applies a chi-reused refractive "
-            "correction and segmented propagation profile. Ultra adds a slow "
-            "self-consistent phase refinement, dynamic segmented depletion, "
-            "in-cell loss/noise, Gaussian overlap, and a 24-level Zeeman CG-sum "
-            "diagnostic readout that is not applied to the main solve.\n\n"
+            "Γ_eff = Γ + β·N, Rb–Rb ground-Raman pure dephasing, and a trace-"
+            "preserving thermal transit reset). The inherited transit rate has not "
+            "been independently fitted. "
+            "Every non-legacy fidelity uses Option-A propagation: bare frequency-"
+            "specific wave numbers, the reference 0.32 deg vacuum/geometric "
+            "mismatch, and dispersion only in diagonal chi. Balanced adds a "
+            "segmented propagation profile. Ultra adds dynamic segmented depletion, "
+            "Gaussian overlap, and a 24-level Zeeman CG-sum "
+            "diagnostic readout that is not applied to the main solve. Residual EOM "
+            "carrier and other-sideband powers are carried end-to-end as provenance "
+            "but remain unapplied until their coupling/noise transfer is measured.\n\n"
             "**Source model toggle.** *Predictive* solves the Doppler-averaged "
             "cascade biphoton amplitude from first principles: the two-photon "
             "denominator carries the Ω_c² Autler-Townes term (not a weak-coupling "
@@ -2220,11 +3372,17 @@ class FWMScheme(Scheme):
         center = branch_center_GHz(params["opd"], -1)
         fidelity = normalize_fidelity(params["resolution"])
         res = FWM_FIDELITY[fidelity]
+        wanted_seed_uw = params["probe_uw"]
+        alias_seed_uw = params.get("seed_wanted_sideband_uw", wanted_seed_uw)
+        if not np.isclose(alias_seed_uw, wanted_seed_uw, rtol=0.0, atol=1e-12):
+            raise ValueError(
+                "probe_uw and seed_wanted_sideband_uw disagree; use one "
+                "wanted-sideband power at the bridge boundary")
         return compute_spectrum(
             params["opd"],
             T=params["temp_c"] + 273.15,
             P_pump=params["pump_mw"] * 1e-3,
-            P_probe=params["probe_uw"] * 1e-6,
+            P_probe=wanted_seed_uw * 1e-6,
             line_strength=params["line_strength"],
             mode_overlap_penalty=params.get("mode_overlap_penalty", 1.0),
             polarization_penalty=params.get("polarization_penalty", 1.0),
@@ -2242,6 +3400,20 @@ class FWMScheme(Scheme):
             phase_detail=res["phase_detail"],
             pump_probe_angle_deg=params.get("seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
             model_fidelity=fidelity,
+            floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
+            enforce_floquet_convergence=True,
+            transit_rate=(2.0 * np.pi
+                          * (params.get("transit_rate_khz", 100.0) * 1e3)),
+            eom_residual_carrier_power=(
+                params.get("eom_residual_carrier_uw", 0.0) * 1e-6),
+            eom_other_sidebands_power=(
+                params.get("eom_other_sidebands_uw", 0.0) * 1e-6),
+            eom_seed_spectrum_provenance=params.get(
+                "eom_seed_spectrum_provenance", "direct FWM input"),
+            eom_seed_spectrum_status=params.get(
+                "eom_seed_spectrum_status", "not supplied"),
+            eom_seed_spectrum_application=params.get(
+                "eom_seed_spectrum_application", "unapplied"),
             branch=DEFAULT_BRANCH,
         )
 
@@ -2257,6 +3429,8 @@ class FWMScheme(Scheme):
         tpd = params["tpd"]
         op = operating_point(raw, tpd, branch=-1)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
+        claim_gate = raw.get("claim_gate", {})
+        floquet_convergence = raw.get("floquet_convergence", {})
 
         fig = None
         if include_figures:
@@ -2274,33 +3448,54 @@ class FWMScheme(Scheme):
                           f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f}")
             if np.nanmax(raw["G_s"]) > 50:
                 axG.set_yscale("log")
-            axS.plot(d_axis, raw["S_dB"], color="#2ca02c", lw=1.8)
+            axS.plot(d_axis, raw["gain_referred_noise_dB"], color="#2ca02c", lw=1.8)
             axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axS.axhline(0.0, color="black", lw=0.6)
-            axS.scatter([tpd], [op["S_dB"]], color="crimson", zorder=5)
-            axS.set_ylabel("Intensity-difference\nsqueezing  [dB]")
+            axS.scatter([tpd], [op["gain_referred_noise_dB"]],
+                        color="crimson", zorder=5)
+            axS.set_ylabel("Gain-referred noise\ndiagnostic  [dB]")
             axS.set_xlabel(
                 "Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
             axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
             fig.tight_layout()
 
         metrics = [
-            dict(label="Squeezing", value=f"{op['S_dB']:.2f} dB",
-                 delta="below shot noise" if op["S_dB"] < 0 else "above shot noise",
-                 delta_color="inverse", tier="hero"),
+            dict(label="Validation claim gate",
+                 value=claim_gate.get("level", "MEAN_FIELD_DIAGNOSTIC"),
+                 delta="QUANTITATIVE GAIN UNSUPPORTED",
+                 help=" · ".join(claim_gate.get("reasons", ())), tier="hero"),
+            dict(label="Floquet truncation",
+                 value=floquet_convergence.get("status", "NOT_EVALUATED"),
+                 delta=(
+                     f"N_F={floquet_convergence.get('high_order', '?')} vs "
+                     f"{floquet_convergence.get('comparison_order', '?')} · full scan"),
+                 help=(
+                     "Requires the declared complex-response/transfer, gain, wrapped-"
+                     "phase, and optimum-position criteria at every displayed point.")),
+            dict(label="Gain-referred noise diagnostic",
+                 value=f"{op['gain_referred_noise_dB']:.2f} dB",
+                 delta="not a physical squeezing prediction",
+                 help=raw.get("squeezing_status"), tier="hero"),
             dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
-                 help="Power gain of the seeded probe through the cell. Absolute "
+                 help="Mean-field power-gain diagnostic of the seeded probe. Its "
                       "scale uses the first-principles macroscopic normalization "
-                      "(Clebsch-Gordan strengths × p_F/[2(2I+1)]). The Advanced "
-                      "reference residual anchor and three explicit lab-facing "
-                      "penalties multiply the physical coupling normalization.",
-                 tier="hero"),
+                      "(Clebsch-Gordan strengths × 1/[2(2I+1)]); trace-normalized "
+                      "rho_ss supplies the manifold population once. The Advanced "
+                      "inherited residual and three explicit lab-facing penalties "
+                      "multiply that normalization; none is a current gain fit."),
             dict(label="Conjugate gain  G_c", value=f"{op['G_c']:.2f}",
-                 help="Generated conjugate power gain (drives the twin-beam squeezing)."),
+                 help="Generated conjugate power-gain diagnostic; absolute scale is "
+                      "blocked by the validation claim gate."),
         ]
         cap = raw.get("pump_depletion_cap", float("inf"))
         small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
         depletion_limited = small_signal > 1.1 * cap
+        eom = raw.get("eom_seed_spectrum", {})
+        solver = raw.get("atomic_solver_provenance", {})
+        pump_reference = raw.get(
+            "pump_weak_response_reference_provenance", {})
+        noncollinear_reference = raw.get(
+            "noncollinear_doppler_reference_provenance", {})
         phase_rows = ""
         if raw.get("phase_detail", PHASE_LEGACY) != PHASE_LEGACY:
             phase_rows = (
@@ -2314,11 +3509,10 @@ class FWMScheme(Scheme):
             )
             if raw.get("phase_detail") == PHASE_ULTRA:
                 phase_rows += (
-                    f"| Ultra fixed-point iterations | {raw.get('ultra_phase_iterations', 0)} |\n"
-                    f"| Ultra final Delta-k change | {raw.get('ultra_phase_max_change', 0.0):.3e} 1/m |\n"
+                    f"| Dispersion convention | Option A (diagonal chi only) |\n"
                     f"| Dynamic depletion | {raw.get('ultra_dynamic_depletion', False)} |\n"
                     f"| Min pump remaining | {raw.get('ultra_pump_remaining_min', np.nan):.3e} W |\n"
-                    f"| In-cell loss/noise | {raw.get('ultra_in_cell_loss_noise', False)} |\n"
+                    f"| Distributed atomic Langevin covariance | unavailable |\n"
                     f"| Min Gaussian overlap | {raw.get('ultra_spatial_overlap_min', 1.0):.4f} |\n"
                     f"| Zeeman status | {raw.get('zeeman_status', 'inactive')} |\n"
                     f"| Zeeman CG-sum diagnostic | {raw.get('zeeman_correction', 1.0):.4f} |\n"
@@ -2332,9 +3526,48 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
-            f"| Coupling norm p_F/[2(2I+1)] (first-principles) | "
+            f"| Coupling norm 1/[2(2I+1)] (rho_ss supplies population) | "
             f"{raw.get('coupling_norm', float('nan')):.4f} |\n"
-            f"| Reference residual anchor | "
+            f"| Canonical-mode status | {raw.get('canonical_mode_status', 'unavailable')} |\n"
+            f"| Probe / conjugate effective area | "
+            f"{raw.get('canonical_mode_area_probe_m2', np.nan):.3e} / "
+            f"{raw.get('canonical_mode_area_conjugate_m2', np.nan):.3e} m² |\n"
+            f"| Small-signal photon-flux gap | "
+            f"{op.get('photon_flux_gap_smallsignal', np.nan):.6f} |\n"
+            f"| Bare-map commutator defect max | "
+            f"{op.get('commutator_defect_max_smallsignal', np.nan):.3e} |\n"
+            f"| Validation level | {claim_gate.get('level', 'unavailable')} |\n"
+            f"| Quantitative gain claim | "
+            f"{'supported' if claim_gate.get('quantitative_gain_supported') else 'UNSUPPORTED'} |\n"
+            f"| Physical squeezing claim | "
+            f"{'supported' if claim_gate.get('physical_squeezing_prediction') else 'UNAVAILABLE'} |\n"
+            f"| Atomic solver | {solver.get('solver_id', 'unavailable')} |\n"
+            f"| Pump-only weak-response reference | "
+            f"{pump_reference.get('solver_id', 'unavailable')} (separate/slow) |\n"
+            f"| Pump-reference supported branch | "
+            f"{pump_reference.get('supported_branches', ('unavailable',))} |\n"
+            f"| 2-D Raman-Doppler reference | "
+            f"{noncollinear_reference.get('solver_id', 'unavailable')} "
+            f"(separate/slow; production 1-D) |\n"
+            f"| 2-D reference velocity geometry | "
+            f"{noncollinear_reference.get('velocity_geometry', 'unavailable')} |\n"
+            f"| Floquet order | N_F={solver.get('floquet_order', 'unavailable')} |\n"
+            f"| Floquet adjacent-order gate | "
+            f"{floquet_convergence.get('status', 'NOT_EVALUATED')} vs "
+            f"N_F={floquet_convergence.get('comparison_order', 'unavailable')} |\n"
+            f"| Floquet full-scan points | "
+            f"{floquet_convergence.get('full_scan_points', 0)} |\n"
+            f"| Noise-trace status | {raw.get('squeezing_status', 'unavailable')} |\n"
+            f"| Transit reset γ_t / 2π | "
+            f"{raw.get('transit_reset_rate_rad_s', np.nan)/(2*np.pi*1e3):.3f} kHz |\n"
+            f"| Wanted EOM sideband | "
+            f"{eom.get('wanted_sideband_power_w', np.nan)*1e6:.3f} µW |\n"
+            f"| Residual EOM carrier / wanted | "
+            f"{eom.get('residual_carrier_to_wanted_ratio', np.nan):.3e} |\n"
+            f"| Other EOM sidebands / wanted | "
+            f"{eom.get('other_sidebands_to_wanted_ratio', np.nan):.3e} |\n"
+            f"| EOM spectrum application | {eom.get('application', 'unapplied')} |\n"
+            f"| Inherited residual factor (unrefitted) | "
             f"{raw.get('line_strength_residual', float('nan')):.3f}× |\n"
             f"| Additional mode-overlap penalty | "
             f"{raw.get('mode_overlap_penalty', 1.0):.3f}× |\n"
@@ -2765,6 +3998,8 @@ class FWMScheme(Scheme):
 
     def extra_views(self):
         def _compute_full(params):
+            fidelity = normalize_fidelity(params.get("resolution", FIDELITY_FAST))
+            fidelity_settings = FWM_FIDELITY[fidelity]
             return full_spectrum(
                 params["opd"], params["temp_c"] + 273.15,
                 params["pump_mw"], params["probe_uw"], params["line_strength"],
@@ -2775,7 +4010,26 @@ class FWMScheme(Scheme):
                     "zeeman_participation_penalty", 1.0),
                 w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
                 w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
-                qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0)
+                qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
+                floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
+                phase_detail=fidelity_settings["phase_detail"],
+                pump_probe_angle_deg=params.get(
+                    "seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
+                model_fidelity=fidelity,
+                velocity_step=fidelity_settings["velocity_step"],
+                velocity_cutoff=fidelity_settings.get("velocity_cutoff", 3.0),
+                transit_rate=(2.0 * np.pi
+                              * params.get("transit_rate_khz", 100.0) * 1e3),
+                eom_residual_carrier_power=(
+                    params.get("eom_residual_carrier_uw", 0.0) * 1e-6),
+                eom_other_sidebands_power=(
+                    params.get("eom_other_sidebands_uw", 0.0) * 1e-6),
+                eom_seed_spectrum_provenance=params.get(
+                    "eom_seed_spectrum_provenance", "direct FWM input"),
+                eom_seed_spectrum_status=params.get(
+                    "eom_seed_spectrum_status", "not supplied"),
+                eom_seed_spectrum_application=params.get(
+                    "eom_seed_spectrum_application", "unapplied"))
 
         def _render_full(full):
             import matplotlib.pyplot as plt
@@ -2789,13 +4043,17 @@ class FWMScheme(Scheme):
             for key, style in styles.items():
                 spec = full[key]
                 aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
-                aS.plot(spec["probe_axis_GHz"], spec["S_dB"], lw=1.4, **style)
+                aS.plot(spec["probe_axis_GHz"],
+                        spec["gain_referred_noise_dB"], lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
             aG.set_ylabel("Seed / probe gain G_s")
+            aG.set_title(
+                f"{full['minus'].get('model_fidelity', 'unknown')} · "
+                f"{full['minus'].get('propagation_convention', 'unknown')}")
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
-            aS.set_ylabel("Squeezing [dB]")
+            aS.set_ylabel("Gain-referred noise diagnostic [dB]")
             aS.set_xlabel("Probe detuning from F=2 -> F'=3 [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)
@@ -2807,7 +4065,8 @@ class FWMScheme(Scheme):
         return [ExtraView(
             key="Full −8…12 GHz probe scan (slow, both Raman branches)",
             description="The focused view zooms on the (−) Raman line. This runs the "
-                        "original wide scan showing both branches.",
+                        "wide scan for both branches with the same selected seeded "
+                        "fidelity, geometry, and Floquet-order gate.",
             compute=_compute_full, render=_render_full,
         )]
 
@@ -2815,13 +4074,25 @@ class FWMScheme(Scheme):
 def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                   L=L_CELL, *, mode_overlap_penalty=1.0,
                   polarization_penalty=1.0,
-                  zeeman_participation_penalty=1.0,
-                  w_pump=W_PUMP, w_probe=W_PROBE, qe=QE_DETECTOR):
+                   zeeman_participation_penalty=1.0,
+                   w_pump=W_PUMP, w_probe=W_PROBE, qe=QE_DETECTOR,
+                   floquet_order=SEEDED_FLOQUET_ORDER,
+                   phase_detail=PHASE_BALANCED,
+                   pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
+                   model_fidelity=FIDELITY_FAST,
+                   velocity_step=4.0, velocity_cutoff=3.0,
+                   transit_rate=constants.GAMMA_GG,
+                  eom_residual_carrier_power=0.0,
+                  eom_other_sidebands_power=0.0,
+                  eom_seed_spectrum_provenance="direct FWM input",
+                  eom_seed_spectrum_status="not supplied",
+                  eom_seed_spectrum_application="unapplied"):
     """Wide scan with the two Raman channels calculated independently.
 
-    The ∓ branches are independent pure solves, so run them concurrently. With
-    BLAS pinned to one thread per branch (see `core.blas_single_thread`) the two
-    threads occupy two cores instead of contending — roughly halves this view.
+    The minus/plus branches are independent. They are evaluated sequentially
+    because each compiled Floquet kernel already occupies the Numba worker pool;
+    wrapping both in Python threads oversubscribes that pool and is slower on the
+    benchmark hardware. This scheduling choice is not a numerical approximation.
     """
     common = dict(
         T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
@@ -2830,13 +4101,23 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         zeeman_participation_penalty=zeeman_participation_penalty,
         L=L, loss_frac=loss_pct / 100.0,
         w_pump=w_pump, w_probe=w_probe, qe=qe,
-        coarse_points=301, fine_points=401, velocity_step=2.0)
+        floquet_order=floquet_order, enforce_floquet_convergence=True,
+        phase_detail=phase_detail,
+        pump_probe_angle_deg=pump_probe_angle_deg,
+        model_fidelity=model_fidelity,
+        transit_rate=transit_rate,
+        eom_residual_carrier_power=eom_residual_carrier_power,
+        eom_other_sidebands_power=eom_other_sidebands_power,
+        eom_seed_spectrum_provenance=eom_seed_spectrum_provenance,
+        eom_seed_spectrum_status=eom_seed_spectrum_status,
+        eom_seed_spectrum_application=eom_seed_spectrum_application,
+        coarse_points=301, fine_points=401,
+        velocity_step=velocity_step, velocity_cutoff=velocity_cutoff)
 
     def _branch(b):
         with blas_single_thread():
             return compute_spectrum(D_GHz, branch=b, **common)
 
-    with ThreadPoolExecutor(max_workers=2) as ex:
-        fut = {b: ex.submit(_branch, b) for b in (-1, +1)}
-        minus, plus = fut[-1].result(), fut[+1].result()
+    minus = _branch(-1)
+    plus = _branch(+1)
     return {"D_GHz": D_GHz, "minus": minus, "plus": plus}

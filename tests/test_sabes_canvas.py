@@ -83,6 +83,13 @@ def test_frontend_converts_clicks_to_spec_coordinates():
     assert "getScreenCTM" in source and "inverse()" in source
 
 
+def test_frontend_reports_height_after_parent_resize():
+    """The production table must recover when a hidden tab becomes visible."""
+    source = FRONTEND.read_text(encoding="utf-8")
+    assert 'window.addEventListener("resize", reportHeight)' in source
+    assert "ResizeObserver(reportHeight)" in source
+
+
 # --------------------------------------------------------------- spec model
 
 def test_make_spec_has_the_keys_the_frontend_reads():
@@ -131,25 +138,6 @@ def test_missing_frontend_is_reported_clearly(monkeypatch):
     monkeypatch.setattr(canvas_module, "_FRONTEND_DIR", ROOT / "does-not-exist")
     with pytest.raises(FileNotFoundError, match="package data"):
         canvas_module._instance()
-
-
-# --------------------------------------------------------------- spike route
-
-def test_spike_is_reachable_only_behind_a_dev_query_parameter():
-    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
-    assert 'st.query_params.get("dev") == "canvas"' in source
-    assert "from sabes.components import spike" in source
-    # It must be gated before the normal page renders anything expensive.
-    assert source.index('get("dev")') < source.index("bridge.run(")
-
-
-def test_spike_demo_spec_exercises_both_click_kinds():
-    from sabes.components import spike
-    spec = spike._demo_spec()
-    clickable = [s for s in spec["shapes"] if s.get("clickable")]
-    decorative = [s for s in spec["shapes"] if not s.get("clickable")]
-    assert len(clickable) >= 3
-    assert decorative, "needs a non-clickable element to prove the distinction"
 
 
 if __name__ == "__main__":

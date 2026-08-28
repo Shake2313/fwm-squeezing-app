@@ -197,15 +197,16 @@ def test_the_time_series_is_reproducible_and_matches_its_own_density(chain):
 
 # ------------------------------------------------------------ analyser
 
-def test_the_analyser_stacks_the_three_levels_in_the_right_order(chain):
+def test_the_analyser_stacks_the_diagnostic_levels_in_the_right_order(chain):
     signal = I.Photodiode().convert(chain.seed.scaled(14.0))
     reading = I.SpectrumAnalyzer().analyze(signal, -7.0, total_power_w=2e-3)
     snl = reading.quantity("Shot-noise level").value
-    squeezed = reading.quantity("Squeezed level").value
+    diagnostic = reading.quantity("Gain-diagnostic level").value
     floor = reading.quantity("Noise floor").value
-    assert squeezed == pytest.approx(snl - 7.0, abs=1e-9)
-    assert floor < squeezed < snl
+    assert diagnostic == pytest.approx(snl - 7.0, abs=1e-9)
+    assert floor < diagnostic < snl
     assert reading.provenance == I.SYNTHESISED
+    assert "PHYSICAL_SQUEEZING_UNAVAILABLE" in reading.note
 
 
 def test_the_analyser_clearance_follows_the_power_it_was_given(chain):
@@ -221,34 +222,34 @@ def test_the_analyser_clearance_follows_the_power_it_was_given(chain):
             - quiet.quantity("Clearance").value) == pytest.approx(10.0, abs=0.1)
 
 
-def test_the_noise_floor_eats_into_the_observable_squeezing(chain):
-    """What the measurement can show, not what the atoms produced."""
+def test_the_noise_floor_eats_into_the_diagnostic_overlay(chain):
+    """Electronics headroom for the algebraic diagnostic only."""
     signal = I.Photodiode().convert(chain.seed)
     reading = I.SpectrumAnalyzer().analyze(signal, -8.0, total_power_w=2e-4)
-    observable = reading.quantity("Observable squeezing").value
+    observable = reading.quantity("Diagnostic after electronics").value
     assert -8.0 < observable < 0.0
     assert any("above the noise floor" in w for w in reading.warnings)
 
 
-def test_plenty_of_power_recovers_the_full_squeezing(chain):
+def test_plenty_of_power_recovers_the_full_diagnostic_offset(chain):
     signal = I.Photodiode().convert(chain.seed)
     reading = I.SpectrumAnalyzer().analyze(signal, -8.0, total_power_w=5e-3)
-    assert reading.quantity("Observable squeezing").value == pytest.approx(
+    assert reading.quantity("Diagnostic after electronics").value == pytest.approx(
         -8.0, abs=0.3)
     assert not reading.warnings
 
 
-def test_the_squeezing_is_flat_unless_a_measured_corner_is_supplied(chain):
-    """A real trace degrades towards DC. Inventing that shape would dress a
-    guess up as a measurement, so the corner defaults to zero."""
+def test_the_diagnostic_is_flat_unless_an_illustrative_corner_is_supplied(chain):
+    """The corner shapes only an explicitly nonphysical electronics overlay."""
     signal = I.Photodiode().convert(chain.seed)
     flat = I.SpectrumAnalyzer().analyze(signal, -8.0, total_power_w=5e-3)
-    squeezed = flat.trace.series["squeezed"] - flat.trace.series["shot-noise level"]
-    assert np.allclose(squeezed, -8.0, atol=1e-9)
+    diagnostic = (flat.trace.series["gain diagnostic"]
+                  - flat.trace.series["shot-noise level"])
+    assert np.allclose(diagnostic, -8.0, atol=1e-9)
 
     shaped = I.SpectrumAnalyzer(technical_corner_hz=1e6).analyze(
         signal, -8.0, total_power_w=5e-3)
-    spoiled = (shaped.trace.series["squeezed"]
+    spoiled = (shaped.trace.series["gain diagnostic"]
                - shaped.trace.series["shot-noise level"])
     assert spoiled[0] > spoiled[-1]          # worse at low frequency
 
@@ -257,9 +258,23 @@ def test_the_analyser_trace_carries_every_level_it_reports(chain):
     signal = I.Photodiode().convert(chain.seed)
     trace = I.SpectrumAnalyzer().analyze(signal, -7.0,
                                          total_power_w=2e-3).trace
-    assert set(trace.series) == {"shot-noise level", "squeezed", "observed",
-                                 "noise floor"}
+    assert set(trace.series) == {
+        "shot-noise level", "gain diagnostic", "diagnostic + electronics",
+        "noise floor"}
     assert trace.x_unit == "MHz" and trace.y_unit == "dBm"
+
+
+def test_pump_rin_is_unapplied_until_explicitly_supplied(chain):
+    signal = I.Photodiode().convert(chain.seed)
+    no_rin = I.SpectrumAnalyzer().analyze(
+        signal, -7.0, total_power_w=2e-3, pump_leakage_dbm=-30.0)
+    with_rin = I.SpectrumAnalyzer().analyze(
+        signal, -7.0, total_power_w=2e-3, pump_leakage_dbm=-30.0,
+        pump_rin_db_per_hz=-120.0)
+    assert np.isnan(no_rin.quantity("Pump RIN").value)
+    assert with_rin.quantity("Pump RIN").value == pytest.approx(-120.0)
+    assert with_rin.quantity("Noise floor").value > no_rin.quantity(
+        "Noise floor").value
 
 
 # ------------------------------------------------------------ honesty rule

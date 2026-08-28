@@ -1,11 +1,9 @@
-"""
-χ → physical observables.
+"""Convert reduced susceptibilities into propagation diagnostics.
 
-Today: linearised Maxwell-Bloch propagation → seed/conjugate gain and
-intensity-difference squeezing (FWM). Ported verbatim from fwm_obe.py.
-Absorption / OD (Im χ → Beer-Lambert) for the absorption-cluster schemes lands
-in Phase 1; the FWM transfer matrix T returned by `gain_from_chi` is also what
-the Phase-2 coincidence panel will reuse.
+The module supplies Beer--Lambert absorption, the classical seed/conjugate
+transfer matrix, and explicitly labelled gain-referred noise fixtures.  It does
+not derive the microscopic Langevin diffusion needed for a physical FWM
+squeezing spectrum.
 """
 import numpy as np
 
@@ -17,7 +15,19 @@ from .lineshape import fwhm_interp
 def _gain_matrix_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
                           k_probe, k_conj, N_atoms, dipole, line_strength,
                           delta_k_z=None):
-    """Build the 2x2 Maxwell-Bloch propagation matrix stack."""
+    """Build the electric-field Maxwell matrix in the Option-A convention.
+
+    GABES uses positive-frequency fields proportional to ``exp(-i omega t)``
+    and defines a passive susceptibility by ``Im(chi_phys) > 0``.  Therefore
+    ``dE/dz = +i k chi_phys E / 2`` and a passive diagonal response attenuates
+    intensity as ``exp[-k Im(chi_phys) z]``.  Real susceptibility is present
+    only in these diagonal terms; ``delta_k_z = 2*k_pump-k_probe-k_conj``
+    must be the vacuum/geometric mismatch and must not contain a refractive-
+    index correction.  With forward carriers ``exp[i(k*z-omega*t)]``, the
+    symmetric amplitudes are ``(E_probe*exp[-i*delta_k*z/2],
+    E_conj^* * exp[+i*delta_k*z/2])`` and their mismatch terms are therefore
+    ``(-i*delta_k/2, +i*delta_k/2)``.
+    """
     chi_ss_avg = np.asarray(chi_ss_avg, dtype=complex)
     chi_sc_avg = np.asarray(chi_sc_avg, dtype=complex)
     chi_cs_avg = np.asarray(chi_cs_avg, dtype=complex)
@@ -25,17 +35,24 @@ def _gain_matrix_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     k_probe = np.asarray(k_probe, dtype=complex)
     k_conj = np.asarray(k_conj, dtype=complex)
 
-    coupling = -2.0 * N_atoms * line_strength * dipole**2 / (constants.EPS_0 * constants.HBAR)
+    chi_ss_phys = chi_phys(
+        chi_ss_avg, N_atoms, dipole=dipole, line_strength=line_strength)
+    chi_sc_phys = chi_phys(
+        chi_sc_avg, N_atoms, dipole=dipole, line_strength=line_strength)
+    chi_cs_phys = chi_phys(
+        chi_cs_avg, N_atoms, dipole=dipole, line_strength=line_strength)
+    chi_cc_phys = chi_phys(
+        chi_cc_avg, N_atoms, dipole=dipole, line_strength=line_strength)
     n = chi_ss_avg.size
     M = np.zeros((n, 2, 2), dtype=complex)
-    M[:, 0, 0] = 0.5j * k_probe * coupling * chi_ss_avg
-    M[:, 0, 1] = 0.5j * k_probe * coupling * chi_sc_avg
-    M[:, 1, 0] = -0.5j * k_conj * coupling * chi_cs_avg.conj()
-    M[:, 1, 1] = -0.5j * k_conj * coupling * chi_cc_avg.conj()
+    M[:, 0, 0] = 0.5j * k_probe * chi_ss_phys
+    M[:, 0, 1] = 0.5j * k_probe * chi_sc_phys
+    M[:, 1, 0] = -0.5j * k_conj * chi_cs_phys.conj()
+    M[:, 1, 1] = -0.5j * k_conj * chi_cc_phys.conj()
     if delta_k_z is not None:
         dk = np.asarray(delta_k_z, dtype=float)
-        M[:, 0, 0] += 0.5j * dk
-        M[:, 1, 1] -= 0.5j * dk
+        M[:, 0, 0] -= 0.5j * dk
+        M[:, 1, 1] += 0.5j * dk
     return M
 
 
@@ -50,8 +67,10 @@ def gain_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
         χ_phys_xy = −2 N |d_eff|² / (ε₀ ℏ) · χ̄_xy,
         |d_eff|²  = LINE_STRENGTH_FACTOR · |d|²
 
-    Returns probe amplitude gain G_s = |T₀₀|², conjugate G_c = |T₁₀|², and the
-    full 2×2 transfer matrix stack T (reused later by the coincidence panel).
+    Returns the raw electric-field-basis power coefficients
+    ``G_s = |T₀₀|²`` and ``G_c = |T₁₀|²``, plus the full 2×2 transfer
+    matrix stack.  Photon-flux and collected-power interpretations require the
+    explicit mode conversion in :func:`canonical_transfer_from_field`.
     """
     if dipole is None:
         dipole = constants.DIPOLE_D1
@@ -82,6 +101,98 @@ def gain_from_chi(chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
     G_s = np.abs(T[:, 0, 0]) ** 2
     G_c = np.abs(T[:, 1, 0]) ** 2
     return G_s, G_c, T
+
+
+def gaussian_mode_area(waist):
+    """Effective area ``pi*w^2/2`` for a Gaussian 1/e^2 intensity radius."""
+    waist = np.asarray(waist, dtype=float)
+    if np.any(~np.isfinite(waist)) or np.any(waist <= 0.0):
+        raise ValueError("Gaussian mode waist must be finite and positive")
+    return 0.5 * np.pi * waist**2
+
+
+def photon_flux_mode_matrix(omega_probe, omega_conj, area_probe, area_conj):
+    """Return ``Q`` in ``E = Q a`` for two traveling-wave collected modes.
+
+    ``a = (a_probe, a_conj^dagger)^T`` is photon-flux normalized and
+
+        Q_j = sqrt[2 hbar omega_j / (epsilon_0 c A_j)].
+
+    Frequencies and effective areas may be scalars or broadcast-compatible
+    arrays.  Explicit areas prevent an electric-field coefficient from being
+    silently interpreted as a photon-flux or power coefficient.
+    """
+    omega_probe, omega_conj, area_probe, area_conj = np.broadcast_arrays(
+        np.asarray(omega_probe, dtype=float),
+        np.asarray(omega_conj, dtype=float),
+        np.asarray(area_probe, dtype=float),
+        np.asarray(area_conj, dtype=float),
+    )
+    values = (omega_probe, omega_conj, area_probe, area_conj)
+    if any(np.any(~np.isfinite(value)) or np.any(value <= 0.0)
+           for value in values):
+        raise ValueError("Mode frequencies and areas must be finite and positive")
+    q_probe = np.sqrt(
+        2.0 * constants.HBAR * omega_probe
+        / (constants.EPS_0 * constants.C_LIGHT * area_probe))
+    q_conj = np.sqrt(
+        2.0 * constants.HBAR * omega_conj
+        / (constants.EPS_0 * constants.C_LIGHT * area_conj))
+    Q = np.zeros(q_probe.shape + (2, 2), dtype=float)
+    Q[..., 0, 0] = q_probe
+    Q[..., 1, 1] = q_conj
+    return Q
+
+
+def canonical_transfer_from_field(
+        transfer_field, omega_probe, omega_conj, area_probe, area_conj):
+    """Convert an electric-field transfer to the photon-flux canonical basis."""
+    transfer_field = np.asarray(transfer_field, dtype=complex)
+    if transfer_field.shape[-2:] != (2, 2):
+        raise ValueError("transfer_field must end in a 2x2 matrix")
+    Q = photon_flux_mode_matrix(
+        omega_probe, omega_conj, area_probe, area_conj)
+    leading = np.broadcast_shapes(transfer_field.shape[:-2], Q.shape[:-2])
+    transfer_field = np.broadcast_to(transfer_field, leading + (2, 2))
+    Q = np.broadcast_to(Q, leading + (2, 2))
+    q_probe = Q[..., 0, 0]
+    q_conj = Q[..., 1, 1]
+    transfer_canonical = np.array(transfer_field, copy=True)
+    transfer_canonical[..., 0, 1] *= q_conj / q_probe
+    transfer_canonical[..., 1, 0] *= q_probe / q_conj
+    return transfer_canonical, Q
+
+
+def canonical_transfer_diagnostics(
+        transfer_field, omega_probe, omega_conj, area_probe, area_conj):
+    """Canonical gains, photon-flux gap, and bare commutator defect.
+
+    The defect is diagnostic only: a dissipative cell generally needs explicit
+    reservoir channels before the complete input-output map is canonical.
+    """
+    transfer_canonical, Q = canonical_transfer_from_field(
+        transfer_field, omega_probe, omega_conj, area_probe, area_conj)
+    J = np.diag([1.0, -1.0]).astype(complex)
+    defect = (transfer_canonical @ J
+              @ np.swapaxes(transfer_canonical.conj(), -1, -2) - J)
+    probe_gain = np.abs(transfer_canonical[..., 0, 0])**2
+    conjugate_flux = np.abs(transfer_canonical[..., 1, 0])**2
+    omega_probe, omega_conj = np.broadcast_arrays(
+        np.asarray(omega_probe, dtype=float),
+        np.asarray(omega_conj, dtype=float))
+    omega_ratio = np.broadcast_to(
+        omega_conj / omega_probe, probe_gain.shape)
+    conjugate_power = omega_ratio * conjugate_flux
+    return {
+        "Q": Q,
+        "transfer_canonical": transfer_canonical,
+        "probe_power_gain": probe_gain,
+        "conjugate_photon_flux_gain": conjugate_flux,
+        "conjugate_power_gain": conjugate_power,
+        "photon_flux_gap": probe_gain - conjugate_flux,
+        "commutator_defect": defect,
+        "commutator_defect_max": np.max(np.abs(defect), axis=(-2, -1)),
+    }
 
 
 def pump_depletion_saturation(G_s, G_c, P_pump, P_seed):
@@ -276,17 +387,30 @@ def ideal_twin_beam_noise(G_s, G_c):
     return np.clip((G_s - G_c) ** 2 / total, 0.0, 1.0)
 
 
-def intensity_difference_squeezing_dB(G_s, G_c, eta):
-    """
-    Ideal twin-beam intensity-difference noise (lossless) with symmetric
-    detection efficiency η on both arms:
+def gain_referred_noise_dB(G_s, G_c, eta):
+    """Algebraic gain-referred intensity-difference diagnostic in dB.
+
+    This completes a mean-field gain pair with the ideal lossless twin-beam
+    identity and symmetric detection efficiency η:
         S_ideal = (G_s − G_c)² / (G_s + G_c)      [see `ideal_twin_beam_noise`]
         S(η)    = η · S_ideal + (1 − η)
-    Returns 10·log10(S) in dB (negative ↔ squeezed).
+
+    A negative result is *not* a physical squeezing prediction unless the
+    frequency-dependent atomic Langevin diffusion and collected-mode covariance
+    are supplied independently.  The seeded-FWM path does not yet supply them.
     """
     S_ideal = ideal_twin_beam_noise(G_s, G_c)
     S = eta * S_ideal + (1.0 - eta)
     return 10.0 * np.log10(np.maximum(S, 1e-30))
+
+
+def intensity_difference_squeezing_dB(G_s, G_c, eta):
+    """Backward-compatible alias for :func:`gain_referred_noise_dB`.
+
+    The historical name is retained for callers, but it must not be interpreted
+    as a physical squeezing spectrum without a microscopic noise covariance.
+    """
+    return gain_referred_noise_dB(G_s, G_c, eta)
 
 
 def balanced_twin_beam_noise(
@@ -376,7 +500,7 @@ def segmented_loss_noise_squeezing_dB(
         G_s, G_c, eta, *, in_cell_loss_frac=0.0,
         seed_excess_noise=0.0, pump_scatter_noise=0.0,
         eom_residual_noise=0.0):
-    """Ultra FWM squeezing with in-cell loss and additive technical noise."""
+    """Legacy gain-referred loss/noise fixture, not a microscopic prediction."""
     S_ideal = ideal_twin_beam_noise(G_s, G_c)
     tau_cell = 1.0 - np.clip(float(in_cell_loss_frac), 0.0, 1.0)
     S_cell = tau_cell * S_ideal + (1.0 - tau_cell)

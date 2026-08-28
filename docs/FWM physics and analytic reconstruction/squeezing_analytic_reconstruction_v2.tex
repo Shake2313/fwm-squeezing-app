@@ -1,0 +1,2939 @@
+% !TEX program = xelatex
+% Compile twice with XeLaTeX.
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\setmainhangulfont{Malgun Gothic}
+\setsanshangulfont{Malgun Gothic}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{geometry}
+\geometry{margin=2.15cm}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  pdftitle={Semianalytic Reconstruction of the Mean-Field Gain Model and the Spectral Fluctuation Theory for 85Rb Double-Lambda Four-Wave Mixing},
+  pdfauthor={GABES validation report}
+}
+
+\definecolor{navy}{HTML}{183B56}
+\definecolor{teal}{HTML}{207F79}
+\definecolor{amber}{HTML}{A96500}
+\definecolor{lightamber}{HTML}{FFF4DF}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small $^{85}$Rb double-$\Lambda$ FWM}
+\rhead{\small model audit}
+\cfoot{\thepage}
+\setlength{\headheight}{14pt}
+
+\newcommand{\dd}{\mathrm d}
+\newcommand{\ii}{\mathrm i}
+\newcommand{\e}{\mathrm e}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\Rea}{\operatorname{Re}}
+\newcommand{\Ima}{\operatorname{Im}}
+\newcommand{\GHz}{\,\mathrm{GHz}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\kHz}{\,\mathrm{kHz}}
+\newcommand{\dB}{\,\mathrm{dB}}
+\newcommand{\degC}{\,^{\circ}\mathrm C}
+\newcommand{\chibar}{\bar\chi}
+\newcommand{\ket}[1]{\lvert #1\rangle}
+\newcommand{\bra}[1]{\langle #1\rvert}
+\newcommand{\braket}[2]{\langle #1 \vert #2 \rangle}
+\newcommand{\ketbra}[2]{\lvert #1\rangle\!\langle #2\rvert}
+\newcommand{\pending}{\textcolor{amber}{not yet available}}
+\newcommand{\pass}{\textcolor{teal}{PASS}}
+\newcommand{\fail}{\textcolor{red!70!black}{FAIL}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setlist[itemize]{leftmargin=1.4em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=2pt,topsep=4pt}
+\sloppy
+
+\title{\textbf{Semianalytic Reconstruction of the Mean-Field Gain Model\\
+and the Spectral Fluctuation Theory\\
+for $^{85}$Rb Double-$\Lambda$ Four-Wave Mixing}\\[6pt]
+\large Separation of semiclassical gain, quantum fluctuations, and external detection loss}
+\author{GABES model-audit report}
+\date{21 August 2026}
+
+\begin{document}
+\maketitle
+
+\noindent
+\fcolorbox{amber}{lightamber}{%
+\begin{minipage}{0.94\textwidth}
+\textbf{Scope and status.}
+This document separates a semiclassical mean-field gain model, a
+quantum-fluctuation propagation model, and an external detection model.
+The mean-field chain and the quantum
+fluctuation \emph{structure} are derived in closed form and verified
+numerically. A separate slow reference now solves the self-consistent
+pump-only state and infinitesimal trace-zero Nambu response for the standard
+minus Raman branch. It is not substituted into the production finite-seed
+gain path. A production frequency-dependent drift
+$M_q(\Omega_{\rm SA})$ coupled to a microscopic atomic diffusion matrix
+$D(\Omega_{\rm SA})$ is still not implemented, so no physically validated
+squeezing spectrum is claimed here. Any squeezing number obtained from the
+mean-field gains $G_p$ and $G_c$ alone is a diagnostic, not a prediction: the
+associated two-mode map fails the canonical commutator test
+($\mathcal G_{\rm flux}=G_p-(\omega_p/\omega_c)G_c\ne1$) in the dissipative
+cell. Gains here follow the model's two-gain convention, in which $G_p$ and
+$G_c$ are computed independently against the same probe-seed input; the
+photon-flux gap, not the raw power-gain difference, is the canonical
+commutator diagnostic.
+The present claim gate is therefore: algebraic identities may pass,
+quantitative apparatus-level gain is \textsc{unsupported}, and physical
+squeezing is \textsc{unavailable} until the missing provenance, covariance,
+and held-out validation gates are closed.
+\end{minipage}}
+
+\begin{abstract}
+The report reconstructs the warm-vapor $^{85}$Rb D1 double-$\Lambda$
+four-wave-mixing calculation in three explicitly separated layers:
+(i) a semiclassical atomic-response and mean-field gain model,
+(ii) a quantum-fluctuation propagation model with Langevin reservoirs, and
+(iii) an external detection model. For the standard minus Raman branch, a
+separate executable reference solves the pump-only state as a
+finite-dimensional Liouvillian null-space problem and resolves weak
+fluctuations at an independent analysis (sideband) frequency
+$\Omega_{\rm SA}/2\pi=0$--$4\MHz$. The production gain path remains the
+scan-converged finite-seed Floquet solve. The non-collinear two-photon Doppler
+shift is derived and evaluated in a separate pump-only reference, but is not
+yet included in either finite-seed production branch.
+The physical susceptibility is dimensionless while the reduced response has
+units of time; the Voigt prefactor, conjugate energy relation, and all $2\pi$
+conventions are fixed explicitly.
+
+Two analytic layers carry the frequency dependence. First, when the finite
+Liouvillian is diagonalizable, the weak-field resolvent has an \emph{exact}
+simple-pole representation: the atomic response is a sum of complex
+Lorentzian terms whose isolated-pole centers are the \emph{negative} imaginary
+parts and whose half-widths are the negative real parts of the Liouvillian
+eigenvalues. A defective Liouvillian instead requires a Jordan or contour
+representation and generally produces higher-order poles. Complete positivity
+places an exact GKSL generator in the closed stable half plane while still
+allowing peripheral modes. The numerical spectral check is therefore an
+assembly invariant, not an independent validation of model quality. Second,
+the distributed-noise covariance integral is solved as a differential
+Lyapunov equation, whose solution is an entire
+function of the Lyapunov superoperator. Thus its finite-$L$ coordinate-free
+evaluation has no algebraic singularity at an exceptional point, although the
+mode coalescence and parameter sensitivity of an exceptional point can still
+be physical. Resolving the solution in the eigenbasis exhibits the same
+trace--discriminant parametrization as the classical transfer matrix, while a
+block-exponential evaluation avoids the ill-conditioned eigenbasis entirely.
+Both results are verified against direct numerics at the $10^{-12}$ level or
+better in their stated fixtures.
+
+Applying the pole representation to the documented operating point locates the
+slowest nonvanishing atomic pole at $0.520\MHz$ half-width at zero velocity,
+about $5.1$ times the assumed ground-coherence rate, with per-class half-widths
+of $0.22$--$1.49\MHz$ across the velocity distribution. The non-collinear
+Doppler scale is instead a Gaussian rms width of about $1.38\MHz$; it cannot be
+added in quadrature to those Lorentzian half-widths. A quantitative comparison
+with the measured $3.5\MHz$ squeezing bandwidth still awaits
+$S_-(\Omega_{\rm SA})$. A separate slow pump-only reference now performs the
+two-dimensional Maxwell average: at $121\degC$ and $0.32^\circ$ it gives
+$1.380174\MHz$ analytic rms and $1.380163\MHz$ by quadrature, while the
+finite-seed production scan remains one-dimensional.
+
+A Floquet audit finds that $N_F=1$ is not converged at the archived model
+point: going to $N_F=2$ changes $G_p$ by $16.8\%$, changes the archived
+conjugate transfer coefficient by $13.0\%$, and reverses the sign of the
+corresponding historical coefficient gap; $N_F=2$ and $N_F=3$ agree.
+The production core and compiled susceptibility kernel now implement the same
+finite-order recurrence for arbitrary $N_F\geq1$. Reported seeded scans default
+to $N_F=3$ and are accepted only after a full-scan comparison with $N_F=2$ of
+the complex response and transfer coefficients, gains, wrapped phases, and the
+probe-gain optimum.
+The independent pump reference is gauge-equivalent to the minus-branch
+pump-only Floquet state to $8.37\times10^{-15}$. Across a declared
+$4\times5$ analysis-frequency/detuning scan on the full one-dimensional
+Doppler grid, its maximum normalized response residual is
+$7.32\times10^{-17}$. The finite-seed response approaches this reference
+monotonically as the seed is reduced, but the fitted last-three-point
+Rabi-amplitude slope is $1.749$ and is not reported as an exact quadratic law.
+Its opt-in $(v_z,v_x)$ wrapper keeps the laboratory beat and analysis
+frequency fixed, shifts only the atomic detunings, and passes the declared
+grid and cutoff convergence gates.
+Positivity of
+the truncated state is shown \emph{not} to detect this error, so Floquet
+convergence testing cannot be replaced by a physicality check. The literature
+operating point $\Delta/2\pi\simeq+0.9\GHz$, $\delta/2\pi\simeq-8\MHz$, and
+$T=121\degC$ is kept distinct from the archived reduced-model point
+$(\Delta/2\pi,\delta/2\pi,T)=(-1.50\GHz,-280\MHz,110\degC)$. Agreement with
+the production code is classified only as an algebraic and numerical
+consistency check within shared assumptions.
+\end{abstract}
+
+\tableofcontents
+\clearpage
+
+%======================================================================
+\part{Definitions and conventions}
+%======================================================================
+
+\section{Atomic references and frequency definitions}
+
+The four hyperfine states are
+\[
+g_1=5S_{1/2}(F=2),\quad g_2=5S_{1/2}(F=3),\quad
+e_2=5P_{1/2}(F'=2),\quad e_3=5P_{1/2}(F'=3).
+\]
+The optical reference is
+\[
+\omega_{13}\equiv(E_{e_3}-E_{g_1})/\hbar,\qquad
+\omega_{\rm HF}\equiv(E_{g_2}-E_{g_1})/\hbar .
+\]
+Every detuning and linewidth in an equation is an \emph{angular} frequency.
+Numerical values are always displayed after division by $2\pi$:
+\[
+\frac{\Delta}{2\pi}=-1.50\GHz,\qquad
+\frac{\delta}{2\pi}=-280\MHz,\qquad
+\frac{\Gamma}{2\pi}=5.746\MHz .
+\]
+
+The pump and probe-seed conventions are
+\begin{align}
+\Delta&=\omega_{\rm pump}-\omega_{13},\\
+\omega_p&=\omega_{\rm pump}-\omega_{\rm HF}+\delta,\\
+\Omega_{\rm beat}&=\omega_{\rm pump}-\omega_p=\omega_{\rm HF}-\delta,\\
+\omega_c&=2\omega_{\rm pump}-\omega_p .
+\label{eq:frequency-definitions}
+\end{align}
+Thus $\Omega_{\rm beat}$ is the optical pump--probe-seed beat that organizes the
+Floquet harmonics. It is not the analysis frequency.
+
+The independent radio-frequency analysis variable is
+\[
+\frac{\Omega_{\rm SA}}{2\pi}\simeq0.1\text{--}4\MHz .
+\]
+It labels quantum sidebands at $\omega_p\pm\Omega_{\rm SA}$ and
+$\omega_c\mp\Omega_{\rm SA}$. With the Fourier convention used here,
+\begin{equation}
+\delta\hat a_j(z,t)=
+\int_{-\infty}^{\infty}\frac{\dd\Omega_{\rm SA}}{2\pi}\,
+\delta\hat a_j(z,\Omega_{\rm SA})\e^{-\ii\Omega_{\rm SA}t}.
+\label{eq:fourier}
+\end{equation}
+
+\begin{table}[ht]
+\centering
+\caption{Frequency definitions used throughout the report.}
+\label{tab:frequency-definitions}
+\small
+\begin{tabularx}{\textwidth}{L{2.5cm}L{4.2cm}L{3.3cm}Y}
+\toprule
+Symbol & Definition & Reported as & Role\\
+\midrule
+$\omega_{13}$ & $(E_{e_3}-E_{g_1})/\hbar$ &
+$\omega_{13}/2\pi$ & atomic optical reference\\
+$\Delta$ & $\omega_{\rm pump}-\omega_{13}$ &
+$\Delta/2\pi$ & pump one-photon detuning\\
+$\delta$ & $\omega_p-\omega_{\rm pump}+\omega_{\rm HF}$ &
+$\delta/2\pi$ & Raman detuning\\
+$\Omega_{\rm beat}$ & $\omega_{\rm pump}-\omega_p$ &
+$\Omega_{\rm beat}/2\pi$ & optical pump--probe-seed beat\\
+$\Omega_{\rm SA}$ & sideband offset from an optical carrier &
+$\Omega_{\rm SA}/2\pi$ & RF analysis (sideband) frequency\\
+$\omega_p,\omega_c$ & probe and conjugate carrier angular frequencies &
+$\omega_{p,c}/2\pi$ & optical carriers with
+$\omega_c=2\omega_{\rm pump}-\omega_p$\\
+$-\Ima\lambda_m$ & isolated-pole center in the convention of
+Eq.~\eqref{eq:fourier} & $-\Ima\lambda_m/2\pi$ & compared with
+$\Omega_{\rm SA}/2\pi$, never with $\Omega_{\rm beat}/2\pi$\\
+$\Gamma$ & population-decay angular rate &
+$\Gamma/2\pi$ & natural linewidth\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Mode labels.}
+The three optical fields are the \emph{pump}, the \emph{probe} (Stokes), and
+the \emph{conjugate} (anti-Stokes); the weak field injected on the probe leg
+is the \emph{probe-seed}, and probe and conjugate together are the
+\emph{twin beams} \cite{Sim2025}. Subscripts follow that naming:
+$p$ denotes the probe and $c$ the conjugate, while pump quantities carry the
+explicit subscript ``pump'' so that no symbol is overloaded. Powers are
+$P_{\rm pump}$, $P_0$ for the injected probe-seed, and $P_p$, $P_c$ for the
+two output beams. Macroscopic polarizations are written $\mathcal P_j$ to
+keep them distinct from powers, and the quadratures of mode $j$ are
+$(X_j,Y_j)$.
+
+\section{Field, beam, and susceptibility normalization}
+
+Canonical traveling-wave amplitudes are photon-flux normalized:
+\begin{equation}
+[\delta\hat a_j(z,t),\delta\hat a_k^\dagger(z,t')]
+=\delta_{jk}\delta(t-t'),\qquad
+P_j=\hbar\omega_j|\alpha_j|^2 .
+\label{eq:flux-normalization}
+\end{equation}
+If the atomic code uses Rabi amplitudes
+$\Omega_j=\mathcal G_j\alpha_j$, its propagation matrix must be transformed
+before being interpreted quantum mechanically:
+\begin{equation}
+M_{\rm can}=\mathcal G^{-1}M_{\Omega}\mathcal G,\qquad
+\mathcal G=\operatorname{diag}(\mathcal G_p,\mathcal G_c^*).
+\label{eq:canonical-rescaling}
+\end{equation}
+The near equality of the two optical wavelengths does not remove this
+normalization requirement. Every quantity below that is contracted with the
+canonical metric $J=\operatorname{diag}(1,-1)$ --- in particular the
+commutator-defect matrix of Sec.~\ref{sec:realizability} --- is
+basis dependent through Eq.~\eqref{eq:canonical-rescaling} and must be
+recomputed if the collected mode areas differ.
+
+The quoted beam sizes
+\[
+w_{\rm pump}=530\,\mu{\rm m},\qquad w_p=330\,\mu{\rm m}
+\]
+are $1/\e^2$ \emph{intensity radii}, not diameters.
+
+The reduced response is defined schematically by
+$\chibar_{jk}=\rho_{eg}^{(j\leftarrow k)}/\Omega_k$. Consequently
+\begin{equation}
+[\chibar_{jk}]={\rm s},\qquad
+\chi_{jk}=-\frac{2Nd^2}{\epsilon_0\hbar}\,\ell_{\rm norm}\chibar_{jk},
+\qquad [\chi_{jk}]=1 .
+\label{eq:susceptibility-dimension}
+\end{equation}
+The factor $\ell_{\rm norm}$ is dimensionless. Its decomposition is audited
+in Appendix~\ref{app:normalization}. The structural factor is now
+$1/[2(2I+1)]=1/12$: the trace-normalized $\rho_{\rm ss}$ supplies the
+ground-manifold population, while the inherited $0.74$ remains an empirical
+residual rather than a first-principles quantity.
+
+\section{Operating-point classification}
+
+\begin{table}[ht]
+\centering
+\caption{Operating points are classified by provenance, not by numerical
+appearance in a scan.}
+\label{tab:operating-points}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}C{2.0cm}C{2.0cm}C{1.7cm}Y}
+\toprule
+Point and class & $\Delta/2\pi$ & $\delta/2\pi$ & $T$ & Meaning\\
+\midrule
+Archived reduced-model optimum &
+$-1.50\GHz$ & $-280\MHz$ & $110\degC$ &
+Numerical optimum of the gain-only squeezing objective. It is not an
+experimental optimum and its $N_F=1$ result is unconverged.\\
+Sim et al. literature benchmark \cite{Sim2025} &
+$+0.9\GHz$ & $-8\MHz$ & $121\degC$ &
+Experimentally measured operating point: $600\,{\rm mW}$ pump,
+$8$--$10\,\mu{\rm W}$ probe-seed, $12.5\,{\rm mm}$ cell,
+$w_{\rm pump}=530\,\mu{\rm m}$, $w_p=330\,\mu{\rm m}$, and
+$\theta=0.32^\circ$.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The literature describes the gain as about $15$; the cited $^{85}$Rb squeezing
+trace reports raw powers $(P_0,P_p,P_c)=(8,111,109)\,\mu{\rm W}$, which give
+the power ratios $13.875$ and $13.625$ used here.
+It reports maximum IDS of $-7.8\dB$, an approximate $3.5\MHz$
+bandwidth, and a laser-source electronic-noise peak near $2\MHz$. Those
+measurements are not properties of the archived
+$(\Delta/2\pi,\delta/2\pi)=(-1.50\GHz,-280\MHz)$ model point.
+
+%======================================================================
+\part{Pump-only atomic steady state}
+%======================================================================
+
+\section{Self-consistent finite-dimensional Liouvillian}
+
+For each velocity class and longitudinal position, the pump-only state is
+defined by
+\begin{equation}
+\mathcal L_{\rm pump}(z,\bm v)\rho_{\rm ss}(z,\bm v)=0,\qquad
+\Tr\rho_{\rm ss}(z,\bm v)=1 .
+\label{eq:pump-nullspace}
+\end{equation}
+For the standard minus Raman branch, the seeded frame has
+$\Omega_{\rm beat}=\omega_{\rm HF}-\delta$. The explicit transformation
+\begin{equation}
+U_-(t)=\exp\!\left(+\ii\Omega_{\rm beat}t\ketbra{g_2}{g_2}\right)
+\label{eq:pump-frame-transform}
+\end{equation}
+is used with $\rho_{\rm pump}=U_-^\dagger\rho_{\rm seed}U_-$ and
+$H_{\rm pump}=U_-^\dagger H_{\rm seed}U_- -\ii\hbar
+U_-^\dagger\dot U_-$. It makes the second pump coupling static and changes the
+$g_2$ diagonal from
+$\delta$ to
+$\delta+\Omega_{\rm beat}=\omega_{\rm HF}$. The resulting pump Hamiltonian is
+\begin{equation}
+\frac{H_{\rm pump}}{\hbar}=
+\omega_{\rm HF}\ketbra{g_2}{g_2}
+-\sum_e\Delta_e(\bm v)\ketbra{e}{e}
++\frac12\sum_{g,e}
+\left(\Omega^{\rm pump}_{ge}\ketbra{e}{g}+\Omega^{{\rm pump}*}_{ge}\ketbra{g}{e}\right),
+\label{eq:pump-hamiltonian}
+\end{equation}
+where $\Delta_e(\bm v)=\Delta_e-\bm k_{\rm pump}\cdot\bm v$.
+Spontaneous emission, collisional optical dephasing, and ground-state
+decoherence enter the same reference Liouvillian. The shared
+dissipator now includes the trace-preserving thermal reload channel
+$\gamma_t(\rho_{\rm th}\Tr\rho-\rho)$ with ground-manifold weights $5/12$ and
+$7/12$; the density-dependent Rb--Rb term remains a separate pure-dephasing
+channel. Vectorizing the
+$4\times4$ density matrix gives a $16\times16$ null-space problem; one row is
+replaced by the trace constraint. Solving that system makes populations
+and coherences feed back on one another self-consistently.
+
+The diagonal phase in Eq.~\eqref{eq:pump-frame-transform} leaves the declared
+projector dephasing and thermal reload invariant; phases acquired by individual
+collapse operators cancel in their Lindblad dissipators. The executable gauge
+map reconstructs the seeded-frame pump state with $g_2$-row coherences in
+$n=-1$, $g_2$-column coherences in $n=+1$, all remaining entries in $n=0$, and
+all $|n|\geq2$ harmonics exactly zero. The reconstructed state agrees with the
+direct $N_F=3$ pump-only Floquet solution to $8.37\times10^{-15}$. This
+certification currently applies only to the standard minus Raman branch. The
+inherited plus-branch finite-seed frame fails this gauge-parity test and the
+pump-only reference therefore returns \texttt{unsupported} rather than mapping
+it silently.
+
+Equations~\eqref{eq:pump-nullspace}--\eqref{eq:pump-hamiltonian} are now an
+executable \emph{semianalytic pump-only steady-state reference}: the
+Liouvillian matrix elements are analytic functions of the parameters and the
+null space is solved numerically. It remains separate from the current gain
+tables. The production path instead solves a
+trace-one, finite-seed density matrix at $N_F\geq3$ and applies an adjacent-order
+full-scan convergence gate. The generalized audit separately repeats the same
+finite-seed finite-Floquet construction for $N_F=1,2,3$.
+The older rate/Sylvester carrier in
+\path{analysis/squeezing/analytic_reconstruction/theory_final.py} is a third,
+historical leading-order approximation; it is not the source of the corrected
+Option-A tables. None of these distinctions changes the fact that any solve is
+exact only within its four-level, Markov, rotating-wave, field, velocity, and
+Floquet assumptions. In particular, the reference is undepleted, uses the
+one-dimensional longitudinal Doppler grid by default, and does not recompute
+the pump state segment by segment. Section~\ref{sec:doppler} adds a separate
+two-dimensional wrapper around this reference; it does not promote that
+wrapper into the finite-seed production path.
+
+The finite-seed path takes the probe-seed power already present at the cell as
+an input. It does not model the apparatus EOM $V_\pi$, insertion loss, RF-to-
+sideband conversion, or sideband impurity. Those quantities belong to the
+lab-to-cell input map and technical-noise budget, not to the pump-nullspace
+equation.
+
+\section{Validity of the historical rate/Sylvester factorization}
+
+An alternative construction solves saturation rate equations for populations
+and then solves a Sylvester equation for coherences. Because the resulting
+coherences do not feed back into the populations, that construction is not an
+exact strong-pump steady state. It may be used only under all of the
+following assumptions:
+\begin{itemize}
+\item optical coherences can be adiabatically eliminated;
+\item excited-state interference and coherent population trapping are small;
+\item pump-induced level dressing is weak compared with relevant separations;
+\item population redistribution is slow compared with optical dephasing; and
+\item fitted rates represent the omitted coherent dynamics.
+\end{itemize}
+At the archived point the quoted pump Rabi rate is comparable to or larger
+than the excited-state hyperfine splitting
+($\Omega_{\rm pump}/2\pi=0.708\GHz$ versus
+$\nu^{(e)}_{\rm HF}=361.58\MHz$), so these assumptions are not automatically
+satisfied. All population and coherence
+numbers obtained this way are therefore classified as a controlled
+approximation only if a separate error study is supplied.
+
+\section{Phenomenological rates and truncations}
+
+The four-level pump model uses a Zeeman-averaged hyperfine basis. The
+ground-coherence floor, density-dependent collisional term, and optical
+self-broadening are phenomenological inputs unless independently measured.
+At the literature point the engine evaluates
+\begin{equation}
+\frac{\gamma_{gg}}{2\pi}=102.882\kHz,\qquad
+\frac{\gamma_{\rm opt}}{2\pi}=0.7416\MHz,\qquad
+\frac{\Gamma}{2\pi}=5.7460\MHz,
+\label{eq:rates-at-literature}
+\end{equation}
+for $N=2.1496\times10^{19}\,{\rm m^{-3}}$ at $T=121\degC$, where the effective
+ground-coherence decay is the sum of the $100\kHz$ trace-preserving transit
+reset and a $2.882\kHz$ Rb--Rb pure-dephasing term, and
+$\gamma_{\rm opt}=\tfrac12\beta N$ is the added collisional optical half-width.
+Thus the transit contribution replenishes ground populations rather than merely
+damping the Raman coherence, while preserving trace exactly. Their provenance
+and sensitivity are listed in
+Appendix~\ref{app:parameters}. No calculation involving these quantities is
+labeled exact.
+
+%======================================================================
+\part{Weak-field linear response}
+%======================================================================
+
+\section{Frequency-dependent response matrix}
+
+Let $\mathcal V_k(\Omega_{\rm SA})$ be the perturbation generated by the weak
+probe or conjugate sideband, and let $\omega_k(\delta,\Omega_{\rm SA})$ be that
+field's angular frequency in the static pump frame. With
+Eqs.~\eqref{eq:fourier} and
+$\dot\rho=\mathcal L_{\rm pump}\rho+\mathcal V\rho_{\rm ss}$,
+\begin{equation}
+\delta\rho_k(\Omega_{\rm SA})=
+-\left(\mathcal L_{\rm pump}+\ii\omega_k(\delta,\Omega_{\rm SA})\right)^{-1}_{\Tr=0}
+\mathcal V_k(\Omega_{\rm SA})\rho_{\rm ss}.
+\label{eq:linear-resolvent}
+\end{equation}
+For the implemented minus-branch Nambu sector,
+\begin{equation}
+\omega_k^{(-)}(\delta,\Omega_{\rm SA})
+=-\omega_{\rm HF}+\delta+\Omega_{\rm SA}.
+\label{eq:pump-frame-response-frequency}
+\end{equation}
+Thus the optical two-photon detuning and RF analysis frequency are independent
+inputs; changing one never silently changes the other. The inverse acts on the
+trace-zero subspace. At $\omega_k=0$ the implementation projects the full
+stationary subspace instead of applying an ordinary singular inverse. This
+zero relative resolvent frequency is not generally the same as setting the lab
+analysis frequency $\Omega_{\rm SA}$ to zero. Using the opposite Fourier sign
+would reverse the sign of the imaginary term; mixing those conventions is not
+allowed.
+
+Polarization readout gives the full response matrix
+\begin{equation}
+\begin{pmatrix}\mathcal P_p\\\mathcal P_c^*\end{pmatrix}
+=\epsilon_0
+\begin{pmatrix}
+\chi_{pp}(\Omega_{\rm SA})&\chi_{pc}(\Omega_{\rm SA})\\
+\chi_{cp}^*(\Omega_{\rm SA})&\chi_{cc}^*(\Omega_{\rm SA})
+\end{pmatrix}
+\begin{pmatrix}E_p\\E_c^*\end{pmatrix}.
+\label{eq:chi-matrix}
+\end{equation}
+Thus $M_q$, the reservoir coupling $B$, and the diffusion matrix $D$ may all
+depend on $\Omega_{\rm SA}$.
+The executable reference returns the complete complex $2\times2$ derivative
+with Nambu input/output order $(p,c^*)$ and units of seconds per unit angular
+Rabi frequency. It supplies the atomic-response ingredient needed for a future
+$M_q(\Omega_{\rm SA})$ construction, but it does not construct $B$ or $D$ and
+is not the production gain solver.
+
+\section{Non-collinear Doppler geometry}
+\label{sec:doppler}
+
+Choose the pump along $z$ and the probe-seed in the $x$--$z$ plane:
+\[
+\bm k_{\rm pump}=k_{\rm pump}\hat{\bm z},\qquad
+\bm k_p=k_p(\sin\theta\,\hat{\bm x}+\cos\theta\,\hat{\bm z}).
+\]
+The laboratory detunings seen by an atom with velocity
+$\bm v=(v_x,v_y,v_z)$ are therefore
+\begin{align}
+\Delta_{\rm eff}&=\Delta-k_{\rm pump}v_z,\\
+\delta_{\rm eff}&=\delta+(k_{\rm pump}-k_p\cos\theta)v_z
+-k_p\sin\theta\,v_x .
+\label{eq:doppler-detunings}
+\end{align}
+The sign of the transverse term follows directly from
+$\delta_{\rm eff}=\delta-(\bm k_p-\bm k_{\rm pump})\cdot\bm v$.
+The quantitative average is at least two-dimensional:
+\begin{equation}
+\langle X\rangle_v=
+\int\!\!\int\frac{\dd v_z\,\dd v_x}{2\pi\sigma_v^2}
+\exp\!\left[-\frac{v_z^2+v_x^2}{2\sigma_v^2}\right]
+X(\Delta_{\rm eff},\delta_{\rm eff}).
+\label{eq:two-dimensional-velocity}
+\end{equation}
+The unused $v_y$ projection integrates to one. For
+$k_{\rm pump}\simeq k_p=k$,
+\begin{equation}
+|\bm k_{\rm pump}-\bm k_p|=2k\sin(\theta/2)\simeq k\theta,\qquad
+\frac{\sigma_{\delta,\theta}}{2\pi}
+\simeq\frac{\theta\sigma_v}{\lambda}=1.361\MHz
+\label{eq:angular-doppler}
+\end{equation}
+for $\theta=0.32^\circ$, $\sigma_v=193.7\,{\rm m/s}$, and
+$\lambda=795\,{\rm nm}$. These values correspond to the $110\degC$ estimate. At the
+$121\degC$ literature point, $\sigma_v\simeq196.5\,{\rm m/s}$ and the width is
+about $1.38\MHz$. Both are much larger than
+$\gamma_{gg}/2\pi=0.103\MHz$. The angular term vanishes as
+$\theta\to0$; a roughly $2\kHz$ collinear residual remains because
+$\omega_{\rm pump}\ne\omega_p$.
+
+The minus-branch pump-only reference now implements
+Eq.~\eqref{eq:two-dimensional-velocity} as a tensor Gauss--Legendre quadrature
+of the truncated Maxwell distribution. Its interface keeps
+$\Omega_{\rm beat,lab}$ and $\Omega_{\rm SA}$ independent of velocity and
+applies Eq.~\eqref{eq:doppler-detunings} only to the atomic detunings. This
+separation is essential: passing $\delta_{\rm eff}$ to the production Floquet
+table would also move the laboratory beat frequency and would describe a
+different problem.
+
+At the literature point the analytic rms is $1.380173564\MHz$, of which
+$1.380161171\MHz$ is transverse and $5.848714\kHz$ is axial at angle. The
+$40\times40$, $5\sigma_v$ quadrature gives $1.380163304\MHz$, a
+$-7.43\times10^{-4}\%$ difference. Table~\ref{tab:angular-doppler-convergence}
+records the feature-level convergence. These large gains are mean-field
+diagnostics under the same uncalibrated coupling assumptions as the other gain
+tables, not experimental predictions.
+
+\begin{table}[ht]
+\centering
+\caption{Two-dimensional non-collinear reference convergence. The refined
+scan spacing is $0.05\MHz$; the first three rows use a $5\sigma_v$ cutoff.}
+\label{tab:angular-doppler-convergence}
+\small
+\begin{tabular}{c r r r r}
+\toprule
+Grid or cutoff & velocity pairs & feature $\delta/2\pi$ & $G_p$ & change\\
+\midrule
+$24\times24$ & 576 & $36.15\MHz$ & 4517.4025 & $+0.01495\%$ vs 40\\
+$32\times32$ & 1024 & $36.00\MHz$ & 4517.0481 & $+0.00711\%$ vs 40\\
+$40\times40$ & 1600 & $35.95\MHz$ & 4516.7271 & reference\\
+$4.5\sigma_v$ at 40 & 1600 & $35.95\MHz$ & 4519.0828 & $+0.05215\%$\\
+$5.0\sigma_v$ at 40 & 1600 & $35.95\MHz$ & 4516.7271 & reference\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The accepted successive-grid comparison is $32\to40$: the gain changes by
+$0.00711\%$ and the sampled feature position by $0.05\MHz$. Extending the
+cutoff from $4.5\sigma_v$ to $5\sigma_v$ changes the gain by $0.05215\%$ and
+does not move the sampled feature. At the declared $-8\MHz$ literature point,
+the one-dimensional and two-dimensional diagnostics are respectively
+$G_p=403.825150$ and $404.304420$, a $+0.118683\%$ change. The response residual
+is $2.18\times10^{-16}$ and the trace error is $5.83\times10^{-26}$.
+
+This closes the slow-reference quadrature task, not the production geometry:
+the finite-seed scan remains one-dimensional, the crossing angle is a single
+value rather than a beam angular distribution, and the pump state is not
+recomputed segment by segment. No microscopic noise is added.
+
+\section{Floquet harmonics and convergence requirement}
+
+If the chosen rotating frame leaves a periodic pump term at
+$\Omega_{\rm beat}$, expand
+\[
+\rho(t)=\sum_{n=-N_F}^{N_F}\rho_n\e^{-\ii n\Omega_{\rm beat}t}.
+\]
+The finite block equations are
+\begin{equation}
+\left(\mathcal L_0+\ii n\Omega_{\rm beat}\right)\rho_n
++\mathcal C_p\rho_{n-1}+\mathcal C_m\rho_{n+1}=0 .
+\label{eq:floquet-block}
+\end{equation}
+Trace one is imposed in the $n=0$ sector and trace zero in every other sector.
+Before truncation, the same blocks define an infinite-dimensional
+Floquet--Liouville operator $\mathbb L$; its eigenvalues are Floquet exponents,
+defined modulo $\ii\Omega_{\rm beat}$. When the relevant spectral decomposition
+exists, the resolvent identities of Sec.~\ref{sec:pole-expansion} then apply on
+that extended space, with every harmonic sector contributing a frequency
+replica; a simple-pole sum additionally requires diagonalizability.
+
+For the exact periodic GKSL problem, the one-period propagator is CPTP, so each
+Floquet multiplier $r_m=\exp(\lambda_mT)$ obeys $|r_m|\leq1$. A finite-$N_F$
+projected block matrix is not generally the generator or logarithm of a CPTP
+map, however; positive real parts may be truncation artifacts, and passing a
+half-plane or state-positivity test does not establish convergence. The
+truncation is accepted only after convergence with respect to $N_F$ has been
+established for the transfer coefficients, their wrapped phases, and the
+specified optimum $\delta^*$.
+The production gate uses the dimensionless mixed tolerance
+$|\Delta T|\leq10^{-10}+0.01\max(|T_N|,|T_{N-1}|)$ for every transfer
+coefficient. Reduced susceptibilities have units of time, so their absolute
+floor is instead $10^{-8}$ times that component's full-scan maximum; this is
+added to the same one-percent local relative term. Derived gains must change by
+less than one percent, retained wrapped phases by less than $0.5^\circ$, and the
+probe-gain optimum by at most one final-grid interval. A failed condition returns
+\texttt{UNCONVERGED}.
+The production core and compiled kernel now use generalized block continued
+fractions and are pinned for $N_F=1,2,3$ against a separately assembled dense
+finite block, including trace and normalized-equation residual tests. The
+archived part of the audit in Sec.~\ref{sec:floquet-convergence} retains its own
+assembly, reproduces \path{ref_solver.py}'s historical $N_F=1$ finite-seed
+solve, and agrees with direct finite-block solves to $5.4\times10^{-13}$. Those
+numbers isolate truncation under the historical dressed-$k$ convention; they are not production
+Option-A physical predictions. The separate literature-point section uses the
+current density-matrix assembly and checks only its Maxwell/$Q$ propagation
+against a literal independent SI reconstruction. The separate pump-only
+reference implements Eq.~\eqref{eq:pump-nullspace} for the minus branch and is
+checked against both its gauge-mapped finite-Floquet state and an independent
+dense/direct response construction; it is not substituted into either of those
+finite-seed paths.
+
+%----------------------------------------------------------------------
+\section{Exact spectral representation of the resolvent}
+\label{sec:pole-expansion}
+
+Equation~\eqref{eq:linear-resolvent} is usually evaluated by a numerical
+matrix inversion at each $\Omega_{\rm SA}$, which hides the analytic
+structure of the response. The representation below exposes it without
+approximation.
+
+\subsection{Eigenbasis of the Liouvillian}
+
+Let $\mathcal L\equiv\mathcal L_{\rm pump}$ act on the $n^2$-dimensional
+vectorized space and let its right and left eigenvectors be
+\begin{equation}
+\mathcal L\,\ket{r_m}=\lambda_m\ket{r_m},\qquad
+\bra{l_m}\mathcal L=\lambda_m\bra{l_m},\qquad
+\braket{l_m}{r_{m'}}=\delta_{mm'} ,
+\label{eq:biorthogonal}
+\end{equation}
+where $\braket{\cdot}{\cdot}$ is the Hilbert--Schmidt pairing. $\mathcal L$ is
+not Hermitian, so left and right eigenvectors differ and the eigenvalues are
+complex. Whenever $\mathcal L$ is diagonalizable, the resolvent has the exact
+partial-fraction form
+\begin{equation}
+\boxed{\;
+\left(\mathcal L+\ii\Omega\right)^{-1}
+=\sum_{m}\frac{\ketbra{r_m}{l_m}}{\lambda_m+\ii\Omega}\; .}
+\label{eq:resolvent-spectral}
+\end{equation}
+Substituting into Eq.~\eqref{eq:linear-resolvent} and contracting with the
+Clebsch--Gordan-weighted polarization readout $\bra{w_j}$ gives the reduced
+response as a pole sum,
+\begin{equation}
+\boxed{\;
+\chibar_{jk}(\Omega)=\sum_m\frac{A^{(jk)}_m}{\lambda_m+\ii\Omega},
+\qquad
+A^{(jk)}_m=-\braket{w_j}{r_m}\bra{l_m}\mathcal V_k\ket{\rho_{\rm ss}} .}
+\label{eq:chi-pole-sum}
+\end{equation}
+
+Equation~\eqref{eq:chi-pole-sum} is an identity, not a truncation. It is a
+similarity transform of the same linear system, so it carries no
+approximation beyond diagonalizability of $\mathcal L$.
+
+For a defective eigenvalue, degeneracy alone is not the issue: a Jordan block
+$J_\lambda=\lambda I+N$ of size $p$, with $N^p=0$, contributes
+\begin{equation}
+(J_\lambda+\ii\Omega I)^{-1}
+=\sum_{r=0}^{p-1}\frac{(-1)^rN^r}{(\lambda+\ii\Omega)^{r+1}} .
+\label{eq:jordan-resolvent}
+\end{equation}
+Thus the resolvent identity survives, but the simple Lorentzian pole sum does
+not: defective blocks generate higher-order poles and should be evaluated by a
+Jordan-free linear solve or contour/Riesz-projector construction in numerical
+work.
+
+\subsection{The trace-mode residue and the zero-frequency inverse}
+\label{sec:zero-pole}
+
+$\mathcal L$ always has the eigenvalue $\lambda_0=0$, whose right
+eigenvector is the steady state $\rho_{\rm ss}$. Its term in
+Eq.~\eqref{eq:resolvent-spectral} diverges as $\Omega\to0$. For a unique
+stationary state and the traceless commutator drive used here, its trace-mode
+residue vanishes; the zero-frequency inverse still requires an explicit
+trace-zero or Drazin construction.
+
+Trace preservation means $\Tr\mathcal L[X]=0$ for every $X$, which says
+precisely that the trace functional is the \emph{left} eigenvector belonging
+to $\lambda_0$:
+\begin{equation}
+\bra{l_0}=\Tr(\,\cdot\,).
+\label{eq:left-null}
+\end{equation}
+Assume first that the pump Liouvillian has a unique stationary state. The drive
+is a commutator, $\mathcal V_k\rho_{\rm ss}=-\ii[V_k,\rho_{\rm ss}]$, and is
+therefore traceless. Hence
+\begin{equation}
+A^{(jk)}_0\propto\bra{l_0}\mathcal V_k\ket{\rho_{\rm ss}}
+=\Tr\bigl(-\ii[V_k,\rho_{\rm ss}]\bigr)=0
+\label{eq:zero-residue}
+\end{equation}
+identically, for any $V_k$ and any $\rho_{\rm ss}$. For $\Omega\ne0$ the
+stationary-mode contribution to the contracted response therefore vanishes.
+At $\Omega=0$, however, the full inverse does not exist and the formal
+stationary term is $0/0$; one must retain the trace-zero solve of
+Eq.~\eqref{eq:linear-resolvent}, omit the stationary subspace explicitly, or use
+the Drazin inverse. If the Liouvillian has more than one stationary mode,
+tracelessness alone does not eliminate the residues of every zero mode, and the
+whole stationary subspace must be projected. Numerically, the trace-mode
+residue vanishes exactly for the engine's Liouvillian and drives.
+
+\subsection{Lorentzian reading}
+
+Write the eigenvalues as
+\begin{equation}
+\lambda_m=-\Gamma_m+\ii\omega_m,\qquad \Gamma_m\geq0 ,
+\label{eq:pole-parametrization}
+\end{equation}
+and absorb the sign into the residue, $B_m\equiv-A_m$. In the diagonalizable
+simple-pole case, each term of
+Eq.~\eqref{eq:chi-pole-sum} is then a complex Lorentzian in standard form,
+\begin{equation}
+\chibar_{jk}(\Omega)=\sum_m
+\frac{B^{(jk)}_m}{\Gamma_m-\ii(\Omega+\omega_m)} ,
+\label{eq:lorentzian-term}
+\end{equation}
+For an isolated pole with a slowly varying residue, the amplitude-squared
+profile has HWHM $\Gamma_m$ and center
+$\Omega=-\omega_m=-\Ima\lambda_m$. A complex residue mixes absorptive and
+dispersive components, and overlapping poles need not display a peak exactly at
+that center. Subject to those qualifications, the parametrization assigns a
+direct physical reading to the numerically computed spectrum
+of $\mathcal L$:
+\begin{itemize}
+\item $\Ima\lambda_m$ is a \emph{dressed oscillation frequency}: a
+generalized Rabi frequency, an Autler--Townes or hyperfine splitting, or a
+Raman detuning, depending on which coherence dominates $\ket{r_m}$.
+\item $-\Rea\lambda_m$ is the corresponding \emph{power-broadened relaxation
+rate}. It is not the bare $\Gamma$, $\gamma_{gg}$, or $\gamma_{\rm opt}$;
+strong driving mixes the channels and shifts the widths.
+\item The residues $A_m$ decide which poles are actually visible in a given
+response element. A pole with small $\Gamma_m$ contributes a narrow feature
+only if its residue is not also small.
+\end{itemize}
+
+\subsection{Positivity of the pole half-widths, and what it does not prove}
+\label{sec:pole-positivity}
+
+Because $\mathcal L$ is a Lindblad generator \cite{GKS1976}, the semigroup $\e^{\mathcal Lt}$ is
+completely positive and trace preserving for all $t\geq0$. Its spectrum
+therefore satisfies
+\begin{equation}
+\Rea\lambda_m\leq0\quad\text{for every }m,
+\label{eq:gksl-spectrum}
+\end{equation}
+with at least one eigenvalue exactly zero, whose right eigenvector is the
+steady state. Two consequences follow.
+
+\emph{First}, Eq.~\eqref{eq:gksl-spectrum} places the poles in the closed stable
+half plane. Finiteness on every real $\Omega$ additionally requires a unique
+relaxing steady state, or an explicit check that every nonstationary mode has
+$\Rea\lambda_m<0$; complete positivity alone permits peripheral imaginary
+modes and decoherence-free sectors.
+
+\emph{Second}, Eq.~\eqref{eq:gksl-spectrum} is guaranteed for an exactly
+assembled Lindblad generator. A numerical spectral check is therefore an
+implementation invariant rather than an independent validation of model
+quality: it can detect assembly or truncation mistakes, but passing it does
+not validate omitted physics. Direct evaluation confirms the invariant: at
+both operating points of Table~\ref{tab:operating-points} the largest real
+part found over the velocity grid is at most
+$+1.7\times10^{-6}\,{\rm s^{-1}}$, which is the null eigenvalue resolved to
+better than $5\times10^{-14}$ relative to the scale
+$\Gamma=3.6\times10^{7}\,{\rm s^{-1}}$. Model errors --- including the
+Floquet truncation error of Sec.~\ref{sec:floquet-convergence} --- must be
+caught by convergence and comparison tests instead
+(Sec.~\ref{sec:physicality-blind}).
+
+\subsection{Effect of the velocity average}
+\label{sec:pole-doppler}
+
+Equation~\eqref{eq:chi-pole-sum} holds \emph{per velocity class}. The
+velocity average of Sec.~\ref{sec:doppler} replaces the discrete pole set by
+a distribution: each $\lambda_m(\bm v)$ traces a curve as $\bm v$ varies, and
+the averaged response is an integral over that curve rather than a finite sum
+of Lorentzians. This is the microscopic origin of inhomogeneous broadening;
+only the simple-pole limit below reduces to a Voigt profile.
+
+The two pole families behave very differently, because the Doppler shift
+enters the excited-state diagonal as $\Delta_{\rm eff}=\Delta-k_{\rm pump}v_z$:
+\begin{itemize}
+\item \textbf{Optical poles} shift by the full one-photon rms scale
+$k\sigma_v/2\pi=\sigma_v/\lambda$, about $244\MHz$ at $110\degC$ and
+$247\MHz$ at $121\degC$, and are inhomogeneously smeared out.
+\item \textbf{Ground-Raman poles} cancel that common axial shift in the
+collinear limit. On the one-dimensional axial grid used below, their center
+therefore stays near zero, while their \emph{width} varies through
+velocity-dependent optical pumping; light shifts can produce residual center
+shifts. The separate full non-collinear reference additionally distributes
+their centers through the transverse term in
+Eq.~\eqref{eq:doppler-detunings}; it does not produce the full optical smear.
+\end{itemize}
+Section~\ref{sec:pole-spectrum} quantifies both statements at the literature
+operating point. The residual non-collinear distribution
+$\sigma_{\delta,\theta}$ of Eq.~\eqref{eq:angular-doppler} convolves with the
+velocity-dependent Raman response. The separate reference performs this
+average, but a measured squeezing bandwidth additionally requires microscopic
+noise propagation and detector transfer.
+
+\section{Faddeeva base integral and Voigt identity}
+
+For a single velocity projection,
+\begin{equation}
+\left\langle\frac1{x_0-kv+\ii\Gamma_o}\right\rangle_v
+=-\frac{\ii}{k\sigma_v}\sqrt{\frac{\pi}{2}}\,
+w\!\left(\frac{x_0+\ii\Gamma_o}{\sqrt2\,k\sigma_v}\right),
+\qquad
+w(z)=\e^{-z^2}\operatorname{erfc}(-\ii z).
+\label{eq:faddeeva}
+\end{equation}
+With
+\[
+V(x;\sigma,\gamma)=
+\frac{\Rea w[(x+\ii\gamma)/(\sqrt2\sigma)]}
+{\sqrt{2\pi}\sigma},
+\]
+the dimensionally correct identity is
+\begin{equation}
+\boxed{\;
+\Ima\left\langle\frac1{x_0-kv+\ii\Gamma_o}\right\rangle_v
+=-\pi V(x_0;k\sigma_v,\Gamma_o).\;}
+\label{eq:voigt-correct}
+\end{equation}
+There is no additional factor $1/k$. Equation~\eqref{eq:faddeeva} is an exact
+base simple-pole integral, and it is precisely the velocity average of a
+\emph{single} term of the pole sum \eqref{eq:chi-pole-sum} under the
+assumption that the pole position is linear in $v$ and its residue is
+constant. Velocity-dependent populations, Raman self-energies, and the
+two-detuning geometry violate that assumption and generally require
+multidimensional quadrature or a justified partial-fraction reduction. A
+one-dimensional Faddeeva evaluation is not a complete treatment of the
+experimental geometry.
+
+%======================================================================
+\part{Semiclassical field propagation and gain}
+%======================================================================
+
+\section{Classical coupled-mode equation}
+
+Use the GABES positive-frequency convention
+$E_j^{(+)}\propto\alpha_j(z)\e^{\ii k_{j,z}z-\ii\omega_jt}$ and define the
+physical susceptibility so that $\Ima\chi_{jj}>0$ is passive absorption.
+For $\Delta k_{\rm geom}=2k_{\rm pump}-k_p-k_c$, the symmetric mismatch
+gauge is
+$\widetilde\alpha_p=\alpha_p\exp(-\ii\Delta k_{\rm geom}z/2)$ and
+$\widetilde\alpha_c^*=\alpha_c^*\exp(+\ii\Delta k_{\rm geom}z/2)$.
+It gives diagonal phases $(-\ii\Delta k_{\rm geom}/2,
++\ii\Delta k_{\rm geom}/2)$ in the two-component basis
+$(\widetilde\alpha_p,\widetilde\alpha_c^*)^T$. This fixes the code-level
+Maxwell convention directly; in particular a passive uncoupled probe obeys
+$|\alpha_p(L)|^2=\exp[-k_p\Ima\chi_{pp}L]|\alpha_p(0)|^2$.
+Direct differentiation then gives
+\begin{equation}
+\frac{\dd}{\dd z}
+\begin{pmatrix}\widetilde\alpha_p\\\widetilde\alpha_c^*\end{pmatrix}
+=M_{\rm cl}
+\begin{pmatrix}\widetilde\alpha_p\\\widetilde\alpha_c^*\end{pmatrix},
+\qquad
+M_{\rm cl}=Q^{-1}M_EQ,
+\label{eq:classical-propagation}
+\end{equation}
+where the Maxwell electric-field matrix is
+\begin{equation}
+M_E=
+\begin{pmatrix}
++\frac{\ii k_p}{2}\chi_{pp}-\frac{\ii\Delta k_{\rm geom}}2 &
++\frac{\ii k_p}{2}\chi_{pc}\\
+-\frac{\ii k_c}{2}\chi_{cp}^* &
+-\frac{\ii k_c}{2}\chi_{cc}^*+\frac{\ii\Delta k_{\rm geom}}2
+\end{pmatrix},\qquad
+Q=\operatorname{diag}\!\left(
+\sqrt{\frac{2\hbar\omega_p}{\epsilon_0cA_p}},
+\sqrt{\frac{2\hbar\omega_c}{\epsilon_0cA_c}}\right).
+\label{eq:electric-propagation}
+\end{equation}
+Here
+\begin{equation}
+\Delta k_{\rm geom}=2k_{{\rm pump},z}-k_{p,z}-k_{c,z}
+\label{eq:geometric-mismatch}
+\end{equation}
+uses vacuum carrier wave numbers and geometry only.
+The effective mode areas $A_p,A_c$ must match the collected modes.
+Equation~\eqref{eq:classical-propagation} is the canonical photon-flux
+rescaling of the electric-field equation; a Rabi-amplitude implementation
+must equivalently apply Eq.~\eqref{eq:canonical-rescaling}.
+
+\subsection*{No double counting of dispersion}
+
+Equation~\eqref{eq:classical-propagation} is Option A. The real parts of
+$\chi_{pp}$ and $\chi_{cc}$ generate dispersive phase exactly once through the
+diagonal propagation terms. Refractive indices
+$n_j=1+\Rea\chi_{jj}/2$ are \emph{not} inserted again into
+$\Delta k_{\rm geom}$. A dressed-$k$ calculation that uses both mechanisms is
+retained only for implementation history and convergence diagnostics.
+
+\section{Constant-matrix exponential and mean-field gains}
+\label{sec:matrix-exponential}
+
+For an undepleted pump and $z$-independent coefficients,
+\begin{align}
+T_{\rm cl}(L)&=\e^{M_{\rm cl}L}\nonumber\\
+&=\e^{sL}\left[
+\cosh(qL)I+\frac{\sinh(qL)}q(M_{\rm cl}-sI)\right],\\
+s&=\frac{a+d}{2},\qquad
+q=\sqrt{\frac{(a-d)^2}{4}+bc},
+\label{eq:matrix-exponential}
+\end{align}
+where $a,b,c,d$ are the entries of $M_{\rm cl}$, so that $M_{\rm cl}$ has
+eigenvalues
+\begin{equation}
+\mu_\pm=s\pm q .
+\label{eq:Mcl-eigenvalues}
+\end{equation}
+Equation~\eqref{eq:matrix-exponential} needs no eigenvectors. Split off the
+trace,
+$M_{\rm cl}=sI+N$ with $N$ traceless. For a traceless $2\times2$ matrix the
+Cayley--Hamilton theorem reads $N^2=-\det(N)\,I=q^2I$, so the exponential
+series collapses into even and odd parts,
+\begin{equation}
+\e^{NL}=\sum_{k\ \rm even}\frac{(qL)^k}{k!}I
++\sum_{k\ \rm odd}\frac{(qL)^{k}}{k!}\frac{N}{q}
+=\cosh(qL)\,I+\frac{\sinh(qL)}{q}N ,
+\label{eq:cayley-hamilton}
+\end{equation}
+and $\e^{M_{\rm cl}L}=\e^{sL}\e^{NL}$ because $sI$ commutes with $N$. Since
+$\sinh(z)/z$ is entire, Eq.~\eqref{eq:matrix-exponential} is valid verbatim
+at $q=0$, where it reads $\e^{sL}(I+LN)$; no limit needs to be taken. The
+same $2\times2$ trace--discriminant
+parametrization reappears in the quantum-noise integral of
+Sec.~\ref{sec:lyapunov}. Its numerical pair generally differs because
+$M_q(\Omega)$ need not equal $M_{\rm cl}$.
+
+The formula is an algebraic identity for constant $M_{\rm cl}$. Its physical
+assumptions are:
+\begin{itemize}
+\item undepleted pump;
+\item fixed density and temperature;
+\item no longitudinal pump attenuation;
+\item $z$-independent overlap and response coefficients; and
+\item a single collected transverse mode.
+\end{itemize}
+If those assumptions fail, use an ordered product or path-ordered exponential.
+
+\subsection{Gain convention}
+\label{sec:gain-convention}
+
+Both gains are referred to the incident probe-seed power $P_0$ and read
+from a single photon-flux transfer matrix evaluated with probe-seed-only input:
+\begin{equation}
+\boxed{\;
+G_p\equiv\frac{P_p^{\rm out}}{P_0}=|T_{{\rm cl},11}|^2,\qquad
+G_c\equiv\frac{P_c^{\rm out}}{P_0}
+=\frac{\omega_c}{\omega_p}|T_{{\rm cl},21}|^2 .\;}
+\label{eq:mean-field-gains}
+\end{equation}
+This is a \textbf{two-gain convention}: $G_p$ and $G_c$ are computed
+independently. Two gaps must be distinguished:
+\begin{equation}
+\mathcal G_{\rm flux}\equiv
+|T_{{\rm cl},11}|^2-|T_{{\rm cl},21}|^2
+=G_p-\frac{\omega_p}{\omega_c}G_c,
+\qquad
+\mathcal G_{\rm power}\equiv G_p-G_c .
+\label{eq:gain-gap-observable}
+\end{equation}
+Both are outputs rather than inputs. Canonical commutator preservation constrains
+$\mathcal G_{\rm flux}$, which equals one in the closed lossless parametric
+limit of Eq.~\eqref{eq:gain-gap}. The power gap is numerically close because
+$\omega_p\simeq\omega_c$, but it is not the canonical invariant.
+
+The distinction matters because a near-degenerate single-gain power convention
+is also in use. The exact photon-flux relation is
+\begin{equation}
+P_p=G\,P_0,\qquad
+P_c=\frac{\omega_c}{\omega_p}(G-1)\,P_0 .
+\label{eq:single-gain-convention}
+\end{equation}
+The commonly quoted $P_c=(G-1)P_0$ form additionally uses
+$\omega_c/\omega_p\simeq1$. In either form the conjugate photon-flux gain has
+been imposed rather than computed, and $\mathcal G_{\rm flux}=1$ by
+construction. Equation~%
+\eqref{eq:single-gain-convention} is the ideal-parametric special case of
+Eq.~\eqref{eq:mean-field-gains}. The mapping between the two conventions is
+\begin{equation}
+G_p\;\longleftrightarrow\;G,\qquad
+G_c\;\longleftrightarrow\;\frac{\omega_c}{\omega_p}(G-1) ,
+\label{eq:gain-convention-map}
+\end{equation}
+valid only where $\mathcal G_{\rm flux}=1$. Two consequences follow. A
+conjugate-to-probe-seed power ratio quoted under
+Eq.~\eqref{eq:single-gain-convention} is not an independently calibrated
+$G_c$, so it must not be compared with the computed $G_c$ as though it were.
+The photon-flux gap also cannot serve as a validation target against a data set
+in which it was assumed.
+
+The quantities in Eq.~\eqref{eq:mean-field-gains} are explicitly
+\textbf{semiclassical mean-field gains}. They do not by themselves determine
+a quantum covariance.
+
+\section{Classical photon-flux identity}
+
+For $u'=au+bv$ and $v'=cu+dv$,
+\begin{equation}
+\frac{\dd}{\dd z}(|u|^2-|v|^2)
+=2\Rea(a)|u|^2-2\Rea(d)|v|^2
++2\Rea[(b-c^*)u^*v].
+\label{eq:gain-gap}
+\end{equation}
+In a closed lossless parametric model,
+$\Rea a=\Rea d=0$ and $b=c^*$, so $\mathcal G_{\rm flux}=1$.
+Equation~\eqref{eq:gain-gap} is a property of the classical transfer matrix.
+If $\mathcal G_{\rm flux}\ne1$, it is evidence that a two-operator quantum
+map needs additional channels; it is not permission to use a noncanonical
+Bogoliubov map. Because the two-gain convention computes
+$\mathcal G_{\rm flux}$ rather than imposing it, this test is available at
+every scan point.
+
+%======================================================================
+\part{Quantum fluctuation propagation}
+%======================================================================
+
+\section{Quantum-Langevin propagation}
+
+Define the two-mode sideband vector in the Bogoliubov (phase-conjugate)
+pairing that the four-wave process couples,
+\begin{equation}
+\hat{\bm A}(z,\Omega)=
+\begin{pmatrix}
+\delta\hat a_p(z,\Omega)\\
+\delta\hat a_c^\dagger(z,-\Omega)
+\end{pmatrix},\qquad
+[\hat{\bm A}(z,\Omega),\hat{\bm A}^\dagger(z,\Omega')]
+=2\pi J\delta(\Omega-\Omega'),
+\quad J=\operatorname{diag}(1,-1).
+\label{eq:nambu}
+\end{equation}
+The metric $J$ is the one preserved by a two-mode Bogoliubov transformation;
+a lossless parametric amplifier acts on $\hat{\bm A}$ by an element of
+$SU(1,1)$, and the requirement $TJT^\dagger=J$ used below is exactly that
+condition. Equivalently, in the quadrature basis of
+Eq.~\eqref{eq:nambu-quadrature} it is the symplectic condition.
+The distributed fluctuation equation is
+\begin{equation}
+\frac{\partial}{\partial z}\hat{\bm A}(z,\Omega_{\rm SA})
+=M_q(z,\Omega_{\rm SA})\hat{\bm A}(z,\Omega_{\rm SA})
++B(z,\Omega_{\rm SA})\hat{\bm F}(z,\Omega_{\rm SA}).
+\label{eq:langevin}
+\end{equation}
+Its formal solution is
+\begin{align}
+T(z_2,z_1;\Omega)&=
+\mathcal P\exp\!\left[\int_{z_1}^{z_2}M_q(z,\Omega)\dd z\right],\\
+\hat{\bm A}_{\rm out}(\Omega)&=
+T(L,0;\Omega)\hat{\bm A}_{\rm in}(\Omega)
++\int_0^L T(L,z;\Omega)B(z,\Omega)\hat{\bm F}(z,\Omega)\dd z .
+\label{eq:langevin-solution}
+\end{align}
+For local Markov reservoirs,
+\[
+[\hat{\bm F}(z,\Omega),\hat{\bm F}^\dagger(z',\Omega')]
+=2\pi J_F\delta(z-z')\delta(\Omega-\Omega').
+\]
+
+\section{Preservation of the commutation relations}
+\label{sec:realizability}
+
+The output operators must obey the same commutation relations as the input
+operators. With the reservoir contribution included this requires
+\begin{equation}
+\boxed{\;
+TJT^\dagger+\int_0^L
+T(L,z)BJ_FB^\dagger T^\dagger(L,z)\dd z=J ,\;}
+\label{eq:commutator-integral}
+\end{equation}
+which is the statement that gain and loss must each be accompanied by their
+own Langevin noise. A sufficient local condition is
+\begin{equation}
+\boxed{\;
+M_qJ+JM_q^\dagger+BJ_FB^\dagger=0 .\;}
+\label{eq:physical-realizability}
+\end{equation}
+Define the Hermitian commutator-defect matrix
+\begin{equation}
+K\equiv-\left(M_qJ+JM_q^\dagger\right)=BJ_FB^\dagger .
+\label{eq:K-matrix}
+\end{equation}
+The signs of its eigenvalues classify the reservoir channels the drift
+requires:
+a positive eigenvalue of $K$ admits a loss-type (vacuum-absorbing) channel
+with $J_F=+1$, while a negative eigenvalue requires a gain-type (inverted)
+channel with $J_F=-1$. Both are physical for a parametric amplifier; the
+sign pattern is a \emph{channel classification}, not a validity test. Because $K$
+is defined through the canonical metric $J$, it is sensitive to the
+normalization of Eq.~\eqref{eq:canonical-rescaling} and must be recomputed
+whenever the collected mode areas or Rabi-to-field factors change.
+
+\section{Covariance and atomic diffusion}
+
+Define reservoir symmetrized correlations by
+\[
+\frac12\left\langle
+\{\hat{\bm F}(z,\Omega),\hat{\bm F}^\dagger(z',\Omega')\}\right\rangle
+=2\pi N_{\rm res}(z,\Omega)\delta(z-z')\delta(\Omega-\Omega'),
+\qquad D=BN_{\rm res}B^\dagger .
+\]
+Then
+\begin{equation}
+\boxed{\;
+V_{\rm out}(\Omega)=
+T(\Omega)V_{\rm in}(\Omega)T^\dagger(\Omega)
++W(L;\Omega),\qquad
+W(L;\Omega)\equiv\int_0^L T(L,z;\Omega)D(z,\Omega)T^\dagger(L,z;\Omega)\dd z .\;}
+\label{eq:covariance}
+\end{equation}
+Equation~\eqref{eq:covariance} is one $2\times2$ two-mode block. Before applying
+the detector model, solve its companion block and assemble
+\[
+\hat{\bm\Xi}(\Omega)=
+\bigl(\hat a_p(\Omega),\hat a_c(\Omega),
+\hat a_p^\dagger(-\Omega),\hat a_c^\dagger(-\Omega)\bigr)^T
+\]
+with spectral covariance $V_\Xi(\Omega)$. The quadrature-sideband covariance
+used below is
+\begin{equation}
+V_R(\Omega)=CV_\Xi(\Omega)C^\dagger,\qquad
+C=\frac1{\sqrt2}
+\begin{pmatrix}
+1&0&1&0\\
+-\ii&0&\ii&0\\
+0&1&0&1\\
+0&-\ii&0&\ii
+\end{pmatrix},
+\label{eq:nambu-quadrature}
+\end{equation}
+corresponding to $\hat{\bm R}=(X_p,Y_p,X_c,Y_c)^T$. This explicit assembly
+prevents the $2\times2$ two-mode covariance from being mixed dimensionally with
+the $4\times4$ detector matrices.
+
+The commutator condition fixes antisymmetric reservoir correlations, not the
+symmetrized diffusion that determines squeezing. A physical
+$D(z,\Omega_{\rm SA})$ must be derived from the pumped atomic Lindblad model,
+generalized Einstein relations, or an independently justified reservoir
+model. Independent velocity classes add as independent diffusion powers;
+one must not square a velocity-averaged noise amplitude.
+
+%----------------------------------------------------------------------
+\section{Closed-form evaluation of the distributed-noise integral}
+\label{sec:lyapunov}
+
+The integral $W(L;\Omega)$ in Eq.~\eqref{eq:covariance} is the only part of
+the fluctuation chain that is not already an algebraic operation. For a
+$z$-independent drift it is available in closed form. Its $2\times2$
+trace--discriminant structure parallels the mean-field transfer matrix, but it
+is formed from $M_q(\Omega)$ itself.
+
+\subsection{Differential Lyapunov form}
+
+For constant $M_q$ the propagator depends only on the separation,
+$T(L,z)=\e^{M_q(L-z)}$, so substituting $u=L-z$ gives
+\begin{equation}
+W(L)=\int_0^L \e^{M_qu}\,D\,\e^{M_q^\dagger u}\,\dd u .
+\label{eq:W-integral}
+\end{equation}
+Introduce the \emph{Lyapunov superoperator}, a linear map on matrices,
+\begin{equation}
+\mathcal M[X]\equiv M_qX+XM_q^\dagger,
+\qquad\text{so that}\qquad
+\e^{u\mathcal M}[D]=\e^{M_qu}D\,\e^{M_q^\dagger u}.
+\label{eq:lyapunov-superoperator}
+\end{equation}
+The second identity holds because left and right multiplication commute.
+Equation~\eqref{eq:W-integral} is then simply $\int_0^L\e^{u\mathcal M}[D]\dd u$,
+and differentiating with respect to the upper limit gives the differential
+Lyapunov equation
+\begin{equation}
+\boxed{\;
+\frac{\dd W}{\dd L}=\mathcal M[W]+D,\qquad W(0)=0 .\;}
+\label{eq:differential-lyapunov}
+\end{equation}
+$W$ is Hermitian for Hermitian $D$, because $\mathcal M$ preserves
+Hermiticity, and positive semidefinite for positive semidefinite $D$, because
+the integrand of Eq.~\eqref{eq:W-integral} is a congruence of $D$. Both are
+useful numerical invariants: a computed $W$ that violates either signals an implementation
+error rather than a physical effect.
+
+\subsection{Solution}
+\label{sec:lyapunov-solution}
+
+Equation~\eqref{eq:differential-lyapunov} is an inhomogeneous linear equation
+with constant coefficients, so its solution is the elementary quadrature of
+$\e^{u\mathcal M}$:
+\begin{equation}
+\boxed{\;
+W(L)=L\,\varphi_1\!\left(L\mathcal M\right)[D],
+\qquad
+\varphi_1(z)\equiv\frac{\e^{z}-1}{z}
+=\sum_{k\ge0}\frac{z^k}{(k+1)!}\; .}
+\label{eq:lyapunov-closed-form}
+\end{equation}
+The coordinate-free form matters because $\varphi_1$ is an \emph{entire}
+function --- the series on the right converges everywhere and
+$\varphi_1(0)=1$ --- so Eq.~\eqref{eq:lyapunov-closed-form} needs no special
+case, no removable-pole treatment, and no genericity assumption on $M_q$. The
+mean-field transfer matrix of Sec.~\ref{sec:matrix-exponential} is built from
+$\sinh(z)/z=\sum_{k\ge0}z^{2k}/(2k+1)!$, also entire and also equal to $1$ at
+the origin, so neither layer has a singularity at a coalescing eigenvalue.
+An eigenbasis can therefore fail even when the finite-$L$ matrix function is
+regular. This numerical fact does not make an exceptional point unphysical:
+eigenmode coalescence, non-normal amplification, and enhanced parameter
+sensitivity can remain observable properties of the drift.
+
+\subsection{Spectral resolution in trace--discriminant form}
+
+To see \emph{which} exponent controls what, resolve
+Eq.~\eqref{eq:lyapunov-closed-form} in the eigenbasis. If
+$M_q=S\Lambda S^{-1}$ with $\Lambda=\operatorname{diag}(\mu_1,\mu_2)$, the
+eigenmatrices of $\mathcal M$ are $S_{\cdot m}S_{\cdot n}^\dagger$ and
+\begin{equation}
+\operatorname{spec}\mathcal M=\{\mu_m+\mu_n^*\},
+\label{eq:lyapunov-spectrum}
+\end{equation}
+so with $\widetilde D=S^{-1}DS^{-\dagger}$,
+\begin{equation}
+W(L)=S\,\widetilde W(L)\,S^\dagger,\qquad
+\widetilde W_{mn}(L)=\widetilde D_{mn}\,
+L\,\varphi_1\!\left[(\mu_m+\mu_n^*)L\right]
+=\widetilde D_{mn}\,\frac{\e^{(\mu_m+\mu_n^*)L}-1}{\mu_m+\mu_n^*} .
+\label{eq:lyapunov-eigenbasis}
+\end{equation}
+For the $2\times2$ two-mode block, define at each analysis frequency
+\begin{equation}
+s_q\equiv\frac{\operatorname{tr}M_q}{2},\qquad
+q_q^2\equiv\frac{(a_q-d_q)^2}{4}+b_qc_q,\qquad
+\mu_\pm=s_q\pm q_q ,
+\label{eq:Mq-eigenvalues}
+\end{equation}
+where $a_q,b_q,c_q,d_q$ are the entries of $M_q(\Omega)$. Then
+Eq.~\eqref{eq:lyapunov-spectrum} contains just three distinct values,
+\begin{equation}
+\mu_\pm+\mu_\pm^*=2\Rea(s_q\pm q_q),\qquad
+\mu_\pm+\mu_\mp^*=2\Rea s_q\pm2\ii\,\Ima q_q .
+\label{eq:lyapunov-denominators}
+\end{equation}
+Within the fluctuation problem, $\Rea(s_q\pm q_q)$ set how fast each
+eigenchannel amplifies and accumulates diffusion, while $\Ima q_q$ sets the
+interference between channels. These equal the classical $(s,q)$ only when
+$M_q(\Omega)=M_{\rm cl}$. If $\Rea(\mu_m+\mu_n^*)<0$ for every pair,
+$W(L)$ saturates as $L\to\infty$ at the algebraic Lyapunov solution
+$\widetilde W_{mn}=-\widetilde D_{mn}/(\mu_m+\mu_n^*)$; in an amplifier at
+least one exponent is positive and the noise grows with the gain, as it must.
+
+\subsection{Numerically stable evaluation}
+\label{sec:lyapunov-robust}
+
+Equation~\eqref{eq:lyapunov-eigenbasis} is the form to \emph{reason} with,
+but it is not the form to compute with. It requires $S$ to be invertible and
+well conditioned, and the parametric drift $M_q$ is non-normal: as $q_q\to0$
+its two eigenvectors coalesce and $S^{-1}$ diverges. The underlying $W(L)$
+remains finite there, by Eq.~\eqref{eq:lyapunov-closed-form}; it is the
+coordinate system that fails, not the solution. Direct testing bears this out:
+the eigenbasis form loses all accuracy for a defective drift, while the
+coordinate-free form agrees with direct quadrature to $2\times10^{-15}$ at the
+same point (Table~\ref{tab:analytic-verification}).
+
+Any stable evaluation of $\varphi_1$ therefore suffices. A convenient choice
+is the block exponential \cite{VanLoan1978}: assemble
+\begin{equation}
+Z=\begin{pmatrix}-M_q&D\\0&M_q^\dagger\end{pmatrix},\qquad
+\e^{ZL}=\begin{pmatrix}F_{11}&F_{12}\\0&F_{22}\end{pmatrix},
+\label{eq:van-loan-block}
+\end{equation}
+from which
+\begin{equation}
+\boxed{\;W(L)=F_{22}^\dagger F_{12}\; .}
+\label{eq:van-loan-result}
+\end{equation}
+Equation~\eqref{eq:van-loan-result} is Eq.~\eqref{eq:lyapunov-closed-form}
+evaluated by a single $4\times4$ matrix exponential, with no eigenvector
+inversion anywhere. It is the recommended implementation.
+
+\subsection{Longitudinally varying drift}
+
+When $M_q$ and $D$ vary with $z$ --- through pump depletion, density
+gradients, or the Gaussian overlap profile --- no single closed form exists.
+If $M_k$ and $D_k$ are the actual local coefficients, the segmented
+composition is exact within each piecewise-constant segment. Writing
+$T_k=\e^{M_k\dd z}$ and $W_k=W(\dd z;M_k,D_k)$ for segment $k$, the
+covariance accumulates as
+\begin{equation}
+V^{(k+1)}=T_kV^{(k)}T_k^\dagger+W_k ,
+\label{eq:segmented-covariance}
+\end{equation}
+with each $W_k$ evaluated by Eq.~\eqref{eq:van-loan-result}. This is the
+noise-carrying counterpart of the segmented mean-field propagation and
+introduces no approximation beyond piecewise-constant coefficients.
+
+\subsection{Static independent-vacuum completion fixture}
+
+For testing only, any constant drift may be given this particular local
+commutator completion. Using $K$ from Eq.~\eqref{eq:K-matrix}, let
+\begin{equation}
+K=U\Lambda_KU^\dagger,\quad
+B_{\rm vac}=U|\Lambda_K|^{1/2},\quad
+J_F=\operatorname{diag}(\operatorname{sgn}\Lambda_K),\quad
+D_{\rm vac}=\tfrac12B_{\rm vac}B_{\rm vac}^\dagger .
+\label{eq:minimal-dilation}
+\end{equation}
+This eigenfactor closes each channel of $K$ with one independent vacuum port
+and preserves the commutator by construction. The subscript ``vac'' denotes
+this chosen independent-vacuum algebraic fixture; it is not a universal lower
+bound over microscopic atomic reservoirs. In the special phase-insensitive amplifier
+setting, an analogous independent-vacuum construction gives the familiar
+Caves added-noise bound \cite{Caves1982}, but an arbitrary dissipative
+two-mode drift need not satisfy those assumptions. The fixture is not a
+derivation of atomic spontaneous-emission noise, and its symmetrized diffusion
+cannot be promoted to a physical bound without a microscopic model or data. When
+$M_q$ and the diagnostic detector model are frequency independent,
+$D_{\rm vac}$ is also frequency independent, and feeding it through
+Eqs.~\eqref{eq:lyapunov-closed-form} and \eqref{eq:spectrum} yields a flat
+$S_-$; the machinery is exercised, but no bandwidth is predicted.
+
+\section{Present limitation of the frequency-dependent observable}
+
+The final in-cell observable must be a spectrum
+$S_-^{\rm out}(\Omega_{\rm SA})$, not a scalar. The algebraic path from
+$M_q(\Omega_{\rm SA})$ and $D(\Omega_{\rm SA})$ to that spectrum is now
+complete, but the microscopic $M_q(\Omega_{\rm SA})$ and
+$D(\Omega_{\rm SA})$ are not implemented. The static vacuum completion is
+paired here with a static detector model and yields only a flat diagnostic
+curve. It cannot reproduce:
+\begin{itemize}
+\item the squeezing bandwidth;
+\item low-frequency excess noise;
+\item the noise peak near $2\MHz$ from laser-source electronic noise;
+\item frequency-dependent atomic Langevin noise;
+\item slow-light and group-delay effects; or
+\item the frequency response of the detector.
+\end{itemize}
+
+%======================================================================
+\part{External detection model}
+%======================================================================
+
+\section{External loss only after the cell}
+
+In the quadrature basis
+$\hat{\bm R}=(X_p,Y_p,X_c,Y_c)^T$, define
+\[
+K_\eta=\operatorname{diag}(\sqrt{\eta_p},\sqrt{\eta_p},
+\sqrt{\eta_c},\sqrt{\eta_c}),\qquad
+K_\ell=\operatorname{diag}(\sqrt{1-\eta_p},\sqrt{1-\eta_p},
+\sqrt{1-\eta_c},\sqrt{1-\eta_c}).
+\]
+Only loss physically located after the cell is applied:
+\begin{equation}
+V_{R,\rm det}=K_\eta V_{R,\rm out}K_\eta^T
++K_\ell V_{\rm vac}K_\ell^T .
+\label{eq:detection-loss}
+\end{equation}
+For symmetric efficiency,
+\[
+V_{R,\rm det}=\eta_{\rm ext}V_{R,\rm out}
++(1-\eta_{\rm ext})V_{\rm vac}.
+\]
+Atomic absorption and spontaneous emission remain distributed inside
+Eqs.~\eqref{eq:langevin}--\eqref{eq:covariance}. Cell optical-depth factors
+$\exp(-{\rm OD}_{p,c,\rm seg})$ are not applied a second time after
+propagation.
+
+\section{Electronic weighting and SQL normalization}
+
+The linearized photocurrent is
+\begin{equation}
+\delta\hat i_j(\Omega)\propto H_j(\Omega)
+\left[\alpha_j^*\delta\hat a_j(\Omega)
++\alpha_j\delta\hat a_j^\dagger(-\Omega)\right],
+\qquad
+\delta\hat i_-=\delta\hat i_p-w(\Omega)\delta\hat i_c .
+\label{eq:photocurrent}
+\end{equation}
+The normalized spectrum is
+\begin{equation}
+\boxed{\;
+S_-(\Omega)=
+\frac{\bm m^\dagger(\Omega)V_{R,\rm det}(\Omega)\bm m(\Omega)
++S_{\rm el}(\Omega)}
+{S_{\rm SQL}^{(\rm exp)}(\Omega)} .\;}
+\label{eq:spectrum}
+\end{equation}
+Here $\bm m(\Omega)$ is the four-component measurement vector obtained from
+Eq.~\eqref{eq:photocurrent}; it contains the detected carrier amplitudes,
+$H_p,H_c$, their phases, and the factor $-w$ on the conjugate quadratures.
+Equations~\eqref{eq:covariance}, \eqref{eq:nambu-quadrature}, and
+\eqref{eq:van-loan-result} supply the in-cell block
+$V_{\rm out}=T V_{\rm in}T^\dagger+W$ and hence
+$V_{R,\rm out}=CV_\Xi C^\dagger$. Thus Eq.~\eqref{eq:spectrum} is the single
+assembled observable: once the microscopic
+$M_q(\Omega_{\rm SA})$, $D(\Omega_{\rm SA})$, and measured detector functions
+are supplied, every remaining step is algebraic.
+With $V_{\rm vac}=I/2$ and independent detector vacua, the corresponding
+ideal electronic standard-quantum-limit (SQL) term is proportional to
+\[
+S_{\rm SQL}(\Omega)\propto
+|H_p|^2\eta_p|\alpha_p|^2+
+w^2|H_c|^2\eta_c|\alpha_c|^2 ,
+\]
+before the experiment-specific electronic calibration.
+The SQL reference must use the same detected powers, electronic
+transfer functions, weight $w$, resolution bandwidth, and video bandwidth.
+The report must state whether electronic dark noise is included or subtracted.
+
+\begin{table}[ht]
+\centering
+\caption{Loss and noise ledger.}
+\label{tab:loss-ledger}
+\small
+\begin{tabularx}{\textwidth}{L{3.4cm}L{3.2cm}Y}
+\toprule
+Mechanism & Physical location & Correct treatment\\
+\midrule
+Atomic absorption and spontaneous emission & distributed in the vapor &
+Complex response in $M_q$ plus associated $B$ and $D$\\
+Cell windows, filters, and free propagation & after the cell &
+External beam-splitter efficiency $\eta_{\rm path}$\\
+Detector quantum efficiency & detector face &
+External beam-splitter efficiency $\eta_{\rm QE}$\\
+Electronic imbalance and bandwidth & after photodetection &
+$H_p(\Omega)$, $H_c(\Omega)$, $w(\Omega)$, and calibrated
+$S_{\rm el}(\Omega)$\\
+Pump scattering into the detected mode & apparatus dependent &
+Measured technical-noise spectrum; not a universal atomic-loss formula\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The ansatz
+\[
+\mathcal N_{\rm ps}=\kappa(1-\e^{-{\rm OD}_{\rm pump}})
+\]
+is phenomenological. If used, it must be written
+$\mathcal N_{\rm ps}(\Omega)=
+\kappa(1-\e^{-{\rm OD}_{\rm pump}})F_{\rm ps}(\Omega)$ and calibrated to the
+experimental spectral normalization. It is not used as a universal Langevin
+noise law in this report.
+
+%======================================================================
+\part{Validation}
+%======================================================================
+
+\section{Validation hierarchy}
+
+Agreement between this algebra and the production program is an algebraic and
+numerical consistency check, not independent physical validation. Independence
+is local rather than global: the continued-fraction code independently assembles
+the archived finite-Floquet blocks, while the literal SI reference independently
+reconstructs Maxwell/$Q$ propagation from a shared reduced susceptibility. It
+does not independently reproduce the atomic Hamiltonian or dissipator. The
+separate pump reference checks its trace-constrained null vector against an SVD
+construction, its weak response against an independent dense/direct solve, and
+its rotating frame against the finite-Floquet state, while still sharing the
+same four-level atomic assembly. The levels below are therefore reported
+separately.
+
+\begin{table}[ht]
+\centering
+\caption{Validation hierarchy. No combined error column is used.}
+\label{tab:validation-hierarchy}
+\small
+\begin{tabularx}{\textwidth}{L{3.4cm}Y L{3.0cm}}
+\toprule
+Level & Test performed & Status\\
+\midrule
+Algebraic consistency & Closed-form matrix exponential versus direct
+exponential; dimensional and frequency audits & \pass\\
+Analytic-identity verification & Spectral resolvent expansion, Lyapunov
+closed form, block-exponential form, and the cubic characteristic polynomial
+against direct numerics & \pass\ (Table~\ref{tab:analytic-verification})\\
+Numerical implementation consistency & Continued-fraction versus direct
+finite-block assembly for the archived reference, plus production Maxwell/$Q$
+versus a literal SI propagation reference & \pass\ within shared atomic
+assumptions\\
+Pump-only weak-response reference & Minus-branch static-frame/Floquet gauge
+parity, trace-one state, trace-zero finite-frequency and projected-DC response,
+finite-seed limit, and direct/pole-residue parity & \pass\ numerically within
+the four-level, one-dimensional-velocity model; separate slow reference,
+plus branch unsupported\\
+Two-dimensional Raman-Doppler reference & Independent $(v_z,v_x)$ Maxwell
+quadrature, lab-frequency invariance, analytic rms, collinear/equal-$k$ limits,
+grid refinement, and cutoff refinement & \pass\ for the separate slow
+minus-branch reference; production remains one-dimensional\\
+Truncation convergence & $N_F=1,2,3$ direct/continued/kernel parity and
+scan-level adjacent-order checks & Production $N_F=3/2$ gate implemented;
+historical $N_F=1$ \fail\\
+Independent microscopic calculation & Multilevel Zeeman-resolved
+Liouvillian and atomic diffusion matrix & \pending\\
+Experimental gain comparison & Reduced model evaluated at the documented
+$^{85}$Rb operating point & performed; substantial discrepancy\\
+Experimental bandwidth comparison & Full $S_-(\Omega_{\rm SA})$ versus the
+measured $3.5\MHz$ squeezing bandwidth & two-dimensional mean-field reference
+complete only for the declared minus branch, angle, and quadrature; microscopic
+diffusion and detector response pending\\
+Experimental squeezing-spectrum comparison & Full
+$S_-(\Omega_{\rm SA})$ using microscopic $D(\Omega_{\rm SA})$ &
+\pending\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Verification of the analytic identities}
+\label{sec:analytic-verification}
+
+The core closed forms used in the response, propagation, and noise layers were
+checked against independent direct computations before use.
+Table~\ref{tab:analytic-verification} records the residuals. The resolvent test
+uses the engine's own $16\times16$ Liouvillian
+at the literature operating point; the Lyapunov tests use randomized
+non-normal drifts together with deliberately constructed defective cases.
+
+\begin{table}[ht]
+\centering
+\caption{Verification of the analytic results against direct numerics.
+Relative errors are Frobenius norms unless stated otherwise.}
+\label{tab:analytic-verification}
+\small
+\begin{tabularx}{\textwidth}{L{4.6cm}L{4.4cm}C{2.4cm}Y}
+\toprule
+Identity & Reference computation & Relative error & Verdict\\
+\midrule
+Spectral resolvent expansion,
+Eq.~\eqref{eq:resolvent-spectral} &
+Direct linear solve on the $16\times16$ engine Liouvillian,
+$\Omega_{\rm SA}/2\pi=0.1$--$4\MHz$ &
+$1.0\times10^{-12}$ & \pass\\
+Vanishing of the steady-state residue,
+Eq.~\eqref{eq:zero-residue} &
+$\bra{l_0}\mathcal L$ and
+$\bra{l_0}\mathcal V_k\ket{\rho_{\rm ss}}$ on the engine Liouvillian &
+exactly zero in floating-point arithmetic & \pass\\
+Coordinate-free solution,
+Eq.~\eqref{eq:lyapunov-closed-form} &
+Simpson quadrature of Eq.~\eqref{eq:W-integral}; generic, defective, and
+coalescing drifts & $2.2\times10^{-15}$ (worst) & \pass\\
+Eigenbasis resolution,
+Eq.~\eqref{eq:lyapunov-eigenbasis} &
+Same quadrature, randomized non-normal $M_q$, PSD $D$ &
+$5.7\times10^{-15}$ & \pass\\
+Hermiticity and positivity of $W$ &
+Same, invariants of Eq.~\eqref{eq:differential-lyapunov} &
+$1.0\times10^{-16}$; $\min\operatorname{eig}W>0$ & \pass\\
+Eigenbasis resolution at a defective drift &
+Same quadrature, exact Jordan block &
+loses all accuracy & \fail\ (basis)\\
+Eigenbasis resolution near an exceptional point &
+Same quadrature, coalescing eigenvalues &
+$1.7\times10^{-1}$ & \fail\ (basis)\\
+Lyapunov superoperator spectrum,
+Eq.~\eqref{eq:lyapunov-spectrum} &
+$\operatorname{spec}\mathcal M$ versus $\{\mu_m+\mu_n^*\}$, 200 random cases
+up to $4\times4$ & $1.5\times10^{-13}$ & \pass\\
+Block-exponential evaluation,
+Eq.~\eqref{eq:van-loan-result} &
+Same quadrature, generic and defective drifts &
+$8.5\times10^{-15}$ (worst) & \pass\\
+Cayley--Hamilton collapse,
+Eq.~\eqref{eq:cayley-hamilton} &
+$\|N^2-q^2I\|$ and the resulting $\e^{M_{\rm cl}L}$ versus a direct
+exponential, including $q=0$ & $1.5\times10^{-14}$ & \pass\\
+Characteristic polynomial,
+Eq.~\eqref{eq:torrey-cubic} &
+Direct eigenvalues of Eq.~\eqref{eq:bloch-generator} &
+$1.7\times10^{-15}$ & \pass\\
+Undamped limit,
+Eq.~\eqref{eq:generalized-rabi} &
+Roots versus $\Omega'=\sqrt{\Omega^2+\Delta^2}$ &
+exact to machine precision & \pass\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The two \fail\ rows are labeled ``basis'' because they are not failures of
+the solution. The same quantity computed from
+Eq.~\eqref{eq:lyapunov-closed-form}, at the same drift, is accurate to
+$2\times10^{-15}$; only the eigenbasis resolution
+\eqref{eq:lyapunov-eigenbasis} degrades, and it degrades because $S^{-1}$
+does. That is the practical content of the remark in
+Sec.~\ref{sec:lyapunov-solution} that $\varphi_1$ is entire: there is nothing
+to regularize, only a coordinate system to avoid. A production
+implementation that diagonalizes $M_q$ without a conditioning guard will
+silently return invalid results in exactly the near-degenerate regime where
+the two parametric eigenchannels are most strongly coupled.
+
+\section{Atomic pole spectrum at the operating point}
+\label{sec:pole-spectrum}
+
+Applying Eqs.~\eqref{eq:resolvent-spectral}--\eqref{eq:pole-parametrization}
+to the literature operating point
+($\Delta/2\pi=+0.90\GHz$, $\delta/2\pi=-8\MHz$, $T=121\degC$,
+$\Omega_{\rm pump}/2\pi=0.7076\GHz$) gives the pole structure in
+Table~\ref{tab:pole-spectrum}.
+
+\begin{table}[ht]
+\centering
+\caption{Slowest Liouvillian poles at the literature operating point,
+zero-velocity class. Half-width is $-\Rea\lambda_m/2\pi$ and center is
+$-\Ima\lambda_m/2\pi$. The Doppler column is the range of the half-width
+across the one-dimensional axial velocity grid.}
+\label{tab:pole-spectrum}
+\small
+\begin{tabularx}{\textwidth}{C{2.3cm}C{2.6cm}C{3.4cm}Y}
+\toprule
+Half-width [MHz] & Center [MHz] &
+Doppler range of half-width [MHz] & Assignment\\
+\midrule
+$0$ (exact) & $0$ & --- &
+Steady state; null eigenvalue of Eq.~\eqref{eq:pump-nullspace}\\
+$0.5201$ & $0$ & $0.220$--$1.494$ &
+Ground-state Raman coherence, power broadened\\
+$0.5894$ & $\pm190.05$ & $0.311$--$1.494$ &
+Excited-state hyperfine coherence\\
+$3.3024$ & $\pm1023.57$ & $0.311$--$1.549$ &
+Optical/dressed coherence\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Power broadening widens the Raman pole fivefold.}
+The slowest nonvanishing pole has half-width $0.5201\MHz$, whereas the
+assumed ground-coherence rate is $\gamma_{gg}/2\pi=0.1029\MHz$ from
+Eq.~\eqref{eq:rates-at-literature}. The pole is broadened by a factor
+$5.06$. Any estimate that identifies the Raman feature width with
+$\gamma_{gg}$ is therefore low by a factor of $5.06$ at this pump power. This
+is the quantitative content of the statement in
+Sec.~\ref{sec:pole-expansion} that $-\Rea\lambda_m$ is not a bare rate.
+
+\paragraph{A narrow Raman feature remains in the one-dimensional axial average.}
+The averaged response is not itself a finite pole sum. Rather, on the
+one-dimensional axial grid used for Table~\ref{tab:pole-spectrum}, the
+per-velocity Raman-pole centers remain at zero while their half-widths vary over
+$0.220$--$1.494\MHz$: the two-photon combination cancels the common axial
+Doppler shift. This does \emph{not} include the transverse term of
+Eq.~\eqref{eq:doppler-detunings}, which supplies the $1.38\MHz$ rms center
+spread in the full two-dimensional geometry. The separate reference in
+Table~\ref{tab:angular-doppler-convergence} includes that term; the pole table
+itself remains one-dimensional. The Raman feature is therefore broadened but
+not smeared over the $247\MHz$ optical scale.
+
+\paragraph{The separate scales do not determine a squeezing bandwidth.}
+The per-velocity Raman poles supply Lorentzian half-widths of
+$0.22$--$1.49\MHz$, while the non-collinear term supplies a Gaussian rms center
+spread of $1.38\MHz$. These quantities have different definitions: a
+Lorentzian has no finite variance, and the maximum half-width of one velocity
+class is not the half-width of the averaged line. They therefore cannot be
+combined by a root-sum-of-squares rule. The measured
+$3.5\MHz$ bandwidth belongs to $S_-(\Omega_{\rm SA})$ after propagation and
+detection, not to a bare atomic pole. The two-dimensional mean-field response
+is now available as a separate reference, but a quantitative comparison still
+requires frequency-dependent $M_q(\Omega_{\rm SA})$ and
+$D(\Omega_{\rm SA})$ plus detector transfer functions. Until those are
+supplied, the pole table is a scale diagnosis and no numerical bandwidth gap
+is claimed.
+
+\section{Floquet-truncation convergence}
+\label{sec:floquet-convergence}
+
+Table~\ref{tab:floquet-convergence} repeats the archived-model calculation at
+the legacy numerical optimum
+$\Delta/(2\pi)=-1.50\GHz$, $T=110\degC$ and approximately
+$\delta/(2\pi)=-280\MHz$. It deliberately retains the archived
+dressed-wave-vector phase convention only to isolate Floquet convergence;
+because that convention double counts dispersion, these numbers are not the
+Option-A physical prediction. To prevent their legacy columns from being
+mistaken for canonical gains, the next two tables use
+$g_{c,{\rm hist}}\equiv|T_{21}|^2$ and
+$\Delta_{\rm hist}\equiv G_p-g_{c,{\rm hist}}$. Only
+their relative truncation behavior is used.
+
+\begin{table}[ht]
+\centering
+\caption{Floquet convergence of the archived reduced model at the fixed point
+$\delta/(2\pi)=-280\MHz$. Sectors $n=-N_F,\ldots,N_F$ are retained.}
+\label{tab:floquet-convergence}
+\small
+\begin{tabular}{c r r r r r}
+\toprule
+$N_F$ & $G_p$ & $g_{c,{\rm hist}}$ & $\Delta_{\rm hist}$ &
+$\arg\chi_{pc}$ & $\arg\chi_{cp}$\\
+\midrule
+1 & 22.5913 & 21.9687 & $+0.622609$ &
+$178.142^\circ$ & $-179.333^\circ$\\
+2 & 19.3415 & 19.4472 & $-0.105684$ &
+$178.173^\circ$ & $-179.366^\circ$\\
+3 & 19.3415 & 19.4472 & $-0.105684$ &
+$178.173^\circ$ & $-179.366^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Separate minimization of the gain-only objective. All
+observables in a row are evaluated at that row's $\delta^*$. The scan spacing
+is $5\MHz$.}
+\label{tab:legacy-delta-star}
+\small
+\begin{tabular}{c r r r r r r}
+\toprule
+$N_F$ & $\delta^*/(2\pi)$ [MHz] & $G_p$ & $g_{c,{\rm hist}}$ &
+$\Delta_{\rm hist}$ &
+$\arg\chi_{pc}$ & $\arg\chi_{cp}$\\
+\midrule
+1 & $-280$ & 22.5913 & 21.9687 & $0.622609$ &
+$178.142^\circ$ & $-179.333^\circ$\\
+2 & $-275$ & 8.97871 & 8.46840 & $0.510314$ &
+$178.402^\circ$ & $-179.582^\circ$\\
+3 & $-275$ & 8.97871 & 8.46840 & $0.510314$ &
+$178.402^\circ$ & $-179.582^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The relative changes from $N_F=1$ to 2 are
+\[
+\frac{|G_p^{(2)}-G_p^{(1)}|}{G_p^{(2)}}=16.80\%,
+\qquad
+\frac{|g_{c,{\rm hist}}^{(2)}-g_{c,{\rm hist}}^{(1)}|}
+{g_{c,{\rm hist}}^{(2)}}=12.97\%.
+\]
+The historical coefficient gap even changes sign. Thus the $N_F=1$ result is
+\emph{qualitative and unconverged}. The changes from $N_F=2$ to $N_F=3$ are
+below $4\times10^{-7}\%$ at the tested point. Direct block solves and the
+independent assembly agree to $5.4\times10^{-13}$ or better. Convergence at
+one operating point does not prove global convergence; this test must be
+repeated for every reported scan. The production path now performs that
+full-scan $N_F/N_F-1$ comparison and returns \texttt{UNCONVERGED} rather than
+silently promoting a failed scan.
+
+For the propagation-only Option-A correction at the fixed literature point,
+the inherited approximate atomic response gives the results in
+Table~\ref{tab:floquet-option-a}. Here $N_F=1\to2$ changes $G_p$ by
+$0.4528\%$ and $G_c$ by $0.4906\%$; $N_F=2$ and 3 agree at the displayed
+precision. This establishes Floquet convergence of that fixed finite-seed
+propagation benchmark. It does not use the pump-only reference; the comparison
+with that reference is reported separately below. The multidimensional-velocity
+approximation remains untouched. The displayed gains assume equal collected mode
+areas, but the conversion is explicit:
+$T_{\rm can}=Q^{-1}T_EQ$, $G_c=(\omega_c/\omega_p)|T_{{\rm can},21}|^2$, and
+$\mathcal G_{\rm flux}=G_p-|T_{{\rm can},21}|^2$.
+\begin{table}[ht]
+\centering
+\caption{Floquet convergence at the fixed literature point
+$\Delta/(2\pi)=+0.90\GHz$, $\delta/(2\pi)=-8\MHz$, and $T=121\degC$.
+This is not an optimization; it is the production-like finite-seed path, not
+the separate pump-only reference.}
+\label{tab:floquet-option-a}
+\small
+\begin{tabular}{c r r r r r r}
+\toprule
+$N_F$ & $G_p$ & $G_c$ & $g_c^{(\Phi)}$ & $\mathcal G_{\rm flux}$ &
+$\arg\chi_{pc}$ & $\arg\chi_{cp}$\\
+\midrule
+1 & 401.70833 & 403.86243 & 403.85591 & $-2.147574$ &
+$-179.886152^\circ$ & $179.814904^\circ$\\
+2 & 403.53550 & 405.85359 & 405.84704 & $-2.311543$ &
+$-179.885623^\circ$ & $179.814496^\circ$\\
+3 & 403.53550 & 405.85359 & 405.84704 & $-2.311543$ &
+$-179.885623^\circ$ & $179.814496^\circ$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The inherited weak-response implementation also retains a finite reference
+probe-seed. Its numerical linearity check is
+\begin{center}
+\begin{tabular}{c r r r}
+\toprule
+Reference probe-seed power & $G_p$ & $G_c$ & $\mathcal G_{\rm flux}$\\
+\midrule
+$2\,\mu{\rm W}$ & 403.752756 & 406.102206 & $-2.342895$\\
+$4\,\mu{\rm W}$ & 403.680319 & 406.019313 & $-2.332440$\\
+$8\,\mu{\rm W}$ & 403.535497 & 405.853591 & $-2.311543$\\
+\bottomrule
+\end{tabular}
+\end{center}
+Between 2 and $8\,\mu{\rm W}$, $G_p$ changes by $-0.05381\%$, $G_c$ by
+$-0.06122\%$, and the signed flux gap changes by $-1.3382\%$ relative to its
+$2\,\mu{\rm W}$ value. The absolute gains are weakly seed dependent, while
+the noncanonical flux gap is relatively sensitive. This supports numerical
+linearity with respect to the reference probe-seed at this fixed point only;
+by itself it does not validate the underlying pump-state approximation.
+
+\subsection{Pump-only reference and the finite-seed limit}
+\label{sec:pump-reference-validation}
+
+The independent reference closes that specific numerical gap for the standard
+minus Raman branch without replacing the production solver. On the complete
+configured one-dimensional Doppler grid, four analysis frequencies
+$\Omega_{\rm SA}/2\pi=(0,0.1,1,4)\MHz$ and five two-photon detunings
+$\delta/2\pi=(-30,-8,0,12,40)\MHz$ give the diagnostics in
+Table~\ref{tab:pump-reference-diagnostics}.
+
+\begin{table}[ht]
+\centering
+\caption{Executable pump-only state and trace-zero weak-response diagnostics.}
+\label{tab:pump-reference-diagnostics}
+\small
+\begin{tabularx}{\textwidth}{Y r}
+\toprule
+Check & Maximum error or margin\\
+\midrule
+Normalized pump-state equation residual & $4.00\times10^{-17}$\\
+Pump-state trace error & $2.89\times10^{-15}$\\
+Minimum pump-state eigenvalue & $2.371\times10^{-3}$\\
+Normalized weak-response equation residual, full $4\times5$ scan &
+$7.32\times10^{-17}$\\
+Weak-response trace error, full $4\times5$ scan & $6.48\times10^{-25}$\\
+Static-frame versus $N_F=3$ pump-only Floquet state &
+$8.37\times10^{-15}$\\
+Projected zero-relative-frequency response residual & $1.79\times10^{-15}$\\
+Direct resolvent versus pole/residue sum, $0$--$4\MHz$ analysis band &
+$2.45\times10^{-24}\,\mathrm{s}$\\
+Pole eigenvector condition number & $3.39$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The finite-reference susceptibility was then compared with the infinitesimal
+derivative after Doppler averaging all four complex response components over
+the same five detunings. Table~\ref{tab:finite-seed-reference-limit} reports the
+worst component error normalized by the maximum pump-reference response.
+
+\begin{table}[ht]
+\centering
+\caption{Finite-seed $N_F=3$ approach to the pump-only infinitesimal reference.}
+\label{tab:finite-seed-reference-limit}
+\small
+\begin{tabular}{c r r}
+\toprule
+Rabi-amplitude fraction & Seed power ($\mu\mathrm W$) & Worst normalized error\\
+\midrule
+$1.00$ & $8.0000$ & $2.503\times10^{-3}$\\
+$0.30$ & $0.7200$ & $5.093\times10^{-4}$\\
+$0.10$ & $0.0800$ & $9.254\times10^{-5}$\\
+$0.03$ & $0.0072$ & $9.138\times10^{-6}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The errors decrease monotonically, and a log--log fit to the last three rows
+has Rabi-amplitude slope $1.749$. The finite range therefore supports
+convergence to the infinitesimal reference but does \emph{not} establish an
+exact quadratic law. At the smallest amplitude, $N_F=1$ gives a
+$4.485\times10^{-3}$ worst error, whereas $N_F=2$ and 3 both give
+$9.138\times10^{-6}$; seed linearization and Floquet truncation must therefore
+be checked separately. The direct resolvent and diagonalizable pole/residue
+sum agree to $2.45\times10^{-24}\,\mathrm{s}$ or better over the declared
+analysis band, with eigenvector condition number $3.39$. The projected
+zero-relative-frequency fixture has normalized residual
+$1.79\times10^{-15}$.
+
+\section{Physicality tests do not detect the Floquet truncation error}
+\label{sec:physicality-blind}
+
+Since $\rho_0$ is the time average of a physical $\rho(t)$, it must be
+Hermitian and positive semidefinite, with unit trace. Table~\ref{tab:physicality}
+checks those necessary conditions for the $N_F=1$ truncation at both operating
+points, after the convergence failure above has already been quantified.
+
+\begin{table}[ht]
+\centering
+\caption{Physicality of the $N_F=1$ truncated Floquet state. Minima are taken
+over the velocity grid and, for $\rho(t)$, over one beat period.}
+\label{tab:physicality}
+\small
+\begin{tabularx}{\textwidth}{L{4.4cm}C{3.0cm}C{3.0cm}Y}
+\toprule
+Quantity & Archived point & Literature point & Requirement\\
+\midrule
+$\max\|\rho_0-\rho_0^\dagger\|_\infty$ &
+$7.4\times10^{-14}$ & $3.3\times10^{-14}$ & $0$\\
+$\max|\Tr\rho_0-1|$ &
+$1.1\times10^{-15}$ & $5.6\times10^{-15}$ & $0$\\
+$\min\operatorname{eig}\rho_0$ &
+$+7.90\times10^{-3}$ & $+2.42\times10^{-3}$ & $\geq0$\\
+$\min_t\operatorname{eig}\rho(t)$ &
+$+5.63\times10^{-3}$ & $+2.28\times10^{-3}$ & $\geq0$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Every test passes, including at the archived point where
+Table~\ref{tab:floquet-convergence} shows a $16.8\%$ error in $G_p$ and a sign
+reversal of the historical transfer-coefficient gap. State positivity is
+therefore insensitive to this truncation error: a valid density matrix can be
+quantitatively wrong. The exact-GKSL half-plane condition of
+Sec.~\ref{sec:pole-positivity} is an assembly invariant for the same reason,
+so neither check substitutes for explicit $N_F$ convergence.
+
+\clearpage
+\section{Velocity-integration convergence}
+
+The following tests retain the same historical propagation columns and use
+$N_F=3$ with the one-dimensional Doppler integral. They validate only that
+quadrature, not the propagation convention or non-collinear geometry.
+At a fixed $5\sigma_v$ cutoff, velocity-step convergence is excellent:
+
+\begin{table}[ht]
+\centering
+\caption{One-dimensional velocity-step convergence at fixed
+$|v_z|\leq5\sigma_v$.}
+\label{tab:velocity-step}
+\small
+\begin{tabular}{r r r r r}
+\toprule
+$\Delta v$ [m/s] & Classes & $G_p$ & $g_{c,{\rm hist}}$ &
+Relative $G_p$ error\\
+\midrule
+10.00 & 195 & 18.936590 & 19.024328 & $1.56\times10^{-3}\%$\\
+5.00  & 389 & 18.936295 & 19.024021 & $2.66\times10^{-7}\%$\\
+2.50  & 777 & 18.936295 & 19.024021 & $9.58\times10^{-8}\%$\\
+1.25  & 1551 & 18.936295 & 19.024021 & reference\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The cutoff, however, is important:
+
+\begin{table}[ht]
+\centering
+\caption{One-dimensional cutoff convergence at
+$\Delta v=2.5\,\mathrm{m/s}$.}
+\label{tab:velocity-cutoff}
+\small
+\begin{tabular}{c r r r r}
+\toprule
+Cutoff & $G_p$ & $g_{c,{\rm hist}}$ & $\Delta_{\rm hist}$ &
+Relative $G_p$ error\\
+\midrule
+$3.0\sigma_v$ & 19.36195 & 19.46857 & $-0.10662$ & $2.248\%$\\
+$3.5\sigma_v$ & 19.11527 & 19.21041 & $-0.09514$ & $0.945\%$\\
+$4.0\sigma_v$ & 18.98214 & 19.07172 & $-0.08957$ & $0.242\%$\\
+$4.5\sigma_v$ & 18.93642 & 19.02414 & $-0.08773$ & $6.4\times10^{-4}\%$\\
+$5.0\sigma_v$ & 18.93629 & 19.02402 & $-0.08773$ & reference\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the experimental phase-matching angle, the separate slow reference now
+integrates Eq.~\eqref{eq:two-dimensional-velocity} and passes the grid/cutoff
+criteria in Table~\ref{tab:angular-doppler-convergence}. Its angular rms width
+$\sigma_{\delta,\theta}/(2\pi)=1.38017\MHz$ is not negligible relative to
+$\gamma_{gg}/(2\pi)=0.103\MHz$ and, as Table~\ref{tab:pole-spectrum} shows,
+is comparable to the power-broadened Raman pole width itself. This result does
+not certify the one-dimensional finite-seed production scan.
+
+\clearpage
+\section{Commutator-preservation test}
+
+At the literature operating point, assume for this diagnostic that
+the collected probe and conjugate have equal effective Gaussian mode areas,
+$A_p=A_c=1.7105972\times10^{-7}\,\mathrm{m^2}$. Their distinct optical
+frequencies are retained in $Q$, rather than replaced by $Q\propto I$.
+The resulting photon-flux-normalized static drift in the
+symmetric mismatch gauge is
+\begin{equation}
+M_q=
+\begin{pmatrix}
+-1.795444+8.518638\ii&-0.593347+297.229796\ii\\
+0.962238-297.200894\ii&0.508740+60.465455\ii
+\end{pmatrix}\ {\rm m}^{-1}.
+\label{eq:corrected-literature-drift}
+\end{equation}
+If the actual conjugate collected-mode area differs from the equal-area audit
+assumption, $Q^{-1}M_EQ$ must be recomputed before applying the canonical
+metric $J$. The normalization operation itself is now implemented; the
+equal-area apparatus input remains conditional.
+For the numerical test only, factor the Hermitian matrix
+$K=-(M_qJ+JM_q^\dagger)$ as $K=BJ_FB^\dagger$. Here its eigenvalues are
+$0.285202\,{\rm m}^{-1}$ and $4.323166\,{\rm m}^{-1}$. Both are positive, so
+by Sec.~\ref{sec:realizability} the displayed independent-vacuum algebraic
+completion with
+$J_F=I$ exists: at this point the drift requires loss-type reservoir
+channels.
+This construction proves that the drift can be embedded in a canonical
+channel; it is not a microscopic derivation of atomic noise.
+
+\begin{table}[ht]
+\centering
+\caption{Canonical-commutator audit.}
+\label{tab:commutator-test}
+\small
+\begin{tabularx}{\textwidth}{L{4.2cm}Y L{2.0cm}}
+\toprule
+Test & Residual & Result\\
+\midrule
+Option-A drift with reservoir omitted &
+$\max|TJT^\dagger-J|=3.388$ & \fail\\
+Local identity with the explicit $Q$ transform &
+$\max|M_qJ+JM_q^\dagger+BJ_FB^\dagger|=4.44\times10^{-16}\,{\rm m}^{-1}$ &
+\pass\ conditional\\
+Integrated identity through the cell, explicit $Q$ &
+$\|TJT^\dagger+\int T_zBJ_FB^\dagger T_z^\dagger\dd z-J\|_F/
+\|J\|_F=3.71\times10^{-13}$ & \pass\ conditional\\
+Microscopic $M_q(\Omega)$, $B(\Omega)$, and $D(\Omega)$ over 0.1--4 MHz &
+Not implemented in the current four-level code & \pending\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Because canonical commutator preservation constrains only the antisymmetric
+reservoir correlations, it fixes neither the symmetrized diffusion matrix
+$D(\Omega)$, nor its temperature, nor excess spontaneous-emission noise; the
+vacuum-fixture values below therefore serve as illustrative diagnostics for one
+chosen vacuum completion, not as bounds or Langevin-corrected physical
+predictions.
+
+\section{Legacy gain-only diagnostic and its failure domain}
+\label{sec:gain-referred-ids}
+
+The canonical ideal-amplifier limit must be separated from the historical
+gain-only scan score. Define the conjugate photon-flux coefficient
+\begin{equation}
+g_c^{(\Phi)}\equiv |T_{{\rm cl},21}|^2
+=\frac{\omega_p}{\omega_c}G_c .
+\label{eq:conjugate-flux-gain}
+\end{equation}
+For the two-mode map
+\[
+\hat a_p^{\rm out}=\mu\hat a_p^{\rm in}
++\nu\hat a_c^{{\rm in}\dagger},\qquad
+|\mu|^2=G_p,\quad |\nu|^2=g_c^{(\Phi)},
+\]
+the output commutator is
+$G_p-g_c^{(\Phi)}=\mathcal G_{\rm flux}$. Only when
+$\mathcal G_{\rm flux}=1$ is this map canonical without additional reservoir
+operators. In that lossless limit the photon-number difference is conserved,
+and a bright coherent probe seed with a vacuum conjugate input gives
+\begin{equation}
+\boxed{\;
+S_{\rm ideal}=\frac{1}{G_p+g_c^{(\Phi)}}
+=\frac{1}{2G_p-1}.\;}
+\label{eq:ids-ideal}
+\end{equation}
+Symmetric external efficiency $\eta$ then gives
+\begin{equation}
+S(\eta)=1-\eta+\eta S_{\rm ideal}.
+\label{eq:ids-symmetric-loss}
+\end{equation}
+
+For an ideal canonical amplifier with unequal efficiencies or a weighted
+difference, set $A=G_p$, $B=g_c^{(\Phi)}$, and $A-B=1$. In units of the incident
+seed photon flux, the exact bright-seed variance and SQL are
+\begin{align}
+\mathcal V_w={}&\eta_p^2A(A+B)+\eta_p(1-\eta_p)A\nonumber\\
+&+w^2\!\left[\eta_c^2B(A+B)+\eta_c(1-\eta_c)B\right]
+-4w\eta_p\eta_cAB,\\
+S_w={}&\frac{\mathcal V_w}{\eta_pA+w^2\eta_cB} .
+\label{eq:ids-balanced}
+\end{align}
+Here $w=1$ is a raw difference and $w=\eta_pA/(\eta_cB)$ balances the detected
+DC levels. For unequal losses the weight that minimizes normalized noise is
+covariance dependent; it cannot in general be inferred from detected powers
+alone. Equation~\eqref{eq:ids-balanced} reduces to
+Eq.~\eqref{eq:ids-symmetric-loss} when $w=1$ and
+$\eta_p=\eta_c$.
+
+The archived optimizer instead evaluated the numerical score
+\begin{equation}
+S_{\rm legacy}=\operatorname{clip}_{[0,1]}
+\frac{(G_p-g_c^{(\Phi)})^2}{G_p+g_c^{(\Phi)}} .
+\label{eq:ids-legacy}
+\end{equation}
+This is a definition retained only to reproduce historical scans. It is not a
+covariance and its clipping does not prevent passive points from giving
+$S_{\rm legacy}<1$; for example $(G_p,g_c^{(\Phi)})=(0.2,0.1)$ gives
+$S_{\rm legacy}=0.033$. For the dissipative cell,
+$\mathcal G_{\rm flux}\ne1$ requires the reservoir channels of
+Secs.~\ref{sec:realizability} and \ref{sec:lyapunov}. Unequal detector weights
+must then be applied to the full covariance through Eq.~\eqref{eq:spectrum},
+not reconstructed from the two mean gains.
+
+\clearpage
+\section{Model point and experimental comparison}
+
+This benchmark applies the passive-limit-tested Option-A propagation signs and
+$N_F=3$ to the inherited finite-reference-field four-level Floquet response.
+It is not an output of the pump-null-space and frequency-resolvent formulation
+of Parts~II--III. It uses
+a $5\sigma_v$ one-dimensional velocity range and the documented point
+\[
+\frac{\Delta}{2\pi}=+0.90\GHz,\quad
+\frac{\delta}{2\pi}=-8\MHz,\quad T=121\degC,\quad L=12.5\,{\rm mm},
+\]
+with $600\,{\rm mW}$ pump power, $8\,\mu{\rm W}$ probe-seed power,
+$w_{\rm pump}=530\,\mu{\rm m}$, $w_p=330\,\mu{\rm m}$, and
+$\theta=0.32^\circ$. The radii are $1/\e^2$ intensity radii.
+The calculation omits the transverse two-photon Doppler average and
+therefore remains a reduced-model benchmark. In the same symmetric mismatch
+gauge used for Eq.~\eqref{eq:corrected-literature-drift}, the transfer is
+\[
+T_E=
+\begin{pmatrix}
+18.839694+6.971473\ii&-8.603522+18.218019\ii\\
+8.625460-18.205907\ii&17.483771+10.224863\ii
+\end{pmatrix}.
+\]
+For equal collected mode areas, this gives
+\[
+G_p=403.53550,\quad G_c=405.85359,\quad
+g_c^{(\Phi)}=405.84704,\quad \mathcal G_{\rm flux}=-2.31154.
+\]
+Here $T_E$ is the electric-field transfer; applying the explicitly constructed
+$Q^{-1}T_EQ$ gives $g_c^{(\Phi)}=(\omega_p/\omega_c)G_c$ with
+$\omega_c/\omega_p=1.00001614$. The former $(32.56066,31.23207)$ result used
+the opposite susceptibility-propagation sign and fails the passive
+Beer--Lambert test. The $(5.61434,4.66816)$ result used the passive
+susceptibility sign but retained both the duplicated
+$p_F/[2(2I+1)]$ population factor and the wrong symmetric-frame mismatch
+sign. The intermediate $(107.64682,107.36704)$ result removed the population
+duplicate but still used that wrong mismatch sign. The later
+$(1054.30596,1061.88534)$ result corrected those conventions but represented
+the inherited transit floor as coherence-only damping. The current result adds
+the trace-preserving thermal reload channel. None of the earlier numbers is
+retained after the combined carrier, mismatch, normalization, and transit audit.
+The inherited residual $\ell_s=0.74$ has not been refitted to compensate.
+
+\begin{table}[ht]
+\centering
+\caption{Separation of mean-field gain and quantum-noise layers at the
+literature operating point, using explicit $Q$ with an equal collected-area
+assumption. The symmetric external efficiency used in the diagnostic
+columns is $\eta_{\rm ext}=0.8694$.}
+\label{tab:model-layer-comparison}
+\small
+\begin{tabularx}{\textwidth}{L{3.7cm}C{1.35cm}C{1.35cm}C{1.8cm}C{1.8cm}Y}
+\toprule
+Layer & $G_p$ & $G_c$ & $S_-^{\rm out}$ & $S_-^{\rm det}$ &
+Interpretation\\
+\midrule
+Semiclassical reduced model & 403.535 & 405.854 & --- & --- &
+Mean-field gain only\\
+Ideal Bogoliubov amplifier matched to $G_p$ & 403.535 & 402.542 &
+0.001241 ($-29.06\dB$) & 0.13168 ($-8.80\dB$) &
+Lossless limiting case, not the dissipative medium\\
+Static independent-vacuum completion fixture & 403.535 & 405.854 &
+0.02414 ($-16.17\dB$) & 0.15158 ($-8.19\dB$) &
+Canonical diagnostic with $w=1$; $D$ is not microscopic\\
+Static independent-vacuum completion fixture, DC balanced & 403.535 & 405.854 &
+0.005233 ($-22.81\dB$) & --- &
+Same diagnostic with $w\simeq0.99429$; detector rematching not evaluated\\
+Microscopic quantum-Langevin model & 403.535 & 405.854 &
+\pending & \pending & Required physical calculation\\
+Experiment \cite{Sim2025} & $111/8=13.875$ & $109/8=13.625$ & --- &
+0.166 ($-7.8\dB$) & Raw $8\,\mu{\rm W}$ input and $111/109\,\mu{\rm W}$
+outputs; both power ratios are independently available\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The static completion and detector model are flat by construction, so
+repeating them at several analysis frequencies adds no information. The
+measured features instead show what is missing: technical excess noise below a
+few hundred kHz, $-8.7\dB$ from the IDS/SQL slope ratio at $150\kHz$, a
+laser-source noise peak near $2\MHz$, and loss of squeezing beyond roughly
+$3.5\MHz$ \cite{Sim2025}. None can be reconstructed from two gains, so the
+table reports no physical $S_-(\Omega_{\rm SA})$ prediction.
+
+\begin{table}[ht]
+\centering
+\caption{Model--experiment comparison after correcting propagation signs and
+removing duplicate manifold-population weighting.}
+\label{tab:discrepancies}
+\small
+\begin{tabularx}{\textwidth}{L{3.0cm}L{3.5cm}L{3.2cm}Y}
+\toprule
+Observable & Reduced model & Experiment or benchmark & Discrepancy\\
+\midrule
+$G_p$ & 403.535 & 13.875 from raw powers & $+2808.4\%$\\
+$G_c$ & 405.854 & 13.625 from raw powers & $+2878.7\%$\\
+$\delta^*/(2\pi)$ & $-275\MHz$ in the archived reduced scan &
+$-8\MHz$ measured operating point & $-267\MHz$; different objective and
+incomplete geometry make this nonpredictive\\
+$\Delta^*/(2\pi)$ & $-1.50\GHz$ in the archived reduced scan &
+$+0.90\GHz$ measured operating point & $-2.40\GHz$\\
+Maximum squeezing & no physical prediction & $-7.8\dB$ &
+Microscopic diffusion and detector response missing\\
+Squeezing bandwidth & no physical prediction; separate Lorentzian pole and
+Gaussian Doppler scales are tabulated & approximately $3.5\MHz$ &
+Two-dimensional mean-field reference complete; microscopic
+$S_-(\Omega_{\rm SA})$ comparison pending (Sec.~\ref{sec:pole-spectrum})\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The point
+$(\Delta/2\pi,\delta/2\pi,T)=(-1.50\GHz,-280\MHz,110\degC)$ is classified
+only as a \emph{numerical optimum under the archived reduced model}. It is
+not an experimentally established optimum. Likewise, the numerical proximity
+of the chosen-vacuum algebraic fixture to the measured $-7.8\dB$ is not
+validation: the former contains no microscopic atomic diffusion or detector
+spectrum.
+
+\section{Required limiting cases}
+
+\begin{table}[!ht]
+\centering
+\caption{Analytic limiting-case checks for the layered model.}
+\label{tab:limits}
+\small
+\begin{tabularx}{\textwidth}{L{3.5cm}Y L{2.2cm}}
+\toprule
+Limit & Required result & Status\\
+\midrule
+No atom--field coupling &
+$\chi_{ij}\to0$ implies $G_p\to1$, $G_c\to0$, $D\to0$, and $S_-\to1$ &
+\pass\ analytically\\
+Ideal lossless parametric amplifier &
+$M_qJ+JM_q^\dagger=0$, $B=D=0$, and $\mathcal G_{\rm flux}=1$ &
+\pass\ analytically\\
+Bright probe-seeded ideal amplifier &
+$S_{\rm ideal}=1/[G_p+g_c^{(\Phi)}]$, reducing to $1/(2G-1)$ when
+$\mathcal G_{\rm flux}=1$ &
+\pass\ analytically\\
+Symmetric external efficiency &
+$S_-^{\rm det}=1-\eta+\eta S_-^{\rm out}$ &
+\pass\ analytically\\
+Zero phase-matching angle &
+$\theta\to0$ removes $k\theta\sigma_v$ from the two-photon Doppler width &
+\pass\ analytically\\
+Zero dissipation &
+The Langevin contribution vanishes and $TJT^\dagger=J$ &
+\pass\ as a formal limit\\
+Zero cell length &
+$W(0)=0$ from Eq.~\eqref{eq:differential-lyapunov}, so
+$V_{\rm out}=V_{\rm in}$ &
+\pass\ analytically and numerically\\
+Undamped two-level drive &
+Poles at $0,\pm\ii\sqrt{\Omega^2+\Delta^2}$ from
+Eq.~\eqref{eq:torrey-cubic} & \pass\ numerically\\
+Vanishing drive in the pole sum &
+$\mathcal V_k\to0$ makes every residue $A_m^{(jk)}$ vanish, so
+$\chibar\to0$ & \pass\ analytically\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\clearpage
+\section{Conclusions and validation status}
+
+The definitive status is the hierarchy in Table~\ref{tab:validation-hierarchy}.
+The analytic core --- the trace-zero resolvent, the diagonalizable-case pole
+sum with its Jordan/contour qualification, constant-matrix transfer,
+commutator identities, Lyapunov solution, and external detection map --- is
+closed, with the identities in Table~\ref{tab:analytic-verification}
+verified to $10^{-12}$ or better. The production finite-Floquet layer now adds an
+explicit full-scan adjacent-order gate; the separate velocity audits establish
+numerical convergence only for their stated reduced problems. State positivity
+and the exact-GKSL half-plane condition remain necessary invariants, not
+substitutes for convergence or physical validation.
+The separate minus-branch pump reference additionally closes the executable
+trace-one state, trace-zero response, finite-seed-limit, and direct pole-sum
+checks at the errors reported in Table~\ref{tab:pump-reference-diagnostics}.
+It remains a slow reference and does not change the finite-seed production
+default; the inherited plus-branch reference remains unsupported.
+The separate tensor-Maxwell wrapper additionally closes the declared
+two-dimensional grid and cutoff checks for a single crossing angle, with the
+lab beat held fixed.
+
+At the literature operating point, correcting the Maxwell propagation signs
+changes the reduced-model gains to those of Table~\ref{tab:discrepancies}; their
+large disagreement with the independently reported output powers precludes
+quantitative gain validation. The independent-vacuum completion is retained
+solely as a commutator-preserving algebra test. No gain-only number in this report is
+a squeezing prediction, and the separate Raman-pole and angular-Doppler scales
+do not determine a squeezing bandwidth.
+
+A physical $S_-(\Omega_{\rm SA})$ still requires several coupled inputs:
+promotion of the certified minus-branch atomic response into a production
+frequency-dependent drift (and a valid treatment of any claimed plus branch),
+microscopic reservoir coupling and diffusion, promotion of the certified
+two-dimensional response into the finite-seed/segmented production path plus a
+measured beam angular distribution, collected-mode normalization, and measured
+detector transfer and electronic-noise functions.
+Until those are implemented together, the document is a semianalytic
+mean-field reconstruction and quantum-model specification, not a validated
+squeezing calculation.
+
+\appendix
+
+\section{Analytically solvable limit: the damped two-level rotor}
+\label{sec:torrey}
+
+The full four-level Liouvillian is $16\times16$ and its characteristic
+polynomial has degree $16$, so its roots are computed numerically. A reduced
+two-level case supplies the physical labels used in
+Sec.~\ref{sec:pole-expansion}. With longitudinal and transverse relaxation
+times $T_1$ and $T_2$, detuning $\Delta$, and Rabi frequency $\Omega$, the
+Bloch generator in the $(u,v,w)$ basis is
+\begin{equation}
+M_{\rm B}=
+\begin{pmatrix}
+-1/T_2 & -\Delta & 0\\
+\Delta & -1/T_2 & \Omega\\
+0 & -\Omega & -1/T_1
+\end{pmatrix},
+\label{eq:bloch-generator}
+\end{equation}
+with the factored characteristic polynomial
+\begin{equation}
+\boxed{\;
+\left(\lambda+\tfrac1{T_2}\right)
+\left[\left(\lambda+\tfrac1{T_2}\right)\left(\lambda+\tfrac1{T_1}\right)
++\Omega^2\right]
++\Delta^2\left(\lambda+\tfrac1{T_1}\right)=0 .}
+\label{eq:torrey-cubic}
+\end{equation}
+Its informative limits are immediate:
+\begin{itemize}
+\item \textbf{Undriven}, $\Omega=0$: the population pole is $-1/T_1$ and the
+free-precession pair is $-1/T_2\pm\ii\Delta$.
+\item \textbf{Resonant}, $\Delta=0$: the $u$ quadrature has pole $-1/T_2$;
+the remaining quadratic gives a damped-Rabi pair only when
+$|\Omega|>|T_1^{-1}-T_2^{-1}|/2$, and otherwise gives two additional real
+overdamped branches.
+\item \textbf{Undamped}, $T_1,T_2\to\infty$:
+\begin{equation}
+\lambda_0=0,\qquad
+\lambda_\pm=\pm\ii\Omega',\qquad
+\Omega'=\sqrt{\Omega^2+\Delta^2}.
+\label{eq:generalized-rabi}
+\end{equation}
+\end{itemize}
+Thus the roots comprise one population-recovery branch and either a
+complex-conjugate damped-Rabi pair or two additional real overdamped branches.
+This is the structure named by Eq.~\eqref{eq:pole-parametrization} in the
+multilevel case. Equation~\eqref{eq:torrey-cubic} follows Torrey's classical
+transient-nutation analysis \cite{Torrey1949}.
+
+\section{Dimensional-consistency audit}
+
+\begin{table}[ht]
+\centering
+\caption{Dimensional audit in SI units.}
+\label{tab:dimension-audit}
+\small
+\begin{tabularx}{\textwidth}{L{4.1cm}L{3.0cm}Y}
+\toprule
+Quantity & Dimension & Check\\
+\midrule
+$\Delta,\delta,\Gamma,\Omega_{\rm SA},\Delta_e,\lambda_m$ &
+$\mathrm{s}^{-1}$ & Angular frequencies and Liouvillian poles\\
+$\chibar_{ij}$; $Nd^2/(\epsilon_0\hbar)$ &
+$\mathrm{s}$; $\mathrm{s}^{-1}$ & Their product is dimensionless $\chi_{ij}$\\
+$M_{\rm cl},M_q,D,K$ & $\mathrm{m}^{-1}$ & Spatial drift, diffusion, and
+commutator defect per unit length\\
+$\mu_\pm$ & $\mathrm{m}^{-1}$ & Eigenvalues of a spatial generator\\
+$W(L)$ & $1$ & $\int D\,\dd z$ with dimensionless covariance\\
+$V(x;\sigma,\gamma)$ & $\mathrm{s}$ & $-\pi V$ is an inverse angular frequency\\
+$G_p,G_c,S_-$ & $1$ & Power gains and normalized noise spectrum\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Assumptions and validity domains}
+\label{app:assumptions}
+
+\begin{longtable}{L{3.4cm}L{5.0cm}L{5.6cm}}
+\caption{Assumption and validity-domain ledger.}
+\label{tab:assumptions}\\
+\toprule
+Layer & Assumption & Validity domain and failure mode\\
+\midrule
+\endfirsthead
+\toprule
+Layer & Assumption & Validity domain and failure mode\\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\small Continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Atomic basis & Four hyperfine manifolds with Zeeman structure averaged into
+effective strengths & Hyperfine-scale qualitative trends; fails for
+polarization, optical pumping, dark states, and magnetic response\\
+Pump-only weak-response reference & Undepleted prescribed pump, static
+four-level Markovian Liouvillian, trace-one null space, and trace-zero Nambu
+resolvent & Executable slow reference for the minus Raman branch only; not used
+by the current gain tables, plus branch unsupported, and controlled only under
+the stated phenomenological decay channels; a separate 2-D wrapper is available\\
+Current gain-state path & Trace-one finite-seed density matrix; production
+$N_F\geq3$ with an $N_F-1$ full-scan gate, audit $N_F=1,2,3$ & Not a pump-only state; convergence and finite-seed
+back-action must be reported separately\\
+Historical rate/Sylvester model & Populations solved without coherence feedback &
+Weak saturation or rapid dephasing; not an exact strong-pump steady state\\
+Weak fields & Probe and conjugate enter to first order & Valid below the onset
+of pump depletion, gain saturation, and nonlinear probe back-action\\
+Pole expansion & $\mathcal L$ is diagonalizable & Exact where it holds;
+defective Liouvillian eigenvalues require a Jordan or contour form with
+higher-order poles, and eigen-residues become ill conditioned near defective
+or nearly defective points\\
+Lorentzian reading of poles & Residues vary slowly over the analysis band &
+Overlapping poles with comparable residues interfere and do not decompose
+into independent visible peaks\\
+Floquet expansion & Finite $N_F$ & Must be increased until observables
+converge; $N_F=1$ fails at the archived point, and no positivity test
+detects the failure\\
+Velocity average & Maxwell distribution, independent Cartesian components &
+The separate minus-branch reference resolves $(v_z,v_x)$ for one declared
+angle; the finite-seed production average remains one-dimensional and omits
+beam divergence\\
+Classical propagation & $z$-independent coefficients and fixed density,
+temperature, and pump & Closed-form exponential; fails with longitudinal
+pump attenuation, density gradients, or depletion\\
+Lyapunov solution & Constant $M_q$, $D$ over the integration interval &
+No condition on $M_q$; use the segmented recursion for varying coefficients.
+Only the eigenbasis \emph{resolution} additionally needs a well-conditioned
+$S$\\
+Phase convention & Diagonal complex susceptibility plus vacuum/geometric
+mismatch only & Avoids double counting of $\Rea\chi$\\
+Quantum propagation & Linear Gaussian Langevin channel & Requires a
+microscopic reservoir matrix and appropriate Markov approximation\\
+Static vacuum completion & Minimal-port independent-vacuum factorization of
+the drift & Commutator fixture only; neither a universal Caves-bound claim nor
+an atomic-noise prediction, and frequency independent by construction\\
+Detection & External path and detector losses act after the cell &
+Valid only for losses physically distinct from distributed atomic absorption\\
+Electronics & Linear transfer functions and calibrated SQL reference &
+Requires measured $H_p,H_c,w,S_{\rm el}$ at every analysis frequency\\
+\end{longtable}
+
+\section{Parameter provenance and sensitivity}
+\label{app:parameters}
+
+The classifications below distinguish quantities measured for the cited
+apparatus, assumed in the reduced model, fitted or inherited
+phenomenologically, and algebraically derived. A dash means that the
+parameter does not enter that model layer. Unless an experimental uncertainty
+and its source are stated explicitly, a numerical ``audit range'' below is only
+an illustrative sensitivity sweep; it is not a confidence interval, prior, or
+measurement uncertainty.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{L{2.8cm}L{3.4cm}L{2.5cm}L{3.4cm}L{3.4cm}}
+\caption{Measured, assumed, fitted, inherited, and derived parameters.}
+\label{tab:parameter-provenance}\\
+\toprule
+Parameter & Physical definition & Class and source &
+Procedure or allowed range & Sensitivity of $G_p,G_c,S_-$\\
+\midrule
+\endfirsthead
+\toprule
+Parameter & Physical definition & Class and source &
+Procedure or allowed range & Sensitivity of $G_p,G_c,S_-$\\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{\small Continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+$L=12.5\,{\rm mm}$ &
+Vapor interaction length &
+Measured; experimental cell \cite{Sim2025} &
+Use manufacturing/calibration uncertainty when available &
+Gains depend through $\exp(M_{\rm cl}L)$; noise through $W(L)$ of
+Eq.~\eqref{eq:lyapunov-closed-form}\\
+$T=121\degC$ &
+Cell-reservoir operating temperature &
+Experimentally measured operating point \cite{Sim2025} &
+Not a fitted model optimum &
+Strong density and Doppler dependence; must be rescanned\\
+$P_{\rm pump}=600\,{\rm mW}$, $P_0=8\,\mu{\rm W}$ &
+Incident pump and probe-seed powers used for squeezing &
+Experimentally measured operating point \cite{Sim2025} &
+The probe-seed was approximately $10\,\mu{\rm W}$ in the apparatus description;
+$8\,\mu{\rm W}$ for the cited squeezing trace, with raw outputs
+$P_p=111\,\mu{\rm W}$ and $P_c=109\,\mu{\rm W}$ &
+Pump changes the steady state and power broadens the poles
+(Table~\ref{tab:pole-spectrum}); the probe-seed sets the bright-beam
+linearization and the SQL\\
+$w_{\rm pump}=530\,\mu{\rm m}$, $w_p=330\,\mu{\rm m}$ &
+$1/\e^2$ intensity radii, not diameters &
+Measured \cite{Sim2025} &
+Use the reported beam convention &
+Set Rabi frequency and spatial overlap\\
+$\theta=0.32^\circ$ &
+Phase-matching angle &
+Measured geometry \cite{Sim2025} &
+Zero-angle check required &
+Produces $1.38\MHz$ rms angular Raman broadening at $121\degC$, comparable to the
+power-broadened Raman pole width\\
+$\Delta/(2\pi)=+0.90\GHz$,
+$\delta/(2\pi)=-8\MHz$ &
+Experimental optical and two-photon operating detunings &
+Experimentally measured operating point \cite{Sim2025} &
+Not identified with the archived numerical optimum &
+Corrected-sign, one-use-normalized reduced model gives
+$G_p=403.535$, $G_c=405.854$ after the thermal transit reset; the $0.74$
+residual is not refitted\\
+$\Gamma/(2\pi)=5.746\MHz$ &
+Natural optical linewidth used in the model &
+Literature benchmark &
+Ordinary-frequency value converted once to angular rate &
+Sets optical resolvents and Voigt width\\
+$\gamma_{\rm opt}/(2\pi)=0.742\MHz$ at $121\degC$ &
+Added collisional optical half-width $\tfrac12\beta N$ &
+Derived from the density and the self-broadening coefficient &
+Scales linearly with $N(T)$ &
+Broadens the optical poles of Table~\ref{tab:pole-spectrum}\\
+$\sigma_v=193.7\,{\rm m/s}$ at $110\degC$;
+$196.5\,{\rm m/s}$ at $121\degC$ &
+One-axis thermal rms speed &
+Derived from Maxwell statistics &
+$\sigma_v=\sqrt{k_BT/m}$ &
+Sets both one-photon and mismatch-projected Doppler widths
+(one-photon rms $243.6\MHz$ and $247.2\MHz$; angular-mismatch rms
+$1.36\MHz$ and $1.38\MHz$, at $110\degC$ and $121\degC$, respectively)\\
+$\ell_s=0.74$ &
+Effective line-strength or overlap multiplier &
+Inherited from code; phenomenological coefficient with unknown fit provenance &
+Original fitting record unavailable; illustrative $\pm10\%$ sweep
+0.666--0.814, not an uncertainty interval &
+At fixed $N_F=3$ atomic response, $(G_p,G_c)$ changes from
+$(188.447,189.054)$ through $(403.535,405.854)$ to $(857.836,863.691)$;
+physical $S_-$ remains unavailable\\
+$\kappa=0.1$ &
+Coupling of absorbed pump fraction to detected pump-scattering noise &
+Inherited from code; assumed phenomenological coefficient &
+No documented fit; illustrative sweep 0--0.2, not an uncertainty interval,
+pending apparatus calibration &
+No effect on $G_p,G_c$; the diagnostic obeys
+$N_{\rm ps}=\kappa(1-\exp[-0.149609])$ with slope $0.138956$, but normalized
+$S_-(\Omega)$ requires $F_{\rm ps}$ and detector calibration\\
+$\gamma_t/(2\pi)=100\kHz$ at $121\degC$
+($\gamma_{gg,\mathrm{total}}/(2\pi)=102.882\kHz$) &
+Thermal transit-reset input; the total ground-coherence rate also contains a
+$2.882\kHz$ collisional pure-dephasing term &
+Inherited from code; assumed phenomenological rate &
+Illustrative $\gamma_t/(2\pi)$ sweep 90--110 kHz, not an uncertainty interval;
+independent linewidth fit absent &
+Recomputed $N_F=3$ endpoints give $(G_p,G_c)=(440.250,442.733)$ at
+$\gamma_t/(2\pi)=90\kHz$, $(403.535,405.854)$ at $100\kHz$, and
+$(370.626,372.790)$ at $110\kHz$ (total rates $92.882$, $102.882$, and
+$112.882\kHz$, respectively);
+the pole width is not a direct measurement of this parameter\\
+$1-\eta_{\rm path}=5.5(2)\%$ &
+Post-cell optical-path loss &
+Measured \cite{Sim2025} &
+Allowed range 5.3--5.7\%; not cell absorption &
+No effect on gains; for symmetric loss
+$\partial S_{\rm det}/\partial\eta=S_{\rm out}-1$\\
+$1-\eta_{\rm det}=8.0(2)\%$ &
+Detector and remaining system inefficiency &
+Measured \cite{Sim2025} &
+Allowed range 7.8--8.2\% &
+No effect on gains; combines multiplicatively with path efficiency\\
+$\eta_{\rm ext}=0.8694$ &
+Illustrative total external efficiency
+$0.945\times0.920$ &
+Derived from measured losses &
+The paper also quotes total loss $13.5(2)\%$; definitions must be reconciled &
+Maps $S_{\rm out}$ to $1-\eta_{\rm ext}+\eta_{\rm ext}S_{\rm out}$\\
+$N_F$ &
+Retained Floquet sideband order &
+Numerical truncation &
+$N_F=3$ production default with a full-scan $N_F=2$ comparison &
+$N_F=1$ changes the historical coefficients by 13--17\% and reverses the sign
+of their gap, without
+violating any positivity test\\
+$\ell_{\rm eff}=0.74/12$ &
+Residual line/overlap factor times the sublevel average &
+Population supplied by trace-normalized $\rho_{\rm ss}$; duplicate removed &
+$\ell_{\rm eff}=0.0616667$; see Appendix~\ref{app:normalization} &
+Representative-state coefficient test matches the AutoOD structural factor\\
+\end{longtable}
+\endgroup
+
+No entry involving $\ell_s$, $\kappa$, or the adopted $\gamma_{gg}$ is
+described as exact. Their source records and any apparatus-level fitting
+provenance remain required metadata.
+The atomic solve also begins from an already-declared cell-input probe power;
+it contains no EOM $V_\pi$, insertion-loss, sideband-fraction, or impurity
+calibration. Missing EOM provenance therefore blocks an apparatus-level mapping
+from RF settings to that optical input and blocks any EOM-noise claim.
+
+These missing records activate the claim gate rather than being filled by an
+illustrative sweep: algebraic identities and finite-model convergence may still
+be reported, but quantitative apparatus-level gain remains
+\textsc{unsupported} and physical $S_-(\Omega_{\rm SA})$ remains
+\textsc{unavailable}. A calibration-point agreement, if later obtained, may not
+promote either claim without a predeclared held-out comparison.
+
+\section{Dipole and population normalization ledger}
+\label{app:normalization}
+
+Let $d_{\rm D1}=\langle J_e\|er\|J_g\rangle$ be the fine-structure reduced
+matrix element. The archived coefficient is not the polarization-summed
+hyperfine strength. It is the following \emph{AutoOD $q=0$ convention}:
+\begin{align}
+\mathcal S_0(F_g,F_e)
+&=\sum_{m=-\min(F_g,F_e)}^{+\min(F_g,F_e)}
+\begin{pmatrix}F_e&1&F_g\\m&0&-m\end{pmatrix}^{\!2},\\
+C_F^2&=(2F_g+1)(2F_e+1)(2J_g+1)(2J_e+1)(2L_g+1)
+\mathcal S_0(F_g,F_e)\nonumber\\
+&\quad\times
+\begin{Bmatrix}J_g&J_e&1\\F_e&F_g&I\end{Bmatrix}^{\!2}
+\begin{Bmatrix}L_g&L_e&1\\J_e&J_g&S\end{Bmatrix}^{\!2}.
+\label{eq:CF-normalization}
+\end{align}
+For $I=5/2$, $S=1/2$, $L_g=0$, $L_e=1$, and
+$J_g=J_e=1/2$. Then $\mathcal S_0=1/3$, which gives the stored exact values
+\[
+C_F^2=\{10,35,35,28\}/81
+\]
+for $(F_g,F_e)=(2,2),(2,3),(3,2),(3,3)$, respectively.
+
+The AutoOD orbital reduced dipole and the fine-structure reduced dipole used
+by GABES obey $|d_{\rm orb}|^2=3|d_{\rm D1}|^2$ in this D1 convention.
+Therefore
+\[
+|d_{\rm eff}|^2=C_F^2|d_{\rm orb}|^2
+=3C_F^2|d_{\rm D1}|^2,
+\]
+and the dimensionless amplitude multiplier that accompanies
+$d_{\rm D1}$ is
+\begin{equation}
+a_{ge}=\sqrt{3C_F^2}.
+\label{eq:age-normalization}
+\end{equation}
+This derivation explains the code factor but also its limitation:
+Eq.~\eqref{eq:CF-normalization} is a $q=0$, Zeeman-averaged absorption
+convention, not a universal incoherent sum over $q=0,\pm1$. A
+polarization-resolved Liouvillian must replace it with explicit
+Clebsch--Gordan amplitudes and must not multiply by $a_{ge}$ again.
+
+The formerly archived effective factor was assembled as
+\begin{equation}
+\ell_{\rm eff}^{\rm old}
+=\ell_s\,\frac{p_{F=3}}{2(2I+1)}
+=0.74\times\frac{7}{144}
+=0.0359722 .
+\label{eq:ell-effective}
+\end{equation}
+This double-counted the manifold population: the trace-normalized
+$\rho_{\rm ss}$ already supplies the actual, pump-modified population of the
+representative $F=2,3$ states. The corrected one-use normalization is
+\begin{equation}
+\boxed{\ell_{\rm eff}=\ell_s\frac{1}{2(2I+1)}
+=\frac{0.74}{12}=0.0616667 .}
+\label{eq:ell-effective-corrected}
+\end{equation}
+In a thermal reference state the response itself contributes
+$\rho_{FF}=p_F$, yielding the AutoOD structural coefficient
+$3C_F^2p_F/[2(2I+1)]$ without a second external $p_F$. The residual $\ell_s$
+remains phenomenological and must not be silently refitted to restore an old
+gain value.
+
+The normalization rule for future implementations is:
+\begin{enumerate}
+\item use the fine-structure reduced dipole matrix element once;
+\item use either explicit Clebsch--Gordan matrix elements or the averaged
+$a_{ge}$, never both;
+\item include isotope abundance once in $N$;
+\item obtain ground-manifold population either from $\rho_{\rm ss}$ or an
+external $p_F$, never both;
+\item include spontaneous-emission branching ratios in the collapse
+operators, not again in susceptibility amplitudes; and
+\item apply external optical efficiencies only in the detection layer.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\caption{Code-path normalization audit for the current reduced FWM solver.}
+\label{tab:normalization-audit}
+\small
+\begin{tabularx}{\textwidth}{L{3.2cm}Y L{2.5cm}}
+\toprule
+Factor & Where it enters & Verdict\\
+\midrule
+Reduced D1 dipole $d_{\rm D1}$ &
+Once in the macroscopic conversion in
+\texttt{gabes/observables.py} & no duplicate found\\
+Hyperfine/Zeeman strength &
+$\sqrt{3C_F^2}$ in the weak-field drive and once in polarization readout;
+their product gives $3C_F^2$. It is not also present in
+\texttt{physical\_coupling\_norm}. & no algebraic duplicate found\\
+Isotope abundance &
+The FWM path uses the pure-$^{85}$Rb density from
+\texttt{hyperfine.number\_density}; it does not multiply the natural
+$0.7217$ abundance. & no duplicate in this path\\
+Ground-manifold population &
+$\rho_{\rm ss}$ is trace normalized over the two lumped ground manifolds and
+supplies the population once. \texttt{physical\_coupling\_norm} now supplies
+only $1/[2(2I+1)]$. & algebraic duplicate removed; structural test\\
+Spontaneous branching &
+The $C_F^2$-normalized decay fractions occur in Liouvillian collapse
+channels; no additional branching multiplier is applied in
+\texttt{chi\_phys}. & no duplicate found\\
+Residual $\ell_s$ &
+Multiplies the macroscopic coupling once. & inherited, not derived\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The coefficient ledger now removes the algebraic population duplication and a
+representative thermal-state/AutoOD coefficient identity is regression-tested.
+Executable tests now also inspect the pump-state $\rho_{\rm ss}$ and its
+trace-zero weak response. Those dynamical tests do not supply an independent
+absolute-OD scale and therefore are not, by themselves, a full weak-probe OD
+validation. Any future end-to-end OD comparison must retain the same one-use
+population-counting rule.
+
+\section{Four-level model limitations and unresolved physics}
+\label{app:limitations}
+
+The four-hyperfine-level model is suitable for qualitative gain structure,
+reduced hyperfine-scale intuition, and comparison with the existing reduced
+simulation. It is not automatically sufficient for absolute squeezing,
+polarization-sensitive effects, magnetic-field response, quantitative
+spontaneous-emission noise, or accurate Raman linewidths.
+
+Physics outside the current basis and reservoir model includes:
+\begin{itemize}
+\item polarization-dependent Clebsch--Gordan pathways and explicit
+$\sigma^\pm$ and $\pi$ selection rules;
+\item Zeeman optical pumping, ground-state orientation and alignment,
+dark-state formation, and magnetic-field-dependent coherences;
+\item interference among distinct $m_F$ pathways and
+polarization-dependent spontaneous emission;
+\item spatial pump depletion, longitudinal attenuation, transverse
+Gaussian averaging, diffraction, mode mismatch, and cell-window etalons;
+\item buffer-gas or wall-collision dynamics, transit-time distributions,
+radiation trapping, and non-Markovian reservoirs;
+\item multidimensional velocity-changing collisions, beam angular
+distributions, and promotion of the separate non-collinear Raman-Doppler
+reference into the finite-seed segmented production path;
+\item a microscopic frequency-dependent atomic diffusion matrix, excess
+fluorescence, and atom--reservoir correlations;
+\item detector transfer functions, electronic cross-talk, common-mode
+rejection, and the apparatus-specific $2\MHz$ laser-source noise peak; and
+\item an independently measured SQL calibration and gain definition
+matched exactly to the theoretical modes.
+\end{itemize}
+
+None of these can be assumed small. The gain discrepancy of
+Table~\ref{tab:discrepancies} and the $1.36$--$1.38\MHz$ angular Doppler
+scale, which is comparable to the power-broadened Raman pole width itself,
+are order-unity effects; the present calculation does not yet define a
+squeezing-bandwidth prediction.
+
+\section{Implementation notes for the analytic layers}
+\label{app:implementation}
+
+The following are the practical requirements implied by
+Secs.~\ref{sec:pole-expansion} and \ref{sec:lyapunov}.
+
+\begin{enumerate}
+\item \textbf{Do not diagonalize $M_q$ without a guard.} Use
+Eq.~\eqref{eq:van-loan-result} by default. If
+Eq.~\eqref{eq:lyapunov-eigenbasis} is used for interpretation, check
+$\operatorname{cond}(S)$ and fall back when it exceeds a threshold; the two
+forms agree to $10^{-15}$ in the well-conditioned regime.
+\item \textbf{Assert the invariants.} $W$ must be Hermitian and positive
+semidefinite for any Hermitian, positive-semidefinite $D$, and $W(0)=0$. These
+are cheap tests that catch sign and conjugation errors in the
+creation/annihilation bookkeeping.
+\item \textbf{Treat the stationary subspace explicitly at zero frequency.}
+For $\Omega\ne0$ the unique trace-mode residue vanishes by
+Eq.~\eqref{eq:zero-residue}. At $\Omega=0$, solve on the trace-zero subspace or
+use the Drazin inverse; do not evaluate a formal $0/0$ term. If more than one
+stationary mode exists, project the full stationary subspace and check every
+zero-mode residue.
+\item \textbf{Track residues, not only eigenvalues.} A narrow pole with a
+negligible residue is not a visible spectral feature. Ranking poles by
+$|A_m|/\Gamma_m$ rather than by $\Gamma_m$ alone identifies which ones
+actually shape $S_-(\Omega_{\rm SA})$.
+\item \textbf{Recompute $K$ after any normalization change.}
+Equation~\eqref{eq:K-matrix} is contracted with $J$ and is therefore
+basis dependent through Eq.~\eqref{eq:canonical-rescaling}.
+\item \textbf{Report the analysis frequency with every spectrum.} The
+$\Omega_{\rm SA}$ dependence enters both $M_q$ and $D$; a spectrum quoted
+without its frequency grid cannot be compared with a measurement.
+\end{enumerate}
+
+\section{Reproducibility}
+\label{app:reproducibility}
+
+The archived Floquet and velocity-grid tables and the separate Option-A
+literature-point transfer, Maxwell/$Q$ parity, commutator fixture, and model-layer
+comparison, plus the $\ell_s$, $\kappa$, transit-floor, and two-dimensional
+Raman-Doppler grid/cutoff sensitivity blocks,
+are generated by
+\path{analysis/squeezing/analytic_reconstruction/convergence_audit.py}.
+Its human-readable and machine-readable outputs are
+\path{generated/convergence_audit.md} and
+\path{generated/convergence_audit.json}. Those files retain the separate
+historical dressed-$k$ scans as numerical-isolation fixtures, while their
+literature-point Option-A section uses the current production atomic dissipator
+and shared Maxwell/$Q$ constructors. Its Floquet assembly remains analysis-owned
+as a cross-check, while production independently supplies general-order
+continued-fraction core and compiled-kernel paths. It also reconstructs $M_E$,
+$Q$, and $T_E$ independently from literal SI prefactors and
+\texttt{scipy.linalg.expm}. At $N_F=3$ the production/reference maximum
+differences are $1.64\times10^{-14}$ or smaller. Tables~\ref{tab:floquet-option-a},
+\ref{tab:commutator-test}, and \ref{tab:model-layer-comparison} are generated
+from that checked path. Passive Beer--Lambert, unrotated-to-symmetric mismatch
+equivalence, zero-coupling identity, constant-segment parity, the structural
+normalization ledger, an independent stored-$\chi$ Option-A transfer golden,
+Bogoliubov $Q$ conversion, and Manley--Rowe energy bounds are pinned in
+\path{tests/test_fwm_propagation.py}.
+General-order continued-fraction versus dense-block parity, all-harmonic trace
+and residual invariants, compiled-kernel parity for $N_F=1,2,3$, and the
+full-scan convergence gate are pinned in \path{tests/test_fwm_floquet.py}.
+The pump-only state diagnostics, static-frame/Floquet parity, finite-seed limit,
+projected-DC response, and direct pole/residue parity are emitted by
+\path{convergence_audit.py}; their solver-level fixtures are pinned independently
+in \path{tests/test_fwm_pump_response.py}.
+The lab-frequency contract, collinear and equal-$k$ limits, analytic rms, and
+two-dimensional grid/cutoff checks are pinned in
+\path{tests/test_fwm_angular_doppler.py}. The detailed analytic-identity table,
+full pole-spectrum table, and physicality-margin table remain report derivations
+or separately reported checks and are not described as regenerated by the audit
+script.
+The document-level status is reported once, in
+Table~\ref{tab:validation-hierarchy} and the conclusion, rather than repeated
+in a second acceptance table.
+
+\begin{thebibliography}{9}
+
+\bibitem{Sim2025}
+G. Sim, H. Kim, and H. S. Moon,
+\emph{Intensity-difference squeezing from four-wave mixing in hot
+$^{85}$Rb and $^{87}$Rb atoms in single diode laser pumping system},
+\emph{Scientific Reports} \textbf{15}, 7727 (2025).
+
+\bibitem{McCormick2007}
+C. F. McCormick, V. Boyer, E. Arimondo, and P. D. Lett,
+\emph{Strong relative intensity squeezing by four-wave mixing in rubidium
+vapor}, \emph{Optics Letters} \textbf{32}, 178--180 (2007).
+
+\bibitem{Turnbull2013}
+M. T. Turnbull, P. G. Petrov, C. S. Embrey, A. M. Marino, and V. Boyer,
+\emph{Role of the phase-matching condition in nondegenerate four-wave mixing
+in hot vapors for the generation of squeezed states of light},
+\emph{Physical Review A} \textbf{88}, 033845 (2013).
+
+\bibitem{Lukin1999}
+M. D. Lukin, A. B. Matsko, M. Fleischhauer, and M. O. Scully,
+\emph{Quantum noise and correlations in resonantly enhanced wave mixing
+based on atomic coherence}, \emph{Physical Review Letters} \textbf{82},
+1847--1850 (1999).
+
+\bibitem{Caves1982}
+C. M. Caves,
+\emph{Quantum limits on noise in linear amplifiers},
+\emph{Physical Review D} \textbf{26}, 1817--1839 (1982).
+
+\bibitem{Torrey1949}
+H. C. Torrey,
+\emph{Transient nutations in nuclear magnetic resonance},
+\emph{Physical Review} \textbf{76}, 1059--1068 (1949).
+
+\bibitem{VanLoan1978}
+C. F. Van Loan,
+\emph{Computing integrals involving the matrix exponential},
+\emph{IEEE Transactions on Automatic Control} \textbf{23}, 395--404 (1978).
+
+\bibitem{GKS1976}
+V. Gorini, A. Kossakowski, and E. C. G. Sudarshan,
+\emph{Completely positive dynamical semigroups of $N$-level systems},
+\emph{Journal of Mathematical Physics} \textbf{17}, 821--825 (1976).
+
+\bibitem{Faddeeva}
+V. N. Faddeeva and N. M. Terent'ev,
+\emph{Tables of Values of the Function $w(z)$ for Complex Argument}
+(Pergamon, 1961).
+
+\end{thebibliography}
+
+\end{document}

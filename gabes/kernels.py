@@ -165,10 +165,9 @@ def _lu_solve_real(A, piv, B):
 
 @njit(cache=True, parallel=True)
 def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
-                     omega_hf, branch, w_probe, w_conj, n_levels):
+                     omega_hf, branch, w_probe, w_conj, n_levels, n_f=1):
     """
-    Fused FWM χ̄ grid: the 3-mode sideband (Floquet) steady state contracted
-    with coherence weights, over the full (δ, Δ_eff) grid in one pass.
+    Fused finite-Floquet FWM χ-bar grid for ``-n_f,...,+n_f``.
 
     Equivalent to the `chi_matrix_table` δ-loop over `core.floquet_solve`,
     using the affine structure of the Hamiltonian:
@@ -176,41 +175,35 @@ def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
         L0(δ, Δ_eff) = L0_base + δ·C_delta − Δ_eff·S_v
         Ω_beat(δ)    = omega_hf + branch·δ
 
-    Per grid point: factor A₋ = L0 − iΩ_beat, solve Xm = A₋⁻¹Cm, and get the
-    +sideband for free from the ±conjugate symmetry (P = vec transpose swap):
-
-        A₊ = P·A₋*·P,  Cp = P·Cm*·P  ⇒  Xp = A₊⁻¹Cp = P·Xm*·P,
-        Cm·A₊⁻¹Cp = P·(Cp·A₋⁻¹Cm)*·P,
-
-    so the second factor + M-column solve + one M×M product are replaced by an
-    O(M²) conjugate-transpose-permute. Then form the feedback
-    A_eff = L0 − Cp·Xm − P·(Cp·Xm)*·P, replace the trace row, solve for ρ₀, back
-    out ρ₊₁ = −Xp·ρ₀, and contract with w_probe / w_conj:
+    Positive and negative chains are eliminated by the same block continued
+    fraction as :func:`gabes.core.floquet_solve_truncated`.  The implementation
+    keeps only ``2*n_f`` M-by-M recurrence blocks and never assembles the dense
+    extended Liouvillian.  After solving the trace-one zero harmonic it backs
+    out rho_(+1) and contracts the two requested polarizations:
 
         chi_probe[i, j] = Σ_k w_probe[k]·ρ₀[k]
         chi_conj[i, j]  = Σ_k w_conj[k]·ρ₊₁[k]
 
-    Workspaces are hoisted per δ row (one prange task), so the inner Δ_eff loop
-    runs allocation-free.
+    Workspaces are hoisted per delta row (one prange task), so the inner
+    Delta_eff loop runs allocation-free. ``n_f=1`` remains API-compatible with
+    the former three-mode kernel.
     """
+    if n_f < 1:
+        raise ValueError("n_f must be at least 1")
     n_d = delta_axis.size
     n_de = deff_axis.size
     M = n_levels * n_levels
     chi_probe = np.empty((n_d, n_de), np.complex128)
     chi_conj = np.empty((n_d, n_de), np.complex128)
-    perm = np.empty(M, np.int64)                    # vec transpose swap n·i+j→n·j+i
-    for a in range(n_levels):
-        for b in range(n_levels):
-            perm[a * n_levels + b] = b * n_levels + a
 
     for i in prange(n_d):
         delta = delta_axis[i]
         ob = omega_hf + branch * delta
-        Am = np.empty((M, M), np.complex128)
+        A = np.empty((M, M), np.complex128)
         Aeff = np.empty((M, M), np.complex128)
-        Xm = np.empty((M, M), np.complex128)
-        Xp = np.empty((M, M), np.complex128)
-        Mfb = np.empty((M, M), np.complex128)       # minus-sideband feedback Cp·Xm
+        rhs_matrix = np.empty((M, M), np.complex128)
+        Rchain = np.empty((n_f, M, M), np.complex128)
+        Qchain = np.empty((n_f, M, M), np.complex128)
         rhs = np.empty((M, 1), np.complex128)
         rho1 = np.empty(M, np.complex128)
         piv = np.empty(M, np.int64)
@@ -220,30 +213,60 @@ def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
             for r in range(M):
                 for c in range(M):
                     l0 = L0_base[r, c] + delta * C_delta[r, c] - deff * S_v[r, c]
-                    Am[r, c] = l0
                     Aeff[r, c] = l0
-                    Xm[r, c] = Cm[r, c]
-                Am[r, r] -= 1j * ob
 
-            _lu_factor(Am, piv)
-            _lu_solve(Am, piv, Xm)                  # Xm = A₋⁻¹ Cm
+            # Positive chain: R_h maps rho_(h-1) -> rho_h.
+            for harmonic in range(n_f, 0, -1):
+                idx = harmonic - 1
+                for r in range(M):
+                    for c in range(M):
+                        value = (L0_base[r, c] + delta * C_delta[r, c]
+                                 - deff * S_v[r, c])
+                        if r == c:
+                            value += 1j * harmonic * ob
+                        if harmonic < n_f:
+                            feedback = 0.0 + 0.0j
+                            for k in range(M):
+                                feedback += Cm[r, k] * Rchain[idx + 1, k, c]
+                            value += feedback
+                        A[r, c] = value
+                        rhs_matrix[r, c] = Cp[r, c]
+                _lu_factor(A, piv)
+                _lu_solve(A, piv, rhs_matrix)
+                for r in range(M):
+                    for c in range(M):
+                        Rchain[idx, r, c] = -rhs_matrix[r, c]
 
-            for r in range(M):                      # Xp = A₊⁻¹Cp = P·Xm*·P
-                pr = perm[r]
+            # Negative chain: Q_h maps rho_(h+1) -> rho_h.
+            for harmonic in range(-n_f, 0):
+                idx = harmonic + n_f
+                for r in range(M):
+                    for c in range(M):
+                        value = (L0_base[r, c] + delta * C_delta[r, c]
+                                 - deff * S_v[r, c])
+                        if r == c:
+                            value += 1j * harmonic * ob
+                        if harmonic > -n_f:
+                            feedback = 0.0 + 0.0j
+                            for k in range(M):
+                                feedback += Cp[r, k] * Qchain[idx - 1, k, c]
+                            value += feedback
+                        A[r, c] = value
+                        rhs_matrix[r, c] = Cm[r, c]
+                _lu_factor(A, piv)
+                _lu_solve(A, piv, rhs_matrix)
+                for r in range(M):
+                    for c in range(M):
+                        Qchain[idx, r, c] = -rhs_matrix[r, c]
+
+            # Effective zero-harmonic block L0 + Cp Q_-1 + Cm R_+1.
+            for r in range(M):
                 for c in range(M):
-                    Xp[r, c] = np.conj(Xm[pr, perm[c]])
-
-            for r in range(M):                      # minus feedback Cp·Xm
-                for c in range(M):
-                    acc = 0.0 + 0.0j
+                    feedback = 0.0 + 0.0j
                     for k in range(M):
-                        acc += Cp[r, k] * Xm[k, c]
-                    Mfb[r, c] = acc
-
-            for r in range(M):                      # A_eff −= Cp·Xm + P·(Cp·Xm)*·P
-                pr = perm[r]
-                for c in range(M):
-                    Aeff[r, c] -= Mfb[r, c] + np.conj(Mfb[pr, perm[c]])
+                        feedback += (Cp[r, k] * Qchain[n_f - 1, k, c]
+                                     + Cm[r, k] * Rchain[0, k, c])
+                    Aeff[r, c] += feedback
 
             for c in range(M):                      # trace-normalisation row 0
                 Aeff[0, c] = 0.0
@@ -256,11 +279,11 @@ def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
             _lu_factor(Aeff, piv)
             _lu_solve(Aeff, piv, rhs)               # rhs = ρ₀
 
-            for r in range(M):                      # ρ₊₁ = −Xp ρ₀
+            for r in range(M):                      # rho_+1 = R_1 rho_0
                 acc = 0.0 + 0.0j
                 for k in range(M):
-                    acc += Xp[r, k] * rhs[k, 0]
-                rho1[r] = -acc
+                    acc += Rchain[0, r, k] * rhs[k, 0]
+                rho1[r] = acc
 
             cp_acc = 0.0 + 0.0j
             cc_acc = 0.0 + 0.0j

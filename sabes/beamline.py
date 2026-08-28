@@ -11,7 +11,9 @@ depths. The pump path is a *power* budget: nothing about its spectrum is in
 question, and the pump/seed PBS half-wave plate is the knob that sets it. The
 seed path is a *purity* budget: it has 30x more power than it needs and is
 deliberately attenuated, so what matters is the residual carrier the etalons let
-through, which is the quantity Sim et al. show degrading the squeezing.
+through. Sim et al. identify it as an experimental technical-noise concern; this
+module records its cell-plane power but does not infer an uncalibrated squeezing
+or detector-noise contribution from it.
 
 What is deliberately NOT modelled
   - ECDL frequency from temperature / current / PZT. Mode hops make it
@@ -40,6 +42,12 @@ from .devices import (EtalonFilter, FiberCollimator, FiberCoupling, FreeSpace,
 
 WAVELENGTH_M = constants.WAVELENGTH_D1_85RB
 NU_HF_HZ = constants.NU_GROUND_HF
+SEED_SPECTRUM_PROVENANCE = (
+    "modelled SABES cell-plane spectrum: PhaseModulator Bessel sideband ladder "
+    "followed by the declared etalon, delivery, and polarization optics; not an "
+    "independent spectral measurement"
+)
+_SPECTRAL_MATCH_TOLERANCE_HZ = 1.0
 
 
 @dataclass(frozen=True)
@@ -158,11 +166,51 @@ class SourceChain:
     @property
     def seed_power_w(self):
         """Power in the wanted sideband only -- the residual carrier is not seed."""
-        return self.seed.power_at(self.seed_offset_hz)
+        return self.wanted_seed_sideband_power_w
+
+    @property
+    def wanted_seed_sideband_power_w(self):
+        """Cell-plane power in the selected EOM sideband used as the FWM seed."""
+        return self.seed.power_at(
+            self.seed_offset_hz, tolerance_hz=_SPECTRAL_MATCH_TOLERANCE_HZ)
+
+    @property
+    def eom_residual_carrier_power_w(self):
+        """Cell-plane residual power at the unmodulated EOM carrier."""
+        return self.seed.power_at(
+            0.0, tolerance_hz=_SPECTRAL_MATCH_TOLERANCE_HZ)
+
+    @property
+    def eom_other_sidebands_power_w(self):
+        """Aggregate cell-plane power outside the wanted sideband and carrier."""
+        return sum(
+            line.power_w for line in self.seed.lines
+            if (abs(line.offset_hz - self.seed_offset_hz)
+                > _SPECTRAL_MATCH_TOLERANCE_HZ
+                and abs(line.offset_hz) > _SPECTRAL_MATCH_TOLERANCE_HZ)
+        )
+
+    def _relative_to_wanted(self, power_w):
+        wanted = self.wanted_seed_sideband_power_w
+        return float(power_w) / wanted if wanted > 0.0 else float("inf")
 
     @property
     def carrier_ratio(self):
-        return self.seed.carrier_ratio(self.seed_offset_hz)
+        """Backward-compatible carrier/wanted-sideband power ratio."""
+        return self.eom_residual_carrier_to_wanted_ratio
+
+    @property
+    def eom_residual_carrier_to_wanted_ratio(self):
+        return self._relative_to_wanted(self.eom_residual_carrier_power_w)
+
+    @property
+    def eom_other_sidebands_to_wanted_ratio(self):
+        return self._relative_to_wanted(self.eom_other_sidebands_power_w)
+
+    @property
+    def seed_spectrum_provenance(self):
+        """Origin and evidence class of the cell-plane spectral powers."""
+        return SEED_SPECTRUM_PROVENANCE
 
     @property
     def seed_purity(self):

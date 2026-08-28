@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "analysis_id": "rydberg-cell-heating-validation-template",
+  "output_dir": "generated",
+  "model": {
+    "temperatures_c": [20, 30, 35, 40, 42, 45, 47, 50, 53, 55],
+    "views": ["EIT", "AT electrometry"],
+    "base_params": {
+      "probe_power_uw": 6.0,
+      "coupling_power_mw": 30.0,
+      "beam_diameter_mm": 0.15,
+      "cell_mm": 50.0,
+      "lo_rabi_mhz": 3.7,
+      "if_khz": 40.0,
+      "temp_dephasing_mhz_per_c": 0.0,
+      "density_dephasing_mhz_per_1e16_m3": 0.0,
+      "rf_transition_dipole_ea0": 1326.2572434514343,
+      "rf_angular_factor": 1.0,
+      "rf_field_convention": "RMS",
+      "detector_quantum_efficiency": 0.95,
+      "detector_path_efficiency": 0.5,
+      "detector_reference_power_ratio": 1.0,
+      "detector_electronic_noise_pa_sqrt_hz": 0.0,
+      "detector_rin_per_sqrt_hz": 0.0,
+      "detector_rin_correlation": 1.0,
+      "measurement_enbw_hz": 1.0,
+      "doppler": "off"
+    },
+    "thermal": {
+      "setpoint_match_tolerance_c": 0.25,
+      "sensor_offsets_c": null,
+      "sensor_weights": null
+    },
+    "effective_atom_number": {
+      "enabled": true,
+      "status": "ASSUMED",
+      "coupling_beam_diameter_mm": 0.15,
+      "participation_fraction": 1.0,
+      "overlap_efficiency": 1.0
+    },
+    "axial_profile": {
+      "enabled": false,
+      "status": "PENDING",
+      "density_mode": "cold_spot_limited",
+      "endpoint_source": "sensors_or_offsets",
+      "left_offset_c": 0.0,
+      "right_offset_c": 0.0,
+      "points": 21,
+      "anchor_cold_spot_at_left": false
+    },
+    "include_spectra_in_results": true
+  },
+  "inputs": [
+    {
+      "id": "raw_eit_spectra",
+      "kind": "eit_spectrum",
+      "path": null,
+      "temperature_c": 40.0,
+      "required": false,
+      "status": "PENDING",
+      "note": "Export the original detuning-signal traces to a clean long-form CSV before enabling this input."
+    },
+    {
+      "id": "rf_sensitivity_summary",
+      "kind": "sensitivity",
+      "path": null,
+      "required": false,
+      "status": "PENDING",
+      "note": "Use MEASURED for values recomputed from raw traces; use PPT for manual slide transcription."
+    },
+    {
+      "id": "heater_temperature_log",
+      "kind": "temperature_log",
+      "path": null,
+      "required": false,
+      "status": "PENDING",
+      "note": "Prefer both heater sensors and an independently justified cold-spot temperature."
+    }
+  ],
+  "source_notes": [
+    {
+      "id": "cell_heating_presentation",
+      "status": "PPT",
+      "title": "26.07.15 주경민, cell heating 이후 RF sensitivity 변화양상 확인",
+      "note": "The presentation is contextual evidence only; it is not embedded or parsed by this example workflow."
+    },
+    {
+      "id": "finite_if_readout_model",
+      "status": "PREDICTED",
+      "note": "GABES implements the first-order finite-IF weak-SIG Liouvillian response; full time-domain LO+SIG/lock-in processing remains deliberately deferred."
+    },
+    {
+      "id": "rf_dipole_reference",
+      "status": "REFERENCE",
+      "note": "The default 1326.257 e a0 is the ARC 3.10.2 stretched-state sigma+ matrix element; angular factor and detector throughput remain explicit assumptions."
+    }
+  ],
+  "electrometry": {
+    "enabled": true,
+    "mode": "scheme",
+    "status": "ASSUMED",
+    "note": "Uses the explicit scheme parameters above; outputs are conditional model predictions, not fitted to the paper sensitivity."
+  },
+  "sam_calibration": {
+    "enabled": false,
+    "status": "PENDING",
+    "note": "Enter measured source power, horn gain/loss, distance, and standard uncertainties to enable SAM calibration.",
+    "source_power_dbm": null,
+    "antenna_gain_dbi": null,
+    "distance_m": null
+  },
+  "helpers": [],
+  "figures": {
+    "formats": ["png", "pdf"],
+    "dpi": 180
+  }
+}

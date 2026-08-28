@@ -1,0 +1,5 @@
+temperature_c,actual_temperature_c,sensitivity_nv_cm_sqrt_hz,uncertainty_nv_cm_sqrt_hz,psn_limit_nv_cm_sqrt_hz,status,note
+20,,12.5,3.6,11.2,PPT,"PPT에는 상온으로 표기됨. 20 °C는 같은 슬라이드의 PSN 표시점과 시뮬레이션 비교를 위한 대응값임."
+40,38,6.68,2.55,6.72,PPT,"Heater setting 40 °C. PPT의 PSN 주석에는 '(38 °C)??'가 함께 적혀 있어 실제 셀 온도는 미확정."
+45,42.5,17.6,2.2,17.6,PPT,"Heater setting 45 °C. PPT의 PSN 주석에는 '(42.5 °C)??'가 함께 적혀 있어 실제 셀 온도는 미확정."
+50,44,23.8,6.5,25.0,PPT,"Heater setting 50 °C. PPT의 PSN 주석에는 '(44 °C)??'가 함께 적혀 있어 실제 셀 온도는 미확정."

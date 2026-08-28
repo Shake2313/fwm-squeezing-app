@@ -68,7 +68,7 @@ def angular_momentum_matrices(F):
 
 @functools.lru_cache(maxsize=16)
 def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
-                    transit_rate=0.0):
+                    transit_rate=0.0, optical_dephasing=0.0):
     """
     Build the (F_g ↔ F_e) Zeeman manifold as an AtomModel with extra attributes:
       m_ground, m_excited : magnetic quantum numbers per level index
@@ -77,6 +77,11 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
     Spontaneous emission is CG-branched (Γ·|CG|² per channel, Σ = Γ from each
     excited); ground-ground Zeeman coherences dephase at γ_gg. All excited levels
     are Doppler-shifted (optical line); ground Zeeman is Doppler-free.
+
+    `optical_dephasing` is an added elastic decay rate for every ground-excited
+    coherence. It does not alter excited-state populations, spontaneous-emission
+    branching, or transfer of coherence (TOC). A collisional optical FWHM
+    contribution therefore enters here at half that FWHM.
 
     `transit_rate` optionally adds isotropic population reload into the addressed
     ground manifold. It is a compact warm-vapor approximation for atoms entering
@@ -124,14 +129,31 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
             for ig in ground:
                 decay.append((src, ig, transit_rate * p_ground))
 
-    dephasing = tuple((i, j, gamma_gg) for i in ground for j in ground if i != j)
+    collapse_ops = []
+    if gamma_gg and gamma_gg > 0:
+        # Projective ground-state phase randomization is completely positive:
+        # populations are unchanged, each ground-ground coherence decays at
+        # gamma_gg, and each optical ground-excited coherence at gamma_gg / 2.
+        sqrt_gamma_gg = math.sqrt(gamma_gg)
+        for g in ground:
+            projector = np.zeros((n, n), dtype=complex)
+            projector[g, g] = sqrt_gamma_gg
+            collapse_ops.append(projector)
+    if optical_dephasing and optical_dephasing > 0:
+        # One excited-block projector preserves populations and excited-state
+        # Zeeman coherence while damping every optical coherence at the declared
+        # elastic rate. It is not an emission/TOC operator.
+        projector = np.zeros((n, n), dtype=complex)
+        for e in excited:
+            projector[e, e] = math.sqrt(2.0 * optical_dephasing)
+        collapse_ops.append(projector)
 
     atom = AtomModel(
         name=f"zeeman_{Fg}_{Fe}", n_levels=n,
         labels=tuple(f"g{m:+d}" for m in mg) + tuple(f"e{m:+d}" for m in me),
         ground=ground, excited=excited,
-        decay=tuple(decay), dephasing=dephasing, doppler_levels=excited,
-        emission_ops=emission_ops,
+        decay=tuple(decay), dephasing=(), doppler_levels=excited,
+        emission_ops=emission_ops, collapse_ops=tuple(collapse_ops),
     )
     atom.m_ground = np.array(mg, dtype=float)
     atom.m_excited = np.array(me, dtype=float)

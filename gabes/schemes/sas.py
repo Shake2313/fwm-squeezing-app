@@ -41,7 +41,7 @@ import numpy as np
 from .. import atoms, constants, doppler, observables, species
 from ..constants import GAMMA, K_VEC
 from .. import core
-from ..lineshape import narrowest_subdoppler, window_fwhm
+from ..lineshape import subdoppler_feature
 from .base import ParamSpec, Scheme
 
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
@@ -151,6 +151,12 @@ class SASScheme(Scheme):
             "at 300 K. This is a quasi-static population-memory model, not a calibrated "
             "cell-geometry model; it preserves no Zeeman coherence and adds no window "
             "or coating throughput loss.\n\n"
+            "The reported **Gaussian Doppler FWHM** is calculated from the thermal "
+            "velocity distribution for one optical line; it is not a measured "
+            "Voigt or multi-line envelope FWHM. Sub-Doppler widths use interpolated "
+            "half-height edges and report samples per FWHM plus scan-edge clearance. "
+            "A local lock slope is shown only when that resolution status is "
+            "resolved.\n\n"
             "Atomic data (hyperfine A/B, line centres, masses, linewidths) from the "
             "Steck D-line data sheets; Wigner-6j/3j line strengths in the AutoOD "
             "convention. Rb densities use the CRC vapor pressure (AutoOD), Cs the "
@@ -415,31 +421,26 @@ class SASScheme(Scheme):
                 {"label": "Optical density", "figure": fig_od},
             ]
 
-        sub_fwhm, sub_at = narrowest_subdoppler(x, T_trans)
-        if pump <= 0:                                        # OD limit: no holes burned
-            sub_fwhm = float("nan")
-        feature_metric = None
-        if np.isfinite(sub_fwhm):
-            feature_metric = dict(
-                label="Narrowest sub-Doppler", value=f"{sub_fwhm*1e3:.1f} MHz",
-                help=f"Sharpest Doppler-free feature (near {sub_at:.2f} GHz).")
-        elif pump_on:
-            feature_metric = dict(
-                label="SAS status", value="sub-Doppler unresolved", kind="status",
-                help="The pump is on, but no finite sub-Doppler feature width was "
-                     "resolved in the displayed spectrum.")
+        feature = subdoppler_feature(x, T_trans) if pump_on else None
         peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
+        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"])
         if pump_on:
-            metrics = _lock_readout_metrics(
-                x, T_trans, mhz_per_x=1000.0,
-                feature_at=sub_at, feature_fwhm=sub_fwhm)
-            metrics[0]["tier"] = "hero"
-            metrics.append(peak_metric)
-            if feature_metric is not None:
-                metrics.append(feature_metric)
+            status_metric, feature_metrics = _subdoppler_metrics(
+                feature, mhz_per_x=1000.0)
+            if feature.resolved:
+                metrics = _lock_readout_metrics(
+                    x, T_trans, mhz_per_x=1000.0,
+                    feature_at=feature.center, feature_fwhm=feature.fwhm)
+                metrics[0]["tier"] = "hero"
+                metrics.extend(feature_metrics)
+                metrics.append(status_metric)
+            else:
+                status_metric["tier"] = "hero"
+                metrics = [status_metric, *feature_metrics]
+            metrics.extend([peak_metric, broad_metric])
         else:
             peak_metric["tier"] = "hero"
-            metrics = [peak_metric]
+            metrics = [peak_metric, broad_metric]
         if params.get("ne_pressure_torr", 0.0) != 0.0:
             metrics.append(dict(
                 label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
@@ -499,30 +500,36 @@ class SASScheme(Scheme):
                 {"label": "Optical density", "figure": fig_od},
             ]
 
-        ic = int(np.argmin(np.abs(x - offs_mhz[0])))
-        sub_fwhm = window_fwhm(x, T_trans, ic)
         pump_on = params["pump_power_mw"] > 0
-        feature_metric = None
-        if pump_on and np.isfinite(sub_fwhm):
-            feature_metric = dict(
-                label="Sub-Doppler dip FWHM", value=f"{sub_fwhm:.1f} MHz")
-        elif pump_on:
-            feature_metric = dict(
-                label="SAS status", value="sub-Doppler unresolved", kind="status",
-                help="The pump is on, but no finite Lamb-dip width was resolved "
-                     "around the selected transition.")
+        gamma_mhz = raw["gamma_eff"] / (2 * np.pi) / 1e6
+        selected_line = float(offs_mhz[0])
+        feature_window = (
+            selected_line - 10.0 * gamma_mhz,
+            selected_line + 10.0 * gamma_mhz,
+        )
+        feature = (
+            subdoppler_feature(x, T_trans, search_window=feature_window)
+            if pump_on else None
+        )
         peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
+        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"])
         if pump_on:
-            metrics = _lock_readout_metrics(
-                x, T_trans, mhz_per_x=1.0,
-                feature_at=float(x[ic]), feature_fwhm=sub_fwhm)
-            metrics[0]["tier"] = "hero"
-            metrics.append(peak_metric)
-            if feature_metric is not None:
-                metrics.append(feature_metric)
+            status_metric, feature_metrics = _subdoppler_metrics(
+                feature, mhz_per_x=1.0)
+            if feature.resolved:
+                metrics = _lock_readout_metrics(
+                    x, T_trans, mhz_per_x=1.0,
+                    feature_at=feature.center, feature_fwhm=feature.fwhm)
+                metrics[0]["tier"] = "hero"
+                metrics.extend(feature_metrics)
+                metrics.append(status_metric)
+            else:
+                status_metric["tier"] = "hero"
+                metrics = [status_metric, *feature_metrics]
+            metrics.extend([peak_metric, broad_metric])
         else:
             peak_metric["tier"] = "hero"
-            metrics = [peak_metric]
+            metrics = [peak_metric, broad_metric]
         if params.get("ne_pressure_torr", 0.0) != 0.0:
             metrics.append(dict(
                 label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
@@ -704,48 +711,102 @@ def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
     return pops
 
 
-def _lock_readout_metrics(x, T_trans, mhz_per_x,
-                          feature_at=None, feature_fwhm=None):
-    """Finite-slope lock-point proxy from the displayed transmission curve.
+def _gaussian_doppler_metric(dopp_fwhm):
+    width_mhz = float(dopp_fwhm) / (2 * np.pi) / 1e6
+    return dict(
+        label="Gaussian Doppler FWHM",
+        value=f"{width_mhz:.1f} MHz",
+        help="Calculated thermal Gaussian FWHM for one optical line. It is not "
+             "a measured Voigt or multi-line envelope FWHM.",
+    )
 
-    When a sub-Doppler feature has been detected, search only within one FWHM
-    of its centre.  This prevents a steeper Doppler-envelope flank (or another
-    hyperfine manifold) from being reported as the pump-on laser-lock point.
-    Failed-feature-detection paths retain the full-spectrum search.
+
+def _subdoppler_metrics(feature, mhz_per_x):
+    """User-facing resolution ledger for a :class:`SubdopplerFeature`."""
+    status = dict(
+        label="SAS resolution",
+        value=feature.status,
+        kind="status",
+        help=feature.reason,
+    )
+    if not feature.detected:
+        return status, []
+
+    scale = float(mhz_per_x)
+    metrics = [
+        dict(
+            label="Sub-Doppler FWHM",
+            value=f"{feature.fwhm * scale:.2f} MHz",
+            help=f"Interpolated residual half-height width near "
+                 f"{feature.center * scale:+.1f} MHz; trust as a linewidth only "
+                 "when SAS resolution is resolved.",
+        ),
+        dict(
+            label="Half-height edges",
+            value=(f"{feature.left_half_height * scale:+.2f} to "
+                   f"{feature.right_half_height * scale:+.2f} MHz"),
+            help="Linear interpolation between the samples bracketing each "
+                 "half-height crossing.",
+        ),
+        dict(
+            label="Samples / FWHM",
+            value=f"{feature.samples_per_fwhm:.1f}",
+            help="Interpolated FWHM divided by the local median sample spacing; "
+                 "at least 6 is required for resolved status.",
+        ),
+        dict(
+            label="Scan-edge distance",
+            value=f"{feature.scan_edge_distance * scale:.1f} MHz",
+            help="Nearest distance from either interpolated half-height edge to "
+                 "the displayed scan boundary; at least one FWHM is required.",
+        ),
+    ]
+    return status, metrics
+
+
+def _lock_readout_metrics(x, T_trans, mhz_per_x,
+                          feature_at=None, feature_fwhm=None,
+                          search_window=None):
+    """Local finite-slope lock proxy for a *resolved* sub-Doppler feature.
+
+    There is deliberately no full-spectrum fallback: a Doppler-envelope flank
+    is not a sub-Doppler laser-lock discriminator.
     """
     if len(x) < 2:
         return []
     slope_per_x = np.gradient(T_trans, x)
     candidates = np.isfinite(slope_per_x)
-    local_search = (
-        feature_at is not None
-        and feature_fwhm is not None
-        and np.isfinite(feature_at)
-        and np.isfinite(feature_fwhm)
-        and float(feature_fwhm) > 0.0
-    )
-    if local_search:
-        local = np.abs(np.asarray(x) - float(feature_at)) <= float(feature_fwhm)
-        if np.any(candidates & local):
-            candidates &= local
-        else:
-            local_search = False
+    if search_window is None:
+        valid_feature = (
+            feature_at is not None
+            and feature_fwhm is not None
+            and np.isfinite(feature_at)
+            and np.isfinite(feature_fwhm)
+            and float(feature_fwhm) > 0.0
+        )
+        if not valid_feature:
+            return []
+        lo = float(feature_at) - float(feature_fwhm)
+        hi = float(feature_at) + float(feature_fwhm)
+    else:
+        lo, hi = map(float, search_window)
+    if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
+        return []
+    local = (np.asarray(x) >= lo) & (np.asarray(x) <= hi)
+    if np.any(candidates & local):
+        candidates &= local
+    else:
+        return []
     if not candidates.any():
         return []
     indices = np.flatnonzero(candidates)
     i = int(indices[np.argmax(np.abs(slope_per_x[indices]))])
     slope_per_mhz = abs(float(slope_per_x[i])) / float(mhz_per_x)
     detuning_mhz = float(x[i]) * float(mhz_per_x)
-    slope_help = (
-        "Largest |dT/dΔ| within one FWHM of the detected sub-Doppler "
-        "feature; proxy for a laser-lock discriminator."
-        if local_search else
-        "Largest |dT/dΔ| on the displayed spectrum; proxy for a laser-lock "
-        "discriminator."
-    )
     return [
         dict(label="Lock Slope", value=f"{slope_per_mhz:.4f} /MHz",
-             help=slope_help),
+             help="Largest |dT/dΔ| within the resolved sub-Doppler feature "
+                  "window; proxy for a laser-lock discriminator."),
         dict(label="Lock Detuning", value=f"{detuning_mhz:+.1f} MHz",
              help="Detuning where the lock-slope proxy is largest."),
     ]

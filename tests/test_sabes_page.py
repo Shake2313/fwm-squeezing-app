@@ -78,6 +78,27 @@ def test_the_sidebar_no_longer_carries_the_parameter_wall():
     assert not set(sabes_page.CONTROLS) - sabes_page._owned_parameters()
 
 
+# ---------------------------------------------------------- production canvas
+
+def test_canvas_events_round_trip_through_the_real_table_state(monkeypatch):
+    """Production optic and table clicks survive without the retired spike."""
+    state = {}
+    monkeypatch.setattr(sabes_page.st, "session_state", state)
+
+    optic = {"seq": 1, "kind": sabes_page.canvas_module.KIND_OPTIC,
+             "id": "cell"}
+    assert sabes_page._handle_canvas_event(optic, "part2") is True
+    assert state[sabes_page._key("selected")] == "cell"
+    assert state[sabes_page._key("open_optic")] == "cell"
+    assert sabes_page._handle_canvas_event(optic, "part2") is False
+
+    point = {"seq": 2, "kind": sabes_page.canvas_module.KIND_POINT,
+             "x": 12.5, "y": 34.0}
+    assert sabes_page._handle_canvas_event(point, "part2") is True
+    assert state[sabes_page._probe_key("part2")] == [12.5, 34.0]
+    assert state[sabes_page._key("selected")] is None
+
+
 # --------------------------------------------------------------- the tiers
 
 def _params(settings=None, detection=None, **overrides):
@@ -151,10 +172,26 @@ def test_solve_key_holds_only_recompute_knobs():
     params = _params()
     keys = {k for k, _ in bridge.solve_key(params)}
     recompute = set(fwm.FWMScheme().recompute_keys())
-    assert keys <= recompute | {"mode"}
+    assert keys <= recompute | {"mode"} | set(bridge.SOLVE_AUDIT_KEYS)
     assert "tpd" not in keys
     for essential in ("opd", "temp_c", "pump_mw", "pump_waist_um", "qe_pct"):
         assert essential in keys
+
+
+def test_cached_solve_key_preserves_eom_audit_metadata():
+    params = _params()
+    reconstructed = fwm.FWMScheme().defaults()
+    reconstructed.update(dict(bridge.solve_key(params)))
+    raw = fwm.FWMScheme().compute(reconstructed)
+    ledger = raw["eom_seed_spectrum"]
+    assert ledger["provenance"] == params["eom_seed_spectrum_provenance"]
+    assert ledger["status"] == "unsupported"
+    assert ledger["application"] == "unapplied"
+
+
+def test_page_routes_observed_pump_leakage_to_the_analyser():
+    source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
+    assert "pump_leakage_dbm=detection.pump_leakage_dbm" in source
 
 
 # ------------------------------------------------------------------ routing

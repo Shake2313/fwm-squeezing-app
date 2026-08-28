@@ -1,7 +1,7 @@
 """
 Capture a known-good FWM regression baseline from the CURRENT single-branch
-FWM model. Run after intentional physics changes; the resulting .npz is the
-frozen anchor that the refactored gabes FWM scheme must reproduce
+    FWM model. Run after intentional physics changes; the resulting .npz is the
+    frozen anchor that the current converged-order gabes FWM scheme must reproduce
 (see test_regression.py).
 
     python tests/capture_baseline.py
@@ -47,10 +47,16 @@ def main():
         saved[f"{name}__probe_axis_GHz"] = spec["probe_axis_GHz"]
         saved[f"{name}__G_s"] = spec["G_s"]
         saved[f"{name}__G_c"] = spec["G_c"]
+        saved[f"{name}__gain_referred_noise_dB"] = spec[
+            "gain_referred_noise_dB"]
+        # Compatibility alias, intentionally pinned to the primary diagnostic.
         saved[f"{name}__S_dB"] = spec["S_dB"]
         print(f"[{name}]  max G_s = {spec['G_s'].max():.4f}"
-              f"   min S_dB = {spec['S_dB'].min():.4f}"
-              f"   n_points = {spec['probe_axis_GHz'].size}")
+              f"   min diagnostic dB = {spec['gain_referred_noise_dB'].min():.4f}"
+              f"   n_points = {spec['probe_axis_GHz'].size}"
+              f"   Floquet = N_F={spec['floquet_order']}/"
+              f"{spec['floquet_convergence']['comparison_order']} "
+              f"{spec['floquet_convergence']['status']}")
 
     out = Path(__file__).resolve().parent / "baseline_focused.npz"
     np.savez_compressed(out, **saved)

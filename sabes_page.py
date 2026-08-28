@@ -122,9 +122,9 @@ CONTROLS = {
                          "it, do not derive it. A Gaussian tail claims 1e-9 "
                          "rejection, which is useless and contradicted by the "
                          "paper naming pump scatter as a real limit. It enters "
-                         "the spectrum analyser as its own shot noise plus the "
-                         "classical intensity noise it carries, and only the "
-                         "second is large."),
+                         "the spectrum analyser through its calculable shot noise. "
+                         "Classical pump RIN remains unapplied until a measured or "
+                         "predeclared spectral density is supplied."),
     "probe_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
                             "Focusing lens onto the probe photodiode."),
     "conjugate_lens_focal_mm": ("Focal length", "mm", 25.0, 500.0, 5.0,
@@ -259,10 +259,6 @@ def _back_to_gabes():
     st.query_params.clear()
 
 
-def _leave_dev():
-    st.query_params.pop("dev", None)
-
-
 def _reset_defaults():
     for name, value in _defaults().items():
         st.session_state[_key(name)] = value
@@ -273,8 +269,8 @@ def _render_sidebar(host):
         "<div class='sabes-brand'>"
         "<div class='sabes-brand-name'>SABES</div>"
         "<div class='sabes-brand-sub'>Specific Atomic Bloch Equation Solver</div>"
-        "<div class='sabes-brand-note'>EOM-based ⁸⁵Rb intensity-difference "
-        "squeezing setup</div></div>",
+        "<div class='sabes-brand-note'>EOM-based ⁸⁵Rb seeded-FWM "
+        "gain diagnostic</div></div>",
         unsafe_allow_html=True,
     )
     st.sidebar.button("← Back to GABES", on_click=_back_to_gabes,
@@ -491,7 +487,7 @@ def _detector_from_calibration(calibration):
         saturation_w=c("bpd_cw_saturation_w"))
 
 
-def _read_instrument(choice, reading, result, calibration):
+def _read_instrument(choice, reading, result, calibration, detection):
     """Run the chosen instrument against a probed beam."""
     beam = reading.beam
     seed_offset = result.chain.seed_offset_hz
@@ -517,7 +513,8 @@ def _read_instrument(choice, reading, result, calibration):
         readout = result.readout
         total = readout.total_power_w if readout else beam.total_power_w
         return instruments.SpectrumAnalyzer().analyze(
-            signal, result.squeezing_db or 0.0, total_power_w=total)
+            signal, result.gain_referred_noise_db or 0.0, total_power_w=total,
+            pump_leakage_dbm=detection.pump_leakage_dbm)
     raise KeyError(choice)
 
 
@@ -537,9 +534,9 @@ def _render_reading(reading):
     """Quantities, warnings, trace -- and the provenance badge if synthesised."""
     if reading.synthesised:
         st.markdown(
-            "<div class='sabes-synth'>SYNTHESISED — built from the modelled "
-            "noise budget, not simulated. It reproduces the shape, and is not "
-            "evidence.</div>", unsafe_allow_html=True)
+            "<div class='sabes-synth'>SYNTHESISED — an illustrative trace built "
+            "from the declared model inputs. It is not a measured-shape "
+            "reproduction or validation evidence.</div>", unsafe_allow_html=True)
     if reading.note and not reading.synthesised:
         st.caption(reading.note)
 
@@ -604,7 +601,7 @@ def _render_probe_panel(reading):
     st.markdown(_markdown_table(("Quantity", "Value"), rows))
 
 
-def _render_table_tab(result, calibration, host):
+def _render_table_tab(result, calibration, host, detection):
     settings, detection = _current()
     twin = _twin_states(result)
     selected = st.session_state.get(_key("selected"))
@@ -671,7 +668,8 @@ def _render_table_tab(result, calibration, host):
     if probed is not None:
         st.divider()
         st.markdown(f"###### {choice} on the {probed.link.beam} beam")
-        _render_reading(_read_instrument(choice, probed, result, calibration))
+        _render_reading(_read_instrument(
+            choice, probed, result, calibration, detection))
 
 
 def _markdown_table(header, rows):
@@ -766,15 +764,6 @@ def render(host=None):
     _set_browser_title("SABES — Specific Atomic Bloch Equation Solver")
     _inject_css()
 
-    # Development route for the canvas spike (Stage B of the optical-table
-    # plan). It rides the deployment so the component can be verified where it
-    # will actually run, but stays off the normal page. Remove with the spike.
-    if st.query_params.get("dev") == "canvas":
-        from sabes.components import spike
-        st.sidebar.button("← Back to SABES", on_click=_leave_dev,
-                          use_container_width=True)
-        spike.render()
-        return
     _seed_session_state()
     _render_sidebar(host)
 
@@ -790,7 +779,8 @@ def render(host=None):
 
     st.markdown(
         "<div class='sabes-header'><h1>SABES</h1>"
-        "<p>Lab settings in, squeezing out — the EOM-based ⁸⁵Rb twin-beam setup "
+        "<p>Lab settings in, mean-field diagnostics out — the EOM-based ⁸⁵Rb "
+        "twin-beam setup "
         "of Sim, Kim &amp; Moon, <em>Sci. Rep.</em> <strong>15</strong>, 7727 "
         "(2025), driven by the knobs you actually turn.</p></div>",
         unsafe_allow_html=True,
@@ -805,24 +795,29 @@ def render(host=None):
     result = replace(result, readout=readout)
 
     # ---- Tier C: readout ----
+    gate = raw.get("claim_gate", {})
     metrics = [
-        {"label": "Squeezing", "value": f"{result.squeezing_db:+.2f} dB",
-         "help": "Intensity-difference squeezing at the two-photon detuning the "
-                 "signal generator is set to."},
-        {"label": "Loss-limited floor",
-         "value": f"{result.squeezing_floor_db:+.2f} dB",
-         "help": "10·log10(1−η). No operating point can beat this; detector QE "
-                 "is the highest-leverage number in the setup."},
+        {"label": "Validation level",
+         "value": gate.get("level", "MEAN_FIELD_DIAGNOSTIC"),
+         "help": "Quantitative gain and physical squeezing claims are blocked."},
+        {"label": "Gain-referred diagnostic",
+         "value": f"{result.gain_referred_noise_db:+.2f} dB",
+         "help": "Algebraic diagnostic at the selected two-photon detuning; the "
+                 "microscopic atomic noise covariance is unavailable."},
+        {"label": "Algebraic detection floor",
+         "value": f"{result.gain_referred_detection_floor_db:+.2f} dB",
+         "help": "10·log10(1−η) within the ideal-vacuum completion only; not a "
+                 "physical squeezing bound for the current atomic model."},
         {"label": "Detector clearance",
          "value": f"{readout.clearance_db:.1f} dB",
-         "help": "Shot noise above the amplifier noise floor. A squeezed trace "
-                 "sits |S| dB below shot noise, so this must exceed |S| with "
-                 "margin or the measurement cannot resolve it."},
+         "help": "Shot noise above the amplifier noise floor. This is detector "
+                 "headroom only and does not validate the modeled dB diagnostic."},
         {"label": "Carrier : seed",
-         "value": f"{result.chain.carrier_ratio * 100:.4f} %",
+         "value": (f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.4f} %"),
          "help": "Residual pump-frequency light in the seed mode after the "
-                 "etalon chain. Sim et al. Fig. 5 shows squeezing degrading as "
-                 "this rises."},
+                 "etalon chain, computed from the quantized powers passed to "
+                 "GABES. It remains unapplied provenance; no uncalibrated noise "
+                 "coefficient is inferred."},
         {"label": "Pump gain G_s", "value": f"{result.gains[0]:.2f}"},
         {"label": "Conjugate gain G_c", "value": f"{result.gains[1]:.2f}"},
     ]
@@ -835,7 +830,7 @@ def render(host=None):
                     "Power budget", "Detection", "Calibration"])
 
     with tabs[0]:
-        _render_table_tab(result, calibration, host)
+        _render_table_tab(result, calibration, host, detection)
 
     with tabs[1]:
         observables = _cached_observables(
@@ -876,7 +871,7 @@ def render(host=None):
             ("Total power on the detector",
              f"{readout.total_power_w * 1e6:.1f} µW"),
             ("Margin above electronic noise",
-             f"{readout.margin_above_electronic_db(result.squeezing_db):.1f} dB"),
+             f"{readout.margin_above_electronic_db(result.gain_referred_noise_db):.1f} dB"),
         ]
         for arm in readout.arms:
             rows += [

@@ -30,13 +30,14 @@ from gabes.schemes.sas import (  # noqa: E402
     GENERIC,
     _basis_reset_pump_pops,
     _coated_ground_transfer,
+    _lock_readout_metrics,
     _pump_detuning_axis,
     _pump_pops,
     _stationary_ground_populations,
     _velocity_correlated_average,
 )
 from gabes.schemes.absorption import ODScheme  # noqa: E402
-from gabes.lineshape import narrowest_subdoppler, window_fwhm  # noqa: E402
+from gabes.lineshape import narrowest_subdoppler, subdoppler_feature  # noqa: E402
 
 G = constants.GAMMA
 GMHZ = G / (2 * np.pi) / 1e6
@@ -270,8 +271,12 @@ def test_pump_off_is_smooth_and_49_25():
 
     view = SAS.observables(raw, p, include_figures=False)
     assert view["hero_count"] == 1
-    assert [metric["label"] for metric in view["metrics"]] == ["Peak OD"]
+    assert [metric["label"] for metric in view["metrics"]] == [
+        "Peak OD", "Gaussian Doppler FWHM"
+    ]
     assert view["metrics"][0]["tier"] == "hero"
+    broad = next(m for m in view["metrics"] if m["label"] == "Gaussian Doppler FWHM")
+    assert "not a measured Voigt" in broad["help"]
 
 
 # ------------------------------------------------------ pump on (SAS) physics
@@ -335,37 +340,107 @@ def test_observables_render_species():
     assert view["comparison"]["x_unit"] == "GHz"
     assert view["comparison"]["raw_x_unit"] == "Arb. unit"
     assert view["hero_count"] == 1
-    assert [m["label"] for m in view["metrics"][:3]] == [
-        "Lock Slope", "Lock Detuning", "Peak OD"
+    labels = [m["label"] for m in view["metrics"]]
+    assert labels[:4] == [
+        "SAS resolution", "Sub-Doppler FWHM", "Half-height edges", "Samples / FWHM"
     ]
     assert [m["label"] for m in view["metrics"] if m.get("tier") == "hero"] == [
-        "Lock Slope"
+        "SAS resolution"
     ]
-    assert "Doppler FWHM" not in {m["label"] for m in view["metrics"]}
+    assert _metric_number(view, "Samples / FWHM") < 6.0
+    assert _metric_number(view, "Scan-edge distance") > 0.0
+    assert "Gaussian Doppler FWHM" in labels
+    assert "Doppler FWHM" not in labels
     assert "Buffer Gas Broadening" not in {m["label"] for m in view["metrics"]}
 
 
-def test_default_lock_point_tracks_detected_subdoppler_feature():
+def test_default_underresolved_feature_reports_diagnostics_instead_of_lock_hero():
     p = _params()
     raw = SAS.compute(p)
     x = raw["scan"] / (2 * np.pi) / 1e9
     alpha = raw["alpha_unit"] * p["line_strength"]
     T_trans = observables.transmission(alpha, p["cell_mm"] * 1e-3)
-    feature_fwhm, feature_at = narrowest_subdoppler(x, T_trans)
+    feature = subdoppler_feature(x, T_trans)
 
     view = SAS.observables(raw, p, include_figures=False)
-    lock_ghz = _metric_number(view, "Lock Detuning") / 1000.0
+    labels = [m["label"] for m in view["metrics"]]
+    heroes = [m["label"] for m in view["metrics"] if m.get("tier") == "hero"]
 
-    assert np.isfinite(feature_fwhm)
-    assert abs(lock_ghz - feature_at) <= feature_fwhm + 0.00011
+    assert feature.detected and feature.status == "resolution-limited"
+    assert heroes == ["SAS resolution"]
+    assert "Lock Slope" not in labels and "Lock Detuning" not in labels
+    assert {"Sub-Doppler FWHM", "Half-height edges", "Samples / FWHM",
+            "Scan-edge distance"}.issubset(labels)
 
 
-def test_pump_on_unresolved_feature_keeps_lock_slope_hero():
+def test_pump_on_unresolved_feature_makes_status_hero_and_hides_envelope_slope():
     p = _params(pump_power_mw=0.01, temp_c=200.0, cell_mm=200.0)
     view = SAS.headless_observables(SAS.compute(p), p)
     heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
-    assert [m["label"] for m in heroes] == ["Lock Slope"]
-    assert any(m["label"] == "SAS status" for m in view["metrics"])
+    labels = [m["label"] for m in view["metrics"]]
+    assert [(m["label"], m["value"]) for m in heroes] == [
+        ("SAS resolution", "unresolved")
+    ]
+    assert "Lock Slope" not in labels and "Lock Detuning" not in labels
+
+
+def test_legacy_subdoppler_wrapper_keeps_nan_nan_for_a_flat_trace():
+    x = np.linspace(-1.0, 1.0, 11)
+    width, center = narrowest_subdoppler(x, np.ones_like(x))
+    assert np.isnan(width) and np.isnan(center)
+
+
+def test_rb85_d1_fixed_window_2x_4x_readouts_converge_within_five_percent():
+    """Reference-only refinement: freeze the baseline window before 2x/4x solves."""
+    p = _params(species=RB85_KEY, line="D1")
+    p.update(SAS.recommended_defaults(p)["SAS default"])
+    baseline_points = int(p["scan_points"])
+
+    def measure(points, search_window=None):
+        q = {**p, "scan_points": points}
+        raw = SAS.compute(q)
+        x = raw["scan"] / (2 * np.pi) / 1e9
+        T_trans = observables.transmission(
+            raw["alpha_unit"] * q["line_strength"], q["cell_mm"] * 1e-3)
+        feature = subdoppler_feature(x, T_trans, search_window=search_window)
+        view = SAS.headless_observables(raw, q)
+        return x, T_trans, feature, view
+
+    x1, _, feature1, _ = measure(baseline_points)
+    assert feature1.status == "resolution-limited"
+    assert feature1.detected and feature1.samples_per_fwhm < 6.0
+    # Both half-height edges must come from interpolation, not sample snapping.
+    assert not np.any(np.isclose(x1, feature1.left_half_height, rtol=0.0, atol=1e-12))
+    assert not np.any(np.isclose(x1, feature1.right_half_height, rtol=0.0, atol=1e-12))
+
+    fixed_window = (
+        feature1.center - feature1.fwhm,
+        feature1.center + feature1.fwhm,
+    )
+    # (N-1) sets the sample intervals, so these are exactly 2x and 4x density.
+    x2, T2, feature2, view2 = measure(2 * (baseline_points - 1) + 1, fixed_window)
+    x4, T4, feature4, view4 = measure(4 * (baseline_points - 1) + 1, fixed_window)
+
+    for feature in (feature2, feature4):
+        assert feature.resolved
+        assert fixed_window[0] <= feature.center <= fixed_window[1]
+        assert feature.scan_edge_distance > feature.fwhm
+    assert 1.9 <= feature4.samples_per_fwhm / feature2.samples_per_fwhm <= 2.1
+    for view in (view2, view4):
+        heroes = [m["label"] for m in view["metrics"] if m.get("tier") == "hero"]
+        assert heroes == ["Lock Slope"]
+        assert next(m["value"] for m in view["metrics"]
+                    if m["label"] == "SAS resolution") == "resolved"
+
+    lock2 = _lock_readout_metrics(
+        x2, T2, 1000.0, search_window=fixed_window)
+    lock4 = _lock_readout_metrics(
+        x4, T4, 1000.0, search_window=fixed_window)
+    slope2 = float(lock2[0]["value"].split()[0])
+    slope4 = float(lock4[0]["value"].split()[0])
+
+    assert abs(feature4.fwhm - feature2.fwhm) / feature4.fwhm <= 0.05
+    assert abs(slope4 - slope2) / slope4 <= 0.05
 
 
 def test_mode_and_buffer_pressure_control_metric_hierarchy():
@@ -386,12 +461,12 @@ def test_mode_and_buffer_pressure_control_metric_hierarchy():
                 ]
 
                 assert view["hero_count"] == 1
+                assert "Gaussian Doppler FWHM" in labels
                 assert "Doppler FWHM" not in labels
                 if pump_power > 0.0:
-                    assert heroes == ["Lock Slope"]
-                    assert labels[:3] == [
-                        "Lock Slope", "Lock Detuning", "Peak OD"
-                    ]
+                    assert heroes == ["SAS resolution"]
+                    assert labels[0] == "SAS resolution"
+                    assert not any(label.startswith("Lock ") for label in labels)
                 else:
                     assert heroes == ["Peak OD"]
                     assert labels[0] == "Peak OD"
@@ -418,12 +493,8 @@ def test_generic_lamb_dip_and_crossover():
     x2, a2 = raw2["scan"] / (2 * np.pi) / 1e6, raw2["alpha_unit"]
     assert a2[int(np.argmin(np.abs(x2)))] < a2[int(np.argmin(np.abs(x2 - 8 * GMHZ)))]
 
-    # The broad Doppler-envelope flank is steeper for this case.  The lock
-    # proxy must nevertheless stay on the detected Lamb-dip feature.
-    T2 = observables.transmission(a2, p2["cell_mm"] * 1e-3)
-    feature_i = int(np.argmin(np.abs(
-        x2 - raw2["offsets"][0] / (2 * np.pi) / 1e6)))
-    feature_fwhm = window_fwhm(x2, T2, feature_i)
+    # This default grid does not resolve a local discriminator.  The broad
+    # Doppler-envelope flank must not be substituted as a lock slope.
     rendered = SAS.observables(raw2, p2)
     assert [item["label"] for item in rendered["figure_views"]] == [
         "Transmission", "Optical density"
@@ -433,11 +504,11 @@ def test_generic_lamb_dip_and_crossover():
     assert view2["figure_views"] == []
     assert view2["comparison"]["x_unit"] == "MHz"
     assert view2["hero_count"] == 1
-    assert [m["label"] for m in view2["metrics"][:3]] == [
-        "Lock Slope", "Lock Detuning", "Peak OD"
-    ]
-    lock_mhz = _metric_number(view2, "Lock Detuning")
-    assert abs(lock_mhz - x2[feature_i]) <= feature_fwhm + 0.11
+    labels = [m["label"] for m in view2["metrics"]]
+    heroes = [m["label"] for m in view2["metrics"] if m.get("tier") == "hero"]
+    assert labels[0] == "SAS resolution"
+    assert heroes == ["SAS resolution"]
+    assert not any(label.startswith("Lock ") for label in labels)
 
 
 if __name__ == "__main__":

@@ -2,9 +2,10 @@
 Atom / level-scheme models and a small registry.
 
 `AtomModel` is pure data describing a level scheme: dimension, which levels are
-ground / excited, spontaneous-emission channels, dephasing channels, and which
-diagonal entries shift with velocity (Doppler). It precomputes the Lindblad
-super-operator and the velocity-shift super-operator once at construction.
+ground / excited, spontaneous-emission channels, generic collapse operators,
+dephasing channels, and which diagonal entries shift with velocity (Doppler).
+It precomputes the Lindblad super-operator and the velocity-shift super-operator
+once at construction.
 
 Today only the 85Rb D1 double-Λ 4-level model is registered (exactly the level
 structure the original fwm_obe.py hard-coded). Scalar 3-level schemes and Zeeman
@@ -38,6 +39,10 @@ class AtomModel:
                               # polarization-grouped Σ_q form to carry spontaneous-
                               # emission transfer of coherence (TOC); a per-(i,j)
                               # `decay` channel only refeeds populations.
+    collapse_ops: tuple = ()  # other full n×n Lindblad jump operators. Kept
+                              # separate from emission_ops so elastic collisions,
+                              # depolarization, etc. cannot acquire spontaneous-
+                              # emission or TOC provenance.
 
     lindblad: np.ndarray = field(init=False, repr=False)
     S_v: np.ndarray = field(init=False, repr=False)
@@ -54,7 +59,7 @@ class AtomModel:
         return row * self.n_levels + col
 
     def _build_lindblad(self):
-        """Dissipator super-operator: spontaneous emission + ground dephasing.
+        """Dissipator from rate channels, full collapse ops, and dephasing.
 
         Reproduces the original `_build_lindblad_fixed` for the 4-level model.
         """
@@ -71,6 +76,12 @@ class AtomModel:
                   - 0.5 * np.kron(eye, LdL.T))
 
         for L in self.emission_ops:                      # full jump operator L
+            LdL = L.conj().T @ L
+            D += (np.kron(L, L.conj())
+                  - 0.5 * np.kron(LdL, eye)
+                  - 0.5 * np.kron(eye, LdL.T))
+
+        for L in self.collapse_ops:                       # non-emission jump L
             LdL = L.conj().T @ L
             D += (np.kron(L, L.conj())
                   - 0.5 * np.kron(LdL, eye)

@@ -30,6 +30,9 @@ from threading import RLock
 from gabes import schemes
 from gabes.core import blas_single_thread
 from gabes.experimental_csv import (
+    CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+    CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+    CALIBRATION_RELATIVE_EXTREMA,
     MAX_FILE_BYTES,
     ExperimentalCSVError,
     load_experimental_csv,
@@ -629,9 +632,25 @@ def _cached_observables(scheme_name, raw, param_items, cache_version):
 
 
 @st.cache_data(show_spinner=False, max_entries=16)
-def _cached_experimental_csv(csv_bytes, denoise):
+def _cached_experimental_csv(
+    csv_bytes,
+    denoise,
+    calibration_mode=CALIBRATION_RELATIVE_EXTREMA,
+    dark_signal=None,
+    reference_signal=None,
+    gain=None,
+    offset=None,
+):
     """Parse/correct uploaded scope data outside the physics solve cache."""
-    return load_experimental_csv(csv_bytes, denoise=denoise)
+    return load_experimental_csv(
+        csv_bytes,
+        denoise=denoise,
+        calibration_mode=calibration_mode,
+        dark_signal=dark_signal,
+        reference_signal=reference_signal,
+        gain=gain,
+        offset=offset,
+    )
 
 
 def _close_fig(fig):
@@ -901,7 +920,7 @@ def _render_experimental_comparison(view, scheme_name):
             value=True,
             key=_skey(scheme_name, "_csv_auto_correct"),
             help="Merge repeated A values, reject isolated spikes, and apply "
-                 "noise-adaptive local smoothing before 0-1 calibration.",
+                 "noise-adaptive local smoothing before the selected calibration.",
         )
         show_raw = panel.checkbox(
             "Show unfiltered trace",
@@ -909,6 +928,53 @@ def _render_experimental_comparison(view, scheme_name):
             disabled=not auto_correct,
             key=_skey(scheme_name, "_csv_show_raw"),
         )
+        calibration_options = {
+            "Relative normalized transmission (extrema-scaled)":
+                CALIBRATION_RELATIVE_EXTREMA,
+            "Absolute transmission (dark/reference)":
+                CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+            "Absolute transmission (gain/offset)":
+                CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+        }
+        calibration_choice = panel.selectbox(
+            "Transmission calibration",
+            tuple(calibration_options),
+            key=_skey(scheme_name, "_csv_calibration_mode"),
+            help="Extrema scaling is relative only. Absolute transmission "
+                 "requires measured dark/reference levels or an explicit "
+                 "detector law: signal = offset + gain × transmission.",
+        )
+        calibration_mode = calibration_options[calibration_choice]
+        dark_signal = reference_signal = gain = offset = None
+        if calibration_mode == CALIBRATION_ABSOLUTE_DARK_REFERENCE:
+            calibration_cols = panel.columns(2)
+            dark_signal = calibration_cols[0].number_input(
+                f"Dark signal  [{raw_y_unit}]",
+                value=0.0,
+                key=_skey(scheme_name, "_csv_dark_signal"),
+                help="Detector signal measured at zero transmitted light.",
+            )
+            reference_signal = calibration_cols[1].number_input(
+                f"Reference signal (T = 1)  [{raw_y_unit}]",
+                value=1.0,
+                key=_skey(scheme_name, "_csv_reference_signal"),
+                help="Detector signal measured for unit-transmission reference light.",
+            )
+        elif calibration_mode == CALIBRATION_ABSOLUTE_GAIN_OFFSET:
+            calibration_cols = panel.columns(2)
+            gain = calibration_cols[0].number_input(
+                f"Detector gain  [{raw_y_unit}]",
+                value=1.0,
+                key=_skey(scheme_name, "_csv_detector_gain"),
+                help="Gain in signal = offset + gain × transmission; a negative "
+                     "gain represents inverted detector polarity.",
+            )
+            offset = calibration_cols[1].number_input(
+                f"Detector offset  [{raw_y_unit}]",
+                value=0.0,
+                key=_skey(scheme_name, "_csv_detector_offset"),
+                help="Signal value corresponding to zero transmission.",
+            )
         if uploaded is None:
             return
 
@@ -937,7 +1003,15 @@ def _render_experimental_comparison(view, scheme_name):
         st.session_state.setdefault(invert_key, False)
 
         try:
-            trace = _cached_experimental_csv(csv_bytes, auto_correct)
+            trace = _cached_experimental_csv(
+                csv_bytes,
+                auto_correct,
+                calibration_mode,
+                dark_signal,
+                reference_signal,
+                gain,
+                offset,
+            )
         except ExperimentalCSVError as exc:
             panel.error(str(exc))
             return
@@ -1005,10 +1079,20 @@ def _render_experimental_comparison(view, scheme_name):
             key=reverse_key,
             help="Reverse the sign of the imported detuning sweep around its centre.",
         )
+        if trace.is_absolute_transmission:
+            # Detector polarity is already part of the signed gain or the
+            # dark/reference ordering. A second visual inversion would destroy
+            # the declared absolute meaning.
+            st.session_state[invert_key] = False
         invert = option_cols[1].checkbox(
             "Invert transmission",
             key=invert_key,
-            help="Use when detector voltage polarity is opposite to transmission.",
+            disabled=trace.is_absolute_transmission,
+            help=(
+                "Use when detector voltage polarity is opposite to relative "
+                "transmission. Absolute calibration takes polarity from its "
+                "signed gain and cannot be inverted again."
+            ),
         )
 
         import_diag = trace.import_diagnostics
@@ -1028,15 +1112,31 @@ def _render_experimental_comparison(view, scheme_name):
             f"{len(detuning)} unique detuning points · {merged_rows} duplicates "
             f"merged · {ignored_rows} rows ignored"
         )
+        panel.caption(
+            f"Acquisition order: {import_diag.forward_sample_count} forward · "
+            f"{import_diag.reverse_sample_count} reverse · "
+            f"{import_diag.sweep_reversal_count} reversal(s) · "
+            f"{import_diag.sweep_branch_count} preserved branch(es)"
+        )
+        if import_diag.directional_merge_warning:
+            panel.warning(import_diag.directional_merge_warning)
         floor = _diagnostic_value(correction_diag, "floor", "floor_level")
         ceiling = _diagnostic_value(correction_diag, "ceiling", "ceiling_level")
         window = _diagnostic_value(
             correction_diag, "smoothing_window", "window_size", default=1
         )
-        if floor is not None and ceiling is not None:
+        if correction_diag.is_absolute:
             panel.caption(
-                f"Signal calibration [{raw_y_unit}]: floor {float(floor):.6g} · "
-                f"ceiling {float(ceiling):.6g} · smoothing window {window}"
+                f"{trace.transmission_label} [{correction_diag.calibration_source}]: "
+                f"offset {correction_diag.calibration_offset:.6g} · "
+                f"gain {correction_diag.calibration_gain:.6g} [{raw_y_unit}] · "
+                f"smoothing window {window}"
+            )
+        elif floor is not None and ceiling is not None:
+            panel.caption(
+                f"{trace.transmission_label} [{raw_y_unit}]: relative floor "
+                f"{float(floor):.6g} · relative ceiling {float(ceiling):.6g} · "
+                f"smoothing window {window}"
             )
         warnings = _diagnostic_value(
             correction_diag, "warnings", "warning", default=()
@@ -1062,14 +1162,14 @@ def _render_experimental_comparison(view, scheme_name):
             raw_x = trace.transformed_detuning(
                 scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
             )
-            raw_y = np.clip(
-                (trace.raw_signal - correction_diag.floor)
-                / correction_diag.contrast,
-                0.0,
-                1.0,
-            )
+            raw_y = trace.calibrate_signal(trace.raw_signal)
             raw_y = 1.0 - raw_y if invert else raw_y
             raw_overlay = (raw_x, raw_y)
+
+        overlay_label = (
+            f"{descriptor.get('label', 'Experimental CSV')} — "
+            f"{trace.transmission_label.lower()}"
+        )
 
     with _PLOT_LOCK:
         if raw_overlay is not None:
@@ -1079,7 +1179,7 @@ def _render_experimental_comparison(view, scheme_name):
             )
         axis.plot(
             aligned_x, aligned_y, color=PALETTE["rose"], lw=1.4, alpha=0.88,
-            label=descriptor.get("label", "Experimental CSV"), zorder=3,
+            label=overlay_label, zorder=3,
         )
         # Arbitrary input units must never autoscale the theoretical plot away.
         axis.set_xlim(xlim)

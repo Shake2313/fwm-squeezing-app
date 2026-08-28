@@ -38,6 +38,10 @@ CELL_PARAFFIN = "Paraffin coated cell"
 SIGNAL_TRANSMISSION = "Transmission"
 SIGNAL_NMOR = "NMOR rotation"
 
+LIGHT_STATE_NORMALIZATION = "trace-one conditional light-region state"
+DENSITY_CONVENTION = "local vapor density N, applied once"
+ABSOLUTE_SCALE_STATUS = "external validation required"
+
 
 def _transition_label(Fg, Fe):
     """Human-readable 87Rb D1 transition label for the Atomic dropdown."""
@@ -127,7 +131,7 @@ def _qwp_drive_weights(theta_deg):
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "polarized-two-region-v3"
+    cache_version = "polarized-two-region-v5"
     defaults_version = "polarized-two-region-v4"
     supports_headless_observables = True
 
@@ -252,14 +256,14 @@ class MagnetoScheme(Scheme):
                       0.1, 500.0, 0.5, "kHz", advanced=True,
                       visible_if={"cell_type": CELL_BUFFER},
                       advanced_group="Relaxation overrides",
-                      help="Ground-state relaxation rate. Physically set by Ne pressure "
-                           "and temperature; exposed here as an override."),
+                      help="Effective transit/reservoir reload into an isotropic "
+                           "ground state; exposed here as an override."),
             ParamSpec("collisional_depol_khz", "Collisional depolarization", "Atomic", 0.5,
                       0.0, 200.0, 0.5, "kHz", advanced=True,
                       visible_if={"cell_type": CELL_BUFFER},
                       advanced_group="Relaxation overrides",
-                      help="Spin-destruction ground-coherence loss; a buffer-gas "
-                           "consequence, exposed as an override."),
+                      help="Spin-destruction ground-coherence loss without population "
+                           "reload; a buffer-gas consequence exposed as an override."),
             ParamSpec("transit_relax_khz", "Transit relaxation", "Atomic", 80.0,
                       0.1, 1000.0, 1.0, "kHz", advanced=True,
                       visible_if={"cell_type": CELL_PARAFFIN},
@@ -405,14 +409,19 @@ class MagnetoScheme(Scheme):
         gFe = _hyperfine_gf(RB87.I, JE_D1, Fe, GJ_5P12) if Fe in Fe_allowed else 0.0
 
         cell_type = params.get("cell_type", CELL_PARAFFIN)
-        buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
-        gamma_opt = GAMMA_D1 + (buffer_gamma if cell_type == CELL_BUFFER else 0.0)
+        buffer_gamma = (constants.neon_buffer_broadening(
+            params.get("ne_pressure_torr", 0.0)) if cell_type == CELL_BUFFER else 0.0)
+        gamma_homogeneous = GAMMA_D1 + buffer_gamma
+        gamma_elastic = buffer_gamma / 2.0
+        gamma_transit = gamma_depol = 0.0
 
         if cell_type == CELL_BUFFER:
-            gamma_g = 2 * np.pi * (params["buffer_ground_relax_khz"]
-                                   + params["collisional_depol_khz"]) * 1e3
-            atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_g,
-                                           transit_rate=gamma_g)
+            gamma_transit = 2 * np.pi * params["buffer_ground_relax_khz"] * 1e3
+            gamma_depol = 2 * np.pi * params["collisional_depol_khz"] * 1e3
+            atom = (zeeman.zeeman_manifold(
+                        Fg, Fe, gamma=GAMMA_D1, gamma_gg=gamma_depol,
+                        transit_rate=gamma_transit,
+                        optical_dephasing=gamma_elastic)
                     if valid else None)
             atom_dark = None
             gamma_out = gamma_in = gamma_wall = 0.0
@@ -421,10 +430,10 @@ class MagnetoScheme(Scheme):
             gamma_out = gamma_light
             gamma_in = 2 * np.pi * params["dark_return_khz"] * 1e3
             gamma_wall = 1.0 / max(params["wall_coherence_ms"] * 1e-3, 1e-9)
-            atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_light,
+            atom = (zeeman.zeeman_manifold(Fg, Fe, gamma=GAMMA_D1, gamma_gg=gamma_light,
                                            transit_rate=0.0)
                     if valid else None)
-            atom_dark = (zeeman.zeeman_manifold(Fg, Fe, gamma=gamma_opt, gamma_gg=gamma_wall,
+            atom_dark = (zeeman.zeeman_manifold(Fg, Fe, gamma=GAMMA_D1, gamma_gg=gamma_wall,
                                                 transit_rate=0.0)
                          if valid else None)
 
@@ -456,11 +465,18 @@ class MagnetoScheme(Scheme):
         chi_m = np.zeros(b_ut.size, dtype=complex)
         velocity_count = 1
         doppler_scale = 1.0
+        if cell_type == CELL_PARAFFIN:
+            exchange_rate = gamma_in + gamma_out
+            light_region_occupation = (gamma_in / exchange_rate
+                                       if exchange_rate > 0 else 1.0)
+        else:
+            light_region_occupation = 1.0
+        light_state_trace = 1.0
         if valid and Om > 0:
             if params["doppler"] == "on":
                 v, wt = _thermal_velocity_grid(T, RB87.mass, params["velocity_classes"])
                 doppler_scale = _doppler_dilution(T, RB87.mass, K_D1_RB87,
-                                                  gamma_opt, dL, v, wt)
+                                                  gamma_homogeneous, dL, v, wt)
             else:
                 v, wt = np.array([0.0]), np.array([1.0])
             velocity_count = int(v.size)
@@ -483,9 +499,12 @@ class MagnetoScheme(Scheme):
                                           0.0, {+1: 0.0, -1: 0.0})
                 Cd_xy = core.build_liouvillian(Hd_xy, atom_dark)
                 Ld_all = Cd_xy[None, :, :] + b_z[:, None, None] * C_z[None, :, :]
-                rho = self._steady_state_two_region(
+                rho, occupation = self._steady_state_two_region(
                     L0_all, Ld_all, deff, atom.S_v, atom.n_levels,
                     gamma_out, gamma_in)
+                light_region_occupation = float(np.mean(occupation))
+                light_state_trace = float(np.mean(np.trace(
+                    rho, axis1=-2, axis2=-1).real))
             else:
                 rho = self._steady_state_buffer(
                     L0_all, deff, atom.S_v, atom.n_levels)
@@ -500,12 +519,19 @@ class MagnetoScheme(Scheme):
             b_physical_ut=b_physical_ut, b_offset_ut=b_offset_ut,
             chi_probe=chi_probe, chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale,
             T=T, valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
-            gamma=gamma_opt, gamma_natural=GAMMA_D1, buffer_gamma=buffer_gamma,
+            gamma=gamma_homogeneous, gamma_natural=GAMMA_D1,
+            buffer_gamma=buffer_gamma, gamma_elastic=gamma_elastic,
+            gamma_transit=gamma_transit, gamma_depol=gamma_depol,
             gamma_out=gamma_out, gamma_in=gamma_in, gamma_wall=gamma_wall,
             k_vec=K_D1_RB87, dipole=_transition_dipole(Fg, Fe) if valid else 0.0,
             strength=strength, omega_rabi=Om, isat=D1_ISAT_MW_CM2,
             velocity_count=velocity_count, doppler_scale=doppler_scale,
             qwp_deg=params["qwp_deg"], b_perp_ut=b_perp * 1e6,
+            light_region_occupation=light_region_occupation,
+            light_state_trace=light_state_trace,
+            light_state_normalization=LIGHT_STATE_NORMALIZATION,
+            density_convention=DENSITY_CONVENTION,
+            absolute_scale_status=ABSOLUTE_SCALE_STATUS,
         )
 
     @staticmethod
@@ -530,9 +556,23 @@ class MagnetoScheme(Scheme):
         return H
 
     @staticmethod
+    def _conditional_light_state(rho_light):
+        """Separate light-region occupation from its trace-one optical state."""
+        occupation = np.trace(rho_light, axis1=-2, axis2=-1)
+        if np.any(np.abs(occupation) <= np.finfo(float).eps):
+            raise RuntimeError("two-region light-state occupation is zero")
+        rho_conditional = rho_light / occupation[..., None, None]
+        return rho_conditional, occupation.real
+
+    @staticmethod
     def _steady_state_two_region(L_light0, L_dark0, deff, S_v, n_levels,
                                  gamma_out, gamma_in):
         """Two-region (light/dark) steady state for a stack of B-field points.
+
+        Returns ``(rho_light_conditional, occupation)``. The coupled light/dark
+        solve is globally normalized, so occupation is the trace of its raw
+        light block. Susceptibility uses only the trace-one conditional state
+        because ``N`` is the local vapor density; occupation is diagnostic only.
 
         L_light0, L_dark0: (nB, M, M) per-B Liouvillians. Only the light region
         carries the optical Δ_eff (Doppler) shift; the dark region is field-
@@ -541,12 +581,13 @@ class MagnetoScheme(Scheme):
         """
         if kernels.available():
             with core.blas_single_thread():
-                return kernels.magneto_two_region_grid(
+                rho_l = kernels.magneto_two_region_grid(
                     np.ascontiguousarray(L_light0),
                     np.ascontiguousarray(L_dark0),
                     np.ascontiguousarray(deff, dtype=float),
                     np.ascontiguousarray(S_v),
                     float(gamma_out), float(gamma_in), n_levels)
+            return MagnetoScheme._conditional_light_state(rho_l)
         nB = L_light0.shape[0]
         nv = deff.size
         M = n_levels * n_levels
@@ -573,7 +614,7 @@ class MagnetoScheme(Scheme):
             rhs[..., 0, 0] = 1
             sol = np.linalg.solve(A, rhs)[..., 0]
             rho_l[sl] = sol[..., :M].reshape(nb, nv, n_levels, n_levels)
-        return rho_l
+        return MagnetoScheme._conditional_light_state(rho_l)
 
     @staticmethod
     def _steady_state_buffer(L0_all, deff, S_v, n_levels):
@@ -676,8 +717,14 @@ class MagnetoScheme(Scheme):
                      tier="hero"),
                 dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad",
                      tier="hero"),
+                dict(label="Absolute rotation/slope status",
+                     value=raw["absolute_scale_status"], kind="status",
+                     help="The internal state and density convention is fixed, but "
+                          "absolute NMOR rotation and slope still require an "
+                          "independent measurement."),
             ]
-            note = "NMOR readout: zero crossing near B=0; slope is the magnetometer signal."
+            note = ("NMOR readout: zero crossing near B=0; slope is the magnetometer "
+                    "signal. Absolute rotation and slope remain externally unvalidated.")
             if include_figures:
                 import matplotlib.pyplot as plt
 
@@ -698,6 +745,11 @@ class MagnetoScheme(Scheme):
                 dict(label="Feature FWHM", value=fwhm_str),
                 dict(label="Central width", value=central_str,
                      **({"tier": "hero"} if np.isfinite(central_hw) else {})),
+                dict(label="Absolute contrast status",
+                     value=raw["absolute_scale_status"], kind="status",
+                     help="The internal state and density convention is fixed, but "
+                          "absolute transmission contrast still requires an "
+                          "independent measurement."),
             ]
             if not np.isfinite(central_hw):
                 metrics.append(dict(
@@ -706,7 +758,8 @@ class MagnetoScheme(Scheme):
                          "commanded B=0 sample; widen or recenter the B scan.",
                     tier="hero"))
             note = ("Transmission readout: feature sign is classified from absorption "
-                    "at B=0 relative to the scan wings.")
+                    "at B=0 relative to the scan wings. Absolute contrast remains "
+                    "externally unvalidated.")
             if include_figures:
                 import matplotlib.pyplot as plt
 
@@ -720,6 +773,7 @@ class MagnetoScheme(Scheme):
 
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
+        elastic_mhz = raw.get("gamma_elastic", 0.0) / (2 * np.pi) / 1e6
         derived = derived_table([
             ("Isotope / line", f"{raw['isotope']} {raw['line']}"),
             ("Cell model", f"{raw['cell_type']}"),
@@ -728,12 +782,24 @@ class MagnetoScheme(Scheme):
             ("g_F ground / excited", f"{raw['gFg']:.4f} / {raw['gFe']:.4f}"),
             ("Ground Larmor scale", f"{larmor_hz_per_g/1e6:.3f} MHz/G"),
             ("Ω / Γ", f"{raw['omega_rabi']/raw['gamma_natural']:.3f}"),
-            ("Γ / 2π", f"{raw['gamma']/(2*np.pi)/1e6:.4f} MHz"),
+            ("Natural Γ / 2π", f"{raw['gamma_natural']/(2*np.pi)/1e6:.4f} MHz"),
+            ("Homogeneous optical FWHM / 2π",
+             f"{raw['gamma']/(2*np.pi)/1e6:.4f} MHz"),
             ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
+            ("Elastic optical dephasing / 2π", f"{elastic_mhz:.3f} MHz"),
+            ("Buffer reservoir reload / 2π",
+             f"{raw['gamma_transit']/(2*np.pi)/1e3:.3f} kHz"),
+            ("Collisional ground dephasing / 2π",
+             f"{raw['gamma_depol']/(2*np.pi)/1e3:.3f} kHz"),
             ("I_sat (D1 scale)", f"{raw['isat']:.4f} mW/cm²"),
             ("Longitudinal B0 offset", f"{raw['b_offset_ut']:.4f} µT"),
             ("Residual transverse B", f"{raw['b_perp_ut']:.4f} µT"),
             ("N(87Rb)", f"{raw['N']:.3e} /m³"),
+            ("Optical-state normalization", raw["light_state_normalization"]),
+            ("Conditional light-state trace", f"{raw['light_state_trace']:.12f}"),
+            ("Light-region occupation",
+             f"{raw['light_region_occupation']:.9f} (diagnostic only)"),
+            ("Density convention", raw["density_convention"]),
             ("Doppler OD scale", f"{raw['doppler_scale']:.3e}"),
             ("Doppler classes", f"{raw['velocity_count']}"),
             ("Two-region γ_out / 2π", f"{raw['gamma_out']/(2*np.pi)/1e3:.3f} kHz"),

@@ -14,10 +14,18 @@ __pycache__/
 st.log
 .venv/
 .claude/
-references/
+references/*
+!references/fwm_squeezing_paper_parameters.csv
 
 # Local reversible backups created by scoped repository cleanups.
 archive/.cleanup/
+
+# Local agent attachments and disposable build workspaces.
+.codex-remote-attachments/
+tmp/
+output/
+$buildRoot/
+docs/Rydberg cell-heating analysis/$out/
 
 # Keep the archived legacy CLI output even though generated PNGs are ignored.
 !archive/fwm_double_lambda_gain_squeezing.png

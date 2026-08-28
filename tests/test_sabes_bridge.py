@@ -4,8 +4,8 @@ SABES bridge and detection checks.
     python tests/test_sabes_bridge.py   # or: pytest tests/test_sabes_bridge.py
 
 The load-bearing test here is
-`test_reference_geometry_reproduces_the_gabes_default_squeezing`: fed the paper's
-own geometry, the whole lab-settings-to-squeezing pipeline must land on the number
+`test_reference_geometry_reproduces_the_gabes_default_diagnostic`: fed the paper's
+own geometry, the whole lab-settings-to-diagnostic pipeline must land on the number
 GABES produces when driven by hand. Everything else in SABES is only meaningful if
 that holds.
 """
@@ -52,18 +52,18 @@ def test_bridge_derives_every_knob_it_claims_to_own():
         assert result.params[key] == defaults[key], key
 
 
-def test_reference_geometry_reproduces_the_gabes_default_squeezing():
+def test_reference_geometry_reproduces_the_gabes_default_diagnostic():
     """The completion criterion for the bridge: same inputs, same answer."""
     scheme = fwm.FWMScheme()
     defaults = scheme.defaults()
     reference = scheme.compute(defaults)
-    reference_db = float(np.asarray(reference["S_dB"])[
+    reference_db = float(np.asarray(reference["gain_referred_noise_dB"])[
         bridge._operating_index(reference, defaults)])
 
     result = bridge.run(**_reference_overrides())
     for key in ("opd", "tpd", "temp_c", "cell_mm", "pump_mw", "probe_uw"):
         assert result.params[key] == pytest.approx(defaults[key], rel=1e-5), key
-    assert result.squeezing_db == pytest.approx(reference_db, abs=1e-6)
+    assert result.gain_referred_noise_db == pytest.approx(reference_db, abs=1e-6)
     # Not bit-identical: the split half-wave plate is solved numerically, so the
     # pump lands on 600.0008 mW rather than exactly 600. That residual is the
     # only thing between the two runs.
@@ -83,8 +83,8 @@ def test_native_geometry_differs_only_through_qe_and_waists():
     # floor 10 log10(1 - eta) that every result is measured against.
     qe_only = bridge.run(qe_pct=fwm.FWMScheme().defaults()["qe_pct"])
     reference = bridge.run(**_reference_overrides())
-    assert abs(qe_only.squeezing_db - reference.squeezing_db) < \
-        abs(native.squeezing_db - reference.squeezing_db)
+    assert abs(qe_only.gain_referred_noise_db - reference.gain_referred_noise_db) < \
+        abs(native.gain_referred_noise_db - reference.gain_referred_noise_db)
 
 
 def test_two_photon_detuning_needs_no_calibration_coefficient():
@@ -179,8 +179,8 @@ def test_a_much_larger_waist_breaks_the_pump_separation():
 def test_pump_leakage_is_observed_rather_than_derived():
     """A Gaussian tail claimed 1e-9 rejection: useless, and contradicted.
 
-    The paper names pump scatter as a real limit on squeezing efficiency, so the
-    leakage is now a number you measure at the detector and type in.
+    The paper identifies pump scatter as a real experimental limit, so leakage is
+    a measured detector input rather than a geometry-derived noise coefficient.
     """
     settings = SetupSettings()
     chain = build_source_chain(settings)
@@ -227,18 +227,21 @@ def test_power_for_clearance_inverts_the_clearance_formula():
     assert got == pytest.approx(target, abs=1e-9)
 
 
-def test_paper_operating_point_is_short_of_clearance():
-    """The measurement, not the physics, is the tight constraint here.
+def test_corrected_absolute_normalization_exposes_paper_power_mismatch():
+    """Do not silently retune the inherited 0.74 scale to the paper power.
 
-    Around 200 uW reaches the detector, giving ~10 dB of shot-noise clearance.
-    Measuring -8 dB of squeezing then leaves the squeezed trace only ~2 dB above
-    the amplifier floor, where electronic-noise subtraction drives the answer.
+    Removing the duplicate ground-manifold population factor raises the current
+    approximate model's absolute gain far above the measured operating point.
+    Until the remaining microscopic response is rebuilt, this disagreement is a
+    model diagnostic rather than detector-clearance evidence for the experiment.
     """
     result = bridge.run(resolution=fwm.FIDELITY_ULTRA)
-    assert 8.0 < result.readout.clearance_db < 12.0
-    assert result.readout.margin_above_electronic_db(result.squeezing_db) < 4.0
-    assert not result.readout.measurable
-    assert any("shot noise is only" in w for w in result.warnings)
+    assert result.readout.total_power_w > 1.0e-3
+    assert result.readout.clearance_db > 15.0
+    assert result.readout.margin_above_electronic_db(
+        result.gain_referred_noise_db) > 8.0
+    assert result.readout.measurable
+    assert any("linearity limit" in w for w in result.warnings)
 
 
 def test_more_seed_power_buys_clearance_the_atoms_do_not_notice():
@@ -268,8 +271,10 @@ def test_hard_focus_onto_the_diode_breaks_the_linearity_limit():
 
 
 def test_a_longer_focal_length_relieves_the_density_limit():
-    gentle = DetectionSettings(probe_lens_focal_mm=400.0,
-                               conjugate_lens_focal_mm=400.0)
+    # The corrected, still-uncalibrated absolute model predicts much more power
+    # than the paper; 600 mm is the first standard-scale choice below the limit.
+    gentle = DetectionSettings(probe_lens_focal_mm=600.0,
+                               conjugate_lens_focal_mm=600.0)
     result = bridge.run(detection=gentle, resolution=fwm.FIDELITY_ULTRA)
     assert result.readout.arms[0].power_density_w_per_cm2 < 4.0
     assert not any("linearity limit" in w for w in result.warnings)
@@ -279,7 +284,7 @@ def test_a_longer_focal_length_relieves_the_density_limit():
 
 
 def test_defocus_also_relieves_the_density_limit():
-    result = bridge.run(detection=DetectionSettings(pd_defocus_mm=20.0),
+    result = bridge.run(detection=DetectionSettings(pd_defocus_mm=40.0),
                         resolution=fwm.FIDELITY_ULTRA)
     assert result.readout.arms[0].power_density_w_per_cm2 < 4.0
 

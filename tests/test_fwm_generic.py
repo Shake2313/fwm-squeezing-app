@@ -402,6 +402,15 @@ def test_seeded_phase_detail_modes_are_gated_by_resolution():
     assert balanced["phase_segments"] == 1
     assert fine["delta_k_z"] is not None
     assert fine["phase_segments"] > 1
+    for result in (balanced, fine):
+        np.testing.assert_allclose(result["delta_k_z"],
+                                   result["delta_k_z_vacuum"])
+        _, expected_probe, expected_conj = fwm.seeded_option_a_wavenumbers(
+            0.9, result["probe_axis_GHz"])
+        np.testing.assert_allclose(result["k_probe_propagation_per_m"],
+                                   expected_probe)
+        np.testing.assert_allclose(result["k_conjugate_propagation_per_m"],
+                                   expected_conj)
 
 
 def test_fidelity_alias_and_ultra_tiny_grid():
@@ -417,11 +426,23 @@ def test_fidelity_alias_and_ultra_tiny_grid():
     assert raw["delta_k_z"] is not None
     assert raw["phase_segments"] == fwm.ULTRA_PROPAGATION_SEGMENTS
     assert raw["ultra_phase_iterations"] == fwm.ULTRA_PHASE_ITERATIONS
+    np.testing.assert_allclose(raw["delta_k_z"], raw["delta_k_z_vacuum"])
+    assert raw["propagation_convention"].startswith("Option A")
     assert raw["ultra_dynamic_depletion"] is True
-    assert raw["ultra_in_cell_loss_noise"] is True
+    assert raw["ultra_in_cell_loss_noise"] is False
+    assert raw["squeezing_status"].startswith("unavailable: gain-referred diagnostic")
+    assert raw["claim_gate"]["level"] == "MEAN_FIELD_DIAGNOSTIC"
+    assert not raw["claim_gate"]["quantitative_gain_supported"]
+    assert not raw["claim_gate"]["physical_squeezing_prediction"]
     assert np.all(np.isfinite(raw["G_s"]))
     assert np.all(np.isfinite(raw["G_c"]))
     assert np.all(np.isfinite(raw["S_dB"]))
+    assert raw["T_field_small_signal"].shape[-2:] == (2, 2)
+    assert raw["T_canonical_small_signal"].shape == raw["T_field_small_signal"].shape
+    assert raw["Q_photon_flux"].shape == raw["T_field_small_signal"].shape
+    assert raw["canonical_mode_status"].startswith("conditional")
+    assert np.all(np.isfinite(raw["photon_flux_gap_smallsignal"]))
+    assert np.all(np.isfinite(raw["commutator_defect_max_smallsignal"]))
     assert np.nanmax(raw["G_s"]) <= raw["pump_depletion_cap"] * (1.0 + 1e-9)
 
 
@@ -544,7 +565,8 @@ def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
     assert "OD/cell length do not directly scale the rate" in info
     line_strength = next(
         sp for sp in scheme.param_schema() if sp.name == "line_strength")
-    assert "not constrained to reproduce the exact −7.8 dB" in line_strength.help
+    assert "has not been refitted" in line_strength.help
+    assert "does not anchor measured gain or squeezing" in line_strength.help
     assert "no measurements identify a unique split" in line_strength.help
 
     factors = {

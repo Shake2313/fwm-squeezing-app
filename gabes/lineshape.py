@@ -12,8 +12,42 @@ The single model-dependent helper is `lorentz_fwhm`, which *fits* a Lorentzian
 zero-field feature — kept separate on purpose.
 """
 import math
+from dataclasses import dataclass
 
 import numpy as np
+
+
+MIN_SUBDOPPLER_SAMPLES_PER_FWHM = 6.0
+MIN_SUBDOPPLER_EDGE_CLEARANCE_FWHM = 1.0
+
+
+@dataclass(frozen=True)
+class SubdopplerFeature:
+    """Resolution diagnostics for one sampled sub-Doppler feature.
+
+    All frequency-valued fields use the units of the input axis.  A finite
+    width can still be ``resolution-limited`` or ``scan-edge-limited``; callers
+    must use :attr:`resolved` before promoting its linewidth or slope to a
+    trusted readout.
+    """
+
+    status: str
+    reason: str
+    center: float = float("nan")
+    left_half_height: float = float("nan")
+    right_half_height: float = float("nan")
+    fwhm: float = float("nan")
+    samples_per_fwhm: float = float("nan")
+    scan_edge_distance: float = float("nan")
+    amplitude: float = float("nan")
+
+    @property
+    def detected(self):
+        return np.isfinite(self.center) and np.isfinite(self.fwhm)
+
+    @property
+    def resolved(self):
+        return self.status == "resolved"
 
 
 def window_fwhm(x, y, ic):
@@ -104,30 +138,128 @@ def halfwidth_from_center(B, y, frac=0.5):
     return float(abs((B[i] + t * (B[j] - B[i])) - B[ic]))
 
 
-def narrowest_subdoppler(x_ghz, T_trans):
-    """Width [same units as x] and location of the sharpest Doppler-free feature.
+def subdoppler_feature(x, signal, search_window=None, *, min_amplitude=1e-6):
+    """Diagnose the sharpest sampled sub-Doppler feature.
 
-    Subtracts a running-median background and finds the tallest residual, then
-    measures its half-width. Shape-agnostic. Returns (nan, nan) if none.
+    A running-median background is removed before selecting the largest
+    residual.  ``search_window=(lo, hi)`` restricts only that peak selection;
+    background estimation and half-height crossings still use the complete,
+    predeclared scan.  Half-height edges are linearly interpolated.
+
+    Resolution requires at least six sample intervals across the interpolated
+    FWHM and one FWHM of clearance between the half-height edges and either scan
+    edge.  A detected but undersampled feature retains its provisional numeric
+    diagnostics while its status prevents callers from promoting them as a
+    trusted linewidth or lock slope.
     """
-    y = np.asarray(T_trans)
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(signal, dtype=float)
+    if x.ndim != 1 or y.ndim != 1 or x.size != y.size or x.size < 5:
+        return SubdopplerFeature(
+            "unresolved", "Need matching one-dimensional scans with at least five samples.")
+    if not np.all(np.isfinite(x)) or not np.all(np.isfinite(y)):
+        return SubdopplerFeature("unresolved", "The sampled scan contains non-finite values.")
+    dx = np.diff(x)
+    if not np.all(dx > 0.0):
+        return SubdopplerFeature("unresolved", "The frequency axis must be strictly increasing.")
+
     n = y.size
     win = max(5, (n // 60) | 1)
+    win = min(win, n if n % 2 else n - 1)
     pad = win // 2
     ypad = np.pad(y, pad, mode="edge")
-    smooth = np.array([np.median(ypad[i:i + win]) for i in range(n)])
-    resid = np.abs(y - smooth)
-    if resid.max() <= 1e-6:
+    windows = np.lib.stride_tricks.sliding_window_view(ypad, win)
+    smooth = np.median(windows, axis=1)
+    residual = np.abs(y - smooth)
+
+    candidates = np.ones(n, dtype=bool)
+    if search_window is not None:
+        lo, hi = map(float, search_window)
+        if not np.isfinite(lo) or not np.isfinite(hi) or lo >= hi:
+            return SubdopplerFeature("unresolved", "The feature search window is invalid.")
+        candidates &= (x >= lo) & (x <= hi)
+    if not np.any(candidates):
+        return SubdopplerFeature("unresolved", "No samples fall inside the feature search window.")
+
+    indices = np.flatnonzero(candidates)
+    ic = int(indices[np.argmax(residual[indices])])
+    amplitude = float(residual[ic])
+    center = float(x[ic])
+    if amplitude <= float(min_amplitude):
+        return SubdopplerFeature(
+            "unresolved", "No finite sub-Doppler residual exceeds the detection floor.",
+            center=center, amplitude=amplitude)
+
+    half = 0.5 * amplitude
+    left_below = np.flatnonzero(residual[:ic + 1] <= half)
+    right_below = np.flatnonzero(residual[ic:] <= half)
+    if left_below.size == 0 or right_below.size == 0:
+        return SubdopplerFeature(
+            "scan-edge-limited",
+            "A half-height crossing is clipped by the displayed scan edge.",
+            center=center, scan_edge_distance=0.0, amplitude=amplitude)
+
+    il = int(left_below[-1])
+    ir = int(ic + right_below[0])
+    if il >= ic or ir <= ic:
+        return SubdopplerFeature(
+            "unresolved", "The sampled residual has no finite half-height interval.",
+            center=center, amplitude=amplitude)
+
+    def _interpolated_crossing(i0, i1):
+        y0, y1 = residual[i0], residual[i1]
+        if y1 == y0:
+            return float(0.5 * (x[i0] + x[i1]))
+        fraction = (half - y0) / (y1 - y0)
+        return float(x[i0] + fraction * (x[i1] - x[i0]))
+
+    left = _interpolated_crossing(il, il + 1)
+    right = _interpolated_crossing(ir - 1, ir)
+    width = float(right - left)
+    if not np.isfinite(width) or width <= 0.0:
+        return SubdopplerFeature(
+            "unresolved", "The interpolated half-height width is not positive.",
+            center=center, amplitude=amplitude)
+
+    local_steps = dx[(x[:-1] < right) & (x[1:] > left)]
+    sample_step = float(np.median(local_steps)) if local_steps.size else float("nan")
+    samples_per_fwhm = width / sample_step if sample_step > 0.0 else float("nan")
+    edge_distance = float(min(left - x[0], x[-1] - right))
+    edge_widths = edge_distance / width
+
+    if edge_widths < MIN_SUBDOPPLER_EDGE_CLEARANCE_FWHM:
+        status = "scan-edge-limited"
+        reason = "Less than one feature FWHM remains between a half-height edge and the scan edge."
+    elif samples_per_fwhm < MIN_SUBDOPPLER_SAMPLES_PER_FWHM:
+        status = "resolution-limited"
+        reason = "Fewer than six sample intervals span the interpolated feature FWHM."
+    else:
+        status = "resolved"
+        reason = "Half-height edges are clear of the scan boundary and sampled by at least six intervals."
+
+    return SubdopplerFeature(
+        status=status,
+        reason=reason,
+        center=center,
+        left_half_height=left,
+        right_half_height=right,
+        fwhm=width,
+        samples_per_fwhm=float(samples_per_fwhm),
+        scan_edge_distance=max(edge_distance, 0.0),
+        amplitude=amplitude,
+    )
+
+
+def narrowest_subdoppler(x_ghz, T_trans):
+    """Backward-compatible ``(width, location)`` sub-Doppler readout.
+
+    New code should use :func:`subdoppler_feature` and check its resolution
+    status before presenting the numeric width or a derivative-based lock slope.
+    """
+    feature = subdoppler_feature(x_ghz, T_trans)
+    if not feature.detected:
         return float("nan"), float("nan")
-    ic = int(np.argmax(resid))
-    half = 0.5 * resid[ic]
-    i = ic
-    while i > 0 and resid[i] >= half:
-        i -= 1
-    j = ic
-    while j < n - 1 and resid[j] >= half:
-        j += 1
-    return float(x_ghz[j] - x_ghz[i]), float(x_ghz[ic])
+    return feature.fwhm, feature.center
 
 
 def lorentz_fwhm(B, y):

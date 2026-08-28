@@ -93,6 +93,168 @@ def test_mv_floor_and_ceiling_map_to_zero_and_one():
     assert trace.correction_diagnostics.ceiling == pytest.approx(180.0)
     assert np.median(trace.transmission[80:120]) <= 0.01
     assert np.median(np.r_[trace.transmission[:50], trace.transmission[-50:]]) >= 0.99
+    assert trace.transmission_label == ecsv.RELATIVE_TRANSMISSION_LABEL
+    assert not trace.is_absolute_transmission
+
+
+def test_default_extrema_calibration_is_explicitly_relative():
+    x = np.linspace(-1.0, 1.0, 101)
+    physical_transmission = np.linspace(0.70, 0.92, x.size)
+
+    trace = ecsv.load_experimental_csv(
+        _csv_bytes(x, physical_transmission), denoise=False
+    )
+
+    assert trace.correction_diagnostics.calibration_mode == (
+        ecsv.CALIBRATION_RELATIVE_EXTREMA
+    )
+    assert trace.transmission_label == "Relative normalized transmission"
+    assert trace.transmission[0] == 0.0
+    assert trace.transmission[-1] == 1.0
+    assert not np.allclose(trace.transmission, physical_transmission)
+
+
+def test_gain_offset_absolute_calibration_reconstructs_transmission():
+    x = np.linspace(-2.0, 2.0, 101)
+    physical_transmission = 0.81 + 0.11 * np.cos(x)
+    gain = 2.75
+    offset = -0.13
+    signal = offset + gain * physical_transmission
+
+    trace = ecsv.load_experimental_csv(
+        _csv_bytes(x, signal),
+        denoise=False,
+        calibration_mode=ecsv.CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+        gain=gain,
+        offset=offset,
+    )
+
+    np.testing.assert_allclose(
+        trace.transmission, physical_transmission, rtol=1e-9, atol=1e-12
+    )
+    assert trace.is_absolute_transmission
+    assert trace.transmission_label == "Absolute transmission"
+    assert trace.correction_diagnostics.calibration_source == "explicit gain/offset"
+
+
+def test_dark_reference_absolute_calibration_reconstructs_transmission():
+    x = np.linspace(-1.0, 1.0, 81)
+    physical_transmission = 0.76 + 0.08 * np.cos(2.0 * x)
+    dark, reference = 1.4, -3.2
+    signal = dark + (reference - dark) * physical_transmission
+
+    trace = ecsv.load_experimental_csv(
+        _csv_bytes(x, signal),
+        denoise=False,
+        calibration_mode=ecsv.CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+        dark_signal=dark,
+        reference_signal=reference,
+    )
+
+    np.testing.assert_allclose(
+        trace.transmission, physical_transmission, rtol=1e-9, atol=1e-12
+    )
+    assert trace.correction_diagnostics.calibration_gain == pytest.approx(
+        reference - dark
+    )
+
+
+@pytest.mark.parametrize(
+    "kwargs,match",
+    [
+        (
+            dict(
+                calibration_mode=ecsv.CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+                dark_signal=0.0,
+            ),
+            "both dark_signal and reference_signal",
+        ),
+        (
+            dict(
+                calibration_mode=ecsv.CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+                dark_signal=1.0,
+                reference_signal=1.0,
+            ),
+            "non-zero",
+        ),
+        (
+            dict(
+                calibration_mode=ecsv.CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+                gain=0.0,
+                offset=2.0,
+            ),
+            "non-zero",
+        ),
+        (
+            dict(
+                calibration_mode=ecsv.CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+                gain=float("nan"),
+                offset=0.0,
+            ),
+            "finite",
+        ),
+        (dict(gain=2.0), "absolute calibration mode"),
+    ],
+)
+def test_absolute_calibration_rejects_missing_or_invalid_evidence(kwargs, match):
+    payload = b"0,0\n1,1\n2,2\n3,3\n4,4\n"
+    with pytest.raises(ecsv.ExperimentalCSVError, match=match):
+        ecsv.load_experimental_csv(payload, denoise=False, **kwargs)
+
+
+def test_absolute_calibration_preserves_out_of_range_samples():
+    x = np.arange(5.0)
+    physical_transmission = np.array([-0.01, 0.2, 0.5, 0.8, 1.02])
+    signal = 4.0 + 3.0 * physical_transmission
+
+    trace = ecsv.load_experimental_csv(
+        _csv_bytes(x, signal),
+        denoise=False,
+        calibration_mode=ecsv.CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+        gain=3.0,
+        offset=4.0,
+    )
+
+    np.testing.assert_allclose(trace.transmission, physical_transmission, atol=1e-12)
+    assert trace.correction_diagnostics.out_of_range_samples == 2
+    assert "preserved rather than clipped" in trace.correction_diagnostics.warning
+
+
+def test_round_trip_sweep_preserves_branches_and_exact_direction_counts():
+    forward_x = np.arange(5.0)
+    reverse_x = np.arange(4.0, -1.0, -1.0)
+    x = np.concatenate((forward_x, reverse_x))
+    forward_y = 10.0 + forward_x
+    reverse_y = 30.0 + reverse_x
+    y = np.concatenate((forward_y, reverse_y))
+
+    trace = ecsv.load_experimental_csv(_csv_bytes(x, y), denoise=False)
+    diag = trace.import_diagnostics
+
+    assert diag.sweep_reversal_count == 1
+    assert diag.forward_sample_count == 5
+    assert diag.reverse_sample_count == 5
+    assert diag.sweep_branch_count == 2
+    assert diag.directional_merge_warning is not None
+    assert [branch.direction for branch in trace.sweep_branches] == [
+        "forward", "reverse"
+    ]
+    np.testing.assert_array_equal(trace.sweep_branches[0].detuning, forward_x)
+    np.testing.assert_array_equal(trace.sweep_branches[1].detuning, reverse_x)
+    np.testing.assert_array_equal(trace.sweep_branches[0].raw_signal, forward_y)
+    np.testing.assert_array_equal(trace.sweep_branches[1].raw_signal, reverse_y)
+    assert sum(branch.sample_count for branch in trace.sweep_branches) == 10
+    assert trace.import_diagnostics.unique_points == 5
+
+
+def test_equal_x_steps_do_not_create_false_sweep_reversals():
+    x = np.array([0.0, 1.0, 1.0, 2.0, 3.0, 4.0])
+    y = np.arange(x.size, dtype=float)
+    trace = ecsv.load_experimental_csv(_csv_bytes(x, y), denoise=False)
+
+    assert trace.import_diagnostics.sweep_reversal_count == 0
+    assert trace.import_diagnostics.forward_sample_count == x.size
+    assert [branch.direction for branch in trace.sweep_branches] == ["forward"]
 
 
 def test_sort_duplicates_and_large_gaps_are_deterministic():

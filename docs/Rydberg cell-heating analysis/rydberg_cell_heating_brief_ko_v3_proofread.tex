@@ -1,0 +1,318 @@
+% !TEX program = xelatex
+% 그림(brief_summary.pdf)은 이 폴더에서 포함합니다.
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{kotex}
+\IfFontExistsTF{Malgun Gothic}{
+  \setmainhangulfont{Malgun Gothic}
+  \setsanshangulfont{Malgun Gothic}
+}{
+  \setmainhangulfont{Noto Serif CJK KR}
+  \setsanshangulfont{Noto Sans CJK KR}
+}
+\usepackage{amsmath}
+\usepackage{booktabs,tabularx,array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage[hidelinks]{hyperref}
+\geometry{top=1.55cm,bottom=1.55cm,left=1.70cm,right=1.70cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.38em}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.15}
+\renewcommand{\figurename}{그림}
+\renewcommand{\tablename}{표}
+
+\definecolor{navy}{HTML}{17324D}
+\definecolor{teal}{HTML}{0F766E}
+\definecolor{orange}{HTML}{C2410C}
+\definecolor{pale}{HTML}{EEF6F5}
+\definecolor{warn}{HTML}{FFF7ED}
+\newcommand{\Status}[1]{\textsf{\footnotesize[#1]}}
+\newcommand{\sensunit}{\mathrm{nV\,cm^{-1}\,Hz^{-1/2}}}
+\newcommand{\summarybox}[1]{%
+  \noindent\colorbox{pale}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}}}
+\newcommand{\warnbox}[1]{%
+  \noindent\colorbox{warn}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}}}
+
+\graphicspath{{./}}
+% 본 보고에 사용한 분석 산출값 (2026-07-24 재실행, 38점 온도 격자).
+\providecommand{\SlopeOptimumTemperatureC}{43.00}
+\providecommand{\SensitivityOptimumTemperatureC}{48.00}
+\providecommand{\ModelToPPTScaleRoom}{2.06}
+\providecommand{\GabesOptimumTransmissionPct}{3}
+\providecommand{\PaperPSNOptimumC}{33}
+\providecommand{\PaperOptimumTransmissionPct}{43}
+\providecommand{\RbMeltingC}{39.30}
+\providecommand{\AbsoluteSensitivityStatus}{PREDICTED}
+\providecommand{\ExperimentalInputStatus}{PPT}
+
+\begin{document}
+
+{\color{navy}\LARGE\bfseries Rydberg 셀 가열에 따른 RF 감도 변화\par}
+\vspace{2pt}
+{\large 예비 시뮬레이션 및 주경민 선배님 실험 대조 보고}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.7cm}X}
+보고 대상 & 주경민 선배님, ``cell heating 이후 RF sensitivity 변화양상 확인'' (2026-07-15)\\
+기준 논문 & G.\ Ju \textit{et al.}, ``Photon shot-noise-limited Rydberg-EIT electrometry,''
+           arXiv:2606.04354v1 (선배님 제1저자, 부산대 문한섭 교수님 그룹)\\
+시뮬레이션 & GABES --- 박수인이 개발 중인 원자광학 시뮬레이션 코드입니다.
+             전체 코드는 \href{https://github.com/Shake2313/fwm-squeezing-app.git}{GitHub 저장소}에서 볼 수 있습니다.\\
+작성 및 교정 & 원자광학 시뮬레이션(GABES) 실행 후 AI 지원으로 초안을 작성하고 세 차례 교정·교열했습니다.
+             분석 2026년 7월 24일, 교정 2026년 8월 6일\\
+증거 수준 & 발표자료 전사 \Status{PPT}, 선배님 논문 게재값 \Status{REFERENCE},
+            시뮬레이션 계산 \Status{PREDICTED},
+            미측정 입력 \Status{ASSUMED}/\Status{PENDING}\\
+\end{tabularx}
+
+\vspace{0.4em}
+\summarybox{%
+\textbf{\color{navy}보고 요약}\quad
+셀을 가열해 Rb 밀도를 높였을 때 EIT 신호와 RF 최소 검출 전기장이 어떻게 변하는지 확인하여
+후속 마이크로파 센싱의 운전 온도를 정하는 시험입니다. 현재 자료에서 읽을 수 있는 핵심은 세 가지입니다.
+\textbf{(1)} PPT의 네 조건에서 측정 감도와 기재된 PSN 한계의 비는 0.95--1.12입니다. 두 값은
+불확도 내에서 양립하지만, 이 비만으로 기술 잡음의 부재를 입증할 수는 없습니다. PPT에 기재된 PSN 제한
+전기장 감도는 주석 온도 38\,°C에서 44\,°C 사이에 3.7배 증가합니다.
+\textbf{(2)} GABES의 기울기 최적점 \SlopeOptimumTemperatureC\,°C와 PPT의 ``EIT 신호가 가장 뚜렷한''
+조건에 병기된 42.5\,°C는 수치상 가깝습니다. 그러나 서로 다른 광학 지표를 비교하고 주석 온도도
+미확정이므로, 이는 검증 결과가 아니라 후속 대조 후보입니다.
+\textbf{(3)} 기준 논문은 PSN 한계가 \(\sim\PaperPSNOptimumC\,°C\)에서 최소가 된 뒤 고온에서
+악화되는 거동을 제시합니다. 반면 GABES의 조건부 감도 최적점은 \SensitivityOptimumTemperatureC\,°C입니다.
+이 불일치는 모델의 응답도와 검출 광자 수 사이 온도 의존 균형을 점검해야 함을 보여주지만,
+투과 광량 항 하나를 원인으로 특정하지는 못합니다.}
+
+\section*{1. 어떤 실험인지, 그리고 기준 논문과의 관계}
+
+발표자료에 담긴 내용은 다음과 같습니다.
+
+\begin{enumerate}
+  \setlength{\itemsep}{0.15em}
+  \item 세라믹 히터와 온도 센서로 증기 셀 가열 장치를 제작합니다. \Status{PPT}
+  \item 상온 및 히터 설정값 40/45/50\,°C에서 EIT 신호를 비교합니다. 45\,°C 설정값에서
+        신호가 가장 뚜렷하다고 기록되어 있습니다. \Status{PPT}
+  \item 각 조건에서 1\,s 측정을 기준으로 최소 검출 전기장과 PSN 한계를 구합니다. PSN 주석에는
+        설정값과 별개로 38/42.5/44\,°C가 ``??''와 함께 병기되어 있습니다. 이 값들의 물리적 의미와
+        정확도는 확인되지 않았으므로 이하에서는 ``PPT 주석 온도''로 부릅니다. \Status{PPT}
+\end{enumerate}
+
+이 실험은 독립된 히터 검증이 아니라, 선배님 논문(arXiv:2606.04354v1)에서 확립한
+\(\mathbf{{}^{85}\mathrm{Rb}}\) 계단형 EIT 원자 초헤테로다인 전기계의 \textbf{운전점 교정} 단계입니다.
+그 논문은 상온(\(\sim20\,°C\)) 증기 셀에서 \(12.5(8)\,\sensunit\)의 감도(증기 셀 최고 기록,
+PSN 한계 \(11.2\,\sensunit\)에 근접)를 보고했고, \textbf{셀 온도에 따른 PSN 곡선(Fig.\ 5(a))까지
+이미 제시}하고 있습니다. 본 보고의 온도 대조는 그 곡선을 기준으로 삼습니다.
+발표자 계획에도 ``07/16--24 온도에 따른 RF sensitivity 추가 확인''이 있어, 선배님 본인도 이 자료를
+확정값이 아닌 1차 스캔으로 취급한 것으로 해석됩니다.
+
+\begin{table}[h]
+\centering
+\small
+\caption{PPT 전사값과 단순 계산한 비. 감도는 낮을수록 좋습니다. 주석 온도에는 ``??''가 붙어 있어
+미확정입니다. 상온 감도의 중앙값은 논문과 같지만, 표의 불확도 \(\pm3.6\)은 PPT 전사값이며
+논문값 \(12.5(8)\)의 불확도 \(\pm0.8\)과 다릅니다.}
+\setlength{\tabcolsep}{4.4pt}
+\begin{tabularx}{\textwidth}{@{}lcccc>{\raggedright\arraybackslash}X@{}}
+\toprule
+조건 & \shortstack{PPT 주석\\온도} & \shortstack{RF 감도\\\((\sensunit)\)} & PSN 한계 & 측정/PSN & 비고\\
+\midrule
+상온 & --- & \(12.5\pm3.6\) & 11.2(4) & 1.12 & PPT 전사; 논문값과 중앙값 동일\\
+40\,°C 설정값 & 38\,°C?? & \(\mathbf{6.68\pm2.55}\) & 6.72(4) & 0.99 & 네 조건 중 중앙값 최저, \emph{측정 순서상 마지막}\\
+45\,°C 설정값 & 42.5\,°C?? & \(17.6\pm2.2\) & 17.6(5) & 1.00 & EIT 신호가 가장 뚜렷함\\
+50\,°C 설정값 & 44\,°C?? & \(23.8\pm6.5\) & 25.0(1) & 0.95 & 감도 악화\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section*{2. PPT 자체 정합성 점검 \Status{PPT}}
+
+아래 비와 배수는 PPT 전사값에서 단순 계산했으며, 원시 데이터로 검증되지 않았으므로 증거 상태를
+\Status{PPT}로 유지합니다.
+
+\textbf{측정 감도와 기재된 PSN 한계는 불확도 내에서 양립합니다.} 네 조건의 측정/PSN 비는
+0.95--1.12입니다. 동일한 광량·대역폭·보정 규약을 사용했다면 큰 초과 잡음의 증거는 보이지 않지만,
+이 비만으로 기술 잡음의 부재를 입증하거나 검출기 RIN, 전자단 잡음, 환경 진동을 각각 배제할 수는 없습니다.
+
+\textbf{PPT에 기재된 PSN 제한 전기장 감도도 고온 조건에서 악화됩니다.} 주석 온도 38\,°C와 44\,°C에
+대응하는 값은 6.72에서 25.0\,\(\sensunit\)로 3.72배 증가합니다. 논문 Eq.\,(2)의 형태에 따르면
+PSN 제한 감도는 대략 \(S_{\mathrm{PSN}}\propto(P_pT_p)^{-1/2}|\partial\alpha_0|^{-1}\)이므로,
+검출 광자 수와 헤테로다인 응답 기울기를 함께 확인해야 합니다. 현재 전사값만으로 어느 항이 변했는지는
+구분할 수 없습니다.
+
+\warnbox{\small\textbf{재현을 위해 확인할 규약.}\quad 40\,°C와 50\,°C 조건에서는 중앙 측정값이
+각각의 PSN 한계보다 약간 작습니다(0.99, 0.95). PSN 산정에 사용한 투과 광량, QE, RBW/VBW/ENBW,
+평균 시간과 피크/RMS 규약을 원기록에서 확인해야 이 비를 정량 해석할 수 있습니다.}
+
+\section*{3. 선배님 논문 온도 모델과의 대조 \Status{PREDICTED vs REFERENCE}}
+
+이 대조가 본 보고의 핵심입니다. 선배님 논문 Fig.\ 5(a)는 셀 온도에 대한 PSN 한계 곡선을
+제시하며, \textbf{최적점을 \(\sim\PaperPSNOptimumC\,°C\)}로, 그리고 \(\sim39\,°C\) 부근의 증기압
+\textbf{불연속}(Rb 고체→액체 상전이)을 보고합니다. 현 시뮬레이션을 38점 온도 격자
+(20--55\,°C)로 재실행해 PSN(T)와 투과율(T)을 산출했습니다.
+
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.15cm}p{2.0cm}X}
+\toprule
+비교 항목 & 상태 & 값과 해석\\
+\midrule
+논문 PSN 최적 온도 & \Status{REFERENCE} & \(\sim\PaperPSNOptimumC\,°C\), Fig.\ 5(a)의 보고값\\
+논문 증기압 분기 & \Status{REFERENCE} & \(\sim39\,°C\), Rb 고체--액체 상전이 부근\\
+PPT 네 조건 중 감도 중앙값 최저 & \Status{PPT} & 40\,°C 설정값; 주석 온도 38\,°C??, 원시 데이터 미확인\\
+GABES 조건부 감도 최적점 & \Status{PREDICTED} & \SensitivityOptimumTemperatureC\,°C\\
+GABES 공진 투과율 & \Status{PREDICTED} & 48\,°C에서 \(\sim\GabesOptimumTransmissionPct\%\),
+논문이 보고한 33\,°C에서 GABES 계산값 \(\sim\PaperOptimumTransmissionPct\%\)\\
+\bottomrule
+\end{tabularx}
+
+논문 모델과 PPT 전사값은 모두 ``저온에서 개선된 뒤 고온에서 악화될 수 있다''는 정성적 그림과
+양립합니다. 특히 42.5/44\,°C 주석 조건의 큰 PSN 값은 논문 곡선의 \textbf{고온 쪽 악화 구간
+(감도 수치의 상승부)}과 같은 방향입니다. 다만 PPT에는 네 조건만 있고 주석 온도도 미확정이므로,
+38\,°C를 실험 최적점으로 확정할 수는 없습니다.
+
+\textbf{GABES와 기준 논문의 최적 온도는 어긋납니다.} GABES는 공진 투과율이
+\(\sim\GabesOptimumTransmissionPct\%\)인 48\,°C에서도 응답도 이득이 검출 광자 수 감소를 상쇄한다고
+계산합니다. 반면 논문이 보고한 최적 온도 33\,°C에서 GABES가 계산한 투과율은
+\(\sim\PaperOptimumTransmissionPct\%\)입니다. 이 두 투과율은 모두 \Status{PREDICTED}이며 논문 게재값이
+아닙니다. 따라서 불일치는 모델의 응답도와 광자 수 사이 온도 의존 균형이 지나치게 낙관적일 가능성을
+보여주지만, 투과 광량 항 하나를 직접 원인으로 특정하지는 못합니다.
+
+\warnbox{\small\textbf{온도와 상(phase)의 해석.}\quad 히터 설정값은 40/45/50\,°C이고 PPT 주석에는
+38/42.5/44\,°C가 ``??''와 함께 병기되어 있습니다. 증기압 분기는 reservoir 또는 저온점 온도가
+결정하므로 온도 로그 없이 각 조건의 고체·액체 분기를 확정할 수 없습니다. GABES는 설정값=유효 증기
+온도=저온점 온도를 가정하고 CRC 고체/액체 증기압 분기를 적용했습니다.}
+
+\section*{4. 시뮬레이션 광학/RF 응답 대조}
+
+계산은 \({}^{85}\mathrm{Rb}\) \(5S_{1/2}\!\rightarrow5P_{3/2}\!\rightarrow40D_{5/2}\) EIT와
+\(40D_{5/2}\!\rightarrow39F_{7/2}\) RF 결합을 사용했습니다(상태·기하·전력은 모두 선배님 논문 게재값).
+각 온도에서 정상 상태 OBE 스펙트럼을 구하고, 40\,kHz finite-IF weak-SIG 선형 응답, RF 전이 쌍극자 모멘트,
+탐침광 산탄 잡음을 전기장 ASD로 변환했습니다.
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.4cm}X}
+논문 게재 입력 & 탐침광 6\,$\mu$W, 결합광 30\,mW, 빔 지름 0.15\,mm, 셀 50\,mm,
+  \(\Omega_{\mathrm{LO}}/2\pi=3.7\,\mathrm{MHz}\), \(\Omega_c/2\pi=3.0\,\mathrm{MHz}\),
+  상태 \(40D_{5/2}\)/\(39F_{7/2}\),
+  검출 양자효율 95\,\%, IF 40\,kHz \Status{REFERENCE}\\
+조건부 가정 & 도플러 효과 미포함, 온도/밀도 의존 탈위상 0, 기술 잡음 0,
+  RF 각도 인자 1, 히터 설정 온도=유효 증기 온도=저온점 온도, 검출 경로 효율 0.5 \Status{ASSUMED}\\
+결과 상태 & 절대 감도 \Status{\AbsoluteSensitivityStatus}, 실험 입력 \Status{\ExperimentalInputStatus};
+  실험값에 맞춘 피팅은 하지 않았습니다\\
+\end{tabularx}
+
+주요 광학 입력은 선배님 논문 게재값이지만, 절대 감도는 검출 경로 효율 0.5, RF 각도 인자 1,
+기술 잡음 0과 온도 동일시 가정에도 의존합니다. 따라서 실험과 모델의 격차를 논문 입력 또는 모델 근사
+한쪽에만 귀속할 수 없습니다.
+
+\clearpage
+\refstepcounter{figure}
+\begin{center}
+\IfFileExists{brief_summary.pdf}{%
+  \includegraphics[width=0.68\textwidth,trim=0 0 406.63pt 22pt,clip]{brief_summary}\par\vspace{0.15em}
+  \includegraphics[width=0.68\textwidth,trim=406.63pt 0 0 22pt,clip]{brief_summary}}{%
+  \fbox{\parbox{0.9\textwidth}{\centering\vspace{1.0cm}
+  그림 파일 \texttt{brief\_summary.pdf}을 찾을 수 없습니다.
+  \vspace{1.0cm}}}}
+\par\vspace{0.35em}
+\parbox{0.95\textwidth}{\small\textbf{\figurename~\thefigure:}
+GABES 온도 스윕과 PPT 전사값의 비교. 위는 서로 다른 두 모델 광학 지표이고,
+아래의 빨간 점은 히터 설정값에 대한 PPT 전사값입니다. 회색 점선은 상온 중앙값에 맞춘 표시용
+정규화이며 피팅 결과가 아닙니다.}
+\end{center}
+
+\textbf{광학 응답: 후속 대조 후보입니다.} 현 시뮬레이션의 스펙트럼 기울기는
+\(\SlopeOptimumTemperatureC\,°C\)에서 최대입니다. PPT에서 ``EIT가 가장 뚜렷한'' 조건은 45\,°C
+설정값이고, 여기에 42.5\,°C??가 병기되어 있습니다. 두 수치는 가깝지만 PPT의 ``뚜렷함''은 정성적
+대비/진폭 관찰이고 모델 지표는 기울기이며, 모델의 EIT 대비와 기울기 최적 온도도 서로 다릅니다.
+따라서 이를 광학 응답 경향의 검증으로 해석하지 않습니다.
+
+\textbf{RF 감도 절댓값: 정량 일치가 확인되지 않았습니다.} 20\,°C에서 PPT 중앙값은 같은 온도의
+GABES 값보다 약 \ModelToPPTScaleRoom 배 큽니다. 기존의 7.0배 비교는 38\,°C의 PPT PSN 값과
+48\,°C의 GABES 최솟값을 나눈 것이어서 같은 온도·같은 물리량의 비교가 아니므로 교정본에서는
+정량 근거로 사용하지 않습니다. 최적 온도 위치도 달라 단일 배율 보정의 타당성을 주장할 수 없습니다.
+
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{4.0cm}X}
+\toprule
+현재 전사값에서 보이는 점 & 측정 감도와 기재 PSN 한계는 불확도 내에서 양립; 큰 초과 잡음의 증거는
+  보이지 않지만 개별 기술 잡음은 배제하지 못함\\
+\midrule
+모델에서 검증할 항목 & 20\,°C GABES EIT 선폭 1.613\,MHz는 논문값 1.6\,MHz와 수치상 일치하나,
+  잔류 도플러와 온도·밀도 의존 탈위상을 생략했으므로 고온 선폭·기울기·finite-IF 응답은 미검증;
+  검출 경로 효율과 RF 각도 인자도 가정값\\
+실험에서 확인할 항목 & 온도별 투과 전력과 IF 응답도; 저온점과 창면 응축; 히터 구조물의 37\,GHz 산란;
+  검출기 RIN·전자단 잡음·대역폭 규약\\
+공통 확인 항목 & 설정값, 유효 증기 온도와 저온점 온도의 관계; Zeeman·MW 정재파의 온도 상관 변화\\
+\bottomrule
+\end{tabularx}
+
+\section*{5. 판단, 한계 및 다음 측정}
+
+\summarybox{%
+\textbf{\color{navy}판단}\quad
+현재 자료로 말할 수 있는 것은 \textbf{``PPT 네 조건 중 40\,°C 설정값에서 감도 중앙값이 가장 낮았으므로
+반복 측정한다''}까지입니다. 병기된 38\,°C??의 의미는 미확정이고, 이 조건은 측정 순서상 마지막이어서
+시간 드리프트(잠금 품질, MW 전력, 정렬)와 온도 효과가 분리되지 않았습니다. 상온값은 논문 운전점과
+중앙값이 같지만 불확도와 캠페인 대응이 불명확하므로 서로 다른 캠페인 사이의 유의도를 하나의
+\(\sigma\) 값으로 제시하지 않습니다. 45\,°C 설정값은 EIT 신호가 가장 뚜렷했던 조건이지만 네 조건 중
+RF 감도가 가장 낮은 조건은 아닙니다. GABES의 \(\SensitivityOptimumTemperatureC\,°C\)는 가정에 의존한
+조건부 최솟값이므로 실험 목표 온도로 인용해서는 안 됩니다.}
+
+\subsection*{권장 재측정 순서}
+
+\begin{enumerate}
+  \setlength{\itemsep}{0.22em}
+  \item \textbf{측정 순서 무작위화·반복.} 상온을 이번 실험 구성에서 다시 측정해 기준점을 이 캠페인 안으로
+        가져오고, 온도 로그를 기준으로 유효 증기 온도 33, 36, 38, 40, 42\,°C를 조밀하게 반복하며
+        45, 48\,°C를 대조점으로 둡니다.
+        논문 최적 \(\sim\PaperPSNOptimumC\,°C\) 부근을 포함하도록 저온 쪽을 넓히면 좋겠습니다.
+        가열/냉각 양방향으로 드리프트와 온도 효과를 분리합니다.
+  \item \textbf{광량과 응답도를 함께 기록.} 온도별 DC 투과 전력, 원시 EIT 주파수 스캔과
+        IF 응답도(V per V/m)를 감도와 함께 남깁니다. 그래야 검출 광자 수 감소와 원자 응답 변화가
+        PSN 및 총감도에 미치는 영향을 분리해 모델과 대조할 수 있습니다.
+  \item \textbf{온도장 실측.} 히터 설정값 외에 양단 센서, 빔 부근의 유효 온도,
+        reservoir와 저온점 후보 온도를 함께 기록합니다. PPT PSN 주석의 38/42.5/44\,°C가 무엇을 뜻하는지
+        원기록에서 확정할 필요가 있습니다.
+  \item \textbf{잡음 규약 고정.} 원시 EIT 스캔, RF 스윕, 검출기 암신호 트레이스와 PSD를 저장하고
+        RBW, VBW, ENBW, 평균 시간, 피크/RMS 규약을 함께 기록합니다.
+\end{enumerate}
+
+\subsection*{보고 시 반드시 붙일 한계}
+
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.35cm}p{2.05cm}X}
+\toprule
+항목 & 상태 & 의미\\
+\midrule
+PPT 수치 & \Status{PPT} & 원시 트레이스에서 재계산하지 않은 수동 전사값\\
+상온 데이터 출처 & \shortstack{\Status{PPT}\\[-0.15em]\Status{REFERENCE}} & 중앙값 12.5와 PSN 11.2는 논문 운전점과 같지만,
+  감도 불확도 \(\pm3.6\)은 PPT 전사값이고 논문값은 \(\pm0.8\); 캠페인 대응 미확인\\
+측정 순서·드리프트 & \Status{PENDING} & 온도 효과와 시간 드리프트 미분리\\
+시뮬레이션 스펙트럼 & \Status{PREDICTED} & 기준값에 고정된 정상 상태 OBE 결과\\
+절대 RF 감도 & \Status{PREDICTED} & 기술 잡음 0인 조건부 PSN 기준; 실험 감도 아님\\
+모델 입력 & \Status{REFERENCE} & 결합광 전력, 빔 지름, 셀 길이, LO/결합광 라비 주파수는
+  선배님 논문 게재값\\
+응답도·광자 수 균형 & \Status{PREDICTED} & 48\,°C 조건부 최적점의 원인을 한 항으로 분리하지 못함\\
+온도장·저온점 & \Status{ASSUMED} & 설정값을 증기/저온점 온도와 동일시\\
+Zeeman·RF 공간장 & \Status{PENDING} & 편광, 정재파, 3차원 장 미포함\\
+원시 EIT/IF/PSD/온도 로그 & \Status{PENDING} & 정량 검증과 탈위상·잡음·온도 매핑 추정에 필요\\
+\bottomrule
+\end{tabularx}
+
+\subsection*{최종 결론}
+
+기준 논문의 온도 모델과 PPT 전사값은 고온에서 PSN 제한 감도가 악화될 수 있다는 정성적 그림과
+양립합니다. 그러나 43\,°C 모델 기울기와 42.5\,°C?? PPT 관찰은 서로 다른 지표이므로 광학 검증으로
+볼 수 없고, PPT 네 조건만으로 38\,°C를 실험 최적점으로 확정할 수도 없습니다. GABES의 조건부 감도
+최적점 \(\SensitivityOptimumTemperatureC\,°C\)는 기준 논문의 \(\sim\PaperPSNOptimumC\,°C\)와 어긋나며,
+이는 모델의 응답도·검출 광자 수·온도 매핑을 함께 점검해야 함을 뜻합니다. 다음 단계는 온도별 DC 투과,
+원시 EIT와 IF 응답, PSD 및 저온점 로그를 같은 캠페인에서 확보해 실험 전사값과 모델을 병행 검증하는
+것입니다. 현 단계의 적절한 표현은 ``검증 완료''가 아니라 \textbf{예비 시뮬레이션과 검증 과제 정리}입니다.
+
+{\footnotesize
+\textbf{재현 정보:} 본 보고의 정량값은 발표자료(2026-07-15) 전사 수치와 시뮬레이션 정상 상태 OBE 계산
+결과를 구분했습니다. 기준 논문에서는 Fig.\ 5(a)의 보고된 랜드마크(최적
+\(\sim\PaperPSNOptimumC\,°C\), 융점 \RbMeltingC\,°C)만 사용했으며 논문 곡선을 재구성하지 않았습니다.
+표의 43\%와 3\% 투과율은 모두 GABES 38점 온도 격자 계산값입니다. 원본 발표자료와 인접 원본 그림은
+수정하지 않았습니다. 분석 재실행일: 2026년 7월 24일; 3차 교정·교열일: 2026년 8월 6일.}
+
+\end{document}

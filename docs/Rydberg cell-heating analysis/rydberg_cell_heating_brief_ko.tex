@@ -1,0 +1,268 @@
+% !TEX program = xelatex
+% Generate analysis first:
+%   python -m analysis.rydberg_cell_heating.workflow --config analysis/rydberg_cell_heating/brief_report_config.json
+%   python -m analysis.rydberg_cell_heating.brief_report_figure --results analysis/rydberg_cell_heating/generated_brief/results.json --output-stem analysis/rydberg_cell_heating/generated_brief/brief_summary
+%   python -m analysis.rydberg_cell_heating.ppt_consistency_figure     % PPT 전사값만 사용하는 자체 정합성 그림
+\documentclass[10pt,a4paper]{article}
+
+\usepackage{kotex}
+\IfFontExistsTF{Malgun Gothic}{
+  \setmainhangulfont{Malgun Gothic}
+  \setsanshangulfont{Malgun Gothic}
+}{
+  \setmainhangulfont{Noto Serif CJK KR}
+  \setsanshangulfont{Noto Sans CJK KR}
+}
+\usepackage{amsmath}
+\usepackage{booktabs,tabularx,array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage[hidelinks]{hyperref}
+\geometry{top=1.55cm,bottom=1.55cm,left=1.70cm,right=1.70cm}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.38em}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.15}
+
+\definecolor{navy}{HTML}{17324D}
+\definecolor{teal}{HTML}{0F766E}
+\definecolor{orange}{HTML}{C2410C}
+\definecolor{pale}{HTML}{EEF6F5}
+\definecolor{warn}{HTML}{FFF7ED}
+\newcommand{\Status}[1]{\textsf{\footnotesize[#1]}}
+\newcommand{\sensunit}{\mathrm{nV\,cm^{-1}\,Hz^{-1/2}}}
+\newcommand{\summarybox}[1]{%
+  \noindent\colorbox{pale}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}}}
+\newcommand{\warnbox}[1]{%
+  \noindent\colorbox{warn}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep\relax}{#1}}}
+
+\graphicspath{{./}{../../analysis/rydberg_cell_heating/generated_brief/}}
+\IfFileExists{../../analysis/rydberg_cell_heating/generated_brief/results_macros.tex}{
+  \input{../../analysis/rydberg_cell_heating/generated_brief/results_macros.tex}
+}{}
+% 워크플로우 산출물이 없을 때를 위한 fallback (2026-07-23 실행값).
+% results_macros.tex가 있으면 위에서 먼저 정의되므로 아래 값은 무시된다.
+\providecommand{\AnalysisGeneratedUTC}{2026-07-23}
+\providecommand{\SlopeOptimumTemperatureC}{42.00}
+\providecommand{\SensitivityOptimumTemperatureC}{47.00}
+\providecommand{\TotalSensitivityOptimum}{0.972}
+\providecommand{\ModelToPPTScaleRoom}{2.06}
+\providecommand{\PPTBestPSNLimit}{6.72}
+\providecommand{\ModelToPPTScaleOptimum}{6.9}
+\providecommand{\AbsoluteSensitivityStatus}{PREDICTED}
+\providecommand{\ExperimentalInputStatus}{PPT}
+
+\begin{document}
+
+{\color{navy}\LARGE\bfseries Rydberg cell 가열에 따른 RF 감도 변화\par}
+\vspace{2pt}
+{\large 예비 시뮬레이션 및 PPT 비교 보고}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X}
+보고 대상 & 주경민, ``cell heating 이후 RF sensitivity 변화양상 확인'' (2026-07-15)\\
+분석 범위 & 온도별 Rydberg--EIT 광학 응답 및 finite-IF RF 감도\\
+작성일 & 2026년 7월 23일\\
+증거 수준 & 발표자료 수치 \Status{PPT}, PPT에서 유도한 값 \Status{DERIVED}, GABES 계산 \Status{PREDICTED}, 미측정 입력 \Status{ASSUMED}/\Status{PENDING}\\
+\end{tabularx}
+
+\vspace{0.4em}
+\summarybox{%
+\textbf{\color{navy}보고 요약}\quad
+셀 가열로 Rb 밀도를 높였을 때 EIT 신호와 RF 최소 검출 전기장이 어떻게 변하는지 확인하여
+후속 microwave sensing의 운전 온도를 정하는 시험이다. 결론은 세 가지다.
+\textbf{(1)} PPT의 각 온도에서 측정 감도는 그 온도의 PSN limit과 거의 같다(비 0.95--1.12).
+즉 45/50\,°C의 악화는 기술잡음이 더해진 것이 아니라 \textbf{shot-noise floor 자체가 3.7배 나빠진 것}이며,
+원인은 검출기·전자단이 아니라 광학 투과량과 판독 기울기 쪽이다.
+\textbf{(2)} PPT 주석의 실제 온도(setpoint 40/45/50 → 38/42.5/44\,°C)를 적용하면
+GABES의 slope 최적점 \SlopeOptimumTemperatureC\,°C와 PPT의 EIT 최선명 온도 42.5\,°C가 사실상 일치한다.
+\textbf{광학 응답은 모델이 맞히고, RF 감도만 어긋난다.}
+\textbf{(3)} 최상값인 40\,°C setpoint는 상온 대비 약 1.3$\sigma$ 차이이고 측정 순서상 마지막이므로
+\textbf{``가열이 도움된다''는 아직 미확립}이다. 38--45\,°C 재측정이 최우선이다.}
+
+\section*{1. 어떤 실험이었는가}
+
+발표자료에 실제로 담긴 내용은 다음과 같다.
+
+\begin{enumerate}
+  \setlength{\itemsep}{0.15em}
+  \item ceramic heater와 온도 sensor를 이용한 vapor cell 가열계를 제작한다. \Status{PPT}
+  \item 상온 및 heater setpoint 40/45/50\,°C에서 EIT 신호를 비교한다. 45\,°C 설정값에서
+        신호가 가장 뚜렷하다고 기록되어 있다. \Status{PPT}
+  \item 각 조건에서 1\,s 측정 기준 최소 검출 전기장과 PSN limit을 구한다. PSN 주석에는
+        setpoint와 별개로 38 / 42.5 / 44\,°C가 병기되어 있다. \Status{PPT}
+\end{enumerate}
+
+장기적으로는 단순 heater 검증이 아니라 \textbf{Rydberg 원자 기반 microwave field sensing의
+운전점 교정}이다. PLAN 표의 다음 계획이 이미 ``07/16--24 온도에 따른 RF sensitivity 추가 확인''으로
+잡혀 있으므로, 발표자 본인도 이 자료를 확정이 아닌 1차 스캔으로 취급하고 있다. 이후 방향인
+MW focusing 후 Y--Z mapping, horn 위치·편광별 AT-splitting, MW double-slit,
+three-photon fluorescence imaging, 480-nm multi-mode 기반 RF 위상 측정·방향 탐지보다 앞서
+sensitivity와 noise floor를 고정하는 기반 단계다.
+
+\begin{table}[h]
+\centering
+\small
+\caption{PPT 전사값과 그로부터 유도한 비. 감도는 낮을수록 좋다. 실제 온도는 PPT의 PSN
+주석에 ``??''와 함께 병기된 값이다.}
+\begin{tabular}{lccccl}
+\toprule
+조건 & 실제 온도 & RF 감도 \((\sensunit)\) & PSN limit & 측정/PSN & 해석\\
+\midrule
+상온 & (미기재) & \(12.5\pm3.6\) & 11.2(4) & 1.12 & 별도 캠페인 수치로 추정\\
+40\,°C setpoint & 38\,°C & \(\mathbf{6.68\pm2.55}\) & 6.72(4) & 0.99 & PPT 기준 최상\\
+45\,°C setpoint & 42.5\,°C & \(17.6\pm2.2\) & 17.6(5) & 1.00 & EIT는 가장 뚜렷함\\
+50\,°C setpoint & 44\,°C & \(23.8\pm6.5\) & 25.0(1) & 0.95 & 감도 악화\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{2. PPT 자체 정합성 진단 \Status{DERIVED}}
+
+모델을 끌어오기 전에, PPT 수치만으로 이미 판별되는 것이 있다.
+
+\textbf{측정값이 자기 PSN limit에 붙어 있다.} 네 조건 모두 측정/PSN 비가 0.95--1.12로 1 근처다.
+따라서 45/50\,°C에서의 악화는 detector RIN, 전자단 잡음, 환경 진동 같은 \emph{추가} 기술잡음으로
+설명되지 않는다. 이 가설군은 이 자료만으로 이미 강하게 배제된다.
+
+\textbf{악화한 것은 shot-noise floor 자체다.} PSN limit이 6.72 (38\,°C) → 17.6 (42.5\,°C)
+→ 25.0 (44\,°C)로 \textbf{3.7배} 나빠진다. PSN 한계는 검출 광자수와 전기장--전압 변환 기울기로
+결정되므로, 원인은 밀도 증가에 따른 \emph{probe 투과량 감소} 또는 \emph{heterodyne 판독 기울기 붕괴}
+둘 중 하나(또는 둘 다)로 좁혀진다. 창면 Rb 응축이나 cold-spot 관리 실패도 같은 방향으로 작용한다.
+
+\begin{figure}[h]
+\centering
+\IfFileExists{../../analysis/rydberg_cell_heating/generated_brief/ppt_consistency.pdf}{%
+  \includegraphics[width=\textwidth]{ppt_consistency}}{%
+  \fbox{\parbox{0.9\textwidth}{\centering\vspace{1.2cm}
+  \texttt{ppt\_consistency.pdf} 미생성 --- \texttt{python -m analysis.rydberg\_cell\_heating.ppt\_consistency\_figure} 실행 필요
+  \vspace{1.2cm}}}}
+\caption{PPT 전사값만 사용한 정합성 진단. 좌: 감도와 PSN limit이 같이 움직이며, x축은 setpoint가
+아니라 PPT 주석의 실제 온도다. GABES slope 최적점(42.0\,°C)이 EIT 최선명 온도(실제 42.5\,°C)와
+겹친다. 우: 측정/PSN 비가 모든 조건에서 1 근처.}
+\end{figure}
+
+\warnbox{\small\textbf{확인 필요 1.}\quad 40\,°C와 50\,°C에서는 측정값이 자기 PSN limit보다
+약간 \emph{작다}(0.99, 0.95). PSN을 다른 온도·다른 광량 기준으로 계산했거나 대역폭 규약이
+어긋났을 가능성이 있다. PSN 계산에 쓴 투과 광량과 ENBW를 원기록에서 확인해야 한다.}
+
+\section*{3. GABES 시뮬레이션과의 비교}
+
+계산은 \({}^{85}\mathrm{Rb}\) \(5S_{1/2}\!\rightarrow5P_{3/2}\!\rightarrow40D_{5/2}\) EIT와
+\(40D_{5/2}\!\rightarrow39F_{7/2}\) RF 결합을 사용했다. 각 온도에서 정상상태 OBE spectrum을 구하고,
+40-kHz finite-IF weak-SIG 선형 응답, RF dipole, probe shot noise를 전기장 ASD로 변환했다.
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3.2cm}X}
+주요 입력 & probe 6\,$\mu$W \Status{PPT 계열}, coupling 30\,mW \Status{ASSUMED},
+beam 0.15\,mm \Status{ASSUMED}, cell 50\,mm \Status{ASSUMED},
+LO Rabi 3.7\,MHz \Status{ASSUMED}, IF 40\,kHz \Status{PPT 계열}\\
+조건부 가정 & Doppler off, temperature/density dephasing 0, technical noise 0,
+RF angular factor 1, heater=effective vapor=cold spot\\
+결과 상태 & 절대 감도 \Status{\AbsoluteSensitivityStatus}, PPT 입력 \Status{\ExperimentalInputStatus};
+실험값에 맞춘 fitting은 하지 않음\\
+\end{tabularx}
+
+\begin{figure}[h]
+\centering
+\IfFileExists{../../analysis/rydberg_cell_heating/generated_brief/brief_summary.pdf}{%
+  \includegraphics[width=\textwidth]{brief_summary}}{%
+  \fbox{\parbox{0.9\textwidth}{\centering\vspace{1.0cm}
+  \texttt{brief\_summary.pdf} 미생성 --- \texttt{brief\_report\_figure} 워크플로우 실행 필요.\\
+  \footnotesize 재생성 시 PPT 점들의 x축을 setpoint가 아닌 실제 온도로 바꿔 그릴 것.
+  \vspace{1.0cm}}}}
+\caption{GABES 온도 sweep과 PPT 관측의 비교. 회색 점선은 절대 보정 오차를 분리해 온도 경향만
+보기 위해 상온 PPT 값에 정규화한 모델이다.}
+\end{figure}
+
+\textbf{광학 응답: 일치한다.} GABES의 spectral slope는 \(\SlopeOptimumTemperatureC\,^\circ\mathrm{C}\)에서
+최대다. PPT의 ``EIT가 가장 뚜렷한'' 조건은 45\,°C setpoint지만 실제 온도로는 42.5\,°C이므로,
+두 값은 0.5\,°C 이내로 겹친다. 이전 판(setpoint 45 대 모델 42)에서 불일치처럼 보였던 부분은
+온도 매핑 누락에서 온 착시다. 다만 PPT의 ``뚜렷함''은 contrast/진폭 관찰이고 모델 지표는 slope이므로,
+둘의 일치는 정성적 수준으로만 취급한다.
+
+\textbf{RF 감도: 어긋난다.} 실측 최상점은 실제 38\,°C인데 모델의 조건부 최적점은
+\(\SensitivityOptimumTemperatureC\,^\circ\mathrm{C}\)(\(\TotalSensitivityOptimum\,\sensunit\))이고,
+모델은 40\,°C setpoint 이후의 급격한 악화를 재현하지 못한다. 절대값 격차도 균일하지 않다:
+상온에서는 모델 대비 약 \ModelToPPTScaleRoom 배지만, 최적점 부근에서는 실험 PSN \PPTBestPSNLimit\ 대 모델
+\TotalSensitivityOptimum 로 약 \ModelToPPTScaleOptimum 배다. 즉 \textbf{단일 scale factor로 흡수되지 않는다.} 2절의 결과와 합치면 잔존 가설은
+아래로 좁혀진다.
+
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.9cm}X}
+\toprule
+이 자료로 배제 & 추가 technical noise(RIN, 전자단, 진동) --- 측정/PSN 비가 1 근처\\
+\midrule
+잔존 (유력) & 밀도 의존 collisional dephasing으로 EIT slope 붕괴; cold-spot 실패에 따른
+창면 응축·투과량 손실; heater 구조물의 37\,GHz 산란에 의한 LO Rabi 변화\\
+잔존 (확인 필요) & 실제 vapor 온도와 setpoint의 비선형 관계; Zeeman·MW standing wave의 온도 상관 변화\\
+\bottomrule
+\end{tabularx}
+
+\section*{4. 판단, 한계 및 다음 측정}
+
+\summarybox{%
+\textbf{\color{navy}판단}\quad
+현재 자료로 채택할 수 있는 것은 \textbf{``40\,°C setpoint(실제 38\,°C)를 후보로 두고 재확인''}까지다.
+40\,°C가 상온보다 좋아 보이지만 차이는 \(5.8\)에 대해 합성 오차 \(4.4\), 즉 약 1.3$\sigma$이고,
+슬라이드 순서상 40\,°C가 마지막 측정이라 시간 드리프트(lock 품질, MW power, 정렬)와 온도 효과가
+분리되지 않는다. \textbf{``가열이 감도를 개선한다''는 아직 확립되지 않았다.}
+45\,°C는 EIT visibility가 좋은 광학 운전점이지 RF sensitivity 최적점이 아니다.
+GABES의 \(\SensitivityOptimumTemperatureC\,^\circ\mathrm{C}\)는 기술잡음 0인 조건부 PSN 기준선이며
+실험 달성값으로 보고해서는 안 된다.}
+
+\subsection*{권장 재측정 순서}
+
+\begin{enumerate}
+  \setlength{\itemsep}{0.22em}
+  \item \textbf{측정 순서 무작위화·반복.} 상온을 이번 setup에서 다시 측정해 기준점을 이 캠페인 안으로
+        가져오고, 38, 40, 42, 45\,°C를 조밀하게 반복하며 47, 50\,°C를 대조점으로 둔다. 가열/냉각
+        양방향을 수행해 드리프트와 온도 효과를 분리한다. \emph{07/16--24 계획의 최우선 항목.}
+  \item \textbf{투과 광량을 온도마다 기록.} 2절의 진단이 맞다면 PSN 악화는 투과 probe 광량 또는
+        판독 기울기에서 그대로 보여야 한다. DC 투과 전력과 heterodyne slope(V per V/m)를 감도와
+        같이 남기면 원인이 한 번에 판별된다.
+  \item \textbf{온도장 실측.} heater setpoint 외에 양단 sensor, beam 부근 effective temperature,
+        cold-spot 후보 온도를 동시에 기록한다. PPT PSN 주석의 38/42.5/44\,°C가 무엇을 뜻하는지
+        원기록에서 확정한다.
+  \item \textbf{잡음 규약 고정.} raw EIT scan, RF sweep, detector dark trace와 PSD를 저장하고
+        RBW, VBW, ENBW, averaging time, peak/RMS convention을 함께 기록한다.
+\end{enumerate}
+
+\subsection*{보고 시 반드시 붙일 한계}
+
+\begin{tabularx}{\textwidth}{>{\bfseries\raggedright\arraybackslash}p{3.35cm}p{2.05cm}X}
+\toprule
+항목 & 상태 & 의미\\
+\midrule
+PPT 수치 & \Status{PPT} & raw trace에서 재계산하지 않은 수동 전사값\\
+상온 데이터 출처 & \Status{ASSUMED} & 12.5/11.2(4)는 04월 자료와 동일 수치. heater 설치 전
+다른 시기 측정일 가능성이 높아 같은 sweep에 넣기 부적절\\
+측정 순서·드리프트 & \Status{PENDING} & 온도 효과와 시간 드리프트 미분리\\
+GABES spectrum & \Status{PREDICTED} & reference-anchored 정상상태 OBE 결과\\
+절대 RF 감도 & \Status{PREDICTED} & 기술잡음 0인 조건부 PSN 기준; 실험 감도 아님\\
+모델 입력 일부 & \Status{ASSUMED} & coupling power, beam waist, cell 길이, LO Rabi는 이 PPT에 없음\\
+온도장·cold spot & \Status{ASSUMED} & 설정값을 vapor/cold-spot 온도와 동일시\\
+Zeeman·RF 공간장 & \Status{PENDING} & 편광, standing wave, 3D field 미포함\\
+raw EIT/PSD/log & \Status{PENDING} & 정량 검증과 dephasing/noise fitting에 필요\\
+\bottomrule
+\end{tabularx}
+
+\subsection*{최종 결론}
+
+GABES는 이 실험의 \textbf{광학 응답 온도 경향}을 이미 맞히고 있고, 이상적 PSN 기준선도 제공한다.
+그러나 40\,°C 이후의 RF 감도 악화는 재현하지 못한다. 한편 PPT 수치만으로도 그 악화가
+\textbf{추가 기술잡음이 아니라 shot-noise floor 자체의 붕괴}임이 판별되므로, 다음 단계는 모델 확장이
+아니라 \emph{투과 광량과 판독 기울기의 온도 의존을 실측하는 것}이다. 현 단계의 적절한 표현은
+``검증 완료''가 아니라 \textbf{예비 시뮬레이션 및 불일치 진단}이다. 위 raw data와 온도 로그를 입력하면
+density-dependent dephasing과 cold-spot density를 순차적으로 식별해 정량 모델로 확장할 수 있다.
+
+\vfill
+{\footnotesize
+\textbf{재현 정보:} config와 PPT 전사 CSV, code hash, 생성 시각은
+\texttt{analysis/rydberg\_cell\_heating/generated\_brief/source\_manifest.json}에 기록한다.
+2절 그림은 \texttt{ppt\_consistency\_figure.py}가 PPT 전사 CSV만으로 생성하며,
+GABES 최적점 주석선 두 개 외에는 모델 값을 쓰지 않는다.
+원본 PPTX는 수정하거나 산출물에 포함하지 않았다. 분석 생성 시각: \AnalysisGeneratedUTC.}
+
+\end{document}

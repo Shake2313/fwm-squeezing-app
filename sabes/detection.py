@@ -39,10 +39,9 @@ ELEMENTARY_CHARGE = 1.602176634e-19
 # ~1e-4 and real scatter dominates long before the Gaussian does.
 SEPARATION_MARGIN_WARN = 3.0
 
-# Measuring S dB of squeezing needs the squeezed trace to stay clear of the
-# amplifier floor, so the shot-noise clearance has to exceed |S| by a usable
-# margin -- roughly |S| + 6 dB. At the -8 dB operating point that is ~14 dB, so
-# 15 dB is the threshold below which the readout is called into question.
+# Detector-headroom criterion: resolving an independently established noise
+# offset S dB requires shot-noise clearance above |S| plus a usable margin.  This
+# says nothing about whether the atomic model predicts that offset.
 CLEARANCE_WARN_DB = 15.0
 
 
@@ -122,7 +121,7 @@ class ArmReadout:
 
 @dataclass(frozen=True)
 class DetectionReadout:
-    """Post-solve result: can this measurement actually see the squeezing?"""
+    """Post-solve detector headroom; it does not validate a source-noise model."""
     arms: Tuple[ArmReadout, ...]
     total_power_w: float
     shot_noise_a_per_rthz: float
@@ -134,14 +133,13 @@ class DetectionReadout:
     def measurable(self):
         return self.clearance_db >= CLEARANCE_WARN_DB
 
-    def margin_above_electronic_db(self, squeezing_db):
-        """How far a squeezed trace sits above the amplifier noise floor.
+    def margin_above_electronic_db(self, diagnostic_db):
+        """Electronics margin for an independently supplied dB offset.
 
-        The squeezed level is |S| below shot noise, and shot noise is
-        `clearance_db` above the electronics, so what is left is the difference.
-        Under a few dB the electronic-noise subtraction dominates the result.
+        This is useful detector bookkeeping, but passing a mean-field diagnostic
+        does not turn it into physical squeezing.
         """
-        return self.clearance_db - abs(float(squeezing_db))
+        return self.clearance_db - abs(float(diagnostic_db))
 
 
 def _propagate(mode, distance_m):
@@ -286,8 +284,8 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
     if clearance < CLEARANCE_WARN_DB:
         warnings.append(
             f"shot noise is only {clearance:.1f} dB above the amplifier noise; "
-            f"a squeezed trace would sit close to the electronic floor. More "
-            f"optical power fixes this and the atoms do not care about seed power")
+            f"precision noise readout would sit close to the electronic floor. "
+            f"This is a detector-headroom warning, not a source-noise prediction")
 
     return DetectionReadout(
         arms=tuple(arms), total_power_w=total,

@@ -1,43 +1,348 @@
 {
-  "_comment": "Deferred / planned work for GABES. Basics & current behaviour live in README.md; this file tracks things intentionally NOT done yet. Each item: {id, area, title, why, status}. status: deferred | in_progress | done.",
-  "_daily_report_sync": "Daily reports through 2026-07-09 have been reflected in this checklist.",
+  "_comment": "GABES work registry. Daily-report promotion pass 1 and the FWM/SABES analytic-reconstruction pass 2 are complete. Active work uses explicit problem statements, evidence, dependencies, acceptance criteria, priority, effort, and blocking state; done records remain as execution history.",
+  "_daily_report_sync": "Daily reports through 2026-08-07 were reviewed and independently rechecked against current code, tests, and numerical probes. The 2026-08-08 report is outside the promotion window because the pass-1 cutoff was fixed before that report was added.",
+  "_last_reviewed_at": "2026-08-21",
+  "_second_pass_completed_at": "2026-08-09",
+  "_analytic_reconstruction_sync": {
+    "canonical_source": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+    "scope": "Seeded-FWM mean-field gain, quantum fluctuation propagation, and external balanced detection. It is not independent validation of the spontaneous-biphoton topology, absolute pair rate, or coincidence model.",
+    "code_audit_correction": "Production GABES uses a trace-normalized finite-seed density-matrix Floquet solve, not the reconstruction script's rate/Sylvester approximation. The low-dimensional production solver supports general finite order and every reported scan defaults to N_F=3 with a full-scan N_F=2 comparison. Separate slow references now supply the self-consistent pump-only state, infinitesimal trace-zero 2x2 Nambu response, and a tensor (v_z,v_x) Maxwell average for the standard minus branch; neither replaces the one-dimensional finite-seed production path, and the inherited plus branch is explicitly unsupported because it fails physical static-pump gauge parity. Beam angular distributions, segmentwise pump-state recomputation, and microscopic Langevin diffusion remain pending. Maxwell signs remain fixed by passive-medium and no-atom fixtures, not by copying across chi conventions."
+  },
+  "_promotion_validation": "Candidates were screened from the daily reports and independently rechecked once against current code, tests, reproducible numerical probes, and, for seeded FWM/SABES, the analytic reconstruction. Items that require measurements are blocked_external; items whose value depends on an unresolved modelling choice are parked or needs_decision.",
+  "_validation_hierarchy_policy": "Algebraic identity, assembly invariant, numerical implementation parity, truncation/quadrature convergence, physical model validation, and held-out experimental validation are separate gates. Passing trace, positivity, half-plane, commutator, or regression checks must not be reported as evidence that omitted physics is correct.",
+  "_fwm_layer_policy": "Mean-field gain, quantum fluctuation propagation, and external detection are separate layers. Gain-only or chosen-vacuum algebraic-fixture values are diagnostics, never a physical squeezing spectrum or universal Caves bound. Atomic absorption/noise belongs inside distributed propagation; only genuinely post-cell loss belongs in the detector layer.",
+  "_frequency_axis_policy": "Optical beat or two-photon detuning and RF spectrum-analyser frequency are distinct typed quantities. Internal dynamics use angular frequency; user-facing Hz values must be converted once at the boundary. A detuning scan must never be presented as a noise spectrum versus analysis frequency.",
+  "_status_policy": "ready means acceptance is testable and no external artifact or unresolved user choice blocks implementation; needs_decision must list decision_required; blocked_external must list blocked_on and an observable unblock condition; parked must list an activation_trigger and is not active work until that trigger is met. in_progress and done are execution-history states; deferred is retained only in completed historical prose and is not an active triage state.",
   "_priority_policy": "Review/checklist priority uses P1/P2/P3 going forward. P1 blocks correctness, reproducibility, release, or user-facing trust. P2 is important and should be fixed before publication/release or broad reuse, but does not currently break tests. P3 is housekeeping, polish, or low-risk maintainability. This priority is separate from GROUP B/C implementation burden.",
+  "_effort_policy": "Effort is small | medium | large | research and is independent of priority.",
   "_group_policy": "GROUP B items are safe but substantial coding work. GROUP C items are heavy / need design alignment; ask the user before coding any GROUP C item.",
+  "_retired_items": [
+    {
+      "id": "buffer-gas-pressure-shift",
+      "disposition": "superseded",
+      "superseded_by": "collisional-coefficient-provenance-and-pressure-shift",
+      "reason": "The old item mixed sourced pressure coefficients with unsupported phenomenological Dicke narrowing."
+    },
+    {
+      "id": "magneto-buffer-relaxation-map",
+      "disposition": "superseded",
+      "superseded_by": "geometry-aware-buffer-relaxation-budget",
+      "reason": "Pressure alone is insufficient to determine diffusion, wall, and spin-destruction relaxation."
+    },
+    {
+      "id": "lambda-residual-two-photon-doppler",
+      "disposition": "reopened_and_superseded",
+      "superseded_by": "lambda-spectrum-validity",
+      "reason": "Independent recheck found cold-limit angle dependence and unresolved default readouts despite the earlier done record."
+    },
+    {
+      "id": "low-order-polarization-zeeman-proxies",
+      "disposition": "rejected",
+      "reason": "Removed because unrestricted branching, polarization-purity, or asymmetry knobs can fit lab distortions without making the model more identifiable. Rydberg opacity/readout validation replaces the evidence-backed part; OD/SAS polarization effects require measured inputs before a new item is activated."
+    },
+    {
+      "id": "rydberg-full-zeeman-polarization-field-model",
+      "disposition": "superseded",
+      "superseded_by": "rydberg-zeeman-polarization-reference-mode",
+      "reason": "The omnibus item combined Zeeman, stray-field, ionization, and charge models that need separate evidence."
+    },
+    {
+      "id": "full-time-domain-superhet-demodulation",
+      "disposition": "superseded",
+      "superseded_by": "rydberg-readout-transfer-function-validation",
+      "reason": "Measured small-signal transfer-function validation is required before a full synthetic time-domain engine."
+    },
+    {
+      "id": "rydberg-spatial-rf-field-model",
+      "disposition": "superseded",
+      "superseded_by": "rydberg-rf-field-map-import",
+      "reason": "GABES should consume measured or specialist-EM field maps instead of duplicating a 3-D horn solver."
+    },
+    {
+      "id": "rydberg-three-photon-imaging",
+      "disposition": "rejected_for_now",
+      "reason": "Removed from active work until a concrete level topology, camera/readout model, and validation dataset exist."
+    },
+    {
+      "id": "biphoton-predictive-model",
+      "disposition": "reframed_and_superseded",
+      "superseded_by": "biphoton-source-trust-boundary",
+      "reason": "The old item mixed completed numerical waveform work with unresolved absolute-rate calibration and called the result predictive. The replacement preserves the useful solver while making its claim boundary testable."
+    },
+    {
+      "id": "fwm-per-source-biphoton-calibration",
+      "disposition": "rejected_and_superseded",
+      "superseded_by": "biphoton-heldout-validation-dataset",
+      "reason": "Per-source width/Rabi/dephasing fitting without predeclared holdout observables is circular and adds non-identifiable knobs. Calibration and validation must be separated by data split and provenance."
+    },
+    {
+      "id": "fwm-quantum-langevin-noise",
+      "disposition": "split_and_superseded",
+      "superseded_by": [
+        "fwm-quantum-langevin-microscopic-core",
+        "sabes-balanced-detection-and-sql-calibration"
+      ],
+      "reason": "The old omnibus item conflated microscopic distributed atomic noise with external detector transfer and SQL calibration."
+    },
+    {
+      "id": "fwm-full-zeeman-floquet-solve",
+      "disposition": "split_and_superseded",
+      "superseded_by": [
+        "fwm-floquet-convergence-gate",
+        "fwm-zeeman-resolved-reference-mode"
+      ],
+      "reason": "Low-dimensional Floquet truncation convergence is an immediate correctness gate; a full Zeeman manifold is a separate evidence-gated research mode."
+    },
+    {
+      "id": "sabes-instrument-trace-honesty",
+      "disposition": "reopened_and_superseded",
+      "superseded_by": "sabes-mean-field-trust-boundary",
+      "reason": "A SYNTHESISED badge does not make a scalar gain score copied across RF frequency into a physical spectrum, and the old record incorrectly claimed the measured shape was reproduced."
+    },
+    {
+      "id": "sabes-calibration-measurements",
+      "disposition": "split_and_superseded",
+      "superseded_by": [
+        "sabes-calibration-trust-schema",
+        "sabes-calibration-campaign"
+      ],
+      "reason": "The stale 25-of-42 count hid two different tasks: code-level provenance/dependency tracking and acquisition of missing lab measurements."
+    }
+  ],
   "items": [
     {
       "id": "rydberg-power-to-rabi",
       "area": "schemes/rydberg.py",
       "title": "Connect Rydberg probe/coupling beam power to the OBE drive",
-      "why": "DONE. coupling_power_mw / beam_diameter_mm now drive Ω_c via the FWM-style √(P/d²) intensity scaling (RydbergEITScheme._coupling_rabi), anchored so the reference operating point reproduces the fitted coupling_rabi_mhz (kept as an Advanced anchor) -- no absolute 480 nm dipole needed. probe_power_uw also drives the weak Ω_P through the same anchored √P/d scaling, so probe-power broadening is represented. These knobs are recompute=True solve knobs. Also landed alongside: residual two-photon Doppler option (per-level k via atoms.doppler_ratios), 2-channel dephasing (5S-40D vs 40D-39F), AT center-shift metric, cached probe-line constants, finite-IF static discriminator proxy, and opt-in temperature-linked dephasing. cache/defaults bumped through rydberg-eit-v4.",
+      "why": "DONE. coupling_power_mw / beam_diameter_mm now drive Ω_c via the FWM-style √(P/d²) intensity scaling (RydbergEITScheme._coupling_rabi), anchored so the reference operating point reproduces the fitted coupling_rabi_mhz (kept as an Advanced anchor) -- no absolute 480 nm dipole needed. probe_power_uw also drives the weak Ω_P through the same anchored √P/d scaling, so probe-power broadening is represented. These knobs are recompute=True solve knobs. Also landed alongside: residual two-photon Doppler option (per-level k via atoms.doppler_ratios), 2-channel dephasing (5S-40D vs 40D-39F), AT center-shift metric, cached probe-line constants, finite-IF static discriminator proxy, and opt-in temperature-linked dephasing. Later cell-heating/electrometry work brought cache/defaults through rydberg-eit-v6.",
       "status": "done"
     },
     {
-      "id": "biphoton-predictive-model",
-      "area": "schemes/fwm.py + observables.py",
-      "title": "Replace calibrated biphoton estimate with a predictive model",
-      "why": "PARTIAL (biphoton_model toggle, Predictive is the default). The biphoton WAVEFORM is now solved from first principles: Doppler-averaged cascade amplitude (Kim QST 9,045006 (2024) Eq.2; Du JOSAB 25,C98 (2008) Eq.15; Chen PRR 4,023132 (2022) Eq.3-5) with the Omega_c^2 Autler-Townes term in the two-photon denominator (not a weak-coupling drive), the collective velocity-class coherent sum, natural-linewidth decay (no injected emission_decay_ns), a waveform-derived source bandwidth, and the wavelength-dependent BTW width ORDERING (852-917 nm narrower than 852-795 nm). g2_SI(tau) is computed from |psi|^2 with physical accidentals (no added-accidental forcing in Predictive mode). STILL ANCHORED / APPROXIMATE: (a) absolute pair rate is reference-anchored because the lumped 4-level model does not pin the collection coefficient C; its current scalar law uses pump power, coupling drive, vector phase matching, and sqrt(N/N_ref), while OD/cell length do not directly scale the rate; (b) absolute ns-widths now CONVERGE numerically: the velocity-class coherent sum integrates a narrow ~Gamma/k source resonance (~17 m/s for the telecom cascade) that a fixed Doppler-sized velocity step aliased, giving a factor-~20 non-monotonic FWHM swing vs biphoton_velocity_step; GenericFWMSolver._converged_predictive_waveform now auto-refines the velocity grid (oversample the measured resonance, halve until the |psi|^2 FWHM is stable, PRED_V_* constants) so the predictive telecom source BTW converges to ~0.17 ns; biphoton_stats now reports that intrinsic width separately from the detector-timing-broadened width (~0.50 ns with the default 0.55 ns net timing-difference response, compared with the measured 0.56(4) ns) while preserving fwhm_ns as a detected-width compatibility alias, and a cap-hit case is surfaced as 'unconverged / qualitative only' in the validation table. The wavelength ORDERING is physical, but exact per-source widths and the Cs ratio still need topology-specific Rabi/dephasing calibration; (c) OD waveform reshaping (Du/Chen rho-bar, GenericFWMSolver._apply_longitudinal_response) is implemented but OFF by default (param biphoton_od_reshaping) -- the lumped model overestimates high-OD group delay; (d) full quantum-Langevin noise (Kolchin PRA 75,033814 (2007)) is not modelled. Next: per-source Rabi/dephasing calibration for exact widths, and a Langevin noise channel.",
-      "status": "in_progress"
+      "id": "rydberg-finite-if-electrometry-chain",
+      "area": "rydberg_electrometry.py + schemes/rydberg.py",
+      "title": "Finite-IF weak-SIG response and absolute detector-noise sensitivity",
+      "why": "DONE. The LO-dressed steady state is linearized at finite IF, Doppler-class phasors are coherently averaged, and probe detuning minimizes total noise-equivalent field rather than response alone. Explicit RF dipole/angular and peak/RMS conventions connect Ω_SIG to E; a balanced detector reports one-sided PSN, RIN, electronics, total field ASD, and ENBW RMS noise without injecting literature sensitivity anchors. AT conversion prefers the fitted full-spectrum Ω_RF; the direct split helper removes known RF detuning and is labelled as an ideal two-level estimate subject to optical line pulling.",
+      "status": "done"
     },
     {
-      "id": "buffer-gas-pressure-shift",
-      "area": "constants.py",
-      "title": "Promote Ne buffer broadening to a gas/species/line table with pressure shift + Dicke narrowing",
-      "why": "GROUP B. Safe but substantial cross-scheme work. neon_buffer_broadening() is a fixed FWHM-per-Torr line only; pressure shift and Dicke narrowing are not modelled (see constants.py TODO). Generalise to a gas/species/line coefficient table and apply low-order pressure shift + phenomenological Dicke narrowing in OD/SAS, Magneto, and Lambda without changing solver dimensions. Do not include full velocity-changing collisions in this item.",
-      "status": "deferred"
+      "id": "rydberg-heated-cell-analysis",
+      "area": "rydberg_experiment.py + schemes/rydberg.py",
+      "title": "Heated-cell temperature, density, dephasing, and effective-atom model",
+      "why": "DONE. Heater setpoint, effective vapor temperature, and cold spot are distinct; cold-spot pressure and local ideal-gas density feed the OBE. Temperature- and density-dependent dephasing knobs are separate, with a fit helper that reports identifiability. Gaussian overlap/participation produces an explicit effective atom number, and the built-in cell-heating sweep reports EIT features plus PSN/total sensitivity.",
+      "status": "done"
+    },
+    {
+      "id": "rydberg-experimental-analysis-report",
+      "area": "rydberg_experimental_csv.py + analysis/rydberg_cell_heating",
+      "title": "Unit-aware experimental overlays and reproducible cell-heating report",
+      "why": "DONE. EIT, RF sweep, and PSD/ASD CSV loaders normalize declared units, merge duplicates, and retain SHA-256 provenance. The config-driven workflow emits status-tagged JSON, optima, figures, a source manifest, TeX macros, and a Korean XeLaTeX validation template. Missing measurements remain PENDING; PPT, assumptions, references, fits, predictions, and measurements are not conflated.",
+      "status": "done"
+    },
+    {
+      "id": "rydberg-axial-sam-calibration",
+      "area": "rydberg_experiment.py + schemes/rydberg.py + analysis/rydberg_cell_heating",
+      "title": "Axial Beer-Lambert and SAM field-uncertainty layer",
+      "why": "DONE at the declared approximation level. Axial T(z)/n(z), cold-spot-limited column density, Gaussian-overlap N_eff, and generic segmented Beer-Lambert APIs are implemented. The report workflow can density-rescale the lumped OBE line shape along a configured profile and labels that it does not re-solve local line shapes or finite-IF sensitivity. SAM controls propagate source/gain/loss/distance/correction standard uncertainties and warn when r < 2D²/λ; horn near fields and 3-D standing waves remain separate deferred work.",
+      "status": "done"
+    },
+    {
+      "id": "biphoton-source-trust-boundary",
+      "area": "gabes/schemes/fwm.py + gabes/observables.py + README.md",
+      "title": "Make the spontaneous-biphoton model's evidence boundary explicit",
+      "problem": "The numerically converged reduced waveform is currently called Predictive or first-principles even though absolute pair rate is reference-anchored, detector-broadened width agreement reuses the timing response, longitudinal phase matching is reference-offset, and gain-derived coincidence helpers can label nonclassicality by construction. The seeded-FWM squeezing reconstruction does not validate this separate spontaneous-source topology.",
+      "evidence": [
+        "GenericFWMSolver auto-refines the narrow velocity resonance and separates intrinsic from timing-broadened width, which is useful numerical work but not an absolute-rate or held-out validation.",
+        "The current source law contains an anchored collection coefficient and optional OD reshaping; the code and README already acknowledge that exact widths and source ratios remain approximate.",
+        "coincidence_stats maps G_s > 1 to g2 > 2 and R > 1 under an ideal two-mode assumption, so that result is not independent evidence of nonclassicality."
+      ],
+      "source_reports": [
+        "docs/daily_report/2026-07-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-04_scheme-5_fwm.md"
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Every biphoton output declares whether it is a reduced-model prediction, a reference-anchored estimate, a detector convolution, or a measurement; no aggregate Predictive badge may hide those distinctions.",
+        "Intrinsic waveform width, detector-broadened width, absolute pair rate, accidentals, and phase-matching weight each carry their own provenance and convergence status.",
+        "The seeded-FWM analytic reconstruction is recorded as out of scope rather than cited as validation of spontaneous pair rate, biphoton waveform, or g2.",
+        "Nonclassical or sub-SQL claims require an explicit ideal-canonical opt-in with its assumptions or a measured/full covariance; G_s > 1 alone cannot produce an evidence badge.",
+        "A velocity-grid cap, phase-reference construction, or detector-jitter reuse makes the affected observable qualitative or calibrated, never independently validated.",
+        "No topology-specific Rabi, dephasing, width, or collection knob is added without an identified measurement, uncertainty, fit subset, and held-out observable."
+      ],
+      "supersedes": ["biphoton-predictive-model"]
+    },
+    {
+      "id": "biphoton-heldout-validation-dataset",
+      "area": "analysis/fwm_biphoton + gabes/schemes/fwm.py",
+      "title": "Establish held-out data for spontaneous-biphoton widths, rates, and phase matching",
+      "problem": "The existing source presets can reproduce or order selected literature observables, but source-specific calibration and validation are not separated. Fitting Rabi, dephasing, width, or collection factors to the same widths and rates later quoted as validation would be circular.",
+      "source_reports": [
+        "docs/daily_report/2026-07-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-04_scheme-5_fwm.md"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "blocked_external",
+      "depends_on": ["biphoton-source-trust-boundary"],
+      "blocked_on": [
+        "Source-specific raw coincidence histograms or time tags with pump/coupling powers, detunings, temperature, cell length, collection geometry, filters, detector efficiencies, jitter, dark counts, and acquisition window.",
+        "At least one operating-condition subset reserved before fitting for each claimed topology or wavelength comparison.",
+        "Absolute power, timing, and count-rate calibration uncertainties plus stable provenance links or immutable file hashes."
+      ],
+      "acceptance_criteria": [
+        "Predeclare fitted parameters, calibration points, held-out points, observables, and tolerances before optimization.",
+        "Validate intrinsic temporal shape, detector-convolved width, absolute pair rate, singles/accidentals, and angular or longitudinal phase-matching response separately with propagated uncertainty.",
+        "At least one detuning, power, temperature, or geometry sweep remains held out; a single anchored operating point cannot confer predictive status.",
+        "Failed or missing holdout checks leave the corresponding output REFERENCE-ANCHORED or UNSUPPORTED rather than being absorbed by another scalar penalty."
+      ],
+      "supersedes": ["fwm-per-source-biphoton-calibration"]
+    },
+    {
+      "id": "collisional-coefficient-provenance-and-pressure-shift",
+      "area": "constants.py + species.py + schemes/sas.py + schemes/magneto.py + schemes/absorption.py",
+      "title": "Use provenance-backed collisional coefficients and pressure shifts",
+      "problem": "The current low-order constants can imply false precision: an Rb self-broadening coefficient can reach Cs, Ne is represented by a fixed broadening-only scalar, pressure shift is absent, and added homogeneous widths do not enter all OD/SAS pump and probe paths consistently.",
+      "evidence": [
+        "The 2026-07-20, 2026-07-30, and 2026-08-05 OD/SAS reviews independently identified coefficient fallback and pump/probe linewidth mismatches.",
+        "The 2026-07-23, 2026-07-28, and 2026-08-03 Magneto reviews found that the collisional data API cannot distinguish the optical effects later needed by the Liouvillian.",
+        "The 2026-08-06 Lambda review confirmed that pressure shift/broadening provenance remains unresolved."
+      ],
+      "source_reports": [
+        "docs/daily_report/2026-07-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-07-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-06_scheme-2_lambda-coherence.md"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Each collisional coefficient type used by the listed OD/SAS, Magneto, and Lambda paths has the physically required gas/species/line keys and validity domain, plus source, units, sign, and uncertainty.",
+        "Unsupported combinations return an explicit unsupported/qualitative status instead of falling back to another species or line.",
+        "Pressure-shift coefficients carry an explicit frequency convention and are applied once to the detuning with tested sign and unit conversions.",
+        "The coefficient API returns pressure shift and elastic optical dephasing separately; magneto-dynamics-semantics exclusively owns their Liouvillian application.",
+        "OD/SAS pump and probe paths use one documented homogeneous-width convention.",
+        "At zero buffer-gas pressure, buffer-gas shift and dephasing are exactly zero while species/line-specific self-broadening remains density dependent; unaffected Rb-85 D1 anchors remain unchanged and corrected fallback cases are checked against their own sourced references."
+      ],
+      "out_of_scope": [
+        "Phenomenological Dicke-narrowing knobs without a validation dataset.",
+        "A full velocity-changing-collision kernel.",
+        "FWM coefficient or Rabi-model changes in pass 1; existing FWM baselines must remain unchanged."
+      ],
+      "supersedes": ["buffer-gas-pressure-shift"]
+    },
+    {
+      "id": "species-line-rabi-and-saturation-provenance",
+      "area": "constants.py + species.py + schemes/sas.py",
+      "title": "Use line-specific OD/SAS Rabi and saturation conventions",
+      "problem": "One Rb-85 D1 saturation intensity is currently reused across isotope/species and D1/D2 choices, so pump power can imply the wrong Rabi frequency while retaining precise-looking output.",
+      "source_reports": [
+        "docs/daily_report/2026-07-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-07-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-05_scheme-1_od-sas.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Every supported isotope/species and D1/D2 path derives or sources its saturation/Rabi scale with dipole, linewidth, polarization, intensity, and angular-versus-cyclic-frequency conventions recorded.",
+        "Unsupported combinations are labelled unsupported rather than reusing the Rb-85 D1 value.",
+        "Pump power-to-Rabi conversion matches an independent analytic two-level reference and pump/probe code uses consistent frequency conventions.",
+        "The existing pump-off Rb-85 D1 AutoOD anchor remains within the documented 0.1% tolerance; corrected Cs, Rb-D2, or pumped results are compared with their own sourced references instead of preserving a known-wrong baseline.",
+        "FWM Rabi models and frozen FWM regression baselines remain unchanged in pass 1."
+      ]
+    },
+    {
+      "id": "sas-subdoppler-readout-trust",
+      "area": "schemes/sas.py + lineshape.py + observables.py",
+      "title": "Make sub-Doppler linewidth and lock-slope readouts resolution-aware",
+      "problem": "The full-spectrum Lock Slope can remain a hero value when the sub-Doppler feature is unresolved, while FWHM and slope change by roughly 30% with scan resolution.",
+      "source_reports": [
+        "docs/daily_report/2026-07-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-07-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-05_scheme-1_od-sas.md"
+      ],
+      "priority": "P1",
+      "effort": "small",
+      "status": "done",
+      "why": "DONE. Added a resolution-aware SubdopplerFeature diagnostic with linearly interpolated half-height edges, samples per FWHM, scan-edge clearance, and resolved/resolution-limited/scan-edge-limited/unresolved states while preserving the legacy tuple API. Unresolved or under-resolved spectra now promote SAS resolution and hide the full-envelope Lock Slope fallback. The fixed baseline-window 85Rb D1 refinement converges from 2x to 4x local density by 0.56% in FWHM and 3.81% in local slope. Output, in-app help, and the user guide distinguish calculated single-line Gaussian Doppler FWHM from measured Voigt or multi-line envelope width.",
+      "acceptance_criteria": [
+        "Report interpolated half-height edges, samples per resolved width, scan-edge distance, and a resolution status.",
+        "When no sub-Doppler feature is resolved, make that status the hero result and demote or hide the full-envelope gradient.",
+        "For the built-in Rb-85 D1 SAS default, refine the detected-feature window at 2x and 4x the baseline local sample density; the last two FWHM and local lock-slope values differ by at most 5% without moving the window after seeing the result.",
+        "The guide and output both identify whether the broad width is Gaussian Doppler FWHM or measured Voigt/envelope FWHM and never use the two labels interchangeably."
+      ]
     },
     {
       "id": "od-sas-paraffin-population-memory",
       "area": "gabes/schemes/sas.py + streamlit_app.py + tests/test_sas.py",
       "title": "Add opt-in paraffin-coated-cell population memory to OD/SAS",
+      "priority": "P2",
+      "effort": "medium",
+      "status": "done",
       "why": "DONE. OD/SAS exposes an Advanced checkbox that is off by default. When enabled with the pump on, basis-conditioned transit Liouvillians construct a velocity-randomized two-ground-hyperfine reservoir; natural excited-state decay is projected into that reservoir and a fixed 25.1 ms reference T1 relaxes it toward the thermal population. The existing transit rate supplies the one-zone beam-exit/return cadence. Pump-off OD is array-identical with and without coating, the Generic toy is unchanged, and no direct coating/window throughput factor is applied. This is explicitly a semi-quantitative population-memory MVP, not a calibrated geometry, Zeeman-coherence, or time-domain wall model.",
-      "status": "done"
+      "acceptance_criteria": [
+        "The checkbox is Advanced, defaults off, participates in the heavy-compute cache key, and is hidden for the Generic toy.",
+        "With coating disabled or the parameter key absent, the legacy pumped OD/SAS result is array-identical; with pump power zero, coated and uncoated OD are array-identical.",
+        "Basis-conditioned reload states linearly reproduce the legacy thermal-transit steady state, the reservoir transfer conserves probability, and its stationary ground populations are finite, nonnegative, and normalized.",
+        "The coated pump-on path retains the pump/probe velocity correlation and changes absorption only through atomic populations; it does not multiply transmission by a coating-loss coefficient.",
+        "The reference T1, one-zone return-rate assumption, population-only scope, and lack of cell-specific validation are visible in the in-app reference and README."
+      ]
     },
     {
       "id": "paraffin-coated-cell-extensions",
-      "area": "schemes/sas.py + schemes/absorption.py + schemes/magneto.py + schemes/rydberg.py + schemes/fwm.py",
+      "area": "schemes/sas.py + schemes/lambda_system.py + schemes/magneto.py + schemes/rydberg.py + schemes/fwm.py",
       "title": "Calibrate coated-cell transport and extend coating physics beyond OD/SAS",
-      "why": "GROUP C. Deferred. The OD/SAS checkbox retains only ground-hyperfine populations in a quasi-static one-zone reservoir. Reusing the transit rate for both beam exit and return omits cell/beam volume ratio and dark-flight statistics; a single Rb T1 is not transferable across cells, species, coating recipes, temperatures, or ageing. Lambda/EIT, Magneto, Rydberg, and FWM additionally require topology-specific ground coherence or Zeeman-multipole dynamics. Select one next scheme and provide cell dimensions, beam geometry, coating/species/temperature-specific relaxation data, and calibration/held-out spectra before implementation. Direct window/coating throughput remains a separate measured baseline with default unity.",
-      "status": "deferred"
+      "problem": "The OD/SAS checkbox retains only ground-hyperfine populations in a quasi-static one-zone reservoir. Reusing the transit rate for both beam exit and return omits cell/beam volume ratio and dark-flight statistics; a single Rb T1 is not transferable across cells, species, coating recipes, temperatures, or ageing. Lambda/EIT, Magneto, Rydberg, and FWM would additionally need topology-specific ground coherence or Zeeman-multipole dynamics rather than copying the OD/SAS population model.",
+      "evidence": [
+        "Bandi, Affolderbach, and Mileti, J. Appl. Phys. 111, 124906 (2012), measured T1 = 25.1(0.6) ms for one paraffin-coated 87Rb cell at 300 K and related it to that cell's geometry and wall-collision count.",
+        "Klein et al., Phys. Rev. A 83, 013826 (2011), treat coated-cell EIT through alternating bright and dark intervals whose distribution depends on cell and laser-beam geometry.",
+        "The current OD/SAS manifold is hyperfine-lumped and therefore cannot carry Zeeman polarization moments, Ramsey phase, wall-induced frequency shifts, or spatially resolved return trajectories."
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "depends_on": ["od-sas-paraffin-population-memory"],
+      "activation_trigger": "Select one next scheme and provide its cell dimensions, beam geometry, coating/species/temperature-specific relaxation or dark-time data, and a calibration/held-out spectrum or time trace.",
+      "acceptance_criteria": [
+        "Separate bright transit, dark return, wall-collision, stem/reservoir, and true spin-destruction rates; do not infer all of them from one transit slider.",
+        "Represent the state actually preserved by the selected scheme: hyperfine population for OD/SAS, ground coherence for Lambda/EIT, and the required Zeeman multipoles for Magneto; unsupported topologies remain unavailable rather than inheriting a population-only checkbox.",
+        "Use species-, coating-, temperature-, ageing-, and cell-specific relaxation data with source and uncertainty, and keep the 25.1 ms value labelled as a reference rather than a universal paraffin constant.",
+        "Add velocity-changing collisions, Ramsey bright/dark evolution, adsorption/frequency shifts, and spatial transport only where the selected validation data can identify them.",
+        "Keep direct window/coating throughput as a separate baseline measurement with default unity; do not turn literature transmission ranges into a universal loss factor.",
+        "Predeclare calibration and held-out observables, then validate spectra or time traces with transport/quadrature convergence and uncertainty-aware residuals before upgrading the result from semi-quantitative."
+      ]
+    },
+    {
+      "id": "experimental-csv-calibration-and-sweep-direction",
+      "area": "experimental_csv.py + streamlit_app.py + schemes/sas.py",
+      "title": "Preserve absolute transmission meaning and bidirectional sweep structure",
+      "problem": "Extrema normalization can relabel a true transmission range such as 0.70-0.92 as 0-1, and sorting a bidirectional scan can merge hysteretic branches before the user is warned.",
+      "source_reports": [
+        "docs/daily_report/2026-07-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-05_scheme-1_od-sas.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "done",
+      "why": "DONE. Extrema scaling is explicitly typed and labelled Relative normalized transmission. Absolute transmission is available only from declared dark/reference levels or a signed gain/offset detector law and reconstructs noiseless synthetic transmission within the 1e-9 criterion without clipping out-of-range calibrated values. Sweep reversals and exact forward/reverse counts are computed before sorting; acquisition-order SweepBranch records preserve both branches, while the compatibility merged trace issues an explicit hysteresis-loss warning. Streamlit exposes the three calibration modes, provenance labels, branch diagnostics, and prevents double polarity inversion in absolute mode.",
+      "acceptance_criteria": [
+        "Extrema-scaled data are labelled relative normalized transmission, never absolute transmission.",
+        "Absolute mode requires dark/reference information or an explicit gain/offset calibration; a noiseless synthetic gain/offset fixture reconstructs its original transmission to relative error <= 1e-9.",
+        "Sweep-direction reversals are counted before sorting or duplicate merging, and forward/reverse sample counts are preserved exactly in a synthetic round-trip fixture.",
+        "Forward and reverse branches are preserved separately, or the merge and its loss of hysteresis information are made explicit."
+      ]
     },
     {
       "id": "figureless-observables-paths",
@@ -71,39 +376,221 @@
       "status": "done"
     },
     {
-      "id": "magneto-buffer-relaxation-map",
-      "area": "schemes/magneto.py",
-      "title": "Map Ne buffer pressure to default ground relaxation and depolarization",
-      "why": "GROUP B. Safe but needs empirical defaults and tests. Today ne_pressure_torr mainly affects optical broadening while buffer_ground_relax_khz and collisional_depol_khz remain independent overrides. Add a simple table/experience-based default mapping from pressure to diffusion-limited ground relaxation and spin-depolarization, with Advanced overrides left in place.",
-      "status": "deferred"
+      "id": "magneto-dynamics-semantics",
+      "area": "schemes/magneto.py + zeeman.py",
+      "title": "Separate Magneto lifetime, dephasing, transit, and depolarization dynamics",
+      "problem": "Ne optical broadening currently contaminates spontaneous-decay/TOC semantics, and buffer_ground_relax_khz and collisional_depol_khz act through the same effective channel: swapping 20/2 kHz with 2/20 kHz produced no susceptibility change in the independent recheck.",
+      "source_reports": [
+        "docs/daily_report/2026-07-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-03_scheme-4_hanle-eia-nmor.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "done",
+      "why": "DONE. Natural emission, branching, and TOC remain tied to GAMMA_D1; Ne elastic optical broadening is applied as a completely positive dephasing channel without changing lifetime. Transit reload and collisional ground dephasing are separate channels, rate swaps produce distinct susceptibilities, and zero-rate/invariant regressions include an allowed extreme UI point with positive semidefinite steady state. Coefficient provenance remains owned by collisional-coefficient-provenance-and-pressure-shift.",
+      "acceptance_criteria": [
+        "Elastic buffer broadening does not change the natural excited-state lifetime or branching ratios; coefficient provenance remains owned by collisional-coefficient-provenance-and-pressure-shift.",
+        "Transit reload returns population to the declared reservoir state, whereas collisional depolarization damps orientation/alignment or coherence without reloading population.",
+        "A synthetic rate-swap regression produces different results and each zero-rate limit restores its corresponding analytic model.",
+        "For deterministic test fixtures, steady states have |Tr(rho)-1| <= 1e-10, Hermiticity residual <= 1e-10, and minimum eigenvalue >= -1e-10."
+      ]
     },
     {
-      "id": "fwm-per-source-biphoton-calibration",
-      "area": "schemes/fwm.py",
-      "title": "Add per-source Rabi/dephasing/width calibration for predictive biphoton modes",
-      "why": "GROUP B. Safe for runtime because it should adjust scalar / low-dimensional topology parameters, not solver dimension. Separate topology-specific effective linewidth, dephasing, and coupling-scale anchors so predictive biphoton widths can be reported as calibrated per source rather than one lumped approximation.",
-      "status": "deferred"
+      "id": "magneto-light-region-normalization",
+      "area": "schemes/magneto.py",
+      "title": "Normalize the light-region state without double-counting occupation or density",
+      "problem": "Under the default paraffin condition Tr(rho_light) is 1/81, yet that unnormalized block is used as the optical state; conditional normalization changes absolute absorption by exactly 81x.",
+      "source_reports": [
+        "docs/daily_report/2026-07-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-03_scheme-4_hanle-eia-nmor.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "done",
+      "why": "DONE. The two-region solver now uses a trace-one conditional light-region state and reports occupation separately. Susceptibility applies local vapor density exactly once and does not multiply occupation back in; analytic finite-exchange and gamma_out=0 limits pass at machine precision, and Derived/status outputs document the normalization and external-validation boundary.",
+      "decision": "Treat N as local vapor density; susceptibility uses the trace-one conditional light-region state, while light-region occupation is a separately reported diagnostic and is not multiplied into susceptibility.",
+      "acceptance_criteria": [
+        "The conditional light-region density matrix has trace one and light-region occupation is reported as a separate scalar.",
+        "Local vapor density enters susceptibility exactly once.",
+        "With finite gamma_in, the gamma_out -> 0 limit recovers the one-region light-state result; for finite positive exchange, Tr(rho_light)=gamma_in/(gamma_in+gamma_out), each to relative error <= 1e-9.",
+        "The Derived table shows the chosen normalization convention and occupation; absolute contrast, rotation, and slope carry an independent external-validation status after the internal convention is fixed."
+      ]
+    },
+    {
+      "id": "magneto-observable-convergence-and-trust",
+      "area": "schemes/magneto.py + observables.py",
+      "title": "Make Hanle/EIA/NMOR observables convergence- and reference-aware",
+      "problem": "Coarse velocity or B grids can change sign and linewidth, NMOR slope is not converged, b_offset readout confuses command zero with physical zero, and validation labels can say MATCH despite roughly tenfold linewidth disagreement.",
+      "source_reports": [
+        "docs/daily_report/2026-07-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-03_scheme-4_hanle-eia-nmor.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "With b_offset, command zero and physical zero are reported separately; physical zero is the default hero reference and command zero is explicitly secondary.",
+        "For the built-in coated-cell EIT and NMOR references, the last two steps of a deterministic reference schedule ending at >=641 velocity classes and >=401 B points preserve sign and change central width/slope by <=5%; default mode may instead report unresolved/nonconverged.",
+        "NMOR slope uses a locally converged odd fit or a higher-order central derivative rather than a single coarse difference.",
+        "Open-hyperfine/repump omissions are surfaced as a model-scope status.",
+        "Literature comparisons separate sign/trend PASS from absolute-width CHECK/FAIL and never label an order-of-magnitude mismatch MATCH."
+      ]
+    },
+    {
+      "id": "geometry-aware-buffer-relaxation-budget",
+      "area": "schemes/magneto.py + constants.py",
+      "title": "Derive a geometry-aware buffer-cell relaxation budget",
+      "problem": "Mapping Ne pressure alone to ground relaxation would hide the dependence on diffusion, beam radius, cell geometry, coating/wall conditions, and spin-destruction data.",
+      "source_reports": [
+        "docs/daily_report/2026-07-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-03_scheme-4_hanle-eia-nmor.md"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "needs_decision",
+      "depends_on": ["magneto-dynamics-semantics"],
+      "decision_required": [
+        "Select the first supported cell geometry and boundary condition (for example finite cylinder with coated or quenching wall).",
+        "Select the gas diffusion/spin-destruction coefficient sources and maximum acceptable propagated uncertainty."
+      ],
+      "acceptance_criteria": [
+        "Inputs include gas, pressure, temperature, beam radius, cell geometry, and coating/wall condition.",
+        "Diffusion loss, wall relaxation, and spin destruction are separate budget terms with source and uncertainty.",
+        "Insufficient inputs produce insufficient calibration rather than an invented automatic default.",
+        "Manual measured-rate overrides remain available and are clearly distinguished from derived defaults.",
+        "The selected geometry reproduces a published or analytic cylinder/slab diffusion limit within 5% before it is exposed as a default."
+      ],
+      "supersedes": ["magneto-buffer-relaxation-map"]
     },
     {
       "id": "fwm-line-strength-factorization",
       "area": "schemes/fwm.py",
       "title": "Factor seeded FWM line_strength into lab-facing residual components",
-      "why": "DONE. SeededCouplingFactors now separates the backward-compatible reference residual from explicit one-sided effective-coupling penalties for unresolved transverse mode mismatch, extra polarization-channel leakage, and reduced Zeeman-path participation relative to the anchored setup. The reference anchor remains 0.74 and all three penalties default to 1.0, so the legacy direct API and app reference arrays remain bit-identical; the code deliberately does not invent an unsupported numerical decomposition of 0.74. Raw results and the Derived table expose the anchor, each penalty, their penalty product, the combined residual, and the final first-principles-normalized coupling. Help/docs state that these are phenomenological penalties rather than raw power/purity measurements, that the Zeeman penalty does not enable a full manifold solve, and that mode_overlap_penalty is separate from Ultra's normalized axial crossing-angle profile. Regression tests pin legacy equivalence, multiplication, defaults, ranges, and the double-counting warning.",
+      "why": "DONE structurally. SeededCouplingFactors separates the inherited 0.74 residual from explicit one-sided penalties for unresolved mode mismatch, polarization leakage, and reduced Zeeman-path participation. The three penalties default to 1.0 and the code does not invent a numerical decomposition. The 0.74 value is now explicitly unrefitted after normalization, Maxwell-sign, mismatch-sign, and transit-reset corrections; it is not a gain or squeezing anchor. Raw results and the Derived table expose every factor and the final one-use-normalized coupling. Regression tests pin multiplication and compatibility, while the validation claim gate blocks quantitative-gain and physical-squeezing claims pending independent calibration.",
       "status": "done"
     },
     {
-      "id": "lambda-residual-two-photon-doppler",
-      "area": "schemes/absorption.py",
-      "title": "Add Lambda residual two-photon Doppler / beam-angle mismatch option",
-      "why": "DONE. Lambda now exposes an Advanced beam_angle_mrad knob that defaults to 0 mrad, preserving the co-propagating Doppler-free two-photon resonance. Nonzero mismatch computes a residual |Delta k|/k with the shared gabes.beam geometry helper and carries it through atoms.lambda3(two_photon_doppler_ratio=...) / AtomModel.S_v, so warm-vapor EIT/CPT broadens or washes out without increasing solver dimension or adding a full velocity-changing-collision model. The same work extracted anchored Rabi scaling, transit broadening, wave-vector, and residual-k helpers to gabes/beam.py and refactored Lambda, Rydberg-EIT, and generic FWM users onto them.",
-      "status": "done"
+      "id": "lambda-spectrum-validity",
+      "area": "schemes/absorption.py + atoms.py + beam.py + kernels.py + lineshape.py + observables.py",
+      "title": "Correct Lambda residual Doppler physics and gate unresolved spectra",
+      "problem": "The completed residual-Doppler feature is not yet valid: with Doppler averaging disabled, changing beam angle from 0 to 10 mrad changes chi by 2.942%, and the default 601-point EIT FWHM is about 2.9x the converged value because scan and velocity operators and readout resolution are conflated.",
+      "source_reports": [
+        "docs/daily_report/2026-07-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-07-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-06_scheme-2_lambda-coherence.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "For a deterministic Doppler-off fixture, changing beam angle from 0 to 10 mrad leaves complex chi arrays equal under rtol=1e-12 and atol=1e-14.",
+        "The optical scan-shift operator and velocity-only residual two-photon operator are distinct.",
+        "Residual Doppler uses the full probe-minus-coupling wave-vector, including the longitudinal frequency difference for co-propagating beams, and matches analytic thermal Gaussian estimates for supported Rb/Cs cases.",
+        "EIT/CPT half-height edges are interpolated; a numeric hero value requires at least 8 samples per FWHM and both half-height crossings at least one FWHM from a scan edge.",
+        "Default FWHM and group index agree with a high-resolution reference within 2%, and warm-JIT wall time increases by no more than 20% relative to the current 601-point default benchmark.",
+        "If no experimental noise/contrast threshold is supplied, the UI says experimental visibility not assessed rather than claiming that a numerically resolved feature is experimentally observable; transmission and group delay are shown with group index.",
+        "The completed shared beam-helper refactor and existing Rydberg/FWM behavior remain frozen baselines; this item changes Lambda semantics only."
+      ],
+      "supersedes": ["lambda-residual-two-photon-doppler"]
     },
     {
-      "id": "low-order-polarization-zeeman-proxies",
-      "area": "schemes/sas.py + schemes/rydberg.py",
-      "title": "Add low-order polarization / Zeeman proxy knobs without full manifolds",
-      "why": "GROUP B. Safe but model-design work. For OD/SAS and Rydberg, add optional low-dimensional proxies such as effective branching selectors, polarization purity, or uncompensated asymmetry broadening to explain common lab distortions without adopting a full Zeeman manifold.",
-      "status": "deferred"
+      "id": "rydberg-extra-view-dependency-correctness",
+      "area": "streamlit_app.py + schemes/rydberg.py + rydberg_electrometry.py",
+      "title": "Make every Rydberg extra-view dependency cache-correct",
+      "problem": "Rydberg extra views are cached from recompute parameters but also consume navigate-only IF, QE, path efficiency, reference-arm, cell, and RF-dipole inputs. Cached and direct full-parameter results can differ by 3.5x and can move the reported optimum temperature.",
+      "source_reports": [
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Every IF, detector, optical-path, reference-arm, cell, and RF-dipole input that affects an extra view is present in its dependency key.",
+        "App-path, cached, uncached, and direct full-parameter calculations are numerically equivalent.",
+        "Changing IF invalidates the finite-IF atomic phasor layer; changing QE, path efficiency, reference arm, or SAM inputs invalidates detector/SAM post-processing without rerunning the atomic steady-state solve.",
+        "Cell length is a Beer-Lambert/post-processing dependency and RF dipole is a field-conversion dependency, each covered by a targeted invalidation regression.",
+        "Atomic steady-state, finite-IF phasor, Beer-Lambert, and detector/SAM caches have explicit, separately tested dependency boundaries."
+      ]
+    },
+    {
+      "id": "rydberg-effective-opacity-and-sweep-trust",
+      "area": "schemes/rydberg.py + rydberg_experiment.py + analysis/rydberg_cell_heating",
+      "title": "Expose effective opacity and label unvalidated temperature/power sweeps",
+      "problem": "A hidden ls=0.001 effective-opacity factor strongly controls transmission and sensitivity, while internal temperature/probe-power optima are presented without an external validation boundary.",
+      "source_reports": [
+        "docs/daily_report/2026-07-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Replace the hidden factor with a named effective_opacity_participation input carrying provenance, bounds, and uncertainty.",
+        "Atomic line strength and effective participating opacity remain separate and cannot silently double count.",
+        "At the current default value, exposing the parameter preserves existing spectra and readouts to relative error <= 1e-12.",
+        "The parameter is explicitly uncalibrated until rydberg-experimental-validation-dataset is complete; temperature and probe-power sweeps carry PREDICTED status and an uncertainty sweep in the meantime."
+      ],
+      "out_of_scope": [
+        "Unrestricted asymmetry, polarization, or Zeeman proxy knobs with no independent measurement."
+      ]
+    },
+    {
+      "id": "rydberg-readout-validity-guardrails",
+      "area": "schemes/rydberg.py + rydberg_electrometry.py + observables.py",
+      "title": "Gate Rydberg linewidth, AT, and sensitivity readouts by observability",
+      "problem": "Low contrast, near-zero transmitted power, scan-edge optima, and under-resolved AT/EIT structure can still produce precise-looking hero linewidth and sensitivity values.",
+      "source_reports": [
+        "docs/daily_report/2026-07-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "needs_decision",
+      "decision_required": [
+        "Choose the policy for minimum transmitted power/contrast: detector-noise-derived when calibration exists, and an explicit not-assessed state otherwise.",
+        "Choose the minimum scan-edge margin and successive-refinement tolerance used to suppress hero values."
+      ],
+      "acceptance_criteria": [
+        "Report contrast, transmitted power, samples per feature width, scan-edge distance, and readout-validity status for named default, high-temperature/low-transmission, and edge-limited fixtures.",
+        "Low-transmission, low-contrast, edge-limited, or unresolved results do not expose numeric linewidth/sensitivity as hero metrics.",
+        "The reference arm is fixed across a scan or balanced at one explicitly reported detuning; it is not silently re-optimized point by point.",
+        "AT peaks and sensitivity optima use interpolation; the final two deterministic local refinements change the result by <=5% before a converged hero value is allowed.",
+        "RF dipole values have reproducible state, polarization, units, and ARC/version provenance, with an optional ARC regeneration check against a frozen fixture."
+      ]
+    },
+    {
+      "id": "rydberg-experimental-validation-dataset",
+      "area": "analysis/rydberg_cell_heating + docs/Rydberg cell-heating analysis",
+      "title": "Establish a held-out Rydberg EIT/electrometry validation dataset",
+      "problem": "Internal consistency cannot establish absolute spectrum or sensitivity validity; measured EIT/RF/PSD/temperature data needed for joint validation are not yet complete.",
+      "source_reports": [
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "blocked_external",
+      "blocked_on": [
+        "Measured EIT spectra with temperature, probe/coupling powers, geometry, and calibration metadata.",
+        "RF-sweep traces and detector PSD/ASD with gain, bandwidth, and field-source calibration.",
+        "A named data owner/location and permission to retain hashes plus stable provenance links."
+      ],
+      "acceptance_criteria": [
+        "Archive the measurements in the repository or stable provenance-linked storage with units, immutable hashes, access metadata, and a source manifest.",
+        "Predeclare fit/holdout operating points, metrics, and tolerances before fitting rather than validating on the same points used for calibration.",
+        "Validate linewidth, absolute transmission, contrast, and field sensitivity jointly with declared tolerances and uncertainty.",
+        "Outputs remain PREDICTED or UNSUPPORTED wherever the held-out checks are absent or fail."
+      ]
     },
     {
       "id": "fwm-batch-cache-and-map-separation",
@@ -115,44 +602,373 @@
     {
       "id": "full-velocity-changing-collision-kernel",
       "area": "doppler.py + schemes/sas.py + schemes/magneto.py + schemes/absorption.py",
-      "title": "Full velocity-changing-collision model across velocity classes",
-      "why": "GROUP C. Heavy / needs design alignment. This couples velocity classes and breaks the current separable Maxwell-weight averaging, likely increasing matrix dimension or requiring iterative solves. Ask the user for scope and modelling choices before coding.",
-      "status": "deferred"
+      "title": "Build a benchmarkable opt-in VCC reference solver for one selected scheme",
+      "problem": "A cross-scheme full VCC implementation would break separable Maxwell averaging, add large runtime and validation surface, and risk becoming an unvalidated default. No single target scheme, collision kernel, dataset, or runtime budget has been selected.",
+      "source_reports": [
+        "docs/daily_report/2026-07-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-07-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-06_scheme-2_lambda-coherence.md"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "activation_trigger": "Select one scheme, one physically sourced collision kernel, an experimental or published velocity-sensitive spectrum with units/provenance and fit/holdout points, and an acceptable reference-mode runtime.",
+      "acceptance_criteria": [
+        "The kernel preserves Maxwell equilibrium and detailed balance.",
+        "Zero-collision and high-collision limits match independent analytic or published references.",
+        "Velocity grid, cutoff, iterative tolerance, and observable convergence are reported.",
+        "The solver is opt-in and does not replace the interactive separable model until external validation demonstrates material benefit.",
+        "Shared Doppler APIs and existing FWM velocity-grid regressions remain unchanged unless FWM is explicitly brought into scope in pass 2."
+      ]
     },
     {
       "id": "lambda-hyperfine-resolved-manifold",
       "area": "schemes/absorption.py + species.py + zeeman.py",
-      "title": "Hyperfine-resolved Lambda manifold with optical pumping",
-      "why": "GROUP C. Heavy / needs design alignment. Moving from the compact 3-level Lambda model to hyperfine/possibly Zeeman-resolved manifolds greatly increases density-matrix size and changes the interpretation of all Lambda presets. Ask the user before coding.",
-      "status": "deferred"
+      "title": "Add an opt-in hyperfine-resolved Lambda reference mode for one specified transition",
+      "problem": "Replacing the compact three-level default with a general hyperfine/Zeeman manifold would increase runtime and parameter ambiguity before a concrete isotope, line, polarization, and validation spectrum have been chosen.",
+      "source_reports": [
+        "docs/daily_report/2026-07-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-07-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-06_scheme-2_lambda-coherence.md"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "activation_trigger": "Choose a specific isotope/transition and polarization plus a provenance-linked experimental spectrum containing detuning, signal, conditions, uncertainty, and fit/holdout points; set a runtime budget and implement hyperfine optical pumping before considering a full Zeeman manifold.",
+      "acceptance_criteria": [
+        "The selected manifold has sourced energies, branching ratios, dipoles, and polarization conventions.",
+        "The appropriate compact three-level limit is recovered under controlled reduction.",
+        "Trace, positivity, line-strength sums, and grid convergence are tested.",
+        "The reference mode improves a held-out spectrum and remains opt-in rather than silently changing existing presets."
+      ]
     },
     {
-      "id": "fwm-quantum-langevin-noise",
-      "area": "schemes/fwm.py + observables.py",
-      "title": "Full quantum-Langevin source-noise channel for FWM",
-      "why": "GROUP C. Heavy / needs design alignment. This changes the source-noise model beyond waveform + detector accidentals and likely adds correlation/noise-propagation state. Ask the user for modelling scope before coding.",
-      "status": "deferred"
+      "id": "fwm-gain-only-trust-boundary",
+      "area": "gabes/observables.py + gabes/schemes/fwm.py",
+      "title": "Separate canonical mean-field gain diagnostics from physical squeezing claims",
+      "problem": "GABES now exposes the clipped two-gain expression only as gain_referred_noise_dB, retains S_dB as a compatibility alias, and returns physical_squeezing_dB=null behind an explicit claim gate. The remaining trust-boundary work is to retire ambiguous compatibility surfaces and complete strict source-versus-detection cache separation; the gains still do not determine a covariance or physical squeezing.",
+      "evidence": [
+        "ideal_twin_beam_noise still computes the historical clipped expression, but seeded FWM labels it as a gain-referred diagnostic and exposes QUANTITATIVE_GAIN_UNSUPPORTED and PHYSICAL_SQUEEZING_UNAVAILABLE rather than a squeezing hero.",
+        "The canonical matrix is T_can=Q^-1 T_field Q in the collected-mode photon-flux basis. Its conjugate coefficient |T_can,21|^2, not a raw Rabi/electric-field T21, enters the gap; reported conjugate power gain contains the omega_c/omega_p factor and must not be substituted without conversion.",
+        "At the current trace-preserving-transit literature audit point the corrected N_F=3 reduced model has photon-flux gap -2.31154 rather than one. This establishes noncanonical underdetermination, not absence of squeezing."
+      ],
+      "source_reports": [
+        "docs/daily_report/2026-07-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-04_scheme-5_fwm.md"
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "small",
+      "status": "ready",
+      "acceptance_criteria": [
+        "The source result separates the small-signal transfer T_small_signal and its raw gains from post-hoc power-budget-capped gains. Only the former may define a linear-map photon-flux gap or commutator diagnostic; capped gains remain an energy-budget heuristic until a nonlinear depletion map is propagated.",
+        "The small-signal result exposes T_field, Q, T_can=Q^-1 T_field Q, probe gain G_p, conjugate photon-flux coefficient |T_can,21|^2, conjugate power gain, optical frequencies, and effective collected-mode areas. The gap, T_can J T_can_dagger-J defect, and claim gate are computed only after Q is fixed; if a mode area is unknown, they are conditional or unavailable rather than silently equal-area.",
+        "If the canonical condition is not satisfied within a declared numerical tolerance, physical squeezing, bandwidth, and nonclassical badges are unavailable; the existing number may remain only as historical_gain_only_diagnostic with its equation and assumptions.",
+        "The ideal Bogoliubov fixture recovers G_p-|T_can,21|^2=1 and S=1/(2G_p-1); the no-coupling fixture returns T_can=I, G_p=1, G_c=0, and SQL rather than a clipped artifact.",
+        "Canonicality is necessary but not sufficient: it fixes antisymmetric reservoir correlations, not symmetrized diffusion. Outside the explicitly lossless ideal-Bogoliubov fixture, physical squeezing, bandwidth, or nonclassical status requires a full covariance or PSD plus a same-condition SQL; otherwise those fields remain unavailable.",
+        "The passive fixture (G_p, |T_can,21|^2)=(0.2, 0.1) never produces a physical sub-SQL status even though the historical score is 0.033.",
+        "Post-cell efficiency and detector QE do not alter the atomic source solve or its cache key; they are applied only in the detection layer.",
+        "Regression baselines that retain S_dB are explicitly compatibility-only and cannot satisfy physical-validation acceptance."
+      ]
     },
     {
-      "id": "fwm-full-zeeman-floquet-solve",
-      "area": "schemes/fwm.py + zeeman.py",
-      "title": "Full 24-level Zeeman / Floquet solve for FWM",
-      "why": "GROUP C. Heavy / needs design alignment. The current 24-level Zeeman manifold is diagnostic/correction bookkeeping, not the main solve. Promoting it to a full solve changes model complexity, runtime, and validation surface. Ask the user before coding.",
-      "status": "deferred"
+      "id": "fwm-balanced-readout-covariance-correction",
+      "area": "gabes/observables.py + tests/test_fwm_generic.py + tests/test_sabes_bridge.py",
+      "title": "Use the exact covariance for unequal-loss balanced readout",
+      "problem": "balanced_twin_beam_noise reconstructs an ad hoc covariance from two gains and claims that a power-derived shot weight minimizes normalized noise. The reconstruction shows that unequal-loss weighting is covariance-dependent; current tests therefore approve a physically wrong ordering for raw, DC-balanced, and shot weights.",
+      "evidence": [
+        "The exact ideal-canonical bright-seed variance contains eta_p^2 A(A+B), eta_c^2 B(A+B), vacuum-loss terms, and the -4w eta_p eta_c AB covariance term.",
+        "For A=12, B=11, eta_p=0.42, eta_c=0.91, the current implementation differs by order unity from the exact equation for both raw and power-derived weights.",
+        "For a dissipative noncanonical map, even the ideal-canonical equation is insufficient and the weight must act on the propagated full covariance."
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "depends_on": ["fwm-gain-only-trust-boundary"],
+      "acceptance_criteria": [
+        "For an explicitly ideal canonical amplifier, raw and DC-balanced weights match the analytic unequal-efficiency equation to 1e-12 and reduce to 1-eta+eta/(2G-1) for equal efficiencies and w=1.",
+        "Any optimized weight is derived from the full covariance and SQL denominator, not detected powers alone; tests no longer assert that the old square-root power weight is universally optimal.",
+        "For a noncanonical source, the API requires a full covariance or returns unavailable; it never synthesizes covariance from G_p and G_c.",
+        "Atomic absorption is not reintroduced as an external efficiency inside this readout, and genuinely external arm efficiencies are applied exactly once.",
+        "A scalar measured or paper-anchored source_noise may be used only for a declared symmetric raw-difference reproduction. Unequal efficiencies, arbitrary weights, or arm-resolved predictions require a full covariance; provenance never turns the scalar into a microscopic prediction."
+      ]
     },
     {
-      "id": "rydberg-full-zeeman-polarization-field-model",
+      "id": "fwm-option-a-and-loss-ledger",
+      "area": "gabes/observables.py + gabes/schemes/fwm.py + analysis/squeezing/analytic_reconstruction",
+      "title": "Reconcile Option-A propagation, phase mismatch, and distributed-loss accounting",
+      "problem": "The physical nonlegacy path now uses bare frequency-specific wavevectors plus vacuum/geometric mismatch, and diagonal susceptibility loss is not reapplied as post-cell efficiency. Remaining work is the self-consistency and convergence of segmented pump depletion/overlap and a microscopic distributed-noise ledger. Maxwell signs remain convention-sensitive and must stay pinned by passive and frame-equivalence fixtures.",
+      "evidence": [
+        "All nonlegacy seeded tiers now build bare optical k and vacuum mismatch while retaining Re chi only in the diagonal Maxwell drift.",
+        "Diagonal loss is propagated once; scalar pump-scatter kappa remains isolated as an optional gain-diagnostic term rather than microscopic noise.",
+        "Passive Beer-Lambert, frame-equivalence, constant-segment, and independent stored-chi Option-A fixtures pin the current convention and path parity."
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+        "analysis/squeezing/analytic_reconstruction/convergence_audit.py"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "ready",
+      "acceptance_criteria": [
+        "A passive single-mode susceptibility reproduces Beer-Lambert attenuation with the declared chi convention, and zero density or zero susceptibility gives T=I; these fixtures fix all Maxwell signs before baselines are changed.",
+        "The physical Option-A path uses vacuum carrier wavevectors and geometric phase mismatch only; Re chi appears once in diagonal propagation and is not inserted again through dressed k.",
+        "Using the identical stored susceptibility, Option-A transfer coefficients, gains, and photon-flux gap match the reconstruction reference with relative tolerance 1e-8 and absolute tolerance 1e-10; opposite-sign and dressed-k results remain historical fixtures only.",
+        "Cell absorption and distributed atomic loss are not reapplied as post-cell eta. Omitted-manifold absorption and scalar kappa pump scattering are either represented inside a justified distributed model or clearly isolated as heuristic diagnostics.",
+        "Constant-medium and segmented propagation agree as the segment profile becomes constant; the 32-to-64 segment change is at most 0.5% in each reported gain and in a normalized transfer-matrix norm.",
+        "User-facing fidelity choices and internal phase_detail choices are documented as two separate axes. Any choice that adds depletion, loss, overlap, or phase rules is labelled a physics variant, and neither axis is presented as truncation or quadrature convergence.",
+        "No correction is hidden by refitting the inherited 0.74 residual or any detector parameter to the same gain/noise point."
+      ]
+    },
+    {
+      "id": "fwm-floquet-convergence-gate",
+      "area": "gabes/core.py + gabes/kernels.py + gabes/schemes/fwm.py",
+      "title": "Generalize Floquet order and require scan-level truncation convergence",
+      "problem": "Resolved: core and the compiled kernel now support arbitrary finite N_F>=1 by block continued fractions, while an independently assembled dense extended block pins N_F=1,2,3. Reported seeded scans default to N_F=3, compare the full complex susceptibility/transfer/gain/phase scan with N_F=2, and return an explicit UNCONVERGED gate on any failure.",
+      "source_reports": [
+        "docs/daily_report/2026-07-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-07-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-04_scheme-5_fwm.md"
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+        "analysis/squeezing/analytic_reconstruction/convergence_audit.py"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "done",
+      "why": "Completed 2026-08-21. gabes.core exposes continued-fraction and independent dense-block solvers plus trace/residual diagnostics; gabes.kernels implements the same general-order recurrence in the compiled path. gabes.schemes.fwm promotes N_F=3 to the direct API and UI, performs a full-scan adjacent-order check with the declared complex/gain/phase/optimum criteria, records machine-readable provenance, and adds FLOQUET_UNCONVERGED to the claim gate when needed. tests/test_fwm_floquet.py pins direct-block parity, trace/residual invariants, compiled/reference parity at N_F=1,2,3, pass/fail gate behavior, and the high-level default. The frozen baseline was intentionally versioned with its previous N_F=1 anchors preserved.",
+      "acceptance_criteria": [
+        "A slow generalized reference supports at least N_F=1, 2, and 3; direct block and continued-fraction solutions agree below 1e-10 where both are well conditioned.",
+        "For every order, Tr rho_0=1, nonzero-harmonic traces vanish, and normalized linear-system residuals are below 1e-10.",
+        "Every reported scan uses N_F>=3. Dimensionless transfer coefficients satisfy |Delta T| <= 1e-10+0.01 max(|T_N|,|T_N-1|); each reduced-susceptibility component uses the unit-aware full-scan rule |Delta chi| <= 0.01 max(|chi_N|,|chi_N-1|)+1e-8 max_scan(|chi|), so a fixed SI absolute tolerance cannot hide an order-unity response change. Derived gains also satisfy |Delta G|/max(1,|G|)<1%.",
+        "Wrapped transfer phases differ by less than 0.5 degree only where both amplitudes exceed 1e-8 max(1,||T||_infinity); below that floor the mixed complex-coefficient criterion applies and no phase is reported.",
+        "The optimum-detuning shift is no greater than one final-grid interval for each explicitly allowed mean-field objective such as a G_p peak. An optimum of the historical gain-only diagnostic is labelled historical and cannot be called a physical squeezing optimum.",
+        "A single operating-point N_F=2/3 agreement cannot certify a scan; any failed criterion returns UNCONVERGED instead of a best-looking value.",
+        "The compiled kernel matches the generalized reference at each supported order before becoming the production default.",
+        "Liouvillian half-plane, positivity, trace, and Hermiticity remain assembly invariants and cannot substitute for Floquet truncation convergence."
+      ],
+      "supersedes": ["fwm-full-zeeman-floquet-solve"]
+    },
+    {
+      "id": "fwm-angular-doppler-reference",
+      "area": "gabes/doppler.py + gabes/kernels.py + gabes/schemes/fwm.py",
+      "title": "Add a two-dimensional non-collinear Raman-Doppler reference",
+      "problem": "Resolved as a separate slow reference. The finite-seed production solver still averages only longitudinal velocity, but the opt-in pump-only trace-zero reference now carries the crossing angle into the atomic two-photon detuning and tensor-averages independent longitudinal and transverse Maxwell velocities without shifting the laboratory optical beat.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+        "analysis/squeezing/analytic_reconstruction/convergence_audit.py",
+        "tests/test_fwm_angular_doppler.py"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "done",
+      "depends_on": ["fwm-floquet-convergence-gate"],
+      "why": "Completed 2026-08-21 as a separate branch=-1 audit reference. The API keeps Omega_beat,lab, Omega_SA, delta_eff, and Delta_eff distinct and evaluates the declared tensor Maxwell quadrature over (v_z,v_x). At T=394.15 K and theta=0.32 degrees, the analytic total Raman rms width is 1.380173564 MHz (1.380161171 MHz transverse and 5.848714 kHz axial at angle); the order-40 quadrature differs by -0.000743%. The theta=0 residual is 1.994567 kHz, and theta=0 with k_pump=k_probe reproduces the Doppler-free 1-D response to 3e-13 relative tolerance. In the refined feature scan, order 32 to 40 changes the peak position by 0.05 MHz and the gain by 0.01%; extending the cutoff from 4.5 to 5 sigma changes the peak gain by 0.052% and not its sampled position. At the nominal -8 MHz point the 2-D reference changes G_s from 403.825150 to 404.304420 (+0.118683%), with normalized response residual 2.181e-16 and trace error 5.825e-26. Production remains one-dimensional; beam divergence, segmentwise pump-state recomputation, and microscopic Langevin diffusion are explicitly excluded.",
+      "acceptance_criteria": [
+        "The API carries lab optical beat, RF analysis frequency, and velocity-shifted atomic detuning as separate typed inputs; changing v_x or v_z never changes the lab beat by accident.",
+        "A slow (v_x,v_z) Maxwell reference implements Delta_eff=Delta-k_pump v_z and delta_eff=delta+(k_pump-k_probe cos theta)v_z-k_probe sin theta v_x with angular-frequency units.",
+        "At theta=0 the transverse term vanishes but the corrected one-dimensional reference retains the longitudinal |k_pump-k_probe| sigma_v residual and matches its analytic rms (approximately 2 kHz for the literature geometry). The old Doppler-free result is recovered to 1e-12 only in the additional k_pump=k_probe approximation; at 121 C and 0.32 degrees the angular Raman rms width agrees with 1.38 MHz within 1%.",
+        "Successive two-dimensional grid refinements change gains and feature positions by less than 1%, and extending the cutoff from 4.5 to 5 sigma changes reported gains by less than 0.5%.",
+        "Gain and feature convergence is evaluated with a fixed N_F>=3 reference or a Floquet order already certified by fwm-floquet-convergence-gate.",
+        "Any convolution, Faddeeva, sparse-grid, or separable shortcut is admitted only after matching held-out points of the two-dimensional reference within 1% in gain and 0.1 MHz in feature or optimum position.",
+        "The missing angular distribution is not replaced by fitting another scalar gamma_gg or dephasing penalty."
+      ]
+    },
+    {
+      "id": "fwm-pump-state-linear-response-reference",
+      "area": "gabes/core.py + gabes/schemes/fwm.py + analysis/squeezing/analytic_reconstruction",
+      "title": "Build a pump-only stationary-state and trace-zero weak-response reference",
+      "problem": "Resolved as a separate slow reference for the standard minus Raman branch. Production remains the scan-converged finite-seed N_F>=3 Floquet path, while the reference uses an explicitly derived static pump frame, a trace-one 16x16 pump null solve, and an infinitesimal trace-zero 2x2 Nambu response at independent analysis frequency. The inherited plus-branch finite-seed frame is not gauge-equivalent to the physical static-pump frame and is rejected rather than silently mapped.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+        "analysis/squeezing/analytic_reconstruction/convergence_audit.py",
+        "tests/test_fwm_pump_response.py"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "done",
+      "depends_on": ["fwm-floquet-convergence-gate"],
+      "why": "Completed 2026-08-21 as an audit reference, not a production replacement. For branch=-1, U=exp(+i Omega_beat t |g2><g2|) makes both pump couplings static and the sampled N_F=3 gauge-parity error is 8.366e-15 with exactly zero outer harmonics. Across 1967 longitudinal velocity classes, five two-photon detunings, and four analysis frequencies, the pump-state normalized residual is 4.002e-17, trace error 2.887e-15, Hermiticity error zero, and minimum eigenvalue 2.371e-3; the weak-response residual is 7.312e-17 with trace error 6.478e-25. The projected zero-relative-frequency fixture gives residual 1.794e-15 and trace error 1.881e-22. Direct and pole-residue responses differ by at most 2.447e-24 s with eigenvector condition 3.390 and stationary residue 1.544e-17. Finite-seed errors decrease from 2.503e-3 at the production 8 uW reference to 9.138e-6 at 0.0072 uW; the fitted Rabi-amplitude slope is 1.748955, so the audit reports the measured convergence rather than claiming an ideal quadratic law. The base reference remains one-dimensional in velocity; a separate completed 2-D wrapper now supplies the non-collinear Maxwell average. Neither recomputes the pump state segment by segment or supplies microscopic Langevin diffusion.",
+      "acceptance_criteria": [
+        "For the standard minus branch, the explicit U=exp(+i Omega_beat t |g2><g2|) frame is gauge-equivalent to the converged pump-only Floquet state below 1e-10; the inherited plus branch raises an unsupported-frame error until its model is corrected.",
+        "Every sampled longitudinal velocity class returns a finite trace-one, Hermitian, positive pump state with normalized residual below 1e-10. Segment-wise pump-state recomputation remains owned by the separate longitudinal-propagation and microscopic-noise work rather than being implied here.",
+        "Infinitesimal probe and conjugate-star perturbations return the full 2x2 Nambu response on the trace-zero subspace. The zero-relative-frequency path uses a stationary-subspace projection rather than an ordinary singular inverse.",
+        "Finite-seed N_F=3 susceptibility approaches the infinitesimal reference over a declared amplitude scan; the actual worst normalized errors and fitted convergence slope are recorded without assuming the slope must equal two.",
+        "For diagonalizable fixtures, direct resolvent and exact pole-residue responses agree below 1e-12 relative scale; pole centers include the optical carrier offset, and widths and visibility come from eigenvalues and residues rather than bare decay labels.",
+        "Optical beat, two-photon detuning, relative resolvent frequency, and RF analysis frequency are separate named angular-frequency inputs with boundary conversion tests.",
+        "Provenance marks the base solver as a slow one-dimensional audit reference and production_default=false; the completed two-dimensional wrapper is independently marked separate/slow, while segment-wise pump recomputation and microscopic Langevin diffusion remain explicit downstream tasks."
+      ]
+    },
+    {
+      "id": "fwm-coupling-normalization-audit",
+      "area": "gabes/schemes/fwm.py + gabes/observables.py + gabes/hyperfine.py + sabes/calibration_sim2025.json",
+      "title": "Enforce a one-use coupling, population, and calibration ledger",
+      "problem": "The duplicate external ground-population factor has been removed: physical_coupling_norm is now 1/[2(2I+1)] and the trace-normalized atomic state supplies population once. The completed pump-only reference independently retains trace-one normalization and does not introduce an external equilibrium p_F. The inherited 0.74 residual, three one-sided penalties, kappa, and the transit floor still lack independent calibration/uncertainty/holdout provenance, so quantitative gain remains unsupported.",
+      "evidence": [
+        "The completed SeededCouplingFactors factorization usefully exposes the inherited anchor and penalties, but it does not prove their physical normalization or independent calibration.",
+        "The current trace-preserving-transit N_F=3 audit gives G_p=403.53550 and G_c=405.85359 at the literature point versus raw experimental ratios 13.875 and 13.625, so the model is not quantitatively gain-validated.",
+        "The reconstruction records separate illustrative sensitivities for ell_s=0.74, kappa=0.1, and the 100 kHz transit floor, but their source/fit/uncertainty records remain incomplete.",
+        "The completed pump-only audit independently returns a trace-one atomic state and introduces no external equilibrium p_F; this closes the state-normalization question but does not calibrate the residual coupling factors."
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "related_completed_items": ["fwm-line-strength-factorization"],
+      "acceptance_criteria": [
+        "A machine-readable ledger shows that fine-structure dipole, explicit CG or averaged line-strength factor, isotope abundance, ground-manifold population, branching, and external detection efficiency each enter exactly once.",
+        "The machine-readable ledger cites the completed finite-seed and pump-only trace-one state derivations and regressions showing that rho_ss already contains the ground-manifold population; no external p_F is restored by appealing to a fitted gain.",
+        "Explicit Zeeman CG coefficients and an averaged line-strength factor are mutually exclusive, branching stays in collapse operators, and detector efficiency never enters susceptibility.",
+        "The 0.74 residual, kappa, gamma_gg, and all three penalties carry source, applicability, uncertainty, calibration observables, and holdout observables, with explicit unknown or not_applicable permitted and never guessed. An unknown makes the affected claim UNSUPPORTED; absent independent evidence, additional penalties remain one or disabled and cannot be co-fitted to the same trace.",
+        "The literature operating point reports corrected reduced-model gains, raw experimental power ratios, and approximately 2808%/2879% discrepancies as a calibration-point failure, not a validation success; no coefficient is silently retuned to hide it.",
+        "Sensitivity to each phenomenological coefficient is reported separately so non-identifiable products cannot be mistaken for measured components."
+      ]
+    },
+    {
+      "id": "fwm-quantum-langevin-microscopic-core",
+      "area": "gabes/schemes/fwm.py + gabes/observables.py + new quantum-noise module",
+      "title": "Implement frequency-dependent microscopic Langevin propagation after the mean-field gates",
+      "problem": "A physical squeezing spectrum requires drift M_q(Omega_SA), reservoir coupling B, symmetrized diffusion D, and the companion covariance block derived from the same pumped Lindblad model. None is in production GABES. A chosen-vacuum algebraic completion, scalar kappa, a measured source_noise value, or gains alone can satisfy commutators or reproduce a point but cannot determine microscopic atomic noise.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "depends_on": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-option-a-and-loss-ledger",
+        "fwm-floquet-convergence-gate",
+        "fwm-angular-doppler-reference",
+        "fwm-pump-state-linear-response-reference",
+        "fwm-coupling-normalization-audit"
+      ],
+      "activation_trigger": "Complete the listed mean-field/normalization gates, choose and document the microscopic collapse/reservoir model plus collected spatial-mode areas, set an acceptable reference/interactive runtime, and identify frequency-resolved calibration and held-out spectra. Until then the gain-only trust boundary remains active.",
+      "acceptance_criteria": [
+        "M_q(Omega), B(Omega), and D(Omega) are derived from one pumped Lindblad or explicitly justified reservoir model on at least the 0.1-4 MHz analysis band; every angular-frequency conversion is tested.",
+        "Local physical realizability M_q J+J M_q_dagger+B J_F B_dagger=0 has normalized residual below 1e-10, while the sign of its defect matrix is reported only as required gain/loss reservoir classification.",
+        "The signal-conjugate companion block produces a full 4x4 covariance. Independent velocity-class diffusion contributions are summed as powers, never as a squared averaged noise amplitude.",
+        "Distributed covariance uses a 4x4 Van Loan block exponential as the production reference and agrees with direct quadrature; W(L;Omega) is Hermitian and positive semidefinite within tolerance and W(L=0;Omega)=0 for every analysis frequency. No requirement sets W(Omega=0) to zero.",
+        "Piecewise-z propagation agrees with the constant-medium limit and converges under segment refinement; no-atom, zero-length, passive-loss, and ideal-canonical limits are tested.",
+        "Any chosen-vacuum completion is confined to an algebra/commutator test fixture and is never labelled microscopic noise, a lower bound, or a physical spectrum.",
+        "The detector receives transfer and covariance before external loss; cell OD or atomic loss is not applied a second time."
+      ],
+      "supersedes": ["fwm-quantum-langevin-noise"]
+    },
+    {
+      "id": "fwm-zeeman-resolved-reference-mode",
+      "area": "gabes/zeeman.py + gabes/schemes/fwm.py",
+      "title": "Add a held-out, Zeeman-resolved seeded-FWM reference only when it is identifiable",
+      "problem": "The current 24-level object is CG-sum diagnostic bookkeeping, not a full Floquet solve. Promoting it before the four-level propagation, normalization, Floquet, and geometry gates are closed would add large runtime and polarization/field freedom without showing that the missing manifold is the dominant error.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "depends_on": [
+        "fwm-option-a-and-loss-ledger",
+        "fwm-floquet-convergence-gate",
+        "fwm-angular-doppler-reference",
+        "fwm-pump-state-linear-response-reference",
+        "fwm-coupling-normalization-audit"
+      ],
+      "activation_trigger": "First close the reduced-model trust gates, then provide polarization-, magnetic-field-, and detuning-resolved mean-field transfer or gain data with uncertainties and predeclared fit/holdout points that exhibit a residual the compact model cannot explain. Noise-spectrum validation remains outside this item until the microscopic covariance path exists.",
+      "acceptance_criteria": [
+        "Energies, dipoles, CG coefficients, polarization basis, magnetic-field convention, branching, and relaxation channels have source provenance and uncertainty.",
+        "Explicit CG paths replace rather than multiply the averaged line-strength and Zeeman-penalty factors; the one-use normalization ledger remains valid.",
+        "Controlled degeneracy and polarization averaging recover the compact four-level response and line-strength sums.",
+        "Trace, Hermiticity, positivity, Floquet order, velocity grid, and sparse-solver residuals converge independently.",
+        "The reference improves predeclared held-out polarization or field observables by more than their uncertainty and remains opt-in unless runtime and validation justify a default change."
+      ],
+      "supersedes": ["fwm-full-zeeman-floquet-solve"]
+    },
+    {
+      "id": "rydberg-zeeman-polarization-reference-mode",
       "area": "schemes/rydberg.py + zeeman.py",
-      "title": "Full Rydberg Zeeman / polarization / stray-field / ionization model",
-      "why": "GROUP C. Heavy / needs design alignment. Absolute electrometry calibration would need Zeeman sublevels, polarization selection rules, stray E/B mixing, state-selective ionization/dephasing, and optical-pumping redistribution. This goes well beyond the lumped 4-level ladder. Ask the user before coding.",
-      "status": "deferred"
+      "title": "Add a limited, validation-gated Rydberg Zeeman/polarization reference mode",
+      "problem": "The previous omnibus item combined Zeeman structure, polarization selection, stray fields, ionization, charge dynamics, and optical pumping even though they require different models and evidence. Implementing all of them would add unconstrained freedom before the compact model is externally validated.",
+      "source_reports": [
+        "docs/daily_report/2026-07-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "activation_trigger": "Choose a specific Rydberg state pair, optical/RF polarization, magnetic-field configuration, validation spectrum, and runtime budget.",
+      "acceptance_criteria": [
+        "State energies and dipoles carry ARC/version, basis, polarization, and units provenance.",
+        "The zero-field/isotropic reduction agrees with the parameter-matched compact model's normalized spectrum/response within 1% where that reduction is valid; absolute opacity is not forced to match by construction.",
+        "Trace, positivity, selection-rule sums, and field/grid convergence are tested.",
+        "The mode improves held-out polarization/B-dependent data and remains an opt-in reference view."
+      ],
+      "out_of_scope": [
+        "Ionization, charge accumulation, plasma dynamics, and arbitrary stray-field fitting."
+      ],
+      "supersedes": ["rydberg-full-zeeman-polarization-field-model"]
     },
     {
-      "id": "full-time-domain-superhet-demodulation",
-      "area": "schemes/rydberg.py + observables.py",
-      "title": "Full time-domain superheterodyne / lock-in demodulation chain",
-      "why": "GROUP C. Heavy / needs design alignment. Static IF/slope proxies are safe, but a real detector/lock-in/superheterodyne chain introduces separate time-domain signal processing and noise assumptions. Ask the user for the desired readout model before coding.",
-      "status": "deferred"
+      "id": "rydberg-readout-transfer-function-validation",
+      "area": "schemes/rydberg.py + rydberg_electrometry.py + observables.py",
+      "title": "Validate the measured readout transfer function before full time-domain demodulation",
+      "problem": "A generic LO+SIG waveform/lock-in engine would add experiment-specific filters, phases, sampling, and technical-noise assumptions without evidence that the existing finite-IF small-signal model is inadequate.",
+      "source_reports": [
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P2",
+      "effort": "medium",
+      "status": "blocked_external",
+      "blocked_on": [
+        "A measured complex detector/mixer/lock-in transfer function over the intended IF band with gain, phase, uncertainty, units, and acquisition provenance."
+      ],
+      "acceptance_criteria": [
+        "Archive a measured complex detector/mixer/lock-in transfer function with frequency, gain, phase, bandwidth, units, and provenance.",
+        "A linear transfer-function layer reproduces the current finite-IF limit and measured small-signal sweeps within preregistered uncertainty, with default engineering targets of <=5% magnitude error and <=5 degrees phase error across the accepted band.",
+        "Full time-domain propagation is activated only if transient or nonlinear residuals remain after the measured linear chain is applied."
+      ],
+      "out_of_scope": [
+        "A generic synthetic lock-in/noise engine before a measured need is demonstrated."
+      ],
+      "supersedes": ["full-time-domain-superhet-demodulation"]
+    },
+    {
+      "id": "rydberg-rf-field-map-import",
+      "area": "schemes/rydberg.py + rydberg_experiment.py",
+      "title": "Import provenance-tagged RF field maps and spatially average atomic response",
+      "problem": "GABES needs spatial RF nonuniformity for some cells, but implementing an internal horn/dielectric 3-D EM solver would duplicate specialist software and create a large unvalidated scope.",
+      "source_reports": [
+        "docs/daily_report/2026-08-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-07_scheme-3_rydberg-eit.md"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "blocked_external",
+      "blocked_on": [
+        "A measured or specialist-EM complex RF field map for a named horn/cell geometry with coordinates, units, polarization, frequency, uncertainty, and provenance."
+      ],
+      "acceptance_criteria": [
+        "Import measured or externally simulated complex field maps with coordinate system, units, frequency, polarization, geometry, and provenance.",
+        "Spatial weighting uses the optical mode, atomic density, and declared cell geometry without double-counting the existing SAM correction.",
+        "A uniform map reduces to the scalar SAM model within 1%, and the last two mesh refinements change the weighted field response by <=2%.",
+        "External field uncertainty propagates into the reported electrometry result."
+      ],
+      "out_of_scope": [
+        "Solving horn, dielectric-cell, and standing-wave electromagnetics inside GABES."
+      ],
+      "supersedes": ["rydberg-spatial-rf-field-model"]
     },
     {
       "id": "sabes-layout-model",
@@ -190,7 +1006,7 @@
       "id": "sabes-optic-popup-editors",
       "area": "sabes_page.py",
       "title": "Click an optic to edit its parameters in a dialog",
-      "why": "GROUP B. DONE, and the parameter-count problem is what it actually fixed. The 23-control sidebar is gone: clicking an optic on the drawing opens an st.dialog holding exactly the knobs that optic owns, and the sidebar now carries only the global controls (fidelity, Solve knobs, Reset, the link back to GABES) with ZERO number inputs. Control definitions moved from a sidebar-shaped list of groups to a `CONTROLS` registry keyed by parameter name, so the dialog and any remaining sidebar control render from one definition and cannot drift. A test asserts every entry in CONTROLS is owned by some optic on some layout -- a knob nothing claims would be unreachable now that the sidebar no longer lists them -- and the sidebar keeps an orphan fallback that a healthy build never enters. Side benefit delivered: per-etalon detuning. The model always accepted a 3-tuple and only the UI collapsed it; each stage now owns etalon_detune_ghz_{1,2,3} and detuning one stage alone changes seed power and carrier ratio independently, which matches a lab where each etalon has its own knob and temperature. Verified in-browser end to end: clicking the split half-wave plate opened its dialog, editing the angle to 20 deg moved the pump from 726 to 426 mW and the squeezing to -6.72 dB, and Done closed it. Note the click sets a session flag that survives the rerun the dialog needs, because a component value only reaches Python at the start of a run; the dialog clears the flag on close.",
+      "why": "GROUP B. DONE, and the parameter-count problem is what it actually fixed. The 23-control sidebar is gone: clicking an optic on the drawing opens an st.dialog holding exactly the knobs that optic owns, and the sidebar now carries only the global controls (fidelity, Solve knobs, Reset, the link back to GABES) with ZERO number inputs. Control definitions moved from a sidebar-shaped list of groups to a `CONTROLS` registry keyed by parameter name, so the dialog and any remaining sidebar control render from one definition and cannot drift. A test asserts every entry in CONTROLS is owned by some optic on some layout -- a knob nothing claims would be unreachable now that the sidebar no longer lists them -- and the sidebar keeps an orphan fallback that a healthy build never enters. Side benefit delivered: per-etalon detuning. The model always accepted a 3-tuple and only the UI collapsed it; each stage now owns etalon_detune_ghz_{1,2,3} and detuning one stage alone changes seed power and carrier ratio independently, which matches a lab where each etalon has its own knob and temperature. Verified in-browser end to end: clicking the split half-wave plate opened its dialog, editing the angle to 20 deg moved the pump from 726 to 426 mW and the gain-referred diagnostic to -6.72 dB, and Done closed it. Note the click sets a session flag that survives the rerun the dialog needs, because a component value only reaches Python at the start of a run; the dialog clears the flag on close.",
       "priority": "P2",
       "status": "done"
     },
@@ -198,25 +1014,160 @@
       "id": "sabes-virtual-instruments",
       "area": "sabes/instruments/ (new)",
       "title": "Virtual lab instruments driven by the real model",
-      "why": "GROUP B. DONE. sabes/instruments/ holds power meter, beam profiler, wavemeter, photodiode, oscilloscope and spectrum analyser. Optical heads take whatever sabes.layout.beam_at resolves at a clicked point; the oscilloscope and analyser take a PhotocurrentSignal from a photodiode, so they cannot be pointed at a bare beam -- the right restriction rather than an inconvenience. A test asserts the package imports neither the layout nor streamlit nor matplotlib, so it stays liftable. The wavemeter is the demonstration piece: dropped either side of the etalon chain it shows carrier:wanted going 34.96 -> 4.18 -> 0.0596 percent, which is the whole reason the seed path has three filters. The power meter deliberately reports total AND wanted and warns when they differ, because a real power meter cannot tell them apart -- which is exactly why purity needs its own instrument. The profiler reports the 1/e^2 radius WHERE IT IS, not the waist; the two differ by a factor of two over a metre of table. One API fault was caught and fixed: the analyser took a total_power_w override for the shot-noise level (a balanced measurement sees both arms while the head is one diode) but read clearance off the signal, so the two could disagree silently. Clearance is now derived from the same power. Verified in the app: clicking the seed line after etalon 1 and switching instruments gives a power meter warning at 82.4 percent purity, a wavemeter reading 4.177 percent carrier, and an analyser with its SYNTHESISED badge reporting that the squeezed trace would sit below the amplifier floor there.",
+      "why": "GROUP B. DONE. sabes/instruments/ holds power meter, beam profiler, wavemeter, photodiode, oscilloscope and spectrum analyser. Optical heads take whatever sabes.layout.beam_at resolves at a clicked point; the oscilloscope and analyser take a PhotocurrentSignal from a photodiode, so they cannot be pointed at a bare beam -- the right restriction rather than an inconvenience. A test asserts the package imports neither the layout nor streamlit nor matplotlib, so it stays liftable. The wavemeter is the demonstration piece: dropped either side of the etalon chain it shows carrier:wanted going 34.96 -> 4.18 -> 0.0596 percent, which is the whole reason the seed path has three filters. The power meter deliberately reports total AND wanted and warns when they differ, because a real power meter cannot tell them apart -- which is exactly why purity needs its own instrument. The profiler reports the 1/e^2 radius WHERE IT IS, not the waist; the two differ by a factor of two over a metre of table. One API fault was caught and fixed: the analyser took a total_power_w override for the shot-noise level (a balanced measurement sees both arms while the head is one diode) but read clearance off the signal, so the two could disagree silently. Clearance is now derived from the same power. Verified in the app: clicking the seed line after etalon 1 and switching instruments gives a power meter warning at 82.4 percent purity, a wavemeter reading 4.177 percent carrier, and an analyser with its SYNTHESISED badge reporting where the explicitly nonphysical gain-diagnostic overlay sits relative to the amplifier floor.",
       "priority": "P2",
       "status": "done"
     },
     {
-      "id": "sabes-instrument-trace-honesty",
-      "area": "sabes/instruments/oscilloscope.py + spectrum_analyzer.py",
-      "title": "Label synthesised instrument traces as synthesised",
-      "why": "DONE, and built into the type rather than bolted on. Reading.provenance is COMPUTED or SYNTHESISED and is validated on construction. COMPUTED covers everything that follows from the model's physics, including the oscilloscope's SCAN mode -- a swept-laser trace is genuinely what a scope shows here and the sweep comes from the Bloch solve. SYNTHESISED covers exactly two things: the scope's time-series mode, which draws samples from a PSD the model already knows, and the spectrum analyser, which is assembled from the noise budget rather than simulated. Both carry a note saying so, and the page renders an amber badge above any synthesised reading. A test pins which readings fall on which side. The analyser's squeezing is drawn FLAT in frequency because that is all the model supports; a real trace degrades towards DC from technical noise, and technical_corner_hz exposes that as an explicit input defaulting to zero, so the shape stays honest unless someone puts a measured number in. Full quantum-Langevin noise remains deferred (fwm-quantum-langevin-noise); until it exists these traces reproduce the measured shape and are not evidence.",
+      "id": "sabes-mean-field-trust-boundary",
+      "area": "sabes/bridge.py + sabes_page.py + sabes/instruments/electrical.py + gabes/schemes/fwm.py",
+      "title": "Stop presenting mean-field gain scores as measured or predicted squeezing",
+      "problem": "SABES now exposes the gain-referred scalar under a MEAN_FIELD_DIAGNOSTIC claim gate and labels the spectrum-analyser view as an electronics-headroom overlay, but compatibility aliases remain and a true physical_squeezing value still requires M_q(Omega_SA), diffusion, covariance, and same-condition SQL calibration. SYNTHESISED provenance alone is not physical validity.",
+      "evidence": [
+        "The production result exposes T_field, Q, T_can, photon-flux gap, commutator defect, and a structured gate with QUANTITATIVE_GAIN_UNSUPPORTED and PHYSICAL_SQUEEZING_UNAVAILABLE badges.",
+        "SpectrumAnalyzer accepts only the scalar gain diagnostic as an explicitly nonphysical detector-headroom overlay and no longer claims measured-shape reproduction; no frequency-dependent source covariance is available.",
+        "The existing Spectrum tab is a two-photon-detuning parameter scan, not a noise spectrum versus RF analysis frequency."
+      ],
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
       "priority": "P1",
-      "status": "done"
+      "effort": "medium",
+      "status": "ready",
+      "depends_on": ["fwm-gain-only-trust-boundary"],
+      "acceptance_criteria": [
+        "The SABES result has separate nullable physical_squeezing and historical_gain_only_diagnostic fields. Noncanonical defaults return physical_squeezing unavailable rather than a signed dB prediction.",
+        "Header, hero cards, help text, optimizer, loss-limited floor, and electronic-margin language do not call a gain-only score squeezing or below shot noise; G_p, G_c, photon-flux gap, commutator status, and assumptions replace it.",
+        "Reading provenance (computed or synthesised) is independent of validity/evidence class (mean_field_diagnostic, model_prediction, calibrated_reproduction, or measured), and both are visible.",
+        "The two-photon-detuning scan is named mean-field gain/diagnostic versus detuning. A noise spectrum versus analysis frequency is created only from a frequency grid plus full covariance or PSD and same-condition SQL calibration.",
+        "SpectrumAnalyzer no longer accepts a scalar S_dB as a physical source spectrum, and all claims that a flat trace reproduces measured shape are removed.",
+        "Post-cell loss and QE are removed from the atomic solve/cache key. Observed pump_leakage_dbm is routed to the analyser when that measured detector path is used.",
+        "Tests cover the passive (0.2,0.1) case, current noncanonical defaults, typed frequency-axis separation, and absence of a physical squeezing value without covariance."
+      ],
+      "supersedes": ["sabes-instrument-trace-honesty"]
     },
     {
-      "id": "sabes-calibration-measurements",
-      "area": "sabes/calibration_sim2025.json",
-      "title": "Replace the placeholder coefficients with measurements",
-      "why": "Blocked on lab data rather than on code. 25 of 42 coefficients are unverified (nominal or lab), so results that depend on them are predicted, not reproduced. The three that matter most: (1) the EOM V_pi -- currently back-solved jointly with a 5.3 dB insertion loss to reproduce the reported ~10 percent minus-first-order efficiency, so the two coefficients are entangled and one sideband-ratio-versus-RF-power sweep frees both; (2) the tapered-amplifier P-I curve, which fixes threshold/slope/saturation from one measurement at known seed power; (3) the detector NEP -- the 3.3 pW/rtHz figure is the PDB450A spec with its STOCK photodiode, and this unit has S3883 diodes fitted, which changes junction capacitance and therefore the amplifier noise gain. Every clearance number currently rests on that stock figure. A measured etalon transmission scan would additionally replace the etalon_leak floor, which is presently fitted to a single published number.",
+      "id": "sabes-calibration-trust-schema",
+      "area": "sabes/calibration.py + sabes/calibration_sim2025.json + sabes/bridge.py",
+      "title": "Track calibration applicability, uncertainty, dependencies, and holdout role",
+      "problem": "The calibration file now contains 85 coefficients, 57 of which the current code classifies as unverified, so the old 25-of-42 checklist count is stale. More importantly, datasheet, paper, fitted, lab, and nominal tags do not record exact-part applicability, uncertainty, conditions, fit-versus-holdout role, or which outputs depend on a coefficient. A fitted value and a paper number can therefore look verified even when reused outside their evidence domain.",
+      "evidence": [
+        "VERIFIED_PROVENANCE currently treats fitted, datasheet, and paper as a single boolean class although the module prose says only fitted means verified.",
+        "The stock-PDB450A NEP is stored as datasheet/verified even though the installed S3883 photodiodes change the amplifier noise gain.",
+        "cell_length_mm, post_cell_loss_pct, and pump_seed_angle_deg duplicate or do not feed the current SABES Python path, creating multiple nominal sources of truth."
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Each coefficient schema includes value, unit, evidence class, source URI or immutable reference, exact part/setup applicability, conditions, uncertainty and distribution, acquisition or review date, owner, and calibration-versus-holdout role. Missing knowledge is recorded as explicit unknown or not_applicable and is never inferred to make the schema look complete.",
+        "Fitted records name the raw dataset, objective, fitted companions, covariance or identifiability result, and held-out checks; fitted=1 or a paper value is not automatically equivalent to an independent measurement.",
+        "Downstream dependency metadata lets every output list the coefficients and unsupported assumptions that affect it, with uncertainty propagated where the model supports it.",
+        "Unverified counts are derived at runtime by evidence class and applicability rather than copied into prose; modified-component datasheets cannot receive a measured badge.",
+        "An unknown required field makes dependent physical claims UNSUPPORTED and keeps optional correction factors at one or disabled until independent evidence arrives; completing the schema does not require inventing measurements.",
+        "Dead or duplicate cell_length_mm, post_cell_loss_pct, and pump_seed_angle_deg entries are removed or wired to one authoritative source with a regression proving no conflicting value remains.",
+        "Hand edits remain session-local and cannot be persisted as calibrated without a source, uncertainty, and explicit promotion action."
+      ]
+    },
+    {
+      "id": "sabes-calibration-campaign",
+      "area": "sabes/calibration_sim2025.json + external lab data",
+      "title": "Acquire fit/holdout measurements for the SABES optical and detector chain",
+      "problem": "The trust schema can prevent overclaiming, but it cannot replace the missing lab evidence. EOM efficiency parameters are jointly back-solved, the TA transfer is weakly constrained, etalon leakage is fitted to one number, the detector NEP belongs to stock rather than installed diodes, and many table transmissions and distances remain nominal.",
       "priority": "P2",
-      "status": "deferred"
+      "effort": "large",
+      "status": "blocked_external",
+      "depends_on": ["sabes-calibration-trust-schema"],
+      "blocked_on": [
+        "Sideband ratio versus RF power and independent insertion-loss measurements for the installed EOM path.",
+        "TA output versus current at multiple known seed powers, including threshold, linear, and saturation regions.",
+        "Per-stage etalon transmission scans and carrier/sideband leakage with frequency and angular alignment metadata.",
+        "Installed-S3883 balanced-detector dark noise, transfer response, responsivity, saturation, and common-mode rejection measurements.",
+        "Per-arm optical powers/transmissions and geometry records with uncertainties, plus named fit and held-out operating points."
+      ],
+      "acceptance_criteria": [
+        "Archive raw data or stable provenance links with units, timestamps, hardware configuration, immutable hashes, and uncertainty budgets.",
+        "Predeclare fit and held-out sweeps so EOM V_pi/insertion loss, TA slope/saturation, etalon leakage, detector noise, and path losses are not validated on their calibration points.",
+        "Jointly fit entangled coefficients with covariance or profile-likelihood diagnostics; non-identifiable parameters remain grouped rather than reported separately.",
+        "Validate optical powers, carrier-to-sideband ratios, detector clearance, and gain transfer on held-out settings before changing their evidence class.",
+        "Outputs remain PREDICTED, CALIBRATED-ONLY, or UNSUPPORTED wherever a required held-out measurement is absent or fails."
+      ],
+      "supersedes": ["sabes-calibration-measurements"]
+    },
+    {
+      "id": "sabes-balanced-detection-and-sql-calibration",
+      "area": "sabes/detection.py + sabes/instruments/electrical.py + sabes_page.py",
+      "title": "Calibrate frequency-dependent balanced detection and the matching SQL",
+      "problem": "A physical SABES noise trace needs per-arm complex detector transfer, electronic noise, weighting, common-mode leakage, and an SQL measured with the same detected powers and analyser settings. The current scalar transmission, NEP, bandwidth, and flat source score cannot represent those quantities or the reported low-frequency, 2 MHz, and bandwidth features.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "blocked_external",
+      "depends_on": [
+        "sabes-calibration-trust-schema",
+        "fwm-gain-only-trust-boundary",
+        "fwm-balanced-readout-covariance-correction"
+      ],
+      "blocked_on": [
+        "Measured complex H_p(Omega) and H_c(Omega), per-arm optical powers and efficiencies, and detector electronic-noise spectrum S_el(Omega).",
+        "Measured or predeclared balance weight w(Omega), CMRR/crosstalk, pump leakage and RIN, and any cable or analyser transfer.",
+        "Shot-noise reference traces using the same powers, RBW, VBW, averaging, impedance, detector gain, and dark-noise included/subtracted convention.",
+        "A full model or measured source covariance/PSD on the same analysis-frequency grid."
+      ],
+      "acceptance_criteria": [
+        "Detector transfer, source covariance or PSD, electronic noise, and SQL share one typed analysis-frequency grid and explicit one-sided/two-sided plus angular/cyclic-frequency conventions.",
+        "The weighted intensity-difference spectrum uses the full covariance with H_p, H_c, and w; optimal weighting is covariance-dependent and never inferred from DC powers alone.",
+        "The SQL uses the identical detected powers, filters, RBW/VBW, averaging, impedance, and dark-noise convention as the signal trace, with uncertainty propagated.",
+        "Cell absorption and atomic noise are not applied again after propagation; only measured post-cell loss, detector QE, and electronics enter this layer once.",
+        "Observed pump leakage and RIN are passed end to end into the analyser, and CMRR/crosstalk tests reproduce injected common-mode and leakage fixtures.",
+        "A calibration subset and held-out frequency/settings subset are predeclared; missing data produce unavailable bands rather than interpolation presented as measurement."
+      ],
+      "supersedes": ["fwm-quantum-langevin-noise"]
+    },
+    {
+      "id": "fwm-squeezing-spectrum-heldout-validation",
+      "area": "analysis/squeezing + gabes/schemes/fwm.py + sabes",
+      "title": "Validate the end-to-end squeezing spectrum on held-out measurements",
+      "problem": "Microscopic drift/diffusion invariants and detector calibration are necessary but do not establish that their composition predicts the experiment. The reconstruction separately leaves quantitative gain, the approximately 3.5 MHz bandwidth, and the full measured squeezing spectrum unvalidated; without a final gate, internal PASS results could again be mistaken for experimental validation.",
+      "source_documents": [
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "blocked_external",
+      "depends_on": [
+        "fwm-quantum-langevin-microscopic-core",
+        "sabes-balanced-detection-and-sql-calibration"
+      ],
+      "blocked_on": [
+        "Raw balanced-detector spectra spanning at least 0.1-4 MHz for calibration and held-out detuning, temperature, pump/seed power, and geometry settings.",
+        "Matched raw probe/conjugate powers or gains, detector transfer/calibration traces, RBW/VBW/averaging, dark-noise convention, pump leakage/RIN, and uncertainty for every spectrum.",
+        "A predeclared split that does not reuse the held-out approximately 150 kHz level, 2 MHz technical-noise feature, bandwidth edge, or maximum squeezing to tune the model."
+      ],
+      "acceptance_criteria": [
+        "Freeze microscopic, phenomenological, and detector parameters on the calibration subset before evaluating held-out spectra.",
+        "On identical operating conditions and SQL convention, compare G_p, G_c, and the full S_minus(Omega) curve with uncertainty-aware residuals rather than only a maximum dB value.",
+        "Report predeclared metrics for the low-frequency or approximately 150 kHz region, the approximately 2 MHz technical-noise feature, the approximately 3.5 MHz roll-off or bandwidth, and maximum squeezing; distinguish atomic covariance from measured laser/electronic/detector contributions.",
+        "Frequency grid, model truncation, velocity integration, covariance propagation, detector transfer, and SQL calibration each retain their own status in the final result.",
+        "A failed or missing held-out comparison leaves the result PHYSICAL-MODEL PREDICTION, EXTERNALLY UNVALIDATED; no internal invariant or calibration-point fit upgrades it."
+      ]
+    },
+    {
+      "id": "sabes-retire-canvas-spike",
+      "area": "sabes/components/spike.py + sabes_page.py + tests/test_sabes_canvas.py",
+      "title": "Remove the completed SABES canvas development spike",
+      "problem": "The optical-table view has landed, but the temporary ?app=sabes&dev=canvas route, spike module, session keys, and spike-specific tests remain even though the completed checklist record says to delete them after integration.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "why": "DONE. Removed the temporary ?app=sabes&dev=canvas route and its now-unused query-parameter callback, deleted the spike module and its private session-state keys, and removed only the two spike-specific tests. The production static canvas component and its packaging, protocol, repeat-click sequence, coordinate-scaling, JSON transport, and optical-table rendering tests remain in place.",
+      "acceptance_criteria": [
+        "Remove the development route, spike module, spike-only session state, and tests that assert the temporary route remains reachable.",
+        "Keep production canvas component round-trip, resize, repeat-click, and coordinate-scaling coverage in the real optical-table tests.",
+        "Normal GABES/SABES URLs and production canvas behavior remain unchanged."
+      ]
     }
   ]
 }

@@ -2,7 +2,9 @@
 
 Only the first two columns are meaningful: column A is detuning and column B
 is the detector signal, both in arbitrary units. The helpers here depend on
-the Python standard library and NumPy only.
+the Python standard library and NumPy only. Extrema scaling is explicitly a
+*relative* normalization; absolute transmission is produced only from a
+declared dark/reference or gain/offset calibration.
 """
 
 from __future__ import annotations
@@ -18,6 +20,13 @@ MAX_FILE_BYTES = 10 * 1024 * 1024
 MAX_CSV_ROWS = 500_000
 MIN_UNIQUE_POINTS = 5
 HAMPEL_THRESHOLD_MAD = 4.5
+
+CALIBRATION_RELATIVE_EXTREMA = "relative_extrema"
+CALIBRATION_ABSOLUTE_DARK_REFERENCE = "absolute_dark_reference"
+CALIBRATION_ABSOLUTE_GAIN_OFFSET = "absolute_gain_offset"
+
+RELATIVE_TRANSMISSION_LABEL = "Relative normalized transmission"
+ABSOLUTE_TRANSMISSION_LABEL = "Absolute transmission"
 
 
 class ExperimentalCSVError(ValueError):
@@ -42,10 +51,24 @@ class CSVImportDiagnostics:
     typical_x_spacing: float
     largest_x_gap: float
     gap_threshold: float
+    sweep_reversal_count: int = 0
+    forward_sample_count: int = 0
+    reverse_sample_count: int = 0
+    stationary_sample_count: int = 0
+    sweep_branch_count: int = 0
+    directional_merge_warning: str | None = None
 
     @property
     def ignored_rows(self) -> int:
         return self.blank_rows + self.nonnumeric_rows + self.nonfinite_rows
+
+    @property
+    def direction_reversals(self) -> int:
+        return self.sweep_reversal_count
+
+    @property
+    def branches_merged(self) -> bool:
+        return self.directional_merge_warning is not None
 
 
 @dataclass(frozen=True)
@@ -66,15 +89,57 @@ class CorrectionDiagnostics:
     sparse_extrema: bool
     low_contrast: bool
     warning: str | None
+    calibration_mode: str = CALIBRATION_RELATIVE_EXTREMA
+    calibration_source: str = "trace extrema"
+    transmission_label: str = RELATIVE_TRANSMISSION_LABEL
+    calibration_gain: float = 1.0
+    calibration_offset: float = 0.0
+    out_of_range_samples: int = 0
 
     @property
     def smoothing_window(self) -> int:
         return max(self.smoothing_windows, default=1)
 
+    @property
+    def is_absolute(self) -> bool:
+        return self.calibration_mode != CALIBRATION_RELATIVE_EXTREMA
+
+    def apply_calibration(
+        self, signal: np.ndarray, *, clip_relative: bool = True
+    ) -> np.ndarray:
+        """Apply this trace's declared signal-to-transmission calibration."""
+
+        values = (
+            np.asarray(signal, dtype=float) - float(self.calibration_offset)
+        ) / float(self.calibration_gain)
+        if clip_relative and not self.is_absolute:
+            values = np.clip(values, 0.0, 1.0)
+        return values
+
+
+@dataclass(frozen=True)
+class SweepBranch:
+    """One acquisition-order monotonic sweep branch before sorting or merging."""
+
+    direction: str
+    detuning: np.ndarray
+    raw_signal: np.ndarray
+    transmission: np.ndarray
+    start_index: int
+    stop_index: int
+
+    @property
+    def sample_count(self) -> int:
+        return int(self.detuning.size)
+
+    @property
+    def source_sample_count(self) -> int:
+        return self.sample_count
+
 
 @dataclass(frozen=True)
 class ExperimentalCSV:
-    """A sorted, de-duplicated experimental trace and all correction stages."""
+    """A compatibility merged trace plus preserved acquisition-order branches."""
 
     detuning: np.ndarray
     raw_signal: np.ndarray
@@ -82,6 +147,7 @@ class ExperimentalCSV:
     transmission: np.ndarray
     import_diagnostics: CSVImportDiagnostics
     correction_diagnostics: CorrectionDiagnostics
+    sweep_branches: tuple[SweepBranch, ...] = ()
 
     @property
     def x(self) -> np.ndarray:
@@ -98,6 +164,25 @@ class ExperimentalCSV:
     @property
     def normalized(self) -> np.ndarray:
         return self.transmission
+
+    @property
+    def branches(self) -> tuple[SweepBranch, ...]:
+        return self.sweep_branches
+
+    @property
+    def transmission_label(self) -> str:
+        return self.correction_diagnostics.transmission_label
+
+    @property
+    def is_absolute_transmission(self) -> bool:
+        return self.correction_diagnostics.is_absolute
+
+    def calibrate_signal(
+        self, signal: np.ndarray, *, clip_relative: bool = True
+    ) -> np.ndarray:
+        return self.correction_diagnostics.apply_calibration(
+            signal, clip_relative=clip_relative
+        )
 
     @property
     def diagnostics(self) -> CSVImportDiagnostics:
@@ -128,22 +213,32 @@ def load_experimental_csv(
     data: bytes | bytearray | memoryview,
     *,
     denoise: bool = True,
+    calibration_mode: str = CALIBRATION_RELATIVE_EXTREMA,
+    dark_signal: float | None = None,
+    reference_signal: float | None = None,
+    gain: float | None = None,
+    offset: float | None = None,
 ) -> ExperimentalCSV:
     """Parse and correct an oscilloscope CSV supplied as bytes.
 
     Text is decoded as BOM-marked UTF-16, UTF-8, or CP949, with a byte-preserving
     fallback so unsupported metadata in ignored columns cannot reject valid A/B
     data. Only columns A and B are inspected. Blank, textual, NaN, and infinite
-    rows are counted and ignored. Equal A values are merged by the B median.
+    rows are counted and ignored. Sweep reversals and acquisition-order branches
+    are recorded before the compatibility trace sorts A and median-merges equal
+    values.
 
     Denoising uses a 4.5-MAD Hampel filter followed by adaptive, x-aware local
     quadratic regression. Large gaps split the trace before correction. The
-    chosen signal is robustly mapped to transmission in [0, 1].
+    default extrema map produces relative normalized transmission in [0, 1].
+    Absolute transmission requires either dark/reference levels or an explicit
+    detector ``signal = offset + gain * transmission`` calibration.
     """
 
     raw_bytes = _coerce_bytes(data)
     text, encoding = _decode_csv(raw_bytes)
     source_x, source_y, counts = _parse_first_two_columns(text)
+    branch_slices, direction_labels, reversal_count = _sweep_structure(source_x)
     detuning, raw_signal = _sort_and_merge(source_x, source_y)
     if detuning.size < MIN_UNIQUE_POINTS:
         raise ExperimentalCSVError(
@@ -157,13 +252,42 @@ def load_experimental_csv(
     denoised_signal, noise_sigma, replacements, windows = _denoise_signal(
         detuning, raw_signal, segments, enabled=bool(denoise)
     )
-    transmission, correction = _normalize_transmission(
+    transmission, correction = _calibrate_transmission(
         denoised_signal,
         denoise_enabled=bool(denoise),
         noise_sigma=noise_sigma,
         hampel_replacements=replacements,
         smoothing_windows=windows,
+        calibration_mode=calibration_mode,
+        dark_signal=dark_signal,
+        reference_signal=reference_signal,
+        gain=gain,
+        offset=offset,
     )
+    sweep_branches = tuple(
+        SweepBranch(
+            direction=_direction_name(int(direction_labels[part.start])),
+            detuning=_readonly(source_x[part]),
+            raw_signal=_readonly(source_y[part]),
+            transmission=_readonly(
+                correction.apply_calibration(source_y[part])
+            ),
+            start_index=int(part.start),
+            stop_index=int(part.stop),
+        )
+        for part in branch_slices
+    )
+    forward_count = int(np.count_nonzero(direction_labels > 0))
+    reverse_count = int(np.count_nonzero(direction_labels < 0))
+    stationary_count = int(np.count_nonzero(direction_labels == 0))
+    directional_warning = None
+    if reversal_count:
+        directional_warning = (
+            f"Detected {reversal_count} sweep-direction reversal(s) before "
+            "sorting. The compatibility trace sorts and median-merges forward "
+            "and reverse samples, so it cannot retain hysteresis; the original "
+            "branches remain available in sweep_branches."
+        )
     imported = CSVImportDiagnostics(
         encoding=encoding,
         file_size_bytes=len(raw_bytes),
@@ -179,6 +303,12 @@ def load_experimental_csv(
         typical_x_spacing=typical_spacing,
         largest_x_gap=largest_gap,
         gap_threshold=gap_threshold,
+        sweep_reversal_count=reversal_count,
+        forward_sample_count=forward_count,
+        reverse_sample_count=reverse_count,
+        stationary_sample_count=stationary_count,
+        sweep_branch_count=len(sweep_branches),
+        directional_merge_warning=directional_warning,
     )
     return ExperimentalCSV(
         detuning=_readonly(detuning),
@@ -187,6 +317,7 @@ def load_experimental_csv(
         transmission=_readonly(transmission),
         import_diagnostics=imported,
         correction_diagnostics=correction,
+        sweep_branches=sweep_branches,
     )
 
 
@@ -305,6 +436,71 @@ def _parse_first_two_columns(
     except csv.Error as exc:
         raise ExperimentalCSVError(f"Malformed CSV: {exc}") from exc
     return np.asarray(xs, dtype=float), np.asarray(ys, dtype=float), counts
+
+
+def _sweep_structure(
+    x: np.ndarray,
+) -> tuple[tuple[slice, ...], np.ndarray, int]:
+    """Classify acquisition-order samples before any sorting or merging.
+
+    Each valid source sample belongs to exactly one monotonic branch. A turning
+    point reached by a nonzero step stays with the incoming branch; when the
+    instrument repeats the turning-point x value, the extra equal-x sample is
+    assigned to the outgoing branch. Equal steps elsewhere inherit the nearest
+    movement direction and never create a reversal by themselves.
+    """
+
+    values = np.asarray(x, dtype=float)
+    n_samples = int(values.size)
+    if n_samples == 0:
+        return (), np.empty(0, dtype=np.int8), 0
+    if n_samples == 1:
+        return (slice(0, 1),), np.zeros(1, dtype=np.int8), 0
+
+    edge_direction = np.sign(np.diff(values)).astype(np.int8)
+    moving_edges = edge_direction[edge_direction != 0]
+    if moving_edges.size == 0:
+        labels = np.zeros(n_samples, dtype=np.int8)
+        return (slice(0, n_samples),), labels, 0
+
+    reversal_count = int(np.count_nonzero(moving_edges[1:] != moving_edges[:-1]))
+    next_movement = np.zeros(n_samples, dtype=np.int8)
+    next_seen = 0
+    for edge_index in range(edge_direction.size - 1, -1, -1):
+        if edge_direction[edge_index] != 0:
+            next_seen = int(edge_direction[edge_index])
+        next_movement[edge_index] = next_seen
+    labels = np.empty(n_samples, dtype=np.int8)
+    labels[0] = moving_edges[0]
+    previous = int(labels[0])
+    for sample_index in range(1, n_samples):
+        incoming = int(edge_direction[sample_index - 1])
+        if incoming:
+            labels[sample_index] = incoming
+            previous = incoming
+            continue
+
+        # A duplicate at a turn belongs to the outgoing branch; an ordinary
+        # duplicate on a monotonic sweep stays with that same direction.
+        outgoing = int(next_movement[sample_index]) or previous
+        labels[sample_index] = outgoing if outgoing != previous else previous
+        previous = int(labels[sample_index])
+
+    boundaries = np.flatnonzero(labels[1:] != labels[:-1]) + 1
+    starts = np.concatenate(([0], boundaries))
+    stops = np.concatenate((boundaries, [n_samples]))
+    branches = tuple(
+        slice(int(start), int(stop)) for start, stop in zip(starts, stops)
+    )
+    return branches, labels, reversal_count
+
+
+def _direction_name(direction: int) -> str:
+    if direction > 0:
+        return "forward"
+    if direction < 0:
+        return "reverse"
+    return "stationary"
 
 
 def _sort_and_merge(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -555,6 +751,153 @@ def _local_quadratic(
     return result
 
 
+def _calibrate_transmission(
+    signal: np.ndarray,
+    *,
+    denoise_enabled: bool,
+    noise_sigma: float,
+    hampel_replacements: int,
+    smoothing_windows: tuple[int, ...],
+    calibration_mode: str,
+    dark_signal: float | None,
+    reference_signal: float | None,
+    gain: float | None,
+    offset: float | None,
+) -> tuple[np.ndarray, CorrectionDiagnostics]:
+    aliases = {
+        "relative": CALIBRATION_RELATIVE_EXTREMA,
+        "dark_reference": CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+        "gain_offset": CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+    }
+    mode = aliases.get(str(calibration_mode), str(calibration_mode))
+    supported = {
+        CALIBRATION_RELATIVE_EXTREMA,
+        CALIBRATION_ABSOLUTE_DARK_REFERENCE,
+        CALIBRATION_ABSOLUTE_GAIN_OFFSET,
+    }
+    if mode not in supported:
+        raise ExperimentalCSVError(
+            f"Unknown transmission calibration mode {calibration_mode!r}."
+        )
+
+    supplied_dark_reference = dark_signal is not None or reference_signal is not None
+    supplied_gain_offset = gain is not None or offset is not None
+    if mode == CALIBRATION_RELATIVE_EXTREMA:
+        if supplied_dark_reference or supplied_gain_offset:
+            raise ExperimentalCSVError(
+                "Absolute calibration values require an absolute calibration mode."
+            )
+        return _normalize_transmission(
+            signal,
+            denoise_enabled=denoise_enabled,
+            noise_sigma=noise_sigma,
+            hampel_replacements=hampel_replacements,
+            smoothing_windows=smoothing_windows,
+        )
+
+    if mode == CALIBRATION_ABSOLUTE_DARK_REFERENCE:
+        if dark_signal is None or reference_signal is None:
+            raise ExperimentalCSVError(
+                "Absolute dark/reference calibration requires both dark_signal "
+                "and reference_signal."
+            )
+        if supplied_gain_offset:
+            raise ExperimentalCSVError(
+                "Choose either dark/reference or gain/offset calibration, not both."
+            )
+        calibration_offset = _finite_calibration_value("dark_signal", dark_signal)
+        reference = _finite_calibration_value(
+            "reference_signal", reference_signal
+        )
+        calibration_gain = reference - calibration_offset
+        calibration_source = "dark/reference levels"
+    else:
+        if gain is None or offset is None:
+            raise ExperimentalCSVError(
+                "Absolute gain/offset calibration requires both gain and offset."
+            )
+        if supplied_dark_reference:
+            raise ExperimentalCSVError(
+                "Choose either dark/reference or gain/offset calibration, not both."
+            )
+        calibration_gain = _finite_calibration_value("gain", gain)
+        calibration_offset = _finite_calibration_value("offset", offset)
+        calibration_source = "explicit gain/offset"
+
+    calibration_scale = max(
+        abs(calibration_offset),
+        abs(calibration_offset + calibration_gain),
+        1.0,
+    )
+    tolerance = 64.0 * np.finfo(float).eps * calibration_scale
+    if abs(calibration_gain) <= tolerance:
+        raise ExperimentalCSVError(
+            "Absolute transmission calibration gain must be finite and non-zero."
+        )
+
+    transmission = (
+        np.asarray(signal, dtype=float) - calibration_offset
+    ) / calibration_gain
+    out_of_range = int(
+        np.count_nonzero((transmission < 0.0) | (transmission > 1.0))
+    )
+    contrast_to_noise = (
+        float(abs(calibration_gain) / noise_sigma)
+        if noise_sigma > tolerance
+        else float("inf")
+    )
+    relative_contrast = float(
+        abs(calibration_gain)
+        / max(
+            abs(float(np.median(signal))),
+            abs(calibration_gain),
+            np.finfo(float).tiny,
+        )
+    )
+    low_contrast = contrast_to_noise < 8.0
+    warnings = []
+    if low_contrast:
+        warnings.append(
+            "Low detector contrast relative to noise; inspect the calibrated "
+            "trace before fitting."
+        )
+    if out_of_range:
+        warnings.append(
+            f"Absolute calibration leaves {out_of_range} sample(s) outside "
+            "physical transmission 0-1; values were preserved rather than clipped."
+        )
+    diagnostics = CorrectionDiagnostics(
+        denoise_enabled=denoise_enabled,
+        noise_sigma=float(noise_sigma),
+        hampel_replacements=int(hampel_replacements),
+        smoothing_windows=smoothing_windows,
+        floor=float(calibration_offset),
+        ceiling=float(calibration_offset + calibration_gain),
+        contrast=float(calibration_gain),
+        contrast_to_noise=contrast_to_noise,
+        relative_contrast=relative_contrast,
+        floor_support=0,
+        ceiling_support=0,
+        sparse_extrema=False,
+        low_contrast=bool(low_contrast),
+        warning=" ".join(warnings) or None,
+        calibration_mode=mode,
+        calibration_source=calibration_source,
+        transmission_label=ABSOLUTE_TRANSMISSION_LABEL,
+        calibration_gain=float(calibration_gain),
+        calibration_offset=float(calibration_offset),
+        out_of_range_samples=out_of_range,
+    )
+    return transmission, diagnostics
+
+
+def _finite_calibration_value(name: str, value: float) -> float:
+    result = float(value)
+    if not np.isfinite(result):
+        raise ExperimentalCSVError(f"{name} must be finite.")
+    return result
+
+
 def _normalize_transmission(
     signal: np.ndarray,
     *,
@@ -593,7 +936,9 @@ def _normalize_transmission(
             "check the CSV columns or acquire a wider scan."
         )
 
-    normalized = np.clip((signal - floor) / contrast, 0.0, 1.0)
+    unbounded = (signal - floor) / contrast
+    out_of_range = int(np.count_nonzero((unbounded < 0.0) | (unbounded > 1.0)))
+    normalized = np.clip(unbounded, 0.0, 1.0)
     if noise_sigma > tolerance:
         contrast_to_noise = float(contrast / noise_sigma)
     else:
@@ -612,8 +957,8 @@ def _normalize_transmission(
     warnings = []
     if low_contrast:
         warnings.append(
-            "Low detector contrast: automatic 0-1 calibration may amplify "
-            "noise; verify the floor and ceiling before fitting."
+            "Low detector contrast: relative extrema normalization may amplify "
+            "noise; verify the relative floor and ceiling before fitting."
         )
     if sparse_extrema:
         warnings.append(
@@ -637,6 +982,12 @@ def _normalize_transmission(
         sparse_extrema=bool(sparse_extrema),
         low_contrast=bool(low_contrast),
         warning=warning,
+        calibration_mode=CALIBRATION_RELATIVE_EXTREMA,
+        calibration_source="trace extrema (relative only)",
+        transmission_label=RELATIVE_TRANSMISSION_LABEL,
+        calibration_gain=float(contrast),
+        calibration_offset=float(floor),
+        out_of_range_samples=out_of_range,
     )
     return normalized, diagnostics
 
@@ -648,6 +999,10 @@ def _readonly(values: np.ndarray) -> np.ndarray:
 
 
 __all__ = [
+    "ABSOLUTE_TRANSMISSION_LABEL",
+    "CALIBRATION_ABSOLUTE_DARK_REFERENCE",
+    "CALIBRATION_ABSOLUTE_GAIN_OFFSET",
+    "CALIBRATION_RELATIVE_EXTREMA",
     "CSVImportDiagnostics",
     "CorrectionDiagnostics",
     "ExperimentalCSV",
@@ -656,6 +1011,8 @@ __all__ = [
     "MAX_CSV_ROWS",
     "MAX_FILE_BYTES",
     "MIN_UNIQUE_POINTS",
+    "RELATIVE_TRANSMISSION_LABEL",
+    "SweepBranch",
     "load_experimental_csv",
     "transform_x",
 ]

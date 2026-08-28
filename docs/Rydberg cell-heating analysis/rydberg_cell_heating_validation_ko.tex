@@ -1,0 +1,245 @@
+% !TEX program = xelatex
+% Build after generating analysis artifacts:
+%   cd "docs/Rydberg cell-heating analysis"
+%   xelatex -disable-installer rydberg_cell_heating_validation_ko.tex  (twice)
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{kotex}
+\IfFontExistsTF{Malgun Gothic}{
+  \setmainhangulfont{Malgun Gothic}
+  \setsanshangulfont{Malgun Gothic}
+}{
+  \setmainhangulfont{Noto Serif CJK KR}
+  \setsanshangulfont{Noto Sans CJK KR}
+}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,longtable,array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{geometry}
+\geometry{margin=2.35cm}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+
+\graphicspath{{../../analysis/rydberg_cell_heating/generated/}}
+\IfFileExists{../../analysis/rydberg_cell_heating/generated/results_macros.tex}{
+  \input{../../analysis/rydberg_cell_heating/generated/results_macros.tex}
+}{
+  \providecommand{\AnalysisIdentifier}{결과 미생성}
+  \providecommand{\AnalysisGeneratedUTC}{--}
+  \providecommand{\ModelTemperatureCount}{--}
+  \providecommand{\SlopeOptimumTemperatureC}{--}
+  \providecommand{\SlopeOptimumValue}{--}
+  \providecommand{\IFOptimumTemperatureC}{--}
+  \providecommand{\IFOptimumValue}{--}
+  \providecommand{\ExperimentalInputStatus}{PENDING}
+  \providecommand{\AbsoluteSensitivityStatus}{PENDING}
+  \providecommand{\SensitivityOptimumTemperatureC}{--}
+  \providecommand{\TotalSensitivityOptimum}{--}
+  \providecommand{\PSNSensitivityAtOptimum}{--}
+}
+
+\newcommand{\Status}[1]{\textsf{[#1]}}
+\newcommand{\MHz}{\,\mathrm{MHz}}
+\newcommand{\nVsens}{\,\mathrm{nV\,cm^{-1}\,Hz^{-1/2}}}
+
+\title{\textbf{가열 셀 Rydberg--EIT RF 감도 분석}\\[3pt]
+\large GABES 실험 매칭 및 모델 검증 보고서 템플릿}
+\author{GABES 분석 워크플로}
+\date{생성 시각: \AnalysisGeneratedUTC}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+본 문서는 셀 가열에 따른 Rydberg--EIT 스펙트럼과 RF 감도 변화를
+실험 자료 및 GABES 계산과 비교하기 위한 재현 가능한 검증 보고서 형식이다.
+정적 optical Bloch equation 및 finite-IF weak-SIG 선형응답 결과는
+\Status{PREDICTED}로 표시하며, 명시한 RF dipole과 검출기 잡음 예산에 조건부인
+절대 RF 감도의 현재 상태는 \Status{\AbsoluteSensitivityStatus}이다.
+PPT에만 존재하는 수치는
+\Status{PPT}로 분리해 raw measurement와 혼동하지 않는다.
+\end{abstract}
+
+\tableofcontents
+
+\section{Executive summary}
+
+분석 식별자는 \texttt{\AnalysisIdentifier}이며,
+총 \ModelTemperatureCount{}개 온도점을 계산했다.
+정적 최대 spectral slope의 계산상 최적 온도는
+\(\SlopeOptimumTemperatureC\,^{\circ}\mathrm{C}\), 값은
+\(\SlopeOptimumValue\MHz^{-1}\)이다.
+40-kHz finite-difference IF discriminator의 계산상 최적 온도는
+\(\IFOptimumTemperatureC\,^{\circ}\mathrm{C}\), 값은
+\(\IFOptimumValue\MHz^{-1}\)이다.
+이 두 지표는 절대 감도 \(\nVsens\)가 아니며, 원자 응답의 정적 proxy이다.
+별도의 finite-IF Liouvillian 응답과 RF/detector calibration을 통해 총 감도 최적값
+\(\TotalSensitivityOptimum\nVsens\), 같은 점의 PSN 한계
+\(\PSNSensitivityAtOptimum\nVsens\), 최적 heater setpoint
+\(\SensitivityOptimumTemperatureC\,^{\circ}\mathrm{C}\)를 보고한다.
+현재 상태는 \Status{\AbsoluteSensitivityStatus}이다.
+
+\section{실험 목적과 장기 계획에서의 위치}
+
+셀 가열 시험은 원자 밀도 증가가 EIT contrast와 RF responsivity를 높이는 구간과,
+흡수 및 coherence 저하가 성능을 악화시키는 구간을 구분해 운용 온도를 정하는
+기초 최적화 단계이다. 장기적으로는 마이크로파 focusing map, 편광 의존성,
+간섭 및 위상/방향 영상화 전에 센서의 동작점과 noise floor를 확정하는 역할을 한다.
+
+\section{상태 및 provenance 규칙}
+
+\begin{longtable}{p{0.20\textwidth}p{0.70\textwidth}}
+\toprule
+상태 & 의미\\
+\midrule
+\Status{MEASURED} & 확보된 raw measurement에서 직접 계산\\
+\Status{PPT} & 슬라이드에서 수동 전사; raw-data 검증 전\\
+\Status{REFERENCE} & 논문 또는 교정 reference에서 인용\\
+\Status{FITTED} & 실험 데이터에 맞춰 추정\\
+\Status{PREDICTED} & 독립 모델 입력으로 계산\\
+\Status{ASSUMED} & 측정되지 않은 분석 가정\\
+\Status{PENDING} & 데이터 또는 구현이 없어 보류\\
+\bottomrule
+\end{longtable}
+
+현재 실험 입력 상태는 \Status{\ExperimentalInputStatus}, 절대 RF 감도 모델은
+\Status{\AbsoluteSensitivityStatus}이다. 입력 파일, 설정 파일, 코드의 SHA-256은
+\texttt{source\_manifest.json}에 기록한다. 원본 PPTX는 보고서 산출물에 포함하거나
+수정하지 않는다.
+
+\section{실험 장치와 측정 순서}
+
+최종 보고서에서는 다음 정보를 raw log 또는 장치 기록과 함께 확정한다.
+
+\begin{enumerate}
+  \item heater setpoint, 좌/우 온도 센서, 열평형 대기시간 및 cold spot,
+  \item 780-nm probe와 481-nm coupling beam의 power 및 \(1/e^2\) 직경,
+  \item 40D--39F LO/SIG 주파수, 편광, field convention(peak 또는 RMS),
+  \item balanced detector responsivity, quantum efficiency, 전자잡음,
+  \item spectrum analyzer 또는 lock-in의 RBW, VBW, ENBW 및 적분시간.
+\end{enumerate}
+
+\section{GABES 원자 및 finite-IF readout 모델}
+
+현 분석은 \({}^{85}\mathrm{Rb}\)
+\(5S_{1/2},F=3\rightarrow5P_{3/2},F'=4\rightarrow40D_{5/2}\) EIT와
+\(40D_{5/2}\rightarrow39F_{7/2}\) microwave dressing을 계산한다.
+온도 \(T\)에서 density \(N(T)\)를 계산하고 susceptibility를 Beer--Lambert
+전파로 transmission으로 변환한다. 출력에는 EIT linewidth, contrast,
+\(\max|d\mathcal{T}/d\nu|\), resonance transmission 및 finite-IF discriminator가
+포함된다.
+
+선택적인 절대 감도 경로는 \texttt{gabes.rydberg\_electrometry}의 finite-IF
+Liouvillian 선형응답을 사용한다. RF transition matrix element와 편광 angular
+factor로 \(\Omega_{\mathrm{SIG}}\leftrightarrow E\)를 변환하고, transmitted probe
+power, photodiode responsivity, balanced-reference arm, PSN, RIN 및 electronics
+noise를 합성해 PSN/technical/total field ASD를 각각 출력한다. 논문 감도값을
+계산 anchor로 주입하지 않는다.
+
+Heater setpoint, effective vapor temperature, cold spot은 서로 다른 변수로
+보존된다. 설정한 축방향 \(T(z),N(z)\)에는 구간별 Beer--Lambert 적분을 적용하며,
+현재 보고서 경로는 effective-temperature OBE line shape에 local density를
+재가중하는 근사임을 결과에 명시한다. SAM 옵션은 source power, gain, loss,
+거리와 그 표준불확도를 전기장으로 전파하고 far-field criterion을 함께 보고한다.
+축방향 transmission 진단은 현재 lumped finite-IF sensitivity를 대체하지 않으며,
+그 범위 제한은 JSON에 명시한다.
+
+\paragraph{의도적으로 보류한 최상 난이도 범위.}
+full time-domain LO+SIG waveform/lock-in, full Zeeman--polarization manifold,
+horn/standing-wave의 3차원 RF field, three-photon imaging은 본 구현에 포함하지 않는다.
+현재 finite-IF 계산은 LO-dressed 정상상태 주위의 1차 주파수영역 응답이다.
+
+\section{온도별 계산 결과}
+
+\IfFileExists{../../analysis/rydberg_cell_heating/generated/eit_temperature_spectra.pdf}{
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.94\textwidth]{eit_temperature_spectra.pdf}
+    \caption{온도별 정적 Rydberg--EIT transmission \Status{PREDICTED}.}
+  \end{figure}
+}{
+  \noindent\fbox{\parbox{0.92\textwidth}{
+  EIT spectrum figure가 아직 생성되지 않았다. example config로 workflow를 실행한다.}}
+}
+
+\IfFileExists{../../analysis/rydberg_cell_heating/generated/temperature_metrics.pdf}{
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.94\textwidth]{temperature_metrics.pdf}
+    \caption{EIT contrast, linewidth, spectral slope 및 IF discriminator
+    \Status{PREDICTED}.}
+  \end{figure}
+}{
+  \noindent\fbox{\parbox{0.92\textwidth}{온도 metric figure가 아직 생성되지 않았다.}}
+}
+
+\clearpage
+\section{실험--모델 비교}
+
+Clean CSV를 연결한 뒤에는 동일 온도점에서 다음 비교를 수행한다.
+
+\begin{enumerate}
+  \item measured detector voltage는 baseline/normalization 규칙을 명시한 뒤
+        EIT contrast와 linewidth를 다시 추출한다.
+  \item heater setpoint와 cold spot을 독립 축으로 보존하고, fitted temperature를
+        sensor measurement로 표기하지 않는다.
+  \item sensitivity의 measured/PSN/total-model curve를 같은 단위와 ENBW convention으로
+        비교한다.
+  \item opacity-only, temperature-dephasing, thermal-gradient 모델을 순차적으로
+        추가해 residual과 정보기준을 비교한다.
+\end{enumerate}
+
+\IfFileExists{../../analysis/rydberg_cell_heating/generated/sensitivity_comparison.pdf}{
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.86\textwidth]{sensitivity_comparison.pdf}
+    \caption{상태가 명시된 RF sensitivity 비교.}
+  \end{figure}
+}{
+  \noindent\fbox{\parbox{0.92\textwidth}{
+  sensitivity CSV 또는 조건부 절대 감도 계산이 없어 비교 그림을 보류했다
+  \Status{PENDING}.}}
+}
+
+\clearpage
+\section{불확도 예산}
+
+\begin{longtable}{p{0.22\textwidth}p{0.18\textwidth}p{0.48\textwidth}}
+\toprule
+항목 & 현재 상태 & 필요한 정보\\
+\midrule
+Vapor / cold-spot (T) & \Status{ASSUMED} & 독립 온도 측정과 축방향 gradient\\
+Beam size와 overlap & \Status{ASSUMED} & probe/coupling \(1/e^2\) 직경 및 위치\\
+RF field calibration & \Status{ASSUMED} & dipole, angular factor, SAM/AT 교정\\
+Detector PSN & \Status{PREDICTED} & optical power, QE, responsivity, ENBW\\
+Electronic/RIN noise & \Status{ASSUMED} & dark trace와 common-mode rejection\\
+Static OBE numerical result & \Status{PREDICTED} & config 및 code hash로 재현\\
+\bottomrule
+\end{longtable}
+
+\section{결론 및 acceptance criteria}
+
+절대 감도에 대한 검증 완료 조건은 다음과 같다.
+
+\begin{enumerate}
+  \item raw EIT, RF response, noise PSD 및 온도 log의 provenance 확보,
+  \item peak/RMS field와 RBW/ENBW convention의 단일화,
+  \item hold-out 온도점에서 EIT spectrum과 RF responsivity 예측,
+  \item measured sensitivity uncertainty 안에서 total-noise model 검증,
+  \item fitted parameter와 independently predicted quantity의 표 분리.
+\end{enumerate}
+
+\appendix
+\section{재현 명령}
+
+\begin{verbatim}
+python -m analysis.rydberg_cell_heating.workflow \
+  --config analysis/rydberg_cell_heating/example_config.json
+
+cd "docs/Rydberg cell-heating analysis"
+xelatex -disable-installer rydberg_cell_heating_validation_ko.tex
+xelatex -disable-installer rydberg_cell_heating_validation_ko.tex
+\end{verbatim}
+
+\end{document}

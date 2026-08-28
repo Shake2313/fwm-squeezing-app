@@ -1,11 +1,17 @@
 """
-Phase-0 regression: the refactored gabes FWM scheme must reproduce the frozen
-single-branch FWM baseline.
+Legacy-path compatibility regression after intentional seeded-FWM corrections.
+
+This snapshot intentionally changed for the coupling-ledger correction, thermal
+transit reset, and the production promotion from fixed N_F=1 to a full-scan-
+checked N_F=3/N_F=2 Floquet pair. Its manifest preserves the prior anchors and
+states which Option-A/quantum contracts it does not cover.
 
     python tests/test_regression.py      # or: pytest tests/test_regression.py
 
 Baseline file: tests/baseline_focused.npz  (see capture_baseline.py).
 """
+import hashlib
+import json
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -19,6 +25,8 @@ from gabes.schemes import fwm  # noqa: E402
 from gabes import constants, hyperfine  # noqa: E402
 
 BASELINE = Path(__file__).resolve().parent / "baseline_focused.npz"
+BASELINE_MANIFEST = (
+    Path(__file__).resolve().parent / "baseline_focused_manifest.json")
 WINDOW_GHZ = 0.55
 CONFIGS = {
     "sim_optimum": dict(D_GHz=0.9, T=394.15, P_pump=0.6, P_probe=8e-6,
@@ -26,7 +34,7 @@ CONFIGS = {
     "detuned": dict(D_GHz=1.5, T=383.15, P_pump=0.4, P_probe=10e-6,
                     line_strength=0.74, loss_frac=0.0),
 }
-KEYS = ("probe_axis_GHz", "G_s", "G_c", "S_dB")
+KEYS = ("probe_axis_GHz", "G_s", "G_c", "gain_referred_noise_dB", "S_dB")
 
 
 def _spectrum(cfg):
@@ -48,6 +56,26 @@ def test_regression():
             ref = base[f"{name}__{key}"]
             assert np.allclose(spec[key], ref, rtol=1e-9, atol=1e-12), \
                 f"{name}/{key} drifted from baseline"
+
+
+def test_baseline_provenance_manifest_matches_artifact():
+    manifest = json.loads(BASELINE_MANIFEST.read_text(encoding="utf-8"))
+    digest = hashlib.sha256(BASELINE.read_bytes()).hexdigest()
+    assert digest == manifest["sha256"]
+    assert "p_F/12 to 1/12" in manifest["change_reason"]
+    assert "trace-preserving thermal transit reset" in manifest["change_reason"]
+    assert "N_F=1" in manifest["change_reason"]
+    assert "N_F=3" in manifest["change_reason"]
+    assert "Option-A mismatch sign" in manifest["contracts_not_covered"]
+
+    base = np.load(BASELINE)
+    current = manifest["current_anchors"]
+    assert current["floquet_order"] == 3
+    assert current["comparison_order"] == 2
+    assert np.max(base["sim_optimum__G_s"]) == current["sim_optimum_max_G_s"]
+    assert np.max(base["sim_optimum__G_c"]) == current["sim_optimum_max_G_c"]
+    assert np.max(base["detuned__G_s"]) == current["detuned_max_G_s"]
+    assert np.max(base["detuned__G_c"]) == current["detuned_max_G_c"]
 
 
 def test_seeded_doppler_interpolation_geometry_built_once():
@@ -191,6 +219,7 @@ def test_fwm_defaults_match_sim_preset():
                 "zeeman_participation_penalty"):
         assert defaults[key] == sim[key]
     assert defaults["line_strength"] == 0.74
+    assert defaults["floquet_order"] == fwm.SEEDED_FLOQUET_ORDER == 3
     assert defaults["mode_overlap_penalty"] == 1.0
     assert defaults["polarization_penalty"] == 1.0
     assert defaults["zeeman_participation_penalty"] == 1.0

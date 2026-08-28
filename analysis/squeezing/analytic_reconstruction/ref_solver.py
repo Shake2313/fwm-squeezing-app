@@ -1,6 +1,14 @@
-"""Exact mini re-implementation of the FWM pipeline (reference for validating the
-closed-form theory). Conventions ported 1:1 from the model, seeded-beat corrected
-(Omega_beat = nu_HF + branch*delta).
+"""Archived N_F=1 finite-seed density-matrix reference for the FWM pipeline.
+
+This file reproduces the historical reduced-model assembly, including its
+dressed-wave-number propagation, population normalization, and fixed
+``n=-1,0,+1`` Floquet truncation.  It is a numerical-isolation fixture, not the
+current production Option-A path, not the separately implemented slow
+``gabes.schemes.fwm.pump_only_weak_response_reference`` (certified only for the
+standard minus branch), and not a Floquet-converged physical prediction.  Linear
+systems are solved exactly only relative to those fixed historical assumptions.
+The seeded beat uses ``Omega_beat = nu_HF + branch*delta``.
+
 Target: beat-corrected optimum  Delta=-1.50 GHz, T=110 C  ->
         xi_finite=-8.10 dB, xi_ideal=-15.62 dB, G_s=22.6, gap=0.623, delta=-280 MHz
 Reproduced here: G_s=22.59, gap=0.6226, xi=-8.101/-15.619 dB, delta*=-280.0 MHz.
