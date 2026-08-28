@@ -90,7 +90,7 @@ else:  # pragma: no cover
     raise SystemExit("Could not locate the GABES repo root (needs gabes/ + tests/).")
 sys.path.insert(0, str(REPO))
 
-from gabes import atoms, constants, hyperfine, observables      # noqa: E402
+from gabes import constants, hyperfine, observables             # noqa: E402
 from gabes.core import blas_single_thread                       # noqa: E402
 from gabes.schemes import fwm                                   # noqa: E402
 
@@ -202,22 +202,22 @@ def gain_peak(cfg, *, fid="legacy", ls=LS_RESIDUAL, refine_half=6.0,
                 coarse_edge=edge, no_resonance=bool(G_ss <= 1.0))
 
 
-def transit_scaled_atom(w_eff):
-    """`fwm.collisional_atom` with the ground-Raman floor rescaled as v_mp/w.
+def transit_scaled_atom(w_eff, atom_builder):
+    """`fwm.collisional_atom` with the transit reset rescaled as v_mp/w.
 
     GABES codes GAMMA_GG as a fixed 2pi x 100 kHz residual anchored at the Sim
     beam geometry, so shrinking the beam in the engine buys the intensity
     without paying the transit-time cost.  This monkeypatch restores the cost
     (analysis only; the engine is not modified)."""
-    def collisional_atom(T, density=None):
-        if density is None:
-            density = hyperfine.number_density(T)
+    def collisional_atom(T, density=None, *, transit_rate=None):
+        # compute_spectrum always supplies its configured reset rate.  This
+        # diagnostic deliberately replaces that value with the waist-scaled
+        # rate while delegating collision physics and provenance attributes to
+        # the production builder.
+        del transit_rate
         floor = (constants.GAMMA_GG * (v_mp(T) / v_mp(T_TRANSIT_REF))
                  * (W_TRANSIT_REF / float(w_eff)))
-        gamma_gg = constants.ground_coherence_dephasing(T, density, floor=floor)
-        gamma_opt = 0.5 * (hyperfine.self_broadened_gamma(density) - constants.GAMMA)
-        return atoms.double_lambda_rb85(gamma_gg=gamma_gg,
-                                        gamma_opt=max(gamma_opt, 0.0))
+        return atom_builder(T, density, transit_rate=floor)
     return collisional_atom
 
 
@@ -489,7 +489,7 @@ def sec_transit():
                          ("floor scaled to w = 200 um", 200e-6),
                          ("floor scaled to w = 130 um", 130e-6)):
             fwm.collisional_atom = (original if w is None
-                                    else transit_scaled_atom(w))
+                                    else transit_scaled_atom(w, original))
             r = gain_peak(JAIN)
             rows.append(dict(label=label, w_um=None if w is None else w * 1e6,
                              floor_kHz=(constants.GAMMA_GG / (2 * math.pi) / 1e3
