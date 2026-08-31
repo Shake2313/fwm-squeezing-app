@@ -15,6 +15,7 @@ Run with:
 """
 import base64
 import hashlib
+import importlib
 import inspect
 import json
 import matplotlib
@@ -27,16 +28,37 @@ from pathlib import Path
 from html import escape
 from threading import RLock
 
+import gabes as _gabes
+import gabes.experimental_csv as _experimental_csv
 from gabes import schemes
 from gabes.core import blas_single_thread
-from gabes.experimental_csv import (
-    CALIBRATION_ABSOLUTE_DARK_REFERENCE,
-    CALIBRATION_ABSOLUTE_GAIN_OFFSET,
-    CALIBRATION_RELATIVE_EXTREMA,
-    MAX_FILE_BYTES,
-    ExperimentalCSVError,
-    load_experimental_csv,
+
+_EXPERIMENTAL_CSV_IMPORT_LOCK = _gabes.__dict__.setdefault(
+    "_streamlit_experimental_csv_import_lock", RLock()
 )
+_EXPERIMENTAL_CSV_API = (
+    "CALIBRATION_ABSOLUTE_DARK_REFERENCE",
+    "CALIBRATION_ABSOLUTE_GAIN_OFFSET",
+    "CALIBRATION_RELATIVE_EXTREMA",
+    "MAX_FILE_BYTES",
+    "ExperimentalCSVError",
+    "load_experimental_csv",
+)
+with _EXPERIMENTAL_CSV_IMPORT_LOCK:
+    if any(not hasattr(_experimental_csv, name) for name in _EXPERIMENTAL_CSV_API):
+        importlib.invalidate_caches()
+        _experimental_csv = importlib.reload(_experimental_csv)
+
+    CALIBRATION_ABSOLUTE_DARK_REFERENCE = (
+        _experimental_csv.CALIBRATION_ABSOLUTE_DARK_REFERENCE
+    )
+    CALIBRATION_ABSOLUTE_GAIN_OFFSET = (
+        _experimental_csv.CALIBRATION_ABSOLUTE_GAIN_OFFSET
+    )
+    CALIBRATION_RELATIVE_EXTREMA = _experimental_csv.CALIBRATION_RELATIVE_EXTREMA
+    MAX_FILE_BYTES = _experimental_csv.MAX_FILE_BYTES
+    ExperimentalCSVError = _experimental_csv.ExperimentalCSVError
+    load_experimental_csv = _experimental_csv.load_experimental_csv
 from gabes.plot_style import PALETTE, apply_gabes_plot_style
 from gabes.ui_metrics import partition_metrics, split_metric_value
 

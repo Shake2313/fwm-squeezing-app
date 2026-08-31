@@ -1,5 +1,7 @@
 """CSV import/correction checks for the OD/SAS experimental overlay."""
 
+import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -10,6 +12,71 @@ from gabes import experimental_csv as ecsv
 
 ROOT = Path(__file__).resolve().parent.parent
 REFERENCE_OD = ROOT / "references" / "AutoOD" / "ReferenceOD.csv"
+
+
+def test_streamlit_import_repairs_stale_experimental_csv_module():
+    script = r'''
+import importlib
+import inspect
+
+import gabes as gabes_package
+import gabes.experimental_csv as ecsv
+import streamlit as st
+
+required = (
+    "CALIBRATION_ABSOLUTE_DARK_REFERENCE",
+    "CALIBRATION_ABSOLUTE_GAIN_OFFSET",
+    "CALIBRATION_RELATIVE_EXTREMA",
+    "MAX_FILE_BYTES",
+    "ExperimentalCSVError",
+    "load_experimental_csv",
+)
+for name in required[:3]:
+    delattr(ecsv, name)
+
+real_reload = importlib.reload
+reload_calls = []
+import_locks = []
+
+def recording_reload(module):
+    reload_calls.append(module.__name__)
+    return real_reload(module)
+
+class StopAfterImports(BaseException):
+    pass
+
+def verify_bindings_then_stop(*args, **kwargs):
+    namespace = inspect.currentframe().f_back.f_globals
+    assert namespace["__name__"] == "streamlit_app"
+    assert all(namespace[name] is getattr(ecsv, name) for name in required)
+    import_lock = namespace["_EXPERIMENTAL_CSV_IMPORT_LOCK"]
+    assert import_lock is gabes_package._streamlit_experimental_csv_import_lock
+    import_locks.append(import_lock)
+    raise StopAfterImports
+
+importlib.reload = recording_reload
+st.set_page_config = verify_bindings_then_stop
+
+for _ in range(2):
+    try:
+        import streamlit_app
+    except StopAfterImports:
+        pass
+    else:
+        raise AssertionError("streamlit_app continued beyond the import check")
+
+assert all(hasattr(ecsv, name) for name in required)
+assert reload_calls == ["gabes.experimental_csv"]
+assert len(import_locks) == 2 and import_locks[0] is import_locks[1]
+'''
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 def _csv_bytes(x, y, *, header=None):
