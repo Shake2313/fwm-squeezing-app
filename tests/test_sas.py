@@ -25,7 +25,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import core, schemes, constants, observables, species, hyperfine  # noqa: E402
+from gabes import (  # noqa: E402
+    atoms, core, schemes, constants, observables, species, hyperfine)
 from gabes.schemes.sas import (  # noqa: E402
     GENERIC,
     _basis_reset_pump_pops,
@@ -272,11 +273,12 @@ def test_pump_off_is_smooth_and_49_25():
     view = SAS.observables(raw, p, include_figures=False)
     assert view["hero_count"] == 1
     assert [metric["label"] for metric in view["metrics"]] == [
-        "Peak OD", "Gaussian Doppler FWHM"
+        "Peak OD", "Gaussian Doppler FWHM", "Peak phase shift"
     ]
     assert view["metrics"][0]["tier"] == "hero"
     broad = next(m for m in view["metrics"] if m["label"] == "Gaussian Doppler FWHM")
     assert "not a measured Voigt" in broad["help"]
+    assert "cell temperature" in broad["help"]
 
 
 # ------------------------------------------------------ pump on (SAS) physics
@@ -330,12 +332,15 @@ def test_observables_render_species():
     assert view["figure"] is not None
     figure_views = view["figure_views"]
     assert [item["label"] for item in figure_views] == [
-        "Transmission", "Optical density"
+        "Transmission", "Optical density", "Dispersion"
     ]
     assert figure_views[0]["figure"] is view["figure"]
     assert all(len(item["figure"].axes) == 1 for item in figure_views)
     assert figure_views[0]["figure"].axes[0].get_ylabel() == "Transmission"
     assert figure_views[1]["figure"].axes[0].get_ylabel() == "Optical density"
+    dispersion_label = figure_views[2]["figure"].axes[0].get_ylabel()
+    assert dispersion_label == "Refractive index  n - 1  [ppm]"
+    assert dispersion_label.isascii()                 # mathtext layout lock
     assert view["comparison"]["axis_index"] == 0
     assert view["comparison"]["x_unit"] == "GHz"
     assert view["comparison"]["raw_x_unit"] == "Arb. unit"
@@ -497,7 +502,7 @@ def test_generic_lamb_dip_and_crossover():
     # Doppler-envelope flank must not be substituted as a lock slope.
     rendered = SAS.observables(raw2, p2)
     assert [item["label"] for item in rendered["figure_views"]] == [
-        "Transmission", "Optical density"
+        "Transmission", "Optical density", "Dispersion"
     ]
     assert rendered["figure_views"][0]["figure"] is rendered["figure"]
     view2 = SAS.observables(raw2, p2, include_figures=False)
@@ -509,6 +514,210 @@ def test_generic_lamb_dip_and_crossover():
     assert labels[0] == "SAS resolution"
     assert heroes == ["SAS resolution"]
     assert not any(label.startswith("Lock ") for label in labels)
+
+
+# ------------------------------------------------- dispersion (Re chi) layer
+def _voigt_reference(scan, iso, line, T_density, T_doppler):
+    """Independent Faddeeva reference for both weak-probe quadratures.
+
+    At pump = 0 the velocity-resolved population difference is 1, so the
+    scheme's explicit velocity quadrature must reproduce the analytic complex
+    Voigt profile  P(δ) = w((δ + i·hwhm)/(σ√2)) / (σ√(2π)):  Re P is the
+    unit-area absorption profile and Im P its Kramers-Kronig partner.
+    """
+    from scipy.special import wofz
+
+    N = species.number_density(iso, T_density)
+    man = species.build_manifold(iso, line)
+    k = man.k_vec
+    hwhm = (man.gamma + species.self_broadened_gamma(iso, N)) / 2.0
+    sigma = k * np.sqrt(constants.KB * T_doppler / iso.mass)
+    A = species.line_integrated_alpha(iso, line=line, N=N)
+    ng = len(man.Fg)
+    alpha = np.zeros(scan.size)
+    chi_real = np.zeros(scan.size)
+    for t in range(man.omega.size):
+        strength = A[(man.Fg[man.g_idx[t]], man.Fe[man.e_idx[t] - ng])]
+        profile = wofz((scan - man.omega[t] + 1j * hwhm) / (sigma * np.sqrt(2.0)))
+        profile /= sigma * np.sqrt(2.0 * np.pi)
+        alpha += strength * profile.real
+        chi_real -= (strength / k) * profile.imag
+    return alpha, chi_real
+
+
+def test_dispersion_matches_independent_voigt_reference():
+    """Both quadratures, against scipy's Faddeeva instead of our velocity sum."""
+    for temp_c in (25.0, 90.0):
+        p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0,
+                    temp_c=temp_c, scan_points=1201)
+        raw = SAS.compute(p)
+        a_ref, chi_ref = _voigt_reference(
+            raw["scan"], species.RB85, "D1", temp_c + 273.15, temp_c + 273.15)
+        assert np.abs(raw["alpha_unit"] - a_ref).max() / a_ref.max() < 1e-3
+        assert (np.abs(raw["chi_real_unit"] - chi_ref).max()
+                / np.abs(chi_ref).max()) < 1e-3
+
+
+def test_weak_probe_quadrature_ratio_fixes_the_dispersion_sign():
+    """Homogeneous limit: Re χ / Im χ = −δ/hwhm in the GABES χ convention.
+
+    The species path writes that partner analytically; the OBE steady state is
+    the independent check that its sign and width convention are right.
+    """
+    two = atoms.two_level(gamma=G)
+    rabi = 1e-4 * G
+    H = np.zeros((2, 2), dtype=complex)
+    H[0, 1] = H[1, 0] = rabi / 2
+    detuning = G * np.array([-8.0, -3.0, -0.7, 0.7, 3.0, 8.0])
+    rho = core.steady_state_batched(
+        core.build_liouvillian(H, two), detuning, two.S_v, 2)
+    chi = observables.chi_phys(rho[:, 1, 0] / rabi, 1e17, line_strength=1.0)
+    np.testing.assert_allclose(np.real(chi) / np.imag(chi),
+                               -detuning / (G / 2.0), rtol=2e-8)
+    assert np.real(chi)[0] > 0.0                      # n > 1 below resonance
+    assert np.real(chi)[-1] < 0.0
+
+
+def test_dispersion_sign_and_zero_crossing_around_the_lines():
+    raw = SAS.compute(_params(species=RB85_KEY, line="D1", pump_power_mw=0.0,
+                              temp_c=25.0, scan_points=2001))
+    x = raw["scan"] / (2 * np.pi) / 1e9
+    chi_real = raw["chi_real_unit"]
+    lowest = min(gx for gx, _ in raw["markers"])
+    highest = max(gx for gx, _ in raw["markers"])
+    assert chi_real[int(np.argmin(np.abs(x - (lowest - 0.35))))] > 0.0
+    assert chi_real[int(np.argmin(np.abs(x - (highest + 0.35))))] < 0.0
+    inside = (x > lowest) & (x < highest)
+    assert np.any(np.diff(np.sign(chi_real[inside])) != 0)   # crosses through
+
+
+def test_dispersion_follows_the_pumped_populations():
+    """Sub-Doppler structure must appear in Re χ too, not only in α."""
+    def roughness(y):
+        return np.abs(np.diff(y, 2)).max() / max(np.abs(y).max(), 1e-30)
+
+    common = dict(species=RB85_KEY, line="D2", temp_c=30.0, scan_points=1401)
+    off = SAS.compute(_params(**common, pump_power_mw=0.0))
+    on = SAS.compute(_params(**common, pump_power_mw=1.5))
+    assert roughness(on["chi_real_unit"]) > 5 * roughness(off["chi_real_unit"])
+    # same velocity-resolved population difference: both quadratures respond
+    assert roughness(on["alpha_unit"]) > 5 * roughness(off["alpha_unit"])
+
+
+def test_line_strength_scales_both_quadratures_and_phase_metric():
+    p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=60.0,
+                cell_mm=10.0, scan_points=801)
+    raw = SAS.compute(p)
+    scaled = {**p, "line_strength": 0.5}
+    view = SAS.observables(raw, scaled, include_figures=False)
+    phase = observables.single_pass_phase(
+        0.5 * raw["chi_real_unit"], raw["k_vec"], scaled["cell_mm"] * 1e-3)
+    metric = next(m for m in view["metrics"] if m["label"] == "Peak phase shift")
+    assert metric["value"].endswith("mrad")           # below 1 rad here
+    assert abs(float(metric["value"].split()[0])
+               - np.abs(phase).max() * 1e3) < 0.05
+    full = SAS.observables(raw, p, include_figures=False)
+    assert abs(_metric_number(full, "Peak phase shift")
+               - 2.0 * _metric_number(view, "Peak phase shift")) < 0.1
+
+    # A thick, hot cell leaves the mrad scale; the unit switches with it.
+    thick = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=120.0,
+                    cell_mm=100.0, scan_points=801)
+    thick_view = SAS.observables(SAS.compute(thick), thick, include_figures=False)
+    thick_metric = next(m for m in thick_view["metrics"]
+                        if m["label"] == "Peak phase shift")
+    assert thick_metric["value"].endswith("rad")
+    assert not thick_metric["value"].endswith("mrad")
+    assert float(thick_metric["value"].split()[0]) >= 1.0
+    assert "not a group delay" in thick_metric["help"]
+
+
+def test_observables_survive_a_raw_dict_without_the_dispersion_key():
+    """Legacy cached results keep rendering; they just lose the extra view."""
+    p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=45.0,
+                scan_points=401)
+    raw = SAS.compute(p)
+    legacy = {key: value for key, value in raw.items()
+              if key not in ("chi_real_unit", "k_vec")}
+    view = SAS.observables(raw, p)
+    legacy_view = SAS.observables(legacy, p)
+    assert [item["label"] for item in view["figure_views"]][-1] == "Dispersion"
+    assert [item["label"] for item in legacy_view["figure_views"]] == [
+        "Transmission", "Optical density"
+    ]
+    assert "Peak phase shift" not in {m["label"] for m in legacy_view["metrics"]}
+
+
+# ---------------------------------------------- density / Doppler temperature
+def test_doppler_temperature_is_tied_by_default():
+    common = dict(species=RB85_KEY, line="D1", pump_power_mw=0.5, temp_c=60.0,
+                  scan_points=401)
+    default = SAS.compute(_params(**common))
+    explicit = SAS.compute(_params(**common, constrain_doppler_temp=True,
+                                   doppler_temp_c=140.0))
+    released_same = SAS.compute(_params(**common, constrain_doppler_temp=False,
+                                        doppler_temp_c=60.0))
+    legacy = _params(**common)
+    for key in ("constrain_doppler_temp", "doppler_temp_c"):
+        legacy.pop(key)
+    legacy_raw = SAS.compute(legacy)
+
+    for other in (explicit, released_same, legacy_raw):
+        np.testing.assert_array_equal(other["alpha_unit"], default["alpha_unit"])
+        np.testing.assert_array_equal(other["chi_real_unit"],
+                                      default["chi_real_unit"])
+    assert default["doppler_temp_tied"] and default["density_temp_c"] == 60.0
+    assert not released_same["doppler_temp_tied"]
+
+
+def test_released_doppler_temperature_moves_width_not_density():
+    common = dict(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=60.0,
+                  constrain_doppler_temp=False, scan_points=2001)
+    cold = SAS.compute(_params(**common, doppler_temp_c=60.0))
+    hot = SAS.compute(_params(**common, doppler_temp_c=140.0))
+
+    # Doppler width follows only the released temperature ...
+    expected = np.sqrt((140.0 + 273.15) / (60.0 + 273.15))
+    assert abs(hot["dopp_fwhm"] / cold["dopp_fwhm"] - expected) < 1e-6
+    # ... while the integrated absorption (the density scale) is untouched.
+    area_cold = _tz(cold["alpha_unit"], cold["scan"])
+    area_hot = _tz(hot["alpha_unit"], hot["scan"])
+    assert abs(area_hot / area_cold - 1.0) < 2e-3
+    assert hot["alpha_unit"].max() < cold["alpha_unit"].max()
+
+    # The mirror case: density temperature alone moves the area, not the width.
+    denser = SAS.compute(_params(**{**common, "temp_c": 80.0},
+                                 doppler_temp_c=60.0))
+    assert abs(denser["dopp_fwhm"] / cold["dopp_fwhm"] - 1.0) < 1e-12
+    assert _tz(denser["alpha_unit"], denser["scan"]) > 2.0 * area_cold
+
+
+def test_released_temperature_is_reported_and_labelled():
+    p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=60.0,
+                constrain_doppler_temp=False, doppler_temp_c=140.0,
+                scan_points=401)
+    view = SAS.observables(SAS.compute(p), p, include_figures=False)
+    by_label = {m["label"]: m for m in view["metrics"]}
+    assert by_label["Doppler-width temperature"]["value"].startswith("140")
+    assert "60 °C" in by_label["Doppler-width temperature"]["help"]
+    assert "Doppler-width temperature" in by_label["Gaussian Doppler FWHM"]["help"]
+
+    tied = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=60.0,
+                   scan_points=401)
+    tied_view = SAS.observables(SAS.compute(tied), tied, include_figures=False)
+    assert "Doppler-width temperature" not in {
+        m["label"] for m in tied_view["metrics"]}
+
+
+def test_doppler_temperature_schema_is_advanced_and_gated():
+    specs = {item.name: item for item in SAS.param_schema()}
+    tie = specs["constrain_doppler_temp"]
+    released = specs["doppler_temp_c"]
+    assert tie.default is True and tie.control == "checkbox" and tie.advanced
+    assert released.advanced and released.visible_if == {
+        "constrain_doppler_temp": False}
+    assert tie.advanced_group == released.advanced_group == "Cell temperatures"
+    assert tie.recompute and released.recompute
 
 
 if __name__ == "__main__":

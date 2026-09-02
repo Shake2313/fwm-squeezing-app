@@ -16,6 +16,16 @@
   "_priority_policy": "Review/checklist priority uses P1/P2/P3 going forward. P1 blocks correctness, reproducibility, release, or user-facing trust. P2 is important and should be fixed before publication/release or broad reuse, but does not currently break tests. P3 is housekeeping, polish, or low-risk maintainability. This priority is separate from GROUP B/C implementation burden.",
   "_effort_policy": "Effort is small | medium | large | research and is independent of priority.",
   "_group_policy": "GROUP B items are safe but substantial coding work. GROUP C items are heavy / need design alignment; ask the user before coding any GROUP C item.",
+  "_elecsus_feature_comparison": {
+    "reviewed_on": "2026-09-02",
+    "reference": "ElecSus v3.1.0 (beta), a weak-probe electric-susceptibility calculator for thermal alkali vapour cells. Original program: doi:10.1016/j.cpc.2014.11.023 (2015); arbitrary-geometry magneto-optics extension: doi:10.1016/j.cpc.2017.12.001 (2018).",
+    "scope": "A one-off feature comparison of the GABES OD/SAS path against ElecSus, used to source the od-sas-* and app-result-export items appended below. It compares experiment-facing capability only. ElecSus is a linear weak-probe model and is not a reference for the saturated physics GABES already owns: pump hole burning, hyperfine optical pumping, transit relaxation, and coated-cell population memory.",
+    "not_adopted": [
+      "The ElecSus susceptibility core itself; GABES already solves the optical Bloch equations and covers the saturated regime ElecSus cannot reach.",
+      "The symbolic arbitrary-angle dielectric solver, which its own documentation describes as much slower than the analytic Faraday and Voigt cases.",
+      "The wxPython GUI."
+    ]
+  },
   "_retired_items": [
     {
       "id": "buffer-gas-pressure-shift",
@@ -213,7 +223,8 @@
       "evidence": [
         "The 2026-07-20, 2026-07-30, and 2026-08-05 OD/SAS reviews independently identified coefficient fallback and pump/probe linewidth mismatches.",
         "The 2026-07-23, 2026-07-28, and 2026-08-03 Magneto reviews found that the collisional data API cannot distinguish the optical effects later needed by the Liouvillian.",
-        "The 2026-08-06 Lambda review confirmed that pressure shift/broadening provenance remains unresolved."
+        "The 2026-08-06 Lambda review confirmed that pressure shift/broadening provenance remains unresolved.",
+        "ElecSus derives self-broadening in closed form per line, gamma_self = 2*pi*gamma_0*N*(lambda/(2*pi))^3 with an additional factor sqrt(2) on D2 (libs/spectra.py). That form reproduces the Rb-85 D1 coefficient hard-coded here (7.3e-8 against the 6.9e-8 Hz cm^3 value used, about 6% high) while scaling on its own to Rb D2 (1.0e-7), Cs D1 (8.3e-8), and Cs D2 (1.2e-7), whereas species.self_broadened_gamma ignores its isotope argument and applies the single Rb value to every species and line."
       ],
       "source_reports": [
         "docs/daily_report/2026-07-20_scheme-1_od-sas.md",
@@ -1167,6 +1178,217 @@
         "Remove the development route, spike module, spike-only session state, and tests that assert the temporary route remains reachable.",
         "Keep production canvas component round-trip, resize, repeat-click, and coordinate-scaling coverage in the real optical-table tests.",
         "Normal GABES/SABES URLs and production canvas behavior remain unchanged."
+      ]
+    },
+    {
+      "id": "od-sas-dispersive-susceptibility",
+      "area": "schemes/sas.py + lineshape.py + observables.py",
+      "title": "Return the dispersive partner of the OD/SAS absorption profile",
+      "problem": "The OD/SAS spectrum is assembled from unit-area absorption Lorentzians only, so the real part of the susceptibility is never formed. Refractive index, accumulated phase, polarization rotation, and group index are unavailable on the one scheme that owns the validated hyperfine absolute scale, and any later polarimetric or Faraday/Voigt readout would have no dispersive input to propagate.",
+      "evidence": [
+        "schemes/sas.py builds each hyperfine component as a unit-area Lorentzian (hwhm/pi)/(arg^2 + hwhm^2) and sums absorption only; observables.py exposes transmission and optical_density from alpha, while observables.group_index has no OD/SAS caller.",
+        "ElecSus obtains absorption and dispersion from a single Faddeeva evaluation of one complex line profile and reuses the real part for refractive index, rotation angle, and group index (libs/spectra.py, add_voigt)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "medium",
+      "status": "done",
+      "why": "DONE. Each hyperfine component now contributes one complex profile, chi_t = (A_t/k)*i/(pi*(Gamma_eff/2 - i*delta_t)): the imaginary part is the unit-area lineshape that already built alpha and the real part is its Kramers-Kronig partner, both weighted by the same velocity-resolved population difference and the same Doppler quadrature, so a pumped spectrum reports the saturated medium's dispersion. The generic path takes both quadratures from the one weak-probe susceptibility it already solved. compute() returns chi_real_unit and k_vec; observables scales it with the same line-strength factor as alpha and adds a Dispersion view (n - 1 in ppm, ASCII axis labels) plus a Peak phase shift metric. observables.refractive_index and observables.single_pass_phase now hold the dilute-vapor convention that group_index also calls. alpha is bit-for-bit unchanged on seven species/line/pump/coating cases checked against the previous revision, so the AutoOD anchor is untouched. Both quadratures agree with an independent scipy Faddeeva Voigt reference to 3e-4 at 25 C and 90 C, and the homogeneous-limit sign is pinned by a two-level OBE fixture (Re chi / Im chi = -delta/hwhm to 2e-8, n > 1 below resonance). No group-index readout is exposed.",
+      "acceptance_criteria": [
+        "Absorption and dispersion for each hyperfine component come from one complex lineshape evaluation with a documented sign and frequency convention, not from two independently normalized profiles.",
+        "The dispersive component carries the same velocity-resolved population difference and the same Doppler quadrature as the absorption; a weak-probe dispersion is never paired with a saturated absorption spectrum.",
+        "A Kramers-Kronig or analytic-Voigt fixture checks the returned real part against an independent reference in both the homogeneous limit and a Doppler-broadened case.",
+        "The pump-off Rb-85 D1 AutoOD absolute anchor remains within its documented 0.1% tolerance.",
+        "Any refractive-index or group-index readout reuses observables.group_index instead of a scheme-local re-implementation, and states whether it is a phase or a group quantity."
+      ],
+      "out_of_scope": [
+        "Polarization propagation and Stokes observables, which belong to od-sas-weak-probe-magneto-optical-reference-mode.",
+        "Changes to FWM susceptibility conventions or frozen FWM baselines."
+      ]
+    },
+    {
+      "id": "od-sas-independent-doppler-and-density-temperature",
+      "area": "schemes/sas.py + species.py",
+      "title": "Separate the OD/SAS density temperature from the Doppler-width temperature",
+      "problem": "One temp_c sets vapor density, Doppler width, and every temperature-dependent collisional rate in OD/SAS. Real cells run a cold spot below the body temperature, so a single knob forces any comparison with data to trade absolute absorption against measured width, and a heated-window or cold-finger cell cannot be represented at all.",
+      "evidence": [
+        "schemes/sas.py derives the number density from species.number_density(iso, T) and the Doppler sigma_v from the same T.",
+        "The Rydberg scheme already separates heater setpoint, effective vapor temperature, and cold-spot temperature, so the convention exists in the repository but not in OD/SAS.",
+        "ElecSus exposes an independent DoppTemp with a Constrain flag that ties it to the density temperature by default (libs/spectra.py, p_dict_defaults and calc_chi)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "small",
+      "status": "done",
+      "why": "DONE. temp_c is now explicitly the vapor-density temperature (number density and density-dependent self-broadening) and an Advanced 'Tie Doppler width to cell temperature' checkbox releases a separate doppler_temp_c that drives the thermal velocity distribution only (Doppler FWHM and velocity classes). The tie is on by default and a params dict predating both knobs stays tied, so default, explicitly tied, released-but-equal and legacy calls are bit-for-bit identical to the previous revision and the AutoOD anchor is unchanged. A released fixture moves the two independently: Doppler FWHM scales as sqrt(T_Doppler) with the integrated absorption fixed to 2e-3, while the density temperature alone moves the integral with the width fixed. Raw results carry density_temp_c, doppler_temp_c and doppler_temp_tied; the plot title, the Gaussian Doppler FWHM help and a Doppler-width temperature metric (shown only when released) name which temperature each quantity came from, and the About text records that buffer-gas broadening is pressure-only and the transit rate is a separate knob.",
+      "depends_on": [
+        "rydberg-heated-cell-analysis"
+      ],
+      "acceptance_criteria": [
+        "The scheme accepts a separate Doppler temperature behind an explicit constrain toggle whose default reproduces current results bit-for-bit.",
+        "Output and documentation state which temperature enters number density, Doppler width, self-broadening, buffer-gas rates, and transit relaxation; the collisional-rate assignment follows collisional-coefficient-provenance-and-pressure-shift instead of being decided a second time here.",
+        "The pump-off Rb-85 D1 AutoOD anchor is unchanged in the constrained default.",
+        "An unconstrained fixture with the density temperature above the Doppler temperature moves peak OD and Doppler FWHM independently and in the expected directions.",
+        "Naming distinguishes the two temperatures everywhere they appear, so a reported temperature cannot be read as both."
+      ]
+    },
+    {
+      "id": "od-sas-experimental-spectrum-fitting",
+      "area": "experimental_csv.py + schemes/sas.py + streamlit_app.py",
+      "title": "Extract cell parameters from an imported OD spectrum instead of aligning it by eye",
+      "problem": "The CSV comparison panel can only scale and shift an imported trace visually and states that it does not fit spectral features, so GABES cannot return a temperature, cell length, extra homogeneous width, or frequency offset with an uncertainty from measured data. Every experimental comparison ends as a qualitative overlay, and no path in the repository produces uncertainty-aware residuals.",
+      "evidence": [
+        "streamlit_app.py offers X scale, X shift, reverse, and invert controls whose help text says the action does not fit spectral features.",
+        "No optimizer call exists anywhere in the repository: curve_fit, least_squares, lmfit, and differential_evolution are absent.",
+        "The imported trace already carries what a weighted fit needs (calibration mode, denoising diagnostics, preserved sweep branches) from experimental-csv-calibration-and-sweep-direction, so the missing layer is the fit itself.",
+        "ElecSus builds its published use case on this capability: fit_data takes per-parameter vary booleans and bounds, offers Marquardt-Levenberg, differential evolution, random restart, and simulated annealing, and always finishes with a local Levenberg-Marquardt pass to obtain parameter uncertainties alongside an RMS and a fit report (elecsus_methods.py, libs/MLFittingRoutine.py, tests/fitting_tests.py)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "ready",
+      "depends_on": [
+        "experimental-csv-calibration-and-sweep-direction"
+      ],
+      "acceptance_criteria": [
+        "Fitting targets the pump-off weak-probe OD path by default; a pumped SAS fit is offered only with a stated runtime budget and evaluation-count bound, because every evaluation re-solves the OBE pump table.",
+        "The free-parameter set is declared and bounded, each entry has a stated physical meaning and unit, and parameters that only absorb lab distortions are refused rather than silently fitted.",
+        "The model is evaluated on the experimental detuning axis; any resampling or interpolation used to form residuals is recorded in the result.",
+        "Residuals are weighted by a per-point uncertainty derived from the imported trace, for example a binned standard deviation, and the report includes RMS, parameter uncertainties from a covariance evaluation at the optimum, and a residual distribution.",
+        "A correlation or conditioning report flags degenerate combinations, in particular density temperature against cell length against the line-strength factor, instead of returning an independent confident value for each.",
+        "Global search and local refinement are distinguished, and quoted uncertainties never come from the global stage alone.",
+        "A synthetic round-trip fixture recovers known parameters from a noiseless generated spectrum within a stated tolerance, and a noisy fixture recovers them within the reported uncertainties.",
+        "Fit and held-out detuning ranges are predeclared whenever a fit result is used to claim model validity; a fit that uses every point for both calibration and validation is labelled calibration only.",
+        "Manual alignment remains available and no fit runs without an explicit user action."
+      ],
+      "out_of_scope": [
+        "Fitting isotope fractions, magnetic field, or polarization parameters before the corresponding model paths exist.",
+        "Reporting a fitted line-strength factor as a physical calibration; it stays a residual knob."
+      ]
+    },
+    {
+      "id": "od-sas-isotope-fraction-and-element-coverage",
+      "area": "species.py + schemes/sas.py",
+      "title": "Support non-natural isotope fractions and decide on further alkali elements",
+      "problem": "Species selection is a fixed menu: natural Rb uses the tabulated abundance split and each single-isotope entry assumes a pure cell, so an enriched or depleted cell cannot be represented even though its spectrum differs from a natural one only by two weights. Adding K or Na would additionally require hyperfine, dipole, vapor-pressure, saturation, and collisional data that no current item covers.",
+      "evidence": [
+        "species.py fixes the isotope weights in SPECIES, and number_density implements a Rb and a Cs vapor-pressure fit only.",
+        "ElecSus treats rb85frac, K40frac, and K41frac as ordinary parameters that may also be varied during a fit, and covers Na, K-39/40/41, Rb-85/87, and Cs from one Alcock-based vapor-pressure module (libs/numberDensityEqs.py, libs/AtomConstants.py)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "medium",
+      "status": "needs_decision",
+      "decision_required": [
+        "Whether enriched or depleted cells are actually in use, or whether the natural and pure-isotope menu is sufficient for current work.",
+        "Which additional elements, if any, belong in GABES scope; each new element needs sourced hyperfine constants, line data, a vapor-pressure fit with a validity range, and saturation and collisional entries."
+      ],
+      "depends_on": [
+        "species-line-rabi-and-saturation-provenance",
+        "collisional-coefficient-provenance-and-pressure-shift"
+      ],
+      "acceptance_criteria": [
+        "Isotope weights become an explicit normalized input whose default reproduces the current natural-abundance and pure-isotope spectra exactly.",
+        "Elemental density and per-isotope density stay distinguishable in code and output, and the Rb-85 D1 AutoOD anchor is unchanged at natural abundance.",
+        "A new element is offered only when its hyperfine, dipole, vapor-pressure, saturation, and collisional data are sourced with validity ranges; otherwise it is not listed rather than reusing another element's constants.",
+        "Fitted isotope fractions, if ever allowed, are constrained to sum to one and carry the identifiability statement required by od-sas-experimental-spectrum-fitting."
+      ]
+    },
+    {
+      "id": "od-sas-weak-probe-magneto-optical-reference-mode",
+      "area": "schemes/sas.py + species.py + zeeman.py + observables.py",
+      "title": "Add a weak-probe Zeeman and polarization reference path for absorption spectra",
+      "problem": "The OD/SAS manifold is hyperfine-lumped and its readout is a scalar absorption coefficient, so an applied magnetic field, an input polarization, and every polarimetric observable (Faraday rotation, dichroism, Stokes parameters) lie outside the model. Solving the full m_F manifold with the OBE for every velocity class and scan point costs far more than the weak-probe limit these measurements need.",
+      "evidence": [
+        "schemes/sas.py declares no magnetic-field or polarization parameter and returns transmission and optical density from a scalar alpha.",
+        "The Zeeman machinery in zeeman.py serves the magneto scheme for a single 87Rb D1 F -> F' pair with a longitudinal field, so it does not cover a Doppler-broadened multi-line D1/D2 spectrum at arbitrary field magnitude and direction.",
+        "paraffin-coated-cell-extensions already records that the hyperfine-lumped OD/SAS manifold cannot carry Zeeman polarization moments.",
+        "ElecSus reaches the same physics in the weak-probe limit by diagonalizing the hyperfine plus Zeeman Hamiltonian in the uncoupled basis per isotope, which stays valid from the anomalous Zeeman regime through hyperfine Paschen-Back, then propagates the field through the dielectric-tensor normal modes and applies Jones matrices to obtain S0-S3 and the linear and circular intensities (libs/EigenSystem.py, libs/solve_dielectric.py, libs/spectra.py, libs/JonesMatrices.py)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "research",
+      "status": "parked",
+      "depends_on": [
+        "od-sas-dispersive-susceptibility"
+      ],
+      "activation_trigger": "Choose the target measurement (field magnitude and geometry, isotope and line, input polarization, detected Stokes component), provide a calibration spectrum and a held-out measured spectrum with conditions and uncertainties, and set a runtime budget.",
+      "acceptance_criteria": [
+        "The weak-probe path is a separately labelled mode that claims no pump saturation, hole burning, or hyperfine pumping, and the pumped OBE path never inherits its Zeeman output.",
+        "Level energies and transition strengths come from one diagonalization valid at arbitrary field, with the low-field and Paschen-Back limits checked against independent references.",
+        "The ground-state population assumption is stated, degeneracy-weighted or Boltzmann, and is testable in a case with large ground-state splitting.",
+        "Polarization propagation uses the medium's normal modes rather than assuming a Faraday geometry; Voigt and intermediate angles are either supported with a convergence statement or refused with an explicit unsupported status.",
+        "Transmission, rotation, and ellipticity are all derived from one output field vector, so they cannot disagree with each other.",
+        "At zero field with linear input polarization, the mode reproduces the existing pump-off absorption spectrum within a documented tolerance."
+      ],
+      "out_of_scope": [
+        "Replacing the OBE OD/SAS path.",
+        "Field or temperature gradients, which belong to od-sas-segmented-cell-propagation."
+      ]
+    },
+    {
+      "id": "od-sas-segmented-cell-propagation",
+      "area": "schemes/sas.py + observables.py",
+      "title": "Propagate the beams through a segmented cell instead of one uniform slab",
+      "problem": "The cell is treated as a single uniform slab: transmission is exp(-alpha L) with one alpha, and the pump Rabi frequency is computed once from the input power and never attenuates along z. A real saturated-absorption cell depletes its own pump with depth and can hold temperature or field gradients, so pumped features are systematically optimistic at high optical depth and a graded cell cannot be represented.",
+      "evidence": [
+        "observables.transmission applies exp(-alpha L) with one scheme-level alpha, and schemes/sas.py computes the pump Rabi frequency once from pump_power_mw and the waist.",
+        "ElecSus supports non-uniform cells by slicing the cell and feeding each slice's output field into the next (libs/spectra.py, get_Efield), and uses that path to fit a measured magnetic-field profile (tests/fit_fieldgradient.py)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Segment count is an explicit convergence parameter with a documented convergence test showing the reported observables are stable to a stated tolerance.",
+        "With one segment and no gradient the result is bit-for-bit identical to the current uniform path, and the pump-off Rb-85 D1 AutoOD anchor stays within its documented tolerance at any segment count.",
+        "Pump attenuation, when enabled, uses the same absorption model as the probe, and its effect on Lamb-dip depth and sub-Doppler contrast is reported rather than absorbed into the line-strength factor.",
+        "Temperature and magnetic-field profiles are declared per-segment inputs with sources; a profile inferred from data is treated as a nuisance profile with its own identifiability statement.",
+        "Runtime scales linearly with segment count, the default keeps the interactive two-tier cache usable, and the default segment count is stated in the output."
+      ],
+      "out_of_scope": [
+        "Transverse beam profiles, diffraction, and radial intensity averaging.",
+        "Counter-propagating pump depletion feedback beyond the declared single-pass model unless a convergence criterion is given."
+      ]
+    },
+    {
+      "id": "app-result-export-and-provenance",
+      "area": "streamlit_app.py + schemes/base.py",
+      "title": "Export plotted arrays, parameters, and provenance from the app",
+      "problem": "The app renders figures, metrics, and tables but offers no download. The plotted arrays, the parameter set that produced them, and the code revision cannot leave the session, so a figure used in a report cannot be regenerated, diffed, or audited later. Scheme results are also reachable only as figures, metrics, and tables, with no named-array access for scripted reuse.",
+      "evidence": [
+        "No download control exists in streamlit_app.py or sabes_page.py; savefig is used only to build the in-app figure carousel.",
+        "The Rydberg CSV workflow already treats provenance as a requirement, with a SHA-256 source manifest and status-tagged JSON output, so the interactive app is the remaining gap.",
+        "ElecSus exports CSV data and figures and saves and reloads parameter configurations from its GUI, and its library entry point returns named arrays selected by an outputs list (elecsus_methods.calculate, libs/spectra.output_list)."
+      ],
+      "source_documents": [
+        "docs/checklist.json (_elecsus_feature_comparison)"
+      ],
+      "priority": "P2",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Every plotted curve can be downloaded as data whose column names and units match the axis labels and the readout metrics.",
+        "The export carries the full parameter set including advanced knobs, the scheme name, its cache and defaults versions, and a code revision identifier.",
+        "Re-running with an exported parameter set reproduces the exported arrays within a stated tolerance, covered by a test.",
+        "Schemes expose their result arrays by name so a script and the app read the same values; the export path never re-derives a quantity independently.",
+        "An experimental-CSV overlay is exported together with its calibration mode, alignment transform, and any warnings, never as anonymous numbers."
+      ],
+      "out_of_scope": [
+        "A general session save and restore or project file format.",
+        "Server-side storage of user uploads."
       ]
     }
   ]

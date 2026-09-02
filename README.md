@@ -9,13 +9,14 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. An Advanced paraffin-cell switch adds ground-hyperfine population memory between velocity-randomized beam passages without adding a coating-throughput loss. Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
+| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. An Advanced paraffin-cell switch adds ground-hyperfine population memory between velocity-randomized beam passages without adding a coating-throughput loss. A **Dispersion** view carries the Kramers-Kronig partner of the same complex line profile (refractive index, single-pass phase), and the vapor-density and Doppler-width temperatures can be released from each other (cold spot vs beam path). Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; first-order finite-IF weak-SIG response, AT→field calibration, balanced-detector PSN/RIN/electronics budget, temperature/cold-spot sweep, and conditional absolute sensitivity |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
 | D — Wave mixing | **FWM** | seeded 85Rb D1 double-Λ mean-field gain diagnostic (physical squeezing claim-gated), plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class BTW) |
 
-Roadmap (parking lot): slow-light / group-index readout, Raman gain, higher-order
+Roadmap (parking lot): group-index / slow-light readout (OD/SAS now returns the
+dispersive refractive index, but no group quantity), Raman gain, higher-order
 wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 (STIRAP, Ramsey) and two-time correlations (Mollow, g²(τ)) would need new engine layers.
 
@@ -314,6 +315,26 @@ as the default full-scan solver.
    coated result is semi-quantitative until cell/beam geometry and a cell-specific
    T1 are supplied. The switch changes atomic populations only: direct coating or
    window transmission remains exactly unity.
+7. **OD/SAS carries two temperatures, tied by default.** `temp_c` is the
+   *vapor-density* temperature: it fixes the number density (absorption scale)
+   and the density-dependent self-broadening. The *Doppler-width* temperature
+   sets the thermal velocity distribution only, and follows `temp_c` unless the
+   Advanced tie is released (cold spot below the beam-path temperature). With
+   the tie on — the default, and what a params dict predating the knob gets —
+   every spectrum is bit-for-bit what it was before the split. Buffer-gas
+   broadening here is pressure-only, and the transit rate is a separate knob;
+   temperature-resolved collisional coefficients belong to
+   `collisional-coefficient-provenance-and-pressure-shift` in the checklist.
+8. **Absorption and dispersion are two quadratures of one line profile.** Each
+   hyperfine component contributes `χ_t = (A_t/k)·i/(π(Γ_eff/2 − iδ_t))`: the
+   imaginary part is the unit-area profile that builds α (so α is unchanged),
+   the real part is its Kramers-Kronig partner, and both are weighted by the
+   *same* velocity-resolved population difference. Under pumping the Dispersion
+   view is therefore the saturated medium's index, not a weak-probe curve
+   pasted beside a saturated spectrum. Sign follows `observables.chi_phys`
+   (α = k·Im χ), so n = 1 + Re χ/2 > 1 below resonance; `Peak phase shift`
+   is a single-pass **phase** φ = k(n−1)L, not a group delay — no group-index
+   readout is exposed (see the roadmap).
 
 ## Speed (why the architecture)
 

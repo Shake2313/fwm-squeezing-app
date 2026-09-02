@@ -547,12 +547,30 @@ def optical_density(alpha, L):
     return alpha * L / np.log(10.0)
 
 
+def refractive_index(chi_phys_axis):
+    """*Phase* refractive index n ≈ 1 + Re(χ)/2 (dilute vapor, |χ| ≪ 1).
+
+    The single place the dilute-vapor convention lives: `group_index` and every
+    scheme-level dispersion readout call this instead of re-deriving n.
+    """
+    return 1.0 + 0.5 * np.real(chi_phys_axis)
+
+
+def single_pass_phase(chi_phys_axis, k, L):
+    """Single-pass phase shift relative to vacuum, φ = k·(n − 1)·L  [rad].
+
+    A *phase* quantity (not a group delay); pair it with `group_index` when the
+    envelope velocity is what matters.
+    """
+    return k * (refractive_index(chi_phys_axis) - 1.0) * L
+
+
 def group_index(chi_phys_axis, detuning_axis, omega0):
     """
     Group index n_g = n + ω dn/dω with n ≈ 1 + Re(χ)/2 (dilute vapor).
     `detuning_axis` is the probe detuning (rad/s); ω ≈ omega0 near resonance.
     Returned per point via a centred gradient of Re(χ).
     """
-    n_re = 1.0 + 0.5 * np.real(chi_phys_axis)
+    n_re = refractive_index(chi_phys_axis)
     dn_dw = np.gradient(n_re, detuning_axis)
     return n_re + omega0 * dn_dw

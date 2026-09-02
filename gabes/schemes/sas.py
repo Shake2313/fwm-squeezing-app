@@ -51,12 +51,34 @@ PARAFFIN_REFERENCE_T1_S = 25.1e-3   # 87Rb population T1 at 300 K (Bandi et al.)
 _trapz = getattr(np, "trapezoid", getattr(np, "trapz", None))   # numpy ≥2.0 rename
 
 
+def _temperatures(params):
+    """(density T, Doppler T) in kelvin, plus whether the two are tied.
+
+    ``temp_c`` is the **vapor-density** temperature (cold spot / reservoir): it
+    fixes the number density, hence the absorption scale and the density-
+    dependent self-broadening. The **Doppler-width** temperature sets the
+    thermal velocity distribution (Doppler width and velocity classes) and
+    follows the cell temperature unless ``constrain_doppler_temp`` is released.
+    Buffer-gas broadening is pressure-only here (no temperature enters), and the
+    transit rate stays a user knob; see `collisional-coefficient-provenance-and-
+    pressure-shift` in docs/checklist.json.
+
+    A params dict from before these knobs existed stays tied, so legacy calls
+    reproduce their previous spectra exactly.
+    """
+    density_c = float(params["temp_c"])
+    tied = bool(params.get("constrain_doppler_temp", True))
+    doppler_c = density_c if tied else float(
+        params.get("doppler_temp_c", density_c))
+    return density_c + 273.15, doppler_c + 273.15, tied
+
+
 class SASScheme(Scheme):
     name = "sas"
     cluster = "A — Absorption"
     title = "Absorption spectroscopy (OD / SAS)"
-    cache_version = "3"            # optional coated-cell population-memory model
-    defaults_version = "2"         # new param schema: reseed sidebar defaults
+    cache_version = "4"            # + dispersive susceptibility, split temperatures
+    defaults_version = "3"         # new param schema: reseed sidebar defaults
     supports_headless_observables = True
     caption = ("Weak-probe absorption with a counter-propagating pump. Pump off → "
                "linear Doppler-broadened OD (validated 85Rb D1 hyperfine scale); "
@@ -78,10 +100,31 @@ class SASScheme(Scheme):
                       choices=("D1", "D2"),
                       help="D1 (nP₁/₂) or D2 (nP₃/₂). Sets the excited hyperfine "
                       "manifold; ignored in Generic mode."),
-            ParamSpec("temp_c", "Temperature", "Cell & beams", 40.0, 20.0, 200.0, 1.0, "°C",
-                      help="Sets the vapor density (absorption scale) and Doppler width."),
+            ParamSpec("temp_c", "Cell temperature", "Cell & beams", 40.0, 20.0, 200.0,
+                      1.0, "°C",
+                      help="Vapor-density temperature: it fixes the number density "
+                      "(absorption scale) and the density-dependent self-broadening. "
+                      "It also sets the Doppler width unless the Advanced "
+                      "Doppler-width temperature is released."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 75.0, 0.5, 200.0, 0.5, "mm",
                       recompute=False),
+            ParamSpec(
+                "constrain_doppler_temp", "Tie Doppler width to cell temperature",
+                "Cell & beams", True, advanced=True, control="checkbox",
+                advanced_group="Cell temperatures",
+                help="On (default): one temperature sets both the vapor density and "
+                     "the Doppler width. Off: the cell temperature keeps setting the "
+                     "density (cold spot / reservoir) while the Doppler-width "
+                     "temperature below sets the thermal velocity distribution.",
+            ),
+            ParamSpec("doppler_temp_c", "Doppler-width temperature", "Cell & beams",
+                      40.0, 20.0, 300.0, 1.0, "°C", advanced=True,
+                      advanced_group="Cell temperatures",
+                      visible_if={"constrain_doppler_temp": False},
+                      help="Temperature of the atoms crossing the beam: it sets the "
+                      "thermal velocity distribution (Doppler width, velocity "
+                      "classes) only. The vapor density still follows the cell "
+                      "temperature. Ignored while the tie above is on."),
             ParamSpec(
                 "paraffin_coated", "Paraffin-coated cell", "Cell & beams", False,
                 advanced=True, control="checkbox",
@@ -151,6 +194,20 @@ class SASScheme(Scheme):
             "at 300 K. This is a quasi-static population-memory model, not a calibrated "
             "cell-geometry model; it preserves no Zeeman coherence and adds no window "
             "or coating throughput loss.\n\n"
+            "**Two temperatures.** The **cell temperature** is the vapor-density "
+            "temperature: it fixes the number density (absorption scale) and the "
+            "density-dependent self-broadening. The **Doppler-width temperature** "
+            "sets the thermal velocity distribution only. They are tied by default; "
+            "release the Advanced tie to model a cold spot below the beam-path "
+            "temperature. Buffer-gas broadening here is pressure-only (no "
+            "temperature dependence) and the transit rate stays a separate knob.\n\n"
+            "**Dispersion.** The absorption and its Kramers-Kronig partner come from "
+            "one complex line profile, so the **Dispersion** view shows the refractive "
+            "index n = 1 + Re χ/2 (dilute vapor) built from the *same* velocity-"
+            "resolved population difference as the absorption — under pumping it is "
+            "the saturated medium's dispersion, not a weak-probe curve pasted next to "
+            "a saturated spectrum. The reported **Peak phase shift** is a single-pass "
+            "phase φ = k(n−1)L, not a group delay.\n\n"
             "The reported **Gaussian Doppler FWHM** is calculated from the thermal "
             "velocity distribution for one optical line; it is not a measured "
             "Voigt or multi-line envelope FWHM. Sub-Doppler widths use interpolated "
@@ -181,7 +238,7 @@ class SASScheme(Scheme):
     def _compute_species(self, params):
         line = params["line"]
         comps = species.SPECIES[params["species"]]
-        T = params["temp_c"] + 273.15
+        T_density, T_doppler, tied = _temperatures(params)
         gt = 2 * np.pi * params["transit_khz"] * 1e3
         power, waist = params["pump_power_mw"], params["waist_mm"]
         paraffin_coated = bool(params.get("paraffin_coated", False))
@@ -198,9 +255,9 @@ class SASScheme(Scheme):
             man = species.build_manifold(
                 iso, line, transit_rate=0.0 if paraffin_memory else gt)
             offset = 2 * np.pi * (man.nu0 - nu_ref)
-            sigma_v = np.sqrt(constants.KB * T / iso.mass)
+            sigma_v = np.sqrt(constants.KB * T_doppler / iso.mass)
             dopp_fwhm = max(dopp_fwhm, np.sqrt(8 * np.log(2)) * man.k_vec * sigma_v)
-            N = species.number_density(iso, T) * weight
+            N = species.number_density(iso, T_density) * weight
             Op = species.pump_rabi_from_power(power, waist, man.gamma)
             gamma_eff = man.gamma + species.self_broadened_gamma(iso, N) + buffer_gamma
             gamma_max = max(gamma_max, gamma_eff)
@@ -215,10 +272,14 @@ class SASScheme(Scheme):
                            int(params["scan_points"]))
 
         alpha = np.zeros(scan.size)
+        chi_real = np.zeros(scan.size)
         markers = []
         ng_of = {id(b["man"]): len(b["man"].Fg) for b in built}
         for b in built:
-            alpha += self._component_alpha(b, scan, T)
+            component_alpha, component_chi_real = self._component_response(
+                b, scan, T_doppler)
+            alpha += component_alpha
+            chi_real += component_chi_real
             man, off = b["man"], b["offset"]
             ng = ng_of[id(man)]
             for t in range(man.omega.size):
@@ -227,16 +288,37 @@ class SASScheme(Scheme):
                 markers.append((float((man.omega[t] + off) / (2 * np.pi) / 1e9),
                                 f"{man.iso.label} {fg:g}→{fe:g}′"))
 
+        # Each component's own k converts its A_t into a susceptibility; the
+        # single k reported here only turns that susceptibility into a phase, so
+        # the reference isotope's value is enough (isotope shifts are ~1e-7 of k).
+        k_ref = float(next(b["man"].k_vec for b in built if b["iso"] is iso_ref))
         return dict(mode="species", scan=scan, alpha_unit=alpha,
+                    chi_real_unit=chi_real, k_vec=k_ref,
                     dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
                     gamma_eff_max=gamma_max, markers=markers,
                     species=params["species"], line=line,
+                    density_temp_c=T_density - 273.15,
+                    doppler_temp_c=T_doppler - 273.15,
+                    doppler_temp_tied=tied,
                     paraffin_coated=paraffin_coated,
                     paraffin_t1_s=(PARAFFIN_REFERENCE_T1_S
                                    if paraffin_coated else None))
 
-    def _component_alpha(self, b, scan, T):
-        """Σ_(Fg→Fe) A_t · ĝ_t(δ) for one isotope (1/m, line strength 1)."""
+    def _component_response(self, b, scan, T):
+        """(α, Re χ) for one isotope at line strength 1.
+
+        Both quadratures come from the same complex line profile
+
+            χ_t(δ) = (A_t / k) · i / (π (Γ_eff/2 − i·δ_t)),
+
+        whose imaginary part is the unit-area absorption profile ĝ_t used for α
+        (∫ĝ dδ = 1) and whose real part is its Kramers-Kronig partner. Sign and
+        normalisation follow `observables.chi_phys` (α = k·Im χ, absorptive for a
+        passive transition), so n = 1 + Re χ/2 rises below resonance. The same
+        velocity-resolved population difference and the same Doppler quadrature
+        weight both parts — a saturated absorption spectrum is never paired with
+        a weak-probe dispersion.
+        """
         man, offset, N, Op = b["man"], b["offset"], b["N"], b["Op"]
         iso, k = b["iso"], man.k_vec
         ng = len(man.Fg)
@@ -295,15 +377,19 @@ class SASScheme(Scheme):
             }
 
         alpha = np.zeros(scan.size)
+        chi_real = np.zeros(scan.size)
         for t in range(om.size):
             g, e = man.g_idx[t], man.e_idx[t]
             fg, fe = man.Fg[g], man.Fe[e - ng]
             A_t = Aline[(fg, fe)]
             w = (pop_at[g] - pop_at[e]) / man.p_ground[g]    # 1 at pump off
             arg = probe_base - om[t]
-            Lp = (hwhm / np.pi) / (arg ** 2 + hwhm ** 2)     # unit-area Lorentzian
+            denom = arg ** 2 + hwhm ** 2
+            Lp = (hwhm / np.pi) / denom                      # unit-area Lorentzian
+            Dp = (arg / np.pi) / denom                       # KK dispersive partner
             alpha += A_t * _velocity_correlated_average(w, Lp, wt)
-        return alpha
+            chi_real -= (A_t / k) * _velocity_correlated_average(w, Dp, wt)
+        return alpha, chi_real
 
     # ---- generic Γ-unit hole-burning toy (pedagogical) ----
     def _compute_generic(self, params):
@@ -324,12 +410,12 @@ class SASScheme(Scheme):
             Hp[0, e] = Hp[e, 0] = Op / 2
         L0_pump = core.build_liouvillian(Hp, atom)
 
-        T = params["temp_c"] + 273.15
-        sigma_v = np.sqrt(constants.KB * T / constants.MASS_85RB)
+        T_density, T_doppler, tied = _temperatures(params)
+        sigma_v = np.sqrt(constants.KB * T_doppler / constants.MASS_85RB)
         dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
-        v, wt = doppler.velocity_grid(T, dv=3.0, cutoff_sigma=3.5)
+        v, wt = doppler.velocity_grid(T_doppler, dv=3.0, cutoff_sigma=3.5)
         kv = K_VEC * v
-        N = atoms.rb85_density(T)
+        N = atoms.rb85_density(T_density)
 
         off_span = float(np.abs(offsets).max())
         half = max(3.5 * dopp_fwhm, off_span + 0.4 * dopp_fwhm, 10 * gamma_eff)
@@ -344,7 +430,10 @@ class SASScheme(Scheme):
         fine = np.linspace(flo, fhi, int((fhi - flo) / (gamma_eff / 20)) + 2)
         rho_pr = core.steady_state_batched(L0_probe, fine, two_lvl.S_v, 2)
         chi_pr = rho_pr[:, 1, 0] / (PROBE_RABI * GAMMA)
-        alpha_L, _ = observables.absorption_coefficient(chi_pr, K_VEC, N)
+        # Both quadratures of one weak-probe susceptibility: α = k·Im χ is the
+        # absorption table, Re χ its dispersive partner on the same fine axis.
+        alpha_L, chi_L = observables.absorption_coefficient(chi_pr, K_VEC, N)
+        chi_real_L = np.real(chi_L)
 
         # The pump H₀ is scan-independent — the scan enters only through the pump
         # Δ_eff = D + k·v — so solve the pump populations ONCE on a fine Δ_eff
@@ -361,14 +450,21 @@ class SASScheme(Scheme):
         rho_gg = np.interp(dgrid, deff_p, pops[:, 0]).reshape(ns, nv)
         probe_base = scan[:, None] - kv[None, :]
         alpha = np.zeros(ns)
+        chi_real = np.zeros(ns)
         for i, e in enumerate(atom.excited):
             pe = np.interp(dgrid, deff_p, pops[:, e]).reshape(ns, nv)
-            aL = np.interp((probe_base - offsets[i]).ravel(),
-                           fine, alpha_L).reshape(ns, nv)
+            probe_arg = (probe_base - offsets[i]).ravel()
+            aL = np.interp(probe_arg, fine, alpha_L).reshape(ns, nv)
+            xL = np.interp(probe_arg, fine, chi_real_L).reshape(ns, nv)
             alpha += ((rho_gg - pe) * aL * wt[None, :]).sum(axis=1)
+            chi_real += ((rho_gg - pe) * xL * wt[None, :]).sum(axis=1)
 
         return dict(mode="generic", scan=scan, alpha_unit=alpha,
+                    chi_real_unit=chi_real, k_vec=float(K_VEC),
                     dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
+                    density_temp_c=T_density - 273.15,
+                    doppler_temp_c=T_doppler - 273.15,
+                    doppler_temp_tied=tied,
                     gamma_eff=gamma_eff, offsets=offsets, two=(n_exc == 2))
 
     # =================================================================
@@ -376,14 +472,19 @@ class SASScheme(Scheme):
     # =================================================================
     def observables(self, raw, params, include_figures=True):
         L = params["cell_mm"] * 1e-3
+        # α and Re χ are the two quadratures of one susceptibility, so the same
+        # line-strength calibration scales both.
         alpha = raw["alpha_unit"] * params["line_strength"]
+        chi_real_unit = raw.get("chi_real_unit")
+        chi_real = (None if chi_real_unit is None
+                    else chi_real_unit * params["line_strength"])
         if raw["mode"] == "species":
             return self._obs_species(
-                raw, params, alpha, L, include_figures=include_figures)
+                raw, params, alpha, chi_real, L, include_figures=include_figures)
         return self._obs_generic(
-            raw, params, alpha, L, include_figures=include_figures)
+            raw, params, alpha, chi_real, L, include_figures=include_figures)
 
-    def _obs_species(self, raw, params, alpha, L, include_figures=True):
+    def _obs_species(self, raw, params, alpha, chi_real, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                  # GHz (relative)
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
@@ -398,9 +499,10 @@ class SASScheme(Scheme):
             import matplotlib.pyplot as plt
 
             title = (f"{raw['species']} {raw['line']} — {regime}:  "
-                     f"T = {params['temp_c']:.0f} °C, "
+                     f"{_temperature_title(raw, params)}, "
                      f"L = {params['cell_mm']:.0f} mm")
             xlabel = "Relative frequency  [GHz]  (ref: line centroid)"
+            marker_x = [gx for gx, _lbl in raw["markers"]]
             fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
             axT.plot(x, T_trans, color="#0284C7", lw=1.3)
             axT.set_ylabel("Transmission")
@@ -411,7 +513,7 @@ class SASScheme(Scheme):
             axA.set_ylabel("Optical density")
             axA.set_xlabel(xlabel)
             axA.set_title(title)
-            for gx, _lbl in raw["markers"]:
+            for gx in marker_x:
                 for ax in (axT, axA):
                     ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
             fig.tight_layout()
@@ -420,10 +522,16 @@ class SASScheme(Scheme):
                 {"label": "Transmission", "figure": fig},
                 {"label": "Optical density", "figure": fig_od},
             ]
+            if chi_real is not None:
+                figure_views.append({
+                    "label": "Dispersion",
+                    "figure": _dispersion_figure(
+                        x, chi_real, xlabel, title, markers=marker_x),
+                })
 
         feature = subdoppler_feature(x, T_trans) if pump_on else None
         peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
-        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"])
+        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
             status_metric, feature_metrics = _subdoppler_metrics(
                 feature, mhz_per_x=1000.0)
@@ -441,6 +549,8 @@ class SASScheme(Scheme):
         else:
             peak_metric["tier"] = "hero"
             metrics = [peak_metric, broad_metric]
+        metrics.extend(_dispersion_metrics(chi_real, raw.get("k_vec"), L))
+        metrics.extend(_temperature_metrics(raw))
         if params.get("ne_pressure_torr", 0.0) != 0.0:
             metrics.append(dict(
                 label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
@@ -463,7 +573,7 @@ class SASScheme(Scheme):
             },
         )
 
-    def _obs_generic(self, raw, params, alpha, L, include_figures=True):
+    def _obs_generic(self, raw, params, alpha, chi_real, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                  # MHz
         T_trans = observables.transmission(alpha, L)
         OD = observables.optical_density(alpha, L)
@@ -476,7 +586,7 @@ class SASScheme(Scheme):
             import matplotlib.pyplot as plt
 
             title = (f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
-                     f"T = {params['temp_c']:.0f} °C")
+                     f"{_temperature_title(raw, params)}")
             xlabel = "Probe detuning  [MHz]"
             fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
             axT.plot(x, T_trans, color="#0284C7", lw=1.6)
@@ -499,6 +609,13 @@ class SASScheme(Scheme):
                 {"label": "Transmission", "figure": fig},
                 {"label": "Optical density", "figure": fig_od},
             ]
+            if chi_real is not None:
+                figure_views.append({
+                    "label": "Dispersion",
+                    "figure": _dispersion_figure(
+                        x, chi_real, xlabel, title,
+                        markers=list(offs_mhz) + ([0.0] if raw["two"] else [])),
+                })
 
         pump_on = params["pump_power_mw"] > 0
         gamma_mhz = raw["gamma_eff"] / (2 * np.pi) / 1e6
@@ -512,7 +629,7 @@ class SASScheme(Scheme):
             if pump_on else None
         )
         peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
-        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"])
+        broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
             status_metric, feature_metrics = _subdoppler_metrics(
                 feature, mhz_per_x=1.0)
@@ -530,6 +647,8 @@ class SASScheme(Scheme):
         else:
             peak_metric["tier"] = "hero"
             metrics = [peak_metric, broad_metric]
+        metrics.extend(_dispersion_metrics(chi_real, raw.get("k_vec"), L))
+        metrics.extend(_temperature_metrics(raw))
         if params.get("ne_pressure_torr", 0.0) != 0.0:
             metrics.append(dict(
                 label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))
@@ -711,13 +830,75 @@ def _pump_pops(L0, deff_axis, S_v, n, chunk=1500):
     return pops
 
 
-def _gaussian_doppler_metric(dopp_fwhm):
+def _dispersion_figure(x, chi_real, xlabel, title, markers=()):
+    """Refractive index over the scan (ASCII axis strings — mathtext lock)."""
+    import matplotlib.pyplot as plt
+
+    index_ppm = (observables.refractive_index(chi_real) - 1.0) * 1e6
+    fig, ax = plt.subplots(1, 1, figsize=(8.5, 4.35))
+    ax.plot(x, index_ppm, color="#7C3AED", lw=1.3)
+    ax.axhline(0.0, color="gray", ls="--", lw=0.6, alpha=0.7)
+    ax.set_ylabel("Refractive index  n - 1  [ppm]")
+    ax.set_xlabel(xlabel)
+    ax.set_title(title)
+    for gx in markers:
+        ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
+    fig.tight_layout()
+    return fig
+
+
+def _dispersion_metrics(chi_real, k_vec, L):
+    """Single-pass phase readout from the dispersive quadrature (or nothing)."""
+    if chi_real is None or k_vec is None:
+        return []
+    phase = observables.single_pass_phase(chi_real, float(k_vec), float(L))
+    peak = float(np.nanmax(np.abs(phase)))
+    value = f"{peak:.2f} rad" if peak >= 1.0 else f"{peak * 1e3:.1f} mrad"
+    return [dict(
+        label="Peak phase shift",
+        value=value,
+        help="Largest single-pass |φ| = k·(n−1)·L from the dispersive (real) "
+             "part of the same susceptibility that gives the absorption, with "
+             "n = 1 + Re χ/2. A phase quantity — not a group delay. It is the "
+             "medium's phase alone: a deeply absorbed spectral region can carry "
+             "a large phase with almost no light left to measure it.",
+    )]
+
+
+def _temperature_metrics(raw):
+    """Report the Doppler temperature only when it is released from the cell."""
+    if raw.get("doppler_temp_tied", True):
+        return []
+    return [dict(
+        label="Doppler-width temperature",
+        value=f"{float(raw['doppler_temp_c']):.0f} °C",
+        help="Released from the cell temperature: it sets the thermal velocity "
+             "distribution only. The vapor density (absorption scale) and the "
+             f"self-broadening still follow the cell temperature "
+             f"{float(raw['density_temp_c']):.0f} °C.",
+    )]
+
+
+def _temperature_title(raw, params):
+    """Plot-title fragment naming whichever temperatures are in play."""
+    density_c = float(raw.get("density_temp_c", params["temp_c"]))
+    if raw.get("doppler_temp_tied", True):
+        return f"T = {density_c:.0f} °C"
+    return (f"T_density = {density_c:.0f} °C, "
+            f"T_Doppler = {float(raw['doppler_temp_c']):.0f} °C")
+
+
+def _gaussian_doppler_metric(dopp_fwhm, raw=None):
     width_mhz = float(dopp_fwhm) / (2 * np.pi) / 1e6
+    source = "the cell temperature"
+    if raw is not None and not raw.get("doppler_temp_tied", True):
+        source = ("the released Doppler-width temperature "
+                  f"({float(raw['doppler_temp_c']):.0f} °C)")
     return dict(
         label="Gaussian Doppler FWHM",
         value=f"{width_mhz:.1f} MHz",
-        help="Calculated thermal Gaussian FWHM for one optical line. It is not "
-             "a measured Voigt or multi-line envelope FWHM.",
+        help=f"Calculated thermal Gaussian FWHM for one optical line, from "
+             f"{source}. It is not a measured Voigt or multi-line envelope FWHM.",
     )
 
 
