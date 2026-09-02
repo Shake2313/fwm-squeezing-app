@@ -1,5 +1,14 @@
 """Shared visual polish for GABES matplotlib figures."""
 
+# GABES figure text mixes ASCII with superscript isotope labels, Greek symbols
+# and units (⁸⁵Rb, Γ, µ, °C). Pin an explicit family stack on every figure this
+# helper styles, so a process that changed the global rcParams cannot silently
+# drop those glyphs — importing a lab script is enough to do that (the AutoOD
+# GUI in `references/` sets `font.family = 'Malgun Gothic'`, which has no
+# superscript digits, process-wide at import). Matplotlib falls through the list
+# per glyph, so Korean-capable faces stay available for any Hangul text.
+FONT_STACK = ("DejaVu Sans", "Segoe UI", "Malgun Gothic", "Arial", "sans-serif")
+
 PALETTE = {
     "ink": "#0F172A",
     "muted": "#64748B",
@@ -32,6 +41,8 @@ DEFAULT_LINE_COLORS = {
 
 def apply_gabes_plot_style(target):
     """Apply the quiet scientific-console style to a Figure or Axes."""
+    from matplotlib.text import Text          # keep the import path lazy
+
     fig = getattr(target, "figure", None)
     axes = [target] if fig is not None and not hasattr(target, "axes") else None
 
@@ -44,6 +55,12 @@ def apply_gabes_plot_style(target):
 
     fig.patch.set_facecolor(PALETTE["surface"])
 
+    # Titles, labels, legends and annotations already exist; tick labels are
+    # rebuilt at draw time, so those go through tick_params below.
+    font_stack = list(FONT_STACK)
+    for text in fig.findobj(Text):
+        text.set_fontfamily(font_stack)
+
     for ax in axes:
         ax.set_facecolor(PALETTE["surface"])
         ax.grid(True, color=PALETTE["grid"], linewidth=0.8, alpha=0.85)
@@ -55,7 +72,8 @@ def apply_gabes_plot_style(target):
             ax.spines[side].set_color(PALETTE["border"])
             ax.spines[side].set_linewidth(0.9)
 
-        ax.tick_params(colors=PALETTE["muted"], labelsize=9)
+        ax.tick_params(colors=PALETTE["muted"], labelsize=9,
+                       labelfontfamily=font_stack)
         ax.xaxis.label.set_color(PALETTE["muted"])
         ax.yaxis.label.set_color(PALETTE["muted"])
         ax.title.set_color(PALETTE["ink"])

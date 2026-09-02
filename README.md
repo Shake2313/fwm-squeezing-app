@@ -44,6 +44,12 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     the SAS hyperfine-manifold builder `build_manifold(iso, line)` (CG-branched
     decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
+  - `plot_style.py` — the shared figure palette plus `apply_gabes_plot_style`,
+    which pins its own font stack on every figure it styles. Figure text carries
+    isotope superscripts, Greek letters and units (⁸⁵Rb, Γ, µ, °C), and a single
+    import can change matplotlib's global font for a whole process (the AutoOD
+    GUI under `references/` sets a Korean family at import), which would drop
+    those glyphs. Pinning per figure keeps rendering independent of that.
   - `experimental_csv.py` — strict A/B oscilloscope CSV import, robust denoising,
     explicitly relative extrema normalization or evidence-backed absolute
     transmission calibration, acquisition-order sweep diagnostics, and manual
