@@ -9,7 +9,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 | Cluster | Scheme | Output |
 |---|---|---|
-| A — Absorption | **OD / SAS** | weak-probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. An Advanced paraffin-cell switch adds ground-hyperfine population memory between velocity-randomized beam passages without adding a coating-throughput loss. A **Dispersion** view carries the Kramers-Kronig partner of the same complex line profile (refractive index, single-pass phase), and the vapor-density and Doppler-width temperatures can be released from each other (cold spot vs beam path). Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb; generic Γ-unit fallback |
+| A — Absorption | **OD / SAS** | probe absorption with a counter-propagating pump. Pump off → Doppler-broadened OD (validated ⁸⁵Rb D1 hyperfine scale); pump on → Doppler-free Lamb dips + crossovers with **hyperfine optical pumping**. Natural-Rb D2 additionally exposes the finite-probe model tested in `references/AutoOD-NatRbD2`: transition-resolved two-level saturation/power broadening plus self-consistent Gaussian transverse/longitudinal propagation, with 0 mW preserving the exact weak-probe result. An Advanced paraffin-cell switch adds ground-hyperfine population memory between velocity-randomized beam passages without adding a coating-throughput loss. In the weak-probe branch, a **Dispersion** view carries the Kramers-Kronig partner of the same complex line profile (refractive index, single-pass phase), and the vapor-density and Doppler-width temperatures can be released from each other (cold spot vs beam path). Imports oscilloscope A/B CSV data for robust correction and manual transmission-overlay alignment. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb |
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; first-order finite-IF weak-SIG response, AT→field calibration, balanced-detector PSN/RIN/electronics budget, temperature/cold-spot sweep, and conditional absolute sensitivity |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
@@ -61,6 +61,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     and temperature/density dephasing fits.
   - `rydberg_experimental_csv.py` — unit-aware EIT/RF/PSD trace import with
     duplicate handling and SHA-256 provenance.
+  - `probe_saturation.py` — Natural-Rb D2 finite-probe saturation, power broadening,
+    and Gaussian radial/longitudinal propagation helpers ported from the tested
+    AutoOD reference.
   - `schemes/` — experiment plugins: `base.py` (`Scheme`/`ParamSpec`/`Preset`/`ExtraView`),
     `absorption.py` (Lambda EIT/AT/CPT + the unregistered `ODScheme` validation
     primitive), `rydberg.py` (Rydberg-EIT electrometry), `sas.py`
@@ -143,7 +146,8 @@ python tests/test_rydberg_electrometry.py # finite-IF response and detector/nois
 python tests/test_rydberg_experiment.py # thermal/axial/SAM/dephasing experiment helpers
 python tests/test_rydberg_experimental_csv.py # unit-aware EIT/RF/PSD import
 python -m pytest -q analysis/rydberg_cell_heating/test_workflow.py # report workflow
-python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, generic
+python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, internal Generic compatibility
+python -m pytest -q tests/test_probe_saturation.py # Natural-Rb D2 finite probe, Gaussian propagation, AutoOD anchors
 python tests/test_experimental_csv.py # A/B parsing, correction, ReferenceOD, manual alignment
 
 python tests/test_magneto.py         # CG values, Hanle dip, EIA peak, NMOR zero-crossing
@@ -298,8 +302,23 @@ as the default full-scan solver.
    (`species.line_integrated_alpha`, `species.cf2`/`reduced_dipole_sq`). The old
    **single 2-level** OD model is kept as an internal validation primitive
    (`schemes.absorption.ODScheme`, *no longer registered*) that the Λ schemes
-   reduce to and the analytic FWHM=Γ tests use. The probe is fixed weak; only the
-   **pump power [mW]** is a knob (→ Rabi via I=2P/πw² and I_sat).
+   reduce to and the analytic FWHM=Γ tests use. Probe power defaults to 0 mW,
+   which preserves this weak-probe result exactly. For **Natural Rb D2 only**, a
+   finite probe applies the supplied AutoOD model: I₀=2P/πw²,
+   I_sat=πhcΓ/3λ³, transition `s_t∝C_F²`, Γ_eff√(1+s_t) power broadening,
+   self-consistent `dI/dz=−α(I)I`, and full Gaussian power averaging. The
+   pump-off, unbuffered, one-temperature Natural-Rb D2 path is regression-matched
+   to the supplied calculator, but the reference contains no trusted finite-power
+   experimental CSV and therefore does not experimentally validate the result.
+   With the SAS pump on, its correction is applied to frozen pump-prepared profiles
+   and is qualitative (no probe-induced hyperfine repumping or coherent joint
+   pump/probe solve). If the separated correction would imply gain, its residual is
+   reduced to a passive scale and the result is flagged passivity-limited.
+   The beam waist is held constant and the detector collects the full output beam;
+   diffraction, clipping and transverse atomic transport are omitted, so small-waist
+   long-cell settings require a Rayleigh-range check. D1, pure-isotope and Cs
+   probe-saturation controls stay hidden until their species/line/polarization
+   scales have sourced provenance.
 6. **SAS line weight is `(2Fg+1)·line_strength`, not `line_strength`.** The
    observable strength of a lumped Fg↔Fe hyperfine line — absorption per ground
    atom *and* the spontaneous-emission branching — carries the ground degeneracy:
@@ -331,7 +350,7 @@ as the default full-scan solver.
    broadening here is pressure-only, and the transit rate is a separate knob;
    temperature-resolved collisional coefficients belong to
    `collisional-coefficient-provenance-and-pressure-shift` in the checklist.
-8. **Absorption and dispersion are two quadratures of one line profile.** Each
+8. **Weak-probe absorption and dispersion are two quadratures of one line profile.** Each
    hyperfine component contributes `χ_t = (A_t/k)·i/(π(Γ_eff/2 − iδ_t))`: the
    imaginary part is the unit-area profile that builds α (so α is unchanged),
    the real part is its Kramers-Kronig partner, and both are weighted by the
@@ -340,7 +359,9 @@ as the default full-scan solver.
    pasted beside a saturated spectrum. Sign follows `observables.chi_phys`
    (α = k·Im χ), so n = 1 + Re χ/2 > 1 below resonance; `Peak phase shift`
    is a single-pass **phase** φ = k(n−1)L, not a group delay — no group-index
-   readout is exposed (see the roadmap).
+   readout is exposed (see the roadmap). At finite probe power, the spatially
+   varying nonlinear susceptibility has no unique collected phase in the supplied
+   reference, so the Dispersion view and phase metric are intentionally hidden.
 
 ## Speed (why the architecture)
 

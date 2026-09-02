@@ -526,9 +526,9 @@ streamlit run streamlit_app.py</pre>
     <thead><tr><th>Scheme</th><th>주요 물리</th><th>주요 출력</th><th>먼저 만질 노브</th></tr></thead>
     <tbody>
       <tr><td><b>OD / SAS</b></td>
-        <td>약한 프로브 흡수, Doppler 넓힘 OD, 포화흡수, hyperfine optical pumping</td>
+        <td>프로브 흡수, Doppler 넓힘 OD, 포화흡수, hyperfine optical pumping, 천연 Rb D2 유한 프로브 포화</td>
         <td>투과, OD, 계산된 Gaussian Doppler FWHM, resolution-aware sub-Doppler FWHM, hyperfine 선 표</td>
-        <td>펌프 세기, isotope, D1/D2, 온도, 셀 길이</td></tr>
+        <td>펌프/프로브 세기, isotope, D1/D2, 온도, 셀 길이</td></tr>
       <tr><td><b>Λ 결맞음</b><br>EIT / AT / CPT</td>
         <td>3-준위 Λ, 투명창, Autler–Townes 분리, 암흑공명</td>
         <td>투과, Re χ, 창 FWHM, 군지수, AT 분리</td>
@@ -552,9 +552,10 @@ streamlit run streamlit_app.py</pre>
   <!-- A: OD/SAS -->
   <div class="scheme" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>흡수 분광 (OD / SAS)</h3></div>
-    <p class="out">역행 펌프가 있는 약한 프로브 흡수입니다. 펌프를 0으로 내리면 Doppler 넓힘 OD가 되고,
+    <p class="out">역행 펌프가 있는 프로브 흡수입니다. 펌프를 0으로 내리면 Doppler 넓힘 OD가 되고,
       펌프를 올리면 Doppler-free Lamb dip과 crossover가 같은 스펙트럼 위에 나타납니다.
-      ⁸⁵Rb/⁸⁷Rb/¹³³Cs · D1/D2 또는 천연 Rb를 지원합니다.</p>
+      ⁸⁵Rb/⁸⁷Rb/¹³³Cs · D1/D2 또는 천연 Rb를 지원하며, 천연 Rb D2에서는 유한 프로브
+      포화와 Gaussian 셀 전파 모델도 사용할 수 있습니다.</p>
   </div>
   <div class="fig-2">
     <figure>
@@ -569,10 +570,19 @@ streamlit run streamlit_app.py</pre>
     </figure>
   </div>
   <p style="color:var(--muted);font-size:0.92rem;margin-top:2px">
-    펌프 세기 슬라이더 하나로 OD와 SAS 사이를 연속적으로 오갈 수 있습니다. 프로브는 약하게
-    고정되어 읽기 역할만 하며, 노브는 펌프 세기[mW]입니다
-    (<span class="var">I</span> = 2<span class="var">P</span>/π<span class="var">w</span><sup>2</sup>,
-    <span class="var">I<sub>sat</sub></span>로 Rabi 환산).
+    펌프 세기 슬라이더로 OD와 SAS 사이를 연속적으로 오갈 수 있습니다. 프로브 파워의 기본값
+    0&nbsp;mW는 기존 weak-probe 결과를 정확히 보존합니다. 천연 Rb D2를 고르면 프로브 파워 노브가
+    나타나며, 전이별 2-level power broadening 뒤에
+    <span class="var">dI/dz</span> = −<span class="var">α(I)I</span>를 셀 길이 방향으로 풀고
+    전체 Gaussian 단면의 출력 파워를 평균합니다. 1/e² probe waist는 Advanced에 있습니다.
+    유한 펌프와 유한 프로브를 함께 쓸 때는 pump-prepared population을 고정한 정성적 순차
+    근사이며, probe-induced hyperfine repumping은 포함하지 않습니다. 이 분리 근사가 음의 흡수를
+    만들 경우 pump residual을 수동성 범위로 줄이고 결과에
+    <i>Passivity-limited</i>라고 표시합니다. 레퍼런스의 pump-off·무버퍼·단일온도 경로와 수치적으로
+    맞췄지만 신뢰할 유한파워 실험 CSV가 없으므로 실험 검증으로 해석하면 안 됩니다. 또한 셀 안에서
+    waist가 일정하고 출력 빔 전체를 수집한다고 가정하므로, 작은 waist와 긴 셀에서는 Rayleigh range를
+    확인해야 합니다(diffraction, clipping, transverse atomic transport 미포함). 유한 프로브에서는
+    공간적으로 달라지는 위상에 대한 레퍼런스 정의가 없어 Dispersion 보기를 숨깁니다.
   </p>
   <p style="color:var(--muted);font-size:0.92rem;margin-top:2px">
     <b>Gaussian Doppler FWHM</b>은 열적 Maxwell 속도 분포에서 계산한 단일 광학선의
@@ -824,7 +834,10 @@ streamlit run streamlit_app.py</pre>
     <tbody>
       <tr><td>OD / SAS</td>
         <td>hyperfine 다양체, CG 분기 붕괴, transit relaxation을 포함한 OBE 기반 모델</td>
-        <td>Ne 압력 이동, Dicke 좁힘 등은 단순화되어 있습니다.</td></tr>
+        <td>유한 프로브의 pump-off·무버퍼·단일온도 천연 Rb D2 경로는 제공된 계산기와 회귀
+          일치하지만 실험 검증 자료는 없습니다. 동시 유한 pump/probe는 passivity 제한을 포함한
+          정성적 근사입니다. 일정 waist·전출력 수집을 가정하며 diffraction, clipping, transverse
+          transport, Ne 압력 이동, Dicke 좁힘 등은 포함하지 않습니다.</td></tr>
       <tr><td>Λ 결맞음</td>
         <td>스칼라 D-line 매질 위의 Λ 엔진</td>
         <td>실제 편광·Zeeman 세부구조까지 자동 포함하는 full 모델은 아닙니다.</td></tr>
