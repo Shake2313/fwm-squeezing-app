@@ -6,6 +6,7 @@ from arXiv:2606.04354 are kept as internal constants and tested here.
 """
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 import matplotlib
@@ -16,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from gabes import constants, schemes  # noqa: E402
+from gabes.schemes import rydberg as rydberg_scheme  # noqa: E402
 from gabes.schemes.rydberg import MHZ, RydbergEITScheme  # noqa: E402
 
 
@@ -38,6 +40,20 @@ def test_reference_defaults_match_rydberg_eit_paper():
     assert ref["lo_rabi_mhz"] == 3.7
     assert ref["mw_frequency_ghz"] == 37.0
     assert ref["if_khz"] == 40.0
+
+
+def test_extra_views_declare_live_readout_dependencies():
+    probe_sweep, temperature_sweep = RydbergEITScheme().extra_views()
+    assert probe_sweep.param_keys == ("cell_mm",)
+    assert temperature_sweep.param_keys == (
+        "cell_mm", "if_khz", "rf_transition_dipole_ea0",
+        "rf_angular_factor", "rf_field_convention",
+        "detector_quantum_efficiency", "detector_path_efficiency",
+        "detector_reference_power_ratio",
+        "detector_electronic_noise_pa_sqrt_hz",
+        "detector_rin_per_sqrt_hz", "detector_rin_correlation",
+        "atom_participation_fraction", "beam_overlap_efficiency",
+    )
 
 
 def test_reference_eit_linewidth_near_experiment():
@@ -334,6 +350,90 @@ def test_electronics_noise_raises_total_but_not_psn_sensitivity():
     )
     assert (with_electronics.total_field_asd_v_m_per_sqrt_hz
             > base.total_field_asd_v_m_per_sqrt_hz)
+
+
+def test_detector_change_reuses_finite_if_atomic_phasors():
+    sc = RydbergEITScheme()
+    params = sc.recommended_defaults(sc.defaults())["AT electrometry"]
+    raw = sc.compute(params)
+    x, transmission, _ = sc._transmission(raw["chi_bar"], raw, params)
+    solver = rydberg_scheme.electrometry.weak_signal_response_from_liouvillian
+
+    with patch.object(
+            rydberg_scheme.electrometry,
+            "weak_signal_response_from_liouvillian",
+            wraps=solver) as response_solve:
+        base = sc._superheterodyne_readout(raw, params, x, transmission)
+        noisy = sc._superheterodyne_readout(
+            raw, dict(params, detector_electronic_noise_pa_sqrt_hz=5.0),
+            x, transmission)
+
+    assert response_solve.call_count == 1
+    assert noisy["sensitivity"].total_field_asd_v_m_per_sqrt_hz > (
+        base["sensitivity"].total_field_asd_v_m_per_sqrt_hz)
+
+
+def test_doppler_cache_tracks_the_selected_static_slope_point():
+    sc = RydbergEITScheme()
+    scan = np.linspace(-2.0, 2.0, 5)
+    raw = dict(
+        probe_rabi_mhz=1.0, coupling_rabi_mhz=2.0, lo_rabi_mhz=3.0,
+        rydberg_dephasing_mhz=0.1, temperature_dephasing_mhz=0.2,
+        density_dephasing_mhz=0.3, transit_mhz=0.4,
+        rf_dephasing_mhz=0.5, scan=scan, T=320.0,
+    )
+    params = dict(doppler="on", if_khz=40.0, mw_detuning_mhz=0.0,
+                  cell_mm=50.0)
+
+    def response(raw, params, x, transmission, static_index=None):
+        return (np.array([static_index]), np.array([1.0 + 0.0j]), "test")
+
+    first = np.array([0.0, 0.0, 1.0, 1.0, 1.0])
+    second = np.array([0.0, 0.0, 0.0, 1.0, 1.0])
+    with patch.object(sc, "_superheterodyne_atomic_phasors",
+                      side_effect=response) as solve:
+        first_result = sc._cached_superheterodyne_atomic_phasors(
+            raw, params, scan, first)
+        second_result = sc._cached_superheterodyne_atomic_phasors(
+            raw, params, scan, second)
+
+    assert solve.call_count == 2
+    assert first_result[0][0] != second_result[0][0]
+
+
+def test_atomic_phasor_cache_retains_sweep_points_and_ignores_cell_length():
+    sc = RydbergEITScheme()
+    scan = np.linspace(-2.0, 2.0, 5)
+    raw = dict(
+        probe_rabi_mhz=1.0, coupling_rabi_mhz=2.0, lo_rabi_mhz=3.0,
+        rydberg_dephasing_mhz=0.1, temperature_dephasing_mhz=0.2,
+        density_dephasing_mhz=0.3, transit_mhz=0.4,
+        rf_dephasing_mhz=0.5, scan=scan, T=320.0,
+    )
+    params = dict(doppler="on", if_khz=40.0, mw_detuning_mhz=0.0,
+                  cell_mm=50.0)
+    transmission = np.array([0.0, 0.0, 1.0, 1.0, 1.0])
+
+    with patch.object(
+            sc, "_superheterodyne_atomic_phasors",
+            return_value=(np.array([2]), np.array([1.0 + 0.0j]), "test")) as solve:
+        sc._cached_superheterodyne_atomic_phasors(
+            raw, params, scan, transmission)
+        sc._cached_superheterodyne_atomic_phasors(
+            dict(raw, T=330.0), params, scan, transmission)
+        sc._cached_superheterodyne_atomic_phasors(
+            raw, dict(params, cell_mm=75.0), scan, transmission)
+
+    assert solve.call_count == 2
+
+
+def test_microwave_frequency_is_live_metadata():
+    sc = RydbergEITScheme()
+    params = sc.recommended_defaults(sc.defaults())["EIT"]
+    raw = sc.compute(params)
+    view = sc.headless_observables(
+        raw, dict(params, mw_frequency_ghz=42.5))
+    assert any("42.5 GHz" in table["markdown"] for table in view["tables"])
 
 
 def test_superhet_optimizes_noise_equivalent_field_not_only_response():

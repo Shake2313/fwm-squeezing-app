@@ -22,9 +22,10 @@ sys.path.insert(0, str(ROOT))
 
 from gabes import constants  # noqa: E402
 from sabes import beamstate, calibration as calib, devices  # noqa: E402
-from sabes.beamline import (SetupSettings, build_source_chain,  # noqa: E402
+from sabes.beamline import (SetupSettings, SourceChain, build_source_chain,  # noqa: E402
                             nominal_settings, solve_seed_polarizer_deg,
                             solve_seed_trim_deg, solve_split_angle_deg)
+from sabes.detection import ArmGeometry, DetectionReadout  # noqa: E402
 
 WAVELENGTH = constants.WAVELENGTH_D1_85RB
 
@@ -48,6 +49,17 @@ def test_phase_modulation_conserves_power_across_the_ladder():
 
     beam = beamstate.monochromatic(1.0, WAVELENGTH, 500e-6)
     assert eom.apply(beam).total_power_w == pytest.approx(1.0, rel=1e-9)
+
+
+@pytest.mark.parametrize("rf_dbm", (0.0, 10.0, 18.0, 25.0, 30.0))
+def test_adaptive_eom_ladder_closes_power_over_the_full_ui_range(rf_dbm):
+    """The 30 dBm endpoint used to lose 17 % behind a fixed n=6 cutoff."""
+    eom = devices.PhaseModulator(
+        frequency_hz=3.036e9, v_pi_v=4.4, rf_power_dbm=rf_dbm)
+    assert sum(eom.sideband_fractions().values()) == pytest.approx(
+        1.0, abs=eom.sideband_tail_tolerance)
+    if rf_dbm == 30.0:
+        assert eom.resolved_max_order > 6
 
 
 def test_rf_drive_reaches_the_j1_maximum_at_18_dbm():
@@ -103,8 +115,19 @@ def test_pbs_ports_are_complementary_and_leak_by_the_extinction():
     beam = beamstate.monochromatic(1.0, WAVELENGTH, 500e-6)
     beam = devices.HalfWavePlate(45.0).apply(beam)      # rotate H -> V
     transmitted, reflected = devices.PolarizingBeamSplitter(3000.0).split(beam)
-    assert reflected.total_power_w == pytest.approx(1.0, abs=1e-3)
-    assert transmitted.total_power_w == pytest.approx(1.0 / 3000.0, rel=1e-6)
+    assert reflected.total_power_w == pytest.approx(3000.0 / 3001.0, rel=1e-9)
+    assert transmitted.total_power_w == pytest.approx(1.0 / 3001.0, rel=1e-9)
+    assert transmitted.total_power_w + reflected.total_power_w == pytest.approx(
+        beam.total_power_w, rel=1e-12)
+
+
+def test_pbs_insertion_loss_is_applied_once_across_both_ports():
+    beam = beamstate.monochromatic(1.0, WAVELENGTH, 500e-6,
+                                   jones=(2 ** -0.5, 2 ** -0.5))
+    transmitted, reflected = devices.PolarizingBeamSplitter(
+        3000.0, insertion_loss=0.04).split(beam)
+    assert transmitted.total_power_w + reflected.total_power_w == pytest.approx(
+        0.96, rel=1e-12)
 
 
 def test_amplifier_saturates_rather_than_scaling_linearly():
@@ -144,6 +167,17 @@ def test_etalon_peak_is_the_stated_transmission_and_stopband_is_the_floor():
     # Mid-stopband sits just above the floor: the Airy tail adds ~1/F of the peak.
     assert et.transmission(8.5e9) == pytest.approx(0.0820, abs=5e-4)
     assert et.transmission(8.5e9) > et.leak
+
+
+def test_etalon_fwhm_and_field_magnitude_transfer_are_exact():
+    et = devices.EtalonFilter(
+        fsr_hz=17e9, fwhm_hz=950e6,
+        peak_transmission=0.80, leak=0.0765)
+    half_height = 0.5 * (et.peak_transmission + et.leak)
+    assert et.transmission(475e6) == pytest.approx(half_height, rel=1e-12)
+    assert et.transmission(-475e6) == pytest.approx(half_height, rel=1e-12)
+    assert et.field_amplitude_transmission(475e6) ** 2 == pytest.approx(
+        half_height, rel=1e-12)
 
 
 def test_etalon_leak_floor_reproduces_both_published_suppressions():
@@ -203,6 +237,27 @@ def test_unverified_coefficients_are_reported_for_the_ui_badge():
     assert "etalon_fsr_hz" not in unverified
 
 
+def test_calibration_provenance_groups_match_the_verified_flag():
+    for provenance in ("fitted", "datasheet", "paper"):
+        assert calib.Coefficient("x", 1.0, provenance=provenance).verified
+    for provenance in ("lab", "nominal", "hand"):
+        assert not calib.Coefficient("x", 1.0, provenance=provenance).verified
+
+
+def test_batched_overrides_skip_unchanged_values_and_preserve_provenance():
+    cal = calib.default_calibration()
+    unchanged = cal.with_values({"etalon_fsr_hz": cal.value("etalon_fsr_hz")})
+    assert unchanged is cal
+    assert unchanged.get("etalon_fsr_hz").provenance == "paper"
+
+    changed = cal.with_values({
+        "etalon_fsr_hz": cal.value("etalon_fsr_hz") + 1.0,
+        "pd_responsivity_a_per_w": cal.value("pd_responsivity_a_per_w"),
+    })
+    assert changed.get("etalon_fsr_hz").provenance == "hand"
+    assert changed.get("pd_responsivity_a_per_w").provenance == "datasheet"
+
+
 def test_anchoring_promotes_a_coefficient_to_fitted():
     cal = calib.default_calibration()
     assert cal.get("eom_v_pi_v").provenance == "nominal"
@@ -249,6 +304,32 @@ def test_default_chain_reproduces_the_sim_operating_point():
     assert chain.warnings == ()
 
 
+def test_mode_ledger_exposes_each_etalon_and_the_electric_field_magnitude():
+    chain = build_source_chain()
+    wanted = next(row for row in chain.etalon_mode_transfers
+                  if row.order == -1)
+    assert wanted.label == "sideband-1"
+    assert wanted.stage_power_transmissions == pytest.approx((0.8, 0.8, 0.8))
+    assert wanted.total_power_transmission == pytest.approx(0.8 ** 3)
+    assert wanted.total_power_transmission == pytest.approx(
+        devices.math.prod(wanted.stage_power_transmissions), rel=1e-12)
+    assert wanted.field_magnitude_transmission ** 2 == pytest.approx(
+        wanted.total_power_transmission, rel=1e-12)
+    assert wanted.after_filter_power_w == pytest.approx(
+        wanted.eom_power_w * wanted.total_power_transmission, rel=1e-12)
+    assert wanted.cell_power_w == pytest.approx(
+        chain.wanted_seed_sideband_power_w, rel=1e-12)
+
+
+def test_small_etalon_centre_error_increases_the_output_admixture():
+    base = build_source_chain()
+    detuned = build_source_chain(replace(
+        SetupSettings(), etalon_detune_ghz=(0.25, 0.0, 0.0)))
+    assert detuned.eom_residual_carrier_to_wanted_ratio > (
+        base.eom_residual_carrier_to_wanted_ratio)
+    assert detuned.seed_purity < base.seed_purity
+
+
 def test_modulator_frequency_sets_the_two_photon_detuning_exactly():
     """No calibration coefficient stands between the dial and delta."""
     assert SetupSettings().tpd_mhz == pytest.approx(-8.0, abs=1e-6)
@@ -279,6 +360,37 @@ def test_split_and_polarizer_knobs_solve_independently():
     assert chain.stage_power("seed", "into fiber EOM") == pytest.approx(7.0e-3,
                                                                        rel=1e-4)
     assert chain.seed_power_w == pytest.approx(8.0e-6, rel=1e-4)
+
+
+def test_added_readout_fields_preserve_positional_api_order():
+    chain = build_source_chain()
+    legacy_chain = SourceChain(
+        chain.pump, chain.seed, chain.seed_offset_hz, chain.stages, chain.warnings)
+    assert legacy_chain.stages == chain.stages
+    assert legacy_chain.eom_output is None
+
+    arm = ArmGeometry("probe", 1.0, 2.0, 3.0)
+    assert arm.optics_transmission == 1.0
+    readout = DetectionReadout((), 0.0, 0.0, 0.0, 0.0, ("legacy",))
+    assert readout.warnings == ("legacy",)
+    assert readout.eom_noise is None
+
+
+def test_seed_trim_solver_brackets_nonmonotone_waveplate_response():
+    settings = replace(
+        SetupSettings(), seed_trim_qwp_deg=0.0, seed_gtp_deg=45.0)
+    angle = solve_seed_trim_deg(100e-6, settings)
+    chain = build_source_chain(replace(settings, seed_trim_hwp_deg=angle))
+    assert chain.seed_power_w == pytest.approx(100e-6, rel=1e-7)
+
+
+def test_seed_trim_solver_resolves_a_target_near_the_turning_point():
+    settings = replace(
+        SetupSettings(), seed_trim_qwp_deg=0.0, seed_gtp_deg=50.0)
+    target = 123.199e-6
+    angle = solve_seed_trim_deg(target, settings)
+    chain = build_source_chain(replace(settings, seed_trim_hwp_deg=angle))
+    assert chain.seed_power_w == pytest.approx(target, rel=1e-7)
 
 
 def test_pushing_the_pump_up_overdrives_the_fiber_eom():

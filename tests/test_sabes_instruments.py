@@ -12,6 +12,7 @@ that it can be lifted out.
 """
 import ast
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -20,7 +21,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from sabes import instruments as I, layout  # noqa: E402
+from sabes import detection, instruments as I, layout  # noqa: E402
 from sabes.beamline import SetupSettings, build_source_chain  # noqa: E402
 from sabes.instruments import base  # noqa: E402
 
@@ -87,30 +88,37 @@ def test_shot_noise_follows_the_square_root_of_power():
 
 # ------------------------------------------------------------ optical
 
-def test_the_wavemeter_shows_the_etalon_chain_doing_its_job(chain, seed_offset):
-    """The clearest single demonstration of why the seed path exists.
-
-    Dropped either side of the filters, the carrier falls by nearly three orders
-    of magnitude relative to the wanted sideband.
-    """
+def test_the_wavemeter_reports_one_dominant_frequency(chain, seed_offset):
     meter = I.Wavemeter(wanted_offset_hz=seed_offset)
     after_eom = meter.measure(_beam(chain, layout.PART1, 350, 190))
     after_chain = meter.measure(_beam(chain, layout.PART1, 366, 292))
 
-    before = after_eom.quantity("Carrier : wanted").value
-    after = after_chain.quantity("Carrier : wanted").value
-    assert before > 30.0                      # per cent, straight out of the EOM
-    assert after < 0.5                        # the paper's three-etalon figure
-    assert before / after > 100.0
+    assert np.isnan(after_eom.quantity("Optical frequency").value)
+    assert any("same largest power" in warning for warning in after_eom.warnings)
+    assert after_chain.quantity("Dominant-line offset").value == pytest.approx(
+        seed_offset / 1e9)
+    wavelength_nm = after_chain.quantity("Vacuum wavelength").value
+    frequency_thz = after_chain.quantity("Optical frequency").value
+    assert frequency_thz * 1e12 * wavelength_nm * 1e-9 == pytest.approx(
+        299_792_458.0)
+    assert after_eom.trace is None and after_chain.trace is None
     assert after_chain.provenance == I.COMPUTED
 
 
-def test_the_wavemeter_warns_when_the_carrier_would_kill_the_squeezing(chain,
-                                                                      seed_offset):
-    """Sim et al. still saw squeezing at 25 %; past that it is gone."""
+def test_wavemeter_frequency_tracks_the_one_photon_detuning():
+    base_settings = SetupSettings(opd_ghz=0.4)
+    shifted_settings = replace(base_settings, opd_ghz=1.1)
+    base = I.Wavemeter().measure(build_source_chain(base_settings).pump)
+    shifted = I.Wavemeter().measure(build_source_chain(shifted_settings).pump)
+    assert (shifted.quantity("Optical frequency").value
+            - base.quantity("Optical frequency").value) == pytest.approx(0.0007)
+
+
+def test_the_wavemeter_warns_when_the_dominant_line_misses_the_target(
+        chain, seed_offset):
     raw = I.Wavemeter(wanted_offset_hz=seed_offset).measure(
-        _beam(chain, layout.PART1, 350, 190))
-    assert any("past the point" in w for w in raw.warnings)
+        chain.pump)
+    assert any("not the selected seed line" in w for w in raw.warnings)
 
 
 def test_a_power_meter_cannot_tell_the_wanted_line_from_the_rest(chain,
@@ -207,6 +215,34 @@ def test_the_analyser_stacks_the_diagnostic_levels_in_the_right_order(chain):
     assert floor < diagnostic < snl
     assert reading.provenance == I.SYNTHESISED
     assert "PHYSICAL_SQUEEZING_UNAVAILABLE" in reading.note
+
+
+def test_the_analyser_exposes_the_positive_classical_eom_rin_penalty(chain):
+    settings = SetupSettings()
+    detection_settings = detection.DetectionSettings(
+        eom_unwanted_rin_db_per_hz=-100.0)
+    geom = detection.geometry(chain, settings, detection_settings)
+    detector_readout = detection.readout(
+        geom, chain, (15.0, 14.0), settings, detection_settings)
+    signal = I.Photodiode().convert(chain.seed.scaled(14.0))
+    reading = I.SpectrumAnalyzer().analyze(
+        signal, -8.0, total_power_w=detector_readout.total_power_w,
+        eom_noise=detector_readout.eom_noise)
+
+    assert reading.quantity("RIN-loaded diagnostic").value > -8.0
+    assert reading.quantity("Classical EOM RIN excess").value > 0.0
+    assert reading.quantity("EOM unwanted-mode RIN").value == pytest.approx(
+        -100.0)
+    assert "EOM shot-noise-only" in reading.trace.series
+    assert "EOM RIN-loaded" in reading.trace.series
+
+
+def test_non_twin_analyser_has_no_gain_or_eom_trace(chain):
+    signal = I.Photodiode().convert(chain.seed)
+    reading = I.SpectrumAnalyzer().analyze(signal, None)
+    assert set(reading.trace.series) == {"shot-noise level", "noise floor"}
+    assert all("diagnostic" not in quantity.label.lower()
+               for quantity in reading.quantities)
 
 
 def test_the_analyser_clearance_follows_the_power_it_was_given(chain):

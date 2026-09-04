@@ -1,6 +1,6 @@
-"""Finite-power Gaussian-probe saturation helpers for OD/SAS.
+"""Finite-power Gaussian-probe saturation helpers for alkali D-line OD/SAS.
 
-The model follows ``references/AutoOD-NatRbD2``:
+The numerical model follows ``references/AutoOD-NatRbD2``:
 
 * ``I0 = 2 P / (pi w^2)`` for a Gaussian 1/e^2 intensity waist;
 * each hyperfine transition has a resonant two-level saturation parameter;
@@ -10,9 +10,13 @@ The model follows ``references/AutoOD-NatRbD2``:
 * ``dI/dz = -alpha(I) I`` is propagated self-consistently along the cell and
   power-averaged over the full Gaussian cross-section.
 
-This module contains only the intensity/propagation layer.  The OD/SAS scheme
-supplies the transition-resolved weak-probe profiles and documents the separate
-approximation used when a counter-propagating pump is also present.
+The Gaussian intensity and propagation layer is species independent.  The
+OD/SAS scheme supplies each line's optical frequency, natural/effective width,
+and transition-resolved weak-probe profiles.  Rb D2 lies inside the supplied
+calculator's isotope-composition scope; D1 and Cs reuse the same closed-two-level
+construction only as explicitly labelled generalized estimates.  The scheme
+also documents the separate approximation used when a counter-propagating pump
+is present.
 """
 
 from __future__ import annotations
@@ -43,8 +47,10 @@ def closed_two_level_saturation_intensity(nu_hz, gamma_rad_s):
     """Return ``pi*h*c*Gamma/(3*lambda^3)`` in W/m^2.
 
     ``Gamma`` is the angular natural linewidth.  This is the closed-two-level
-    reference used by the Natural-Rb D2 AutoOD implementation; hyperfine line
-    strengths are applied separately by the caller.
+    reference used by the Rb-D2 AutoOD implementation; hyperfine line strengths
+    are applied separately by the caller.  For open D1 transitions and species
+    outside that reference, the caller must label the result as a generalized
+    estimate rather than a validated multilevel saturation model.
     """
     nu_hz = float(nu_hz)
     gamma_rad_s = float(gamma_rad_s)
@@ -114,6 +120,8 @@ def power_broadened_profile_table(
         raise ValueError("Peak saturation must be finite and non-negative.")
     if np.any(~np.isfinite(profile)):
         raise ValueError("Weak profile must be finite.")
+    if not np.any(profile):
+        return np.zeros((x_grid.size, profile.size), dtype=float)
 
     saturation = peak_saturation * np.exp(-x_grid)
     width_ratio = np.sqrt(1.0 + saturation)

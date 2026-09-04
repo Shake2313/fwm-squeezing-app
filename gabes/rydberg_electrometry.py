@@ -174,28 +174,23 @@ def weak_signal_response_from_liouvillian(
     # usual static RWA coupling Omega_sig/2 (|u><l| + |l><u|) for phase zero.
     h_minus = np.zeros((n_levels, n_levels), dtype=complex)
     h_minus[upper, lower] = 0.5 * np.exp(-1j * phase)
-    h_plus = h_minus.conj().T
     c_minus = core.comm_super(h_minus)
-    c_plus = core.comm_super(h_plus)
 
     rho0_vec = rho0.reshape(rho0.shape[:-2] + (m,))
     rhs_minus = -np.einsum("ij,...j->...i", c_minus, rho0_vec)
-    rhs_plus = -np.einsum("ij,...j->...i", c_plus, rho0_vec)
     eye = np.eye(m, dtype=complex)
     a_minus = L0 + 1j * omega_if * eye
-    a_plus = L0 - 1j * omega_if * eye
     r_minus = np.linalg.solve(a_minus, rhs_minus[..., None])[..., 0]
-    r_plus = np.linalg.solve(a_plus, rhs_plus[..., None])[..., 0]
+    rho_minus = r_minus.reshape(r_minus.shape[:-1] + (n_levels, n_levels))
+    rho_plus = np.swapaxes(rho_minus.conj(), -1, -2)
 
     return WeakSignalResponse(
         if_angular_frequency_rad_s=omega_if,
         signal_transition=(lower, upper),
         signal_phase_rad=phase,
         steady_state=rho0,
-        rho_minus_per_angular_rabi=r_minus.reshape(
-            r_minus.shape[:-1] + (n_levels, n_levels)),
-        rho_plus_per_angular_rabi=r_plus.reshape(
-            r_plus.shape[:-1] + (n_levels, n_levels)),
+        rho_minus_per_angular_rabi=rho_minus,
+        rho_plus_per_angular_rabi=rho_plus,
     )
 
 

@@ -15,6 +15,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from ._csv_numeric import sort_and_median_duplicates
+
 
 MAX_FILE_BYTES = 10 * 1024 * 1024
 MAX_CSV_ROWS = 500_000
@@ -504,20 +506,7 @@ def _direction_name(direction: int) -> str:
 
 
 def _sort_and_merge(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    if x.size == 0:
-        return x.copy(), y.copy()
-    order = np.argsort(x, kind="mergesort")
-    sorted_x = x[order]
-    sorted_y = y[order]
-    unique_x, starts, group_sizes = np.unique(
-        sorted_x, return_index=True, return_counts=True
-    )
-    merged_y = sorted_y[starts].copy()
-    for group_index in np.flatnonzero(group_sizes > 1):
-        start = starts[group_index]
-        stop = start + group_sizes[group_index]
-        merged_y[group_index] = np.median(sorted_y[start:stop])
-    return unique_x, merged_y
+    return sort_and_median_duplicates(x, y)
 
 
 def _find_segments(

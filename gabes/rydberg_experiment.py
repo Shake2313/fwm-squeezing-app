@@ -44,6 +44,11 @@ def _readonly(values: np.ndarray | Sequence[float]) -> np.ndarray:
     return result
 
 
+def _least_squares_covariance(weighted_design: np.ndarray) -> np.ndarray:
+    inverse_design = np.linalg.pinv(weighted_design)
+    return inverse_design @ inverse_design.T
+
+
 @dataclass(frozen=True)
 class CellTemperatureState:
     """One temperature observation with laboratory and vapor values separated.
@@ -747,15 +752,15 @@ def fit_temperature_density_dephasing(
     else:
         condition = float(singular_values[0] / singular_values[-1])
 
-    normal_inverse = np.linalg.pinv(weighted_design.T @ weighted_design)
+    covariance_basis = _least_squares_covariance(weighted_design)
     if sigma is None:
         residual_variance = (
             float(np.sum(residuals**2) / dof) if dof > 0 else float("nan")
         )
-        covariance = normal_inverse * residual_variance
+        covariance = covariance_basis * residual_variance
         reduced_chi_squared = None
     else:
-        covariance = normal_inverse
+        covariance = covariance_basis
         reduced_chi_squared = (
             float(np.sum((residuals / sigma) ** 2) / dof) if dof > 0 else None
         )
@@ -854,7 +859,7 @@ def fit_effective_temperature_calibration(
     if rank < 2:
         raise ValueError("Heater set points must contain at least two distinct values.")
     residuals = effective - design @ coefficients
-    covariance = np.linalg.pinv(weighted_design.T @ weighted_design)
+    covariance = _least_squares_covariance(weighted_design)
     if sigma is None and setpoint.size > 2:
         covariance *= float(np.sum(residuals**2) / (setpoint.size - 2))
     return LinearTemperatureCalibration(

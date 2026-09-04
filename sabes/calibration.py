@@ -7,15 +7,16 @@ that a plausible-looking guess and a measured value are stored the same way and
 become indistinguishable a month later. Every coefficient here therefore carries
 a `provenance` tag, and the UI is expected to show it:
 
+    fitted     solved from measured data
     datasheet  manufacturer specification for the exact part
     paper      stated in Sim et al., Sci. Rep. 15, 7727 (2025)
     lab        reported by the experimenter, not a formal measurement
-    fitted     solved from measured data (the only tag that means "verified")
-    nominal    a plausible placeholder -- nothing measured it
+    nominal    a placeholder not backed by a measurement
     hand       adjusted interactively during a session
 
-`nominal` and `hand` values are what `unverified()` reports, so a result can be
-labelled predicted rather than reproduced.
+`fitted`, `datasheet`, and `paper` are treated as verified. `lab`, `nominal`,
+and `hand` are returned by `unverified()` so the UI does not present them as
+calibrated measurements.
 
 Coefficients live in JSON so they can be replaced without touching code, which is
 the whole point: when a real etalon scan or P-I curve arrives, only the file
@@ -100,6 +101,19 @@ class Calibration:
         items[name] = updated
         return Calibration(items)
 
+    def with_values(self, updates, provenance="hand"):
+        """Override changed coefficients with one copy of the calibration map."""
+        items = None
+        for name, value in updates.items():
+            current = self.get(name)
+            value = float(value)
+            if value == current.value:
+                continue
+            if items is None:
+                items = dict(self._items)
+            items[name] = replace(current, value=value, provenance=provenance)
+        return self if items is None else Calibration(items)
+
     def anchored_to(self, name, measured_value, note=""):
         """Promote a coefficient to `fitted` against a measurement.
 
@@ -111,7 +125,7 @@ class Calibration:
 
     # ---- reporting ----
     def unverified(self):
-        """Coefficients no measurement backs, worst first. Drives the UI badge."""
+        """Unverified coefficients in declared provenance order."""
         return tuple(sorted(
             (c for c in self._items.values() if not c.verified),
             key=lambda c: (PROVENANCE_ORDER.index(c.provenance), c.name)))

@@ -23,6 +23,12 @@ Pump rejection is NOT derived. A Gaussian tail at five beam radii says 1e-9,
 which is an answer so good it is useless and one the paper contradicts by
 naming pump scatter as a real limit. `pump_leakage_dbm` is an observed number
 instead: measure it at the detector, and the spectrum analyser uses it.
+
+EOM sideband powers *are* derived by the source chain.  Their microscopic
+fluctuation mechanism is not: `readout()` combines those powers with one
+explicit effective unwanted-mode RIN, adding unpaired shot noise and a positive
+classical excess-intensity PSD without feeding residual modes into the atomic
+solve.
 """
 from dataclasses import dataclass
 from typing import Tuple
@@ -31,6 +37,7 @@ import math
 
 from .calibration import default_calibration
 from .layout import parts as layout_parts
+from .noise import EOMNoiseBudget, build_eom_noise_budget
 
 ELEMENTARY_CHARGE = 1.602176634e-19
 
@@ -61,6 +68,10 @@ class DetectionSettings:
     pd_defocus_mm: float = 0.0
     bpd_gain_v_per_a: float = 1e5
     analysis_bandwidth_hz: float = 1.0e5
+    # Input one-sided fractional-intensity PSD for each unwanted EOM mode.
+    # It is not calculated from the RF drive.  -100 dBc/Hz is a simulation
+    # setting, not a measured system value.
+    eom_unwanted_rin_db_per_hz: float = -100.0
 
 
 @dataclass(frozen=True)
@@ -70,6 +81,7 @@ class ArmGeometry:
     radius_at_dmirror_m: float
     spot_radius_m: float
     lens_focal_m: float
+    optics_transmission: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -121,13 +133,14 @@ class ArmReadout:
 
 @dataclass(frozen=True)
 class DetectionReadout:
-    """Post-solve detector headroom; it does not validate a source-noise model."""
+    """Post-solve detector headroom including unpaired unwanted-mode DC power."""
     arms: Tuple[ArmReadout, ...]
     total_power_w: float
     shot_noise_a_per_rthz: float
     electronic_noise_a_per_rthz: float
     clearance_db: float
     warnings: Tuple[str, ...] = ()
+    eom_noise: EOMNoiseBudget | None = None
 
     @property
     def measurable(self):
@@ -149,9 +162,8 @@ def _propagate(mode, distance_m):
 def geometry(chain, settings, detection=None, calibration=None, layout=None):
     """Beam sizes, separation, and the post-cell loss GABES should solve with.
 
-    Distances come from `layout`, not from calibration coefficients: the
-    table geometry and the physics are then the same edit, and each segment
-    carries its own provenance instead of hiding behind a single number.
+    Distances come from `layout`; transmissions come from the calibrated route
+    for each detector arm.
     """
     detection = detection or DetectionSettings()
     calibration = calibration or default_calibration()
@@ -161,8 +173,7 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
     distance = layout_parts.cell_to_dmirror_m(layout)
     angle_rad = math.radians(settings.crossing_angle_deg)
 
-    # The conjugate is born in the cell; phase matching ties its transverse mode
-    # to the probe's, so both twins are propagated as the seed mode.
+    # Both twin beams use the seed transverse mode after the cell.
     twin_mode = chain.seed.mode
     pump_mode = chain.pump.mode
 
@@ -173,9 +184,15 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
     twin_separation = 2.0 * pump_separation
 
     lens_distance = layout_parts.cell_to_lens_m(layout)
+    residual = c("loss_post_cell_residual")
+    arm_specs = (
+        ("probe", detection.probe_lens_focal_mm,
+         layout_parts.ROUTE_POST_CELL_PROBE),
+        ("conjugate", detection.conjugate_lens_focal_mm,
+         layout_parts.ROUTE_POST_CELL_CONJUGATE),
+    )
     arms = []
-    for name, focal_mm in (("probe", detection.probe_lens_focal_mm),
-                           ("conjugate", detection.conjugate_lens_focal_mm)):
+    for name, focal_mm, route in arm_specs:
         focal_m = focal_mm * 1e-3
         at_lens = _propagate(twin_mode, lens_distance)
         focused = at_lens.through_thin_lens(focal_m)
@@ -186,13 +203,12 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
             radius_at_dmirror_m=twin_at_dmirror.radius_m,
             spot_radius_m=at_pd.radius_m,
             lens_focal_m=focal_m,
+            optics_transmission=(layout_parts.transmission_of(route, calibration)
+                                 * residual),
         ))
 
-    # Per-optic transmissions along the post-cell route, times the residual that
-    # reconciles those nominal guesses with the one measured total.
-    transmission = (layout_parts.transmission_of(layout_parts.ROUTE_POST_CELL,
-                                                 calibration)
-                    * c("loss_post_cell_residual"))
+    # GABES uses the mean arm loss; detector calculations retain each arm value.
+    transmission = sum(arm.optics_transmission for arm in arms) / len(arms)
     qe_pct = _quantum_efficiency_pct(calibration)
 
     warnings = []
@@ -224,23 +240,32 @@ def _quantum_efficiency_pct(calibration):
 
 
 def readout(geom, chain, gains, settings, detection=None, calibration=None):
-    """Photodiode powers, linearity, and shot-noise clearance.
-
-    `gains` is (G_s, G_c) from the GABES solve -- the twins' power is the seed
-    power times the parametric gain, so nothing here can be known before it.
-    """
+    """Return photodiode powers, linearity, and shot-noise clearance."""
     detection = detection or DetectionSettings()
     calibration = calibration or default_calibration()
     c = calibration.value
 
     seed_w = chain.seed_power_w
-    pump_out_w = chain.pump_power_w
-    pbs_leak = 1.0 / c("pbs_extinction_ratio")
     density_limit = c("pd_max_power_density_w_per_cm2")
     active_radius = 0.5 * c("pd_active_diameter_mm") * 1e-3
     responsivity = c("pd_responsivity_a_per_w")
     nep = c("bpd_nep_w_per_rthz")
     saturation = c("bpd_cw_saturation_w")
+
+    eom_noise = build_eom_noise_budget(
+        chain=chain,
+        gains=gains,
+        optics_transmission=geom.optics_transmission,
+        probe_transmission=next(
+            arm.optics_transmission for arm in geom.arms
+            if arm.name == "probe"),
+        conjugate_transmission=next(
+            arm.optics_transmission for arm in geom.arms
+            if arm.name == "conjugate"),
+        responsivity_a_per_w=responsivity,
+        rin_db_per_hz=detection.eom_unwanted_rin_db_per_hz,
+        analysis_bandwidth_hz=detection.analysis_bandwidth_hz,
+    )
 
     warnings = []
     arms = []
@@ -250,7 +275,10 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
     # actually matters is diffuse scatter no spatial filter removes.
     leakage_w = 1e-3 * 10.0 ** (detection.pump_leakage_dbm / 10.0)
     for arm, gain in zip(geom.arms, gains):
-        power = seed_w * float(gain) * geom.optics_transmission
+        power = seed_w * float(gain) * arm.optics_transmission
+        # Residual EOM modes add detector power and noise to the probe arm only.
+        if arm.name == "probe":
+            power += eom_noise.unwanted_detector_power_w
         residual = leakage_w
         density = 2.0 * power / (math.pi * arm.spot_radius_m ** 2) / 1e4
         total += power
@@ -290,7 +318,8 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
     return DetectionReadout(
         arms=tuple(arms), total_power_w=total,
         shot_noise_a_per_rthz=shot, electronic_noise_a_per_rthz=electronic,
-        clearance_db=clearance, warnings=tuple(warnings))
+        clearance_db=clearance, eom_noise=eom_noise,
+        warnings=tuple(warnings))
 
 
 def power_for_clearance(target_db, calibration=None):

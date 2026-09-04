@@ -82,6 +82,15 @@ def test_style_does_not_touch_global_rcparams():
     assert matplotlib.rcParams["font.family"] == before
 
 
+def test_style_accepts_an_axes_directly():
+    fig, ax = plt.subplots(figsize=(3, 2))
+    ax.plot([0, 1], [0, 1])
+
+    assert apply_gabes_plot_style(ax) is ax
+    assert not ax.spines["top"].get_visible()
+    plt.close(fig)
+
+
 def test_a_styled_scheme_figure_renders_isotope_labels_under_a_hostile_font():
     sas = schemes.get("sas")
     params = sas.defaults()

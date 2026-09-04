@@ -52,31 +52,19 @@ _SPECTRAL_MATCH_TOLERANCE_HZ = 1.0
 
 @dataclass(frozen=True)
 class SetupSettings:
-    """Primary lab variables -- what someone actually turns.
-
-    Everything here is a dial, a current, a temperature or a lens choice. Derived
-    physics quantities (Rabi frequencies, detunings in linewidths, waists in the
-    cell) are *outputs*, computed from these. That inversion is the whole
-    difference between SABES and driving the GABES scheme directly.
-    """
+    """Lab controls used to derive GABES parameters."""
     # --- source ---
     ecdl_power_mw: float = 40.0
     ta_current_a: float = 2.5
     hwp_ta_deg: float = 0.0
 
     # --- pump / seed split ---
-    # 12.3106 deg puts 600 mW on the pump with the shipped calibration. If a
-    # coefficient changes, this angle no longer hits 600 mW -- that is the point.
-    # `nominal_settings()` re-solves all three power knobs against whatever
-    # calibration is in force.
-    hwp_split_deg: float = 8.1161
+    # `nominal_settings()` solves this angle for 600 mW with the active calibration.
+    hwp_split_deg: float = 8.0996
 
     # --- seed modulation ---
-    # The fiber EOM stops modulating cleanly above ~10 mW, well below what the
-    # split alone leaves in the seed arm once the pump is set. A linear polarizer
-    # in front of the modulator is what actually holds the input inside its
-    # rating, so its angle is a primary variable, not a fixed loss.
-    seed_polarizer_deg: float = 19.1172
+    # The upstream polarizer keeps EOM input below its ~10 mW operating limit.
+    seed_polarizer_deg: float = 19.1607
     hwp_eom_deg: float = 0.0
     eom_frequency_hz: float = NU_HF_HZ + 8.0e6
     eom_rf_dbm: float = 18.0
@@ -84,7 +72,7 @@ class SetupSettings:
 
     # --- seed power trim (QWP + HWP + GTP) ---
     seed_trim_qwp_deg: float = 0.0
-    seed_trim_hwp_deg: float = 37.6353
+    seed_trim_hwp_deg: float = 37.6333
     seed_gtp_deg: float = 0.0
 
     # --- beam shaping (lenses are swappable, so they are settings) ---
@@ -151,6 +139,31 @@ class Stage:
 
 
 @dataclass(frozen=True)
+class EtalonModeTransfer:
+    """Per-mode transmission through the cascaded etalons.
+
+    The stages are diagonal in optical frequency: an etalon does not create or
+    frequency-convert a sideband, it multiplies each existing EOM mode by its
+    own transfer coefficient.  A centre error therefore changes the *mixture*
+    at the output by transmitting the modes in different proportions.
+    """
+    order: int
+    label: str
+    offset_hz: float
+    eom_power_w: float
+    eom_power_fraction: float
+    stage_power_transmissions: Tuple[float, ...]
+    total_power_transmission: float
+    field_magnitude_transmission: float
+    after_filter_power_w: float
+    cell_power_w: float
+
+    @property
+    def filtered_power_fraction(self):
+        return 1.0 - self.total_power_transmission
+
+
+@dataclass(frozen=True)
 class SourceChain:
     """Result of running the chain: the two beams at the cell, plus the audit."""
     pump: BeamState
@@ -158,6 +171,8 @@ class SourceChain:
     seed_offset_hz: float
     stages: Tuple[Stage, ...] = ()
     warnings: Tuple[str, ...] = ()
+    eom_output: BeamState | None = None
+    etalon_filters: Tuple[EtalonFilter, ...] = ()
 
     @property
     def pump_power_w(self):
@@ -215,6 +230,41 @@ class SourceChain:
     @property
     def seed_purity(self):
         return self.seed.purity(self.seed_offset_hz)
+
+    @property
+    def etalon_mode_transfers(self):
+        """Per-mode transmission; field magnitude is ``sqrt(product(T))``.
+
+        Calibration has no phase data.
+        """
+        if self.eom_output is None:
+            return ()
+        total_eom = self.eom_output.total_power_w
+        eom_frequency_hz = abs(self.seed_offset_hz)
+        rows = []
+        for line in self.eom_output.lines:
+            stage_t = tuple(
+                etalon.transmission(line.offset_hz)
+                for etalon in self.etalon_filters)
+            total_t = math.prod(stage_t)
+            order = (int(round(line.offset_hz / eom_frequency_hz))
+                     if eom_frequency_hz > 0.0 else 0)
+            rows.append(EtalonModeTransfer(
+                order=order,
+                label=line.label,
+                offset_hz=line.offset_hz,
+                eom_power_w=line.power_w,
+                eom_power_fraction=(line.power_w / total_eom
+                                    if total_eom > 0.0 else 0.0),
+                stage_power_transmissions=stage_t,
+                total_power_transmission=total_t,
+                field_magnitude_transmission=math.sqrt(max(total_t, 0.0)),
+                after_filter_power_w=line.power_w * total_t,
+                cell_power_w=self.seed.power_at(
+                    line.offset_hz,
+                    tolerance_hz=_SPECTRAL_MATCH_TOLERANCE_HZ),
+            ))
+        return tuple(rows)
 
     @property
     def pump_waist_m(self):
@@ -280,7 +330,8 @@ def build_source_chain(settings=None, calibration=None):
     # ---------------- common: ECDL -> TA -> split ----------------
     beam = monochromatic(
         settings.ecdl_power_mw * 1e-3, WAVELENGTH_M,
-        waist_m=0.5e-3, m2=1.0)
+        waist_m=0.5e-3, m2=1.0,
+        carrier_hz=constants.NU_D1_85RB + settings.opd_ghz * 1.0e9)
     record("common", "ECDL output", beam)
 
     beam = LossElement(c("loss_ecdl_to_ta")).apply(beam)
@@ -349,13 +400,17 @@ def build_source_chain(settings=None, calibration=None):
             f"{c('eom_max_input_w') * 1e3:.0f} mW rating; modulation depth is "
             f"not trustworthy above it")
     seed = modulator.apply(seed)
+    eom_output = seed
     record("seed", "EOM sidebands", seed)
 
     stage_count = int(round(c("etalon_stages")))
     detunes = list(settings.etalon_detune_ghz)
     detunes += [0.0] * max(stage_count - len(detunes), 0)
+    etalon_filters = []
     for index in range(stage_count):
-        seed = _etalon(calibration, seed_offset_hz, detunes[index]).apply(seed)
+        etalon = _etalon(calibration, seed_offset_hz, detunes[index])
+        etalon_filters.append(etalon)
+        seed = etalon.apply(seed)
         record("seed", f"etalon {index + 1}", seed)
 
     seed = LossElement(layout_parts.transmission_of(
@@ -381,8 +436,10 @@ def build_source_chain(settings=None, calibration=None):
     if seed.power_at(seed_offset_hz) <= 0.0:
         warnings.append("no power left in the wanted sideband at the cell")
 
-    return SourceChain(pump=pump, seed=seed, seed_offset_hz=seed_offset_hz,
-                       stages=tuple(stages), warnings=tuple(warnings))
+    return SourceChain(
+        pump=pump, seed=seed, seed_offset_hz=seed_offset_hz,
+        eom_output=eom_output, etalon_filters=tuple(etalon_filters),
+        stages=tuple(stages), warnings=tuple(warnings))
 
 
 # ---------------------------------------------------------------------------
@@ -390,39 +447,65 @@ def build_source_chain(settings=None, calibration=None):
 #
 # Solved numerically rather than from the cos^2 law, because the beam reaching a
 # waveplate is never exactly the polarization the ideal law assumes -- PBS
-# extinction leaves a couple of degrees of the wrong component, which is small
-# for power but large enough to miss a target by 30 %. A coarse scan brackets the
-# root on a monotone branch and bisection finishes it; the chain is closed-form,
-# so this costs microseconds.
+# extinction leaves a small orthogonal component. Endpoints bracket monotone
+# controls; the trim HWP uses its sinusoidal turning point to select a branch.
 # ---------------------------------------------------------------------------
 
 
 def _solve_angle(field, target, readout, settings, calibration,
-                 lo=0.0, hi=90.0, samples=181, iterations=60):
+                 lo=0.0, hi=90.0, iterations=60,
+                 angle_tolerance_deg=1e-7, value_rtol=1e-10,
+                 half_wave_response=False):
     def value(angle):
         chain = build_source_chain(replace(settings, **{field: angle}),
                                    calibration)
         return readout(chain)
 
-    step = (hi - lo) / (samples - 1)
-    grid = [lo + step * i for i in range(samples)]
-    values = [value(a) for a in grid]
-    bracket = None
-    for i in range(samples - 1):
-        if (values[i] - target) * (values[i + 1] - target) <= 0.0:
-            bracket = (grid[i], grid[i + 1])
-            break
-    if bracket is None:
-        best = min(range(samples), key=lambda i: abs(values[i] - target))
-        raise ValueError(
-            f"{field}: target {target:.6g} is out of reach; the closest "
-            f"achievable value is {values[best]:.6g} at {grid[best]:.3f} deg")
+    a, b = float(lo), float(hi)
+    value_a, value_b = value(a), value(b)
+    fa, fb = value_a - target, value_b - target
+    value_tolerance = max(abs(float(target)) * value_rtol, 1e-15)
+    if abs(fa) <= value_tolerance:
+        return a
+    if abs(fb) <= value_tolerance:
+        return b
+    if fa * fb > 0.0:
+        samples = [(a, value_a)]
+        if half_wave_response:
+            midpoint = 0.5 * (a + b)
+            value_midpoint = value(midpoint)
+            mean = 0.5 * (value_a + value_b)
+            cosine = 0.5 * (value_a - value_b)
+            sine = value_midpoint - mean
+            phase = math.atan2(sine, cosine) % math.pi
+            if 1.0e-12 < phase < math.pi - 1.0e-12:
+                turning = a + (b - a) * phase / math.pi
+                samples.append((turning, value(turning)))
+        samples.append((b, value_b))
+        samples.sort()
+        bracket = None
+        for (left, left_value), (right, right_value) in zip(
+                samples, samples[1:]):
+            left_error = left_value - target
+            right_error = right_value - target
+            if abs(right_error) <= value_tolerance:
+                return right
+            if left_error * right_error < 0.0:
+                bracket = (left, right, left_error)
+                break
+        if bracket is None:
+            best_angle, best_value = min(
+                samples, key=lambda item: abs(item[1] - target))
+            raise ValueError(
+                f"{field}: target {target:.6g} is out of reach; the closest "
+                f"achievable value is {best_value:.6g} at {best_angle:.3f} deg")
+        a, b, fa = bracket
 
-    a, b = bracket
-    fa = value(a) - target
     for _ in range(iterations):
         mid = 0.5 * (a + b)
         fm = value(mid) - target
+        if abs(fm) <= value_tolerance or b - a <= angle_tolerance_deg:
+            return mid
         if fa * fm <= 0.0:
             b = mid
         else:
@@ -439,13 +522,7 @@ def solve_split_angle_deg(target_pump_w, settings=None, calibration=None):
 
 
 def solve_seed_polarizer_deg(target_eom_input_w, settings=None, calibration=None):
-    """Seed polarizer angle giving a target optical power at the fiber EOM.
-
-    Separate from the split angle on purpose. Once the pump is set, the seed arm
-    carries far more than the modulator's ~10 mW rating, so these are two
-    independent knobs solving two independent constraints -- which is exactly why
-    the setup needs a polarizer there at all.
-    """
+    """Seed polarizer angle for a target optical power at the fiber EOM."""
     return _solve_angle(
         "seed_polarizer_deg", float(target_eom_input_w),
         lambda ch: ch.stage_power("seed", "into fiber EOM"),
@@ -455,12 +532,7 @@ def solve_seed_polarizer_deg(target_eom_input_w, settings=None, calibration=None
 
 def nominal_settings(calibration=None, *, pump_w=0.600, eom_input_w=7.0e-3,
                      seed_w=8.0e-6, base=None):
-    """Settings whose three power knobs reproduce the paper operating point.
-
-    Re-solved against whatever calibration is in force, so it stays honest when a
-    coefficient is replaced by a measured one. The dataclass defaults are the
-    answer for the shipped calibration; this is how to get it for any other.
-    """
+    """Solve the three power controls for the requested operating point."""
     calibration = calibration or default_calibration()
     settings = base or SetupSettings()
     settings = replace(settings, hwp_split_deg=solve_split_angle_deg(
@@ -472,13 +544,8 @@ def nominal_settings(calibration=None, *, pump_w=0.600, eom_input_w=7.0e-3,
 
 
 def solve_seed_trim_deg(target_seed_w, settings=None, calibration=None):
-    """Trim half-wave-plate angle giving a target seed power at the cell.
-
-    The seed arm arrives with tens of times more power than the FWM wants, so
-    this knob exists purely to throw the excess away -- which is also why the
-    seed budget is not a constraint on the design.
-    """
+    """Trim half-wave-plate angle for a target seed power at the cell."""
     return _solve_angle(
         "seed_trim_hwp_deg", float(target_seed_w), lambda ch: ch.seed_power_w,
         settings or SetupSettings(), calibration or default_calibration(),
-        lo=0.0, hi=45.0)
+        lo=0.0, hi=45.0, half_wave_response=True)

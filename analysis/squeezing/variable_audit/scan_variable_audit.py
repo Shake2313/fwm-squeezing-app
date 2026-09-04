@@ -13,8 +13,8 @@ diffusion/covariance or a same-condition measured SQL, so this script cannot
 predict physical squeezing, squeezing bandwidth, or above/below-SQL status.
 
 Claims under test (verbatim, translated):
-  OPD    -- (no claim offered)
-  TPD    -- "related to dressing; moves with pump intensity"
+  one-photon detuning Δ -- (no claim offered)
+  two-photon detuning δ -- "related to dressing; moves with pump intensity"
   pump   -- "fuel; sets the gain ceiling. Too weak and FWM will not start, but
              almost anything works. If FWM does not appear, check beam OVERLAP
              before blaming pump power."
@@ -34,7 +34,7 @@ Claims under test (verbatim, translated):
 
 SECTIONS
   tpd_lightshift  -- delta*(P) at two geometries, fitted against the AC-Stark
-                     scaling Omega^2/(4 Delta).  Tests the TPD claim.
+                     scaling Omega^2/(4 Delta). Tests the δ claim.
   pump_vs_overlap -- gain-referred diagnostic versus pump power and mode overlap,
                      using compute_spectrum's own `mode_overlap_penalty` knob.
                      Tests "check overlap before pump power".
@@ -71,6 +71,7 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Lock
 
 os.environ.setdefault("OMP_NUM_THREADS", str(os.cpu_count() or 1))
 for _stream in (sys.stdout, sys.stderr):
@@ -155,10 +156,34 @@ GOLD = dict(D_GHz=0.9, T=394.15, P_pump=0.600, P_probe=8e-6,
             w_pump=530e-6, w_probe=330e-6, L=12.5e-3, angle=0.32,
             delta_mhz=-8.0)
 ULTRA = dict(phase_detail=fwm.PHASE_ULTRA, model_fidelity=fwm.FIDELITY_ULTRA)
+_GOLD_SCAN = None
+_GOLD_SCAN_LOCK = Lock()
+
+
+def _is_gold_scan(kw, D, loss, overlap, window_mhz):
+    values = {
+        "D_GHz": D,
+        "T": kw["T"],
+        "P_pump": kw["P_pump"],
+        "P_probe": kw["P_probe"],
+        "w_pump": kw["w_pump"],
+        "w_probe": kw["w_probe"],
+        "L": kw["L"],
+        "angle": kw["angle"],
+    }
+    return (
+        all(math.isclose(float(value), float(GOLD[name]), rel_tol=0.0,
+                         abs_tol=1e-12 * max(1.0, abs(float(GOLD[name]))))
+            for name, value in values.items())
+        and math.isclose(float(loss), 0.055, rel_tol=0.0, abs_tol=1e-15)
+        and math.isclose(float(overlap), 1.0, rel_tol=0.0, abs_tol=1e-15)
+        and math.isclose(float(window_mhz), 350.0, rel_tol=0.0, abs_tol=1e-12)
+    )
 
 
 def scan(cfg, *, window_mhz=350.0, **over):
     """Hardened-Ultra probe scan on a 5 MHz delta grid."""
+    global _GOLD_SCAN
     kw = {k: cfg[k] for k in ("T", "P_pump", "P_probe", "w_pump", "w_probe",
                               "L", "angle")}
     kw.update({k: v for k, v in over.items() if k in kw or k in
@@ -168,19 +193,31 @@ def scan(cfg, *, window_mhz=350.0, **over):
     overlap = over.get("mode_overlap_penalty", 1.0)
     npts = int(round(2 * window_mhz / DELTA_STEP_MHZ)) + 1
     center = fwm.branch_center_GHz(D, -1)
-    with blas_single_thread():
-        s = fwm.compute_spectrum(
-            D, T=kw["T"], P_pump=kw["P_pump"], P_probe=kw["P_probe"],
-            w_pump=kw["w_pump"], w_probe=kw["w_probe"], L=kw["L"],
-            pump_probe_angle_deg=kw["angle"], line_strength=LS,
-            mode_overlap_penalty=overlap,
-            loss_frac=loss, qe=fwm.QE_DETECTOR,
-            coarse_points=npts, fine_points=0,
-            scan_min=center - window_mhz * 1e-3,
-            scan_max=center + window_mhz * 1e-3,
-            velocity_step=5.0, velocity_cutoff=3.0, branch=-1, **ULTRA)
-    s["delta_mhz"] = (s["probe_axis_GHz"] - center) * 1e3
-    return s
+    is_gold = _is_gold_scan(kw, D, loss, overlap, window_mhz)
+    lock = _GOLD_SCAN_LOCK if is_gold else None
+    if lock is not None:
+        lock.acquire()
+    try:
+        if is_gold and _GOLD_SCAN is not None:
+            return _GOLD_SCAN
+        with blas_single_thread():
+            result = fwm.compute_spectrum(
+                D, T=kw["T"], P_pump=kw["P_pump"], P_probe=kw["P_probe"],
+                w_pump=kw["w_pump"], w_probe=kw["w_probe"], L=kw["L"],
+                pump_probe_angle_deg=kw["angle"], line_strength=LS,
+                mode_overlap_penalty=overlap,
+                loss_frac=loss, qe=fwm.QE_DETECTOR,
+                coarse_points=npts, fine_points=0,
+                scan_min=center - window_mhz * 1e-3,
+                scan_max=center + window_mhz * 1e-3,
+                velocity_step=5.0, velocity_cutoff=3.0, branch=-1, **ULTRA)
+        result["delta_mhz"] = (result["probe_axis_GHz"] - center) * 1e3
+        if is_gold:
+            _GOLD_SCAN = result
+        return result
+    finally:
+        if lock is not None:
+            lock.release()
 
 
 def readout(s, fixed_delta_mhz=None):
@@ -227,7 +264,7 @@ def light_shift_mhz(P, w, Delta_GHz):
 
 
 # ==========================================================================
-# TPD: does the two-photon optimum move with pump intensity?
+# Does the optimum two-photon detuning δ move with pump intensity?
 # ==========================================================================
 def sec_tpd(quick=False):
     geoms = {
@@ -289,7 +326,7 @@ def sec_tpd(quick=False):
             r["dressed_shift_mhz"] = 0.5 * (
                 math.hypot(D_mhz, r["Omega_2pi_MHz"]) - D_mhz)
         # how far does delta* move over the reported pump range, vs the v6
-        # +0.5 dB TPD tolerance window (-9.6 / +4.2 MHz)?
+        # +0.5 dB two-photon-detuning window (-9.6 / +4.2 MHz)?
         span = rows[-1]["delta_peak_mhz"] - rows[0]["delta_peak_mhz"]
         # delta* ~ Omega^n ~ P^(n/2), so doubling / halving the pump power at the
         # OPERATING point multiplies delta* by 2^(n/2).  Quote both directions.
@@ -700,8 +737,8 @@ def sec_paper_db():
     # How tightly did 10 independent labs converge on each variable?  This is an
     # empirical tolerance ranking, completely independent of the engine and of
     # the v6 1D scans -- so it is a real cross-check on them.
-    # Two scales must be treated differently.  TPD and OPD are DETUNINGS whose
-    # zero is physical, so a ratio or CV is meaningless (TPD straddles zero and
+    # Detunings δ and Δ have a physical zero, so a ratio or CV is meaningless
+    # (δ straddles zero and
     # CV blows up); their spread is compared directly with the v6 +0.5 dB
     # tolerance window.  Powers, waists and lengths are ratio-scale.
     v6_window = {                       # v6 Table "tolerance", +0.5 dB, full width
@@ -710,8 +747,8 @@ def sec_paper_db():
         "cell_temperature_c_primary": (15.3, "-3.3 / +12.0 C"),
     }
     spread_abs, spread_ratio = [], []
-    for k, lab in (("tpd_mhz_gabes", "TPD delta [MHz]"),
-                   ("opd_ghz_primary", "OPD Delta [GHz]"),
+    for k, lab in (("tpd_mhz_gabes", "two-photon detuning δ [MHz]"),
+                   ("opd_ghz_primary", "one-photon detuning Δ [GHz]"),
                    ("cell_temperature_c_primary", "temperature [C]")):
         st = summary.get(k)
         if not st:
@@ -782,7 +819,8 @@ def write_markdown(res, path):
     a("| 변수 | n | min | median | max |")
     a("|---|---:|---:|---:|---:|")
     labels = {
-        "opd_ghz_primary": "OPD Δ [GHz]", "tpd_mhz_gabes": "TPD δ [MHz]",
+        "opd_ghz_primary": "one-photon detuning Δ [GHz]",
+        "tpd_mhz_gabes": "two-photon detuning δ [MHz]",
         "cell_temperature_c_primary": "온도 [°C]", "cell_length_mm": "셀 길이 [mm]",
         "pump_power_mw_primary": "펌프 파워 [mW]",
         "probe_seed_power_uw_primary": "시드 파워 [µW]",
@@ -847,10 +885,11 @@ def write_markdown(res, path):
               f"{isp['cv']:.3f} |")
         a("\n가장 넓게 흩어진 것은 **시드 파워(40배)**와 **펌프 파워(4.4배, "
           "세기로는 5.1배)**다. v6가 1D 스캔으로 얻은 난이도 순서 "
-          "`TPD ≈ OPD ≫ T ≫ probe power`와 10개 독립 연구실의 선택이 같은 "
+          "`two-photon detuning δ ≈ one-photon detuning Δ ≫ T ≫ probe power`와 "
+          "10개 독립 연구실의 선택이 같은 "
           "정성적 순서를 보인다.")
 
-    a("\n## 1. TPD — dressing 관련, 펌프 세기에 따른 공명 이동\n")
+    a("\n## 1. Two-photon detuning δ — dressing 관련, 펌프 세기에 따른 공명 이동\n")
     for label, blk in res["tpd"].items():
         a(f"\n**{label}**  (δ* = 이득 공명 정점, 0.5 MHz 격자)\n")
         a("| P [mW] | Ω/2π [MHz] | Ω/Δ | δ* [MHz] | δ(gate 통과 진단 최저) [MHz] | "
@@ -881,7 +920,8 @@ def write_markdown(res, path):
           f"{blk['delta_on_power_half_mhz']:+.1f} | "
           f"{blk['delta_on_power_10pct_mhz']:+.1f} | "
           f"{blk['delta_on_power_x2_mhz']:+.1f} |")
-    a(f"\n비교 대상: v6 gain-referred 진단표의 TPD +0.5 dB 창은 "
+    a(f"\n비교 대상: v6 gain-referred 진단표의 two-photon detuning δ "
+      f"+0.5 dB 창은 "
       f"**−9.6 / +4.2 MHz** — 모든 변수 중 절대 창이 가장 좁다. "
       f"gold 동작점에서 펌프를 절반으로 줄이면 δ*가 −14.5 MHz 움직여 "
       f"창(−9.6)을 벗어나고, 2배로 올리면 +24 MHz로 창(+4.2)을 6배 넘긴다. "
@@ -1114,12 +1154,12 @@ def write_markdown(res, path):
     a("| 변수 | 체감 | 판정 | 근거 |")
     a("|---|---|---|---|")
     verdict = [
-        ("OPD", "(제시 없음)", "보충",
+        ("one-photon detuning Δ", "(제시 없음)", "보충",
          f"v6 gain-referred 진단: +0.5 dB 창 −32/+155 MHz(δ 고정). δ 재조정하면 "
-         f"±0.1 GHz로 풀린다 — OPD·TPD는 항상 함께 조정할 쌍. DB 범위 "
+         f"±0.1 GHz로 풀린다 — Δ·δ는 항상 함께 조정할 쌍. DB 범위 "
          f"{db['summary']['opd_ghz_primary']['min']:g}–"
          f"{db['summary']['opd_ghz_primary']['max']:g} GHz"),
-        ("TPD", "dressing, 펌프 세기 따라 이동", "맞음",
+        ("two-photon detuning δ", "dressing, 펌프 세기 따라 이동", "맞음",
          "δ* ∝ Ω^1.5 (섭동 Ω²와 강한 dressing Ω의 교차역). 파워 2배 = "
          "허용 창 전체를 벗어남. v6에서 절대 창이 가장 좁은 변수"),
         ("펌프", "연료, 어지간하면 됨 / 겹침 먼저 확인", "맞음",
@@ -1159,9 +1199,10 @@ def write_markdown(res, path):
       "측정으로 확인해야 한다.")
     a("3. **빔 겹침** — 이득이 안 나올 때 펌프 파워보다 먼저 볼 것 "
       f"(지렛대 {abs(pv['dlnG_dln_overlap']/max(abs(pv['dlnG_dlnP']),1e-9)):.0f}배).")
-    a("4. **TPD 재스캔** — 특히 펌프 파워를 건드린 직후. δ* ∝ Ω^1.5 ∝ P^0.75로 "
+    a("4. **Two-photon detuning δ 재스캔** — 특히 펌프 파워를 건드린 직후. "
+      "δ* ∝ Ω^1.5 ∝ P^0.75로 "
       "이동하고, 파워 10% 변화가 허용 창의 절반을 쓴다.")
-    a("5. **OPD** — TPD와 쌍으로 함께 재스캔.")
+    a("5. **One-photon detuning Δ** — δ와 쌍으로 함께 재스캔.")
     a("6. **온도** — 저온측이 절벽이니 명목값보다 1–2 °C 높게.")
     a("7. **시드 파워** — 마지막. 검출기 포화만 피하면 된다.")
 

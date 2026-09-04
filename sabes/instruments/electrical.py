@@ -1,27 +1,8 @@
-"""
-The instruments that need a photodiode: scope and spectrum analyser.
+"""Photodiode, oscilloscope, and spectrum-analyser models.
 
-A photodiode turns a `BeamState` into a `PhotocurrentSignal`; the scope and the
-analyser take that, exactly as on the bench. Neither can be pointed at a bare
-beam, which is the right restriction rather than an inconvenience.
-
-Honesty, restated because this is where it bites
-------------------------------------------------
-The model is steady state. There is no stochastic time evolution and no quantum
-Langevin noise, so:
-
-  * the oscilloscope's SCAN mode is `COMPUTED` -- a swept-laser trace is what a
-    scope genuinely shows here, and the sweep comes from the Bloch solve;
-  * its TIME-SERIES mode is `SYNTHESISED` -- samples drawn from a PSD the model
-    already knows. Statistically correct, and informationally empty;
-  * the spectrum analyser is `SYNTHESISED` -- an electronics-headroom overlay
-    (shot noise, gain-referred algebraic level, amplifier floor), not a source
-    noise spectrum.
-
-The atomic model supplies no frequency-dependent covariance. Its scalar dB
-diagnostic is drawn flat only to test detector headroom and must not be called
-squeezing or experimental-shape reproduction. ``technical_corner_hz`` is an
-explicit illustrative transfer overlay and defaults to zero.
+Scan traces use the steady-state sweep. Time traces sample an input PSD. The
+spectrum-analyser trace combines detector noise and supplied source PSDs; it is
+synthetic because the atomic model has no frequency-dependent covariance.
 """
 from dataclasses import dataclass
 
@@ -149,10 +130,9 @@ class Oscilloscope:
 class SpectrumAnalyzer:
     """Detector-headroom view against RF frequency.
 
-    The three traces are the shot-noise level, ``SNL + gain diagnostic``, and the
-    electronics floor, each rolled off by the detector response.  No microscopic
-    source covariance is present, so this is not a physical squeezing spectrum
-    or a reproduction of the measured RF shape.
+    Shot-noise and electronics traces apply to any photodiode signal. Twin-beam
+    diagnostic traces are added only when ``gain_referred_noise_db`` is supplied.
+    No atomic covariance is present, so this is not a squeezing spectrum.
     """
     head = HEAD_PHOTOCURRENT
     name: str = "Spectrum analyser"
@@ -164,27 +144,25 @@ class SpectrumAnalyzer:
     #: atomic noise. Zero by default.
     technical_corner_hz: float = 0.0
 
-    def analyze(self, signal, gain_referred_noise_db, *, total_power_w=None,
-                pump_leakage_dbm=None, pump_rin_db_per_hz=None) -> Reading:
-        """`total_power_w` overrides the power setting the shot-noise level.
+    def analyze(self, signal, gain_referred_noise_db=None, *, total_power_w=None,
+                pump_leakage_dbm=None, pump_rin_db_per_hz=None,
+                eom_noise=None) -> Reading:
+        """Build a detector spectrum from the supplied powers and PSDs.
 
-        A balanced measurement sees the shot noise of BOTH arms while the head is
-        one diode, so the caller needs to be able to say so. The clearance is
-        recomputed from the same power: quoting a shot-noise level from one
-        number and a clearance from another would be quietly inconsistent.
-
-        `pump_leakage_dbm` is the OBSERVED pump power reaching the detector. It
-        is not derived from beam geometry -- a Gaussian tail claims 1e-9
-        rejection, which is useless and contradicted -- and it enters twice: its
-        own shot noise. Classical intensity noise is added only when an explicit
-        measured or predeclared `pump_rin_db_per_hz` is supplied; no hidden RIN
-        calibration is assumed.
+        ``total_power_w`` sets balanced shot noise. ``pump_leakage_dbm`` is the
+        observed detector power; pump RIN is added only when supplied.
+        ``eom_noise`` is applied at the detector and is flat because its input is
+        a single RIN value rather than a measured spectrum.
         """
         frequency = np.linspace(self.start_hz, self.stop_hz, self.points)
         response = _detector_response(frequency, signal.bandwidth_hz)
 
         power = total_power_w if total_power_w is not None else signal.optical_power_w
         shot_a = shot_noise_a_per_rthz(signal.responsivity_a_per_w, power)
+        if eom_noise is not None:
+            # Same-condition SQL includes the unpaired EOM modes reaching the
+            # probe diode as well as the wanted twin beams.
+            shot_a = np.sqrt(max(eom_noise.sql_psd_a2_per_hz, 0.0))
         bandwidth = self.resolution_bandwidth_hz
         gain = signal.transimpedance_v_per_a
         clearance = (20.0 * np.log10(shot_a / signal.electronic_noise_a_per_rthz)
@@ -213,57 +191,97 @@ class SpectrumAnalyzer:
         electronic = to_dbm(floor_a * np.sqrt(response))
         snl = to_dbm(shot_a * np.sqrt(response))
 
-        diagnostic = np.full_like(frequency, float(gain_referred_noise_db))
-        if self.technical_corner_hz > 0:
-            # Illustrative electronics transfer only; not an atomic-noise model.
-            spoil = 1.0 / (1.0 + (self.technical_corner_hz / frequency) ** 2)
-            diagnostic = diagnostic * spoil
-        diagnostic_level = snl + diagnostic
-
-        # Electronics-headroom overlay: combine the algebraic level and floor as
-        # powers. This does not promote the input diagnostic to a source PSD.
-        observed = 10.0 * np.log10(10 ** (diagnostic_level / 10.0)
-                                   + 10 ** (electronic / 10.0))
-
-        quantities = (
+        quantities = [
             Quantity("Shot-noise level", float(snl[0]), "dBm"),
-            Quantity("Gain-diagnostic level", float(diagnostic_level[0]), "dBm",
-                     "Algebraic overlay only; physical squeezing unavailable."),
             Quantity("Noise floor", float(electronic[0]), "dBm",
-                     "Amplifier noise and leaked-pump noise together."),
-            Quantity("Pump leakage", float(pump_leakage_dbm)
-                     if pump_leakage_dbm is not None else float("nan"), "dBm",
-                     "Observed at the detector, not derived from geometry."),
-            Quantity("Pump RIN", float(pump_rin_db_per_hz)
-                     if pump_rin_db_per_hz is not None else float("nan"),
-                     "dBc/Hz", "Explicit measured/predeclared input; unavailable "
-                     "means its classical-noise contribution is unapplied."),
+                     "Detector electronics plus leaked-pump noise when supplied."),
             Quantity("Clearance", clearance, "dB"),
-            Quantity("Diagnostic after electronics", float(observed[0] - snl[0]),
-                     "dB", "Detector-headroom overlay; not a measured or modeled "
-                     "atomic noise spectrum."),
             Quantity("Resolution bandwidth", bandwidth / 1e3, "kHz"),
-        )
+        ]
+        if pump_leakage_dbm is not None:
+            quantities.extend((
+                Quantity("Pump leakage", float(pump_leakage_dbm), "dBm",
+                         "Observed at the detector, not derived from geometry."),
+                Quantity("Pump RIN", float(pump_rin_db_per_hz)
+                         if pump_rin_db_per_hz is not None else float("nan"),
+                         "dBc/Hz", "Applied only when supplied."),
+            ))
         warnings = []
-        deficit = clearance - abs(float(gain_referred_noise_db))
-        if deficit < 6.0:
-            warnings.append(
-                f"the diagnostic overlay sits {deficit:.1f} dB above the noise "
-                f"floor; below about 6 dB electronics dominate this headroom view")
+        series = {"shot-noise level": snl, "noise floor": electronic}
+        if gain_referred_noise_db is not None:
+            diagnostic = np.full_like(frequency,
+                                      float(gain_referred_noise_db))
+            if self.technical_corner_hz > 0:
+                spoil = 1.0 / (1.0
+                               + (self.technical_corner_hz / frequency) ** 2)
+                diagnostic *= spoil
+            diagnostic_level = snl + diagnostic
+            shot_only_offset = diagnostic.copy()
+            rin_loaded_offset = diagnostic.copy()
+            if eom_noise is not None and eom_noise.sql_psd_a2_per_hz > 0.0:
+                baseline = 10.0 ** (diagnostic / 10.0)
+                shot_only = (
+                    baseline * eom_noise.twin_shot_psd_a2_per_hz
+                    + eom_noise.unwanted_shot_psd_a2_per_hz
+                ) / eom_noise.sql_psd_a2_per_hz
+                rin_loaded = (shot_only
+                              + eom_noise.classical_rin_psd_a2_per_hz
+                              / eom_noise.sql_psd_a2_per_hz)
+                shot_only_offset = 10.0 * np.log10(
+                    np.maximum(shot_only, 1e-300))
+                rin_loaded_offset = 10.0 * np.log10(
+                    np.maximum(rin_loaded, 1e-300))
+            shot_only_level = snl + shot_only_offset
+            rin_loaded_level = snl + rin_loaded_offset
+            observed = 10.0 * np.log10(
+                10 ** (rin_loaded_level / 10.0)
+                + 10 ** (electronic / 10.0))
 
+            quantities.insert(1, Quantity(
+                "Gain-diagnostic level", float(diagnostic_level[0]), "dBm",
+                "Algebraic overlay only; physical squeezing unavailable."))
+            quantities.extend((
+                Quantity("Diagnostic after electronics",
+                         float(observed[0] - snl[0]), "dB",
+                         "Detector-headroom overlay; not an atomic noise "
+                         "spectrum."),
+            ))
+            series.update({"gain diagnostic": diagnostic_level,
+                           "diagnostic + electronics": observed})
+
+            if eom_noise is not None:
+                quantities.extend((
+                    Quantity("EOM unwanted-mode RIN", eom_noise.rin_db_per_hz,
+                             "dBc/Hz"),
+                    Quantity("EOM fractional intensity RMS",
+                             100.0 * eom_noise.fractional_intensity_rms, "%"),
+                    Quantity("Unwanted EOM power",
+                             eom_noise.unwanted_detector_power_w * 1e9, "nW"),
+                    Quantity("Classical EOM RIN excess",
+                             eom_noise.classical_rin_excess_sql, "×SQL"),
+                    Quantity("RIN-loaded diagnostic",
+                             float(rin_loaded_offset[0]), "dB"),
+                ))
+                series.update({
+                    "EOM shot-noise-only": shot_only_level,
+                    "EOM RIN-loaded": rin_loaded_level,
+                })
+
+            deficit = clearance - abs(float(rin_loaded_offset[0]))
+            if deficit < 6.0:
+                warnings.append(
+                    f"the diagnostic overlay sits {deficit:.1f} dB above the "
+                    "noise floor; electronics dominate below about 6 dB")
         trace = Trace(
             x=frequency / 1e6,
-            series={"shot-noise level": snl,
-                    "gain diagnostic": diagnostic_level,
-                    "diagnostic + electronics": observed,
-                    "noise floor": electronic},
+            series=series,
             x_label="RF frequency", x_unit="MHz",
             y_label="Noise power", y_unit="dBm",
         )
         return Reading(
-            self.name, quantities, trace, tuple(warnings), SYNTHESISED,
-            note="MEAN_FIELD_DIAGNOSTIC / PHYSICAL_SQUEEZING_UNAVAILABLE. "
-                 "Electronics-headroom overlay assembled from shot noise, the "
-                 "scalar gain diagnostic, amplifier noise, and observed pump "
-                 "leakage shot noise. Pump RIN is applied only when explicitly "
-                 "supplied; no atomic covariance or measured RF shape is supplied.")
+            self.name, tuple(quantities), trace, tuple(warnings), SYNTHESISED,
+            note=("MEAN_FIELD_DIAGNOSTIC / PHYSICAL_SQUEEZING_UNAVAILABLE. "
+                  "The RF shape is not measured or modeled."
+                  if gain_referred_noise_db is not None else
+                  "Computed detector noise levels; no twin-beam gain trace "
+                  "applies at this beam."))

@@ -637,11 +637,11 @@ def _cached_compute(scheme_name, recompute_items, cache_version):
 
 
 @st.cache_data(show_spinner=False, max_entries=16)
-def _cached_extra(scheme_name, view_key, recompute_items, cache_version):
+def _cached_extra(scheme_name, view_key, param_items, cache_version):
     scheme = schemes.get(scheme_name)
     view = next(v for v in scheme.extra_views() if v.key == view_key)
     with blas_single_thread():
-        return view.compute(dict(recompute_items))
+        return view.compute(dict(param_items))
 
 
 @st.cache_data(show_spinner=False, max_entries=64)
@@ -1655,8 +1655,12 @@ for view_def in scheme.extra_views():
     with st.expander(view_def.key):
         st.caption(view_def.description)
         if st.button("Run", key=f"run__{scheme.name}__{view_def.key}"):
+            extra_keys = set(scheme.recompute_keys()) | set(view_def.param_keys)
+            extra_items = tuple(sorted(
+                (key, params[key]) for key in extra_keys if key in params))
             with st.spinner("Running…"):
-                data = _cached_extra(scheme.name, view_def.key, recompute_items, cache_version)
+                data = _cached_extra(
+                    scheme.name, view_def.key, extra_items, cache_version)
             extra_fig = view_def.render(data)
             st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
             _render_fig(extra_fig)

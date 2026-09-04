@@ -51,10 +51,9 @@ class Node:
                 that is not detail-modelled is drawn with "(lumped)" after its
                 label, so the picture never implies more than the model has.
 
-    Every element downstream of the amplifier carries `transmission_key`, the
-    calibration coefficient holding its per-pass transmission. That is what makes
-    alignment loss a variable you can set per optic rather than one lumped number
-    per arm, and it is why a lumped optic is still worth clicking.
+    Loss-only elements carry `transmission_key`, the calibration coefficient for
+    per-pass transmission. Devices such as the EOM and etalons use their own
+    insertion-loss or peak-transmission model instead.
     """
     id: str
     label: str
@@ -141,7 +140,7 @@ class Layout:
         return tuple(n for n in self.nodes if n.clickable)
 
     def transmission_nodes(self):
-        """Everything downstream of the amplifier, in declaration order."""
+        """Nodes with an editable per-pass transmission, in declaration order."""
         return tuple(n for n in self.nodes if n.transmission_key)
 
     def transmission_along(self, *node_ids, calibration=None, default=1.0):

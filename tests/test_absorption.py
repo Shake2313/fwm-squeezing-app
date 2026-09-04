@@ -107,6 +107,31 @@ def test_hyperfine_self_broadening_monotone():
     assert constants.GAMMA < g_cold < g_hot
 
 
+def test_line_strength_is_live_for_od_and_lambda():
+    od = ODScheme()
+    assert "line_strength" not in od.recompute_keys()
+    od_params = _params(
+        od, model="85Rb D1 hyperfine", temp_c=50, cell_mm=12.5)
+    od_raw = od.compute(od_params)
+    od_full = od.headless_observables(od_raw, od_params)
+    od_half = od.headless_observables(
+        od_raw, dict(od_params, line_strength=0.5))
+    full_peak = float(od_full["metrics"][0]["value"])
+    half_peak = float(od_half["metrics"][0]["value"])
+    assert np.isclose(half_peak / full_peak, 0.5, atol=0.01)
+
+    eit = schemes.get("eit")
+    assert "line_strength" not in eit.recompute_keys()
+    eit_params = _params(eit, temp_c=50, cell_mm=10, doppler="off")
+    eit_raw = eit.compute(eit_params)
+    eit_full = eit.headless_observables(eit_raw, eit_params)
+    eit_half = eit.headless_observables(
+        eit_raw, dict(eit_params, line_strength=0.5))
+    full_transmission = float(eit_full["metrics"][0]["value"])
+    half_transmission = float(eit_half["metrics"][0]["value"])
+    assert half_transmission > full_transmission
+
+
 def test_at_splitting_equals_coupling_rabi():
     at = schemes.get("at")
     for Oc in (6.0, 8.0, 12.0):

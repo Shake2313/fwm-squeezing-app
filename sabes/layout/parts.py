@@ -132,16 +132,16 @@ _PART1_NODES = (
            modelled=False,
            transmission_key="t_f220_eom_in", lumped=True),
     _optic("eom", "fiber EOM", 306, 190, w=92, h=22, modelled=True,
-           params=("eom_offset_mhz", "eom_rf_dbm"),
-           note="EOSPACE LiNbO3 phase modulator. Its drive frequency IS the "
-                "two-photon detuning, exactly and with no calibration factor.",
-           transmission_key="t_eom"),
+           params=("eom_offset_mhz", "eom_rf_dbm",
+                   "eom_unwanted_rin_db_per_hz"),
+           note="EOSPACE LiNbO3 phase modulator. The RF offset from the ground-"
+                "state splitting sets the two-photon detuning. Unwanted-mode "
+                "RIN is a detector-level input."),
     _optic("f220_eom_out", "F220", 400, 190, kind="fiber", w=26, h=34,
            modelled=False,
            transmission_key="t_f220_eom_out", lumped=True),
     _optic("etalon_1", "Etalon 1", 470, 190, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_1",),
-           transmission_key="t_etalon_1"),
+           params=("etalon_detune_ghz_1",)),
     _mirror("m_et_1", 560, 190, angle=45,
            transmission_key="t_m_et_1", lumped=True),
     _optic("hwp_etalon", "HWP", 560, 244, w=8, h=24, modelled=False,
@@ -150,11 +150,9 @@ _PART1_NODES = (
     _mirror("m_et_2", 560, 292, angle=-45,
            transmission_key="t_m_et_2", lumped=True),
     _optic("etalon_2", "Etalon 2", 484, 292, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_2",),
-           transmission_key="t_etalon_2"),
+           params=("etalon_detune_ghz_2",)),
     _optic("etalon_3", "Etalon 3", 402, 292, w=48, h=30, modelled=True,
-           params=("etalon_detune_ghz_3",),
-           transmission_key="t_etalon_3"),
+           params=("etalon_detune_ghz_3",)),
     _optic("gt_seed", "GT", 330, 292, w=18, h=28, modelled=True,
            params=("seed_gtp_deg",),
            note="Glan-Taylor after the filter chain. Part 2 has further GTPs on "
@@ -396,10 +394,8 @@ ROUTE_TO_DMIRROR = ("cell", "pbs_out", "dm_probe")
 ROUTE_TO_LENS = ("cell", "pbs_out", "dm_probe", "iris_probe", "lens_probe")
 
 # --- transmission routes -----------------------------------------------------
-# The chain used to carry one lumped loss coefficient per arm. These routes
-# replace them with the product of the optics actually on the path, so "where
-# did the power go" has an answer per element. Routes span both layouts, which is
-# why they are looked up through `transmission_of` rather than a Layout method.
+# Each route lists the optics included in its transmission product. Routes may
+# span both layout drawings.
 ROUTE_TA_TO_SPLIT = ("m_mopa_out", "oi_mopa", "hwp_split", "m_split_1",
                      "m_split_2")
 ROUTE_PUMP_TO_FIBER = ("pbs_split", "f230_pump")
@@ -411,11 +407,16 @@ ROUTE_SEED_FILTERS = ("f220_eom_out", "m_et_1", "hwp_etalon", "m_et_2",
                       "gt_seed", "m_seed_out", "m_seed_down", "f220_seed")
 ROUTE_SEED_DELIVERY = ("col_seed", "qwp_seed", "hwp_seed", "seed_l1", "seed_l2",
                        "m_seed_a", "gtp_seed", "pbs_in", "cell")
-ROUTE_POST_CELL = ("pbs_out", "dm_probe", "iris_probe", "lens_probe", "bpd")
+ROUTE_POST_CELL_PROBE = ("pbs_out", "dm_probe", "iris_probe", "lens_probe",
+                         "bpd")
+ROUTE_POST_CELL_CONJUGATE = ("pbs_out", "dm_conj", "iris_conj", "lens_conj",
+                             "bpd")
+# Compatibility for callers that used the original single, probe-arm route.
+ROUTE_POST_CELL = ROUTE_POST_CELL_PROBE
 
 
 def find_node(node_id):
-    """A node from whichever layout holds it. Routes cross the two drawings."""
+    """Return a node from either layout drawing."""
     for layout in LAYOUTS:
         try:
             return layout.node(node_id)
@@ -425,11 +426,7 @@ def find_node(node_id):
 
 
 def transmission_of(route, calibration):
-    """Product of the per-optic transmissions along a route.
-
-    A missing coefficient is an error rather than a silent 1.0: an optic that
-    nothing knows the throughput of should be visible, not free.
-    """
+    """Return the product of calibrated transmissions along a route."""
     total = 1.0
     for node_id in route:
         key = find_node(node_id).transmission_key

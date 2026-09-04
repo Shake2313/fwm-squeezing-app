@@ -5,7 +5,7 @@
  (4) gap-evolution identity decomposition,
  (5) noise-budget decomposition at the reference gains.
 
-Run ref_solver.py first (writes /tmp/ref_optimum.npz).
+The main routine refreshes the reference NPZ before reading it.
 Beat-corrected optimum (Delta=-1.5 GHz, T=110 C), results (2026-07-06):
   exact (full Floquet) @ delta*=-280 MHz : Gs=22.59, gap=0.623, xi=-8.10 / -15.62 dB
   internal simulation                    : Gs=22.6,  gap=0.623, xi=-8.10 / -15.62 dB
@@ -15,13 +15,20 @@ Beat-corrected optimum (Delta=-1.5 GHz, T=110 C), results (2026-07-06):
 import json
 import numpy as np
 from scipy.special import wofz
-import theory_final as TH
-from ref_solver import (rabi, density, voigt_alpha, expm2, run as ref_run,
-                        KB, MASS, K_VEC, OMEGA_D1, C, EPS0, HBAR, DIP,
-                        GAMMA_GG0, XSEC, BETA_SELF, NU_HF, GPOP, NSUB, GAMMA,
-                        NPZ_PATH)
-
-out = {}
+if __package__:
+    from . import theory_final as TH
+    from .ref_solver import (
+        rabi, density, voigt_alpha, expm2, run as ref_run,
+        KB, MASS, K_VEC, OMEGA_D1, C, EPS0, HBAR, DIP,
+        GAMMA_GG0, XSEC, BETA_SELF, NU_HF, GPOP, NSUB, GAMMA, NPZ_PATH,
+    )
+else:  # Direct script execution.
+    import theory_final as TH
+    from ref_solver import (
+        rabi, density, voigt_alpha, expm2, run as ref_run,
+        KB, MASS, K_VEC, OMEGA_D1, C, EPS0, HBAR, DIP,
+        GAMMA_GG0, XSEC, BETA_SELF, NU_HF, GPOP, NSUB, GAMMA, NPZ_PATH,
+    )
 
 def run_pipeline(chi_fn, D_GHz=-1.5, T=383.15, P_pump=0.6, P_probe=8e-6,
                  ls=0.74, loss=0.055, qe=0.92, L=12.5e-3, wp=530e-6, ws=330e-6,
@@ -103,80 +110,110 @@ def run_pipeline(chi_fn, D_GHz=-1.5, T=383.15, P_pump=0.6, P_probe=8e-6,
                 pump_sc=pump_sc, M=M, dk=dk, segp=segp, spat=spat, L=L,
                 avg=avg, coupling=coupling, ks=ks, kc=kc, ns=ns, nc=nc)
 
-r = run_pipeline(TH.response)
-i0 = 24  # delta = -280 MHz on the +-0.7 GHz / 81-point grid
-gap = r["Gs"]-r["Gc"]
-valid = np.isfinite(r["Sf"])&(gap>=0.5)&(gap<=1.5)
-Ss = np.where(valid, r["Sf"], np.inf)
-iam = int(np.nanargmin(Ss)) if valid.any() else int(np.nanargmin(r["Sf"]))
-out["theory_at_297"] = dict(Gs=float(r["Gs"][i0]), Gc=float(r["Gc"][i0]),
-    gap=float(gap[i0]), xi_f=float(r["Sf"][i0]), xi_i=float(r["Si"][i0]))
-out["theory_argmin"] = dict(delta=float((r["probe"][iam]-r["center"])*1e3),
-    Gs=float(r["Gs"][iam]), gap=float(gap[iam]),
-    xi_f=float(r["Sf"][iam]), xi_i=float(r["Si"][iam]))
-out["noise_pieces"] = dict(seg_od=r["seg_od"], od_c=float(r["od_c"][i0]),
-    od_p=float(r["od_p"][i0]), od_pump=r["od_pump"], pump_sc=r["pump_sc"])
+def main():
+    out = {}
+    r = run_pipeline(TH.response)
+    i0 = 24  # delta = -280 MHz on the +-0.7 GHz / 81-point grid
+    gap = r["Gs"] - r["Gc"]
+    valid = np.isfinite(r["Sf"]) & (gap >= 0.5) & (gap <= 1.5)
+    scores = np.where(valid, r["Sf"], np.inf)
+    iam = int(np.nanargmin(scores)) if valid.any() else int(np.nanargmin(r["Sf"]))
+    out["theory_at_297"] = dict(
+        Gs=float(r["Gs"][i0]), Gc=float(r["Gc"][i0]), gap=float(gap[i0]),
+        xi_f=float(r["Sf"][i0]), xi_i=float(r["Si"][i0]))
+    out["theory_argmin"] = dict(
+        delta=float((r["probe"][iam] - r["center"]) * 1e3),
+        Gs=float(r["Gs"][iam]), gap=float(gap[iam]),
+        xi_f=float(r["Sf"][iam]), xi_i=float(r["Si"][iam]))
+    out["noise_pieces"] = dict(
+        seg_od=r["seg_od"], od_c=float(r["od_c"][i0]),
+        od_p=float(r["od_p"][i0]), od_pump=r["od_pump"], pump_sc=r["pump_sc"])
 
-ref = ref_run(save=NPZ_PATH)
-out["ref"] = {k: float(ref[k]) for k in
-              ("Gs","Gc","gap","xi_finite","xi_ideal","delta_MHz","seg_od",
-               "od_conj","od_pump","pump_scatter")}
+    ref = ref_run(save=NPZ_PATH)
+    out["ref"] = {k: float(ref[k]) for k in
+                  ("Gs", "Gc", "gap", "xi_finite", "xi_ideal", "delta_MHz",
+                   "seg_od", "od_conj", "od_pump", "pump_scatter")}
 
-Gs0, Gc0 = ref["Gs"], ref["Gc"]
-odc, odp_lin, sod = ref["od_conj"], ref["od_probe"], ref["seg_od"]
-ps = ref["pump_scatter"]
-def budget(eta_):
-    es=eta_*np.exp(-(sod+odp_lin)); ec=eta_*np.exp(-odc)
-    ms=es*Gs0; mc=ec*Gc0
-    cov0=min(0.5*((Gs0+Gc0)-(Gs0-Gc0)**2), np.sqrt(Gs0*Gc0))
-    cov=es*ec*cov0
-    w=ms/mc
-    var=ms+w*w*mc-2*w*cov
-    S=var/(ms+w*w*mc)
-    return dict(S_bal=float(S), S_tot=float(S+ps), xi=float(10*np.log10(S+ps)))
-out["budget_finite"] = budget(0.92*(1-0.055))
-out["budget_ideal"] = budget(1.0)
-out["budget_ideal_noscatter_xi"] = float(10*np.log10(out["budget_ideal"]["S_bal"]))
+    Gs0, Gc0 = ref["Gs"], ref["Gc"]
+    odc, odp_lin, sod = ref["od_conj"], ref["od_probe"], ref["seg_od"]
+    pump_scatter = ref["pump_scatter"]
 
-# Faddeeva closed-form demo (chi_cc direct term, constant populations)
-T=383.15; N=density(T)
-vbar=np.sqrt(8*KB*T/(np.pi*MASS/2))
-ggg=GAMMA_GG0+N*XSEC*vbar; gopt=0.5*BETA_SELF*N; Go=GAMMA/2+gopt
-OpA=rabi(0.6,530e-6)
-sig_v=np.sqrt(KB*T/MASS); sig_w=K_VEC*sig_v
-branch=-1
-Delta=2*np.pi*(-1.5e9); delta=2*np.pi*(-280e6); Ob=2*np.pi*NU_HF+branch*delta
-vlim=np.ceil(3*sig_v/5.0)*5.0
-v=np.arange(-vlim,vlim+2.5,5.0)
-wts=np.exp(-v**2/(2*sig_v**2)); wts/=wts.sum()
-quad = 0.0; fadd = 0.0
-car0 = TH.carrier(OpA, delta, Delta, Go, ggg)
-for e in (2,3):
-    A1=np.sqrt(3*TH.CF2[(2,e)])
-    Ehf = TH.EHF[e]
-    w1e = car0["w1"][e]
-    x0 = Delta + Ehf + Ob
-    quad += (A1**2*w1e/(2*((x0-K_VEC*v)+1j*Go)))@wts
-    z=(x0+1j*Go)/(sig_w*np.sqrt(2))
-    fadd += A1**2*w1e/2*(1j*np.sqrt(np.pi/2)/sig_w)*wofz(z)*(-1)
-out["faddeeva_demo"] = dict(quad=[float(quad.real), float(quad.imag)],
-                            faddeeva=[float(fadd.real), float(fadd.imag)])
+    def budget(eta):
+        eta_s = eta * np.exp(-(sod + odp_lin))
+        eta_c = eta * np.exp(-odc)
+        mean_s, mean_c = eta_s * Gs0, eta_c * Gc0
+        cov0 = min(0.5 * ((Gs0 + Gc0) - (Gs0 - Gc0) ** 2), np.sqrt(Gs0 * Gc0))
+        cov = eta_s * eta_c * cov0
+        weight = mean_s / mean_c
+        variance = mean_s + weight * weight * mean_c - 2 * weight * cov
+        balanced = variance / (mean_s + weight * weight * mean_c)
+        return dict(
+            S_bal=float(balanced), S_tot=float(balanced + pump_scatter),
+            xi=float(10 * np.log10(balanced + pump_scatter)))
 
-# gap identity decomposition at the reference chi, delta*
-d = np.load(NPZ_PATH)
-avg_ref = {k: d[f"avg_{k}"][i0] for k in ("ss","cs","sc","cc")}
-N=density(383.15); cls=0.74*GPOP[3]/NSUB
-coupling=-2.0*N*cls*DIP**2/(EPS0*HBAR)
-probe0 = float(d["probe"][i0])
-pump_off=2*np.pi*(-1.5e9); seed_off=2*np.pi*probe0*1e9; conj_off=2*pump_off-seed_off
-ks=(OMEGA_D1+seed_off)/C; kc=(OMEGA_D1+conj_off)/C
-dk_v = float(d["dk"][i0])
-a=0.5j*ks*coupling*avg_ref["ss"]+0.5j*dk_v
-dd=-0.5j*kc*coupling*np.conj(avg_ref["cc"])-0.5j*dk_v
-b=0.5j*ks*coupling*avg_ref["sc"]; cc_=-0.5j*kc*coupling*np.conj(avg_ref["cs"])
-out["gap_identity"] = dict(Re_a=float(np.real(a)), Re_d=float(np.real(dd)),
-    abs_b=float(abs(b)), abs_c=float(abs(cc_)),
-    b_minus_cstar=[float(np.real(b-np.conj(cc_))), float(np.imag(b-np.conj(cc_)))],
-    dk=dk_v, L=12.5e-3)
+    out["budget_finite"] = budget(0.92 * (1 - 0.055))
+    out["budget_ideal"] = budget(1.0)
+    out["budget_ideal_noscatter_xi"] = float(
+        10 * np.log10(out["budget_ideal"]["S_bal"]))
 
-print(json.dumps(out, indent=1))
+    T = 383.15
+    N = density(T)
+    vbar = np.sqrt(8 * KB * T / (np.pi * MASS / 2))
+    ggg = GAMMA_GG0 + N * XSEC * vbar
+    gopt = 0.5 * BETA_SELF * N
+    Go = GAMMA / 2 + gopt
+    OpA = rabi(0.6, 530e-6)
+    sig_v = np.sqrt(KB * T / MASS)
+    sig_w = K_VEC * sig_v
+    branch = -1
+    Delta = 2 * np.pi * (-1.5e9)
+    delta = 2 * np.pi * (-280e6)
+    beat = 2 * np.pi * NU_HF + branch * delta
+    vlim = np.ceil(3 * sig_v / 5.0) * 5.0
+    velocity = np.arange(-vlim, vlim + 2.5, 5.0)
+    weights = np.exp(-velocity ** 2 / (2 * sig_v ** 2))
+    weights /= weights.sum()
+    quad = 0.0
+    fadd = 0.0
+    carrier = TH.carrier(OpA, delta, Delta, Go, ggg)
+    for excited in (2, 3):
+        amplitude = np.sqrt(3 * TH.CF2[(2, excited)])
+        x0 = Delta + TH.EHF[excited] + beat
+        population = carrier["w1"][excited]
+        quad += (amplitude ** 2 * population
+                 / (2 * ((x0 - K_VEC * velocity) + 1j * Go))) @ weights
+        z = (x0 + 1j * Go) / (sig_w * np.sqrt(2))
+        fadd -= (amplitude ** 2 * population / 2
+                 * (1j * np.sqrt(np.pi / 2) / sig_w) * wofz(z))
+    out["faddeeva_demo"] = dict(
+        quad=[float(quad.real), float(quad.imag)],
+        faddeeva=[float(fadd.real), float(fadd.imag)])
+
+    with np.load(NPZ_PATH) as data:
+        avg_ref = {k: data[f"avg_{k}"][i0] for k in ("ss", "cs", "sc", "cc")}
+        probe0 = float(data["probe"][i0])
+        dk_v = float(data["dk"][i0])
+    line_strength = 0.74 * GPOP[3] / NSUB
+    coupling = -2.0 * N * line_strength * DIP ** 2 / (EPS0 * HBAR)
+    pump_off = 2 * np.pi * (-1.5e9)
+    seed_off = 2 * np.pi * probe0 * 1e9
+    conj_off = 2 * pump_off - seed_off
+    ks = (OMEGA_D1 + seed_off) / C
+    kc = (OMEGA_D1 + conj_off) / C
+    a = 0.5j * ks * coupling * avg_ref["ss"] + 0.5j * dk_v
+    d = -0.5j * kc * coupling * np.conj(avg_ref["cc"]) - 0.5j * dk_v
+    b = 0.5j * ks * coupling * avg_ref["sc"]
+    c = -0.5j * kc * coupling * np.conj(avg_ref["cs"])
+    out["gap_identity"] = dict(
+        Re_a=float(np.real(a)), Re_d=float(np.real(d)), abs_b=float(abs(b)),
+        abs_c=float(abs(c)),
+        b_minus_cstar=[float(np.real(b - np.conj(c))),
+                       float(np.imag(b - np.conj(c)))],
+        dk=dk_v, L=12.5e-3)
+
+    print(json.dumps(out, indent=1))
+    return out
+
+
+if __name__ == "__main__":
+    main()

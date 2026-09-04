@@ -20,6 +20,7 @@ from gabes.rydberg_electrometry import (  # noqa: E402
     electrometry_sensitivity,
     photodiode_responsivity_a_per_w,
     weak_signal_response,
+    weak_signal_response_from_liouvillian,
 )
 
 
@@ -62,6 +63,34 @@ def test_weak_signal_sidebands_satisfy_linearized_equations_and_hermiticity():
         response.rho_plus_per_angular_rabi,
         response.rho_minus_per_angular_rabi.conj().T,
         rtol=1e-10, atol=1e-11)
+
+
+def test_weak_signal_response_solves_one_sideband(monkeypatch):
+    atom, h = _driven_two_level()
+    liouvillian = core.build_liouvillian(h, atom)
+    steady_state = core.steady_state_from_liouvillian(
+        liouvillian, atom.n_levels)
+    original_solve = np.linalg.solve
+    calls = []
+
+    def counted_solve(*args, **kwargs):
+        calls.append(1)
+        return original_solve(*args, **kwargs)
+
+    monkeypatch.setattr(np.linalg, "solve", counted_solve)
+    response = weak_signal_response_from_liouvillian(
+        liouvillian,
+        atom.n_levels,
+        0.37,
+        signal_transition=(0, 1),
+        steady_state=steady_state,
+    )
+
+    assert len(calls) == 1
+    np.testing.assert_allclose(
+        response.rho_plus_per_angular_rabi,
+        response.rho_minus_per_angular_rabi.conj().T,
+    )
 
 
 def test_low_if_phasor_matches_static_rabi_derivative_and_high_if_rolls_off():

@@ -40,17 +40,18 @@ DEFAULT_LINE_COLORS = {
 
 
 def apply_gabes_plot_style(target):
-    """Apply the quiet scientific-console style to a Figure or Axes."""
+    """Apply the GABES Matplotlib style to a Figure or Axes."""
+    from matplotlib.axes import Axes          # keep the import path lazy
+    from matplotlib.figure import Figure
     from matplotlib.text import Text          # keep the import path lazy
 
-    fig = getattr(target, "figure", None)
-    axes = [target] if fig is not None and not hasattr(target, "axes") else None
-
-    if hasattr(target, "axes"):
+    if isinstance(target, Figure):
         fig = target
         axes = list(target.axes)
-
-    if fig is None or axes is None:
+    elif isinstance(target, Axes):
+        fig = target.figure
+        axes = [target]
+    else:
         return target
 
     fig.patch.set_facecolor(PALETTE["surface"])

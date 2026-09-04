@@ -7,9 +7,9 @@ dephasing channels, and which diagonal entries shift with velocity (Doppler).
 It precomputes the Lindblad super-operator and the velocity-shift super-operator
 once at construction.
 
-Today only the 85Rb D1 double-Λ 4-level model is registered (exactly the level
-structure the original fwm_obe.py hard-coded). Scalar 3-level schemes and Zeeman
-manifolds get added in later phases.
+The registry contains the default 85Rb D1 double-Λ model. Factory functions also
+construct two-level, three-level Λ, and saturated-absorption models; the SAS
+species builder supplies isotope-specific hyperfine manifolds.
 """
 from dataclasses import dataclass, field
 

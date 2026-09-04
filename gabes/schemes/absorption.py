@@ -141,7 +141,7 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     return out
 
 
-def _hyperfine_alpha(scan, params):
+def _hyperfine_alpha(scan, params, line_strength=None):
     """
     Realistic 85Rb D1 absorption coefficient α(scan) [1/m]: an incoherent sum of
     the four hyperfine transitions (Fg∈{2,3}→Fe∈{2,3}), each a Doppler-broadened
@@ -159,7 +159,8 @@ def _hyperfine_alpha(scan, params):
     """
     T = params["temp_c"] + 273.15
     doppler_on = params.get("doppler", "on") == "on"
-    ls = params.get("line_strength", 1.0)
+    ls = (params.get("line_strength", 1.0)
+          if line_strength is None else float(line_strength))
 
     N = hyperfine.number_density(T)
     buffer_gamma = _ne_buffer_gamma(params)
@@ -232,7 +233,8 @@ class ODScheme(Scheme):
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", help="Effective |d|² calibration knob. Single: "
                       "=1.0 reproduces the textbook 3λ²/2π cross-section. Hyperfine: "
-                      "=1.0 reproduces the validated AutoOD absolute scale."),
+                      "=1.0 reproduces the validated AutoOD absolute scale.",
+                      recompute=False),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", "on",
                       choices=("on", "off"), advanced=True),
             ParamSpec("ne_pressure_torr", "Ne buffer pressure", "Cell & beams", 0.0,
@@ -266,14 +268,15 @@ class ODScheme(Scheme):
         n = int(np.clip((hi - lo) / (width / 8.0), 1201, 8000))
         scan = np.linspace(lo, hi, n)
 
-        alpha, components, info = _hyperfine_alpha(scan, params)
+        alpha, components, info = _hyperfine_alpha(
+            scan, params, line_strength=1.0)
         return dict(model="hyperfine", scan=scan, alpha=alpha,
                     components={f"{Fg}-{Fe}": v for (Fg, Fe), v in components.items()},
                     L=params.get("cell_mm", 10.0) * 1e-3, T=T, **info)
 
     def _observables_hyperfine(self, raw, params, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                      # GHz
-        alpha = raw["alpha"]
+        alpha = raw["alpha"] * float(params.get("line_strength", 1.0))
         L = params["cell_mm"] * 1e-3            # navigate-only knob: read live
         OD = observables.optical_density(alpha, L)
         T_trans = observables.transmission(alpha, L)
@@ -350,14 +353,15 @@ class ODScheme(Scheme):
         chi_bar = _solve_chi_avg(atom, build_H0, (1, 0), scan, params, h_dep=False)
         N = atoms.rb85_density(T)
         return dict(model="single", scan=scan, chi_bar=chi_bar, N=N, T=T,
-                    L=params.get("cell_mm", 10.0) * 1e-3, ls=params["line_strength"],
+                    L=params.get("cell_mm", 10.0) * 1e-3, ls=1.0,
                     sigma_v=sigma_v, dopp_fwhm=dopp_fwhm,
                     gamma_eff=gamma_eff, buffer_gamma=buffer_gamma)
 
     def _observables_single(self, raw, params, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, _ = observables.absorption_coefficient(
-            raw["chi_bar"], K_VEC, raw["N"], line_strength=raw["ls"])
+            raw["chi_bar"], K_VEC, raw["N"],
+            line_strength=float(params.get("line_strength", 1.0)))
         L = params["cell_mm"] * 1e-3           # navigate-only knob: read live
         OD = observables.optical_density(alpha, L)
         T_trans = observables.transmission(alpha, L)
@@ -555,7 +559,7 @@ class LambdaScheme(Scheme):
             ParamSpec("cell_mm", "Cell length", "Cell & beams", d["cell"], 0.5, 200.0, 0.5, "mm",
                       recompute=False),
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
-                      0.01, 2.0, 0.01, "", advanced=True),
+                      0.01, 2.0, 0.01, "", advanced=True, recompute=False),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", d["dopp"],
                       choices=("on", "off"), advanced=True),
         ]
@@ -662,7 +666,7 @@ class LambdaScheme(Scheme):
             atom, build_H0, (2, 0), scan, params, h_dep=True,
             probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"])
         return dict(scan=scan, chi_bar=chi_bar, N=medium["N"], T=medium["T"], Dc=Dc,
-                    L=params.get("cell_mm", 10.0) * 1e-3, ls=params.get("line_strength", 1.0),
+                    L=params.get("cell_mm", 10.0) * 1e-3, ls=1.0,
                     gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],
                     omega0=medium["omega0"], dipole=medium["dipole"],
                     medium_label=medium["label"], line=medium["line"],
@@ -679,7 +683,8 @@ class LambdaScheme(Scheme):
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
         alpha, xphys = observables.absorption_coefficient(
             raw["chi_bar"], raw.get("k_vec", K_VEC), raw["N"],
-            dipole=raw.get("dipole"), line_strength=raw["ls"])
+            dipole=raw.get("dipole"),
+            line_strength=float(params.get("line_strength", 1.0)))
         L = params["cell_mm"] * 1e-3           # navigate-only knob: read live
         T_trans = observables.transmission(alpha, L)
         center = raw["Dc"] / (2 * np.pi) / 1e6                   # two-photon resonance, MHz

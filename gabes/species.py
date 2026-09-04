@@ -1,9 +1,8 @@
 """
 Alkali species / D-line data and a saturated-absorption manifold builder.
 
-This is the atomic-data layer the strengthened SAS scheme stands on. Everything
-here is *data + pure helpers*; the OBE solve lives in `core`, the experiment in
-`schemes/sas.py`.
+This module contains atomic data and pure helpers. The OBE solve is in `core`;
+the SAS model is in `schemes/sas.py`.
 
 What it provides
   * Per-isotope hyperfine constants (magnetic-dipole A, electric-quadrupole B)

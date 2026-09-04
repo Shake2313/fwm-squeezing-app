@@ -118,11 +118,16 @@ def test_loss_pct_is_the_per_optic_product_times_the_measured_residual():
     assert result.params["loss_pct"] == pytest.approx(5.5, abs=0.01)
 
     calibration = default_calibration()
-    product = layout_parts.transmission_of(layout_parts.ROUTE_POST_CELL,
-                                           calibration)
     residual = calibration.value("loss_post_cell_residual")
+    probe = layout_parts.transmission_of(
+        layout_parts.ROUTE_POST_CELL_PROBE, calibration) * residual
+    conjugate = layout_parts.transmission_of(
+        layout_parts.ROUTE_POST_CELL_CONJUGATE, calibration) * residual
     assert result.geometry.optics_transmission == pytest.approx(
-        product * residual, rel=1e-9)
+        0.5 * (probe + conjugate), rel=1e-9)
+    by_arm = {arm.name: arm for arm in result.geometry.arms}
+    assert by_arm["probe"].optics_transmission == pytest.approx(probe)
+    assert by_arm["conjugate"].optics_transmission == pytest.approx(conjugate)
 
 
 def test_dirtying_one_post_cell_optic_shows_up_in_the_loss():
@@ -131,8 +136,30 @@ def test_dirtying_one_post_cell_optic_shows_up_in_the_loss():
     dirty = calibration.with_value("t_lens_probe", 0.80)
     clean = bridge.run(solve=False)
     smudged = bridge.run(calibration=dirty, solve=False)
-    assert smudged.params["loss_pct"] > clean.params["loss_pct"] + 15.0
+    clean_arms = {arm.name: arm for arm in clean.geometry.arms}
+    dirty_arms = {arm.name: arm for arm in smudged.geometry.arms}
+    assert dirty_arms["probe"].optics_transmission < (
+        clean_arms["probe"].optics_transmission)
+    assert dirty_arms["conjugate"].optics_transmission == pytest.approx(
+        clean_arms["conjugate"].optics_transmission)
+    assert smudged.params["loss_pct"] > clean.params["loss_pct"]
     assert dirty.get("t_lens_probe").provenance == "hand"
+
+
+def test_detector_power_uses_each_arms_own_post_cell_transmission():
+    calibration = default_calibration().with_value("t_lens_conj", 0.50)
+    result = bridge.run(calibration=calibration)
+    geom = {arm.name: arm for arm in result.geometry.arms}
+    readout = {arm.name: arm for arm in result.readout.arms}
+    probe_gain, conjugate_gain = result.gains
+    assert readout["conjugate"].power_w == pytest.approx(
+        result.chain.seed_power_w * conjugate_gain
+        * geom["conjugate"].optics_transmission)
+    assert geom["conjugate"].optics_transmission < (
+        geom["probe"].optics_transmission)
+    assert readout["probe"].power_w > (
+        result.chain.seed_power_w * probe_gain
+        * geom["probe"].optics_transmission)
 
 
 def test_separation_margin_saturates_with_distance():

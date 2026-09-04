@@ -45,9 +45,8 @@ DERIVED_KEYS = (
     "eom_other_sidebands_to_wanted_ratio",
 )
 
-# Non-numeric audit metadata changes the returned trust ledger even though it
-# does not change the Bloch equations.  It must therefore survive the SABES
-# cached-solve reconstruction and participate in that result's cache key.
+# These fields change the returned validation status, not the Bloch equations,
+# so the cached result key must include them.
 SOLVE_AUDIT_KEYS = (
     "eom_seed_spectrum_provenance",
     "eom_seed_spectrum_status",
@@ -165,6 +164,45 @@ class SabesResult:
         return self.gain_referred_detection_floor_db
 
     @property
+    def eom_shot_noise_only_db(self):
+        """Gain diagnostic including shot noise from unwanted EOM modes."""
+        if self.readout is None or self.gain_referred_noise_db is None:
+            return None
+        return self.readout.eom_noise.shot_noise_only_db(
+            self.gain_referred_noise_db)
+
+    @property
+    def eom_rin_loaded_noise_db(self):
+        """Gain diagnostic including shot noise and classical EOM RIN."""
+        if self.readout is None or self.gain_referred_noise_db is None:
+            return None
+        return self.readout.eom_noise.rin_loaded_db(self.gain_referred_noise_db)
+
+    @property
+    def eom_rin_penalty_db(self):
+        if self.eom_rin_loaded_noise_db is None:
+            return None
+        if self.gain_referred_noise_db > 0.0:
+            return None
+        return self.readout.eom_noise.rin_penalty_db(
+            self.gain_referred_noise_db)
+
+    @property
+    def eom_coherent_mixture_noise_db(self):
+        """Compatibility alias for :attr:`eom_shot_noise_only_db`."""
+        return self.eom_shot_noise_only_db
+
+    @property
+    def eom_loaded_noise_db(self):
+        """Compatibility alias for :attr:`eom_rin_loaded_noise_db`."""
+        return self.eom_rin_loaded_noise_db
+
+    @property
+    def eom_noise_penalty_db(self):
+        """Compatibility alias for :attr:`eom_rin_penalty_db`."""
+        return self.eom_rin_penalty_db
+
+    @property
     def warnings(self):
         parts = list(self.chain.warnings) + list(self.geometry.warnings)
         if self.readout is not None:
@@ -184,9 +222,8 @@ def to_gabes_params(chain, settings, geometry, *, base=None, quantize=True,
     """Build the GABES FWM parameter dict from a source chain and geometry.
 
     ``probe_uw`` remains the wanted-sideband power for backward compatibility.
-    The additional EOM fields preserve the rest of the cell-plane seed spectrum
-    as model inputs only. No carrier or sideband power is converted into atomic
-    or detector noise without an independently calibrated transfer model.
+    The additional EOM fields store the rest of the cell-plane seed spectrum but
+    are not used by the reduced atomic solve. Detector readout applies their RIN.
     """
     params = dict(base if base is not None else fwm.FWMScheme().defaults())
     wanted_seed_uw = chain.wanted_seed_sideband_power_w * 1e6
@@ -225,13 +262,14 @@ def to_gabes_params(chain, settings, geometry, *, base=None, quantize=True,
             "eom_seed_spectrum_status", "unsupported")).strip().lower() \
             != "unsupported":
         raise ValueError(
-            "SABES EOM spectrum remains unsupported until a calibrated "
-            "transfer model is implemented")
+            "SABES residual EOM modes remain unsupported by the reduced "
+            "atomic response")
     if str(overrides.get(
             "eom_seed_spectrum_application", "unapplied")).strip().lower() \
             != "unapplied":
         raise ValueError(
-            "SABES EOM residual components must remain unapplied")
+            "SABES EOM residual components must remain unapplied to the "
+            "reduced atomic response")
     if "probe_uw" in overrides:
         overrides["seed_wanted_sideband_uw"] = overrides["probe_uw"]
     elif "seed_wanted_sideband_uw" in overrides:
@@ -329,11 +367,17 @@ def derived_table(result):
         ("Etalon chain",
          f"{sum(1 for s in chain.stages if s.name.startswith('etalon'))} stages",
          "Carrier : seed (solver grid)",
-         f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.4f} %"),
+         f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.3g} %"),
         ("EOM spectrum provenance", params["eom_seed_spectrum_provenance"],
-         "Carrier/noise application",
+         "Atomic carrier application",
          f"{params['eom_seed_spectrum_application']} "
          f"({params['eom_seed_spectrum_status']})"),
+        ("Unwanted-mode noise",
+         (f"effective RIN {result.readout.eom_noise.rin_db_per_hz:.1f} dBc/Hz"
+          if result.readout is not None else "effective RIN at readout"),
+         "Balanced-detector application",
+         ("applied at detector" if result.readout is not None
+          else "applied after solve")),
     )
 
 

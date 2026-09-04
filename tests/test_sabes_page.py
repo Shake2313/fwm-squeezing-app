@@ -10,7 +10,9 @@ and that is a property of the code rather than of the machine it runs on.
 import sys
 from dataclasses import fields, replace
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,7 +20,8 @@ sys.path.insert(0, str(ROOT))
 
 from gabes.schemes import fwm  # noqa: E402
 from sabes import bridge  # noqa: E402
-from sabes.beamline import SetupSettings  # noqa: E402
+from sabes.beamline import SetupSettings, build_source_chain  # noqa: E402
+from sabes.calibration import default_calibration  # noqa: E402
 from sabes.detection import DetectionSettings  # noqa: E402
 
 import sabes_page  # noqa: E402
@@ -59,6 +62,54 @@ def test_every_control_is_owned_by_an_optic_on_the_drawing():
     """
     orphans = set(sabes_page.CONTROLS) - sabes_page._owned_parameters()
     assert not orphans, f"no optic owns: {sorted(orphans)}"
+
+
+def test_eom_and_etalon_throughput_have_no_duplicate_transmission_control():
+    by_id = {node.id: node for part in sabes_page.layout.LAYOUTS
+             for node in part.nodes}
+    assert by_id["eom"].transmission_key == ""
+    for name in ("etalon_1", "etalon_2", "etalon_3"):
+        assert by_id[name].transmission_key == ""
+        assert by_id[name].params
+
+
+def test_session_calibration_changes_only_editable_overrides(monkeypatch):
+    base = default_calibration()
+    editable = next(name for name in sabes_page._editable_transmission_keys()
+                    if base.get(name).verified)
+    state = {
+        sabes_page.SESSION_PREFIX + editable: base.value(editable),
+        sabes_page.SESSION_PREFIX + "t_lens_probe": 0.75,
+        # Hidden duplicate from an older session must not affect the EOM model.
+        sabes_page.SESSION_PREFIX + "t_eom": 0.10,
+    }
+    monkeypatch.setattr(sabes_page.st, "session_state", state)
+    calibration = sabes_page._session_calibration()
+    assert calibration.get(editable).provenance == base.get(editable).provenance
+    assert calibration.value("t_lens_probe") == pytest.approx(0.75)
+    assert calibration.get("t_lens_probe").provenance == "hand"
+    assert calibration.value("t_eom") == base.value("t_eom")
+
+
+def test_solve_knobs_uses_the_session_calibration(monkeypatch):
+    sentinel = object()
+    seen = []
+    monkeypatch.setattr(sabes_page.st, "session_state", {})
+    monkeypatch.setattr(sabes_page, "_current",
+                        lambda: (SetupSettings(), DetectionSettings()))
+    monkeypatch.setattr(sabes_page, "_session_calibration", lambda: sentinel)
+
+    def solved(value):
+        def solve(target, settings, calibration):
+            seen.append(calibration)
+            return value
+        return solve
+
+    monkeypatch.setattr(sabes_page, "solve_split_angle_deg", solved(10.0))
+    monkeypatch.setattr(sabes_page, "solve_seed_polarizer_deg", solved(20.0))
+    monkeypatch.setattr(sabes_page, "solve_seed_trim_deg", solved(30.0))
+    sabes_page._apply_solved_knobs()
+    assert seen == [sentinel, sentinel, sentinel]
 
 
 def test_the_sidebar_no_longer_carries_the_parameter_wall():
@@ -117,7 +168,8 @@ def test_detection_knobs_never_touch_the_solve_key():
     for detection in (DetectionSettings(probe_lens_focal_mm=400.0),
                       DetectionSettings(conjugate_lens_focal_mm=250.0),
                       DetectionSettings(pd_defocus_mm=30.0),
-                      DetectionSettings(pump_leakage_dbm=-40.0)):
+                      DetectionSettings(pump_leakage_dbm=-40.0),
+                      DetectionSettings(eom_unwanted_rin_db_per_hz=-80.0)):
         assert bridge.solve_key(_params(detection=detection)) == base, detection
 
 
@@ -189,9 +241,43 @@ def test_cached_solve_key_preserves_eom_audit_metadata():
     assert ledger["application"] == "unapplied"
 
 
-def test_page_routes_observed_pump_leakage_to_the_analyser():
+def test_page_routes_global_noise_only_to_the_post_cell_balanced_analyser():
     source = (ROOT / "sabes_page.py").read_text(encoding="utf-8")
-    assert "pump_leakage_dbm=detection.pump_leakage_dbm" in source
+    block = source[source.index('if choice == "Spectrum analyser"'):
+                   source.index("raise KeyError(choice)")]
+    assert 'reading.link.beam in ("probe", "conjugate")' in block
+    assert "pump_leakage_dbm=(detection.pump_leakage_dbm" in block
+    assert "eom_noise=(readout.eom_noise" in block
+
+
+def test_scope_scan_uses_the_selected_twin_gain_and_current_path_power(
+        monkeypatch):
+    chain = build_source_chain()
+    raw = {
+        "probe_axis_GHz": np.array([-1.0, 0.0, 1.0]),
+        "G_s": np.array([50.0, 50.0, 50.0]),
+        "G_c": np.array([1.0, 2.0, 3.0]),
+    }
+    result = SimpleNamespace(
+        raw=raw, gains=(15.0, 2.0), chain=chain,
+        geometry=SimpleNamespace(optics_transmission=1.0, arms=()),
+    )
+    reading = SimpleNamespace(
+        link=SimpleNamespace(beam="conjugate"),
+        beam=sabes_page._twin_states(result)["conjugate"],
+    )
+    detector = sabes_page.instruments.Photodiode(
+        responsivity_a_per_w=0.5, transimpedance_v_per_a=2.0)
+    signal = detector.convert(reading.beam)
+    monkeypatch.setattr(
+        sabes_page.st, "session_state",
+        {sabes_page._key("scope_mode"): "Scan"})
+
+    trace = sabes_page._scope_reading(signal, result, reading).trace
+    wanted = reading.beam.power_at(-chain.seed_offset_hz)
+    background = reading.beam.total_power_w - wanted
+    expected_power = raw["G_c"] * wanted / 2.0 + background
+    assert np.allclose(trace.series["signal"], expected_power)
 
 
 # ------------------------------------------------------------------ routing
@@ -264,6 +350,37 @@ def test_arm_readouts_expose_what_the_detection_tab_prints():
     for attribute in ("power_w", "spot_radius_m", "power_density_w_per_cm2",
                       "residual_pump_w"):
         assert hasattr(read.arms[0], attribute), attribute
+    for attribute in ("rin_db_per_hz", "fractional_intensity_rms",
+                      "unwanted_detector_power_w", "classical_rin_excess_sql"):
+        assert hasattr(read.eom_noise, attribute), attribute
     for attribute in ("twin_radius_at_dmirror_m", "pump_separation_m",
                       "separation_margin", "optics_transmission"):
         assert hasattr(geom, attribute), attribute
+
+
+def test_post_cell_twin_states_amplify_only_the_wanted_mode():
+    from sabes.beamline import build_source_chain
+
+    chain = build_source_chain()
+    result = SimpleNamespace(
+        raw={}, gains=(15.0, 14.0), chain=chain,
+        geometry=SimpleNamespace(
+            optics_transmission=0.85,
+            arms=(SimpleNamespace(name="probe", optics_transmission=0.9),
+                  SimpleNamespace(name="conjugate",
+                                  optics_transmission=0.8))))
+    twin = sabes_page._twin_states(result)
+
+    assert twin["probe"].power_at(chain.seed_offset_hz) == pytest.approx(
+        chain.wanted_seed_sideband_power_w * 15.0 * 0.9)
+    assert twin["conjugate"].power_at(-chain.seed_offset_hz) == pytest.approx(
+        chain.wanted_seed_sideband_power_w * 14.0 * 0.8)
+    assert twin["conjugate"].power_at(chain.seed_offset_hz) == 0.0
+    conjugate_frequency = sabes_page.instruments.Wavemeter(
+        wanted_offset_hz=-chain.seed_offset_hz).measure(twin["conjugate"])
+    assert conjugate_frequency.quantity(
+        "Dominant-line offset").value == pytest.approx(
+            -chain.seed_offset_hz / 1e9)
+    assert twin["probe"].power_at(0.0) == pytest.approx(
+        chain.eom_residual_carrier_power_w * 0.9)
+    assert twin["conjugate"].power_at(0.0) == 0.0

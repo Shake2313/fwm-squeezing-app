@@ -5,9 +5,8 @@ All three read a `BeamState` and nothing else, so any point the layout can
 resolve is a place they can be put. They are `COMPUTED` throughout -- these are
 the model's own quantities reported in lab units, with no reconstruction.
 
-The wavemeter is the one to reach for first when explaining SABES. Dropped either
-side of the etalon chain it shows the carrier and the unwanted sidebands being
-killed, which is the entire reason the seed path has three filters in it.
+A wavemeter reports the dominant optical frequency or wavelength. Spectral-line
+powers remain available from the power-meter view.
 """
 from dataclasses import dataclass
 
@@ -100,54 +99,53 @@ class BeamProfiler:
 
 @dataclass(frozen=True)
 class Wavemeter:
-    """The spectrum as the etalons see it.
-
-    Frequencies are reported relative to the carrier, which is the axis the whole
-    seed path is designed around: the wanted sideband sits at -f_EOM, and every
-    other line is something the filters have to remove.
-    """
+    """Dominant optical frequency and vacuum wavelength."""
     head = HEAD_OPTICAL
     name: str = "Wavemeter"
     wanted_offset_hz: float = None
-    floor_db: float = -90.0
 
     def measure(self, beam) -> Reading:
-        lines = sorted(beam.lines, key=lambda l: l.offset_hz)
-        total = beam.total_power_w
-        strongest = max((l.power_w for l in lines), default=0.0)
+        powered = [line for line in beam.lines if line.power_w > 0.0]
+        if not powered:
+            quantities = (
+                Quantity("Optical frequency", float("nan"), "THz"),
+                Quantity("Vacuum wavelength", float("nan"), "nm"),
+            )
+            return Reading(self.name, quantities, None,
+                           ("no optical power reaches the wavemeter",), COMPUTED)
 
+        speed_of_light = 299_792_458.0
+        largest_power = max(line.power_w for line in powered)
+        dominant_lines = [
+            line for line in powered
+            if np.isclose(line.power_w, largest_power, rtol=1.0e-9, atol=0.0)
+        ]
+        if len(dominant_lines) != 1:
+            quantities = (
+                Quantity("Optical frequency", float("nan"), "THz"),
+                Quantity("Vacuum wavelength", float("nan"), "nm"),
+                Quantity("Dominant-line offset", float("nan"), "GHz"),
+            )
+            return Reading(
+                self.name, quantities, None,
+                ("multiple optical lines have the same largest power",), COMPUTED)
+
+        dominant = dominant_lines[0]
+        carrier_hz = (beam.carrier_hz if beam.carrier_hz > 0.0 else
+                      speed_of_light / beam.mode.wavelength_m)
+        frequency_hz = carrier_hz + dominant.offset_hz
         quantities = [
-            Quantity("Lines present", float(len(lines)), ""),
-            Quantity("Total power", total * 1e3, "mW"),
+            Quantity("Optical frequency", frequency_hz / 1e12, "THz"),
+            Quantity("Vacuum wavelength", speed_of_light / frequency_hz * 1e9,
+                     "nm"),
+            Quantity("Dominant-line offset", dominant.offset_hz / 1e9, "GHz"),
         ]
         warnings = []
         if self.wanted_offset_hz is not None:
-            wanted = beam.power_at(self.wanted_offset_hz)
-            carrier = beam.power_at(0.0)
-            ratio = (carrier / wanted) if wanted > 0 else float("inf")
-            quantities += [
-                Quantity("Wanted sideband", wanted * 1e6, "µW"),
-                Quantity("Residual carrier", carrier * 1e6, "µW"),
-                Quantity("Carrier : wanted", 100.0 * ratio, "%",
-                         "Sim et al. report << 0.5 % with three etalons; "
-                         "squeezing degrades as it rises and survives to 25 %."),
-            ]
-            if ratio > 0.25:
-                warnings.append(
-                    f"carrier is {100 * ratio:.1f} % of the wanted sideband — "
-                    f"past the point where squeezing was still observed")
-
-        # dB relative to the strongest line is how a spectrum analyser trace is
-        # read, and it is the only way the suppressed lines are visible at all.
-        relative = np.array([
-            10.0 * np.log10(max(l.power_w, 1e-30) / max(strongest, 1e-30))
-            for l in lines])
-        relative = np.maximum(relative, self.floor_db)
-        trace = Trace(
-            x=np.array([l.offset_hz / 1e9 for l in lines]),
-            series={"relative": relative},
-            x_label="Offset from carrier", x_unit="GHz",
-            y_label="Relative power", y_unit="dB", kind="stem",
-        )
-        return Reading(self.name, tuple(quantities), trace, tuple(warnings),
+            error_hz = dominant.offset_hz - float(self.wanted_offset_hz)
+            quantities.append(Quantity("Target offset error", error_hz / 1e6,
+                                       "MHz"))
+            if abs(error_hz) > 1.0:
+                warnings.append("the dominant line is not the selected seed line")
+        return Reading(self.name, tuple(quantities), None, tuple(warnings),
                        COMPUTED)

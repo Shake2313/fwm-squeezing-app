@@ -393,11 +393,7 @@ def hanle_params(detuning_mhz: float, args: argparse.Namespace,
     return params
 
 
-def compute_hanle(detuning_mhz: float, args: argparse.Namespace,
-                  probe_power_w: float | None = None) -> dict:
-    scheme = magneto.MagnetoScheme()
-    params = hanle_params(detuning_mhz, args, probe_power_w)
-    raw = scheme.compute(params)
+def _hanle_readout(raw: dict, params: dict) -> dict:
     xprobe = observables.chi_phys(
         raw["chi_probe"], raw["N_eff"], dipole=raw["dipole"],
         line_strength=params["line_strength"])
@@ -410,6 +406,13 @@ def compute_hanle(detuning_mhz: float, args: argparse.Namespace,
     idx = int(np.nanargmax(np.where(finite, np.abs(slope), np.nan)))
     return dict(params=params, raw=raw, b_ut=b, transmission=trans,
                 slope_per_ut=slope, bias_idx=idx)
+
+
+def compute_hanle(detuning_mhz: float, args: argparse.Namespace,
+                  probe_power_w: float | None = None) -> dict:
+    params = hanle_params(detuning_mhz, args, probe_power_w)
+    raw = magneto.MagnetoScheme().compute(params)
+    return _hanle_readout(raw, params)
 
 
 def _split_csv_line(line: str) -> list[str]:
@@ -914,20 +917,25 @@ def hanle_operating_scan(source: dict, args: argparse.Namespace) -> dict:
     usable = np.zeros(shape, dtype=bool)
     best = None
     probe_power_w = arm_input_power_w(source, "probe", args)
+    scheme = magneto.MagnetoScheme()
 
     for ti, temp_c in enumerate(temp_axis):
         for ii, intensity in enumerate(intensity_axis):
+            base_args = args_with(
+                args,
+                hanle_temp_c=float(temp_c),
+                hanle_intensity=float(intensity),
+                hanle_intensity_mode="explicit",
+                hanle_cell_mm=float(cell_axis[0]),
+            )
+            base_params = hanle_params(
+                source["probe_detuning_from_87_mhz"], base_args,
+                probe_power_w=probe_power_w)
+            raw = scheme.compute(base_params)
             for li, cell_mm in enumerate(cell_axis):
-                scan_args = args_with(
-                    args,
-                    hanle_temp_c=float(temp_c),
-                    hanle_intensity=float(intensity),
-                    hanle_intensity_mode="explicit",
-                    hanle_cell_mm=float(cell_mm),
-                )
-                hanle = compute_hanle(
-                    source["probe_detuning_from_87_mhz"], scan_args,
-                    probe_power_w=probe_power_w)
+                scan_args = args_with(base_args, hanle_cell_mm=float(cell_mm))
+                params = dict(base_params, cell_mm=float(cell_mm))
+                hanle = _hanle_readout(raw, params)
                 q = weighted_noise_over_hanle(source, hanle, scan_args, "shot")
                 if not q["usable"]:
                     continue

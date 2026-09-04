@@ -1587,6 +1587,26 @@ def _solver_from_topology_key(key):
     return GenericFWMSolver(_topology_from_key(*key))
 
 
+_BIPHOTON_READOUT_PARAM_KEYS = frozenset({
+    "signal_eff_pct", "idler_eff_pct", "dark_signal_cps", "dark_idler_cps",
+    "coincidence_window_ns", "timing_jitter_ns", "filter_bandwidth_mhz",
+    "phase_detail",
+})
+
+
+def _biphoton_source_items(params):
+    return tuple(sorted(
+        (key, value) for key, value in params.items()
+        if key not in _BIPHOTON_READOUT_PARAM_KEYS))
+
+
+@functools.lru_cache(maxsize=8)
+def _cached_biphoton_source(param_items):
+    params = dict(param_items)
+    return _solver_from_topology_key(
+        _topology_cache_key(params)).compute_biphoton(params)
+
+
 # =========================================================
 # Hamiltonians
 # =========================================================
@@ -3809,11 +3829,8 @@ class FWMScheme(Scheme):
         velocity_converged = raw.get("velocity_converged", True)
 
         def verdict(ok, kind="physical"):
-            # Calibration anchors are matched to the reference *by construction*
-            # (the reference number is injected into the model), so a "PASS" there
-            # would be circular — label it honestly instead. Predictive waveform
-            # quantities are computed but absolute-approximate, so they are flagged
-            # "predicted" rather than given a pass/fail they would often fail.
+            # Calibration anchors use the reference value, so pass/fail would be
+            # circular. Waveform quantities are estimates and are marked predicted.
             if kind == "calibrated":
                 return "by construction"
             if kind == "predicted":
@@ -3866,8 +3883,9 @@ class FWMScheme(Scheme):
             other_channel = CS_CHANNEL_795 if params.get("cs_channel") == CS_CHANNEL_917 else CS_CHANNEL_917
             other_params = dict(params)
             other_params["cs_channel"] = other_channel
-            other_raw = _solver_from_topology_key(
-                _topology_cache_key(other_params)).compute_biphoton(other_params)
+            other_params = self._biphoton_runtime_params(other_params)
+            other_raw = _cached_biphoton_source(
+                _biphoton_source_items(other_params))
             other_stats = observables.biphoton_stats(
                 other_raw["tau_axis_ns"], other_raw["psi_tau"], other_raw["pair_rate_cps"],
                 signal_eff=params["signal_eff_pct"] / 100.0,

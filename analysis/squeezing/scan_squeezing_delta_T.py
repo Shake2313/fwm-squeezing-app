@@ -1,7 +1,7 @@
 """
 Maximise intensity-difference squeezing ξ over the (Δ, T) plane.
 
-Δ  = one-photon detuning (OPD, pump position relative to F=2 -> F'=3) [GHz]
+Δ  = one-photon detuning from the F=2 -> F'=3 pump transition [GHz]
 T  = cell temperature [degC]
 ξ  = best (most negative) twin-beam squeezing [dB] on the (-) Raman branch,
      obtained by scanning the two-photon detuning δ (probe-frequency scan)
@@ -16,7 +16,7 @@ regression test calls "sim_optimum":
 
 Pump / seed power and the line-strength calibration do not change the qualitative
 squeezing result (gain saturates against the pump-depletion bound); the detection
-efficiency η = QE·(1-loss) does, because it sets the hard squeezing floor
+efficiency η = QE·(1-loss) does, because it sets the detection-loss asymptote
 
     S_floor(dB) = 10·log10(1 - η).
 
@@ -53,11 +53,11 @@ ETA = QE * (1.0 - LOSS_FRAC)
 BRANCH = -1                   # single Raman branch (the (-) line)
 WINDOW_GHZ = 0.55             # half-width of the focused δ (probe) scan window
 
-# η-limited theoretical squeezing floor: S(η)=η·S_ideal+(1-η) >= 1-η.
+# Detection-loss asymptote: S(η)=η·S_ideal+(1-η) >= 1-η.
 S_FLOOR_DB = 10.0 * np.log10(1.0 - ETA)
 
 # ---- Scan grid --------------------------------------------------------------
-DELTA_GHZ = np.round(np.arange(-0.5, 3.0 + 1e-9, 0.1), 3)      # OPD
+DELTA_GHZ = np.round(np.arange(-0.5, 3.0 + 1e-9, 0.1), 3)
 TEMP_C = np.round(np.arange(60.0, 150.0 + 1e-9, 5.0), 3)       # temperature
 
 # Map resolution (fast but converged for the *minimum* of a smooth curve).
@@ -105,7 +105,7 @@ def _temperature_tables(T_K, delta_axis, vstep=VELOCITY_STEP):
     ground Raman collisions) makes χ̄ temperature-dependent, so a single
     all-temperature table is no longer valid — the table is rebuilt per T with
     `fwm.collisional_atom(T)`. The (δ × Δ_eff) grid is still shared across all Δ
-    (OPD) at this temperature: Δ_eff = Δ − k·v is unioned over the whole Δ range.
+    at this temperature: Δ_eff = Δ − k·v is unioned over the whole Δ range.
     Returns (tables, v_grid, weights, master_delta_eff).
     """
     atom_T = fwm.collisional_atom(T_K)
@@ -168,7 +168,7 @@ def run_grid():
     t0 = time.time()
     delta_axis = _delta_axis(COARSE_POINTS)
     print(f"per-temperature chi tables (collisional atom, numba="
-          f"{kernels.available()}): {nT} temperatures x {nD} OPD", flush=True)
+          f"{kernels.available()}): {nT} temperatures x {nD} Δ", flush=True)
 
     # χ̄ depends on temperature (collisional decoherence), so build one table per
     # T and reuse it across all Δ at that T (Δ_eff columns picked per Δ).
@@ -190,8 +190,8 @@ def run_grid():
 
 def main():
     print(f"eta = QE*(1-loss) = {QE:.4f}*(1-{LOSS_FRAC}) = {ETA:.5f}")
-    print(f"theoretical squeezing floor 10log10(1-eta) = {S_FLOOR_DB:.4f} dB")
-    print(f"grid: {DELTA_GHZ.size} OPD x {TEMP_C.size} T = "
+    print(f"detection-loss asymptote 10log10(1-eta) = {S_FLOOR_DB:.4f} dB")
+    print(f"grid: {DELTA_GHZ.size} one-photon detunings Δ x {TEMP_C.size} T = "
           f"{DELTA_GHZ.size*TEMP_C.size} points\n")
 
     Xi, Gs, Gc, Dlt = run_grid()

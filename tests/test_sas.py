@@ -19,6 +19,7 @@ Generic Γ-unit hole-burning fallback: Voigt background, Lamb dip, crossover.
 """
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -52,6 +53,25 @@ def _params(**over):
     p = SAS.defaults()
     p.update(over)
     return p
+
+
+def test_pump_off_skips_pump_population_solve():
+    params = _params(
+        species=RB85_KEY, line="D1", pump_power_mw=0.0,
+        probe_power_uw=0.0, scan_points=401)
+    with patch("gabes.schemes.sas._pump_pops",
+               side_effect=AssertionError("pump-off solve")):
+        raw = SAS.compute(params)
+    assert np.all(np.isfinite(raw["alpha_unit"]))
+
+
+def test_generic_pump_off_skips_pump_population_solve():
+    params = _params(
+        species=GENERIC, transitions="two lines", pump_power_mw=0.0)
+    with patch("gabes.schemes.sas._pump_pops",
+               side_effect=AssertionError("pump-off solve")):
+        raw = SAS.compute(params)
+    assert np.all(np.isfinite(raw["alpha_unit"]))
 
 
 def _spectrum(**over):

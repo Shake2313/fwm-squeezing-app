@@ -19,6 +19,8 @@ from typing import Sequence
 
 import numpy as np
 
+from ._csv_numeric import sort_and_median_duplicates
+
 
 MAX_RYDBERG_CSV_BYTES = 25 * 1024 * 1024
 MAX_RYDBERG_CSV_ROWS = 1_000_000
@@ -329,14 +331,7 @@ def _parse_columns(
     y = np.asarray(y_values, dtype=float)
     if x.size == 0:
         raise RydbergCSVError("CSV contains no finite numeric data in selected columns.")
-    order = np.argsort(x, kind="mergesort")
-    x = x[order]
-    y = y[order]
-    unique_x, starts, counts = np.unique(x, return_index=True, return_counts=True)
-    merged_y = y[starts].copy()
-    for group in np.flatnonzero(counts > 1):
-        begin = starts[group]
-        merged_y[group] = np.median(y[begin : begin + counts[group]])
+    unique_x, merged_y = sort_and_median_duplicates(x, y)
     duplicates = int(x.size - unique_x.size)
     if unique_x.size < MIN_TRACE_POINTS:
         raise RydbergCSVError(

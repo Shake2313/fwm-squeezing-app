@@ -144,6 +144,34 @@ def test_temperature_density_dephasing_fit_recovers_independent_slopes():
     assert result.model.evaluate(35.0, 4e16) == pytest.approx(0.30)
 
 
+def test_dephasing_covariance_keeps_a_resolved_ill_conditioned_direction():
+    temperature = np.arange(20.0, 26.0)
+    centered_temperature = temperature - 22.5
+    perturbation = np.array([1.0, -1.0, 1.0, -1.0, 1.0, -1.0]) * 1.0e-8
+    scaled_density = 3.0 + centered_temperature + perturbation
+    density = scaled_density * 1.0e16
+    measured = 0.2 + 0.01 * centered_temperature + 0.05 * scaled_density
+
+    result = fit_temperature_density_dephasing(
+        temperature,
+        density,
+        measured,
+        reference_temp_c=22.5,
+        reference_density_m3=3.0e16,
+        dephasing_std_mhz=np.ones_like(temperature),
+    )
+    design = np.column_stack((
+        np.ones_like(temperature),
+        centered_temperature,
+        (density - 3.0e16) / 1.0e16,
+    ))
+    inverse_design = np.linalg.pinv(design)
+    expected = inverse_design @ inverse_design.T
+
+    assert result.identifiable
+    np.testing.assert_allclose(result.covariance, expected, rtol=1e-12)
+
+
 def test_dephasing_fit_flags_temperature_density_collinearity():
     temperature = np.array([20.0, 25.0, 30.0, 35.0])
     density = (temperature - 20.0) * 1e16

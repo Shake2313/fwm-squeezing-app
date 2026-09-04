@@ -27,8 +27,7 @@ class SubdopplerFeature:
 
     All frequency-valued fields use the units of the input axis.  A finite
     width can still be ``resolution-limited`` or ``scan-edge-limited``; callers
-    must use :attr:`resolved` before promoting its linewidth or slope to a
-    trusted readout.
+    should report its linewidth or lock slope only when :attr:`resolved` is true.
     """
 
     status: str
@@ -75,11 +74,25 @@ def fwhm_halfmax(x, y):
     """FWHM of the tallest peak by the half-maximum samples (no edge
     interpolation); `nan` if ill-defined. Use `fwhm_interp` for sub-sample
     accuracy."""
-    pk = np.nanmax(y)
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    if x.ndim != 1 or y.shape != x.shape or x.size < 2:
+        return float("nan")
+    finite = np.isfinite(y)
+    if not np.any(finite):
+        return float("nan")
+    ic = int(np.nanargmax(y))
+    pk = float(y[ic])
     if not np.isfinite(pk) or pk <= 0:
         return float("nan")
-    above = x[y >= 0.5 * pk]
-    return float(above.max() - above.min()) if above.size > 1 else float("nan")
+    above = finite & (y >= 0.5 * pk)
+    lo = ic
+    while lo > 0 and above[lo - 1]:
+        lo -= 1
+    hi = ic
+    while hi < y.size - 1 and above[hi + 1]:
+        hi += 1
+    return float(x[hi] - x[lo]) if hi > lo else float("nan")
 
 
 def fwhm_interp(x, y):
@@ -87,17 +100,21 @@ def fwhm_interp(x, y):
     ill-defined."""
     x = np.asarray(x, dtype=float)
     y = np.asarray(y, dtype=float)
-    if x.size < 2 or not np.any(np.isfinite(y)):
+    if (x.ndim != 1 or y.shape != x.shape or x.size < 2
+            or not np.any(np.isfinite(y))):
         return np.nan
-    peak = float(np.nanmax(y))
+    peak_index = int(np.nanargmax(y))
+    peak = float(y[peak_index])
     if peak <= 0:
         return np.nan
     half = 0.5 * peak
-    above = np.flatnonzero(y >= half)
-    if above.size == 0:
-        return np.nan
-    lo = int(above[0])
-    hi = int(above[-1])
+    above = np.isfinite(y) & (y >= half)
+    lo = peak_index
+    while lo > 0 and above[lo - 1]:
+        lo -= 1
+    hi = peak_index
+    while hi < y.size - 1 and above[hi + 1]:
+        hi += 1
 
     def interp_edge(i0, i1):
         if i0 < 0 or i1 >= x.size or y[i1] == y[i0]:
@@ -149,8 +166,8 @@ def subdoppler_feature(x, signal, search_window=None, *, min_amplitude=1e-6):
     Resolution requires at least six sample intervals across the interpolated
     FWHM and one FWHM of clearance between the half-height edges and either scan
     edge.  A detected but undersampled feature retains its provisional numeric
-    diagnostics while its status prevents callers from promoting them as a
-    trusted linewidth or lock slope.
+    diagnostics; report its linewidth or lock slope only when its status is
+    ``resolved``.
     """
     x = np.asarray(x, dtype=float)
     y = np.asarray(signal, dtype=float)

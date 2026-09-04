@@ -46,6 +46,7 @@ from .base import ParamSpec, Scheme
 
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
 PROBE_PASSIVITY_INTERIOR = 1e-8         # avoid an artificial exact-zero fixed point
+PROBE_REFERENCE_RB_D2_ISOTOPES = frozenset(("Rb85", "Rb87"))
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
 GENERIC = "Generic (Γ units)"
 PARAFFIN_REFERENCE_T1_S = 25.1e-3   # 87Rb population T1 at 300 K (Bandi et al.)
@@ -74,15 +75,112 @@ def _temperatures(params):
     return density_c + 273.15, doppler_c + 273.15, tied
 
 
+def _probe_power_mw(params):
+    """Return probe power in mW, accepting the retired mW input as an alias.
+
+    The UI uses µW because OD probes normally live well below one milliwatt.
+    Parameter dictionaries saved before that UI migration contain only
+    ``probe_power_mw``; that explicit legacy key wins if both are supplied, so
+    old callers that start from new defaults still behave as requested without
+    carrying two independently editable UI controls.
+    """
+    if "probe_power_mw" in params:
+        return float(params["probe_power_mw"])
+    return float(params.get("probe_power_uw", 0.0)) * 1e-3
+
+
+def _probe_validation_tier(species_key, line):
+    """Provenance tier for the AutoOD-style finite-probe approximation."""
+    components = species.SPECIES.get(species_key, ())
+    if (line == "D2" and components
+            and all(iso.name in PROBE_REFERENCE_RB_D2_ISOTOPES
+                    for iso, _weight in components)):
+        return "reference_scope"
+    return "generalized"
+
+
+def _probe_reference_matched(raw, params):
+    """Whether the displayed result keeps every AutoOD regression condition."""
+    return (
+        raw.get("probe_validation_tier") == "reference_scope"
+        and float(params.get("pump_power_mw", 0.0)) == 0.0
+        and float(raw.get("buffer_gamma", 0.0)) == 0.0
+        and bool(raw.get("doppler_temp_tied", True))
+        and float(params.get("line_strength", 1.0)) == 1.0
+    )
+
+
+def _probe_scope_text(raw, params):
+    """Short status and one detailed finite-probe qualification."""
+    pump_on = float(params.get("pump_power_mw", 0.0)) > 0.0
+    reference_scope = raw.get("probe_validation_tier") == "reference_scope"
+    reference_matched = _probe_reference_matched(raw, params)
+    if not reference_scope:
+        value = "Generalized estimate"
+        help_text = (
+            f"{raw['species']} {raw['line']} uses line-specific two-level scaling "
+            "without a matching finite-power reference.")
+        detail = (
+            f"For {raw['species']} {raw['line']}, this is a generalized "
+            "closed-two-level estimate using the selected line's frequency, "
+            "natural linewidth, and AutoOD-style relative hyperfine scale; "
+            "it has no matching finite-power reference and is qualitative. "
+            "mF state and polarization dependence are not resolved.")
+        if raw["line"] == "D1":
+            detail += " D1 also has no closed hyperfine cycling transition."
+        if raw["species"] == "¹³³Cs":
+            detail += (
+                " The homogeneous width also inherits the existing Rb "
+                "self-broadening coefficient, so Cs finite-power results "
+                "are especially provisional.")
+        if pump_on:
+            detail += (
+                " The pump-prepared populations are frozen before this "
+                "correction; simultaneous finite pump + finite probe also "
+                "omits probe-induced hyperfine repumping.")
+    elif reference_matched:
+        value = "Rb D2 reference-matched"
+        help_text = (
+            "Matches the supplied pump-off Rb D2 software reference; this is "
+            "not finite-power experimental validation.")
+        detail = (
+            f"This pump-off, unbuffered, one-temperature {raw['species']} "
+            "D2 mode is regression-matched to the supplied AutoOD calculator's "
+            "isotope-composition scope; its finite-power output is not "
+            "experimentally validated.")
+    else:
+        value = "Rb D2 extrapolation"
+        help_text = (
+            "Pump, buffer gas, split temperatures, or line-strength scaling is "
+            "outside the regression-matched conditions.")
+        if pump_on:
+            detail = (
+                "The selected Rb D2 ensemble is inside the supplied calculator's "
+                "isotope-composition scope, but the pump-prepared populations are "
+                "frozen before this correction; simultaneous finite pump + finite "
+                "probe is qualitative and omits probe-induced hyperfine repumping.")
+        else:
+            detail = (
+                "Buffer broadening, a released Doppler temperature, or a calibrated "
+                "line-strength factor extrapolates the finite-probe correction "
+                "beyond the supplied AutoOD reference.")
+    if raw.get("probe_passivity_limited", False):
+        detail += (
+            " The frozen-pump residual became non-passive and was reduced "
+            "to a nonnegative-absorption scale; interpret this "
+            "passivity-limited result qualitatively.")
+    return value, help_text, detail
+
+
 class SASScheme(Scheme):
     name = "sas"
     cluster = "A — Absorption"
     title = "Absorption spectroscopy (OD / SAS)"
-    cache_version = "6"            # + finite-probe saturation/passivity guard
-    defaults_version = "4"         # hide Generic + seed the new probe controls
+    cache_version = "7"            # species/line-general finite-probe metadata
+    defaults_version = "5"         # µW probe control + expanded visibility
     supports_headless_observables = True
-    caption = ("Absorption with a counter-propagating pump and optional Natural-Rb D2 "
-               "finite-power probe saturation. Pump off → "
+    caption = ("Absorption with a counter-propagating pump and optional finite-power "
+               "probe saturation for the built-in alkali D lines. Pump off → "
                "linear Doppler-broadened OD (validated 85Rb D1 hyperfine scale); "
                "pump on → Doppler-free saturated-absorption Lamb dips and crossovers "
                "with hyperfine optical pumping. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb.")
@@ -94,21 +192,25 @@ class SASScheme(Scheme):
                       help="Counter-propagating saturating beam. Pull to 0 → linear "
                       "absorption (OD); raise → Doppler-free SAS features. Converted "
                       "to a Rabi frequency via the beam waist and I_sat (see About)."),
-            ParamSpec("probe_power_mw", "Probe beam power", "Probe", 0.0,
-                      0.0, 2.0, 0.01, "mW", endpoints=("◀ weak probe", "saturated ▶"),
-                      visible_if={"species": "Rb (natural)", "line": "D2"},
+            ParamSpec("probe_power_uw", "Probe beam power", "Probe", 0.0,
+                      0.0, 100.0, 0.1, "µW",
+                      endpoints=("◀ weak probe", "saturated ▶"),
+                      visible_if={"species": tuple(species.SPECIES_ORDER)},
                       help="0 keeps the exact weak-probe OD/SAS result. At finite power, "
-                           "apply the AutoOD-NatRbD2 independent-transition two-level "
-                           "saturation and power-broadening model, then propagate the "
-                           "Gaussian beam self-consistently through the cell."),
+                           "apply the AutoOD-style independent-transition two-level "
+                           "saturation and power-broadening estimate, then propagate "
+                           "the Gaussian beam self-consistently through the cell. "
+                           "Rb D2 is reference-scope; D1 and Cs are explicitly "
+                           "labelled generalized estimates."),
             ParamSpec("species", "Atom / isotope", "Atomic", "Rb (natural)",
                       choices=tuple(species.SPECIES_ORDER),
                       help="Natural Rb overlays ⁸⁵Rb+⁸⁷Rb by abundance."),
             ParamSpec("line", "Transition line", "Atomic", "D1",
                       choices=("D1", "D2"),
                       help="D1 (nP₁/₂) or D2 (nP₃/₂). Sets the excited hyperfine "
-                      "manifold. The finite-power probe model is exposed only for "
-                      "Natural Rb D2, the supplied AutoOD calculator's scope."),
+                      "manifold and line-specific probe saturation scale. The supplied "
+                      "AutoOD reference directly covers Rb D2; other built-in lines "
+                      "use a clearly labelled closed-two-level generalization."),
             ParamSpec("temp_c", "Cell temperature", "Cell & beams", 40.0, 20.0, 200.0,
                       1.0, "°C",
                       help="Vapor-density temperature: it fixes the number density "
@@ -151,9 +253,9 @@ class SASScheme(Scheme):
                       "for the power→Rabi conversion."),
             ParamSpec("probe_waist_mm", "Probe beam waist (1/e²)", "Probe", 1.0,
                       0.1, 5.0, 0.05, "mm", advanced=True,
-                      visible_if={"species": "Rb (natural)", "line": "D2"},
+                      visible_if={"species": tuple(species.SPECIES_ORDER)},
                       help="Sets the Gaussian peak probe intensity I₀ = 2P/(πw²). "
-                           "The AutoOD-NatRbD2 reference's 2 mm 1/e² diameter is "
+                           "The Rb-D2 AutoOD reference's 2 mm 1/e² diameter is "
                            "the 1 mm waist used here. The model holds this waist "
                            "constant through the cell and assumes full output-beam "
                            "collection; check the Rayleigh range for small waists."),
@@ -187,7 +289,7 @@ class SASScheme(Scheme):
                                       params.get("line", "D1"))
             base = dict(temp_c=rec["temp_c"], cell_mm=rec["cell_mm"])
             sas_power = rec["pump_power_mw"]
-        base["probe_power_mw"] = 0.0
+        base["probe_power_uw"] = 0.0
         return {"OD default": {**base, "pump_power_mw": 0.0},
                 "SAS default": {**base, "pump_power_mw": sas_power}}
 
@@ -202,27 +304,10 @@ class SASScheme(Scheme):
             "- **Pump on:** Doppler-free Lamb dips + crossovers; CG-branched decay "
             "pumps population into the other ground hyperfine state, enhancing / "
             "inverting the crossovers (the dominant feature of real alkali SAS).\n\n"
-            "**Finite probe power (Natural Rb D2).** Probe power defaults to 0 mW, "
-            "which is the exact inherited weak-probe result. For the Natural-Rb D2 "
-            "selection, a nonzero probe uses the tested `references/AutoOD-NatRbD2` "
-            "model: I₀ = 2P/(πw²), I_sat = πhcΓ/(3λ³), transition saturation "
-            "s_t ∝ C_F², Γ_t = Γ_eff√(1+s_t), self-consistent longitudinal "
-            "dI/dz = −α(I)I propagation, and full Gaussian power averaging. The "
-            "pump-off, unbuffered, one-temperature implementation is regression-"
-            "matched to the supplied calculator; the reference includes no trusted "
-            "finite-power experimental CSV, so this is not experimental validation. "
-            "With the SAS pump on, "
-            "GABES applies the same probe broadening to frozen pump-prepared line "
-            "profiles; probe-induced hyperfine repumping and coherent pump-probe "
-            "coupling are not jointly solved, so that combination is qualitative. "
-            "If that separable correction would predict gain in this passive model, "
-            "the pump-prepared residual is reduced just enough to restore nonnegative "
-            "absorption and the result is explicitly marked passivity-limited. "
-            "D1, pure-isotope, and Cs probe-saturation controls stay unavailable "
-            "until their species/line/polarization scales are sourced. The beam waist "
-            "is held constant through the cell and all output power is collected; "
-            "diffraction, clipping, and transverse atomic transport are omitted. "
-            "Small-waist/long-cell settings therefore require a Rayleigh-range check.\n\n"
+            "**Finite probe power.** A nonzero probe uses independent-transition "
+            "power broadening, longitudinal depletion, and Gaussian beam averaging. "
+            "The Finite-probe model table reports the current reference scope, "
+            "pump-probe limitation, passivity correction, and beam-geometry limits.\n\n"
             "The **pump power** maps to its existing Rabi scale via "
             "I = 2P/(πw²), Ω = Γ·√(I/2I_sat), using the Advanced pump waist.\n\n"
             "The Advanced **Paraffin-coated cell** switch retains the two ground-"
@@ -283,9 +368,13 @@ class SASScheme(Scheme):
         T_density, T_doppler, tied = _temperatures(params)
         gt = 2 * np.pi * params["transit_khz"] * 1e3
         power, waist = params["pump_power_mw"], params["waist_mm"]
-        probe_supported = params["species"] == "Rb (natural)" and line == "D2"
-        probe_power = (float(params.get("probe_power_mw", 0.0))
-                       if probe_supported else 0.0)
+        probe_supported = (
+            params["species"] in species.SPECIES_ORDER
+            and line in ("D1", "D2")
+        )
+        probe_power = _probe_power_mw(params) if probe_supported else 0.0
+        probe_validation_tier = _probe_validation_tier(
+            params["species"], line)
         probe_waist = float(params.get("probe_waist_mm", 1.0))
         probe_peak_intensity = probe_saturation.gaussian_peak_intensity(
             probe_power, probe_waist)
@@ -429,6 +518,8 @@ class SASScheme(Scheme):
                                  if probe_peak_intensity > 0.0
                                  else "weak_probe_legacy"),
                     probe_saturation_supported=probe_supported,
+                    probe_validation_tier=probe_validation_tier,
+                    probe_power_mw=probe_power,
                     probe_peak_intensity=probe_peak_intensity,
                     probe_saturation_max=probe_saturation_max,
                     probe_intensity_log_grid=probe_log_grid,
@@ -470,21 +561,23 @@ class SASScheme(Scheme):
         kv = k * v
 
         # Pump steady state ρ(Δ_eff): scan-independent H, one fine table.
-        Hp = species.pump_hamiltonian(man, Op)
+        pump_off = Op <= 0.0
         om = man.omega
         DS = scan - offset
-        covered_detunings = None
-        if b.get("paraffin_memory", False):
-            covered_detunings = (
-                float(DS.min() + kv.min()), float(DS.max() + kv.max()))
-        deff = _pump_detuning_axis(
-            om, gamma_eff, covered_detunings=covered_detunings)
-        if b.get("paraffin_memory", False):
-            basis_pops = _basis_reset_pump_pops(
-                man, Hp, deff, b["transit_rate"])
-        else:
-            L0 = core.build_liouvillian(Hp, man.atom)
-            pops = _pump_pops(L0, deff, man.atom.S_v, man.n_levels)
+        if not pump_off:
+            Hp = species.pump_hamiltonian(man, Op)
+            covered_detunings = None
+            if b.get("paraffin_memory", False):
+                covered_detunings = (
+                    float(DS.min() + kv.min()), float(DS.max() + kv.max()))
+            deff = _pump_detuning_axis(
+                om, gamma_eff, covered_detunings=covered_detunings)
+            if b.get("paraffin_memory", False):
+                basis_pops = _basis_reset_pump_pops(
+                    man, Hp, deff, b["transit_rate"])
+            else:
+                L0 = core.build_liouvillian(Hp, man.atom)
+                pops = _pump_pops(L0, deff, man.atom.S_v, man.n_levels)
 
         # Homogeneous unit-area lineshape: the weak-probe 2-level absorption is a
         # Lorentzian of FWHM Γ_eff, ∫L̂ dδ = 1. Evaluated analytically at the probe
@@ -494,29 +587,31 @@ class SASScheme(Scheme):
         # Absolute per-line integrated absorption A_t (AutoOD normalisation, ls=1).
         Aline = species.line_integrated_alpha(iso, line=man.line, N=N)
 
-        deff_grid = DS[:, None] + kv[None, :]                # pump Δ_eff (ns, nv)
         probe_base = DS[:, None] - kv[None, :]               # probe arg base
-        levels = set(man.g_idx.tolist()) | set(man.e_idx.tolist())
-        if b.get("paraffin_memory", False):
-            reservoir = _coated_ground_populations(
-                man, basis_pops, deff, deff_grid, wt,
-                cycle_rate=b["transit_rate"])
-            pop_at = {}
-            flat_deff = deff_grid.ravel()
-            for lvl in levels:
-                local = np.zeros_like(deff_grid)
-                for source in range(ng):
-                    conditioned = np.interp(
-                        flat_deff, deff, basis_pops[source, :, lvl]
-                    ).reshape(deff_grid.shape)
-                    local += reservoir[:, source, None] * conditioned
-                pop_at[lvl] = local
-        else:
-            pop_at = {
-                lvl: np.interp(deff_grid.ravel(), deff, pops[:, lvl]).reshape(
-                    deff_grid.shape)
-                for lvl in levels
-            }
+        pop_at = None
+        if not pump_off:
+            deff_grid = DS[:, None] + kv[None, :]            # pump Δ_eff (ns, nv)
+            levels = set(man.g_idx.tolist()) | set(man.e_idx.tolist())
+            if b.get("paraffin_memory", False):
+                reservoir = _coated_ground_populations(
+                    man, basis_pops, deff, deff_grid, wt,
+                    cycle_rate=b["transit_rate"])
+                pop_at = {}
+                flat_deff = deff_grid.ravel()
+                for lvl in levels:
+                    local = np.zeros_like(deff_grid)
+                    for source in range(ng):
+                        conditioned = np.interp(
+                            flat_deff, deff, basis_pops[source, :, lvl]
+                        ).reshape(deff_grid.shape)
+                        local += reservoir[:, source, None] * conditioned
+                    pop_at[lvl] = local
+            else:
+                pop_at = {
+                    lvl: np.interp(deff_grid.ravel(), deff, pops[:, lvl]).reshape(
+                        deff_grid.shape)
+                    for lvl in levels
+                }
 
         alpha = np.zeros(scan.size)
         chi_real = np.zeros(scan.size)
@@ -525,7 +620,8 @@ class SASScheme(Scheme):
             g, e = man.g_idx[t], man.e_idx[t]
             fg, fe = man.Fg[g], man.Fe[e - ng]
             A_t = Aline[(fg, fe)]
-            w = (pop_at[g] - pop_at[e]) / man.p_ground[g]    # 1 at pump off
+            w = (1.0 if pump_off else
+                 (pop_at[g] - pop_at[e]) / man.p_ground[g])
             arg = probe_base - om[t]
             denom = arg ** 2 + hwhm ** 2
             Lp = (hwhm / np.pi) / denom                      # unit-area Lorentzian
@@ -560,13 +656,17 @@ class SASScheme(Scheme):
 
         buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
         gamma_eff = GAMMA + buffer_gamma
-        atom = atoms.sas_atom(n_exc, gamma=gamma_eff)
         Op = species.pump_rabi_from_power(params["pump_power_mw"], params["waist_mm"], GAMMA)
-        Hp = np.zeros((atom.n_levels, atom.n_levels), dtype=complex)
-        for i, e in enumerate(atom.excited):
-            Hp[e, e] = offsets[i]
-            Hp[0, e] = Hp[e, 0] = Op / 2
-        L0_pump = core.build_liouvillian(Hp, atom)
+        pump_off = Op <= 0.0
+        atom = None
+        L0_pump = None
+        if not pump_off:
+            atom = atoms.sas_atom(n_exc, gamma=gamma_eff)
+            Hp = np.zeros((atom.n_levels, atom.n_levels), dtype=complex)
+            for i, e in enumerate(atom.excited):
+                Hp[e, e] = offsets[i]
+                Hp[0, e] = Hp[e, 0] = Op / 2
+            L0_pump = core.build_liouvillian(Hp, atom)
 
         T_density, T_doppler, tied = _temperatures(params)
         sigma_v = np.sqrt(constants.KB * T_doppler / constants.MASS_85RB)
@@ -593,24 +693,28 @@ class SASScheme(Scheme):
         alpha_L, chi_L = observables.absorption_coefficient(chi_pr, K_VEC, N)
         chi_real_L = np.real(chi_L)
 
-        # The pump H₀ is scan-independent — the scan enters only through the pump
-        # Δ_eff = D + k·v — so solve the pump populations ONCE on a fine Δ_eff
-        # table and interpolate, instead of re-solving the OBE at every scan
-        # point. Same Δ_eff-table trick the realistic species OD/SAS path uses;
-        # cuts the pump solves from (scan_points × velocity) down to one table.
         ns, nv = scan.size, v.size
-        dlo, dhi = scan.min() + kv.min(), scan.max() + kv.max()
-        n_grid = int((dhi - dlo) / (gamma_eff / 8.0)) + 2
-        deff_p = np.linspace(dlo, dhi, n_grid)
-        pops = _pump_pops(L0_pump, deff_p, atom.S_v, atom.n_levels)   # (n_grid, n)
-
-        dgrid = (scan[:, None] + kv[None, :]).ravel()                 # pump Δ_eff
-        rho_gg = np.interp(dgrid, deff_p, pops[:, 0]).reshape(ns, nv)
+        if pump_off:
+            rho_gg = 1.0
+            excited_pops = (0.0,) * n_exc
+        else:
+            # Pump H₀ is scan-independent. Solve one effective-detuning table.
+            dlo, dhi = scan.min() + kv.min(), scan.max() + kv.max()
+            n_grid = int((dhi - dlo) / (gamma_eff / 8.0)) + 2
+            deff_p = np.linspace(dlo, dhi, n_grid)
+            pops = _pump_pops(
+                L0_pump, deff_p, atom.S_v, atom.n_levels)
+            dgrid = (scan[:, None] + kv[None, :]).ravel()
+            rho_gg = np.interp(
+                dgrid, deff_p, pops[:, 0]).reshape(ns, nv)
+            excited_pops = tuple(
+                np.interp(dgrid, deff_p, pops[:, e]).reshape(ns, nv)
+                for e in atom.excited
+            )
         probe_base = scan[:, None] - kv[None, :]
         alpha = np.zeros(ns)
         chi_real = np.zeros(ns)
-        for i, e in enumerate(atom.excited):
-            pe = np.interp(dgrid, deff_p, pops[:, e]).reshape(ns, nv)
+        for i, pe in enumerate(excited_pops):
             probe_arg = (probe_base - offsets[i]).ravel()
             aL = np.interp(probe_arg, fine, alpha_L).reshape(ns, nv)
             xL = np.interp(probe_arg, fine, chi_real_L).reshape(ns, nv)
@@ -664,10 +768,10 @@ class SASScheme(Scheme):
         pump_on = pump > 0
         finite_probe = raw.get("probe_model") == (
             "finite_power_2level_gaussian_propagation")
-        probe_power = float(params.get("probe_power_mw", 0.0))
+        probe_power = float(raw.get("probe_power_mw", _probe_power_mw(params)))
         regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
         if finite_probe:
-            regime += f", probe = {probe_power:.2f} mW"
+            regime += f", probe = {probe_power * 1e3:.1f} µW"
 
         fig = None
         figure_views = []
@@ -739,30 +843,7 @@ class SASScheme(Scheme):
                  "hyperfine pumping.\n\n| Transition | Center [MHz] |\n|---|---|\n" + rows)
         tables = [{"title": "Hyperfine lines", "markdown": table}]
         if finite_probe:
-            reference_scope = (
-                not pump_on
-                and raw.get("buffer_gamma", 0.0) == 0.0
-                and raw.get("doppler_temp_tied", True)
-            )
-            if pump_on:
-                qualifier = (
-                    "The pump-prepared populations are frozen before this correction; "
-                    "simultaneous finite pump + finite probe is qualitative and does "
-                    "not include probe-induced hyperfine repumping.")
-            elif reference_scope:
-                qualifier = (
-                    "This pump-off, unbuffered, one-temperature Natural-Rb D2 mode "
-                    "is regression-matched to the supplied AutoOD calculator; its "
-                    "finite-power output is not experimentally validated.")
-            else:
-                qualifier = (
-                    "Buffer broadening or a released Doppler temperature extrapolates "
-                    "the finite-probe correction beyond the supplied AutoOD reference.")
-            if raw.get("probe_passivity_limited", False):
-                qualifier += (
-                    " The frozen-pump residual became non-passive and was reduced "
-                    "to a nonnegative-absorption scale; interpret this "
-                    "passivity-limited result qualitatively.")
+            _, _, qualifier = _probe_scope_text(raw, params)
             tables.append({
                 "title": "Finite-probe model",
                 "markdown": (
@@ -772,8 +853,8 @@ class SASScheme(Scheme):
                     f"{qualifier} The beam waist is held constant through the cell "
                     "and the detector collects the full output beam; diffraction, "
                     "clipping, and transverse atomic transport are omitted. "
-                    "Dispersion is unavailable because the reference "
-                    "does not define a collected phase for the spatially varying "
+                    "Dispersion is unavailable because this model does not define "
+                    "a collected phase for the spatially varying "
                     "nonlinear susceptibility."
                 ),
             })
@@ -1090,13 +1171,19 @@ def _probe_saturation_metrics(raw, params, length_m):
         return []
     saturation = float(raw["probe_saturation_max"])
     intensity = float(raw["probe_peak_intensity"])
+    scope_value, scope_help, _ = _probe_scope_text(raw, params)
     metrics = [dict(
         label="Peak probe saturation",
         value=f"{saturation:.2f}",
         help=("Strongest-transition on-axis resonant s₀ before propagation; "
-              f"Gaussian peak intensity {intensity:.3g} W/m². Natural-Rb D2 "
-              "closed-two-level scale from AutoOD-NatRbD2. Hyperfine transitions "
-              "use s_t = s₀·C_F²/C_F,max² and local intensity depletion."),
+              f"Gaussian peak intensity {intensity:.3g} W/m². The selected "
+              "line's ν and Γ set I_sat = πhcΓ/(3λ³). Hyperfine transitions use "
+              "the AutoOD-style s_t = s₀·C_F²/C_F,max² scale and local intensity "
+              "depletion."),
+    ), dict(
+        label="Probe model scope",
+        value=scope_value,
+        help=scope_help,
     )]
     if raw.get("probe_passivity_limited", False):
         residual_scale = float(raw.get("probe_residual_scale_min", 0.0))
@@ -1165,7 +1252,7 @@ def _gaussian_doppler_metric(dopp_fwhm, raw=None):
 
 
 def _subdoppler_metrics(feature, mhz_per_x):
-    """User-facing resolution ledger for a :class:`SubdopplerFeature`."""
+    """User-facing resolution diagnostics for a :class:`SubdopplerFeature`."""
     status = dict(
         label="SAS resolution",
         value=feature.status,
@@ -1181,8 +1268,8 @@ def _subdoppler_metrics(feature, mhz_per_x):
             label="Sub-Doppler FWHM",
             value=f"{feature.fwhm * scale:.2f} MHz",
             help=f"Interpolated residual half-height width near "
-                 f"{feature.center * scale:+.1f} MHz; trust as a linewidth only "
-                 "when SAS resolution is resolved.",
+                 f"{feature.center * scale:+.1f} MHz; report the linewidth only "
+                 "when the SAS resolution status is resolved.",
         ),
         dict(
             label="Half-height edges",

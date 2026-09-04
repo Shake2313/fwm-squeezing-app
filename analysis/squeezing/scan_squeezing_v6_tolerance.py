@@ -1,16 +1,16 @@
 """
 v6 tolerance scan: how far each experimentally tunable knob can drift from the
-v6 finite-loss hardened-Ultra optimum before the squeezing degrades past a
+v6 finite-loss hardened-Ultra optimum before the gain diagnostic degrades past a
 threshold.
 
 Center (v6 global optimum, squeezing_report_v6.tex):
-  Delta = -1.50 GHz, T = 110 C, delta(TPD) = -280 MHz,
+  Δ = -1.50 GHz, T = 110 C, δ = -280 MHz,
   P_pump = 0.6 W, P_probe = 8 uW, line_strength = 0.74,
   QE = 0.92, loss = 0.055 (eta = 0.8694)  ->  xi = -8.102 dB, G_s = 22.6.
 
 Scanned knobs (one at a time, everything else pinned at the center):
-  1. OPD   (one-photon detuning Delta)      - re-solve per point
-  2. TPD   (two-photon detuning delta)      - one fine-delta solve at the center
+  1. one-photon detuning Δ                 - re-solve per point
+  2. two-photon detuning δ                 - one fine-δ solve at the center
   3. T     (cell temperature)               - re-solve per point
   4. P_probe (seed power)                   - re-solve per point
   5. loss  (detection loss fraction)        - analytic eta remap, no re-solve
@@ -18,8 +18,8 @@ Scanned knobs (one at a time, everything else pinned at the center):
 Two readouts for the re-solve scans:
   * fixed-delta: xi at delta = -280 MHz exactly (pure drift: nothing re-tuned).
     This is the physical drift scenario when probe is AOM/EOM-derived from the
-    pump (TPD stays locked while OPD/T/power drift).
-  * best-delta:  xi at the gap-gated deepest delta (experimenter re-tunes TPD).
+    pump (δ stays locked while Δ/T/power drift).
+  * re-tuned δ: xi at the gap-gated minimum over δ.
 
 Trust gate: same twin-beam gap gate as the frontier scan
   (GAP_MIN <= G_s - G_c <= GAP_MAX), delta-window edges excluded for best-delta.
@@ -78,7 +78,7 @@ BRANCH = -1
 # best-delta readout near the gap-gate boundary.
 WINDOW_GHZ = 0.7
 COARSE = 281                   # 5 MHz spacing; TPD0 = -280 sits on-grid
-COARSE_FINE = 281              # same grid for the TPD tolerance curve
+COARSE_FINE = 281              # same grid for the two-photon-detuning curve
 VELOCITY_STEP = 5.0
 VELOCITY_CUTOFF = 3.0
 
@@ -191,22 +191,22 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
 
-    # ---- center point (fine delta axis: TPD curve + loss remap + validation)
-    print("center solve (fine delta axis)...", flush=True)
+    # ---- center point (fine δ axis, loss remap, and validation) ------------
+    print("center solve (fine δ axis)...", flush=True)
     sol_c = _solve(D0_GHZ, T0_C, P_PROBE0, coarse=COARSE_FINE)
     fixed_c, best_c = _readouts(sol_c)
     xi_c = fixed_c["xi"]
     print(f"  v6 center: xi(fixed delta -280 MHz) = {xi_c:.4f} dB, "
           f"gap = {fixed_c['gap']:.3f}")
-    print(f"  best-delta readout: xi = {best_c['xi']:.4f} dB @ "
-          f"TPD = {best_c['tpd']:.1f} MHz, gap = {best_c['gap']:.3f} "
+    print(f"  re-tuned-δ readout: xi = {best_c['xi']:.4f} dB @ "
+          f"δ = {best_c['tpd']:.1f} MHz, gap = {best_c['gap']:.3f} "
           f"(v6 report: -8.102 dB @ -280.0 MHz, gap 0.623)")
     # loss remap must reproduce the solved S_dB at the reference loss
     xi_remap_ref = _xi_of_loss(sol_c, fixed_c["idx"], np.array([LOSS0]))[0]
     print(f"  eta-remap check @ loss={LOSS0}: remap {xi_remap_ref:.4f} dB "
           f"vs solve {xi_c:.4f} dB (diff {abs(xi_remap_ref - xi_c):.2e})")
 
-    # ---- re-solve scans (OPD, T, P_probe) in one thread pool ---------------
+    # ---- re-solve scans (Δ, T, P_probe) in one thread pool -----------------
     jobs = ([("opd", i, float(d), T0_C, P_PROBE0)
              for i, d in enumerate(OPD_AXIS_GHZ)]
             + [("temp", i, D0_GHZ, float(t), P_PROBE0)
@@ -241,7 +241,7 @@ def main():
     xi_t_f, gap_t, ftr_t, xi_t_b, tr_t, tpd_t = _unpack("temp")
     xi_p_f, gap_p, ftr_p, xi_p_b, tr_p, tpd_p = _unpack("ppr")
 
-    # ---- TPD curve (from the fine center solve) + loss remap ---------------
+    # ---- two-photon-detuning curve and loss remap ---------------------------
     tpd_axis = sol_c["tpd_mhz"]
     xi_tpd = sol_c["xi"]
     gap_tpd = sol_c["Gs"] - sol_c["Gc"]
@@ -249,13 +249,14 @@ def main():
 
     # ---- tolerance table ----------------------------------------------------
     scans = [
-        ("OPD [GHz]", OPD_AXIS_GHZ, xi_opd_f, D0_GHZ, " GHz"),
-        ("TPD [MHz]", tpd_axis, xi_tpd, TPD0_MHZ, " MHz"),
+        ("one-photon detuning Δ [GHz]", OPD_AXIS_GHZ, xi_opd_f, D0_GHZ, " GHz"),
+        ("two-photon detuning δ [MHz]", tpd_axis, xi_tpd, TPD0_MHZ, " MHz"),
         ("T [C]", TEMP_AXIS_C, xi_t_f, T0_C, " C"),
         ("P_probe [x ref]", PPROBE_FACTORS, xi_p_f, 1.0, " x"),
         ("loss [frac]", LOSS_AXIS, xi_loss, LOSS0, ""),
     ]
-    gate_trust = {"OPD [GHz]": ftr_opd, "TPD [MHz]": (gap_tpd >= GAP_MIN) & (gap_tpd <= GAP_MAX),
+    gate_trust = {"one-photon detuning Δ [GHz]": ftr_opd,
+                  "two-photon detuning δ [MHz]": (gap_tpd >= GAP_MIN) & (gap_tpd <= GAP_MAX),
                   "T [C]": ftr_t, "P_probe [x ref]": ftr_p, "loss [frac]": None}
     table = {}
     print("\n================  TOLERANCE (fixed-delta readout)  ================")
@@ -285,10 +286,11 @@ def main():
                   f"[{x_arr[i_lo]:+g}, {x_arr[i_hi]:+g}]{unit}")
         table[name] = row
 
-    print("\n================  BEST-DELTA (TPD re-tuned) readout  ============")
-    print(f"center best-delta xi = {best_c['xi']:.3f} dB")
+    print("\n================  RE-TUNED δ READOUT  ================")
+    print(f"center re-tuned-δ xi = {best_c['xi']:.3f} dB")
     for name, x, xc, xi_b, tr, unit in [
-            ("OPD [GHz]", OPD_AXIS_GHZ, D0_GHZ, xi_opd_b, tr_opd, " GHz"),
+            ("one-photon detuning Δ [GHz]", OPD_AXIS_GHZ, D0_GHZ,
+             xi_opd_b, tr_opd, " GHz"),
             ("T [C]", TEMP_AXIS_C, T0_C, xi_t_b, tr_t, " C"),
             ("P_probe [x ref]", PPROBE_FACTORS, 1.0, xi_p_b, tr_p, " x")]:
         print(f"  {name}:")
@@ -330,7 +332,8 @@ def _plot(xi_c, scans, table, gap_tpd, gate_trust, opd_b, t_b, p_b):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    best_curves = {"OPD [GHz]": opd_b, "T [C]": t_b, "P_probe [x ref]": p_b}
+    best_curves = {"one-photon detuning Δ [GHz]": opd_b,
+                   "T [C]": t_b, "P_probe [x ref]": p_b}
     fig, axes = plt.subplots(2, 3, figsize=(16.5, 8.6))
     axs = axes.ravel()
     for ax, (name, x, xi, xc, unit) in zip(axs, scans):
@@ -345,7 +348,7 @@ def _plot(xi_c, scans, table, gap_tpd, gate_trust, opd_b, t_b, p_b):
         if name in best_curves:
             xb, trb = best_curves[name]
             ax.plot(x, np.where(trb, xb, np.nan), "s--", color="#2ca02c",
-                    ms=3, lw=1.1, label="best delta (TPD re-tuned)")
+                    ms=3, lw=1.1, label="re-tuned δ")
         for thr, color in zip(THRESHOLDS_DB, ("#bbbbbb", "#ff7f0e", "#d62728")):
             ax.axhline(xi_c + thr, color=color, ls="--", lw=0.9)
             lo, hi = table[name][thr]
@@ -355,7 +358,7 @@ def _plot(xi_c, scans, table, gap_tpd, gate_trust, opd_b, t_b, p_b):
         ax.scatter([xc], [xi_c], color="gold", edgecolor="k", s=70, zorder=5)
         if name.startswith("P_probe"):
             ax.set_xscale("log", base=2)
-        if name.startswith("TPD"):
+        if name.startswith("two-photon"):
             ax2 = ax.twinx()
             ax2.plot(x, gap_tpd, "-", color="0.6", lw=0.8, alpha=0.7)
             ax2.axhspan(GAP_MIN, GAP_MAX, color="0.85", alpha=0.3)

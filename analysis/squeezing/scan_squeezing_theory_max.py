@@ -1,18 +1,16 @@
-"""
-Extended, high-resolution search for the *theoretical* squeezing maximum.
+"""Extended search for the minimum gain-derived mean-field diagnostic.
 
 Differences from scan_squeezing_delta_T.py (the validated/loss=5.5% map):
-  * loss = 0           -> detection floor moves to 10log10(1-QE) = -10.2 dB
-  * also reports eta=1  -> intrinsic source squeezing S_ideal (no floor)
-  * much wider OPD      -> Δ in [-4, +8] GHz
+  * loss = 0           -> detection-loss asymptote is 10log10(1-QE) = -10.2 dB
+  * also reports eta=1 -> ideal-law gain diagnostic S_ideal
+  * wider one-photon-detuning range -> Δ in [-4, +8] GHz
   * higher resolution   -> finer δ scan, finer velocity grid, more points
-  * cap sweep           -> how the intrinsic maximum scales with the
+  * cap sweep           -> how the diagnostic scales with the
                            Manley-Rowe pump-depletion ceiling 1 + P_pump/(2 P_seed)
 
-Key efficiency: G_s, G_c do not depend on the detection efficiency η, and the
-δ that minimises S is η-independent (S(η)=η·S_ideal+(1-η) is monotone in
-S_ideal). So we run the (Δ,T) grid ONCE, store the deepest-squeezing operating
-point's gains, and read off squeezing for any η afterwards.
+G_s and G_c do not depend on detection efficiency η. Because
+S(η)=η·S_ideal+(1-η) is monotone in S_ideal, the minimizing δ is also
+η-independent. The (Δ,T) grid is therefore solved once and remapped for each η.
 
     python analysis/squeezing/scan_squeezing_theory_max.py
 """
@@ -42,7 +40,7 @@ BRANCH = -1
 WINDOW_GHZ = 0.60             # half-width of the focused δ (probe) scan
 
 # Detection efficiencies we read off the same gains:
-ETA_IDEAL = 1.0                       # intrinsic source squeezing (no floor)
+ETA_IDEAL = 1.0                       # ideal-law gain diagnostic
 ETA_QE = QE                           # lossless detection, QE-limited
 ETA_REF = QE * (1.0 - 0.055)          # original 5.5%-loss reference
 
@@ -50,7 +48,7 @@ def floor_dB(eta):
     return 10.0 * np.log10(max(1.0 - eta, 1e-300))
 
 # ---- High-resolution scan grid ---------------------------------------------
-DELTA_GHZ = np.round(np.arange(-4.0, 8.0 + 1e-9, 0.2), 3)     # wide OPD
+DELTA_GHZ = np.round(np.arange(-4.0, 8.0 + 1e-9, 0.2), 3)
 TEMP_C = np.round(np.arange(70.0, 185.0 + 1e-9, 5.0), 3)      # up to 185 C
 COARSE_POINTS = 201          # δ resolution ~6 MHz over the window
 VELOCITY_STEP = 3.0          # finer Doppler grid
@@ -58,11 +56,7 @@ VELOCITY_STEP = 3.0          # finer Doppler grid
 
 def deepest_point(D_GHz, T_K, coarse=COARSE_POINTS, vstep=VELOCITY_STEP,
                   P_pump=P_PUMP, P_seed=P_SEED, ls=LINE_STRENGTH):
-    """At the δ that gives the *most* squeezing (min S_ideal), return the gains.
-
-    Returns the operating point that minimises S_ideal (= maximises balanced
-    gain) on the (-) branch; squeezing for any η follows from (G_s, G_c).
-    """
+    """Return gains at the minimum η=1 mean-field diagnostic on the (-) branch."""
     center = fwm.branch_center_GHz(D_GHz, BRANCH)
     with blas_single_thread():
         spec = fwm.compute_spectrum(
@@ -72,7 +66,7 @@ def deepest_point(D_GHz, T_K, coarse=COARSE_POINTS, vstep=VELOCITY_STEP,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
             velocity_step=vstep, velocity_cutoff=3.0, branch=BRANCH)
     Gs, Gc = spec["G_s"], spec["G_c"]
-    # S_ideal per δ (eta=1) -> argmin is the deepest squeezing point.
+    # The η=1 diagnostic selects one operating point on the δ axis.
     s_ideal_dB = ob.intensity_difference_squeezing_dB(Gs, Gc, 1.0)
     i = int(np.nanargmin(s_ideal_dB))
     n = Gs.size
@@ -118,42 +112,42 @@ def run_grid():
     return Sid, Gs, Gc, Dlt, Edge
 
 
-def squeezing_dB(Gs, Gc, eta):
-    """Vectorised S_dB over the whole map for one η."""
+def gain_diagnostic_dB(Gs, Gc, eta):
+    """Evaluate the gain-derived mean-field diagnostic for one η."""
     flat = ob.intensity_difference_squeezing_dB(
         np.asarray(Gs).ravel(), np.asarray(Gc).ravel(), eta)
     return flat.reshape(np.asarray(Gs).shape)
 
 
 def report_eta(name, eta, Gs, Gc, Dlt):
-    S = squeezing_dB(Gs, Gc, eta)
+    S = gain_diagnostic_dB(Gs, Gc, eta)
     flat = int(np.nanargmin(S))
     iD, iT = np.unravel_index(flat, S.shape)
     fl = floor_dB(eta)
     print(f"\n--- η = {eta:.4f}  ({name}) ---")
-    print(f"  floor 10log10(1-η)      = {fl:8.3f} dB"
-          if eta < 1 else "  floor                   = -inf (no detection floor)")
-    print(f"  best squeezing ξ_max    = {S[iD,iT]:8.3f} dB")
+    print(f"  detection-loss asymptote = {fl:8.3f} dB"
+          if eta < 1 else "  detection-loss asymptote = -inf")
+    print(f"  minimum gain diagnostic  = {S[iD,iT]:8.3f} dB")
     print(f"    at Δ = {DELTA_GHZ[iD]:+.2f} GHz, T = {TEMP_C[iT]:.0f} °C, "
           f"δ = {Dlt[iD,iT]:.1f} MHz")
     print(f"    G_s = {Gs[iD,iT]:.3e}, G_c = {Gc[iD,iT]:.3e}")
     if eta < 1:
         n_floor = int(np.sum(S < fl + 0.01))
-        print(f"  points within 0.01 dB of floor: {n_floor}/{S.size}")
-        # efficient frontier: lowest T that reaches the floor, and its Δ
+        print(f"  points within 0.01 dB of asymptote: {n_floor}/{S.size}")
+        # Lowest temperature that reaches the detection-loss asymptote.
         reached = S < fl + 0.05
         if reached.any():
             iTs = np.where(reached.any(axis=0))[0]
             jT = iTs.min()
             iD_best = int(np.nanargmin(S[:, jT]))
-            print(f"  efficient frontier: floor first reached at "
+            print(f"  asymptote first reached at "
                   f"T = {TEMP_C[jT]:.0f} °C, Δ = {DELTA_GHZ[iD_best]:+.2f} GHz "
                   f"(G_s = {Gs[iD_best,jT]:.1f})")
     return S
 
 
 def cap_sweep():
-    """Intrinsic (η=1) deepest squeezing vs the pump-depletion ceiling.
+    """Minimum η=1 gain diagnostic versus the pump-depletion ceiling.
 
     cap = 1 + P_pump/(2 P_seed). Pushed to a high T so the small-signal gain
     saturates against the cap. The conserved-(N_s−N_c) ideal squeezing is
@@ -162,18 +156,17 @@ def cap_sweep():
 
     Caveat (collisional decoherence, `fwm.collisional_atom`): at the high T needed
     to saturate the cap, Rb self-broadening adds real in-cell absorption, so the
-    propagation no longer preserves G_s−G_c = 1 (the twin gains are compressed
-    toward each other, gap < 1). The lossless formula then reports S_ideal *below*
-    the 1/(2G−1) reference — this is the ideal expression applied outside its
-    lossless domain, not extra physical squeezing. A faithful lossy source needs
+    propagation no longer preserves G_s−G_c = 1 (gap < 1). The lossless formula
+    then reports S_ideal below the 1/(2G−1) reference. This is the ideal expression
+    outside its lossless domain, not a source-noise prediction. A lossy model needs
     the quantum-Langevin noise channel (docs/checklist.json
     `fwm-quantum-langevin-noise`); until then treat the η=1 column as a lossless
-    idealization and the `gap` as the diagnostic of how far it is trusted.
+    gain-only diagnostic; use `gap` as its trust check.
     """
-    print("\n================  CAP SWEEP (η=1, intrinsic)  ================")
+    print("\n================  CAP SWEEP (η=1 diagnostic)  ================")
     print("  using Δ = +2.0 GHz, T = 180 °C (high gain), loss = 0")
     print(f"  {'P_pump[W]':>9} {'P_seed[uW]':>10} {'cap':>12} {'G_s':>12} "
-          f"{'gap Gs-Gc':>10} {'S_ideal[dB]':>12} {'1/(2G-1)[dB]':>13}")
+          f"{'gap Gs-Gc':>10} {'η=1 diag[dB]':>12} {'1/(2G-1)[dB]':>13}")
     combos = [
         (0.6, 8e-6), (0.6, 1e-6), (1.2, 1e-6),
         (1.2, 1e-7), (2.0, 1e-8),
@@ -189,15 +182,16 @@ def cap_sweep():
               f"{r['G_s']:12.3e} {gap:10.3f} {r['S_ideal_dB']:12.3f} {pred:13.3f}")
         rows.append((cap, r["G_s"], r["S_ideal_dB"]))
     print("  (gap Gs-Gc → 1 in the lossless limit; gap < 1 flags collisional "
-          "absorption\n   breaking the twin-beam relation, so S_ideal runs below "
+          "absorption\n   breaking the twin-beam relation, so the η=1 diagnostic is below "
           "the 1/(2G-1) reference.)")
     return rows
 
 
 def main():
-    print("Extended theoretical-maximum search (loss = 0)")
-    print(f"  QE = {QE},  floor(η=QE) = {floor_dB(ETA_QE):.3f} dB")
-    print(f"  grid: {DELTA_GHZ.size} OPD ({DELTA_GHZ[0]}..{DELTA_GHZ[-1]} GHz) "
+    print("Gain-derived mean-field diagnostic search (loss = 0)")
+    print(f"  QE = {QE}, asymptote(η=QE) = {floor_dB(ETA_QE):.3f} dB")
+    print(f"  grid: {DELTA_GHZ.size} one-photon detunings Δ "
+          f"({DELTA_GHZ[0]}..{DELTA_GHZ[-1]} GHz) "
           f"x {TEMP_C.size} T ({TEMP_C[0]}..{TEMP_C[-1]} °C) "
           f"= {DELTA_GHZ.size*TEMP_C.size} points")
     print(f"  δ window ±{WINDOW_GHZ} GHz, coarse={COARSE_POINTS}, "
@@ -211,15 +205,14 @@ def main():
 
     S_qe = report_eta("lossless, QE-limited", ETA_QE, Gs, Gc, Dlt)
     S_ref = report_eta("original 5.5% loss", ETA_REF, Gs, Gc, Dlt)
-    # intrinsic (η=1)
+    # η=1 ideal-law diagnostic.
     flat = int(np.nanargmin(Sid))
     iD, iT = np.unravel_index(flat, Sid.shape)
-    print(f"\n--- η = 1 (intrinsic source S_ideal, no floor) ---")
-    print(f"  deepest S_ideal = {Sid[iD,iT]:.3f} dB at "
+    print(f"\n--- η = 1 (ideal-law gain diagnostic) ---")
+    print(f"  minimum diagnostic = {Sid[iD,iT]:.3f} dB at "
           f"Δ = {DELTA_GHZ[iD]:+.2f} GHz, T = {TEMP_C[iT]:.0f} °C")
     print(f"    G_s = {Gs[iD,iT]:.3e} (cap-limited); "
-          f"S_ideal scales as 1/(2G-1) -> no interior maximum, only the gain "
-          f"ceiling bounds it.")
+          "the η=1 diagnostic follows 1/(2G-1) and is bounded by the gain ceiling.")
 
     rows = cap_sweep()
 
@@ -242,20 +235,20 @@ def _plot(Sid, S_qe, Gs, out):
     fig, axes = plt.subplots(1, 3, figsize=(17, 4.8))
     extent = [TEMP_C[0], TEMP_C[-1], DELTA_GHZ[0], DELTA_GHZ[-1]]
 
-    # (1) lossless QE-limited squeezing map
+    # (1) Lossless, QE-limited gain diagnostic.
     im0 = axes[0].imshow(S_qe, origin="lower", aspect="auto", extent=extent,
                          cmap="viridis_r")
-    fig.colorbar(im0, ax=axes[0], label="ξ [dB]")
+    fig.colorbar(im0, ax=axes[0], label="gain-derived diagnostic [dB]")
     axes[0].axhline(0.9, color="white", ls=":", lw=0.8)
     axes[0].set_title(f"Lossless (η=QE): floor {floor_dB(ETA_QE):.1f} dB")
     axes[0].set_xlabel("T [°C]"); axes[0].set_ylabel("Δ [GHz]")
 
-    # (2) intrinsic S_ideal map (clipped for visibility)
+    # (2) η=1 ideal-law gain diagnostic.
     Sid_clip = np.clip(Sid, -40, 0)
     im1 = axes[1].imshow(Sid_clip, origin="lower", aspect="auto", extent=extent,
                          cmap="magma_r")
-    fig.colorbar(im1, ax=axes[1], label="S_ideal [dB] (clip −40)")
-    axes[1].set_title("Intrinsic source (η=1): no floor → gain-limited")
+    fig.colorbar(im1, ax=axes[1], label="η=1 gain diagnostic [dB] (clip −40)")
+    axes[1].set_title("η=1 ideal law; gain-limited")
     axes[1].set_xlabel("T [°C]"); axes[1].set_ylabel("Δ [GHz]")
 
     # (3) log10 gain map

@@ -40,7 +40,7 @@ from sabes.calibration import default_calibration
 from sabes.detection import DetectionSettings
 
 SESSION_PREFIX = "_sabes_"
-SETTINGS_VERSION = "sabes-stage-d-v1"
+SETTINGS_VERSION = "sabes-eom-noise-v3"
 
 FIDELITIES = (fwm.FIDELITY_FAST, fwm.FIDELITY_ULTRA)
 
@@ -77,6 +77,13 @@ CONTROLS = {
     "eom_rf_dbm": ("RF drive", "dBm", 0.0, 30.0, 0.5,
                    "Sets the modulation index β = π V_peak / V_π and hence how "
                    "much power lands in the wanted −1 sideband."),
+    "eom_unwanted_rin_db_per_hz": (
+        "Unwanted-mode RIN", "dBc/Hz", -180.0, -60.0, 1.0,
+        "One-sided fractional-intensity-noise PSD for each unwanted "
+        "post-etalon EOM mode. It is an input, not an RF/EOM calculation. "
+        "Measure it at the detector plane before using it as a calibrated value. "
+        "The -100 dBc/Hz default is a Sim-scale sensitivity setting, not a "
+        "measurement of the installed system."),
     "hwp_eom_deg": ("HWP angle", "°", 0.0, 90.0, 0.5,
                     "Aligns the input to the modulator's polarization axis."),
     "etalon_detune_ghz_1": ("Detuning", "GHz", -2.0, 2.0, 0.01,
@@ -140,12 +147,6 @@ CONTROLS = {
 #: each stage has its own knob and its own temperature.
 ETALON_KEYS = ("etalon_detune_ghz_1", "etalon_detune_ghz_2",
                "etalon_detune_ghz_3")
-
-#: Session keys holding per-optic transmission overrides carry this prefix. They
-#: are calibration coefficients rather than settings, so editing one flips its
-#: provenance to `hand` -- the honest record of a number somebody adjusted by eye.
-TRANSMISSION_PREFIX = SESSION_PREFIX + "t_"
-
 
 # ----------------------------------------------------------------------
 # Tier B — the only cached layer
@@ -229,6 +230,7 @@ def _current():
         probe_lens_focal_mm=get("probe_lens_focal_mm"),
         conjugate_lens_focal_mm=get("conjugate_lens_focal_mm"),
         pd_defocus_mm=get("pd_defocus_mm"),
+        eom_unwanted_rin_db_per_hz=get("eom_unwanted_rin_db_per_hz"),
     )
     return settings, detection
 
@@ -239,7 +241,7 @@ def _current():
 def _apply_solved_knobs():
     """Re-solve the three power knobs onto the paper operating point."""
     settings, _ = _current()
-    calibration = default_calibration()
+    calibration = _session_calibration()
     try:
         split = solve_split_angle_deg(0.600, settings, calibration)
         settings = replace(settings, hwp_split_deg=split)
@@ -315,20 +317,23 @@ def _render_sidebar(host):
 def _session_calibration():
     """The shipped calibration with any per-optic transmission edits applied."""
     calibration = default_calibration()
-    for state_key, value in list(st.session_state.items()):
-        if not str(state_key).startswith(TRANSMISSION_PREFIX):
-            continue
-        name = str(state_key)[len(SESSION_PREFIX):]
-        if name in calibration:
-            calibration = calibration.with_value(name, value)
-    return calibration
+    updates = {
+        name: st.session_state[SESSION_PREFIX + name]
+        for name in _editable_transmission_keys()
+        if SESSION_PREFIX + name in st.session_state
+    }
+    return calibration.with_values(updates)
+
+
+def _editable_transmission_keys():
+    return {node.transmission_key for part in layout.LAYOUTS
+            for node in part.nodes if node.transmission_key}
 
 
 def _seed_transmission_state(calibration):
-    for coefficient in calibration:
-        if coefficient.name.startswith("t_"):
-            st.session_state.setdefault(SESSION_PREFIX + coefficient.name,
-                                        coefficient.value)
+    for name in _editable_transmission_keys():
+        st.session_state.setdefault(SESSION_PREFIX + name,
+                                    calibration.value(name))
 
 
 def _owned_parameters():
@@ -351,19 +356,38 @@ def _render_control(container, name):
 # Main panel
 # ----------------------------------------------------------------------
 def _twin_states(result):
-    """Probe and conjugate as drawable beams, once the solve knows their gain.
+    """Return post-cell probe and conjugate beams.
 
-    Scaling the seed state is right for a stroke width and only that: the twins
-    do not carry the seed's residual carrier line. Real per-arm numbers come from
-    the detection readout, which is what the panels show.
+    Parametric gain applies only to the selected seed mode. Other EOM modes
+    remain in the probe arm and are absent from the conjugate arm.
     """
     if result.raw is None:
         return None
     gain_s, gain_c = result.gains
-    transmission = result.geometry.optics_transmission
+    default_transmission = result.geometry.optics_transmission
+    transmissions = {
+        arm.name: arm.optics_transmission
+        for arm in getattr(result.geometry, "arms", ())
+    }
+    probe_transmission = transmissions.get("probe", default_transmission)
+    conjugate_transmission = transmissions.get("conjugate",
+                                                default_transmission)
     seed = result.chain.seed
-    return {"probe": seed.scaled(gain_s * transmission),
-            "conjugate": seed.scaled(gain_c * transmission)}
+    probe_lines = []
+    conjugate_lines = []
+    for line in seed.lines:
+        if abs(line.offset_hz - result.chain.seed_offset_hz) <= 1.0:
+            probe_lines.append(line.scaled(gain_s * probe_transmission))
+            conjugate_lines.append(replace(
+                line,
+                offset_hz=-line.offset_hz,
+                power_w=line.power_w * gain_c * conjugate_transmission,
+                label="conjugate",
+            ))
+        else:
+            probe_lines.append(line.scaled(probe_transmission))
+    return {"probe": seed.with_lines(probe_lines),
+            "conjugate": seed.with_lines(conjugate_lines)}
 
 
 def _probe_key(part_key):
@@ -493,7 +517,11 @@ def _read_instrument(choice, reading, result, calibration, detection):
     seed_offset = result.chain.seed_offset_hz
     # Only the seed path has a "wanted" line; asking the pump about one would
     # report zero and mean nothing.
-    wanted = seed_offset if reading.link.beam in ("seed", "probe") else None
+    wanted = {
+        "seed": seed_offset,
+        "probe": seed_offset,
+        "conjugate": -seed_offset,
+    }.get(reading.link.beam)
 
     if choice == "Power meter":
         return instruments.PowerMeter(wanted_offset_hz=wanted).measure(beam)
@@ -508,30 +536,51 @@ def _read_instrument(choice, reading, result, calibration, detection):
 
     signal = detector.convert(beam)
     if choice == "Oscilloscope":
-        return _scope_reading(signal, result)
+        return _scope_reading(signal, result, reading)
     if choice == "Spectrum analyser":
         readout = result.readout
-        total = readout.total_power_w if readout else beam.total_power_w
+        balanced = reading.link.beam in ("probe", "conjugate")
+        total = (readout.total_power_w
+                 if balanced and readout else beam.total_power_w)
         return instruments.SpectrumAnalyzer().analyze(
-            signal, result.gain_referred_noise_db or 0.0, total_power_w=total,
-            pump_leakage_dbm=detection.pump_leakage_dbm)
+            signal,
+            result.gain_referred_noise_db if balanced else None,
+            total_power_w=total,
+            pump_leakage_dbm=(detection.pump_leakage_dbm
+                              if balanced else None),
+            eom_noise=(readout.eom_noise
+                       if balanced and readout else None))
     raise KeyError(choice)
 
 
-def _scope_reading(signal, result):
-    """Scan mode by default: it is what a scope shows here, and it is computed."""
+def _scope_reading(signal, result, reading):
+    """Return a swept-frequency trace or a synthetic time trace."""
     mode = st.session_state.get(_key("scope_mode"), "Scan")
     if mode == "Scan" and result.raw is not None:
         axis = np.asarray(result.raw["probe_axis_GHz"])
-        gain = np.asarray(result.raw["G_s"])
-        power = gain * result.chain.seed_power_w
+        beam_name = reading.link.beam
+        gain_key = {"probe": "G_s", "conjugate": "G_c"}.get(beam_name)
+        if gain_key is None:
+            power = np.full_like(axis, reading.beam.total_power_w, dtype=float)
+        else:
+            arm_index = 0 if beam_name == "probe" else 1
+            operating_gain = result.gains[arm_index]
+            wanted_offset = (
+                -result.chain.seed_offset_hz
+                if beam_name == "conjugate"
+                else result.chain.seed_offset_hz
+            )
+            wanted = reading.beam.power_at(wanted_offset)
+            scale = wanted / operating_gain if operating_gain > 0.0 else 0.0
+            background = max(reading.beam.total_power_w - wanted, 0.0)
+            power = np.asarray(result.raw[gain_key]) * scale + background
         return instruments.Oscilloscope().scan(
             signal, axis, power, x_label="Probe frequency", x_unit="GHz")
     return instruments.Oscilloscope().timeseries(signal)
 
 
 def _render_reading(reading):
-    """Quantities, warnings, trace -- and the provenance badge if synthesised."""
+    """Render an instrument reading and its provenance."""
     if reading.synthesised:
         st.markdown(
             "<div class='sabes-synth'>SYNTHESISED — an illustrative trace built "
@@ -688,6 +737,37 @@ def _budget_table(chain):
     return _markdown_table(("Path", "Stage", "Power", "Waist w₀"), rows)
 
 
+def _etalon_transfer_table(chain):
+    """Return per-mode transmission through each etalon."""
+    transfers = [row for row in chain.etalon_mode_transfers
+                 if row.eom_power_fraction >= 1.0e-8]
+    headers = ["Mode", "Offset", "At EOM"]
+    headers += [f"T{k + 1}" for k in range(len(chain.etalon_filters))]
+    headers += ["Net pass", "Filtered", "|Eout/Ein|", "At cell"]
+
+    def power(value_w):
+        if value_w >= 1.0e-6:
+            return f"{value_w * 1e6:.3g} µW"
+        if value_w >= 1.0e-9:
+            return f"{value_w * 1e9:.3g} nW"
+        return f"{value_w * 1e12:.3g} pW"
+
+    rows = []
+    for transfer in transfers:
+        role = " wanted" if transfer.order == -1 else ""
+        row = [f"n={transfer.order:+d}{role}",
+               f"{transfer.offset_hz / 1e9:+.4f} GHz",
+               f"{100.0 * transfer.eom_power_fraction:.3g} %"]
+        row += [f"{100.0 * value:.3g} %"
+                for value in transfer.stage_power_transmissions]
+        row += [f"{100.0 * transfer.total_power_transmission:.3g} %",
+                f"{100.0 * transfer.filtered_power_fraction:.3g} %",
+                f"{100.0 * transfer.field_magnitude_transmission:.3g} %",
+                power(transfer.cell_power_w)]
+        rows.append(row)
+    return _markdown_table(tuple(headers), rows)
+
+
 def _provenance_panel(calibration):
     unverified = calibration.unverified()
     verified = len(calibration) - len(unverified)
@@ -804,6 +884,10 @@ def render(host=None):
          "value": f"{result.gain_referred_noise_db:+.2f} dB",
          "help": "Algebraic diagnostic at the selected two-photon detuning; the "
                  "microscopic atomic noise covariance is unavailable."},
+        {"label": "RIN-loaded diagnostic",
+         "value": f"{result.eom_rin_loaded_noise_db:+.2f} dB",
+         "help": "Gain-only estimate after unpaired-mode shot noise and the "
+                 "specified EOM RIN. This is not a squeezing prediction."},
         {"label": "Algebraic detection floor",
          "value": f"{result.gain_referred_detection_floor_db:+.2f} dB",
          "help": "10·log10(1−η) within the ideal-vacuum completion only; not a "
@@ -813,11 +897,12 @@ def render(host=None):
          "help": "Shot noise above the amplifier noise floor. This is detector "
                  "headroom only and does not validate the modeled dB diagnostic."},
         {"label": "Carrier : seed",
-         "value": (f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.4f} %"),
+         "value": (f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.3g} %"),
          "help": "Residual pump-frequency light in the seed mode after the "
                  "etalon chain, computed from the quantized powers passed to "
-                 "GABES. It remains unapplied provenance; no uncalibrated noise "
-                 "coefficient is inferred."},
+                 "GABES. It remains unapplied to the reduced atomic response; "
+                 "the balanced-detector layer applies the separately declared "
+                 "effective RIN."},
         {"label": "Pump gain G_s", "value": f"{result.gains[0]:.2f}"},
         {"label": "Conjugate gain G_c", "value": f"{result.gains[1]:.2f}"},
     ]
@@ -854,9 +939,25 @@ def render(host=None):
 
     with tabs[3]:
         st.markdown(_budget_table(result.chain))
+        st.markdown("#### EOM mode → etalon transfer")
+        st.caption(
+            "Each etalon attenuates each EOM line by the listed power "
+            "transmission. The table reports √(T) because phase was not "
+            "measured. Modes below 10⁻⁸ of EOM power are omitted.")
+        st.markdown(_etalon_transfer_table(result.chain))
 
     with tabs[4]:
         geom = result.geometry
+        eom_penalty = result.eom_rin_penalty_db
+        eom_loaded_text = f"{result.eom_rin_loaded_noise_db:+.3g} dB"
+        if eom_penalty is not None:
+            eom_loaded_text += f" ({eom_penalty:+.3g} dB penalty)"
+        else:
+            eom_shift = (result.eom_rin_loaded_noise_db
+                         - result.gain_referred_noise_db)
+            eom_loaded_text += (
+                f" ({eom_shift:+.3g} dB normalized shift; absolute EOM PSD "
+                "is positive)")
         rows = [
             ("Twin radius at D-mirrors",
              f"{geom.twin_radius_at_dmirror_m * 1e6:.0f} µm"),
@@ -864,17 +965,34 @@ def render(host=None):
              f"{geom.pump_separation_m * 1e3:.2f} mm"),
             ("Separation margin",
              f"{geom.separation_margin:.1f} twin radii"),
-            ("Post-cell transmission",
+            ("Mean post-cell transmission",
              f"{geom.optics_transmission * 100:.2f} %"),
             ("Observed pump leakage",
              f"{detection.pump_leakage_dbm:.0f} dBm"),
+            ("Effective unwanted-mode RIN",
+             f"{readout.eom_noise.rin_db_per_hz:.1f} dBc/Hz"),
+            ("Unwanted-mode fractional RMS",
+             f"{100.0 * readout.eom_noise.fractional_intensity_rms:.3g} % "
+             f"over {readout.eom_noise.analysis_bandwidth_hz / 1e3:.0f} kHz"),
+            ("Unwanted EOM power at detector",
+             f"{readout.eom_noise.unwanted_detector_power_w * 1e9:.3g} nW"),
+            ("Classical EOM RIN excess",
+             f"{readout.eom_noise.classical_rin_excess_sql:.3g} × SQL"),
+            ("Shot-noise-only diagnostic",
+             f"{result.eom_shot_noise_only_db:+.2f} dB"),
+            ("RIN-loaded diagnostic",
+             eom_loaded_text),
             ("Total power on the detector",
              f"{readout.total_power_w * 1e6:.1f} µW"),
             ("Margin above electronic noise",
              f"{readout.margin_above_electronic_db(result.gain_referred_noise_db):.1f} dB"),
         ]
         for arm in readout.arms:
+            arm_geometry = next(item for item in geom.arms
+                                if item.name == arm.name)
             rows += [
+                (f"{arm.name}: post-cell transmission",
+                 f"{arm_geometry.optics_transmission * 100:.2f} %"),
                 (f"{arm.name}: power", f"{arm.power_w * 1e6:.1f} µW"),
                 (f"{arm.name}: spot radius", f"{arm.spot_radius_m * 1e6:.0f} µm"),
                 (f"{arm.name}: power density",
@@ -883,6 +1001,11 @@ def render(host=None):
                  f"{arm.residual_pump_w * 1e9:.2f} nW"),
             ]
         st.markdown(_markdown_table(("Quantity", "Value"), rows))
+        st.caption(
+            "The shipped RIN is an assumption. Unwanted modes pass through the "
+            "probe arm without atomic gain or a conjugate partner. Treat the "
+            "result as calibrated only after measuring detector-plane mode "
+            "powers and RIN.")
 
     with tabs[5]:
         _provenance_panel(calibration)

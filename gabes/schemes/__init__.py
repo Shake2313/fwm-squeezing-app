@@ -1,6 +1,6 @@
 """
-Scheme registry. The front-end iterates this; adding a scheme = one import +
-one entry here (no UI change). FWM today; AT/EIT/CPT/SAS/Hanle/… land next.
+Scheme registry used by the front-end. Adding a scheme requires one import and
+one registry entry.
 """
 from .base import ExtraView, ParamSpec, Preset, Scheme
 from .absorption import ODScheme, LambdaScheme

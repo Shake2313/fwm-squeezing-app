@@ -672,6 +672,54 @@ def test_cs_btw_short_window_render_no_shape_error():
                for table in view.get("tables", []))
 
 
+def test_other_cs_comparison_normalizes_and_caches_source_params():
+    scheme = fwm.FWMScheme()
+    params = _recommended_params(
+        topology=fwm.TOPOLOGY_CS_BTW,
+        cs_channel=fwm.CS_CHANNEL_917,
+        pump_detuning_mhz=120.0,
+        two_photon_detuning_mhz=25.0,
+        signal_angle_deg=1.8,
+    )
+    raw = {
+        "topology": fwm.topology_from_params(params),
+        "predictive": False,
+        "velocity_converged": True,
+        "od_estimate": 10.0,
+        "phase_match_weight": 1.0,
+        "energy_mismatch_hz": 0.0,
+    }
+    other_topology = fwm.topology_from_params(
+        dict(params, cs_channel=fwm.CS_CHANNEL_795))
+    other_raw = {
+        "tau_axis_ns": np.array([0.0, 1.0]),
+        "psi_tau": np.array([1.0, 0.0]),
+        "pair_rate_cps": 1.0,
+        "source_bandwidth_mhz": 1.0,
+        "topology": other_topology,
+    }
+    stats = {"detected_fwhm_ns": 1.0}
+    other_stats = {"detected_fwhm_ns": 3.0}
+
+    fwm._cached_biphoton_source.cache_clear()
+    with patch.object(
+            fwm.GenericFWMSolver, "compute_biphoton",
+            return_value=other_raw) as source_solve, patch.object(
+                fwm.observables, "biphoton_stats", return_value=other_stats):
+        scheme._reference_validation_table(raw, params, stats)
+        scheme._reference_validation_table(
+            raw, dict(params, signal_eff_pct=37.0), stats)
+
+    assert source_solve.call_count == 1
+    source_params = dict(source_solve.call_args.args[-1])
+    assert source_params["cs_channel"] == fwm.CS_CHANNEL_795
+    assert source_params["coupling_detuning_mhz"] == -95.0
+    expected_idler = fwm.transverse_matched_angle_deg(795.0, 852.35, 1.8)
+    assert np.isclose(source_params["idler_angle_deg"], expected_idler)
+    assert not (set(source_params) & fwm._BIPHOTON_READOUT_PARAM_KEYS)
+    fwm._cached_biphoton_source.cache_clear()
+
+
 def test_beam_geometry_knobs_default_to_the_legacy_constants():
     """Promoting the fixed geometry to knobs must not move the anchored point."""
     scheme = fwm.FWMScheme()

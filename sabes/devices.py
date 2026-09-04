@@ -19,8 +19,8 @@ from .beamstate import SpectralLine, apply_jones_matrix, linear_jones
 # ---------------------------------------------------------------------------
 # Bessel functions of the first kind, integer order.
 # scipy is not a dependency of this repo, and the phase-modulator sideband
-# ladder only needs small integer orders at |x| ~ 2, where the ascending series
-# converges in a handful of terms.
+# ladder needs integer orders up to about |x| + 10 over the UI's full RF range;
+# the ascending series still converges rapidly there.
 # ---------------------------------------------------------------------------
 
 
@@ -90,9 +90,8 @@ class Telescope:
     The input waist is taken to sit at L1's front focal plane and the output
     waist lands on L2's back focal plane, which is the arrangement that makes the
     magnification purely geometric. Putting the waist at the lens instead would
-    leave the output slightly converging and make the delivered waist depend on
-    where the cell sits -- a real effect, but one governed by table distances we
-    have not measured, so assuming the designed arrangement is the honest default.
+    leave the output slightly converging, so the waist depends on the cell
+    position. Use the designed arrangement until those distances are measured.
     """
     f1_m: float
     f2_m: float
@@ -235,18 +234,26 @@ class Polarizer:
 class PolarizingBeamSplitter:
     """Two-port PBS. `split` returns (transmitted, reflected).
 
-    Each port is modelled as an independent polarizer with the stated extinction.
-    Real cubes leak asymmetrically (transmission is usually the cleaner port);
-    when a measured pair of extinctions exists, use two `Polarizer`s instead.
+    The finite-extinction leakage is transferred to the wrong port, so the two
+    output powers sum to the input power after insertion loss.
     """
     extinction_ratio: float = 3000.0
     insertion_loss: float = 0.0
 
     def split(self, beam):
-        transmitted = Polarizer(0.0, self.extinction_ratio,
-                                self.insertion_loss).apply(beam)
-        reflected = Polarizer(90.0, self.extinction_ratio,
-                              self.insertion_loss).apply(beam)
+        loss = float(self.insertion_loss)
+        if not 0.0 <= loss <= 1.0:
+            raise ValueError("insertion_loss must lie between zero and one")
+        ratio = max(float(self.extinction_ratio), 1.0)
+        main = ratio / (ratio + 1.0)
+        leak = 1.0 / (ratio + 1.0)
+        main_amp, leak_amp = math.sqrt(main), math.sqrt(leak)
+        t_fraction, t_jones = apply_jones_matrix(
+            beam.jones, ((main_amp, 0j), (0j, leak_amp)))
+        r_fraction, r_jones = apply_jones_matrix(
+            beam.jones, ((leak_amp, 0j), (0j, main_amp)))
+        transmitted = beam.scaled(t_fraction * (1.0 - loss)).with_jones(t_jones)
+        reflected = beam.scaled(r_fraction * (1.0 - loss)).with_jones(r_jones)
         return transmitted, reflected
 
     def apply(self, beam):
@@ -331,18 +338,48 @@ class PhaseModulator:
     max_input_w: float = float("inf")
     axis_deg: float = 0.0
     orthogonal_leakage: float = 0.0
-    max_order: int = 6
+    # ``None`` sums Bessel sideband power adaptively.  The old fixed order
+    # of six silently discarded 17 % of the optical power at the UI's 30 dBm
+    # limit (beta ~= 7.1).
+    max_order: int | None = None
+    sideband_tail_tolerance: float = 1.0e-12
+
+    def __post_init__(self):
+        if self.frequency_hz <= 0.0:
+            raise ValueError("frequency_hz must be positive")
+        if self.v_pi_v <= 0.0 or self.impedance_ohm <= 0.0:
+            raise ValueError("v_pi_v and impedance_ohm must be positive")
+        if self.max_order is not None and self.max_order < 0:
+            raise ValueError("max_order must be non-negative or None")
+        if not 0.0 < self.sideband_tail_tolerance < 1.0:
+            raise ValueError("sideband_tail_tolerance must lie between 0 and 1")
 
     @property
     def modulation_index(self):
         return math.pi * rf_peak_volts(self.rf_power_dbm,
                                        self.impedance_ohm) / self.v_pi_v
 
-    def sideband_fractions(self):
-        """{order: J_n(beta)^2} up to +/- max_order (before insertion loss)."""
+    @property
+    def resolved_max_order(self):
+        """Sideband order that closes ``sum J_n(beta)^2 = 1`` to tolerance."""
+        if self.max_order is not None:
+            return int(self.max_order)
         beta = self.modulation_index
+        represented = bessel_j(0, beta) ** 2
+        for order in range(1, 65):
+            represented += 2.0 * bessel_j(order, beta) ** 2
+            if max(1.0 - represented, 0.0) <= self.sideband_tail_tolerance:
+                return order
+        raise RuntimeError(
+            "EOM sideband ladder did not converge by order 64; reduce the RF "
+            "drive or supply an explicit max_order")
+
+    def sideband_fractions(self):
+        """``{order: J_n(beta)^2}`` with a power-closed adaptive ladder."""
+        beta = self.modulation_index
+        max_order = self.resolved_max_order
         return {n: bessel_j(n, beta) ** 2
-                for n in range(-self.max_order, self.max_order + 1)}
+                for n in range(-max_order, max_order + 1)}
 
     def apply(self, beam):
         axis = linear_jones(self.axis_deg)
@@ -401,13 +438,22 @@ class EtalonFilter:
     center_offset_hz: float = 0.0
     leak: float = 0.0
 
+    def __post_init__(self):
+        if self.fsr_hz <= 0.0 or not 0.0 < self.fwhm_hz < self.fsr_hz:
+            raise ValueError("require 0 < fwhm_hz < fsr_hz")
+        if not 0.0 <= self.leak <= self.peak_transmission <= 1.0:
+            raise ValueError("require 0 <= leak <= peak_transmission <= 1")
+
     @property
     def finesse(self):
         return self.fsr_hz / self.fwhm_hz
 
     @property
     def coefficient_of_finesse(self):
-        return (2.0 * self.finesse / math.pi) ** 2
+        # Exact finite-FSR coefficient: at +/-FWHM/2 the Airy contribution is
+        # one half.  (2 F/pi)^2 is only its narrow-line approximation.
+        angle = math.pi * self.fwhm_hz / (2.0 * self.fsr_hz)
+        return 1.0 / math.sin(angle) ** 2
 
     def airy_shape(self, offset_hz):
         """Normalized Airy profile: 1 on resonance, ~1/F deep in the stopband."""
@@ -418,6 +464,10 @@ class EtalonFilter:
     def transmission(self, offset_hz):
         return ((self.peak_transmission - self.leak) * self.airy_shape(offset_hz)
                 + self.leak)
+
+    def field_amplitude_transmission(self, offset_hz):
+        """Calibration has no phase data; return ``sqrt(T)`` only."""
+        return math.sqrt(max(self.transmission(offset_hz), 0.0))
 
     def apply(self, beam):
         return beam.with_lines(
