@@ -496,15 +496,14 @@ streamlit run streamlit_app.py</pre>
   <p>
     노브에는 두 종류가 있습니다. 일부 노브는 값을 바꾸면 OBE를 다시 풉니다(<b>recompute</b>).
     다른 노브는 이미 계산된 곡선에서 읽는 위치만 옮기므로 즉시 반응합니다(<b>navigate</b>).
-    예를 들어 씨앗형 FWM에서 OPD·온도·펌프 세기는 재계산 대상이지만, TPD 읽기는 캐시된 곡선
-    위의 동작점을 옮기는 동작입니다.
+    예를 들어 씨앗형 FWM에서 1광자 detuning·온도·펌프 세기는 재계산 대상이지만,
+    2광자 detuning은 캐시된 곡선 위의 동작점을 옮깁니다.
   </p>
   <div class="callout note">
     <span class="tag">탐색 요령</span>
     <p>슬라이더를 움직였을 때 즉시 반응하면 navigate 노브이고, 잠깐
       "<i>Solving Bloch equations…</i>"가 뜨면 recompute 노브입니다. 넓게 둘러볼 때는 navigate
-      노브로, 정밀 조정은 recompute 노브로 하는 편이 가장 쾌적합니다. 헤더의
-      "<i>N solve knobs</i>" 배지가 그 scheme에서 무거운 노브가 몇 개인지 알려 줍니다.</p>
+      노브로, 정밀 조정은 recompute 노브로 하는 편이 가장 쾌적합니다.</p>
   </div>
 
   <h3>Advanced / numerics</h3>
@@ -541,11 +540,11 @@ streamlit run streamlit_app.py</pre>
         <td>⁸⁷Rb D1 Zeeman 다양체, 영자기장 근처 투과·자기광학 회전</td>
         <td>Hanle 특징, NMOR 회전, B 폭, 셀·완화 파생량</td>
         <td>신호 종류, 셀 종류, 전이, 세기, QWP 각도, B 스캔폭</td></tr>
-      <tr><td><b>FWM</b><br>Gain diagnostic / Biphoton</td>
+      <tr><td><b>FWM</b><br>Squeezing / Biphoton</td>
         <td>⁸⁵Rb D1 double-Λ 씨앗형 mean-field 전달, 범용 SFWM 짝광자 추정</td>
-        <td>프로브·켤레 이득 진단, gain-referred algebraic diagnostic,
+        <td>씨앗·켤레 이득, Squeezing indicator,
           g²<sub>SI</sub>, CAR, 발생률</td>
-        <td>모드, OPD, TPD, 온도, 펌프/프로브 세기, 위상정합 각도</td></tr>
+        <td>모드, 1·2광자 detuning, 온도, 펌프/씨앗 세기, 검출 효율, 위상정합 각도</td></tr>
     </tbody>
   </table>
 
@@ -643,19 +642,28 @@ streamlit run streamlit_app.py</pre>
   <!-- D: FWM -->
   <div class="scheme" style="margin-top:30px">
     <div class="head"><span class="cl d">D · Wave mixing</span><h3>4파 혼합 (FWM) · 짝광자</h3></div>
-    <p class="out">⁸⁵Rb D1 double-Λ의 씨앗형 mean-field 이득 진단(Sim et al. 장치 조건)과,
+    <p class="out">⁸⁵Rb D1 double-Λ의 씨앗형 Squeezing indicator(Sim et al. 장치 조건)와,
       범용 SFWM 짝광자원 추정(<span class="var">g</span><sup>(2)</sup><sub>SI</sub>(<span class="var">τ</span>),
       CAR, 발생률, 위상정합)을 제공합니다. 물리적 squeezing 값은 현재 unavailable입니다.</p>
   </div>
   <figure>
-    <img src="userguide_assets/fwm.png" alt="FWM mean-field 이득과 gain-referred 진단">
-    <figcaption><b>씨앗형 mean-field 진단.</b> 2광자 detuning에 따른 프로브 이득
-      <span class="var">G<sub>s</sub></span>(위)와 gain-referred algebraic diagnostic(아래)입니다.
+    <img src="userguide_assets/fwm.png" alt="FWM 씨앗 이득과 Squeezing indicator">
+    <figcaption><b>씨앗형 mean-field 진단.</b> 2광자 detuning에 따른 씨앗 이득
+      <span class="var">G<sub>s</sub></span>(위)와 Squeezing indicator(아래)입니다.
       빨간 점선이 동작점입니다. 아래 곡선은 주파수 의존 원자 확산·공분산이 없는 진단값이므로
       IDS squeezing 또는 실험 재현으로 해석하면 안 됩니다. 원자 Floquet 응답은
       N<sub>F</sub>=3 전체 스캔을 N<sub>F</sub>=2와 비교하며, 복소 응답·전달계수·이득·위상·
       이득 최적점 중 하나라도 기준을 넘으면 결과에 <b>UNCONVERGED</b>가 표시됩니다.</figcaption>
   </figure>
+
+  <div class="callout note">
+    <span class="tag">FWM 컨트롤 경계</span>
+    <p>GABES는 <b>Seed power</b>와 통합 <b>Detection efficiency η</b>를 노출합니다.
+      EOM carrier·sideband, 광학 손실과 detector QE의 분해는 SABES에서 설정합니다.
+      Biphoton의 <b>Reduced model</b>은 파형을 계산하되 발생률 스케일은 문헌 기준이며,
+      <b>Reference model</b>은 저장된 보정을 재현합니다. 1D/1D+2D 위상정합 보기는 플롯 바로
+      위에서 바꿉니다.</p>
+  </div>
 
   <div class="callout">
     <span class="tag">Pump-only 기준 경로</span>
@@ -717,8 +725,8 @@ streamlit run streamlit_app.py</pre>
         2×2 닫힌형으로 배치 계산합니다.</p></div>
     <div class="it"><h4>무거운 풀이와 가벼운 읽기를 나눕니다</h4>
       <p>UI에서 모든 슬라이더가 같은 비용을 갖지 않습니다. 실제로 OBE를 다시 풀어야 하는 노브만
-        캐시 키로 들어가고, 이미 계산된 곡선에서 값을 읽는 노브는 즉시 갱신됩니다. 덕분에 TPD 같은
-        동작점을 옮기며 이득과 gain-referred 진단 변화를 거의 실시간으로 볼 수 있습니다.</p></div>
+        캐시 키로 들어가고, 이미 계산된 곡선에서 값을 읽는 노브는 즉시 갱신됩니다. 덕분에 2광자
+        detuning 동작점을 옮기며 이득과 Squeezing indicator 변화를 거의 실시간으로 볼 수 있습니다.</p></div>
   </div>
 
   <h3>핵심 식</h3>
@@ -773,7 +781,7 @@ streamlit run streamlit_app.py</pre>
       <tr><td>Λ 결맞음 (EIT/AT/CPT)</td><td class="num">~0.6 s</td><td>Doppler-on Λ 스캔</td></tr>
       <tr><td>Absorption (OD/SAS)</td><td class="num">~0.4 s</td><td>다중선 hyperfine + 펌프 SAS</td></tr>
       <tr><td>Magneto (Hanle/NMOR)</td><td class="num">~0.35 s</td><td>B-스캔 × 속도, 2-영역 풀이</td></tr>
-      <tr><td>FWM 집중 창</td><td class="num">~1–14 s</td><td>fidelity에 따른 N<sub>F</sub>=3 응답 + 전체 스캔 N<sub>F</sub>=2 수렴 비교 + Maxwell–Bloch 전파</td></tr>
+      <tr><td>FWM 집중 창</td><td class="num">~1–14 s</td><td>solver detail에 따른 N<sub>F</sub>=3 응답 + 전체 스캔 N<sub>F</sub>=2 수렴 비교 + Maxwell–Bloch 전파</td></tr>
     </tbody>
   </table>
   <p style="color:var(--muted);font-size:0.9rem">
@@ -799,11 +807,11 @@ streamlit run streamlit_app.py</pre>
   <h3>실험 조건을 처음 잡을 때</h3>
   <ol class="body">
     <li>가장 가까운 scheme을 고릅니다. 예를 들어 SAS 확인이면 <b>OD / SAS</b>, 씨앗형 FWM이면
-      <b>FWM → Gain diagnostic</b>입니다.</li>
+      <b>FWM → Squeezing</b>입니다.</li>
     <li>Default를 먼저 적용합니다. 이 단계에서는 숫자 하나하나를 믿기보다 line shape과 scale을 봅니다.</li>
     <li>온도·셀 길이·detuning·세기처럼 실험에서 실제로 움직일 수 있는 노브만 먼저 조정합니다.</li>
-    <li>metric과 플롯을 함께 봅니다. FWM의 dB 곡선은 gain-referred 진단일 뿐이므로,
-      검출 효율 η나 손실 노브를 바꾼 결과도 physical squeezing으로 승격하지 않습니다.</li>
+    <li>metric과 플롯을 함께 봅니다. FWM의 Squeezing indicator는 mean-field 이득에서 만든
+      진단값이므로, 검출 효율 η를 바꿔도 physical squeezing 예측이 되지는 않습니다.</li>
     <li>마지막으로 Advanced / numerics를 열어 scan resolution, velocity step, 완화율 민감도를 확인합니다.</li>
   </ol>
 
@@ -845,7 +853,7 @@ streamlit run streamlit_app.py</pre>
         <td>⁸⁷Rb D1 Zeeman 다양체와 light/dark 또는 buffer 완화 모델</td>
         <td>셀 벽·잔류장·optical pumping의 실제 복잡도는 실험별 조정이 필요합니다.</td></tr>
       <tr><td>씨앗형 FWM</td>
-        <td>⁸⁵Rb D1 double-Λ mean-field 이득과 gain-referred 진단</td>
+        <td>⁸⁵Rb D1 double-Λ mean-field 이득과 Squeezing indicator</td>
         <td>절대 이득은 정량 미지원입니다. 2-D non-collinear Doppler는 별도 느린 기준 경로에만
           있고 production은 1-D입니다. 주파수 의존 Langevin 확산, full covariance,
           seed 과잉잡음과 보정된 pump scattering이 없어 physical squeezing은 unavailable입니다.</td></tr>
@@ -889,12 +897,14 @@ streamlit run streamlit_app.py</pre>
     <details>
       <summary>왜 어떤 슬라이더는 바로 반응하고, 어떤 슬라이더는 오래 걸리나요?</summary>
       <p>OBE를 다시 풀어야 하는 노브와, 이미 푼 결과에서 읽는 위치만 바꾸는 노브가 다르기
-        때문입니다. 예를 들어 FWM의 TPD는 곡선 탐색에 가깝지만, 온도나 OPD는 재계산이 필요합니다.</p>
+        때문입니다. 예를 들어 FWM의 2광자 detuning은 곡선 탐색에 가깝지만, 온도나 1광자
+        detuning은 재계산이 필요합니다.</p>
     </details>
     <details>
       <summary>계산이 실험과 다르면 어떻게 해야 하나요?</summary>
-      <p>먼저 detuning 규약, 전이 라벨, 빔 waist의 반지름/지름 규약, 셀 길이, 온도, 손실, 검출
-        효율을 확인하시길 권합니다. 그다음 잔류 자기장, optical pumping, 압력 넓힘, 위상 부정합,
+      <p>먼저 detuning 규약, 전이 라벨, 빔 waist의 반지름/지름 규약, 셀 길이, 온도, 검출
+        효율을 확인하시길 권합니다. 장치별 광학 손실과 detector QE는 SABES에서 확인합니다. 그다음
+        잔류 자기장, optical pumping, 압력 넓힘, 위상 부정합,
         과잉잡음처럼 현재 모델 밖에 있거나 단순화된 항목을 의심하는 편이 좋습니다.</p>
     </details>
   </div>

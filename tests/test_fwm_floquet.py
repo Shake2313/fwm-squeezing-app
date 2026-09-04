@@ -198,9 +198,13 @@ def test_default_seeded_scan_uses_nf3_and_full_scan_gate():
     scheme = fwm.FWMScheme()
     rendered = scheme.observables(
         spectrum, scheme.defaults(), include_figures=False)
-    assert any(metric["label"] == "Floquet truncation"
-               and metric["value"] == "CONVERGED"
-               for metric in rendered["metrics"])
+    assert [metric["label"] for metric in rendered["metrics"]] == [
+        "Squeezing indicator", "Seed gain G_s", "Conjugate gain G_c"
+    ]
+    assert not any(metric["label"] == "Floquet truncation"
+                   for metric in rendered["metrics"])
+    assert any(table["title"] == "Model diagnostics"
+               for table in rendered["tables"])
     markdown = "\n".join(table["markdown"] for table in rendered["tables"])
     assert "| Floquet adjacent-order gate | CONVERGED vs N_F=2 |" in markdown
 

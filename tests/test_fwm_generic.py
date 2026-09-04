@@ -195,23 +195,22 @@ def test_rb87_telecom_preset_smoke():
     assert praw["regime"] in ("group-delay", "damped-Rabi")
     pview = scheme.headless_observables(praw, pred)
     rate_metric = next(m for m in pview["metrics"] if m["label"] == "Pair rate")
-    assert "sqrt(N/N_ref)" in rate_metric["help"]
-    assert "OD/cell length do not directly scale it" in rate_metric["help"]
+    assert "Reference-anchored" in rate_metric["help"]
     metric_labels = {metric["label"] for metric in pview["metrics"]}
-    assert {"Source BTW FWHM", "Detected BTW FWHM"} <= metric_labels
+    assert {"Intrinsic biphoton width", "Detected biphoton width"} <= metric_labels
     unconverged_view = scheme.headless_observables(
         dict(praw, velocity_converged=False), pred)
     unconverged_metrics = {
         metric["label"]: metric["value"]
         for metric in unconverged_view["metrics"]
     }
-    assert unconverged_metrics["Source BTW FWHM"] == "unconverged"
-    assert unconverged_metrics["Detected BTW FWHM"] == "unconverged"
+    assert unconverged_metrics["Intrinsic biphoton width"] == "unconverged"
+    assert unconverged_metrics["Detected biphoton width"] == "unconverged"
     unconverged_detection = next(
         table["markdown"] for table in unconverged_view["tables"]
-        if table["title"] == "Biphoton detection model")
-    assert "| Source BTW FWHM | unconverged |" in unconverged_detection
-    assert "| Detected BTW FWHM | unconverged |" in unconverged_detection
+        if table["title"] == "Detection estimates")
+    assert "| Intrinsic biphoton width | unconverged |" in unconverged_detection
+    assert "| Detected biphoton width | unconverged |" in unconverged_detection
 
 
 def test_cs_btw_channels_have_different_widths():
@@ -352,6 +351,36 @@ def test_biphoton_basic_ui_keeps_only_lab_controls():
     assert np.isclose(runtime["idler_angle_deg"], expected_idler)
 
 
+def test_fwm_ui_uses_short_labels_without_changing_stored_values():
+    scheme = fwm.FWMScheme()
+    specs = {sp.name: sp for sp in scheme.param_schema()}
+
+    assert scheme.title == "Four-wave mixing (Squeezing / Biphoton)"
+    assert "mean-field Squeezing indicator" in scheme.caption
+    assert specs["mode"].choices == (fwm.MODE_SEEDED, fwm.MODE_BIPHOTON)
+    assert specs["mode"].choice_labels[fwm.MODE_SEEDED] == "Squeezing"
+    assert specs["topology"].choice_labels == fwm.TOPOLOGY_LABELS
+    assert specs["biphoton_model"].choice_labels == fwm.BIPHOTON_MODEL_LABELS
+    assert specs["resolution"].choice_labels == fwm.FIDELITY_LABELS
+    assert specs["cs_channel"].choice_labels == fwm.CS_CHANNEL_LABELS
+
+    assert specs["probe_uw"].label == "Seed power"
+    assert specs["opd"].label == "One-photon detuning Δ"
+    assert specs["tpd"].label == "Two-photon detuning δ"
+    assert specs["detection_eff_pct"].label == "Detection efficiency η"
+    assert specs["phase_detail"].choice_labels == {
+        "Balanced": "1D", "Fine": "1D + 2D"
+    }
+
+    hidden = {
+        "eom_residual_carrier_uw", "eom_other_sidebands_uw",
+        "loss_pct", "qe_pct", "line_strength", "mode_overlap_penalty",
+        "polarization_penalty", "zeeman_participation_penalty",
+        "floquet_order", "phase_detail",
+    }
+    assert all(specs[name].hidden for name in hidden)
+
+
 def test_squeezing_hides_twin_beam_coincidence_figure():
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
@@ -476,6 +505,8 @@ def test_biphoton_fine_phase_map_is_lazy_and_figure_only():
     assert raw["phase_matching_2d"] is None
     phase_spec = {sp.name: sp for sp in scheme.param_schema()}["phase_detail"]
     assert phase_spec.recompute is False
+    assert phase_spec.hidden is True
+    assert phase_spec.choice_labels == {"Balanced": "1D", "Fine": "1D + 2D"}
     assert "phase_detail" not in scheme.recompute_keys()
 
     balanced_raw = scheme.compute(dict(params, phase_detail="Balanced"))
@@ -490,6 +521,7 @@ def test_biphoton_fine_phase_map_is_lazy_and_figure_only():
     with patch.object(fwm, "biphoton_phase_matching_map", unexpected_map):
         headless = scheme.headless_observables(raw, params)
     assert headless["figures"] == []
+    assert headless["figure_controls"] == ["phase_detail"]
 
     signal_axis, idler_axis, phase_map = fwm.biphoton_phase_matching_map(
         raw["fields"], raw["cell_length_m"],
@@ -558,13 +590,14 @@ def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
 def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
     scheme = fwm.FWMScheme()
     info = scheme.info()
-    assert "not applied to the main solve" in info
-    assert "Zeeman diagnostic correction" not in info
-    assert "within ~30" not in info
-    assert "pump power, OD, phase matching" not in info
-    assert "OD/cell length do not directly scale the rate" in info
+    assert "Squeezing indicator" in info
+    assert "not a physical squeezing spectrum" in info
+    assert "Reduced model" in info
+    assert "pair-rate scale is anchored" in info
+    assert "first principles" not in info
     line_strength = next(
         sp for sp in scheme.param_schema() if sp.name == "line_strength")
+    assert line_strength.hidden is True
     assert "has not been refitted" in line_strength.help
     assert "does not anchor measured gain or squeezing" in line_strength.help
     assert "no measurements identify a unique split" in line_strength.help
@@ -582,6 +615,7 @@ def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
     }
     assert all(sp.default == 1.0 for sp in factors.values())
     assert all(sp.vmin == 0.0 and sp.vmax == 1.0 for sp in factors.values())
+    assert all(sp.hidden for sp in factors.values())
     assert "count that geometry twice" in factors[
         "mode_overlap_penalty"].help
     assert "not a raw Stokes" in factors["polarization_penalty"].help
@@ -627,14 +661,14 @@ def test_cs_btw_short_window_render_no_shape_error():
     view = scheme.observables(raw, params)
     assert view.get("figure") is not None
     metrics = {metric["label"]: metric for metric in view["metrics"]}
-    assert float(metrics["Detected BTW FWHM"]["value"].split()[0]) > float(
-        metrics["Source BTW FWHM"]["value"].split()[0])
+    assert float(metrics["Detected biphoton width"]["value"].split()[0]) > float(
+        metrics["Intrinsic biphoton width"]["value"].split()[0])
     detection = next(table["markdown"] for table in view["tables"]
-                     if table["title"] == "Biphoton detection model")
-    assert "Source BTW FWHM" in detection
-    assert "Detected BTW FWHM" in detection
+                     if table["title"] == "Detection estimates")
+    assert "Intrinsic biphoton width" in detection
+    assert "Detected biphoton width" in detection
     assert "Net timing-difference response FWHM" in detection
-    assert any(table["title"].startswith("Reference ")
+    assert any(table["title"] == "Literature comparison"
                for table in view.get("tables", []))
 
 
@@ -645,6 +679,8 @@ def test_beam_geometry_knobs_default_to_the_legacy_constants():
     assert params["pump_waist_um"] == fwm.W_PUMP * 1e6
     assert params["probe_waist_um"] == fwm.W_PROBE * 1e6
     assert params["qe_pct"] == fwm.QE_DETECTOR * 100.0
+    assert params["detection_eff_pct"] == pytest.approx(
+        fwm.SEEDED_DETECTION_EFFICIENCY_PCT)
 
     raw = scheme.compute(params)
     center = fwm.branch_center_GHz(params["opd"], -1)
@@ -682,6 +718,8 @@ def test_beam_geometry_knobs_route_to_both_spectrum_paths():
     assert kwargs["w_pump"] == pytest.approx(800e-6)
     assert kwargs["w_probe"] == pytest.approx(450e-6)
     assert kwargs["qe"] == pytest.approx(0.9045)
+    assert kwargs["detection_efficiency"] == pytest.approx(
+        0.9045 * (1.0 - params["loss_pct"] / 100.0))
 
     full_view = scheme.extra_views()[0]
     with patch.object(fwm, "full_spectrum", return_value=marker) as full:
@@ -690,6 +728,41 @@ def test_beam_geometry_knobs_route_to_both_spectrum_paths():
     assert kwargs["w_pump"] == pytest.approx(800e-6)
     assert kwargs["w_probe"] == pytest.approx(450e-6)
     assert kwargs["qe"] == pytest.approx(0.9045)
+    assert kwargs["detection_efficiency"] == pytest.approx(
+        0.9045 * (1.0 - params["loss_pct"] / 100.0))
+
+
+def test_detection_efficiency_routes_to_focused_and_full_spectrum():
+    scheme = fwm.FWMScheme()
+    params = scheme.defaults()
+    params["detection_eff_pct"] = 50.0
+    marker = {"marker": True}
+
+    with patch.object(fwm, "compute_spectrum", return_value=marker) as solve:
+        assert scheme.compute(params) is marker
+    assert solve.call_args.kwargs["detection_efficiency"] == pytest.approx(0.5)
+
+    with patch.object(fwm, "full_spectrum", return_value=marker) as full:
+        assert scheme.extra_views()[0].compute(params) is marker
+    assert full.call_args.kwargs["detection_efficiency"] == pytest.approx(0.5)
+
+
+def test_full_scan_plot_uses_display_solver_detail():
+    axis = np.array([-2.2, -2.1])
+    spectrum = {
+        "probe_axis_GHz": axis,
+        "G_s": np.array([1.0, 1.1]),
+        "gain_referred_noise_dB": np.array([0.0, -0.1]),
+        "model_fidelity": fwm.FIDELITY_FAST,
+        "propagation_convention": "internal propagation token",
+    }
+    full = {"D_GHz": 0.9, "minus": spectrum, "plus": dict(spectrum)}
+    fig = fwm.FWMScheme().extra_views()[0].render(full)
+    assert fig.axes[0].get_title() == "Solver detail: Fast"
+    assert "internal propagation token" not in fig.axes[0].get_title()
+
+    import matplotlib.pyplot as plt
+    plt.close(fig)
 
 
 def test_qe_knob_sets_detection_eta_and_the_squeezing_floor():

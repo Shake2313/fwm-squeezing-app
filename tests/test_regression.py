@@ -215,6 +215,7 @@ def test_fwm_defaults_match_sim_preset():
     defaults = scheme.defaults()
     sim = scheme.recommended_defaults(defaults)[fwm.MODE_SEEDED]
     for key in ("opd", "tpd", "temp_c", "pump_mw", "probe_uw", "loss_pct",
+                "detection_eff_pct",
                 "line_strength", "mode_overlap_penalty", "polarization_penalty",
                 "zeeman_participation_penalty"):
         assert defaults[key] == sim[key]

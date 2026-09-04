@@ -208,20 +208,18 @@ W_PROBE = 330e-6
 P_PUMP, P_PROBE = 600e-3, 10e-6
 T_CELL = 394.15
 
-# Detection efficiency matched to Sim et al. (Sci. Rep. 15, 7727 (2025)): the
-# reported system (detection) loss is 8.0% -> QE 0.92; the 5.5% optical loss is
-# the separate `loss_pct` knob. Together QE·(1−0.055)=0.869 reproduces the paper's
-# ~13.5% total detection loss. QE_DETECTOR is only the *default* of the `qe_pct`
-# knob now. RESPONSIVITY_AW is the legacy display constant for that default
-# (0.92·795/1240) kept for `archive/fwm_obe.py`; live readouts use
-# `responsivity_AW(qe)` below so the shown A/W tracks the knob.
+# Sim et al. reference detection inputs. GABES exposes only their product η;
+# SABES retains the device-level optical-loss/QE split.
 QE_DETECTOR = 0.92
+SEEDED_POST_CELL_LOSS_PCT = 5.5
+SEEDED_DETECTION_EFFICIENCY_PCT = (
+    QE_DETECTOR * (1.0 - SEEDED_POST_CELL_LOSS_PCT / 100.0) * 100.0)
 RESPONSIVITY_AW = 0.59
 LOSS_FRAC = 0.0
 ETA_TOTAL = QE_DETECTOR * (1.0 - LOSS_FRAC)
 
-# Photon energy in eV·nm, so R[A/W] = QE · λ[nm] / 1239.84. Display-only: the
-# solve uses QE directly. Kept as a function because QE is a knob now.
+# Photon energy in eV·nm, so R[A/W] = QE · λ[nm] / 1239.84. Kept for the
+# compatibility API and archived readouts.
 _HC_EV_NM = 1239.841984
 PROBE_WAVELENGTH_NM = 795.0
 
@@ -647,9 +645,13 @@ def seeded_sideband_beat(delta, branch):
 NM = 1e-9
 MHZ_ANG = 2 * np.pi * 1e6
 
-MODE_SEEDED = "Gain diagnostic"
+MODE_SEEDED = "Gain diagnostic"  # stored value; UI label is "Squeezing"
 MODE_SEEDED_LEGACY = "Squeezing"  # accepted implicitly by compute() as seeded
 MODE_BIPHOTON = "Biphoton"
+MODE_LABELS = {
+    MODE_SEEDED: "Squeezing",
+    MODE_BIPHOTON: "Biphoton",
+}
 
 # Biphoton source model. "Predictive" solves the Doppler-averaged cascade/double-Λ
 # biphoton amplitude from first principles (Chen et al. PRR 4, 023132 (2024)
@@ -661,6 +663,10 @@ MODE_BIPHOTON = "Biphoton"
 BIPHOTON_PREDICTIVE = "Predictive (first-principles)"
 BIPHOTON_CALIBRATED = "Calibrated (reference)"
 BIPHOTON_MODELS = (BIPHOTON_PREDICTIVE, BIPHOTON_CALIBRATED)
+BIPHOTON_MODEL_LABELS = {
+    BIPHOTON_PREDICTIVE: "Reduced model",
+    BIPHOTON_CALIBRATED: "Reference model",
+}
 
 # Two-photon (ground) coherence dephasing as a fraction of the intermediate Γ;
 # sets the EIT/Raman two-photon linewidth. Chen et al. fit γ ≈ 0.02–0.03 Γ.
@@ -686,8 +692,17 @@ PRED_V_MAX_POINTS = 40000     # velocity-grid point cap (guards runtime)
 TOPOLOGY_RB87_TELECOM = "cascade_rb87_telecom"
 TOPOLOGY_CS_BTW = "cascade_cs_btw"
 TOPOLOGY_DIAMOND = "diamond_generic"
+TOPOLOGY_LABELS = {
+    TOPOLOGY_RB87_TELECOM: "⁸⁷Rb telecom cascade",
+    TOPOLOGY_CS_BTW: "¹³³Cs cascade",
+    TOPOLOGY_DIAMOND: "Generic diamond SFWM",
+}
 CS_CHANNEL_917 = "6D5/2: 852-917 nm"
 CS_CHANNEL_795 = "8S1/2: 852-795 nm"
+CS_CHANNEL_LABELS = {
+    CS_CHANNEL_917: "852/917 nm (6D₅/₂)",
+    CS_CHANNEL_795: "852/795 nm (8S₁/₂)",
+}
 SIDE_PLUS = "+"
 SIDE_MINUS = "-"
 SIDE_CHOICES = (SIDE_PLUS, SIDE_MINUS)
@@ -1001,7 +1016,7 @@ def _rb87_telecom_spec():
     )
     return _with_reference_delta_k(TopologySpec(
         name=TOPOLOGY_RB87_TELECOM,
-        label="87Rb cascade telecom (5S-5P-4D)",
+        label="⁸⁷Rb telecom cascade (5S–5P–4D)",
         family="cascade",
         isotope_name="Rb87",
         levels=levels,
@@ -1029,13 +1044,13 @@ def _cs_btw_spec(channel):
         coupling_nm = 795.0
         upper_gamma_mhz = 1.7
         decay_ns = 1.35
-        label = "133Cs cascade BTW (852-795 nm)"
+        label = "¹³³Cs cascade (852/795 nm)"
     else:
         upper = "6D5/2"
         coupling_nm = 917.0
         upper_gamma_mhz = 2.6
         decay_ns = 4.1
-        label = "133Cs cascade BTW (852-917 nm)"
+        label = "¹³³Cs cascade (852/917 nm)"
     pump_nm = 852.35
     levels = (
         LevelSpec("6S1/2(F=4)", 0.0, 0.0),
@@ -1108,7 +1123,7 @@ def _diamond_generic_spec(params=None):
     )
     return _with_reference_delta_k(TopologySpec(
         name=TOPOLOGY_DIAMOND,
-        label="Generic diamond four-level SFWM",
+        label="Generic diamond SFWM",
         family="diamond",
         isotope_name="Rb87",
         levels=levels,
@@ -2410,6 +2425,7 @@ def compute_spectrum(D_GHz, *,
                      mode_overlap_penalty=1.0, polarization_penalty=1.0,
                      zeeman_participation_penalty=1.0,
                      loss_frac=LOSS_FRAC, qe=QE_DETECTOR,
+                     detection_efficiency=None,
                      L=L_CELL,
                      coarse_points=None, fine_points=None, window_mhz=None,
                      scan_min=None, scan_max=None,
@@ -2457,7 +2473,10 @@ def compute_spectrum(D_GHz, *,
     coupling_ledger = physical_coupling_ledger(branch)
     coupling_norm = coupling_ledger["macroscopic_coupling_norm"]
     coupling_ls = factors.combined_residual * coupling_norm
-    eta = qe * (1.0 - loss_frac)
+    eta = (qe * (1.0 - loss_frac) if detection_efficiency is None
+           else float(detection_efficiency))
+    if not 0.0 <= eta <= 1.0:
+        raise ValueError("detection efficiency must be between 0 and 1")
 
     eom_residual_carrier_power = float(eom_residual_carrier_power)
     eom_other_sidebands_power = float(eom_other_sidebands_power)
@@ -2895,6 +2914,11 @@ TPD_LIMIT_MHZ = 500.0
 FIDELITY_FAST = "Fast  (~4 s)"          # was "Balanced  (~6 s)" (181-pt) settings
 FIDELITY_BALANCED = "Balanced  (~12 s)"  # was "High fidelity  (~20 s)" (301-pt)
 FIDELITY_ULTRA = "Ultra  (slow)"
+FIDELITY_LABELS = {
+    FIDELITY_FAST: "Fast",
+    FIDELITY_BALANCED: "Balanced",
+    FIDELITY_ULTRA: "Ultra",
+}
 FWM_FIDELITY = {
     FIDELITY_FAST:     dict(coarse_points=181, velocity_step=4.0,
                             velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
@@ -2923,23 +2947,36 @@ def normalize_fidelity(value):
     return _FIDELITY_LEGACY.get(value, FIDELITY_FAST)
 
 
+def _detection_efficiency_from_params(params):
+    """Return η while preserving legacy loss/QE overrides from SABES and APIs."""
+    loss_pct = float(params.get("loss_pct", SEEDED_POST_CELL_LOSS_PCT))
+    qe_pct = float(params.get("qe_pct", QE_DETECTOR * 100.0))
+    legacy_eta = (qe_pct / 100.0) * (1.0 - loss_pct / 100.0)
+    direct_pct = params.get("detection_eff_pct")
+    if direct_pct is None:
+        return legacy_eta
+
+    legacy_inputs_changed = (
+        not np.isclose(loss_pct, SEEDED_POST_CELL_LOSS_PCT, rtol=0.0, atol=1e-12)
+        or not np.isclose(qe_pct, QE_DETECTOR * 100.0, rtol=0.0, atol=1e-12)
+    )
+    return legacy_eta if legacy_inputs_changed else float(direct_pct) / 100.0
+
+
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
-    title = "Four-wave mixing (Gain diagnostic / Biphoton)"
-    cache_version = "fwm-angular-doppler-reference-v7"
-    defaults_version = "seeded-validation-inputs-v3"
+    title = "Four-wave mixing (Squeezing / Biphoton)"
+    cache_version = "fwm-angular-doppler-reference-v8"
+    defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True
     # Dev note: Gain diagnostic is the original 85Rb double-Lambda seeded-gain
     # model (regression-anchored); Biphoton is a newer, less-calibrated
     # spontaneous-FWM source estimate shared across cascade/diamond level
     # schemes rather than fit per atom/transition.
-    caption = ("85Rb D1 double-Lambda four-wave mixing. The seeded mode solves "
-               "mean-field twin-beam gain and a gain-referred noise diagnostic; "
-               "microscopic atomic Langevin diffusion is not yet implemented. "
-               "Biphoton estimates the spontaneous-pair source for cascade "
-               "and diamond level schemes.")
+    caption = ("Seeded ⁸⁵Rb D1 mean-field Squeezing indicator and spontaneous "
+               "biphoton estimates.")
 
     def param_schema(self):
         seeded = {"mode": MODE_SEEDED}
@@ -2949,100 +2986,89 @@ class FWMScheme(Scheme):
         return [
             ParamSpec("mode", "Mode", "Mode", MODE_SEEDED,
                       choices=(MODE_SEEDED, MODE_BIPHOTON),
+                      choice_labels=MODE_LABELS,
                       control="segmented", applies_defaults=True,
-                      help="Pick the readout. Selecting a mode resets every knob "
-                           "to that mode's recommended default values."),
+                      help="Switches between seeded squeezing and a biphoton "
+                           "source model, then loads that mode's defaults."),
             ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
                       choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
+                      choice_labels=TOPOLOGY_LABELS,
                       visible_if=biphoton, applies_defaults=True,
-                      help="Level topology for the spontaneous biphoton source model."),
-            ParamSpec("cs_channel", "Cs BTW channel", "Model", CS_CHANNEL_917,
+                      help="Atomic level scheme for the biphoton source."),
+            ParamSpec("cs_channel", "Cs wavelength pair", "Model", CS_CHANNEL_917,
                       choices=(CS_CHANNEL_917, CS_CHANNEL_795), visible_if=cs_btw,
+                      choice_labels=CS_CHANNEL_LABELS,
                       applies_defaults=True,
-                      help="Selects the Cs cascade channel used for BTW comparison."),
+                      help="Selects the two wavelengths in the Cs cascade."),
             ParamSpec("biphoton_model", "Source model", "Model", BIPHOTON_PREDICTIVE,
                       choices=BIPHOTON_MODELS, control="segmented",
+                      choice_labels=BIPHOTON_MODEL_LABELS,
                       visible_if=biphoton, advanced=True,
-                      help="Predictive solves the Doppler-averaged cascade biphoton "
-                           "amplitude from first principles (Ω_c² Autler-Townes term, "
-                           "velocity-class coherent sum, natural-linewidth decay, OD "
-                           "reshaping): the BTW shape, decay, bandwidth and the "
-                           "wavelength-dependent width ordering emerge from physics. "
-                           "Absolute widths are approximate and the pair rate stays "
-                           "reference-anchored (the collection coefficient is not "
-                           "derivable in the lumped model — like the squeezing "
-                           "line-strength residual). Calibrated is the legacy "
-                           "reference-injected estimate."),
-            ParamSpec("opd", "OPD — one-photon detuning Δ", "Detunings", 0.9,
+                      help="Reduced model calculates the Doppler waveform; its pair-"
+                           "rate scale remains reference-anchored. Reference model "
+                           "reproduces the stored literature calibration."),
+            ParamSpec("opd", "One-photon detuning Δ", "Detunings", 0.9,
                       -3.0, 3.0, 0.1, "GHz",
                       visible_if=seeded,
-                      help="ω_pump = ω(F=2→F'=3) + Δ. Sets where the pump sits; recomputes."),
-            ParamSpec("tpd", "TPD — two-photon detuning δ", "Detunings", -8.0,
+                      help="Pump detuning from the F=2→F′=3 transition."),
+            ParamSpec("tpd", "Two-photon detuning δ", "Detunings", -8.0,
                       -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ, 1.0, "MHz", recompute=False,
                       visible_if=seeded,
-                      help="ω_seed = ω_pump − ν_HF + δ. Navigates the curve instantly (no recompute)."),
+                      help="Selects the operating point on the cached curve."),
             ParamSpec("temp_c", "Temperature", "Cell", 121.0,
                       60.0, 150.0, 1.0, "°C", visible_if=seeded),
             ParamSpec("cell_mm", "Cell length", "Cell", 12.5,
                       1.0, 100.0, 0.5, "mm", visible_if=seeded,
                       help="Vapor-cell length L. Enters the Maxwell-Bloch "
                            "propagation exp(M·L), so it recomputes the gain."),
-            ParamSpec("transit_rate_khz", "Transit reset rate", "Cell", 100.0,
+            ParamSpec("transit_rate_khz", "Transit rate", "Cell", 100.0,
                       1.0, 1000.0, 1.0, "kHz", visible_if=seeded, advanced=True,
                       advanced_group="Model provenance",
-                      help="Trace-preserving thermal replacement rate. The 100 kHz "
-                           "default is inherited rather than independently fitted; "
-                           "90–110 kHz is an illustrative sensitivity sweep, not an "
-                           "uncertainty interval."),
+                      help="Atom replacement rate; 100 kHz is an inherited estimate."),
             ParamSpec("pump_mw", "Pump power", "Beams", 600.0,
                       50.0, 1200.0, 10.0, "mW", visible_if=seeded),
-            ParamSpec("probe_uw", "Wanted seed sideband power", "Beams", 8.0,
+            ParamSpec("probe_uw", "Seed power", "Beams", 8.0,
                       1.0, 200.0, 1.0, "µW", visible_if=seeded,
-                      help="Optical power in the selected EOM sideband that drives "
-                           "the seeded response."),
+                      help="Seed power entering the cell."),
             ParamSpec("eom_residual_carrier_uw", "Residual EOM carrier power",
                       "Beams", 0.0, 0.0, 5000.0, 0.1, "µW",
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, advanced=True, hidden=True,
                       advanced_group="EOM spectrum provenance",
                       help="Cell-plane residual carrier power. It is recorded and "
                            "claim-gated but not applied because its coupling, phase, "
                            "polarization, and noise transfer are uncalibrated."),
             ParamSpec("eom_other_sidebands_uw", "Other EOM sidebands power",
                       "Beams", 0.0, 0.0, 5000.0, 0.1, "µW",
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, advanced=True, hidden=True,
                       advanced_group="EOM spectrum provenance",
                       help="Total cell-plane power outside the wanted sideband and "
                            "carrier. Recorded as unapplied provenance only."),
-            ParamSpec("pump_waist_um", "Pump waist w₀", "Beams",
+            ParamSpec("pump_waist_um", "Pump waist", "Beams",
                       W_PUMP * 1e6, 50.0, 2000.0, 10.0, "µm",
                       visible_if=seeded,
-                      help="Pump 1/e² radius in the cell (paper convention: radius, "
-                           "not diameter). Sets the pump Rabi through I = 2P/πw², so "
-                           "it recomputes the gain, and it also scales the Gaussian "
-                           "pump-seed crossing overlap at Ultra fidelity. In a real "
-                           "setup this is fixed by the collimator diameter times the "
-                           "telescope magnification."),
-            ParamSpec("probe_waist_um", "Seed / probe waist w₀", "Beams",
+                      help="Pump 1/e² radius at the cell; sets pump intensity and "
+                           "spatial overlap."),
+            ParamSpec("probe_waist_um", "Seed waist", "Beams",
                       W_PROBE * 1e6, 50.0, 2000.0, 10.0, "µm",
                       visible_if=seeded,
-                      help="Seed 1/e² radius in the cell. The seed is weak, so this "
-                           "barely moves the gain through its own Rabi; its real "
-                           "effect is the Gaussian crossing overlap with the pump "
-                           "(Ultra fidelity). Downstream beam divergence is λ/πw₀ — "
-                           "not modelled here, it belongs to the detection path."),
-            ParamSpec("seeded_angle_deg", "Pump-probe angle", "Beams",
-                      SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "deg",
+                      help="Seed 1/e² radius at the cell; used in the seeded drive "
+                           "and spatial overlap."),
+            ParamSpec("seeded_angle_deg", "Pump–seed angle", "Beams",
+                      SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "°",
                       visible_if=seeded,
-                      help="Pump-seed crossing angle θ. Real beam geometry: sets "
-                           "the seeded-FWM longitudinal phase mismatch Δk_z (active "
-                           "from Fast fidelity up), so it recomputes the gain."),
-            ParamSpec("loss_pct", "Loss after cell", "Detection & scaling", 5.5,
-                      0.0, 50.0, 0.5, "%", visible_if=seeded,
-                      help="Folds into eta = QE x (1 - loss)."),
+                      help="Crossing angle used in the longitudinal phase mismatch."),
+            ParamSpec("detection_eff_pct", "Detection efficiency η",
+                      "Detection & scaling", SEEDED_DETECTION_EFFICIENCY_PCT,
+                      0.0, 100.0, 0.1, "%", visible_if=seeded,
+                      help="Total efficiency after the cell, including optical and "
+                           "detector loss."),
+            ParamSpec("loss_pct", "Loss after cell", "Detection & scaling",
+                      SEEDED_POST_CELL_LOSS_PCT,
+                      0.0, 50.0, 0.5, "%", visible_if=seeded, hidden=True),
             ParamSpec("qe_pct", "Detector quantum efficiency",
                       "Detection & scaling", QE_DETECTOR * 100.0,
                       50.0, 100.0, 0.01, "%", visible_if=seeded, advanced=True,
-                      advanced_group="Detector",
+                      advanced_group="Detector", hidden=True,
                       help="Photodiode QE. With the post-cell loss knob it forms "
                            "eta = QE·(1−loss) in the gain-referred diagnostic. The "
                            "92% default is a historical model input, not a validation "
@@ -3050,7 +3076,7 @@ class FWMScheme(Scheme):
             ParamSpec("line_strength", "Inherited residual factor",
                       "Detection & scaling", SEEDED_REFERENCE_RESIDUAL,
                       0.2, 5.0, 0.01, "×",
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, advanced=True, hidden=True,
                       advanced_group="Seeded coupling factorization",
                       help="Backward-compatible dimensionless residual. The physical "
                            "macroscopic normalization — Rb85 D1 hyperfine Clebsch-Gordan "
@@ -3067,6 +3093,7 @@ class FWMScheme(Scheme):
             ParamSpec("mode_overlap_penalty", "Additional mode-overlap penalty",
                       "Detection & scaling", 1.0,
                       0.0, 1.0, 0.01, "×", visible_if=seeded, advanced=True,
+                      hidden=True,
                       advanced_group="Seeded coupling factorization",
                       help="One-sided effective-coupling penalty for unresolved "
                            "transverse pump-seed mode mismatch beyond what the 0.74 "
@@ -3075,7 +3102,7 @@ class FWMScheme(Scheme):
                            "profile, so do not use it to count that geometry twice."),
             ParamSpec("polarization_penalty", "Additional polarization penalty",
                       "Detection & scaling", 1.0, 0.0, 1.0, 0.01, "×",
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, advanced=True, hidden=True,
                       advanced_group="Seeded coupling factorization",
                       help="One-sided effective-coupling penalty for extra leakage out "
                            "of the intended double-Lambda polarization channel relative "
@@ -3084,7 +3111,7 @@ class FWMScheme(Scheme):
             ParamSpec("zeeman_participation_penalty",
                       "Additional Zeeman-participation penalty",
                       "Detection & scaling", 1.0, 0.0, 1.0, 0.01, "×",
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, advanced=True, hidden=True,
                       advanced_group="Seeded coupling factorization",
                       help="One-sided effective-coupling penalty for additional loss of "
                            "addressed m_F pathways relative to the anchored reference. "
@@ -3097,10 +3124,10 @@ class FWMScheme(Scheme):
                       advanced=True),
             ParamSpec("pump_biphoton_uw", "Pump power", "Fields", 10.0,
                       0.1, 200.0, 0.1, "µW", visible_if=biphoton),
-            ParamSpec("coupling_mw", "Coupling drive scale", "Fields", 1.0,
+            ParamSpec("coupling_mw", "Coupling strength", "Fields", 1.0,
                       0.01, 50.0, 0.01, "×", visible_if=biphoton,
-                      help="Relative coupling drive, √-scaled against the topology's "
-                           "reference coupling power — dimensionless, not an absolute mW."),
+                      help="Relative drive amplitude; this is a scale factor, not "
+                           "an absolute power."),
             ParamSpec("pump_detuning_mhz", "Pump detuning", "Detunings", 0.0,
                       -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton),
             ParamSpec("two_photon_detuning_mhz", "Two-photon detuning", "Detunings", 0.0,
@@ -3111,14 +3138,14 @@ class FWMScheme(Scheme):
                       -2000.0, 2000.0, 10.0, "MHz", visible_if=biphoton,
                       hidden=True, recompute=False),
             ParamSpec("signal_angle_deg", "Signal collection angle", "Phase matching", 1.5,
-                      0.0, 10.0, 0.1, "deg", visible_if=biphoton),
+                      0.0, 10.0, 0.1, "°", visible_if=biphoton),
             ParamSpec("idler_angle_offset_deg", "Idler angle offset", "Phase matching",
-                      0.0, -5.0, 5.0, 0.05, "deg", visible_if=biphoton,
+                      0.0, -5.0, 5.0, 0.05, "°", visible_if=biphoton,
                       help="Offset from the transverse phase-matched idler angle "
                            "derived from the selected topology and signal angle."),
             ParamSpec("idler_angle_deg", "Idler angle", "Phase matching",
                       transverse_matched_angle_deg(1529.37, 780.24, 1.5),
-                      0.0, 10.0, 0.1, "deg", visible_if=biphoton,
+                      0.0, 10.0, 0.1, "°", visible_if=biphoton,
                       hidden=True, recompute=False),
             ParamSpec("signal_side", "Signal side", "Phase matching", SIDE_PLUS,
                       choices=SIDE_CHOICES, visible_if=biphoton,
@@ -3173,24 +3200,24 @@ class FWMScheme(Scheme):
                            "upper bound and auto-refines finer until the biphoton "
                            "width converges (a coarse step aliases the velocity-"
                            "class coherent sum)."),
-            ParamSpec("resolution", "Model fidelity", "Numerics", FIDELITY_FAST,
+            ParamSpec("resolution", "Solver detail", "Numerics", FIDELITY_FAST,
                       choices=tuple(FWM_FIDELITY.keys()), advanced=True,
-                      visible_if=seeded),
-            ParamSpec("floquet_order", "Floquet order N_F", "Numerics",
+                      choice_labels=FIDELITY_LABELS, visible_if=seeded,
+                      help="Controls the scan grid and propagation refinements."),
+            ParamSpec("floquet_order", "Floquet order", "Numerics",
                       SEEDED_FLOQUET_ORDER, choices=(3, 4, 5), advanced=True,
-                      visible_if=seeded,
+                      visible_if=seeded, hidden=True,
                       help="Retained harmonics -N_F,...,+N_F. Every reported scan "
                            "is compared with N_F-1 over all complex response and "
                            "transfer coefficients; a failed gate is returned as "
                            "UNCONVERGED."),
-            ParamSpec("phase_detail", "Phase detail", "Phase matching", "Balanced",
+            ParamSpec("phase_detail", "Phase-matching view", "Phase matching", "Balanced",
                       choices=("Balanced", "Fine"), visible_if=biphoton,
-                      advanced=True, recompute=False,
-                      help="Balanced shows the 1D vector phase-matching view; Fine "
-                           "additionally renders a 2D signal-idler acceptance map. The "
-                           "map is generated only for figure rendering, so changing "
-                           "this view does not rerun the source solve and headless "
-                           "batch readout skips it."),
+                      choice_labels={"Balanced": "1D", "Fine": "1D + 2D"},
+                      control="segmented", advanced=True, hidden=True,
+                      recompute=False,
+                      help="Adds the 2D signal–idler acceptance map without rerunning "
+                           "the source model."),
         ]
 
     def presets(self):
@@ -3204,7 +3231,9 @@ class FWMScheme(Scheme):
 
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
-                    cell_mm=12.5, pump_mw=600.0, probe_uw=8.0, loss_pct=5.5,
+                    cell_mm=12.5, pump_mw=600.0, probe_uw=8.0,
+                    detection_eff_pct=SEEDED_DETECTION_EFFICIENCY_PCT,
+                    loss_pct=SEEDED_POST_CELL_LOSS_PCT,
                     transit_rate_khz=100.0,
                     eom_residual_carrier_uw=0.0,
                     eom_other_sidebands_uw=0.0,
@@ -3291,62 +3320,17 @@ class FWMScheme(Scheme):
 
     def info(self):
         return (
-            "**85Rb D1 double-Lambda four-wave mixing.** The seeded path computes "
-            "a mean-field gain diagnostic. Its displayed dB trace is only a gain-referred "
-            "diagnostic: microscopic frequency-dependent atomic Langevin diffusion "
-            "has not been implemented, so it is not a physical squeezing spectrum.\n\n"
-            "The propagation is linear in the undepleted pump, so the bare gain "
-            "grows exponentially with density and would exceed the pump's energy "
-            "budget at high T. A Manley-Rowe pump-depletion saturation "
-            "((G_s−1)·P_seed, G_c·P_seed → P_pump/2) caps the gain at the energy-"
-            "conservation bound. This post-hoc cap is not a self-consistent depleted "
-            "three-field solution and does not validate the absolute gain. "
-            "The finite-reference-field atomic response defaults to N_F=3 and is "
-            "compared with N_F=2 across the complete reported scan. Complex "
-            "susceptibilities and transfer coefficients, gains, wrapped phases, and "
-            "the probe-gain optimum must all pass; otherwise the result is explicitly "
-            "UNCONVERGED. "
-            "Separately, a slow reference derives a static physical pump frame, "
-            "solves its self-consistent trace-one state, and evaluates the full "
-            "2x2 infinitesimal Nambu response with an independent analysis "
-            "frequency and projected DC solve. It is gauge-certified for the "
-            "standard minus Raman branch and is not substituted into these "
-            "finite-reference production curves; the inherited plus-branch frame "
-            "remains unsupported by that reference. "
-            "The solve also folds in density-dependent collisional decoherence "
-            "(Rb self-broadening of the optical coherence via the AutoOD-validated "
-            "Γ_eff = Γ + β·N, Rb–Rb ground-Raman pure dephasing, and a trace-"
-            "preserving thermal transit reset). The inherited transit rate has not "
-            "been independently fitted. "
-            "Every non-legacy fidelity uses Option-A propagation: bare frequency-"
-            "specific wave numbers, the reference 0.32 deg vacuum/geometric "
-            "mismatch, and dispersion only in diagonal chi. Balanced adds a "
-            "segmented propagation profile. Ultra adds dynamic segmented depletion, "
-            "Gaussian overlap, and a 24-level Zeeman CG-sum "
-            "diagnostic readout that is not applied to the main solve. Residual EOM "
-            "carrier and other-sideband powers are carried end-to-end as provenance "
-            "but remain unapplied until their coupling/noise transfer is measured.\n\n"
-            "**Source model toggle.** *Predictive* solves the Doppler-averaged "
-            "cascade biphoton amplitude from first principles: the two-photon "
-            "denominator carries the Ω_c² Autler-Townes term (not a weak-coupling "
-            "drive), the BTW is the collective velocity-class coherent sum with "
-            "natural-linewidth decay (no injected lifetime), the source bandwidth "
-            "comes from the waveform, and the wavelength-dependent width *ordering* "
-            "(852-917 nm narrower than 852-795 nm) emerges. **Honest limits:** "
-            "absolute ns-widths and the Cs channel ratio remain approximate; only "
-            "the wavelength ordering is claimed without per-source calibration. "
-            "The default telecom intrinsic source width is about 0.17 ns; the "
-            "current 0.55 ns net timing response broadens the reported detected "
-            "width to about 0.50 ns, which is the quantity compared with the "
-            "0.56(4) ns measurement. That agreement is not an independent "
-            "validation. The absolute pair rate stays "
-            "*reference-anchored* and currently scales with pump power, coupling "
-            "drive, vector phase matching, and sqrt(N/N_ref) — OD/cell length do "
-            "not directly scale the rate. An OD waveform-reshaping path (Du/Chen ρ̄, "
-            "group-delay/precursor) is implemented but off by default — the lumped "
-            "model overestimates it at high OD. *Calibrated* is the legacy "
-            "reference-injected estimate. Full quantum-Langevin noise remains future "
-            "work (see docs/checklist.json).\n\n"
+            "**Seeded FWM.** Computes mean-field seed and conjugate gain for the "
+            "⁸⁵Rb D1 double-Λ system. The Squeezing indicator is derived from those "
+            "gains; without atomic Langevin covariance it shows trends, not a "
+            "physical squeezing spectrum. A pump-energy cap prevents unbounded "
+            "small-signal gain but is not a depleted three-field solve. Numerical "
+            "checks and solver provenance are listed under Model diagnostics.\n\n"
+            "**Biphoton.** The Reduced model calculates a Doppler-averaged waveform "
+            "and vector phase matching. Absolute widths remain approximate and the "
+            "pair-rate scale is anchored to a literature reference. The Reference "
+            "model reproduces the stored calibration; agreement by construction is "
+            "not an independent validation.\n\n"
             "**References**\n"
             "- G. Sim, H. Kim, H. S. Moon, *Sci. Rep.* **15**, 7727 (2025) "
             "(seeded 85Rb D1 double-Lambda gain & squeezing, regression anchor).\n"
@@ -3393,6 +3377,7 @@ class FWMScheme(Scheme):
             w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
             qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
             loss_frac=params["loss_pct"] / 100.0,
+            detection_efficiency=_detection_efficiency_from_params(params),
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
             velocity_step=res["velocity_step"],
@@ -3443,7 +3428,7 @@ class FWMScheme(Scheme):
             axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axG.axhline(1.0, color="black", lw=0.6)
             axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
-            axG.set_ylabel("Seed / probe gain G_s")
+            axG.set_ylabel("Seed gain G_s")
             axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
                           f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f}")
             if np.nanmax(raw["G_s"]) > 50:
@@ -3453,57 +3438,42 @@ class FWMScheme(Scheme):
             axS.axhline(0.0, color="black", lw=0.6)
             axS.scatter([tpd], [op["gain_referred_noise_dB"]],
                         color="crimson", zorder=5)
-            axS.set_ylabel("Gain-referred noise\ndiagnostic  [dB]")
+            axS.set_ylabel("Squeezing indicator [dB]")
             axS.set_xlabel(
                 "Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
             axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
             fig.tight_layout()
 
         metrics = [
-            dict(label="Validation claim gate",
-                 value=claim_gate.get("level", "MEAN_FIELD_DIAGNOSTIC"),
-                 delta="QUANTITATIVE GAIN UNSUPPORTED",
-                 help=" · ".join(claim_gate.get("reasons", ())), tier="hero"),
-            dict(label="Floquet truncation",
-                 value=floquet_convergence.get("status", "NOT_EVALUATED"),
-                 delta=(
-                     f"N_F={floquet_convergence.get('high_order', '?')} vs "
-                     f"{floquet_convergence.get('comparison_order', '?')} · full scan"),
-                 help=(
-                     "Requires the declared complex-response/transfer, gain, wrapped-"
-                     "phase, and optimum-position criteria at every displayed point.")),
-            dict(label="Gain-referred noise diagnostic",
+            dict(label="Squeezing indicator",
                  value=f"{op['gain_referred_noise_dB']:.2f} dB",
-                 delta="not a physical squeezing prediction",
-                 help=raw.get("squeezing_status"), tier="hero"),
-            dict(label="Seed / probe gain  G_s", value=f"{op['G_s']:.2f}",
-                 help="Mean-field power-gain diagnostic of the seeded probe. Its "
-                      "scale uses the first-principles macroscopic normalization "
-                      "(Clebsch-Gordan strengths × 1/[2(2I+1)]); trace-normalized "
-                      "rho_ss supplies the manifold population once. The Advanced "
-                      "inherited residual and three explicit lab-facing penalties "
-                      "multiply that normalization; none is a current gain fit."),
-            dict(label="Conjugate gain  G_c", value=f"{op['G_c']:.2f}",
-                 help="Generated conjugate power-gain diagnostic; absolute scale is "
-                      "blocked by the validation claim gate."),
+                 delta="physical squeezing unavailable",
+                 help="Mean-field gain estimate; atomic Langevin covariance is not "
+                      "included.", tier="hero"),
+            dict(label="Seed gain G_s", value=f"{op['G_s']:.2f}",
+                 help="Mean-field seed power gain at the selected detuning.",
+                 tier="hero"),
+            dict(label="Conjugate gain G_c", value=f"{op['G_c']:.2f}",
+                 help="Generated conjugate power gain at the selected detuning."),
         ]
         cap = raw.get("pump_depletion_cap", float("inf"))
         small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
         depletion_limited = small_signal > 1.1 * cap
-        eom = raw.get("eom_seed_spectrum", {})
         solver = raw.get("atomic_solver_provenance", {})
         pump_reference = raw.get(
             "pump_weak_response_reference_provenance", {})
         noncollinear_reference = raw.get(
             "noncollinear_doppler_reference_provenance", {})
+        solver_detail = FIDELITY_LABELS.get(
+            raw.get("model_fidelity"), raw.get("model_fidelity", "unavailable"))
         phase_rows = ""
         if raw.get("phase_detail", PHASE_LEGACY) != PHASE_LEGACY:
             phase_rows = (
-                f"| Model fidelity | {raw.get('model_fidelity', raw['phase_detail'])} |\n"
-                f"| Phase detail | {raw['phase_detail']} |\n"
-                f"| Pump-probe angle | {raw['pump_probe_angle_deg']:.3f} deg |\n"
-                f"| Operating Delta k_z | {op.get('delta_k_z', np.nan):.3e} 1/m |\n"
-                f"| Vacuum Delta k_z | {op.get('delta_k_z_vacuum', np.nan):.3e} 1/m |\n"
+                f"| Solver detail | {solver_detail} |\n"
+                f"| Phase model | {raw['phase_detail']} |\n"
+                f"| Pump–seed angle | {raw['pump_probe_angle_deg']:.3f}° |\n"
+                f"| Operating Δk_z | {op.get('delta_k_z', np.nan):.3e} 1/m |\n"
+                f"| Vacuum Δk_z | {op.get('delta_k_z_vacuum', np.nan):.3e} 1/m |\n"
                 f"| Propagation segments | {raw.get('phase_segments', 1)} |\n"
                 f"| Segment absorption OD estimate | {raw.get('segment_absorption_od', 0.0):.3f} |\n"
             )
@@ -3517,15 +3487,38 @@ class FWMScheme(Scheme):
                     f"| Zeeman status | {raw.get('zeeman_status', 'inactive')} |\n"
                     f"| Zeeman CG-sum diagnostic | {raw.get('zeeman_correction', 1.0):.4f} |\n"
                 )
-        derived = (
+        depletion_warning = (
+            "\n⚠️ **Pump-depletion limited:** the small-signal gain exceeds the "
+            "pump-energy budget, so the displayed gain is capped. Lower the "
+            "temperature or raise the seed power to return to the linear regime.\n"
+            if depletion_limited else ""
+        )
+        operating_table = (
             f"| Quantity | Value |\n|---|---|\n"
-            f"| N(85Rb) | {raw['N_atoms']:.3e} /m³ |\n"
-            f"| σ_v (1-D thermal) | {raw['sigma_v']:.1f} m/s |\n"
+            f"| ⁸⁵Rb density | {raw['N_atoms']:.3e} /m³ |\n"
+            f"| Thermal velocity σ_v | {raw['sigma_v']:.1f} m/s |\n"
             f"| Velocity classes | {raw['n_velocity']} |\n"
             f"| Ω_pump / 2π | {raw['Op_A_2pi_GHz']:.3f} GHz |\n"
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
-            f"| Detection η = QE·(1−loss) | {raw['eta']:.4f} |\n"
+            f"| Detection efficiency η | {raw['eta']:.4f} |\n"
+            f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
+            f"| Cell length | {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm |\n"
+            f"| Pump waist | {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm |\n"
+            f"| Seed waist | {raw.get('w_probe_m', W_PROBE)*1e6:.0f} µm |\n"
+            f"| Pump–seed angle | {raw.get('pump_probe_angle_deg', SEEDED_PHASE_ANGLE_DEG):.3f}° |\n"
+            + depletion_warning
+        )
+        claim_reasons = "; ".join(claim_gate.get("reasons", ())) or "none recorded"
+        diagnostics_table = (
+            f"| Check | Value |\n|---|---|\n"
+            f"| Model scope | Gain trends only |\n"
+            f"| Validation level | {claim_gate.get('level', 'unavailable')} |\n"
+            f"| Claim-gate reasons | {claim_reasons} |\n"
+            f"| Quantitative gain claim | "
+            f"{'supported' if claim_gate.get('quantitative_gain_supported') else 'UNSUPPORTED'} |\n"
+            f"| Physical squeezing claim | "
+            f"{'supported' if claim_gate.get('physical_squeezing_prediction') else 'UNAVAILABLE'} |\n"
             f"| Coupling norm 1/[2(2I+1)] (rho_ss supplies population) | "
             f"{raw.get('coupling_norm', float('nan')):.4f} |\n"
             f"| Canonical-mode status | {raw.get('canonical_mode_status', 'unavailable')} |\n"
@@ -3536,11 +3529,6 @@ class FWMScheme(Scheme):
             f"{op.get('photon_flux_gap_smallsignal', np.nan):.6f} |\n"
             f"| Bare-map commutator defect max | "
             f"{op.get('commutator_defect_max_smallsignal', np.nan):.3e} |\n"
-            f"| Validation level | {claim_gate.get('level', 'unavailable')} |\n"
-            f"| Quantitative gain claim | "
-            f"{'supported' if claim_gate.get('quantitative_gain_supported') else 'UNSUPPORTED'} |\n"
-            f"| Physical squeezing claim | "
-            f"{'supported' if claim_gate.get('physical_squeezing_prediction') else 'UNAVAILABLE'} |\n"
             f"| Atomic solver | {solver.get('solver_id', 'unavailable')} |\n"
             f"| Pump-only weak-response reference | "
             f"{pump_reference.get('solver_id', 'unavailable')} (separate/slow) |\n"
@@ -3560,47 +3548,19 @@ class FWMScheme(Scheme):
             f"| Noise-trace status | {raw.get('squeezing_status', 'unavailable')} |\n"
             f"| Transit reset γ_t / 2π | "
             f"{raw.get('transit_reset_rate_rad_s', np.nan)/(2*np.pi*1e3):.3f} kHz |\n"
-            f"| Wanted EOM sideband | "
-            f"{eom.get('wanted_sideband_power_w', np.nan)*1e6:.3f} µW |\n"
-            f"| Residual EOM carrier / wanted | "
-            f"{eom.get('residual_carrier_to_wanted_ratio', np.nan):.3e} |\n"
-            f"| Other EOM sidebands / wanted | "
-            f"{eom.get('other_sidebands_to_wanted_ratio', np.nan):.3e} |\n"
-            f"| EOM spectrum application | {eom.get('application', 'unapplied')} |\n"
-            f"| Inherited residual factor (unrefitted) | "
-            f"{raw.get('line_strength_residual', float('nan')):.3f}× |\n"
-            f"| Additional mode-overlap penalty | "
-            f"{raw.get('mode_overlap_penalty', 1.0):.3f}× |\n"
-            f"| Additional polarization penalty | "
-            f"{raw.get('polarization_penalty', 1.0):.3f}× |\n"
-            f"| Additional Zeeman-participation penalty | "
-            f"{raw.get('zeeman_participation_penalty', 1.0):.3f}× |\n"
-            f"| Lab-facing penalty product | "
-            f"{raw.get('lab_coupling_factor', 1.0):.4f}× |\n"
             f"| Combined residual coupling | "
             f"{raw.get('combined_line_strength_residual', raw.get('line_strength_residual', float('nan'))):.4f}× |\n"
             f"| Effective coupling scale | {raw.get('effective_line_strength', float('nan')):.4f} |\n"
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
-            f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
             + phase_rows
-            + "\n"
-            + ("⚠️ **Pump-depletion limited:** the small-signal gain exceeds what "
-               "the pump can supply (Manley-Rowe), so the shown gain is capped by "
-               "energy conservation. Lower T / raise seed power to stay in the "
-               "linear regime.\n\n" if depletion_limited else "")
-            + f"Cell L = {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm · "
-            f"pump w₀ {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm · "
-            f"seed w₀ {raw.get('w_probe_m', W_PROBE)*1e6:.0f} µm · "
-            f"QE {raw.get('qe', QE_DETECTOR)*100:.2f}% · "
-            f"responsivity {responsivity_AW(raw.get('qe', QE_DETECTOR)):.2f} "
-            f"A/W @ 795 nm · pump⊥probe at PBS."
         )
         return {
             "metrics": metrics,
             "figure": fig,
             "tables": [
-                {"title": "Derived quantities", "markdown": derived},
+                {"title": "Operating point", "markdown": operating_table},
+                {"title": "Model diagnostics", "markdown": diagnostics_table},
             ],
         }
 
@@ -3651,8 +3611,8 @@ class FWMScheme(Scheme):
                       color="#1f77b4", lw=1.8)
             axG2.axhline(2.0, color="black", lw=0.7, ls=":")
             axG2.set_ylabel(r"$g^{(2)}_{SI}(\tau)$")
-            title_tag = ("predictive (waveform + anchored rate)" if predictive
-                         else "calibrated spontaneous SFWM estimate")
+            title_tag = ("Reduced model · reference-anchored rate" if predictive
+                         else "Reference model")
             axG2.set_title(f"{topo.label}: {title_tag}")
             axG2.grid(alpha=0.3)
 
@@ -3720,44 +3680,29 @@ class FWMScheme(Scheme):
         if predictive:
             g2_help = ("Peak signal-idler cross-correlation from the computed "
                        "waveform |ψ|² and physical accidentals (not forced).")
-            rate_help = ("Pair rate is reference-anchored and currently scales with "
-                         "pump power, coupling drive, vector phase matching, and "
-                         "sqrt(N/N_ref); OD/cell length do not directly scale it.")
+            rate_help = ("Reference-anchored pair rate after pump, coupling, density, "
+                         "and phase-matching scaling.")
             source_fwhm_help = (
-                "Intrinsic FWHM of the predicted |ψ(τ)|² source waveform before "
-                "detector timing response, computed on a "
-                "Maxwell velocity grid auto-refined until the width converges (the "
-                "velocity-class coherent sum aliases on a coarse step). Width "
-                "ordering vs wavelength is physical; the absolute ns-scale still "
-                "carries the lumped-model per-source calibration uncertainty."
+                "Intrinsic |ψ(τ)|² FWHM on an auto-refined velocity grid. The "
+                "absolute width remains approximate."
                 if velocity_converged else
-                "Predicted source waveform width did NOT converge: the velocity-grid "
-                "refinement hit its point cap, so the value is qualitative only "
-                "(shape/ordering still indicative). Raise the temporal window or "
-                "report it as unconverged.")
+                "Width withheld because velocity-grid refinement hit its point cap.")
             detected_fwhm_help = (
-                "FWHM after convolution with the net Gaussian signal-idler timing-"
-                "difference response. It is derived from the same source waveform, "
-                "so it is also withheld when the velocity-grid width is unconverged."
+                "Intrinsic waveform convolved with the signal–idler timing response."
                 if velocity_converged else
-                "Detected width withheld because the underlying predicted source "
-                "waveform width did not converge.")
-            status_value = (f"predictive · {raw.get('regime', '—')}"
+                "Width withheld because the intrinsic waveform did not converge.")
+            status_value = (f"Reduced model · {raw.get('regime', '—')}"
                             if velocity_converged
-                            else f"predictive · {raw.get('regime', '—')} · "
+                            else f"Reduced model · {raw.get('regime', '—')} · "
                                  "width unconverged")
             status = dict(
                 label="Model status", value=status_value,
-                help="Waveform shape, decay, bandwidth and the wavelength-dependent "
-                     "width ordering are solved from first principles (Ω_c² Autler-"
-                     "Townes term, velocity-class coherent sum, natural-linewidth "
-                     "decay, OD reshaping) on a velocity grid auto-refined to FWHM "
-                     "convergence; pair rate is reference-anchored. Du regime: "
-                     "damped-Rabi vs group-delay.")
+                help="Calculates the Doppler waveform and vector phase matching; "
+                     "the pair-rate scale remains reference-anchored.")
         else:
-            g2_help = ("Peak normalized signal-idler cross-correlation (calibrated to "
-                       "the reference target, not predicted).")
-            rate_help = "Reference-calibrated generated pair-rate estimate."
+            g2_help = ("Peak normalized signal–idler correlation from the stored "
+                       "reference calibration.")
+            rate_help = "Pair rate from the stored reference calibration."
             source_fwhm_help = (
                 "Intrinsic FWHM of the modeled |ψ(τ)|² source waveform before "
                 "detector timing response.")
@@ -3765,35 +3710,36 @@ class FWMScheme(Scheme):
                 "FWHM after convolution with the net Gaussian signal-idler timing-"
                 "difference response.")
             status = dict(
-                label="Model status", value="calibrated · non-predictive",
-                help="Reference-calibrated source estimate: pair rate and g2 are "
-                     "anchored to the reference numbers by construction. Switch the "
-                     "Source model to Predictive for the first-principles waveform.")
+                label="Model status", value="Reference model",
+                help="Reproduces stored calibration values; it is not an independent "
+                     "prediction.")
         metrics = [
             status,
-            dict(label="g2_SI peak", value=f"{stats['g2_peak']:.2f}", help=g2_help,
+            dict(label="Peak signal–idler correlation",
+                 value=f"{stats['g2_peak']:.2f}", help=g2_help,
                  tier="hero"),
             dict(label="CAR", value=f"{stats['CAR']:.1f}",
                  help="True coincidence divided by accidental coincidence."),
             dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
                  help=rate_help, tier="hero"),
-            dict(label="Source BTW FWHM",
+            dict(label="Intrinsic biphoton width",
                  value=source_width_value,
                  help=source_fwhm_help),
-            dict(label="Detected BTW FWHM",
+            dict(label="Detected biphoton width",
                  value=detected_width_value,
                  help=detected_fwhm_help),
             dict(label="Source bandwidth", value=f"{raw['source_bandwidth_mhz']:.0f} MHz",
                  help=("Spectral FWHM from the waveform (predictive)." if predictive
                        else "Reference source bandwidth.")),
-            dict(label="Phase match", value=f"{raw['phase_match_weight']:.3f}",
+            dict(label="Phase-matching efficiency",
+                 value=f"{raw['phase_match_weight']:.3f}",
                  help="Vector sinc^2 phase-matching collection weight."),
         ]
 
         field_rows = "".join(
             f"| {f.role} | {raw['topology'].levels[f.lower].name} -> "
             f"{raw['topology'].levels[f.upper].name} | {f.wavelength_nm:.2f} nm | "
-            f"{f.angle_deg:.2f} deg | {_side_label(f.side_sign) if f.side_sign else '0'} |\n"
+            f"{f.angle_deg:.2f}° | {_side_label(f.side_sign) if f.side_sign else '0'} |\n"
             for f in raw["fields"]
         )
         pm_warning = (
@@ -3815,7 +3761,8 @@ class FWMScheme(Scheme):
             f"| Longitudinal phase match | {raw['phase_match_weight_longitudinal']:.3f} |\n"
             f"| Vacuum phase match | {raw['phase_match_weight_absolute']:.3f} |\n"
             + pm_warning +
-            f"| Phase detail | {phase_detail} |\n"
+            f"| Phase-matching view | "
+            f"{'1D + 2D' if phase_detail == 'Fine' else '1D'} |\n"
             f"| Energy mismatch | {raw['energy_mismatch_hz']/1e6:.3f} MHz |\n"
             f"| Residual two-photon Doppler k | {raw['residual_two_photon_k']:.3e} 1/m |\n"
             f"| Velocity step{' (auto-refined)' if predictive else ''} | "
@@ -3837,24 +3784,22 @@ class FWMScheme(Scheme):
             f"| Heralding signal | {stats['heralding_signal']:.3e} |\n"
             f"| Heralding idler | {stats['heralding_idler']:.3e} |\n"
             f"| Cauchy-Schwarz R | {stats['cauchy_schwarz_R']:.2f} |\n"
-            f"| Source BTW FWHM | {source_width_table} |\n"
-            f"| Detected BTW FWHM | {detected_width_table} |\n"
+            f"| Intrinsic biphoton width | {source_width_table} |\n"
+            f"| Detected biphoton width | {detected_width_table} |\n"
             f"| Net timing-difference response FWHM | {params['timing_jitter_ns']:.3f} ns |\n"
             f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n\n"
             f"{raw['notes']}"
         )
         validation_table = self._reference_validation_table(raw, params, stats)
-        val_title = ("Reference comparison (predictive waveform · anchored rate)"
-                     if predictive else
-                     "Reference reproduction (calibrated · non-predictive)")
         return {
             "metrics": metrics,
             "figure": fig,
             "figures": extra_figures,
+            "figure_controls": ["phase_detail"],
             "tables": [
-                {"title": "Generic SFWM topology", "markdown": topology_table},
-                {"title": "Biphoton detection model", "markdown": detection_table},
-                {"title": val_title, "markdown": validation_table},
+                {"title": "Source geometry", "markdown": topology_table},
+                {"title": "Detection estimates", "markdown": detection_table},
+                {"title": "Literature comparison", "markdown": validation_table},
             ],
         }
 
@@ -3968,28 +3913,13 @@ class FWMScheme(Scheme):
 
         if predictive:
             intro = (
-                "**Predictive waveform · reference-anchored rate.** The biphoton "
-                "amplitude (BTW shape, decay, bandwidth, OD reshaping, and the "
-                "wavelength-dependent width *ordering*) is solved from first "
-                "principles — rows tagged *predicted (approx)* are computed, but the "
-                "absolute ns-widths are approximate (closed-form over-sensitivity in "
-                "this regime, as the source papers fit Rabi/dephasing per source). "
-                "The pair rate stays *by construction* (reference-anchored: the "
-                "absolute collection coefficient is not derivable in the lumped "
-                "4-level model, like the squeezing line-strength residual). The "
-                "*physical* rows — phase matching and energy conservation — are "
-                "genuine PASS/CHECK. Full quantum-Langevin noise is still future "
-                "work (see docs/checklist.json).\n\n")
+                "**Reduced model.** Waveform-derived widths are approximate. Pair-"
+                "rate rows are reference-anchored; phase matching and energy "
+                "conservation are independent geometry checks.\n\n")
         else:
             intro = (
-                "**Reference reproduction — calibrated, non-predictive.** Rows tagged "
-                "*by construction* are anchored to the reference number (it is injected "
-                "into the model), so agreement there is not an independent validation. "
-                "Only the *physical* rows — phase matching and energy conservation, "
-                "computed from the geometry/wavelength bookkeeping — are genuine "
-                "PASS/CHECK tests. Switch the Source model to Predictive for the "
-                "first-principles waveform. Full quantum-Langevin noise and full Cs "
-                "BTW theory are not modelled (see docs/checklist.json).\n\n")
+                "**Reference model.** Calibrated rows agree by construction. Phase "
+                "matching and energy conservation are independent geometry checks.\n\n")
         return (
             intro
             + "| Check | Calculated | Reference | Verdict | Note |\n|---|---:|---:|---|---|\n"
@@ -4011,6 +3941,7 @@ class FWMScheme(Scheme):
                 w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
                 w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
                 qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
+                detection_efficiency=_detection_efficiency_from_params(params),
                 floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
                 phase_detail=fidelity_settings["phase_detail"],
                 pump_probe_angle_deg=params.get(
@@ -4046,14 +3977,14 @@ class FWMScheme(Scheme):
                 aS.plot(spec["probe_axis_GHz"],
                         spec["gain_referred_noise_dB"], lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
-            aG.set_ylabel("Seed / probe gain G_s")
+            aG.set_ylabel("Seed gain G_s")
+            stored_detail = full["minus"].get("model_fidelity", "unknown")
             aG.set_title(
-                f"{full['minus'].get('model_fidelity', 'unknown')} · "
-                f"{full['minus'].get('propagation_convention', 'unknown')}")
+                f"Solver detail: {FIDELITY_LABELS.get(stored_detail, stored_detail)}")
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
-            aS.set_ylabel("Gain-referred noise diagnostic [dB]")
+            aS.set_ylabel("Squeezing indicator [dB]")
             aS.set_xlabel("Probe detuning from F=2 -> F'=3 [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)
@@ -4063,10 +3994,9 @@ class FWMScheme(Scheme):
             return figF
 
         return [ExtraView(
-            key="Full −8…12 GHz probe scan (slow, both Raman branches)",
-            description="The focused view zooms on the (−) Raman line. This runs the "
-                        "wide scan for both branches with the same selected seeded "
-                        "fidelity, geometry, and Floquet-order gate.",
+            key="Full probe scan (−8 to 12 GHz, slow)",
+            description="Runs both Raman branches using the selected geometry and "
+                        "solver detail.",
             compute=_compute_full, render=_render_full,
         )]
 
@@ -4076,6 +4006,7 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                   polarization_penalty=1.0,
                    zeeman_participation_penalty=1.0,
                    w_pump=W_PUMP, w_probe=W_PROBE, qe=QE_DETECTOR,
+                   detection_efficiency=None,
                    floquet_order=SEEDED_FLOQUET_ORDER,
                    phase_detail=PHASE_BALANCED,
                    pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
@@ -4101,6 +4032,7 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         zeeman_participation_penalty=zeeman_participation_penalty,
         L=L, loss_frac=loss_pct / 100.0,
         w_pump=w_pump, w_probe=w_probe, qe=qe,
+        detection_efficiency=detection_efficiency,
         floquet_order=floquet_order, enforce_floquet_convergence=True,
         phase_detail=phase_detail,
         pump_probe_angle_deg=pump_probe_angle_deg,

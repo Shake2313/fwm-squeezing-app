@@ -1276,6 +1276,11 @@ def _render_param(container, scheme_name, sp, scheme_obj=None):
     help_ = sp.help or None
     has_state = key in st.session_state
     current = st.session_state.get(key, sp.default)
+    choice_labels = getattr(sp, "choice_labels", None) or {}
+    choice_kwargs = (
+        {"format_func": lambda value: choice_labels.get(value, str(value))}
+        if choice_labels else {}
+    )
     on_change = None
     if getattr(sp, "applies_defaults", False) and scheme_obj is not None:
         on_change = lambda: _apply_recommended_defaults(scheme_name, scheme_obj, key)
@@ -1290,23 +1295,26 @@ def _render_param(container, scheme_name, sp, scheme_obj=None):
         if hasattr(container, "segmented_control"):
             try:
                 return container.segmented_control(label, options, key=key,
-                                                   help=help_, on_change=on_change)
+                                                   help=help_, on_change=on_change,
+                                                   **choice_kwargs)
             except TypeError:
                 pass
         if has_state:
             return container.radio(label, options, key=key, help=help_,
-                                   horizontal=True, on_change=on_change)
+                                   horizontal=True, on_change=on_change,
+                                   **choice_kwargs)
         idx = options.index(current) if current in options else 0
         return container.radio(label, options, key=key, help=help_,
-                               horizontal=True, index=idx, on_change=on_change)
+                               horizontal=True, index=idx, on_change=on_change,
+                               **choice_kwargs)
     if sp.choices is not None:
         options = list(sp.choices)
         if has_state:
             return container.selectbox(label, options, key=key, help=help_,
-                                       on_change=on_change)
+                                       on_change=on_change, **choice_kwargs)
         idx = options.index(current) if current in options else 0
         return container.selectbox(label, options, index=idx, key=key, help=help_,
-                                   on_change=on_change)
+                                   on_change=on_change, **choice_kwargs)
     if has_state:
         val = container.slider(label, sp.vmin, sp.vmax, step=sp.step,
                                key=key, help=help_)
@@ -1340,14 +1348,11 @@ def _param_visible(scheme_name, sp):
 
 
 def _render_scheme_header(scheme):
-    recompute_count = len(scheme.recompute_keys())
     st.markdown(
         "<section class='gabes-header'>"
         "<div class='gabes-hairline'></div>"
         "<div class='gabes-header-row'>"
         f"<span class='gabes-badge'>{escape(scheme.cluster)}</span>"
-        f"<span class='gabes-badge'>{recompute_count} solve knobs</span>"
-        "<span class='gabes-badge'>scheme-driven</span>"
         "</div>"
         f"<h1>{escape(scheme.title)}</h1>"
         f"<p>{escape(scheme.caption)}</p>"
@@ -1454,6 +1459,15 @@ _guide_launcher(st.sidebar, height=46, align="center", full_width=True)
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
+_scheme_title_migrations = {
+    "Four-wave mixing (Gain diagnostic / Biphoton)":
+        "Four-wave mixing (Squeezing / Biphoton)",
+}
+saved_scheme_title = st.session_state.get("_scheme_choice")
+if saved_scheme_title in _scheme_title_migrations:
+    st.session_state["_scheme_choice"] = _scheme_title_migrations[saved_scheme_title]
+elif saved_scheme_title is not None and saved_scheme_title not in titles:
+    del st.session_state["_scheme_choice"]
 choice = st.sidebar.selectbox("Scheme", titles, key="_scheme_choice",
                               help="Pick the experiment / physics to model.")
 scheme = all_schemes[titles.index(choice)]
@@ -1606,6 +1620,12 @@ if metrics:
     st.markdown("<div class='gabes-section-gap'></div>", unsafe_allow_html=True)
 
 _render_experimental_comparison(view, scheme.name)
+
+spec_by_name = {sp.name: sp for sp in specs}
+for control_name in view.get("figure_controls", []):
+    control_spec = spec_by_name.get(control_name)
+    if control_spec is not None:
+        _render_param(st, scheme.name, control_spec, scheme)
 
 fig = view.get("figure")
 if fig is not None:

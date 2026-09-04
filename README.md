@@ -13,7 +13,7 @@ double-Λ four-wave-mixing model (now one scheme among several).
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; first-order finite-IF weak-SIG response, AT→field calibration, balanced-detector PSN/RIN/electronics budget, temperature/cold-spot sweep, and conditional absolute sensitivity |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
-| D — Wave mixing | **FWM** | seeded 85Rb D1 double-Λ mean-field gain diagnostic (physical squeezing claim-gated), plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class BTW) |
+| D — Wave mixing | **FWM** | seeded 85Rb D1 double-Λ Squeezing indicator (mean-field only; physical squeezing unavailable), plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class waveform) |
 
 Roadmap (parking lot): group-index / slow-light readout (OD/SAS now returns the
 dispersive refractive index, but no group quantity), Raman gain, higher-order
@@ -169,11 +169,11 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ## FWM conventions (must-know, not obvious from numbers)
 
-### Seeded mean-field gain diagnostic
+### Seeded squeezing (mean-field indicator)
 
 - Levels: g₁=F=2, g₂=F=3, e₂=F'=2, e₃=F'=3.
-- OPD Δ (one-photon): ω_pump = ω(F=2→F'=3) + Δ.
-- TPD δ (two-photon): ω_seed = ω_pump − ν_HF + δ.   ν_HF = 3.0357 GHz.
+- One-photon detuning Δ: ω_pump = ω(F=2→F'=3) + Δ.
+- Two-photon detuning δ: ω_seed = ω_pump − ν_HF + δ.   ν_HF = 3.0357 GHz.
 - Plot x-axis ref = **F=2→F'=3** line. (−) Raman branch = standard FWM seed, at Δ − ν_HF.
 - Beam waists = **1/e² radius** (paper convention), not diameter. They are sidebar
   knobs (`pump_waist_um`, `probe_waist_um`) whose defaults are the paper geometry
@@ -184,13 +184,12 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
 
 ### Generic SFWM / biphoton mode
 
-- Mode selector: **Gain diagnostic** selects the 85Rb
+- Mode selector: **Squeezing** selects the 85Rb
   double-Λ model; **Biphoton** switches to the generic SFWM source
   estimate.
-- Topologies: `cascade_rb87_telecom` (87Rb 5S1/2-5P3/2-4D5/2, 780/1529 nm),
-  `cascade_cs_btw` (133Cs 852-917 nm or 852-795 nm BTW comparison), and
-  `diamond_generic` (four-level user-wavelength template; not a validated paper
-  preset).
+- Topologies are shown as **⁸⁷Rb telecom cascade**, **¹³³Cs cascade**, and
+  **Generic diamond SFWM**. Their stored API keys remain
+  `cascade_rb87_telecom`, `cascade_cs_btw`, and `diamond_generic`.
 - The default Biphoton sidebar is intentionally lab-facing: temperature, pump and
   coupling drive, pump detuning, two-photon detuning, collection geometry, filter
   bandwidth, and coincidence window. Detector calibration, manual wavelengths,
@@ -206,20 +205,13 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
   the Cs BTW preset exposes the wavelength-dependent temporal-width change
   reported for the 852-917 nm and 852-795 nm cascade channels.
-- **Advanced source model toggle** (`biphoton_model`, default **Predictive**):
-  - **Predictive** solves the Doppler-averaged cascade biphoton amplitude from
-    first principles (Kim *et al.* QST 9, 045006 (2024) Eq. 2; Du, Wen, Rubin
-    JOSAB 25, C98 (2008); Chen *et al.* PRR 4, 023132 (2022) Eq. 3-5): the
-    two-photon denominator carries the **Ω_c² Autler-Townes term** (not a
-    weak-coupling drive), the BTW is the collective velocity-class coherent sum
-    with **natural-linewidth decay** (no injected lifetime), the source bandwidth
-    comes from the waveform, and `g²_SI(τ)` is computed from `|ψ|²` with physical
-    accidentals (no target-g² forcing). The wavelength-dependent BTW width
-    **ordering** (917 narrower than 795) emerges.
-  - **Calibrated** is the legacy reference-injected estimate (decay, bandwidth,
-    g² target forced) kept for comparison.
-- **Honest limits of Predictive** (documented in `info()` / the in-app validation
-  table): absolute ns-widths and the Cs channel ratio are **approximate**; the
+- **Source model** (`biphoton_model`, under Advanced):
+  - **Reduced model** calculates the Doppler-averaged waveform, including the
+    Ω_c² Autler-Townes term, velocity-class coherent sum, natural-linewidth decay,
+    and vector phase matching. Its pair-rate scale remains reference-anchored.
+  - **Reference model** reproduces the stored reference calibration for comparison.
+- **Reduced-model limits:** absolute ns-widths and the Cs channel ratio are
+  **approximate**; the
   wavelength ordering emerges, while exact per-source widths still need the
   deferred Rabi/dephasing calibration. At the default telecom point the modeled
   source FWHM is about 0.17 ns; the 0.55 ns net signal-idler timing response
@@ -242,7 +234,7 @@ spontaneous-emission branching. The macroscopic structural factor is
 matrix supplies the actual pump-modified manifold population exactly once.
 Multiplying by an external equilibrium `p_F` would duplicate it. Density uses the
 pure-85Rb CRC fit (`hyperfine.number_density`), consistent with that path. The
-remaining seeded coupling is explicitly factorized under *Advanced* as
+remaining seeded coupling is internally factorized (and hidden from the GABES UI) as
 `reference residual × additional mode-overlap penalty × additional polarization
 penalty × additional Zeeman-participation penalty`. The backward-compatible
 reference residual is `0.74`; it has not been refitted after the normalization,
@@ -266,7 +258,7 @@ still uses the finite-seed Floquet response. The inherited (+) branch fails the
   1.380 MHz Raman rms width and passes the documented grid/cutoff gates. Production
   remains one-dimensional, and neither reference supplies microscopic Langevin
   diffusion.
-Ultra fidelity adds the slow propagation refinements, but the full
+Ultra solver detail adds the slow propagation refinements, but the full
 24-level Zeeman Floquet scan is still reported as a diagnostic rather than used
 as the default full-scan solver.
 
@@ -278,8 +270,8 @@ as the default full-scan solver.
    additional unresolved transverse mode-matching penalty and is separate from
    Ultra's normalized axial crossing-angle profile. A post-hoc Manley–Rowe cap
    limits runaway power but is not a self-consistent depleted three-field solve.
-   Absolute gain is therefore marked unsupported, and the dB curve is only a
-   gain-referred algebraic diagnostic because atomic Langevin diffusion is absent.
+   Absolute gain is therefore marked unsupported, and the dB curve remains a
+   mean-field Squeezing indicator because atomic Langevin diffusion is absent.
 2. **FWM Raman branches are separate mode pairs, not one summed susceptibility.**
    The Sim et al. 85Rb operating point uses the standard red-detuned seed on the
    (−) Raman branch. The production finite-seed path computes `branch=-1` and
@@ -287,7 +279,7 @@ as the default full-scan solver.
    matrix. The pump-only weak-response reference is certified only for
    `branch=-1`; `branch=+1` is explicitly unsupported until its inherited frame is
    corrected. The old branch-summed model created artificial high-gain extrema
-   (for example near +70 MHz TPD).
+   (for example near +70 MHz two-photon detuning).
 3. **Rb is very absorbing — absorption schemes use short cells.** ls=1.0 is the
    true cross-section, so on-resonance OD saturates in a cm-scale cell; the
    OD/EIT/AT/CPT defaults use mm-scale cells / moderate T to keep features visible.
@@ -372,8 +364,9 @@ as the default full-scan solver.
   Within one such table, Δ shifts the effective-detuning axis and T sets the
   Maxwell velocity weights.
 - The seeded app evaluates the compiled `N_F=3` response and a full-scan `N_F=2`
-  comparison on every recompute. Runtime therefore depends on fidelity/grid size;
-  the result is cached, and the TPD slider only navigates that cached curve.
+  comparison on every recompute. Runtime therefore depends on solver detail and
+  grid size; the result is cached, and the two-photon-detuning slider only
+  navigates that cached curve.
 
 ## FWM future physics work
 
@@ -386,9 +379,10 @@ as the default full-scan solver.
   work.
 - The diagonal Maxwell drift carries mean-field attenuation. Distributed in-cell
   vacuum/atomic covariance is unavailable and is not applied a second time.
-  Pump scatter is an optional phenomenological diagnostic. SABES passes wanted
-  sideband, residual carrier, and other-sideband powers end-to-end, but the latter
-  components remain explicitly `unapplied/unsupported` until calibrated.
+  Pump scatter is an optional phenomenological diagnostic. EOM configuration
+  belongs to SABES. It passes seed, residual-carrier, and other-sideband powers
+  into the audit ledger; residual modes remain explicitly `unapplied/unsupported`
+  in the reduced atomic response.
 - The 24-level 85Rb D1 Zeeman manifold is built for CG diagnostics and correction
   bookkeeping; the full Zeeman Floquet solve remains future work because the
   density matrix jumps from 4-level `M=16` to 24-level `M=576`.
@@ -397,22 +391,19 @@ as the default full-scan solver.
 
 G. Sim, H. Kim, H. S. Moon, Sci. Rep. **15**, 7727 (2025). 85Rb squeezing-optimal:
 
-| Δ | δ | T | pump | seed | loss | → result |
+| Δ | δ | T | pump | seed | detection η | → result |
 |---|---|---|---|---|---|---|
-| 0.9 GHz | −8 MHz | 121 °C | 600 mW | 8 µW | 5.5 % | gain ≈ 15, IDS −7.8 dB |
+| 0.9 GHz | −8 MHz | 121 °C | 600 mW | 8 µW | 86.94 % | gain ≈ 15, IDS −7.8 dB |
 
 Geometry: cell L=12.5 mm, pump⊥probe. Pump/seed waist, crossing angle and detector
-QE are knobs whose defaults describe this apparatus point. The current reduced
-model does not reproduce its absolute gain or physical squeezing.
+efficiency describe this apparatus point. GABES exposes total detection efficiency
+η; SABES retains the optical-loss and detector-QE split. The current reduced model
+does not reproduce its absolute gain or physical squeezing.
 
-**QE caveat.** The scheme default is the inherited `qe_pct = 92 %`; it is not a
-current squeezing calibration. The paper's detector — a PDB450A whose photodiodes are
-swapped for Hamamatsu S3883 (0.58 A/W @ 795 nm, φ1.5 mm) — is **90.45 %**
-(=1240·0.58/795), matching the 90.47 % quoted above. Using the true device QE lowers
-the lossless floor `10·log10(1−η)` from −8.84 dB to −8.38 dB. Both are kept available
-rather than silently re-anchored: 92 % is baseline-compatible, 90.45 % is the measured
-device. These floors belong only to the ideal-vacuum algebraic completion and are
-not physical bounds for the current atomic model.
+**Detection caveat.** The 86.94 % default combines the historical 92 % QE with
+5.5 % post-cell loss. The separate compatibility inputs remain available to SABES
+and the API, but are not GABES sliders. This efficiency only affects the algebraic
+mean-field indicator; it does not make that indicator a physical squeezing bound.
 
 ## Deploy
 

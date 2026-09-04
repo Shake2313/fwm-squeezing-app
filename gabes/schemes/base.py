@@ -64,6 +64,7 @@ class ParamSpec:
                                         # recommended_defaults[value] set, and
                                         # replaces the standalone "Default" buttons
     advanced_group: str = ""            # optional heading inside Advanced
+    choice_labels: Optional[dict] = None  # display labels keyed by stored choice
 
 
 @dataclass(frozen=True)
