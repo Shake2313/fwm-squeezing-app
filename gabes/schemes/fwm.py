@@ -3532,7 +3532,7 @@ class FWMScheme(Scheme):
         claim_reasons = "; ".join(claim_gate.get("reasons", ())) or "none recorded"
         diagnostics_table = (
             f"| Check | Value |\n|---|---|\n"
-            f"| Model scope | Gain trends only |\n"
+            f"| Model scope | Gain-only diagnostic (physical squeezing unavailable) |\n"
             f"| Validation level | {claim_gate.get('level', 'unavailable')} |\n"
             f"| Claim-gate reasons | {claim_reasons} |\n"
             f"| Quantitative gain claim | "
