@@ -674,7 +674,8 @@
       ],
       "priority": "P1",
       "effort": "small",
-      "status": "ready",
+      "status": "in_progress",
+      "why": "IN PROGRESS. Commit 8d8bbe7 makes the diagnostics table state explicitly that the output is a gain-only diagnostic and that physical squeezing is unavailable. The source result already exposes the small-signal field and canonical transfers plus a structured claim gate. Retiring the S_dB compatibility surface, adding the historical_gain_only_diagnostic name, tightening the source-versus-detection cache contract, and completing the acceptance fixtures remain.",
       "acceptance_criteria": [
         "The source result separates the small-signal transfer T_small_signal and its raw gains from post-hoc power-budget-capped gains. Only the former may define a linear-map photon-flux gap or commutator diagnostic; capped gains remain an energy-budget heuristic until a nonlinear depletion map is propagated.",
         "The small-signal result exposes T_field, Q, T_can=Q^-1 T_field Q, probe gain G_p, conjugate photon-flux coefficient |T_can,21|^2, conjugate power gain, optical frequencies, and effective collected-mode areas. The gap, T_can J T_can_dagger-J defect, and claim gate are computed only after Q is fixed; if a mode area is unknown, they are conditional or unavailable rather than silently equal-area.",
@@ -688,13 +689,14 @@
     },
     {
       "id": "fwm-balanced-readout-covariance-correction",
-      "area": "gabes/observables.py + tests/test_fwm_generic.py + tests/test_sabes_bridge.py",
+      "area": "gabes/observables.py + tests/test_fwm_generic.py + tests/test_sabes_bridge.py + tests/test_balanced_readout.py + tests/test_coincidence.py",
       "title": "Use the exact covariance for unequal-loss balanced readout",
       "problem": "balanced_twin_beam_noise reconstructs an ad hoc covariance from two gains and claims that a power-derived shot weight minimizes normalized noise. The reconstruction shows that unequal-loss weighting is covariance-dependent; current tests therefore approve a physically wrong ordering for raw, DC-balanced, and shot weights.",
       "evidence": [
         "The exact ideal-canonical bright-seed variance contains eta_p^2 A(A+B), eta_c^2 B(A+B), vacuum-loss terms, and the -4w eta_p eta_c AB covariance term.",
         "For A=12, B=11, eta_p=0.42, eta_c=0.91, the current implementation differs by order unity from the exact equation for both raw and power-derived weights.",
-        "For a dissipative noncanonical map, even the ideal-canonical equation is insufficient and the weight must act on the propagated full covariance."
+        "For a dissipative noncanonical map, even the ideal-canonical equation is insufficient and the weight must act on the propagated full covariance.",
+        "coincidence_stats hard-codes the ideal lossless TMSV identifications n_s=G_s-1, n_c=G_c, and g2_ss=g2_cc=2; neither its API nor tests/test_coincidence.py type post-cell loss, a thermal environment, a displaced-thermal seeded marginal, or a measured/full source covariance."
       ],
       "source_documents": [
         "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex"
@@ -708,7 +710,11 @@
         "Any optimized weight is derived from the full covariance and SQL denominator, not detected powers alone; tests no longer assert that the old square-root power weight is universally optimal.",
         "For a noncanonical source, the API requires a full covariance or returns unavailable; it never synthesizes covariance from G_p and G_c.",
         "Atomic absorption is not reintroduced as an external efficiency inside this readout, and genuinely external arm efficiencies are applied exactly once.",
-        "A scalar measured or paper-anchored source_noise may be used only for a declared symmetric raw-difference reproduction. Unequal efficiencies, arbitrary weights, or arm-resolved predictions require a full covariance; provenance never turns the scalar into a microscopic prediction."
+        "A scalar measured or paper-anchored source_noise may be used only for a declared symmetric raw-difference reproduction. Unequal efficiencies, arbitrary weights, or arm-resolved predictions require a full covariance; provenance never turns the scalar into a microscopic prediction.",
+        "An explicitly ideal vacuum-input TMSV pure-loss fixture uses conditional binomial thinning and verifies in each arm that mean(K)=eta*nbar, Var(K)=eta*nbar*(1+eta*nbar), and g2=2 for nonzero transmitted mean.",
+        "Independent symmetric-loss tests recover Var(K_p-K_c)=2*eta*(1-eta)*nbar and NRF=1-eta; asymmetric tests recover the (eta_p-eta_c)^2*nbar*(nbar+1) thermal common-mode leakage and its cancellation in the ideal weighted variance at w=eta_p/eta_c.",
+        "Typed source-state and environment fixtures distinguish vacuum-input TMSV marginals, coherently seeded displaced-thermal marginals, pure loss with vacuum, and thermal attenuation with n_out=eta*n_in+(1-eta)*n_E; these cases are not collapsed into one hard-coded g2=2 branch.",
+        "Production noncanonical or dissipative paths require a measured or fully propagated covariance and explicit channel typing before reporting arm-resolved thermal statistics, lossy coincidences, or squeezing; otherwise those outputs are unavailable rather than inferred from gains."
       ]
     },
     {
@@ -1378,7 +1384,8 @@
       ],
       "priority": "P2",
       "effort": "medium",
-      "status": "ready",
+      "status": "in_progress",
+      "why": "IN PROGRESS. Commit 8f97f05 adds a JSON result bundle, individual and ZIP CSV curve downloads, full parameters and defaults, cache/default/readout versions, the Git revision, and experimental-overlay fingerprint, calibration, alignment, trace, statistics, and warnings. Named scheme result arrays shared by scripts and the app, a round-trip reproduction test, and export coverage for lazily rendered extra views remain.",
       "acceptance_criteria": [
         "Every plotted curve can be downloaded as data whose column names and units match the axis labels and the readout metrics.",
         "The export carries the full parameter set including advanced knobs, the scheme name, its cache and defaults versions, and a code revision identifier.",
