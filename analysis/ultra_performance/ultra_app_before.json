@@ -1,0 +1,168 @@
+{
+  "params": {
+    "mode": "Gain diagnostic",
+    "topology": "cascade_rb87_telecom",
+    "cs_channel": "6D5/2: 852-917 nm",
+    "biphoton_model": "Predictive (first-principles)",
+    "opd": 0.9,
+    "tpd": -8.0,
+    "temp_c": 121.0,
+    "cell_mm": 12.5,
+    "transit_rate_khz": 100.0,
+    "pump_mw": 600.0,
+    "probe_uw": 8.0,
+    "eom_residual_carrier_uw": 0.0,
+    "eom_other_sidebands_uw": 0.0,
+    "pump_waist_um": 530.0,
+    "probe_waist_um": 330.0,
+    "seeded_angle_deg": 0.32,
+    "detection_eff_pct": 86.94,
+    "loss_pct": 5.5,
+    "qe_pct": 92.0,
+    "line_strength": 0.74,
+    "mode_overlap_penalty": 1.0,
+    "polarization_penalty": 1.0,
+    "zeeman_participation_penalty": 1.0,
+    "biphoton_temp_c": 90.0,
+    "biphoton_cell_mm": 12.5,
+    "pump_biphoton_uw": 10.0,
+    "coupling_mw": 1.0,
+    "pump_detuning_mhz": 0.0,
+    "two_photon_detuning_mhz": 0.0,
+    "coupling_detuning_mhz": 0.0,
+    "signal_angle_deg": 1.5,
+    "idler_angle_offset_deg": 0.0,
+    "idler_angle_deg": 0.7651916148678504,
+    "signal_side": "+",
+    "idler_side": "+",
+    "diamond_pump_nm": 780.0,
+    "diamond_coupling_nm": 776.0,
+    "diamond_signal_nm": 795.0,
+    "diamond_idler_nm": 761.702,
+    "signal_eff_pct": 10.0,
+    "idler_eff_pct": 10.0,
+    "dark_signal_cps": 2000.0,
+    "dark_idler_cps": 2000.0,
+    "coincidence_window_ns": 1.0,
+    "timing_jitter_ns": 0.55,
+    "filter_bandwidth_mhz": 300.0,
+    "tau_max_ns": 12.0,
+    "biphoton_velocity_step": 2.0,
+    "resolution": "Ultra  (slow)",
+    "floquet_order": 3,
+    "phase_detail": "Balanced"
+  },
+  "seconds": [
+    13.74042630000622,
+    13.357591299980413
+  ],
+  "array_keys": [
+    "probe_axis_GHz",
+    "G_s",
+    "G_c",
+    "gain_referred_noise_dB",
+    "S_dB",
+    "G_s_smallsignal",
+    "G_c_smallsignal",
+    "T_field_small_signal",
+    "Q_photon_flux",
+    "T_canonical_small_signal",
+    "conjugate_photon_flux_gain_smallsignal",
+    "photon_flux_gap_smallsignal",
+    "commutator_defect_smallsignal",
+    "commutator_defect_max_smallsignal",
+    "omega_probe_rad_s",
+    "omega_conjugate_rad_s",
+    "k_probe_propagation_per_m",
+    "k_conjugate_propagation_per_m",
+    "delta_k_z",
+    "delta_k_z_vacuum"
+  ],
+  "floquet_convergence": {
+    "status": "CONVERGED",
+    "passed": true,
+    "high_order": 3,
+    "comparison_order": 2,
+    "full_scan_points": 401,
+    "finite": true,
+    "nonfinite_entries": 0,
+    "criteria": {
+      "complex_rtol": 0.01,
+      "transfer_atol": 1e-10,
+      "response_floor_fraction_of_component_scan_max": 1e-08,
+      "gain_rtol": 0.01,
+      "phase_tolerance_deg": 0.5,
+      "phase_amplitude_floor": 1e-08,
+      "optimum_max_grid_intervals": 1
+    },
+    "response_components": {
+      "chi_cc": {
+        "max_abs_difference": 3.916323151672519e-20,
+        "component_scale": 4.549925541983556e-11,
+        "absolute_floor": 4.549925541983556e-19,
+        "max_tolerance_ratio": 1.4313736183388727e-07,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_cs": {
+        "max_abs_difference": 2.2488206454342765e-19,
+        "component_scale": 1.3972017758619506e-10,
+        "absolute_floor": 1.3972017758619507e-18,
+        "max_tolerance_ratio": 3.0405570126571854e-06,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_sc": {
+        "max_abs_difference": 1.212943646854972e-19,
+        "component_scale": 1.5506475411418838e-10,
+        "absolute_floor": 1.5506475411418838e-18,
+        "max_tolerance_ratio": 4.928330659222369e-07,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_ss": {
+        "max_abs_difference": 7.050068581725673e-19,
+        "component_scale": 3.7176780047793676e-10,
+        "absolute_floor": 3.7176780047793675e-18,
+        "max_tolerance_ratio": 5.294673405366865e-07,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      }
+    },
+    "transfer": {
+      "max_abs_difference": 1.745045204380285e-07,
+      "max_tolerance_ratio": 1.6299609216571783e-05,
+      "failed_coefficients": 0,
+      "passed": true
+    },
+    "gains": {
+      "probe_power": {
+        "max_relative_difference": 3.274439830391884e-08,
+        "failed_points": 0,
+        "passed": true
+      },
+      "conjugate_photon_flux": {
+        "max_relative_difference": 2.2901554280399903e-08,
+        "failed_points": 0,
+        "passed": true
+      }
+    },
+    "wrapped_phase": {
+      "max_difference_deg": 7.124443887906007e-06,
+      "reported_coefficients": 1604,
+      "passed": true
+    },
+    "probe_gain_optimum": {
+      "high_index": 213,
+      "comparison_index": 213,
+      "index_shift": 0,
+      "axis_shift": 0.0,
+      "passed": true
+    }
+  },
+  "kernel_sha256": "7ada3f42948590d95aa070e1202b78793ebea83cb0e22c5c1a5bfecb4f4cbabf"
+}

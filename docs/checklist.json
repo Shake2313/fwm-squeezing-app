@@ -1452,5 +1452,21 @@
         "Server-side storage of user uploads."
       ]
     }
-  ]
+  ],
+  "_ultra_performance_review": {
+    "reviewed_on": "2026-09-11",
+    "source": "https://claude.ai/code/artifact/bf263a2e-0d04-4705-90b6-a9d14eca192a",
+    "implemented": "Guarded Hermitian-basis finite-Floquet reduction: exact coefficient identities and induction give Q_-h=R_h*, eliminating the negative chain and making the zero block real. Same N_F, velocity/detuning grids and full adjacent-order audit; general two-chain fallback retained.",
+    "proof_and_scope": "docs/ultra_performance.md",
+    "reproducible_evidence": "analysis/ultra_performance/verification.json",
+    "regression_tests": "tests/test_floquet_symmetry.py",
+    "future_work_status": "parked",
+    "activation_trigger": "A separately declared accuracy or scan-grid change, with domain-wide error evidence and unchanged physical input semantics, is needed before replacing the existing numerical defaults.",
+    "parked_candidates": [
+      "Composite/nonuniform velocity quadrature: require node, cutoff and resonance-panel convergence over the requested domain; raw 128/256 and 5/6-sigma diagnostics do not certify it.",
+      "Commensurate detuning-grid reuse: require an explicitly declared new scan grid; do not silently shift requested detunings.",
+      "Cubic operating-point readout: require separate interpolation and overshoot checks."
+    ],
+    "not_equivalent": "A 10-percent sampled order audit is not a full-scan certificate; lowering N_F changes the finite-boundary problem; the two finite-drive seed configurations cannot be merged by the harmonic conjugation identity. These are not exact speed patches."
+  }
 }

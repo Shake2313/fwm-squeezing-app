@@ -2878,7 +2878,10 @@ def compute_spectrum(D_GHz, *,
     Op_B = Op_A
     Os = rabi_freq(P_probe, w_probe)
     Os_ref = Os
-    Oc_ref = Os                              # χ̄ is independent of |Ω_ref|
+    # Equal reference powers; finite-drive chi can depend on |Omega_ref|.
+    # These two driven states are not related by the +/- harmonic symmetry;
+    # keep both seed configurations even when their harmonic chains are reduced.
+    Oc_ref = Os
 
     # Pure-85Rb CRC vapor density, consistent with the AutoOD-validated
     # absorption path (`hyperfine.number_density`). The other (natural-abundance,

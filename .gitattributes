@@ -1,0 +1,2 @@
+# Audit archives include byte-level SHA-256 links; preserve recorded bytes.
+analysis/ultra_performance/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

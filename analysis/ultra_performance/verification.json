@@ -1,0 +1,786 @@
+{
+  "proposal": "https://claude.ai/code/artifact/bf263a2e-0d04-4705-90b6-a9d14eca192a",
+  "scope": "exact finite-Floquet performance patch; no new quantum/experimental squeezing claim",
+  "expected_controls_passed": true,
+  "general_kernel_body_matches_commit_c0c46f0": true,
+  "warm_seconds": {
+    "general": [
+      13.302773100003833,
+      13.328201700001955
+    ],
+    "exact_symmetry": [
+      6.623120699980063,
+      6.414176100020995
+    ]
+  },
+  "median_speedup": 2.042676116724107,
+  "scan_points": 401,
+  "velocity_points": 1573,
+  "reported_floquet_order": 3,
+  "full_scan_order_comparison": 2,
+  "full_scan_order_gate": "CONVERGED",
+  "compiled_general_vs_fast": {
+    "probe_axis_GHz": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "G_s": {
+      "maximum_absolute": 9.868017514236271e-11,
+      "maximum_relative_to_array_scale": 2.6496735137379816e-14
+    },
+    "G_c": {
+      "maximum_absolute": 8.93578544491902e-11,
+      "maximum_relative_to_array_scale": 2.3683812367197634e-14
+    },
+    "gain_referred_noise_dB": {
+      "maximum_absolute": 4.026112776500668e-12,
+      "maximum_relative_to_array_scale": 5.067223965893835e-13
+    },
+    "S_dB": {
+      "maximum_absolute": 4.026112776500668e-12,
+      "maximum_relative_to_array_scale": 5.067223965893835e-13
+    },
+    "G_s_smallsignal": {
+      "maximum_absolute": 1.446096575818956e-10,
+      "maximum_relative_to_array_scale": 3.241506357409985e-14
+    },
+    "G_c_smallsignal": {
+      "maximum_absolute": 1.3915268937125802e-10,
+      "maximum_relative_to_array_scale": 3.076532639572626e-14
+    },
+    "T_field_small_signal": {
+      "maximum_absolute": 2.109609040715683e-12,
+      "maximum_relative_to_array_scale": 3.11247412454829e-14
+    },
+    "Q_photon_flux": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "T_canonical_small_signal": {
+      "maximum_absolute": 2.109609040715683e-12,
+      "maximum_relative_to_array_scale": 3.11247412454829e-14
+    },
+    "conjugate_photon_flux_gain_smallsignal": {
+      "maximum_absolute": 1.3915268937125802e-10,
+      "maximum_relative_to_array_scale": 3.076581588999969e-14
+    },
+    "photon_flux_gap_smallsignal": {
+      "maximum_absolute": 2.773958840407431e-11,
+      "maximum_relative_to_array_scale": 4.1891826600248517e-13
+    },
+    "commutator_defect_smallsignal": {
+      "maximum_absolute": 3.19318205396489e-11,
+      "maximum_relative_to_array_scale": 3.920805434680909e-13
+    },
+    "commutator_defect_max_smallsignal": {
+      "maximum_absolute": 3.19317905450589e-11,
+      "maximum_relative_to_array_scale": 3.9208017517417754e-13
+    },
+    "omega_probe_rad_s": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "omega_conjugate_rad_s": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "k_probe_propagation_per_m": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "k_conjugate_propagation_per_m": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "delta_k_z": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "delta_k_z_vacuum": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    }
+  },
+  "frozen_pre_patch_vs_fast": {
+    "probe_axis_GHz": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "G_s": {
+      "maximum_absolute": 9.868017514236271e-11,
+      "maximum_relative_to_array_scale": 2.6496735137379816e-14
+    },
+    "G_c": {
+      "maximum_absolute": 8.93578544491902e-11,
+      "maximum_relative_to_array_scale": 2.3683812367197634e-14
+    },
+    "gain_referred_noise_dB": {
+      "maximum_absolute": 4.026112776500668e-12,
+      "maximum_relative_to_array_scale": 5.067223965893835e-13
+    },
+    "S_dB": {
+      "maximum_absolute": 4.026112776500668e-12,
+      "maximum_relative_to_array_scale": 5.067223965893835e-13
+    },
+    "G_s_smallsignal": {
+      "maximum_absolute": 1.446096575818956e-10,
+      "maximum_relative_to_array_scale": 3.241506357409985e-14
+    },
+    "G_c_smallsignal": {
+      "maximum_absolute": 1.3915268937125802e-10,
+      "maximum_relative_to_array_scale": 3.076532639572626e-14
+    },
+    "T_field_small_signal": {
+      "maximum_absolute": 2.109609040715683e-12,
+      "maximum_relative_to_array_scale": 3.11247412454829e-14
+    },
+    "Q_photon_flux": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "T_canonical_small_signal": {
+      "maximum_absolute": 2.109609040715683e-12,
+      "maximum_relative_to_array_scale": 3.11247412454829e-14
+    },
+    "conjugate_photon_flux_gain_smallsignal": {
+      "maximum_absolute": 1.3915268937125802e-10,
+      "maximum_relative_to_array_scale": 3.076581588999969e-14
+    },
+    "photon_flux_gap_smallsignal": {
+      "maximum_absolute": 2.773958840407431e-11,
+      "maximum_relative_to_array_scale": 4.1891826600248517e-13
+    },
+    "commutator_defect_smallsignal": {
+      "maximum_absolute": 3.19318205396489e-11,
+      "maximum_relative_to_array_scale": 3.920805434680909e-13
+    },
+    "commutator_defect_max_smallsignal": {
+      "maximum_absolute": 3.19317905450589e-11,
+      "maximum_relative_to_array_scale": 3.9208017517417754e-13
+    },
+    "omega_probe_rad_s": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "omega_conjugate_rad_s": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "k_probe_propagation_per_m": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "k_conjugate_propagation_per_m": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "delta_k_z": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    },
+    "delta_k_z_vacuum": {
+      "maximum_absolute": 0.0,
+      "maximum_relative_to_array_scale": 0.0
+    }
+  },
+  "stress_cases": [
+    {
+      "D_GHz": 0.9,
+      "T_K": 394.15,
+      "pump_power_W": 0.6,
+      "branch": 1,
+      "arrays": {
+        "probe_axis_GHz": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "G_s": {
+          "maximum_absolute": 1.1186784831807017e-10,
+          "maximum_relative_to_array_scale": 1.4398905971791848e-13
+        },
+        "G_c": {
+          "maximum_absolute": 7.457856554538012e-11,
+          "maximum_relative_to_array_scale": 9.504870649869767e-14
+        },
+        "gain_referred_noise_dB": {
+          "maximum_absolute": 1.4711787343912874e-11,
+          "maximum_relative_to_array_scale": 1.5340364430131991e-12
+        },
+        "S_dB": {
+          "maximum_absolute": 1.4711787343912874e-11,
+          "maximum_relative_to_array_scale": 1.5340364430131991e-12
+        },
+        "G_s_smallsignal": {
+          "maximum_absolute": 1.1823431123048067e-10,
+          "maximum_relative_to_array_scale": 1.4721547972399916e-13
+        },
+        "G_c_smallsignal": {
+          "maximum_absolute": 7.935341272968799e-11,
+          "maximum_relative_to_array_scale": 9.78147098520883e-14
+        },
+        "T_field_small_signal": {
+          "maximum_absolute": 2.9652924297538494e-12,
+          "maximum_relative_to_array_scale": 1.0338358345801658e-13
+        },
+        "Q_photon_flux": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "T_canonical_small_signal": {
+          "maximum_absolute": 2.9652924297538494e-12,
+          "maximum_relative_to_array_scale": 1.0338358345801658e-13
+        },
+        "conjugate_photon_flux_gain_smallsignal": {
+          "maximum_absolute": 7.935341272968799e-11,
+          "maximum_relative_to_array_scale": 9.781318259478816e-14
+        },
+        "photon_flux_gap_smallsignal": {
+          "maximum_absolute": 3.888089850079268e-11,
+          "maximum_relative_to_array_scale": 2.5989275740590226e-12
+        },
+        "commutator_defect_smallsignal": {
+          "maximum_absolute": 3.251088291043048e-11,
+          "maximum_relative_to_array_scale": 1.3548207143604292e-12
+        },
+        "commutator_defect_max_smallsignal": {
+          "maximum_absolute": 3.2510882874703384e-11,
+          "maximum_relative_to_array_scale": 1.35482071287158e-12
+        },
+        "omega_probe_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "omega_conjugate_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_probe_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_conjugate_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z_vacuum": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        }
+      },
+      "order_gate_equal": true
+    },
+    {
+      "D_GHz": -1.5,
+      "T_K": 383.15,
+      "pump_power_W": 2.0,
+      "branch": -1,
+      "arrays": {
+        "probe_axis_GHz": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "G_s": {
+          "maximum_absolute": 7.682743330406083e-14,
+          "maximum_relative_to_array_scale": 4.738465825551436e-14
+        },
+        "G_c": {
+          "maximum_absolute": 2.9531932455029164e-14,
+          "maximum_relative_to_array_scale": 2.966304880090175e-14
+        },
+        "gain_referred_noise_dB": {
+          "maximum_absolute": 3.232969447708456e-13,
+          "maximum_relative_to_array_scale": 3.060669113395388e-14
+        },
+        "S_dB": {
+          "maximum_absolute": 3.232969447708456e-13,
+          "maximum_relative_to_array_scale": 3.060669113395388e-14
+        },
+        "G_s_smallsignal": {
+          "maximum_absolute": 6.905587213168474e-14,
+          "maximum_relative_to_array_scale": 4.2591291710040536e-14
+        },
+        "G_c_smallsignal": {
+          "maximum_absolute": 3.319566843629218e-14,
+          "maximum_relative_to_array_scale": 3.3342729750650156e-14
+        },
+        "T_field_small_signal": {
+          "maximum_absolute": 1.0672315866092746e-13,
+          "maximum_relative_to_array_scale": 7.075336229113888e-14
+        },
+        "Q_photon_flux": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "T_canonical_small_signal": {
+          "maximum_absolute": 1.0672315866092746e-13,
+          "maximum_relative_to_array_scale": 7.075336229113888e-14
+        },
+        "conjugate_photon_flux_gain_smallsignal": {
+          "maximum_absolute": 3.319566843629218e-14,
+          "maximum_relative_to_array_scale": 3.3343243884073844e-14
+        },
+        "photon_flux_gap_smallsignal": {
+          "maximum_absolute": 5.639932965095795e-14,
+          "maximum_relative_to_array_scale": 5.630082400723855e-14
+        },
+        "commutator_defect_smallsignal": {
+          "maximum_absolute": 2.3936408452650783e-13,
+          "maximum_relative_to_array_scale": 1.91664829673973e-13
+        },
+        "commutator_defect_max_smallsignal": {
+          "maximum_absolute": 6.94999613415348e-14,
+          "maximum_relative_to_array_scale": 5.5650363249870946e-14
+        },
+        "omega_probe_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "omega_conjugate_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_probe_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_conjugate_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z_vacuum": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        }
+      },
+      "order_gate_equal": true
+    },
+    {
+      "D_GHz": -2.1,
+      "T_K": 403.15,
+      "pump_power_W": 0.6,
+      "branch": -1,
+      "arrays": {
+        "probe_axis_GHz": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "G_s": {
+          "maximum_absolute": 5.52245182916522e-09,
+          "maximum_relative_to_array_scale": 3.220734451583912e-13
+        },
+        "G_c": {
+          "maximum_absolute": 2.451315594953485e-09,
+          "maximum_relative_to_array_scale": 1.445848954213731e-13
+        },
+        "gain_referred_noise_dB": {
+          "maximum_absolute": 2.1747936784777266e-11,
+          "maximum_relative_to_array_scale": 2.427962306813436e-12
+        },
+        "S_dB": {
+          "maximum_absolute": 2.1747936784777266e-11,
+          "maximum_relative_to_array_scale": 2.427962306813436e-12
+        },
+        "G_s_smallsignal": {
+          "maximum_absolute": 1.9095023162662983e-07,
+          "maximum_relative_to_array_scale": 3.7618543713416143e-13
+        },
+        "G_c_smallsignal": {
+          "maximum_absolute": 2.1618325263261795e-07,
+          "maximum_relative_to_array_scale": 4.303322733755831e-13
+        },
+        "T_field_small_signal": {
+          "maximum_absolute": 1.0269007916709163e-09,
+          "maximum_relative_to_array_scale": 1.4413497711710958e-12
+        },
+        "Q_photon_flux": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "T_canonical_small_signal": {
+          "maximum_absolute": 1.0269007916709163e-09,
+          "maximum_relative_to_array_scale": 1.4413497711710958e-12
+        },
+        "conjugate_photon_flux_gain_smallsignal": {
+          "maximum_absolute": 2.1618325263261795e-07,
+          "maximum_relative_to_array_scale": 4.3033987134433863e-13
+        },
+        "photon_flux_gap_smallsignal": {
+          "maximum_absolute": 2.523302100598812e-08,
+          "maximum_relative_to_array_scale": 2.047096070214646e-12
+        },
+        "commutator_defect_smallsignal": {
+          "maximum_absolute": 2.605702320755314e-08,
+          "maximum_relative_to_array_scale": 2.4139013025368086e-12
+        },
+        "commutator_defect_max_smallsignal": {
+          "maximum_absolute": 2.6057023205794394e-08,
+          "maximum_relative_to_array_scale": 2.41390130237388e-12
+        },
+        "omega_probe_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "omega_conjugate_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_probe_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_conjugate_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z_vacuum": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        }
+      },
+      "order_gate_equal": true
+    },
+    {
+      "D_GHz": -0.2,
+      "T_K": 373.15,
+      "pump_power_W": 0.2,
+      "branch": -1,
+      "arrays": {
+        "probe_axis_GHz": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "G_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "G_c": {
+          "maximum_absolute": 7.327471962526033e-15,
+          "maximum_relative_to_array_scale": 2.7774615861592316e-14
+        },
+        "gain_referred_noise_dB": {
+          "maximum_absolute": 7.838174553853605e-14,
+          "maximum_relative_to_array_scale": 3.256506708662636e-14
+        },
+        "S_dB": {
+          "maximum_absolute": 7.838174553853605e-14,
+          "maximum_relative_to_array_scale": 3.256506708662636e-14
+        },
+        "G_s_smallsignal": {
+          "maximum_absolute": 4.6004866582904924e-15,
+          "maximum_relative_to_array_scale": 8.325727242912995e-15
+        },
+        "G_c_smallsignal": {
+          "maximum_absolute": 7.244205235679146e-15,
+          "maximum_relative_to_array_scale": 2.7458293898015335e-14
+        },
+        "T_field_small_signal": {
+          "maximum_absolute": 1.3276916658240909e-14,
+          "maximum_relative_to_array_scale": 9.142023259829508e-15
+        },
+        "Q_photon_flux": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "T_canonical_small_signal": {
+          "maximum_absolute": 1.3276916658240909e-14,
+          "maximum_relative_to_array_scale": 9.142023259829508e-15
+        },
+        "conjugate_photon_flux_gain_smallsignal": {
+          "maximum_absolute": 7.244205235679146e-15,
+          "maximum_relative_to_array_scale": 2.745872263370329e-14
+        },
+        "photon_flux_gap_smallsignal": {
+          "maximum_absolute": 4.746203430272544e-15,
+          "maximum_relative_to_array_scale": 9.456303389064024e-15
+        },
+        "commutator_defect_smallsignal": {
+          "maximum_absolute": 2.5091041615664053e-14,
+          "maximum_relative_to_array_scale": 2.050514935717221e-14
+        },
+        "commutator_defect_max_smallsignal": {
+          "maximum_absolute": 7.993605777301127e-15,
+          "maximum_relative_to_array_scale": 6.532613626673317e-15
+        },
+        "omega_probe_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "omega_conjugate_rad_s": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_probe_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "k_conjugate_propagation_per_m": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        },
+        "delta_k_z_vacuum": {
+          "maximum_absolute": 0.0,
+          "maximum_relative_to_array_scale": 0.0
+        }
+      },
+      "order_gate_equal": true
+    }
+  ],
+  "sampled_audit_counterexample": {
+    "sampled_status": "CONVERGED",
+    "full_status": "UNCONVERGED",
+    "scope": "logical counterexample to a full-scan certificate; not measured atom data"
+  },
+  "plain_legendre_diagnostics": [
+    {
+      "D_GHz": 0.9,
+      "temperature_K": 394.15,
+      "pump_power_W": 0.6,
+      "configurations": [
+        {
+          "order": 128,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 394.249484478965,
+          "gain_referred_diagnostic_db_at_minus8MHz": -9.369064136614002
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 394.24948447896713,
+          "gain_referred_diagnostic_db_at_minus8MHz": -9.369064136614055
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 6,
+          "G_s_at_minus8MHz": 394.2426802931149,
+          "gain_referred_diagnostic_db_at_minus8MHz": -9.36883268717377
+        }
+      ],
+      "adjacent_comparisons": [
+        {
+          "gain": {
+            "maximum_absolute": 5.077489287223699,
+            "maximum_relative_to_array_scale": 0.0014204150046379612
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 4.450477542475497,
+            "maximum_relative_to_array_scale": 0.4643877458195208
+          },
+          "delta_db_at_minus8MHz": 5.3290705182007514e-14,
+          "full_scan_within_0p01_db": false
+        },
+        {
+          "gain": {
+            "maximum_absolute": 0.4444395027681196,
+            "maximum_relative_to_array_scale": 0.00012433110325179753
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 1.3026902841209749,
+            "maximum_relative_to_array_scale": 0.13592937878149855
+          },
+          "delta_db_at_minus8MHz": -0.0002314494402853029,
+          "full_scan_within_0p01_db": false
+        }
+      ]
+    },
+    {
+      "D_GHz": -2.1,
+      "temperature_K": 403.15,
+      "pump_power_W": 0.6,
+      "configurations": [
+        {
+          "order": 128,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 4.876537045042122,
+          "gain_referred_diagnostic_db_at_minus8MHz": -6.432188796440522
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 4.875450079550223,
+          "gain_referred_diagnostic_db_at_minus8MHz": -6.4263024368846935
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 6,
+          "G_s_at_minus8MHz": 4.876137207293805,
+          "gain_referred_diagnostic_db_at_minus8MHz": -6.429613493966453
+        }
+      ],
+      "adjacent_comparisons": [
+        {
+          "gain": {
+            "maximum_absolute": 22.412135520272784,
+            "maximum_relative_to_array_scale": 0.0012969797293688123
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 2.0652650828329313,
+            "maximum_relative_to_array_scale": 0.2305235759890695
+          },
+          "delta_db_at_minus8MHz": -0.005886359555828946,
+          "full_scan_within_0p01_db": false
+        },
+        {
+          "gain": {
+            "maximum_absolute": 5.826220178814822,
+            "maximum_relative_to_array_scale": 0.00033716060258260694
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 0.8542448320718363,
+            "maximum_relative_to_array_scale": 0.09534959434169787
+          },
+          "delta_db_at_minus8MHz": 0.0033110570817598273,
+          "full_scan_within_0p01_db": false
+        }
+      ]
+    },
+    {
+      "D_GHz": -0.2,
+      "temperature_K": 373.15,
+      "pump_power_W": 0.2,
+      "configurations": [
+        {
+          "order": 128,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 1.0,
+          "gain_referred_diagnostic_db_at_minus8MHz": -4.398698818356551
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 5,
+          "G_s_at_minus8MHz": 1.0,
+          "gain_referred_diagnostic_db_at_minus8MHz": -2.520410496531735
+        },
+        {
+          "order": 256,
+          "cutoff_sigma": 6,
+          "G_s_at_minus8MHz": 1.0,
+          "gain_referred_diagnostic_db_at_minus8MHz": -0.1574985244156818
+        }
+      ],
+      "adjacent_comparisons": [
+        {
+          "gain": {
+            "maximum_absolute": 0.0,
+            "maximum_relative_to_array_scale": 0.0
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 3.7385073474612107,
+            "maximum_relative_to_array_scale": 1.0539732047152464
+          },
+          "delta_db_at_minus8MHz": -1.878288321824816,
+          "full_scan_within_0p01_db": false
+        },
+        {
+          "gain": {
+            "maximum_absolute": 0.0,
+            "maximum_relative_to_array_scale": 0.0
+          },
+          "diagnostic_db": {
+            "maximum_absolute": 3.16491813815489,
+            "maximum_relative_to_array_scale": 0.7099318593555635
+          },
+          "delta_db_at_minus8MHz": -2.362911972116053,
+          "full_scan_within_0p01_db": false
+        }
+      ]
+    }
+  ],
+  "proposal_disposition": {
+    "conjugate_symmetry_and_real_zero_block": "implemented after exact input identities and finite-cutoff induction; general fallback and independent dense oracle retained",
+    "sample_10_percent_of_order_audit": "not adopted: cannot preserve the full-scan certificate; logical counterexample recorded",
+    "reduce_nf_to_2": "not adopted: a different truncated system; proposal itself reports changes beyond regression tolerance",
+    "128_node_5sigma_velocity_default": "not adopted: quadrature and cutoff change; raw 128/256 and 5/6-sigma diagnostics recorded, no universal error bound or validated composite panels",
+    "commensurate_scan_delta_ladder": "not adopted in this app patch: changes requested physical detunings by about 0.6 percent; exact reuse requires a separately declared scan grid",
+    "cubic_operating_point_readout": "separate accuracy change, not an identical computation or speed optimization; linear readout unchanged",
+    "merge_probe_and_conjugate_seed_solves": "rejected: different finite-drive states; misleading seed-amplitude-independence comment corrected"
+  },
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "numba": "0.65.1",
+    "numba_threads": 16,
+    "blas_threads_during_timing": 1
+  },
+  "source_sha256": {
+    "gabes/kernels.py": "04c7d1ba371724774d54669b54b10ecf5759d22cb7aa808c2687f0f248280cb7",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/schemes/fwm.py": "d45245a4b472b85ec0a02c1429aa5b71e2fdccd89877daf9bcee57329721b2ff",
+    "gabes/doppler.py": "a6b5da7fe145b76090f3173eed14481dbf57513835eef4484afd176b22d42b4e",
+    "gabes/observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "tests/test_floquet_symmetry.py": "420e626cbbb5527f843170e77aedc494daa86b47ef80e946578c6f442a7fec50",
+    "analysis/ultra_performance/verify.py": "e900967cb95e3058b3534529dbb66eb13e7f5488496e385dcf5d15d9617e0186"
+  },
+  "pre_patch_artifact_sha256": {
+    "ultra_app_before.json": "f2945f8554ca756777980ab7ad1c1cb5c590ac25bd9fcc4aafb421397e442cf9",
+    "ultra_app_before.npz": "148316c85f6e6eb073a1eb1efc93dc930910fb865864529183fa6b241c7e696c"
+  },
+  "pre_patch_parameters": {
+    "mode": "Gain diagnostic",
+    "topology": "cascade_rb87_telecom",
+    "cs_channel": "6D5/2: 852-917 nm",
+    "biphoton_model": "Predictive (first-principles)",
+    "opd": 0.9,
+    "tpd": -8.0,
+    "temp_c": 121.0,
+    "cell_mm": 12.5,
+    "transit_rate_khz": 100.0,
+    "pump_mw": 600.0,
+    "probe_uw": 8.0,
+    "eom_residual_carrier_uw": 0.0,
+    "eom_other_sidebands_uw": 0.0,
+    "pump_waist_um": 530.0,
+    "probe_waist_um": 330.0,
+    "seeded_angle_deg": 0.32,
+    "detection_eff_pct": 86.94,
+    "loss_pct": 5.5,
+    "qe_pct": 92.0,
+    "line_strength": 0.74,
+    "mode_overlap_penalty": 1.0,
+    "polarization_penalty": 1.0,
+    "zeeman_participation_penalty": 1.0,
+    "biphoton_temp_c": 90.0,
+    "biphoton_cell_mm": 12.5,
+    "pump_biphoton_uw": 10.0,
+    "coupling_mw": 1.0,
+    "pump_detuning_mhz": 0.0,
+    "two_photon_detuning_mhz": 0.0,
+    "coupling_detuning_mhz": 0.0,
+    "signal_angle_deg": 1.5,
+    "idler_angle_offset_deg": 0.0,
+    "idler_angle_deg": 0.7651916148678504,
+    "signal_side": "+",
+    "idler_side": "+",
+    "diamond_pump_nm": 780.0,
+    "diamond_coupling_nm": 776.0,
+    "diamond_signal_nm": 795.0,
+    "diamond_idler_nm": 761.702,
+    "signal_eff_pct": 10.0,
+    "idler_eff_pct": 10.0,
+    "dark_signal_cps": 2000.0,
+    "dark_idler_cps": 2000.0,
+    "coincidence_window_ns": 1.0,
+    "timing_jitter_ns": 0.55,
+    "filter_bandwidth_mhz": 300.0,
+    "tau_max_ns": 12.0,
+    "biphoton_velocity_step": 2.0,
+    "resolution": "Ultra  (slow)",
+    "floquet_order": 3,
+    "phase_detail": "Balanced"
+  }
+}

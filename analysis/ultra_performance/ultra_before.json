@@ -1,0 +1,131 @@
+{
+  "config": {
+    "coarse_points": 401,
+    "velocity_step": 1.0,
+    "velocity_cutoff": 4.0,
+    "phase_detail": "ultra",
+    "T": 394.15,
+    "P_pump": 0.6,
+    "P_probe": 8e-06,
+    "fine_points": 0,
+    "model_fidelity": "Ultra  (slow)"
+  },
+  "D_GHz": 0.9,
+  "seconds": [
+    13.475854399992386,
+    13.201408299995819
+  ],
+  "source_sha256": {
+    "gabes/kernels.py": "7ada3f42948590d95aa070e1202b78793ebea83cb0e22c5c1a5bfecb4f4cbabf",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/schemes/fwm.py": "212a9039041e660339c4008317d4a0aeb3cc2105d9c9e2b608f47898d42a5f69"
+  },
+  "array_keys": [
+    "probe_axis_GHz",
+    "G_s",
+    "G_c",
+    "gain_referred_noise_dB",
+    "S_dB",
+    "G_s_smallsignal",
+    "G_c_smallsignal",
+    "T_field_small_signal",
+    "Q_photon_flux",
+    "T_canonical_small_signal",
+    "conjugate_photon_flux_gain_smallsignal",
+    "photon_flux_gap_smallsignal",
+    "commutator_defect_smallsignal",
+    "commutator_defect_max_smallsignal",
+    "omega_probe_rad_s",
+    "omega_conjugate_rad_s",
+    "k_probe_propagation_per_m",
+    "k_conjugate_propagation_per_m",
+    "delta_k_z",
+    "delta_k_z_vacuum"
+  ],
+  "floquet_convergence": {
+    "status": "CONVERGED",
+    "passed": true,
+    "high_order": 3,
+    "comparison_order": 2,
+    "full_scan_points": 400,
+    "finite": true,
+    "nonfinite_entries": 0,
+    "criteria": {
+      "complex_rtol": 0.01,
+      "transfer_atol": 1e-10,
+      "response_floor_fraction_of_component_scan_max": 1e-08,
+      "gain_rtol": 0.01,
+      "phase_tolerance_deg": 0.5,
+      "phase_amplitude_floor": 1e-08,
+      "optimum_max_grid_intervals": 1
+    },
+    "response_components": {
+      "chi_cc": {
+        "max_abs_difference": 3.8074516082588686e-17,
+        "component_scale": 4.5703358830239973e-11,
+        "absolute_floor": 4.570335883023998e-19,
+        "max_tolerance_ratio": 0.0002683087445864023,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_cs": {
+        "max_abs_difference": 5.920616534322025e-18,
+        "component_scale": 1.0815351139679315e-10,
+        "absolute_floor": 1.0815351139679316e-18,
+        "max_tolerance_ratio": 0.0014805185471520649,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_sc": {
+        "max_abs_difference": 3.218638113310195e-17,
+        "component_scale": 1.4809226703220343e-10,
+        "absolute_floor": 1.4809226703220343e-18,
+        "max_tolerance_ratio": 0.01115323938809773,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      },
+      "chi_ss": {
+        "max_abs_difference": 2.2953814638690045e-18,
+        "component_scale": 4.6155779858321237e-10,
+        "absolute_floor": 4.615577985832124e-18,
+        "max_tolerance_ratio": 4.128940678240566e-06,
+        "failed_points": 0,
+        "nonfinite_entries": 0,
+        "passed": true
+      }
+    },
+    "transfer": {
+      "max_abs_difference": 3.412123117738858e-06,
+      "max_tolerance_ratio": 0.011289305610318818,
+      "failed_coefficients": 0,
+      "passed": true
+    },
+    "gains": {
+      "probe_power": {
+        "max_relative_difference": 3.0538398088086893e-07,
+        "failed_points": 0,
+        "passed": true
+      },
+      "conjugate_photon_flux": {
+        "max_relative_difference": 2.3709650354142298e-09,
+        "failed_points": 0,
+        "passed": true
+      }
+    },
+    "wrapped_phase": {
+      "max_difference_deg": 0.005792527009813698,
+      "reported_coefficients": 1600,
+      "passed": true
+    },
+    "probe_gain_optimum": {
+      "high_index": 118,
+      "comparison_index": 118,
+      "index_shift": 0,
+      "axis_shift": 0.0,
+      "passed": true
+    }
+  }
+}

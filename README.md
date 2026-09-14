@@ -367,6 +367,13 @@ as the default full-scan solver.
   comparison on every recompute. Runtime therefore depends on solver detail and
   grid size; the result is cached, and the two-photon-detuning slider only
   navigates that cached curve.
+- The compiled Floquet grid checks the exact Hermiticity/adjoint identities
+  before transforming to Hermitian operator coordinates. At every symmetric
+  finite cutoff, `Q_-h = R_h.conj()` and the zero-harmonic Schur complement is
+  real: only one harmonic chain and a real trace-one solve are needed. The
+  general two-chain fallback and full adjacent-order audit remain available.
+  See [the proof and performance validation](docs/ultra_performance.md) before
+  reintroducing a redundant negative-chain solve for numerical rigor.
 - Squeezing **Fast/Balanced** solve the same finite-Floquet model, Maxwell measure
   and Ultra readout without a per-velocity solve. At fixed δ the velocity enters
   only through `−Δ_eff·S_v`, so eliminating the shift-free coordinates makes each

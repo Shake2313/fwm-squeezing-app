@@ -165,9 +165,129 @@ def _lu_solve_real(A, piv, B):
             B[i, j] *= inv
 
 
-@njit(cache=True, parallel=True)
 def floquet_chi_grid(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
                      omega_hf, branch, w_probe, w_conj, n_levels, n_f=1):
+    """Finite-Floquet grid with an exact, guarded Hermitian-basis reduction.
+
+    The physical affine coefficients must preserve Hermiticity and the two
+    couplings must be adjoint partners. Check these identities in raw vec
+    coordinates, without a tolerance that could discard a physical term.
+    Otherwise retain the general two-chain solver, including complex axes.
+
+    This changes neither n_f nor the velocity/detuning grid. The full adjacent-
+    order convergence audit in the caller remains independent and unchanged.
+    """
+    M = n_levels * n_levels
+    perm = core._transpose_perm(n_levels)
+    coefficients = tuple(np.asarray(a) for a in (L0_base, C_delta, S_v))
+    cp, cm = np.asarray(Cp), np.asarray(Cm)
+    real_axes = all(np.isrealobj(a) and np.isfinite(a).all()
+                    for a in (delta_axis, deff_axis, omega_hf, branch))
+    symmetric = (real_axes and all(a.shape == (M, M) and
+        np.array_equal(a, a.conj()[perm][:, perm]) for a in coefficients)
+        and cp.shape == cm.shape == (M, M)
+        and np.array_equal(cm, cp.conj()[perm][:, perm]))
+    if not symmetric:
+        return _floquet_chi_grid_general(
+            L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
+            omega_hf, branch, w_probe, w_conj, n_levels, n_f)
+
+    U = core.hermitian_basis(n_levels)
+    Uh = U.conj().T
+    # The checked raw identities imply real coefficients in this basis;
+    # imaginary transform roundoff is not a physical approximation.
+    real_coefficients = [np.ascontiguousarray((Uh @ a @ U).real)
+                         for a in coefficients]
+    return _floquet_chi_grid_hermitian(
+        *real_coefficients, np.ascontiguousarray(Uh @ cp @ U),
+        np.ascontiguousarray(delta_axis, dtype=np.float64),
+        np.ascontiguousarray(deff_axis, dtype=np.float64),
+        float(omega_hf), float(branch),
+        np.ascontiguousarray(np.asarray(w_probe) @ U),
+        np.ascontiguousarray(np.asarray(w_conj) @ U), n_levels, n_f)
+
+
+@njit(cache=True, parallel=True)
+def _floquet_chi_grid_hermitian(L0_base, C_delta, S_v, Cp, delta_axis,
+                               deff_axis, omega_hf, branch, w_probe, w_conj,
+                               n_levels, n_f):
+    """One complex harmonic chain and one real trace-one solve per grid point."""
+    if n_f < 1:
+        raise ValueError("n_f must be at least 1")
+    M = n_levels * n_levels
+    probe = np.empty((delta_axis.size, deff_axis.size), np.complex128)
+    conjugate = np.empty_like(probe)
+    for i in prange(delta_axis.size):
+        delta = delta_axis[i]
+        ob = omega_hf + branch * delta
+        L = np.empty((M, M), np.float64)
+        A = np.empty((M, M), np.complex128)
+        R = np.empty((M, M), np.complex128)
+        rhs_matrix = np.empty((M, M), np.complex128)
+        Aeff = np.empty((M, M), np.float64)
+        rhs = np.empty((M, 1), np.float64)
+        piv = np.empty(M, np.int64)
+        for j in range(deff_axis.size):
+            for r in range(M):
+                for col in range(M):
+                    L[r, col] = (L0_base[r, col] + delta*C_delta[r, col]
+                                 - deff_axis[j]*S_v[r, col])
+
+            # MATHEMATICALLY EXACT for every symmetric finite cutoff: with
+            # real L and C-=C+*, induction from R_(nf+1)=Q_(-nf-1)=0 gives
+            # Q_(-h)=R_h*. No negative-chain LU adds rigor under this guard.
+            # Proof + independent two-chain/dense tests: docs/ultra_performance.md.
+            for harmonic in range(n_f, 0, -1):
+                for r in range(M):
+                    for col in range(M):
+                        value = L[r, col] + 0j
+                        if r == col:
+                            value += 1j*harmonic*ob
+                        if harmonic < n_f:
+                            for k in range(M):
+                                value += np.conj(Cp[r, k])*R[k, col]
+                        A[r, col] = value
+                        rhs_matrix[r, col] = Cp[r, col]
+                _lu_factor(A, piv)
+                _lu_solve(A, piv, rhs_matrix)
+                for r in range(M):
+                    for col in range(M):
+                        R[r, col] = -rhs_matrix[r, col]
+
+            # L_eff = L + C+ R1* + C- R1 = L + 2 Re(C- R1).
+            # The first n Hermitian basis vectors are population projectors,
+            # so replacing row 0 by their sum is the same trace constraint.
+            for r in range(M):
+                for col in range(M):
+                    feedback = 0.0
+                    for k in range(M):
+                        feedback += (Cp[r, k].real*R[k, col].real
+                                     + Cp[r, k].imag*R[k, col].imag)
+                    Aeff[r, col] = L[r, col] + 2.0*feedback
+            for col in range(M):
+                Aeff[0, col] = 1.0 if col < n_levels else 0.0
+            for r in range(M):
+                rhs[r, 0] = 0.0
+            rhs[0, 0] = 1.0
+            _lu_factor_real(Aeff, piv)
+            _lu_solve_real(Aeff, piv, rhs)
+
+            probe_value = 0.0 + 0.0j
+            conj_value = 0.0 + 0.0j
+            for r in range(M):
+                probe_value += w_probe[r]*rhs[r, 0]
+                rho1 = 0.0 + 0.0j
+                for k in range(M):
+                    rho1 += R[r, k]*rhs[k, 0]
+                conj_value += w_conj[r]*rho1
+            probe[i, j] = probe_value
+            conjugate[i, j] = conj_value
+    return probe, conjugate
+
+
+@njit(cache=True, parallel=True)
+def _floquet_chi_grid_general(L0_base, C_delta, S_v, Cp, Cm, delta_axis, deff_axis,
+                              omega_hf, branch, w_probe, w_conj, n_levels, n_f=1):
     """
     Fused finite-Floquet FWM χ-bar grid for ``-n_f,...,+n_f``.
 
