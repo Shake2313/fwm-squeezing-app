@@ -18,12 +18,16 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .. import atoms, beam, constants, doppler, hyperfine, kernels, observables, species
+from .. import (adaptive_scan, atoms, beam, constants, doppler, hyperfine, kernels,
+               observables, pole_doppler, species)
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import (
+    _EXP_ARG_CLAMP,
+    _transpose_perm,
     blas_single_thread,
     build_liouvillian,
     comm_super,
+    hermitian_basis,
     floquet_solve_truncated,
     liouvillian_pole_residue_response,
     steady_state_batched,
@@ -247,6 +251,20 @@ PHASE_ULTRA = "ultra"
 SEEDED_PHASE_ANGLE_DEG = 0.32
 ULTRA_PHASE_ITERATIONS = 0   # Option A keeps dispersion in diagonal χ, not in Δk
 ULTRA_PROPAGATION_SEGMENTS = 64
+# Maxwell-averaged response estimators behind the Solver detail tiers.  All
+# three evaluate the same finite-Floquet steady state on the same truncated
+# Maxwell measure; they differ only in how that sum is carried out.
+RESPONSE_GRID = "maxwell_grid"                    # one Floquet solve per velocity class
+RESPONSE_POLE = "pole_residue"                    # exact pole sum, every probe point
+RESPONSE_POLE_ADAPTIVE = "pole_residue_adaptive"  # exact pole sum, adaptive probe points
+RESPONSE_METHODS = (RESPONSE_GRID, RESPONSE_POLE, RESPONSE_POLE_ADAPTIVE)
+POLE_GUARD_RTOL = 1e-6              # pole form vs compiled kernel at Δ_eff = Δ, every row
+SCAN_TOLERANCE_DB = 0.05            # adaptive probe scan: indicator disagreement
+SCAN_TOLERANCE_LOG10_GAIN = 0.01    # adaptive probe scan: log10 G_s disagreement
+SCAN_START_STRIDE = 32              # initial display stride (401 points -> 14 nodes)
+SCAN_TOLERANCE_RANGE_FRACTION = 0.05  # never looser than 5 % of the curve's own range
+SCAN_TOLERANCE_FLOOR_DB = 2e-3
+SCAN_TOLERANCE_FLOOR_LOG10_GAIN = 2e-4
 SEEDED_REFERENCE_RESIDUAL = 0.74
 SEEDED_FLOQUET_ORDER = 3
 FLOQUET_COMPLEX_RTOL = 0.01
@@ -573,7 +591,8 @@ def seeded_validation_claim_gate(*, canonical_mode_status,
                                  eom_residual_carrier_power=0.0,
                                  eom_other_sidebands_power=0.0,
                                  eom_spectrum_status="not supplied",
-                                 eom_spectrum_application="unapplied"):
+                                 eom_spectrum_application="unapplied",
+                                 response_estimator=None):
     """Return the explicit validation boundary for seeded-FWM outputs."""
     defect = float(np.nanmax(np.asarray(commutator_defect_max, dtype=float)))
     reasons = [
@@ -590,6 +609,12 @@ def seeded_validation_claim_gate(*, canonical_mode_status,
     if floquet_status != "CONVERGED":
         reasons.append(
             f"full-scan Floquet truncation status is {floquet_status}")
+    if response_estimator and response_estimator.get("interpolation", "none") != "none":
+        solved = response_estimator.get("solved_probe_points")
+        shown = response_estimator.get("display_probe_points")
+        reasons.append(
+            f"{shown - solved} of {shown} displayed probe detunings are cubic-spline "
+            "interpolated between exactly solved detunings (Fast solver detail)")
     if "conditional" in str(canonical_mode_status).lower():
         reasons.append("conjugate collected-mode area is assumed rather than measured")
     eom_unapplied = str(eom_spectrum_application).strip().lower() != "applied"
@@ -2168,6 +2193,219 @@ def chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, Delta_eff_axis, bra
     return chi_ss, chi_cs, chi_sc, chi_cc
 
 
+def _seeded_pole_systems(Op_A, Op_B, Os_ref, Oc_ref, branch, atom, orders):
+    """Real pole–residue systems for both finite seed configurations and orders.
+
+    Returns ``{(seed, order): (AffineShiftSystem, reference Rabi frequency)}``
+    with readouts (probe coherence at harmonic 0, conjugate coherence at
+    harmonic +1), or ``None`` when the exact Hermiticity/adjoint identities of
+    the real finite-Floquet form do not hold.  The identities are compared
+    exactly in raw vec coordinates, as in ``kernels.floquet_chi_grid``.
+    """
+    n = N_LEVELS
+    perm = _transpose_perm(n)
+    U = hermitian_basis(n)
+    Uh = U.conj().T
+    E_g2 = np.zeros((n, n), dtype=complex)
+    E_g2[G2, G2] = 1.0
+    C_delta = comm_super(E_g2)
+    probe_ground = G2 if branch == -1 else G1
+    conj_ground = G1 if branch == -1 else G2
+    w_probe = _coherence_weights(probe_ground) @ U
+    w_conj = _coherence_weights(conj_ground) @ U
+
+    def j_symmetric(X):
+        return np.array_equal(X, X.conj()[perm][:, perm])
+
+    seeds = {
+        1: (build_liouvillian(
+                static_hamiltonian_at_Deff_zero(Op_A, Op_B, Os_ref, 0.0, branch), atom),
+            sideband_template(Op_A, Op_B, 0.0, branch), Os_ref),
+        2: (build_liouvillian(
+                static_hamiltonian_at_Deff_zero(Op_A, Op_B, 0.0, 0.0, branch), atom),
+            sideband_template(Op_A, Op_B, Oc_ref, branch), Oc_ref),
+    }
+    if not (j_symmetric(C_delta) and j_symmetric(atom.S_v)):
+        return None
+    S_r = np.ascontiguousarray((Uh @ atom.S_v @ U).real)
+    Cd_r = np.ascontiguousarray((Uh @ C_delta @ U).real)
+    systems = {}
+    for seed, (L0, (Cp, Cm), reference) in seeds.items():
+        if not (j_symmetric(L0) and np.array_equal(Cm, Cp.conj()[perm][:, perm])):
+            return None
+        L_r = np.ascontiguousarray((Uh @ L0 @ U).real)
+        Cp_r = Uh @ Cp @ U
+        for order in orders:
+            system = pole_doppler.AffineShiftSystem(*pole_doppler.floquet_real_form(
+                L_r, Cd_r, Cp_r, S_r, order, OMEGA_HF, float(branch), n,
+                ((0, w_probe), (1, w_conj))))
+            systems[(seed, order)] = (system, reference)
+    return systems
+
+
+def _pole_scan_response(systems, *, orders, delta_axis, probe_axis_GHz, Delta,
+                        Delta_eff_axis, idx_lo, frac, weights, adaptive, score,
+                        tolerance_dB, tolerance_log10_gain, start_stride,
+                        guard, grid_rows):
+    """Maxwell-averaged (ss, cs, sc, cc) responses from pole–residue rows.
+
+    The velocity sum uses exactly the measure of the grid path: the uniform
+    Maxwell weights spread onto the Δ_eff nodes by the same linear
+    interpolation fractions.  With ``adaptive`` the probe axis is refined by
+    bisection, the averaged complex responses are spline-interpolated between
+    solved rows, and refinement is judged in the readout (``score``).
+
+    After refinement every solved row is checked once against the compiled
+    kernel at Δ_eff = Δ.  A row that misses ``POLE_GUARD_RTOL`` is replaced by
+    the grid solution for that row and, in adaptive mode, refinement is re-run
+    on the corrected values (solved rows are memoized).
+    """
+    n_points = probe_axis_GHz.size
+    node_weights = np.zeros(Delta_eff_axis.size)
+    np.add.at(node_weights, idx_lo, weights * (1.0 - frac))
+    np.add.at(node_weights, idx_lo + 1, weights * frac)
+    high_order = orders[0]
+    keys = [(seed, order) for order in orders for seed in (1, 2)]
+    stored = {order: np.zeros((n_points, 4), dtype=complex) for order in orders}
+    poles = {}
+    solved = np.zeros(n_points, dtype=bool)
+    guarded = np.zeros(n_points, dtype=bool)
+    exact_scores = {}
+    ledger = {"guard": 0.0, "fallback": 0, "min_imag": math.inf}
+
+    def solve(rows):
+        rows = np.asarray(rows, dtype=int)
+        rows = rows[~solved[rows]]
+        if rows.size == 0:
+            return
+        batch = pole_doppler.residues_many(
+            [(systems[key][0], delta_axis[rows]) for key in keys])
+        means = {}
+        for key, result in zip(keys, batch):
+            ledger["min_imag"] = min(ledger["min_imag"], result.min_abs_imag)
+            if key not in poles:
+                poles[key] = tuple(
+                    np.zeros((n_points,) + arr.shape[1:], dtype=complex)
+                    for arr in (result.lam, result.res, result.c0))
+            for store, arr in zip(poles[key], (result.lam, result.res, result.c0)):
+                store[rows] = arr
+            means[key] = (result.discrete_mean(Delta_eff_axis, node_weights)
+                          / systems[key][1])
+        for order in orders:
+            probe_seed, conj_seed = means[(1, order)], means[(2, order)]
+            stored[order][rows] = np.column_stack(
+                (probe_seed[:, 0], probe_seed[:, 1], conj_seed[:, 0], conj_seed[:, 1]))
+        solved[rows] = True
+
+    def check_guard(rows):
+        rows = np.asarray(rows, dtype=int)
+        rows = rows[~guarded[rows]]
+        if rows.size == 0:
+            return rows
+        failed = np.zeros(rows.size, dtype=bool)
+        for order in orders:
+            values = []
+            for seed in (1, 2):
+                lam, res, c0 = (store[rows] for store in poles[(seed, order)])
+                values.append(pole_doppler.PoleResidues(lam, res, c0).value_at(Delta)
+                              / systems[(seed, order)][1])
+            at_delta = np.column_stack(
+                (values[0][:, 0], values[0][:, 1], values[1][:, 0], values[1][:, 1]))
+            kernel = np.column_stack([table[:, 0] for table in guard(rows, order)])
+            relative = np.abs(at_delta - kernel) / np.maximum(
+                np.abs(kernel), np.finfo(float).tiny)
+            relative = np.where(np.isfinite(relative), relative, np.inf)
+            ledger["guard"] = max(ledger["guard"], float(np.max(relative)))
+            failed |= np.any(relative > POLE_GUARD_RTOL, axis=1)
+        guarded[rows] = True
+        bad = rows[failed]
+        if bad.size:
+            for order in orders:
+                stored[order][bad] = np.column_stack(grid_rows(bad, order))
+            for r in bad:
+                exact_scores.pop(int(r), None)
+            ledger["fallback"] += int(bad.size)
+        return bad
+
+    def disagrees(nodes, candidates):
+        candidates = np.asarray(candidates, dtype=int)
+        predicted = adaptive_scan.cubic_spline(
+            probe_axis_GHz[nodes], stored[high_order][nodes], probe_axis_GHz[candidates])
+        need = np.asarray([r for r in np.flatnonzero(solved)
+                           if int(r) not in exact_scores], dtype=int)
+        rows = np.concatenate((candidates, need))
+        chi = np.vstack((predicted, stored[high_order][need]))
+        G_all, S_all = score(tuple(chi[:, q] for q in range(4)), rows)
+        split = candidates.size
+        for r, g_value, s_value in zip(need, G_all[split:], S_all[split:]):
+            exact_scores[int(r)] = (float(g_value), float(s_value))
+        exact = np.array([exact_scores[int(r)] for r in candidates], dtype=float)
+        known = np.array(list(exact_scores.values()), dtype=float)
+        log_known = np.log10(np.maximum(known[:, 0], 1e-300))
+        tol_S = max(min(float(tolerance_dB),
+                        SCAN_TOLERANCE_RANGE_FRACTION * float(np.ptp(known[:, 1]))),
+                    SCAN_TOLERANCE_FLOOR_DB)
+        tol_G = max(min(float(tolerance_log10_gain),
+                        SCAN_TOLERANCE_RANGE_FRACTION * float(np.ptp(log_known))),
+                    SCAN_TOLERANCE_FLOOR_LOG10_GAIN)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            dG = np.abs(np.log10(np.maximum(G_all[:split], 1e-300))
+                        - np.log10(np.maximum(exact[:, 0], 1e-300)))
+            dS = np.abs(S_all[:split] - exact[:, 1])
+        return (dS > tol_S) | (dG > tol_G) | ~np.isfinite(dS) | ~np.isfinite(dG)
+
+    for _attempt in range(3):
+        if adaptive:
+            nodes, rounds = adaptive_scan.refine_scan_nodes(
+                n_points, solve, disagrees, start_stride=start_stride)
+        else:
+            nodes, rounds = np.arange(n_points), 1
+            solve(nodes)
+        if check_guard(nodes).size == 0 or not adaptive:
+            break
+    interpolated = nodes.size < n_points
+
+    def display(order):
+        if not interpolated:
+            return stored[order]
+        full = adaptive_scan.cubic_spline(
+            probe_axis_GHz[nodes], stored[order][nodes], probe_axis_GHz)
+        full[nodes] = stored[order][nodes]
+        return full
+
+    def columns(array):
+        return tuple(np.ascontiguousarray(array[:, q]) for q in range(4))
+
+    high = columns(display(high_order))
+    low = columns(display(orders[1])) if len(orders) > 1 else None
+    estimator = {
+        "method": RESPONSE_POLE_ADAPTIVE if adaptive else RESPONSE_POLE,
+        "velocity_average": (
+            "exact pole–residue sum over the same truncated Maxwell nodes "
+            "(one eigendecomposition per solved probe detuning)"),
+        "solved_probe_points": int(nodes.size),
+        "display_probe_points": int(n_points),
+        "solved_probe_indices": tuple(int(i) for i in nodes),
+        "interpolation": (
+            "not-a-knot cubic spline of Maxwell-averaged complex responses"
+            if interpolated else "none"),
+        "adaptive_rounds": int(rounds),
+        "scan_tolerance_dB": float(tolerance_dB) if adaptive else None,
+        "scan_tolerance_log10_gain": float(tolerance_log10_gain) if adaptive else None,
+        "scan_start_stride": int(start_stride) if adaptive else None,
+        "audit_scope": (
+            "solved probe detunings; displayed points between them are interpolated"
+            if interpolated else "every displayed probe detuning"),
+        "pole_guard_rtol": POLE_GUARD_RTOL,
+        "pole_guard_max_relative": float(ledger["guard"]),
+        "pole_guard_fallback_rows": int(ledger["fallback"]),
+        "pole_min_distance_from_real_axis_MHz": float(
+            ledger["min_imag"] / (2 * np.pi * 1e6)),
+        "absorption_diagnostics": "analytic Voigt (Faddeeva), untruncated Maxwell",
+    }
+    return high, low, estimator
+
+
 # =========================================================
 # Probe-detuning axis
 # =========================================================
@@ -2291,6 +2529,102 @@ def _pump_scatter_noise(D_GHz, T, L, kappa):
     alpha, _, _ = absorption._hyperfine_alpha(scan, params)
     od_pump = float(np.clip(float(alpha[0]) * L, 0.0, 50.0))
     return float(kappa) * (1.0 - math.exp(-od_pump)), od_pump
+
+
+def _analytic_hyperfine_line(beam_GHz, T, Fg, Fe):
+    """Analytic Voigt absorption of one hyperfine line weighted by C_F² alone [1/m].
+
+    Same line center, self-broadened Lorentzian and Doppler width as
+    ``absorption._hyperfine_alpha`` (untruncated Maxwell, no table).
+    """
+    beam = np.atleast_1d(np.asarray(beam_GHz, dtype=float))
+    density = hyperfine.number_density(T)
+    gamma = hyperfine.self_broadened_gamma(density)
+    sigma = K_VEC * math.sqrt(constants.KB * float(T) / constants.MASS_85RB)
+    scale = (math.pi * K_VEC * hyperfine.DIPOLE_SQ * density
+             / (constants.HBAR * constants.EPS_0) / hyperfine.N_GROUND_SUBLEVELS)
+    detuning = 2 * np.pi * (beam * 1e9 + hyperfine.LINE_SHIFT_HZ[(2, 3)]
+                            - hyperfine.LINE_SHIFT_HZ[(Fg, Fe)])
+    return scale * hyperfine.CF2[(Fg, Fe)] * doppler.voigt_profile(detuning, gamma, sigma)
+
+
+def _hyperfine_alpha_analytic(beam_GHz, T, ground_F=None, population_factors=None):
+    """Closed-form counterpart of ``absorption._hyperfine_alpha`` on the FWM axis.
+
+    That path Doppler-averages a weak-probe two-level OBE (saturation ~2e-6)
+    numerically, i.e. it tabulates a Voigt profile.  The analytic twin uses the
+    same lines through the Faddeeva function.  ``population_factors`` maps each
+    ground manifold to the extra weight the reference applies (see
+    :func:`_reference_population_factors`); Ultra keeps the numerical table.
+    """
+    beam = np.atleast_1d(np.asarray(beam_GHz, dtype=float))
+    alpha = np.zeros_like(beam)
+    for (Fg, Fe) in hyperfine.TRANSITIONS:
+        if ground_F is not None and Fg != ground_F:
+            continue
+        weight = 1.0 if population_factors is None else population_factors[Fg]
+        alpha = alpha + weight * _analytic_hyperfine_line(beam, T, Fg, Fe)
+    return alpha
+
+
+@functools.lru_cache(maxsize=1)
+def _reference_population_factors():
+    """Population weight per ground manifold used by ``absorption._hyperfine_alpha``.
+
+    The analytic twin follows the reference normalization instead of restating
+    it: whether C_F² alone or p_F·C_F² weights a line is a documented
+    correction that can differ between versions.  One numerical evaluation at
+    the four line centers is compared with the C_F²-only analytic lines and each
+    ground manifold is classified as 1 or p_F.  ``None`` (neither within 2 %)
+    sends the pole tiers back to the numerical diagnostics.
+    """
+    from . import absorption
+    T = 373.15
+    ref_hz = hyperfine.LINE_SHIFT_HZ[(2, 3)]
+    beams = np.array([(hyperfine.LINE_SHIFT_HZ[line] - ref_hz) / 1e9
+                      for line in hyperfine.TRANSITIONS])
+    _alpha, components, _info = absorption._hyperfine_alpha(
+        2 * np.pi * (beams * 1e9 + ref_hz),
+        {"temp_c": T - 273.15, "line_strength": 1.0, "doppler": "on"})
+    factors = {}
+    for index, (Fg, Fe) in enumerate(hyperfine.TRANSITIONS):
+        ratio = (float(components[(Fg, Fe)][index])
+                 / float(_analytic_hyperfine_line(beams[index], T, Fg, Fe)[0]))
+        best = min((1.0, float(hyperfine.GROUND_POP[Fg])),
+                   key=lambda candidate: abs(ratio / candidate - 1.0))
+        if abs(ratio / best - 1.0) > 0.02 or factors.get(Fg, best) != best:
+            return None
+        factors[Fg] = best
+    return factors
+
+
+def _arm_linear_od_analytic(beam_GHz, T, L=L_CELL, ground_F=2, population_factors=None):
+    """Analytic-Voigt twin of :func:`_arm_linear_od` (diagnostic only)."""
+    alpha = _hyperfine_alpha_analytic(beam_GHz, T, ground_F=ground_F,
+                                      population_factors=population_factors)
+    return np.clip(np.maximum(alpha, 0.0) * L, 0.0, 5.0)
+
+
+def _pump_scatter_noise_analytic(D_GHz, T, L, kappa, population_factors=None):
+    """Analytic-Voigt twin of :func:`_pump_scatter_noise`."""
+    alpha = _hyperfine_alpha_analytic(D_GHz, T, population_factors=population_factors)
+    od_pump = float(np.clip(float(alpha[0]) * L, 0.0, 50.0))
+    return float(kappa) * (1.0 - math.exp(-od_pump)), od_pump
+
+
+@functools.lru_cache(maxsize=1)
+def _zeeman_consistency_cached():
+    """Memoized 24-level CG-sum consistency diagnostic (a model constant)."""
+    try:
+        from .. import zeeman as _zeeman
+        correction = float(getattr(
+            _zeeman.rb85_d1_double_lambda_zeeman(), "lumped_strength_correction", 1.0))
+        return correction, (
+            f"24-level CG-sum consistency check = {correction:.4f} "
+            "(lumped 3·C_F² reproduced); diagnostic only — full Floquet "
+            "scan not run in Ultra v1")
+    except Exception as exc:                  # pragma: no cover
+        return 1.0, f"unavailable: {exc}"
 
 
 def _gaussian_overlap_profile(nseg, L, w_pump, w_probe, angle_deg):
@@ -2457,6 +2791,10 @@ def compute_spectrum(D_GHz, *,
                      excess_noise_model=None,
                      floquet_order=SEEDED_FLOQUET_ORDER,
                      enforce_floquet_convergence=True,
+                     response_method=RESPONSE_GRID,
+                     scan_tolerance_dB=SCAN_TOLERANCE_DB,
+                     scan_tolerance_log10_gain=SCAN_TOLERANCE_LOG10_GAIN,
+                     scan_start_stride=SCAN_START_STRIDE,
                      transit_rate=constants.GAMMA_GG,
                      eom_residual_carrier_power=0.0,
                      eom_other_sidebands_power=0.0,
@@ -2583,13 +2921,140 @@ def compute_spectrum(D_GHz, *,
             doppler.apply_doppler_average(table, idx_lo, frac, weights)
             for table in tables)
 
-    chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg = (
-        averaged_response_at_order(floquet_order))
-    lower_order_response = None
-    if enforce_floquet_convergence:
-        lower_order_response = averaged_response_at_order(floquet_order - 1)
-
     phase_detail = (phase_detail or PHASE_LEGACY).lower()
+    response_method = str(response_method)
+    if response_method not in RESPONSE_METHODS:
+        raise ValueError(f"response_method must be one of {RESPONSE_METHODS}")
+    response_orders = ((floquet_order, floquet_order - 1)
+                       if enforce_floquet_convergence else (floquet_order,))
+    pole_systems = None
+    if response_method != RESPONSE_GRID:
+        pole_systems = _seeded_pole_systems(
+            Op_A, Op_B, Os_ref, Oc_ref, branch, atom_T, response_orders)
+    # Analytic absorption diagnostics only when they reproduce the reference
+    # normalization; otherwise the pole tiers keep Ultra's numerical tables.
+    analytic_factors = (_reference_population_factors()
+                        if pole_systems is not None else None)
+    if pole_systems is None:
+        chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg = (
+            averaged_response_at_order(floquet_order))
+        lower_order_response = None
+        if enforce_floquet_convergence:
+            lower_order_response = averaged_response_at_order(floquet_order - 1)
+        response_estimator = {
+            "method": RESPONSE_GRID,
+            "velocity_average": (
+                "one compiled finite-Floquet solve per Maxwell class with linear "
+                "Δ_eff interpolation"),
+            "solved_probe_points": int(probe_axis_GHz.size),
+            "display_probe_points": int(probe_axis_GHz.size),
+            "interpolation": "none",
+            "audit_scope": "every displayed probe detuning",
+            "absorption_diagnostics": "numerical OBE Voigt tables",
+        }
+        if response_method != RESPONSE_GRID:
+            response_estimator["fallback_reason"] = (
+                "exact Hermiticity/adjoint identities of the real pole form failed")
+    else:
+        score_scatter = 0.0
+        score_profile = np.ascontiguousarray(_gaussian_overlap_profile(
+            ULTRA_PROPAGATION_SEGMENTS, L, w_pump, w_probe, pump_probe_angle_deg))
+        if phase_detail == PHASE_ULTRA and excess_noise_model is not False:
+            score_cfg = ({} if excess_noise_model in (None, True)
+                         else dict(excess_noise_model))
+            score_kappa = score_cfg.get(
+                "pump_scatter_kappa", HARDENED_PUMP_SCATTER_KAPPA)
+            if analytic_factors is None:
+                score_scatter, _ = _pump_scatter_noise(D_GHz, T, L, score_kappa)
+            else:
+                score_scatter, _ = _pump_scatter_noise_analytic(
+                    D_GHz, T, L, score_kappa, population_factors=analytic_factors)
+
+        def score_readout(chi4, rows):
+            """Pointwise copy of the readout below, used only to steer refinement."""
+            chi_ss, chi_cs, chi_sc, chi_cc = chi4
+            rows = np.asarray(rows, dtype=int)
+            if phase_detail == PHASE_LEGACY:
+                k_probe_rows = np.full(rows.size, K_VEC, dtype=float)
+                k_conj_rows = k_probe_rows
+                delta_k_rows = None
+            else:
+                k_probe_rows = k_probe_vac[rows]
+                k_conj_rows = k_conj_vac[rows]
+                delta_k_rows = seeded_phase_mismatch_z(
+                    D_GHz, probe_axis_GHz[rows], angle_deg=pump_probe_angle_deg)
+            if phase_detail == PHASE_ULTRA:
+                if kernels.available():
+                    # Same closed-form steps and pump budget, compiled (steering only).
+                    maxwell_rows = observables._gain_matrix_from_chi(
+                        chi_ss, chi_sc, chi_cs, chi_cc, k_probe_rows, k_conj_rows,
+                        N_atoms, constants.DIPOLE_D1, coupling_ls,
+                        delta_k_z=delta_k_rows)
+                    G_s_rows, G_c_rows = kernels.segmented_depletion_gain(
+                        np.ascontiguousarray(maxwell_rows),
+                        L / ULTRA_PROPAGATION_SEGMENTS, score_profile,
+                        float(P_pump), float(P_probe), area_conj / area_probe,
+                        _EXP_ARG_CLAMP)
+                else:
+                    G_s_rows, G_c_rows, _, _ = _ultra_segmented_gain(
+                        chi_ss, chi_sc, chi_cs, chi_cc, k_probe_rows, k_conj_rows,
+                        L, N_atoms, coupling_ls, delta_k_rows,
+                        np.ones(ULTRA_PROPAGATION_SEGMENTS), score_profile,
+                        P_pump, P_probe, conjugate_power_ratio=area_conj / area_probe)
+                G_c_rows = G_c_rows * area_conj / area_probe
+            else:
+                nseg = 16 if phase_detail == PHASE_FINE else 1
+                _, _, transfer = observables.gain_from_chi(
+                    chi_ss, chi_sc, chi_cs, chi_cc, k_probe_rows, k_conj_rows, L,
+                    N_atoms, line_strength=coupling_ls, delta_k_z=delta_k_rows,
+                    propagation_segments=nseg,
+                    segment_profile=np.ones(nseg) if nseg > 1 else None)
+                canonical_rows = observables.canonical_transfer_diagnostics(
+                    transfer, omega_probe[rows], omega_conj[rows],
+                    area_probe, area_conj)
+                G_s_rows = canonical_rows["probe_power_gain"]
+                G_c_rows = canonical_rows["conjugate_power_gain"]
+            G_s_rows, G_c_rows = observables.pump_depletion_saturation(
+                G_s_rows, G_c_rows, P_pump, P_probe)
+            if phase_detail == PHASE_ULTRA and excess_noise_model is not False:
+                noise = observables.balanced_twin_beam_noise(
+                    G_s_rows, G_c_rows, eta, eta, reference_weight="dc",
+                    seed_excess_noise=score_scatter)
+                return G_s_rows, 10.0 * np.log10(np.maximum(noise, 1e-30))
+            return G_s_rows, observables.gain_referred_noise_dB(G_s_rows, G_c_rows, eta)
+
+        def guard_rows(rows, order):
+            return chi_matrix_table(
+                Op_A, Op_B, Os_ref, Oc_ref, delta_axis[rows], np.array([Delta]),
+                branch, atom=atom_T, n_f=order)
+
+        def grid_rows(rows, order):
+            return tuple(
+                doppler.apply_doppler_average(table, idx_lo, frac, weights)
+                for table in chi_matrix_table(
+                    Op_A, Op_B, Os_ref, Oc_ref, delta_axis[rows], Delta_eff_axis,
+                    branch, atom=atom_T, n_f=order))
+
+        high_response, lower_order_response, response_estimator = _pole_scan_response(
+            pole_systems, orders=response_orders, delta_axis=delta_axis,
+            probe_axis_GHz=probe_axis_GHz, Delta=Delta,
+            Delta_eff_axis=Delta_eff_axis, idx_lo=idx_lo, frac=frac,
+            weights=weights, adaptive=response_method == RESPONSE_POLE_ADAPTIVE,
+            score=score_readout, tolerance_dB=scan_tolerance_dB,
+            tolerance_log10_gain=scan_tolerance_log10_gain,
+            start_stride=scan_start_stride, guard=guard_rows, grid_rows=grid_rows)
+        chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg = high_response
+        if analytic_factors is None:
+            response_estimator["absorption_diagnostics"] = (
+                "numerical OBE Voigt tables (reference normalization not recognized "
+                "by the analytic twin)")
+        else:
+            convention = ("C_F² only" if all(f == 1.0 for f in analytic_factors.values())
+                          else "p_F·C_F²")
+            response_estimator["absorption_diagnostics"] = (
+                "analytic Voigt (Faddeeva), untruncated Maxwell; reference line "
+                f"weights {convention}")
+    response_estimator["velocity_classes"] = int(v_grid.size)
     delta_k_z = None
     delta_k_z_vacuum = None
     k_probe_prop = np.full_like(probe_axis_GHz, K_VEC, dtype=float)
@@ -2621,17 +3086,20 @@ def compute_spectrum(D_GHz, *,
                 chi_ss_avg, N_atoms, coupling_ls, propagation_segments, L=L)
             spatial_profile = _gaussian_overlap_profile(
                 propagation_segments, L, w_pump, w_probe, pump_probe_angle_deg)
-            try:
-                from .. import zeeman as _zeeman
-                z_atom = _zeeman.rb85_d1_double_lambda_zeeman()
-                zeeman_correction = float(
-                    getattr(z_atom, "lumped_strength_correction", 1.0))
-                zeeman_status = (
-                    f"24-level CG-sum consistency check = {zeeman_correction:.4f} "
-                    "(lumped 3·C_F² reproduced); diagnostic only — full Floquet "
-                    "scan not run in Ultra v1")
-            except Exception as exc:                  # pragma: no cover
-                zeeman_status = f"unavailable: {exc}"
+            if pole_systems is not None:
+                zeeman_correction, zeeman_status = _zeeman_consistency_cached()
+            else:
+                try:
+                    from .. import zeeman as _zeeman
+                    z_atom = _zeeman.rb85_d1_double_lambda_zeeman()
+                    zeeman_correction = float(
+                        getattr(z_atom, "lumped_strength_correction", 1.0))
+                    zeeman_status = (
+                        f"24-level CG-sum consistency check = {zeeman_correction:.4f} "
+                        "(lumped 3·C_F² reproduced); diagnostic only — full Floquet "
+                        "scan not run in Ultra v1")
+                except Exception as exc:                  # pragma: no cover
+                    zeeman_status = f"unavailable: {exc}"
 
     if phase_detail == PHASE_ULTRA:
         if segment_profile is None:
@@ -2743,9 +3211,19 @@ def compute_spectrum(D_GHz, *,
             conj_ground = G1 if branch == -1 else G2
             manifold_F = GROUND_F[conj_ground]
             conj_GHz = 2.0 * float(D_GHz) - probe_axis_GHz
-            od_conj_arr = _arm_linear_od(conj_GHz, T, L, ground_F=manifold_F)
-            od_probe_lin = _arm_linear_od(probe_axis_GHz, T, L, ground_F=manifold_F)
-            pump_scatter, od_pump = _pump_scatter_noise(D_GHz, T, L, kappa)
+            if analytic_factors is None:
+                od_conj_arr = _arm_linear_od(conj_GHz, T, L, ground_F=manifold_F)
+                od_probe_lin = _arm_linear_od(probe_axis_GHz, T, L, ground_F=manifold_F)
+                pump_scatter, od_pump = _pump_scatter_noise(D_GHz, T, L, kappa)
+            else:
+                od_conj_arr = _arm_linear_od_analytic(
+                    conj_GHz, T, L, ground_F=manifold_F,
+                    population_factors=analytic_factors)
+                od_probe_lin = _arm_linear_od_analytic(
+                    probe_axis_GHz, T, L, ground_F=manifold_F,
+                    population_factors=analytic_factors)
+                pump_scatter, od_pump = _pump_scatter_noise_analytic(
+                    D_GHz, T, L, kappa, population_factors=analytic_factors)
             # These OD curves remain useful diagnostics, but applying them as
             # post-source efficiencies would count absorption already present in
             # the diagonal Maxwell drift a second time.  Atomic vacuum/excess
@@ -2767,10 +3245,15 @@ def compute_spectrum(D_GHz, *,
                 "od_probe_lin_arr": od_probe_lin,
                 "atomic_od_application": (
                     "diagnostic only; distributed Langevin covariance unavailable"),
+                "absorption_model": response_estimator["absorption_diagnostics"],
             }
     else:
         gain_referred_noise_db = observables.gain_referred_noise_dB(G_s, G_c, eta)
 
+    if pole_systems is not None:
+        floquet_convergence["scope"] = response_estimator["audit_scope"]
+        floquet_convergence["solved_scan_points"] = (
+            response_estimator["solved_probe_points"])
     atomic_solver_provenance = seeded_atomic_solver_provenance(
         floquet_order=floquet_order, convergence=floquet_convergence)
     parameter_provenance = seeded_parameter_provenance(
@@ -2786,6 +3269,7 @@ def compute_spectrum(D_GHz, *,
         eom_other_sidebands_power=eom_other_sidebands_power,
         eom_spectrum_status=eom_seed_spectrum_status,
         eom_spectrum_application=eom_seed_spectrum_application,
+        response_estimator=response_estimator,
     )
 
     return {
@@ -2846,6 +3330,7 @@ def compute_spectrum(D_GHz, *,
         "noncollinear_doppler_reference_provenance": (
             noncollinear_doppler_reference_provenance()),
         "floquet_convergence": floquet_convergence,
+        "response_estimator": response_estimator,
         "floquet_order": floquet_order,
         "floquet_convergence_enforced": bool(enforce_floquet_convergence),
         "parameter_provenance": parameter_provenance,
@@ -2926,13 +3411,16 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 # =========================================================
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
-# Three tiers. The old coarse "Fast" (121 pts) was dropped and the rest renamed
-# down — the real-basis + sideband-symmetry speedups (~1.6×) made it redundant.
-# Times are re-estimated for the reference (deployment) environment the old
-# labels used, scaled by the measured 1.6×: old ~6 s → ~4 s, old ~20 s → ~12 s.
-# The per-tier solver settings are unchanged; only the labels moved.
-FIDELITY_FAST = "Fast  (~4 s)"          # was "Balanced  (~6 s)" (181-pt) settings
-FIDELITY_BALANCED = "Balanced  (~12 s)"  # was "High fidelity  (~20 s)" (301-pt)
+# Three tiers, one model.  Ultra is the brute-force reference: one compiled
+# finite-Floquet solve per (probe detuning, Maxwell class) on a 1 m/s, 4σ grid.
+# Fast and Balanced evaluate the same steady state, the same Maxwell measure and
+# the same Ultra readout exactly through poles and residues (one eigenproblem
+# per probe detuning instead of ~1,600 solves); Balanced solves all 401 probe
+# detunings, Fast solves an adaptively refined subset and splines the averaged
+# responses between them.  See analysis/fwm_lite/DEVLOG.md.  Labels estimate
+# the reference (deployment) environment the earlier labels used.
+FIDELITY_FAST = "Fast  (~1 s)"
+FIDELITY_BALANCED = "Balanced  (~2 s)"
 FIDELITY_ULTRA = "Ultra  (slow)"
 FIDELITY_LABELS = {
     FIDELITY_FAST: "Fast",
@@ -2940,10 +3428,20 @@ FIDELITY_LABELS = {
     FIDELITY_ULTRA: "Ultra",
 }
 FWM_FIDELITY = {
-    FIDELITY_FAST:     dict(coarse_points=181, velocity_step=4.0,
-                            velocity_cutoff=3.0, phase_detail=PHASE_BALANCED),
-    FIDELITY_BALANCED: dict(coarse_points=301, velocity_step=2.0,
-                            velocity_cutoff=3.0, phase_detail=PHASE_FINE),
+    FIDELITY_FAST:     dict(coarse_points=401, velocity_step=1.0,
+                            velocity_cutoff=4.0, phase_detail=PHASE_ULTRA,
+                            response_method=RESPONSE_POLE_ADAPTIVE,
+                            scan_tolerance_dB=SCAN_TOLERANCE_DB,
+                            scan_tolerance_log10_gain=SCAN_TOLERANCE_LOG10_GAIN,
+                            scan_start_stride=SCAN_START_STRIDE,
+                            # The wide two-branch view keeps its earlier grid.
+                            full_scan=dict(velocity_step=4.0, velocity_cutoff=3.0,
+                                           phase_detail=PHASE_BALANCED)),
+    FIDELITY_BALANCED: dict(coarse_points=401, velocity_step=1.0,
+                            velocity_cutoff=4.0, phase_detail=PHASE_ULTRA,
+                            response_method=RESPONSE_POLE,
+                            full_scan=dict(velocity_step=2.0, velocity_cutoff=3.0,
+                                           phase_detail=PHASE_FINE)),
     FIDELITY_ULTRA:    dict(coarse_points=401, velocity_step=1.0,
                             velocity_cutoff=4.0, phase_detail=PHASE_ULTRA),
 }
@@ -2953,6 +3451,8 @@ RESOLUTION = FWM_FIDELITY
 # survived (old Balanced/High kept their solver settings under the new names);
 # the removed coarse tier falls to the cheapest survivor.
 _FIDELITY_LEGACY = {
+    "Fast  (~4 s)":           FIDELITY_FAST,      # grid Fast before the pole remaster
+    "Balanced  (~12 s)":      FIDELITY_BALANCED,  # grid Balanced before the pole remaster
     "Fast  (~3 s)":           FIDELITY_FAST,      # removed 121-pt tier → cheapest now
     "Balanced  (~6 s)":       FIDELITY_FAST,      # same 181-pt settings, renamed
     "High fidelity  (~20 s)": FIDELITY_BALANCED,  # same 301-pt settings, renamed
@@ -2987,7 +3487,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-angular-doppler-reference-v8"
+    cache_version = "fwm-pole-residue-tiers-v9"
     defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True
@@ -3407,6 +3907,11 @@ class FWMScheme(Scheme):
             model_fidelity=fidelity,
             floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
             enforce_floquet_convergence=True,
+            response_method=res.get("response_method", RESPONSE_GRID),
+            scan_tolerance_dB=res.get("scan_tolerance_dB", SCAN_TOLERANCE_DB),
+            scan_tolerance_log10_gain=res.get(
+                "scan_tolerance_log10_gain", SCAN_TOLERANCE_LOG10_GAIN),
+            scan_start_stride=res.get("scan_start_stride", SCAN_START_STRIDE),
             transit_rate=(2.0 * np.pi
                           * (params.get("transit_rate_khz", 100.0) * 1e3)),
             eom_residual_carrier_power=(
@@ -3565,6 +4070,13 @@ class FWMScheme(Scheme):
             f"N_F={floquet_convergence.get('comparison_order', 'unavailable')} |\n"
             f"| Floquet full-scan points | "
             f"{floquet_convergence.get('full_scan_points', 0)} |\n"
+            f"| Response estimator | "
+            f"{raw.get('response_estimator', {}).get('method', 'unavailable')} |\n"
+            f"| Solved / displayed probe detunings | "
+            f"{raw.get('response_estimator', {}).get('solved_probe_points', '—')} / "
+            f"{raw.get('response_estimator', {}).get('display_probe_points', '—')} |\n"
+            f"| Maxwell average | "
+            f"{raw.get('response_estimator', {}).get('velocity_average', 'unavailable')} |\n"
             f"| Noise-trace status | {raw.get('squeezing_status', 'unavailable')} |\n"
             f"| Transit reset γ_t / 2π | "
             f"{raw.get('transit_reset_rate_rad_s', np.nan)/(2*np.pi*1e3):.3f} kHz |\n"
@@ -3947,7 +4459,8 @@ class FWMScheme(Scheme):
     def extra_views(self):
         def _compute_full(params):
             fidelity = normalize_fidelity(params.get("resolution", FIDELITY_FAST))
-            fidelity_settings = FWM_FIDELITY[fidelity]
+            fidelity_settings = FWM_FIDELITY[fidelity].get(
+                "full_scan", FWM_FIDELITY[fidelity])
             return full_spectrum(
                 params["opd"], params["temp_c"] + 273.15,
                 params["pump_mw"], params["probe_uw"], params["line_strength"],

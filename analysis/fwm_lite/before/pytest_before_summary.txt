@@ -1,0 +1,3 @@
+=========================== short test summary info ===========================
+FAILED tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public
+1 failed, 856 passed in 200.53s (0:03:20)

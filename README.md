@@ -367,6 +367,14 @@ as the default full-scan solver.
   comparison on every recompute. Runtime therefore depends on solver detail and
   grid size; the result is cached, and the two-photon-detuning slider only
   navigates that cached curve.
+- Squeezing **Fast/Balanced** solve the same finite-Floquet model, Maxwell measure
+  and Ultra readout without a per-velocity solve. At fixed δ the velocity enters
+  only through `−Δ_eff·S_v`, so eliminating the shift-free coordinates makes each
+  response an exact partial fraction in Δ_eff; the Maxwell sum is a cheap pole sum
+  (`gabes/pole_doppler.py`), and the continuous Gaussian is a closed-form Faddeeva
+  function. Balanced solves all 401 probe detunings; Fast refines them adaptively
+  (`gabes/adaptive_scan.py`) and splines the averaged responses. Every solved row
+  is guarded against the compiled kernel. See `analysis/fwm_lite/DEVLOG.md`.
 
 ## FWM future physics work
 

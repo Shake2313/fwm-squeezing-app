@@ -776,6 +776,60 @@
       "supersedes": ["fwm-full-zeeman-floquet-solve"]
     },
     {
+      "id": "fwm-fast-balanced-pole-residue-tiers",
+      "area": "gabes/pole_doppler.py + gabes/adaptive_scan.py + gabes/kernels.py + gabes/doppler.py + gabes/schemes/fwm.py",
+      "title": "Remaster Squeezing Fast/Balanced as exact pole-residue evaluations of the Ultra model",
+      "problem": "Fast/Balanced used different readout physics (PHASE_BALANCED/FINE) and a 3-sigma velocity cutoff: at the default operating point they sat 0.85 dB off Ultra (maximum 3.05/1.50 dB over the scan) while taking 0.58/1.87 s on the reference PC.",
+      "source_documents": [
+        "analysis/fwm_lite/DEVLOG.md",
+        "analysis/fwm_lite/GATE.md",
+        "analysis/fwm_lite/gate.py"
+      ],
+      "priority": "P2",
+      "effort": "large",
+      "status": "done",
+      "why": "Completed 2026-09-11; analysis/fwm_lite/gate_report.json records every G1-G5 item as PASS (Fast 0.10 s, Balanced 0.24 s at the default point versus Ultra 6-7 s; worst S_dB tube versus Ultra 0.018/0.0023 dB over 12 operating points). At fixed two-photon detuning the finite-Floquet response is an exact rational function of Delta_eff, so the Ultra Maxwell sum reduces to one eigendecomposition per probe detuning. Fast adds adaptive probe-detuning refinement with spline interpolation of the averaged responses; Balanced solves all 401 points. Ultra is unchanged.",
+      "acceptance_criteria": [
+        "Every G1-G5 item of analysis/fwm_lite/GATE.md passes in python -m analysis.fwm_lite.gate (speed, Ultra shape parity on 12 operating points, integrity and provenance, tests, records).",
+        "Ultra outputs stay bit-identical to the pre-change capture and every solved probe detuning passes the compiled-kernel guard."
+      ]
+    },
+    {
+      "id": "fwm-ultra-maxwell-cutoff-scope",
+      "area": "gabes/schemes/fwm.py (FWM_FIDELITY Ultra velocity_cutoff)",
+      "title": "Decide whether the Ultra 4-sigma Maxwell cutoff is an intended model boundary",
+      "problem": "The exact untruncated Maxwell pole average differs from the 4-sigma truncated Ultra measure by up to 0.11 dB (S_dB tube) at 150 C and Delta=0.9 GHz, where the F'=2..3 resonance cluster sits at 3.4-5 sigma; the other 11 gate cases differ by at most 0.035 dB (p95). Fast/Balanced deliberately reproduce the Ultra measure.",
+      "source_documents": [
+        "analysis/fwm_lite/DEVLOG.md"
+      ],
+      "priority": "P2",
+      "effort": "small",
+      "status": "needs_decision",
+      "decision_required": "Is the 4-sigma truncation of the Maxwell distribution part of the Squeezing tier model (keep), or a numerical cutoff to be widened or replaced by the exact untruncated average (change Ultra and, through the shared tier settings, Fast/Balanced)?",
+      "why": "A tier definition should state whether the cutoff is physics or numerics; the pole engine already evaluates either measure (PoleResidues.discrete_mean versus gaussian_mean).",
+      "acceptance_criteria": [
+        "Record the intended Maxwell measure for all Squeezing tiers.",
+        "If the cutoff changes, re-run the 12-case gate and review the FWM regression manifest; Fast/Balanced follow the tier velocity settings automatically."
+      ]
+    },
+    {
+      "id": "pole-residue-doppler-reuse",
+      "area": "gabes/pole_doppler.py + gabes/adaptive_scan.py",
+      "title": "Apply the pole-residue Maxwell average and adaptive scan to other slow paths",
+      "problem": "The FWM full-scan extra view keeps its earlier grid settings; analysis/squeezing scanners, OD/SAS Doppler tables, Lambda affine scans and magneto buffer grids still solve one linear system per velocity class.",
+      "source_documents": [
+        "analysis/fwm_lite/DEVLOG.md"
+      ],
+      "priority": "P3",
+      "effort": "medium",
+      "status": "ready",
+      "why": "Any steady state whose velocity dependence is an affine shift -D*S with linear readouts admits the same exact reduction; the DEVLOG reuse section lists the checks.",
+      "acceptance_criteria": [
+        "Each migrated path reproduces its previous measure to a documented tolerance with a per-row guard against the existing solver.",
+        "Provenance records the method, solved points and interpolation scope."
+      ]
+    },
+    {
       "id": "fwm-angular-doppler-reference",
       "area": "gabes/doppler.py + gabes/kernels.py + gabes/schemes/fwm.py",
       "title": "Add a two-dimensional non-collinear Raman-Doppler reference",

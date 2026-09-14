@@ -745,6 +745,11 @@ def test_beam_geometry_knobs_default_to_the_legacy_constants():
         phase_detail=res["phase_detail"],
         pump_probe_angle_deg=params["seeded_angle_deg"],
         model_fidelity=fwm.normalize_fidelity(params["resolution"]),
+        response_method=res.get("response_method", fwm.RESPONSE_GRID),
+        scan_tolerance_dB=res.get("scan_tolerance_dB", fwm.SCAN_TOLERANCE_DB),
+        scan_tolerance_log10_gain=res.get(
+            "scan_tolerance_log10_gain", fwm.SCAN_TOLERANCE_LOG10_GAIN),
+        scan_start_stride=res.get("scan_start_stride", fwm.SCAN_START_STRIDE),
         branch=-1)
     for key in ("probe_axis_GHz", "G_s", "G_c", "S_dB"):
         assert np.array_equal(np.asarray(raw[key]), np.asarray(legacy[key])), \

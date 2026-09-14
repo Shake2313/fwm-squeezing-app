@@ -18,6 +18,8 @@ Numerical compatibility: the LU uses LAPACK's zgetf2 pivot rule
 match `np.linalg.solve` and results agree to ~1e-13 relative (well inside the
 1e-9 regression tolerance).
 """
+import cmath
+import math
 import os
 
 import numpy as np
@@ -516,3 +518,194 @@ def affine_scan_chi(base, A_coef, B_coef, scan, kv, weights, coh_idx, n_levels):
         np.ascontiguousarray(kv, dtype=np.float64),
         np.ascontiguousarray(weights, dtype=np.float64),
         w_coh, n_levels)
+
+
+# ---------------------------------------------------------------------------
+# Pole–residue Doppler reduction (see gabes/pole_doppler.py for the algebra).
+# The eigenproblem stays in LAPACK via NumPy; these stages are the O(rows·n³)
+# bookkeeping around it and remain cacheable (no ctypes pointers).
+# ---------------------------------------------------------------------------
+@njit(cache=True, parallel=True)
+def pole_schur_rows(NN0, NN1, NR0, NR1, RN0, RN1, RR0, RR1, S_RR_inv,
+                    eN, eR, WR, WN, t):
+    """Per row: Z = S_RR⁻¹(A_RR − A_RN A_NN⁻¹ A_NR), g, readout constants.
+
+    Returns ``Z`` (rows, nR, nR), ``g = S_RR⁻¹(A_RN y − e_R)`` (rows, nR),
+    ``c0 = W_N y`` (rows, n_readouts) and ``weff = W_R − W_N A_NN⁻¹ A_NR``
+    (rows, n_readouts, nR), with ``y = A_NN⁻¹ e_N``.
+    """
+    n_rows = t.size
+    nN = NN0.shape[0]
+    nR = RR0.shape[0]
+    n_ro = WR.shape[0]
+    Z = np.empty((n_rows, nR, nR), np.float64)
+    g = np.empty((n_rows, nR), np.float64)
+    c0 = np.empty((n_rows, n_ro), np.complex128)
+    weff = np.empty((n_rows, n_ro, nR), np.complex128)
+    for i in prange(n_rows):
+        ti = t[i]
+        A = np.empty((nN, nN), np.float64)
+        B = np.empty((nN, nR + 1), np.float64)
+        RN = np.empty((nR, nN), np.float64)
+        K = np.empty((nR, nR), np.float64)
+        u = np.empty(nR, np.float64)
+        piv = np.empty(nN, np.int64)
+        for a in range(nN):
+            for b in range(nN):
+                A[a, b] = NN0[a, b] + ti * NN1[a, b]
+            for b in range(nR):
+                B[a, b] = NR0[a, b] + ti * NR1[a, b]
+            B[a, nR] = eN[a]
+        for a in range(nR):
+            for b in range(nN):
+                RN[a, b] = RN0[a, b] + ti * RN1[a, b]
+        _lu_factor_real(A, piv)
+        _lu_solve_real(A, piv, B)                 # B = [A_NN⁻¹ A_NR | y]
+        for a in range(nR):
+            for b in range(nR):
+                acc = RR0[a, b] + ti * RR1[a, b]
+                for k in range(nN):
+                    acc -= RN[a, k] * B[k, b]
+                K[a, b] = acc
+            acc = -eR[a]
+            for k in range(nN):
+                acc += RN[a, k] * B[k, nR]
+            u[a] = acc
+        for a in range(nR):
+            for b in range(nR):
+                acc = 0.0
+                for k in range(nR):
+                    acc += S_RR_inv[a, k] * K[k, b]
+                Z[i, a, b] = acc
+            acc = 0.0
+            for k in range(nR):
+                acc += S_RR_inv[a, k] * u[k]
+            g[i, a] = acc
+        for r in range(n_ro):
+            acc_c = 0.0 + 0.0j
+            for k in range(nN):
+                acc_c += WN[r, k] * B[k, nR]
+            c0[i, r] = acc_c
+            for b in range(nR):
+                acc_c = WR[r, b]
+                for k in range(nN):
+                    acc_c -= WN[r, k] * B[k, b]
+                weff[i, r, b] = acc_c
+    return Z, g, c0, weff
+
+
+@njit(cache=True, parallel=True)
+def pole_residue_rows(V, g, weff):
+    """Residues ``res[i, r, k] = (weff V)[i, r, k] · (V⁻¹ g)[i, k]``."""
+    n_rows, nR, _ = V.shape
+    n_ro = weff.shape[1]
+    res = np.empty((n_rows, n_ro, nR), np.complex128)
+    for i in prange(n_rows):
+        A = np.empty((nR, nR), np.complex128)
+        rhs = np.empty((nR, 1), np.complex128)
+        piv = np.empty(nR, np.int64)
+        for a in range(nR):
+            for c in range(nR):
+                A[a, c] = V[i, a, c]
+            rhs[a, 0] = g[i, a]
+        _lu_factor(A, piv)
+        _lu_solve(A, piv, rhs)
+        for r in range(n_ro):
+            for k in range(nR):
+                acc = 0.0 + 0.0j
+                for a in range(nR):
+                    acc += weff[i, r, a] * V[i, a, k]
+                res[i, r, k] = acc * rhs[k, 0]
+    return res
+
+
+@njit(cache=True, parallel=True)
+def pole_discrete_mean(lam, res, c0, nodes, weights):
+    """``Σ_j w_j [c0 − Σ_k res_k / (lam_k − D_j)]`` per row, in real arithmetic."""
+    n_rows, n_ro, nR = res.shape
+    nv = nodes.size
+    wsum = 0.0
+    for j in range(nv):
+        wsum += weights[j]
+    out = np.empty((n_rows, n_ro), np.complex128)
+    for i in prange(n_rows):
+        s = np.empty(nR, np.complex128)
+        for k in range(nR):
+            lr = lam[i, k].real
+            li = lam[i, k].imag
+            acc_r = 0.0
+            acc_i = 0.0
+            for j in range(nv):
+                dr = lr - nodes[j]
+                scale = weights[j] / (dr * dr + li * li)
+                acc_r += dr * scale
+                acc_i -= li * scale
+            s[k] = acc_r + 1j * acc_i
+        for r in range(n_ro):
+            acc = c0[i, r] * wsum
+            for k in range(nR):
+                acc -= res[i, r, k] * s[k]
+            out[i, r] = acc
+    return out
+
+
+@njit(cache=True, parallel=True)
+def segmented_depletion_gain(M, dz, profile, P_pump, P_seed,
+                             conjugate_power_ratio, clamp):
+    """Row-parallel G_s, G_c of ``fwm._ultra_segmented_gain``.
+
+    Same recurrence: per segment, scale the off-diagonal Maxwell couplings by
+    ``profile[s]·sqrt(pump_remaining/P_pump)``, step the amplitudes with the
+    closed-form 2×2 exponential of ``core.matrix_exp_2x2`` (including its
+    exponent clamp), then debit the pump by the added seed and conjugate power.
+    ``M`` is the (rows, 2, 2) matrix of ``observables._gain_matrix_from_chi``.
+    """
+    n = M.shape[0]
+    nseg = profile.size
+    P_ref = max(P_pump, 1e-30)
+    P_norm = max(P_seed, 1e-30)
+    G_s = np.empty(n, np.float64)
+    G_c = np.empty(n, np.float64)
+    for i in prange(n):
+        a0 = math.sqrt(P_norm) + 0.0j
+        a1 = 0.0 + 0.0j
+        remaining = P_ref
+        for seg in range(nseg):
+            ratio = remaining / P_ref
+            if ratio < 0.0:
+                ratio = 0.0
+            elif ratio > 1.0:
+                ratio = 1.0
+            scale = profile[seg] * math.sqrt(ratio)
+            m00 = M[i, 0, 0]
+            m01 = M[i, 0, 1] * scale
+            m10 = M[i, 1, 0] * scale
+            m11 = M[i, 1, 1]
+            half = 0.5 * (m00 + m11)
+            q00 = m00 - half
+            q11 = m11 - half
+            c = cmath.sqrt(-(q00 * q11 - m01 * m10) + 0.0j)
+            cL = c * dz
+            sL = half * dz
+            cL = min(max(cL.real, -clamp), clamp) + 1j * cL.imag
+            sL = min(max(sL.real, -clamp), clamp) + 1j * sL.imag
+            if abs(c) > 1e-30:
+                sinh_over_c = cmath.sinh(cL) / c
+            else:
+                sinh_over_c = dz + 0.0j
+            cosh_cL = cmath.cosh(cL)
+            exp_sL = cmath.exp(sL)
+            t00 = exp_sL * (cosh_cL + sinh_over_c * q00)
+            t01 = exp_sL * (sinh_over_c * m01)
+            t10 = exp_sL * (sinh_over_c * m10)
+            t11 = exp_sL * (cosh_cL + sinh_over_c * q11)
+            b0 = t00 * a0 + t01 * a1
+            b1 = t10 * a0 + t11 * a1
+            a0 = b0
+            a1 = b1
+            seed_added = max(abs(a0) ** 2 - P_seed, 0.0)
+            conj_power = max(abs(a1) ** 2 * conjugate_power_ratio, 0.0)
+            remaining = max(P_pump - seed_added - conj_power, 0.0)
+        G_s[i] = abs(a0) ** 2 / P_norm
+        G_c[i] = abs(a1) ** 2 / P_norm
+    return G_s, G_c

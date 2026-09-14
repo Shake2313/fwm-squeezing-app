@@ -1,0 +1,101 @@
+{
+ "fast": {
+  "times": [
+   [
+    0.5763709000020754,
+    0.559560199995758
+   ],
+   [
+    0.5911522999813315,
+    0.5753515000396874
+   ]
+  ],
+  "obs_s": 0.00011069999891333282,
+  "n_scan": 181,
+  "n_velocity": 297,
+  "gate": "CONVERGED",
+  "op": {
+   "probe_GHz": -2.143732439,
+   "G_s": 406.92046424356505,
+   "G_c": 409.23114253523016,
+   "gain_referred_noise_dB": -8.65424938202965,
+   "physical_squeezing_dB": null,
+   "S_dB": -8.65424938202965,
+   "G_s_smallsignal": 411.50220776433565,
+   "G_c_smallsignal": 413.88845634192535,
+   "G_c_flux_smallsignal": 413.8817763063373,
+   "photon_flux_gap_smallsignal": -2.3795685420017025,
+   "commutator_defect_max_smallsignal": 3.459117836820198,
+   "delta_k_z": 246.53512446396053,
+   "delta_k_z_vacuum": 246.53512446396053
+  },
+  "G_s_peak": 4016.298727610111,
+  "S_min": -8.840462226080225
+ },
+ "balanced": {
+  "times": [
+   [
+    1.9062806000001729,
+    1.8434315999911632
+   ],
+   [
+    1.8888589999987744,
+    1.8370642999652773
+   ]
+  ],
+  "obs_s": 8.120000711642206e-05,
+  "n_scan": 301,
+  "n_velocity": 591,
+  "gate": "CONVERGED",
+  "op": {
+   "probe_GHz": -2.143732439,
+   "G_s": 401.8153709747434,
+   "G_c": 404.07855602662244,
+   "gain_referred_noise_dB": -8.660299383819028,
+   "physical_squeezing_dB": null,
+   "S_dB": -8.660299383819028,
+   "G_s_smallsignal": 406.1804802590965,
+   "G_c_smallsignal": 408.5154491350961,
+   "G_c_flux_smallsignal": 408.5088550080965,
+   "photon_flux_gap_smallsignal": -2.3283747490000257,
+   "commutator_defect_max_smallsignal": 3.405590478434621,
+   "delta_k_z": 246.53512446396053,
+   "delta_k_z_vacuum": 246.53512446396053
+  },
+  "G_s_peak": 4015.552374384552,
+  "S_min": -8.840253271059801
+ },
+ "ultra": {
+  "times": [
+   [
+    6.629274000006262,
+    6.1455560000031255
+   ],
+   [
+    6.749959500011755,
+    6.190958399994997
+   ]
+  ],
+  "obs_s": 8.120000711642206e-05,
+  "n_scan": 401,
+  "n_velocity": 1573,
+  "gate": "CONVERGED",
+  "op": {
+   "probe_GHz": -2.143732439,
+   "G_s": 394.8706777528347,
+   "G_c": 397.0972693482107,
+   "gain_referred_noise_dB": -7.800491942503655,
+   "physical_squeezing_dB": null,
+   "S_dB": -7.800491942503655,
+   "G_s_smallsignal": 401.08864088998627,
+   "G_c_smallsignal": 403.3930450128091,
+   "G_c_flux_smallsignal": 403.386533398209,
+   "photon_flux_gap_smallsignal": -2.2978925082227404,
+   "commutator_defect_max_smallsignal": 3.373896117674971,
+   "delta_k_z": 246.53512446396053,
+   "delta_k_z_vacuum": 246.53512446396053
+  },
+  "G_s_peak": 3724.239029100374,
+  "S_min": -7.945401276121565
+ }
+}

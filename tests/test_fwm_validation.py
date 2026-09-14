@@ -213,7 +213,7 @@ def test_full_spectrum_view_forwards_the_same_transit_reset_rate(monkeypatch):
     assert captured["model_fidelity"] == fwm.FIDELITY_BALANCED
     assert captured["pump_probe_angle_deg"] == pytest.approx(0.45)
     assert captured["velocity_step"] == fwm.FWM_FIDELITY[
-        fwm.FIDELITY_BALANCED]["velocity_step"]
+        fwm.FIDELITY_BALANCED]["full_scan"]["velocity_step"]
     assert captured["eom_residual_carrier_power"] == pytest.approx(2.0e-6)
     assert captured["eom_other_sidebands_power"] == pytest.approx(0.75e-6)
     assert captured["eom_seed_spectrum_provenance"] == "full-view test spectrum"

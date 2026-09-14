@@ -7,9 +7,67 @@ only by Δ_eff = Δ − k·v. R(δ, Δ_eff) is T- and Δ-independent. Ported ver
 mass / k_vec are now arguments (defaulting to the 85Rb values) so other isotopes
 or geometries can reuse the routines.
 """
+import math
+
 import numpy as np
 
 from . import constants
+
+
+def _weideman_table(n_terms=32):
+    """Coefficients of Weideman's rational Faddeeva expansion (SIAM J. Numer.
+    Anal. 31, 1497 (1994)), computed once by FFT of the Cayley-mapped Gaussian."""
+    M = 2 * n_terms
+    k = np.arange(-M + 1, M)
+    L = math.sqrt(n_terms / math.sqrt(2.0))
+    t = L * np.tan(k * math.pi / (2 * M))
+    f = np.concatenate(([0.0], np.exp(-t**2) * (L**2 + t**2)))
+    a = np.real(np.fft.fft(np.fft.fftshift(f))) / (2 * M)
+    return L, np.ascontiguousarray(a[1:n_terms + 1][::-1])
+
+
+_WEIDEMAN_L, _WEIDEMAN_A = _weideman_table()
+_SQRT_PI = math.sqrt(math.pi)
+
+
+def faddeeva_upper(z):
+    """Faddeeva ``w(z) = exp(-z²) erfc(-iz)`` for ``Im z >= 0``.
+
+    Weideman's 32-term expansion in ``Z = (L+iz)/(L-iz)``, evaluated by Horner's
+    rule. No SciPy dependency; relative accuracy ~1e-13 in the closed upper
+    half-plane (checked against ``scipy.special.wofz`` in the tests).
+    """
+    z = np.asarray(z, dtype=np.complex128)
+    den = _WEIDEMAN_L - 1j * z
+    Z = (_WEIDEMAN_L + 1j * z) / den
+    p = np.zeros_like(Z)
+    for coef in _WEIDEMAN_A:
+        p = p * Z + coef
+    return 2.0 * p / den**2 + (1.0 / _SQRT_PI) / den
+
+
+def maxwell_resolvent_mean(lam, center, sigma):
+    """``E[1/(lam - X)]`` for ``X ~ Normal(center, sigma²)`` and ``Im lam != 0``.
+
+    With ``z = (lam-center)/(sigma·√2)`` the Gaussian Stieltjes transform is
+    ``-i√π w(z)`` in the upper and ``+i√π w(-z)`` in the lower half-plane, so a
+    pole's Maxwell average is closed form (no velocity grid, no cutoff).
+    """
+    lam = np.asarray(lam, dtype=np.complex128)
+    scale = float(sigma) * math.sqrt(2.0)
+    z = (lam - center) / scale
+    out = np.empty_like(z)
+    upper = z.imag >= 0.0
+    out[upper] = -1j * _SQRT_PI * faddeeva_upper(z[upper])
+    out[~upper] = 1j * _SQRT_PI * faddeeva_upper(-z[~upper])
+    return out / scale
+
+
+def voigt_profile(detuning, gamma_fwhm, sigma):
+    """Unit-area Voigt profile: Lorentzian FWHM ``gamma_fwhm`` ⊛ Gaussian std ``sigma``."""
+    scale = float(sigma) * math.sqrt(2.0)
+    z = (np.asarray(detuning, dtype=float) + 0.5j * float(gamma_fwhm)) / scale
+    return faddeeva_upper(z).real / (float(sigma) * math.sqrt(2.0 * math.pi))
 
 
 def maxwell_legendre_grid(T, mass=constants.MASS_85RB, order=24,

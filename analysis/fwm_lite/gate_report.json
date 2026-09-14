@@ -1,0 +1,1237 @@
+{
+ "gate": "GATE.md v1",
+ "environment": {
+  "python": "3.14.2",
+  "numpy": "2.4.1",
+  "numba_available": true,
+  "cpu_count": 16
+ },
+ "cases": {
+  "default": {
+   "ultra_seconds_single": 5.00003807246685e-07,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.10067859999253415,
+    "seconds": [
+     0.10459100001025945,
+     0.10396539999055676,
+     0.09942270000465214,
+     0.10067859999253415,
+     0.09896689999732189
+    ],
+    "metrics": {
+     "tube": 0.014280844148010896,
+     "p95": 0.0007862288842435561,
+     "logG_tube": 0.00021856714653223364,
+     "op_dS": 0.0007678406137765492,
+     "op_G": 3.2396728616435055e-06,
+     "min_val": 0.0007915700498237754,
+     "peak": 6.187340322649781e-05,
+     "pearson_S": 0.9999997992472791,
+     "pearson_logG": 0.9999999995758667
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 71,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 9.056706478281178e-13,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.7146398800172333
+   },
+   "balanced": {
+    "seconds_median": 0.2363584999984596,
+    "seconds": [
+     0.24198299998533912,
+     0.23954959999537095,
+     0.2350748000026215,
+     0.2363584999984596,
+     0.22640559999854304
+    ],
+    "metrics": {
+     "tube": 0.0007906963376314025,
+     "p95": 0.000742482977464931,
+     "logG_tube": 7.860379014346108e-13,
+     "op_dS": 0.0007655529627168534,
+     "op_G": 4.869438186005937e-13,
+     "min_val": 0.0007915240265035095,
+     "peak": 2.886579864025407e-15,
+     "pearson_S": 0.9999999999006041,
+     "pearson_logG": 0.9999999999999999
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.892158369336339e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.7146398800172333
+   }
+  },
+  "v6_opt": {
+   "ultra_seconds_single": 6.905222000001231,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.1184124999854248,
+    "seconds": [
+     0.12053159999777563,
+     0.1185469999909401,
+     0.1184124999854248,
+     0.11211000001640059,
+     0.10810360001050867
+    ],
+    "metrics": {
+     "tube": 0.006876448654074441,
+     "p95": 0.0010829033557433474,
+     "logG_tube": 0.0005815811452140884,
+     "op_dS": 0.00020075692605070472,
+     "op_G": 3.0443996870133105e-06,
+     "min_val": 0.0010893434501113575,
+     "peak": 1.606825783539989e-12,
+     "pearson_S": 0.9999998875837602,
+     "pearson_logG": 0.9999999368831708
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 97,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 1.6537387264868004e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.360470229261103
+   },
+   "balanced": {
+    "seconds_median": 0.21931029998813756,
+    "seconds": [
+     0.21797490000608377,
+     0.22337469999911264,
+     0.21931029998813756,
+     0.22689119999995455,
+     0.21299599998746999
+    ],
+    "metrics": {
+     "tube": 0.0010893434501113575,
+     "p95": 0.0008926425077540931,
+     "logG_tube": 9.512390874988341e-13,
+     "op_dS": 0.00021054668780817742,
+     "op_G": 1.98507876802978e-13,
+     "min_val": 0.0010893434501113575,
+     "peak": 1.606825783539989e-12,
+     "pearson_S": 0.9999999997064357,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.6537387264868004e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.360470229261103
+   }
+  },
+  "frontier": {
+   "ultra_seconds_single": 6.863789800001541,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.10525280001456849,
+    "seconds": [
+     0.10913009999785572,
+     0.10883189999731258,
+     0.105003399978159,
+     0.10459990001982078,
+     0.10525280001456849
+    ],
+    "metrics": {
+     "tube": 0.0006723187509991273,
+     "p95": 0.0003344215538630193,
+     "logG_tube": 0.00019435429653968939,
+     "op_dS": 0.00016780852687681147,
+     "op_G": 1.5478320114947763e-05,
+     "min_val": 0.0006697506506254669,
+     "peak": 1.2891231626621646e-07,
+     "pearson_S": 0.9999999981413671,
+     "pearson_logG": 0.9999999999261683
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 91,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 2.0089690182586944e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 4.58218355456912
+   },
+   "balanced": {
+    "seconds_median": 0.22247280000010505,
+    "seconds": [
+     0.21491119998972863,
+     0.22247280000010505,
+     0.21737870000652038,
+     0.2247139000101015,
+     0.23689289999310859
+    ],
+    "metrics": {
+     "tube": 0.00018245217234991173,
+     "p95": 0.0001809950084506795,
+     "logG_tube": 4.978684131629052e-12,
+     "op_dS": 0.000162716967735399,
+     "op_G": 1.3591350267461166e-12,
+     "min_val": 0.00018256737110178278,
+     "peak": 1.7763568394002505e-15,
+     "pearson_S": 0.9999999999959593,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.3149908110567883e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 4.58218355456912
+   }
+  },
+  "near_res": {
+   "ultra_seconds_single": 7.055600899999263,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.07523430002038367,
+    "seconds": [
+     0.07523430002038367,
+     0.08017669999389909,
+     0.07356969997636043,
+     0.07516239999677055,
+     0.07661700001335703
+    ],
+    "metrics": {
+     "tube": 0.01188724281488196,
+     "p95": 0.005507259557772943,
+     "logG_tube": 0.0,
+     "op_dS": 0.0018390440175168887,
+     "op_G": 0.0,
+     "min_val": 0.0008201390329889424,
+     "peak": 0.0,
+     "pearson_S": 0.9999921156572196,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 33,
+    "adaptive_rounds": 3,
+    "guard_max_relative": 5.3893865968423115e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.180555028979858
+   },
+   "balanced": {
+    "seconds_median": 0.24427209998248145,
+    "seconds": [
+     0.24427209998248145,
+     0.2451463000033982,
+     0.23807550000492483,
+     0.2451837999979034,
+     0.23910669999895617
+    ],
+    "metrics": {
+     "tube": 3.8966607718293744e-12,
+     "p95": 1.0596412636232338e-12,
+     "logG_tube": 0.0,
+     "op_dS": 6.938893903907228e-13,
+     "op_G": 0.0,
+     "min_val": 7.083222897108499e-14,
+     "peak": 0.0,
+     "pearson_S": 1.0,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 5.3893865968423115e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.180555028979858
+   }
+  },
+  "blue_res": {
+   "ultra_seconds_single": 6.716630300012184,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.11570220001158305,
+    "seconds": [
+     0.09591220002039336,
+     0.128329200000735,
+     0.10968230001162738,
+     0.12642469999263994,
+     0.11570220001158305
+    ],
+    "metrics": {
+     "tube": 0.0016893578630072098,
+     "p95": 0.00021976483127171813,
+     "logG_tube": 5.551200108565649e-05,
+     "op_dS": 2.0916834033893328e-05,
+     "op_G": 0.0,
+     "min_val": 2.240125520591718e-05,
+     "peak": 1.6440315450116927e-06,
+     "pearson_S": 0.9999999566868489,
+     "pearson_logG": 0.9999995768813353
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 41,
+    "adaptive_rounds": 5,
+    "guard_max_relative": 4.200515932994318e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.026460387875169
+   },
+   "balanced": {
+    "seconds_median": 0.2565353999962099,
+    "seconds": [
+     0.27207750000525266,
+     0.2565353999962099,
+     0.2606245999922976,
+     0.25430930001311935,
+     0.24530660000164062
+    ],
+    "metrics": {
+     "tube": 2.240125520591718e-05,
+     "p95": 1.3977068239612298e-05,
+     "logG_tube": 1.1924489173864572e-14,
+     "op_dS": 1.0925761067717699e-05,
+     "op_G": 0.0,
+     "min_val": 2.240125520591718e-05,
+     "peak": 2.4202861936828413e-14,
+     "pearson_S": 0.9999999999999473,
+     "pearson_logG": 0.9999999999999999
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.1099108598263079e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.026460387875169
+   }
+  },
+  "blue_far": {
+   "ultra_seconds_single": 7.453517699992517,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.12303960000281222,
+    "seconds": [
+     0.12295699998503551,
+     0.12491070001851767,
+     0.1211782000027597,
+     0.12303960000281222,
+     0.1287550000124611
+    ],
+    "metrics": {
+     "tube": 0.00026224821808540355,
+     "p95": 0.00012085369780701045,
+     "logG_tube": 0.0006527447600355174,
+     "op_dS": 3.8278188135926206e-05,
+     "op_G": 6.710187960834446e-13,
+     "min_val": 0.00026224821808540355,
+     "peak": 4.3298697960381105e-15,
+     "pearson_S": 0.9999999999284527,
+     "pearson_logG": 0.9999999995892992
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 115,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 2.3469858400320406e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 6.4548636042350696
+   },
+   "balanced": {
+    "seconds_median": 0.23565449999296106,
+    "seconds": [
+     0.23950419999891892,
+     0.2573952999955509,
+     0.23349569999845698,
+     0.23565449999296106,
+     0.22852589999092743
+    ],
+    "metrics": {
+     "tube": 0.00026224821808540355,
+     "p95": 0.00010856195550967837,
+     "logG_tube": 8.176872512422051e-10,
+     "op_dS": 3.8278188135926206e-05,
+     "op_G": 6.710187960834446e-13,
+     "min_val": 0.00026224821808540355,
+     "peak": 4.3298697960381105e-15,
+     "pearson_S": 0.999999999984786,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 2.3469858400320406e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 6.4548636042350696
+   }
+  },
+  "red_edge": {
+   "ultra_seconds_single": 6.898860199988121,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.07005370000842959,
+    "seconds": [
+     0.0686182000208646,
+     0.0726540999894496,
+     0.07036640000296757,
+     0.0680430999782402,
+     0.07005370000842959
+    ],
+    "metrics": {
+     "tube": 0.0020673853239633333,
+     "p95": 0.0001920071333580321,
+     "logG_tube": 0.0008818181512797452,
+     "op_dS": 0.0,
+     "op_G": 2.390317965983435e-05,
+     "min_val": 5.388200671585519e-06,
+     "peak": 1.1287002961268833e-05,
+     "pearson_S": 0.9999992975472816,
+     "pearson_logG": 0.9999999963393961
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 39,
+    "adaptive_rounds": 3,
+    "guard_max_relative": 2.8996220185979663e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 4.201003879003545
+   },
+   "balanced": {
+    "seconds_median": 0.23769099998753518,
+    "seconds": [
+     0.22898020001593977,
+     0.23802429999341257,
+     0.23769099998753518,
+     0.24144459998933598,
+     0.21869880001759157
+    ],
+    "metrics": {
+     "tube": 1.6849785455796962e-12,
+     "p95": 3.778900803386164e-13,
+     "logG_tube": 2.7071678232459817e-12,
+     "op_dS": 0.0,
+     "op_G": 3.2942537586677645e-12,
+     "min_val": 9.35085342490538e-13,
+     "peak": 1.567634910770721e-13,
+     "pearson_S": 1.0,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 2.3024855008160243e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 4.201003879003545
+   }
+  },
+  "cold_weak": {
+   "ultra_seconds_single": 6.211979599989718,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.09030360000906512,
+    "seconds": [
+     0.08748720001312904,
+     0.08813619997818023,
+     0.09592019999399781,
+     0.09030360000906512,
+     0.09320360000128858
+    ],
+    "metrics": {
+     "tube": 5.430118992985709e-05,
+     "p95": 4.12491308606733e-05,
+     "logG_tube": 0.0,
+     "op_dS": 3.645291604912075e-05,
+     "op_G": 0.0,
+     "min_val": 3.679117575146329e-05,
+     "peak": 0.0,
+     "pearson_S": 0.9999987952391748,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 49,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 4.890216643909005e-13,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 2.9846557362486665
+   },
+   "balanced": {
+    "seconds_median": 0.2401190999953542,
+    "seconds": [
+     0.24366059998283163,
+     0.24173869998776354,
+     0.23664889999781735,
+     0.23215900000650436,
+     0.2401190999953542
+    ],
+    "metrics": {
+     "tube": 3.679117575146329e-05,
+     "p95": 3.644758361170034e-05,
+     "logG_tube": 0.0,
+     "op_dS": 3.645291604912075e-05,
+     "op_G": 0.0,
+     "min_val": 3.679117575146329e-05,
+     "peak": 0.0,
+     "pearson_S": 1.0,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 6.989719943987797e-13,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 2.9846557362486665
+   }
+  },
+  "hot": {
+   "ultra_seconds_single": 7.053980599972419,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.10902629999327473,
+    "seconds": [
+     0.10952509997878224,
+     0.11133650000556372,
+     0.10902629999327473,
+     0.10705859999870881,
+     0.10787949999212287
+    ],
+    "metrics": {
+     "tube": 0.002885464392889503,
+     "p95": 0.0009228764596257426,
+     "logG_tube": 0.0007968011637695671,
+     "op_dS": 0.00010565286863317702,
+     "op_G": 4.297931649910325e-05,
+     "min_val": 0.0005073274482860768,
+     "peak": 1.6364687382974807e-13,
+     "pearson_S": 0.9999999521835227,
+     "pearson_logG": 0.999999999235554
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 77,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 7.713847743160152e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 6.454811416144178
+   },
+   "balanced": {
+    "seconds_median": 0.24464740001712926,
+    "seconds": [
+     0.23396559999673627,
+     0.24808889999985695,
+     0.2424143000098411,
+     0.24533559998963028,
+     0.24464740001712926
+    ],
+    "metrics": {
+     "tube": 0.0005073274482860768,
+     "p95": 0.00026125388793749575,
+     "logG_tube": 4.905298389701329e-10,
+     "op_dS": 0.00010565286863317702,
+     "op_G": 8.89799345316078e-12,
+     "min_val": 0.0005073274482860768,
+     "peak": 1.6364687382974807e-13,
+     "pearson_S": 0.9999999999412531,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.5558486952695384e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 6.454811416144178
+   }
+  },
+  "low_pump": {
+   "ultra_seconds_single": 6.832378700026311,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.11211509999702685,
+    "seconds": [
+     0.11434330002521165,
+     0.11362330001429655,
+     0.11015100000076927,
+     0.11211509999702685,
+     0.1093224999785889
+    ],
+    "metrics": {
+     "tube": 0.002255000342154645,
+     "p95": 0.0012894502013508719,
+     "logG_tube": 5.5931721572123616e-05,
+     "op_dS": 0.0008086732313863365,
+     "op_G": 4.92912304217441e-06,
+     "min_val": 0.002255000342154645,
+     "peak": 1.3766765505351941e-14,
+     "pearson_S": 0.9999999842153453,
+     "pearson_logG": 0.9999999904190736
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 101,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 1.9381975745597672e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.673175214269593
+   },
+   "balanced": {
+    "seconds_median": 0.2245905000017956,
+    "seconds": [
+     0.2156546000041999,
+     0.2246529000112787,
+     0.2245905000017956,
+     0.2388249000068754,
+     0.21748439999646507
+    ],
+    "metrics": {
+     "tube": 0.002255000342154645,
+     "p95": 0.001010461170883836,
+     "logG_tube": 1.0822454044046026e-12,
+     "op_dS": 0.0007884714769099688,
+     "op_G": 2.7200464103316335e-13,
+     "min_val": 0.002255000342154645,
+     "peak": 1.3766765505351941e-14,
+     "pearson_S": 0.999999998570405,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.9381975745597672e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.673175214269593
+   }
+  },
+  "bright_seed": {
+   "ultra_seconds_single": 6.778764799993951,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.09426869999151677,
+    "seconds": [
+     0.09213639999506995,
+     0.09601349997683428,
+     0.09392320000915788,
+     0.09444919999805279,
+     0.09426869999151677
+    ],
+    "metrics": {
+     "tube": 0.0020454580507349718,
+     "p95": 0.0007857088094769259,
+     "logG_tube": 0.0006589528666416378,
+     "op_dS": 0.0007865354644343014,
+     "op_G": 4.007626695445854e-05,
+     "min_val": 0.0007918154976875869,
+     "peak": 7.162145186478952e-06,
+     "pearson_S": 0.9999999948406163,
+     "pearson_logG": 0.9999999987727815
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 65,
+    "adaptive_rounds": 6,
+    "guard_max_relative": 4.475705341788837e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.714639879754042
+   },
+   "balanced": {
+    "seconds_median": 0.2265107999846805,
+    "seconds": [
+     0.2279811000043992,
+     0.23025250001228414,
+     0.2265107999846805,
+     0.21575860001030378,
+     0.22549439998692833
+    ],
+    "metrics": {
+     "tube": 0.0007905939202919043,
+     "p95": 0.0007818824052243656,
+     "logG_tube": 8.90287843446913e-13,
+     "op_dS": 0.0007898357430002889,
+     "op_G": 1.3100631690576847e-14,
+     "min_val": 0.0007915019002204815,
+     "peak": 1.887379141862766e-15,
+     "pearson_S": 0.9999999999392448,
+     "pearson_logG": 1.0
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.1460066815586459e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.714639879754042
+   }
+  },
+  "long_cell": {
+   "ultra_seconds_single": 6.545567500026664,
+   "ultra_floquet_status": "CONVERGED",
+   "fast": {
+    "seconds_median": 0.08400839997921139,
+    "seconds": [
+     0.08400839997921139,
+     0.08334080001804978,
+     0.082038000022294,
+     0.08406439999816939,
+     0.08463439997285604
+    ],
+    "metrics": {
+     "tube": 0.0179521089769068,
+     "p95": 0.000305219097314696,
+     "logG_tube": 0.0,
+     "op_dS": 0.00016886257530167315,
+     "op_G": 0.0,
+     "min_val": 0.0035748285112742195,
+     "peak": 0.0,
+     "pearson_S": 0.9999992376722775,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 49,
+    "adaptive_rounds": 5,
+    "guard_max_relative": 8.023867229249194e-12,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.1805820878749786
+   },
+   "balanced": {
+    "seconds_median": 0.23808179999468848,
+    "seconds": [
+     0.24228830001084134,
+     0.22961639999994077,
+     0.240747099975124,
+     0.23808179999468848,
+     0.2260600000154227
+    ],
+    "metrics": {
+     "tube": 0.0009829237125638102,
+     "p95": 0.00016339533515843244,
+     "logG_tube": 0.0,
+     "op_dS": 0.00015459473910565957,
+     "op_G": 0.0,
+     "min_val": 0.0009829237125638102,
+     "peak": 0.0,
+     "pearson_S": 0.9999999998068434,
+     "pearson_logG": null
+    },
+    "checks": {
+     "tube": true,
+     "p95": true,
+     "logG_tube": true,
+     "op_dS": true,
+     "op_G": true,
+     "min_val": true,
+     "peak": true,
+     "pearson_S": true,
+     "pearson_logG": true
+    },
+    "integrity": {
+     "G3.1_axis_equal": true,
+     "G3.2_finite": true,
+     "G3.3_audit": true,
+     "G3.4_guard": true,
+     "G3.6_provenance": true
+    },
+    "solved_probe_points": 401,
+    "adaptive_rounds": 1,
+    "guard_max_relative": 1.0584982245630088e-11,
+    "guard_fallback_rows": 0,
+    "pole_min_imag_MHz": 3.1805820878749786
+   }
+  }
+ },
+ "items": {
+  "G3.7": {
+   "passed": true,
+   "bit_identical": true,
+   "tier_dict_unchanged": true
+  },
+  "G1.1": {
+   "passed": true,
+   "default_s": 0.10067859999253415,
+   "worst_case_s": 0.12303960000281222,
+   "limits": [
+    0.12,
+    0.25
+   ]
+  },
+  "G1.3": {
+   "passed": true,
+   "fast": {
+    "before_s": 0.5837615999917034,
+    "after_s": 0.10067859999253415,
+    "speedup": 5.7982689472737245,
+    "required": 4.5
+   },
+   "balanced": {
+    "before_s": 1.8975697999994736,
+    "after_s": 0.2363584999984596,
+    "speedup": 8.028354385443471,
+    "required": 7.0
+   }
+  },
+  "G2.fast": {
+   "passed": true,
+   "failing": []
+  },
+  "G3.1": {
+   "passed": true,
+   "fast": true,
+   "balanced": true
+  },
+  "G3.2": {
+   "passed": true,
+   "fast": true,
+   "balanced": true
+  },
+  "G3.3": {
+   "passed": true,
+   "fast": true,
+   "balanced": true
+  },
+  "G3.4": {
+   "passed": true,
+   "fast": true,
+   "balanced": true
+  },
+  "G3.6": {
+   "passed": true,
+   "fast": true,
+   "balanced": true
+  },
+  "G1.2": {
+   "passed": true,
+   "default_s": 0.2363584999984596,
+   "worst_case_s": 0.2565353999962099,
+   "limits": [
+    0.25,
+    0.4
+   ]
+  },
+  "G2.balanced": {
+   "passed": true,
+   "failing": []
+  },
+  "ultra_reference_all_converged": {
+   "passed": true
+  },
+  "G1.4": {
+   "passed": true,
+   "import_s": 0.8720800000010058,
+   "first_fast_call_s": 0.6591392999980599
+  },
+  "G3.8": {
+   "passed": true,
+   "max_relative": {
+    "fast__G_s": 1.5254973124136951e-12,
+    "fast__G_c": 8.187698165154513e-12,
+    "fast__S_dB": 1.2140359337216189e-11,
+    "balanced__G_s": 1.3423821672966606e-12,
+    "balanced__G_c": 8.187698165154513e-12,
+    "balanced__S_dB": 1.6955381668548e-11
+   }
+  },
+  "G4.3": {
+   "passed": true
+  },
+  "G4.1": {
+   "passed": true,
+   "summary": "1 failed, 921 passed in 202.08s (0:03:22)",
+   "new_failures": [],
+   "pre_existing": [
+    "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public"
+   ]
+  },
+  "G4.2": {
+   "passed": true,
+   "numba": "32 passed in 4.78s",
+   "no_numba": "27 passed, 5 skipped in 12.13s"
+  },
+  "G5.1": {
+   "passed": true,
+   "required_headings": [
+    "## 기각",
+    "## 재사용",
+    "## 측정",
+    "## 기법"
+   ]
+  },
+  "G5.2": {
+   "passed": true,
+   "note": "exit status mirrors this flag"
+  }
+ },
+ "passed": true
+}
