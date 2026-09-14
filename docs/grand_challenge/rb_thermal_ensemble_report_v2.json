@@ -1,0 +1,2397 @@
+{
+  "schema": "gabes-thermal-Rb-evidence-pilot-v1",
+  "physical_model": {
+    "schema": "conditional-open-column-Rb-model-v1",
+    "inputs_SI": {
+      "pump_power_W": 0.6,
+      "pump_waist_m": 0.00053,
+      "number_density_m3": 1e+18,
+      "uniform_area_m2": 1.2e-07,
+      "length_m": 0.0125,
+      "seed_power_W": 8e-06,
+      "one_photon_rad_s": 5654866776.461628,
+      "two_photon_rad_s": -50265482.45743669,
+      "transit_rate_s_inverse": 0.0,
+      "phase_mismatch_rad_m": 0.0,
+      "seed_phase_rad": 0.0
+    },
+    "wavevectors_rad_m": [
+      [
+        0.0,
+        0.0,
+        7903645.504710572
+      ],
+      [
+        47421.2057483451,
+        0.0,
+        7903439.448751732
+      ],
+      [
+        -39518.38182272236,
+        0.0,
+        7903610.5004649935
+      ]
+    ],
+    "geometry_provenance": "declared vacuum plane waves; opposite equal angles do not imply vector closure",
+    "analysis_axis": {
+      "analysis_axis_omega_rad_s": [
+        628318.5307179586,
+        6283185.307179586,
+        25132741.228718344
+      ]
+    },
+    "lower_corner_m": [
+      -0.00017320508075688773,
+      -0.00017320508075688773,
+      -0.00625
+    ],
+    "upper_corner_m": [
+      0.00017320508075688773,
+      0.00017320508075688773,
+      0.00625
+    ],
+    "temperature_K": 373.0,
+    "mass_kg": 1.41e-25,
+    "boundary_state": {
+      "real": [
+        [
+          0.4166666666666667,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.5833333333333334,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "imag": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "pump_center_xy_m": [
+      0.0,
+      0.0
+    ],
+    "entry_phase_rad": 0.0,
+    "convention": "uniform-zeeman-rms; continuous pump-only Gaussian; uniform transverse readouts; unpolarized inflow"
+  },
+  "source_hashes_sha256": {
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\adjoint_transport_audit.py": "75d987a0594e5876beb193b36c0b99ce1ec7bc0ad94ffe13958b9d3a86e053c3",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\normalization_audit.py": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\rb_thermal_ensemble.py": "8dec590392dd4801261f02c006ffc05409cf0592ac067123e8bd815dfcd53ba0",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\rb_thermal_ensemble_audit.py": "ce61af4629ec8731fe5d60522fa68a2921389e593e72134744fcec28ce280509",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\rb_thermal_reference_jobs.py": "8435761140df87cf4cd71771b871113600a0d007632707343abbe7a4a9afe480",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\reference\\adjoint_transport.py": "638228fa43f634901825d23b22ef107c8c6df0d8acc1e5373a1cecc9c087544f",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\reference\\direct_readout.py": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\reference\\exponential_transport.py": "4277edf26d5d54567ca51449f040c3f19287d295957b03c8eaabbf2f08b24861",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\reference\\smooth_qrt.py": "385d5097bb9013ce84f79e0471d3834c9085a583d0f583ad0bdc83c8c45ec8b7",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\reference\\uncoupled_d1.py": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\analysis\\grand_challenge\\smooth_transport_audit.py": "d4f5984b8605234779af901dfe8b2ecad06bc2d1f0ae20074fe81ff3b3792589",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\adaptive_scan.py": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\doppler.py": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\__init__.py": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\kinetic.py": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\smooth_transport.py": "5cb5c6682e375b9a273a0abc325af2af6a28742981c5174826e1569e3592984c",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\transport.py": "a4279e9e322e1a0c19a85c2a3edd02e0721e80796f8440c25402d99a7930b858",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\fwm_quantum\\transport_ensemble.py": "6a11257abdbddcd0163639dbba230764863b7ce0661c646b936e05475efb63f3",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\kernels.py": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\pole_doppler.py": "608740c0ee2b39577bb6d798f6dd735d76c67bd18d79d3a4e059eee2106ef324",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\probe_saturation.py": "399a4955eda9fb0334960f70a05762d2443ccd5db672e967ea65fa65425016dd",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\__init__.py": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\inflow.py": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\periodic.py": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\periodic_field.py": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\segmented_transport.py": "8a62bac3053f13678e38df7f85198cf9d6a4502701172de9d8b016735f258941",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\smooth_transport.py": "95f00437ac8bbab32383dd5e621205e4075c4d24c8482d407a6dd1028c3f45b9",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\transport.py": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\quantum\\traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\__init__.py": "5ae65927cd9a59322fbb3c715d96dd1337121ffd17f3efc5a211bb96b5de264f",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\absorption.py": "f368a878dac8e815c236b23cc524e5e1880d7e3ccfac2cff2365de426ab0f356",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\base.py": "0e4e9639b2307ab9b666f774525ae88ccb190f8249fb6c6c5596adcb6dc7470a",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\fwm.py": "bcc1a857db9b3be38ff53be41144a35ada41f63fe98736645a38f8c79f9c4c1e",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\magneto.py": "a791ce4457797ac72ce0519d63f18f1646f2b1d2baf6e322e092bceb42bcfb62",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\rydberg.py": "8e658687771478839f4951a712c2aa4edc4e1337074841a32515b654397ba877",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\schemes\\sas.py": "4553de411497d5ab8966237bef63fce165d3ab5763b71c708aae3ba7deca9c42",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\gabes\\zeeman.py": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\tests\\quantum\\test_rb_thermal_ensemble.py": "cd93f1822986a1ad1bcdc6a452fca3bf16a0dcc4e613989b49d75f52fda89a74",
+    "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\tests\\quantum\\test_rb_thermal_ensemble_audit.py": "2cd09a9ce0dbb39db52aa595f51f0e98b8bbe21a2599ce6abb9a7b4f2c8b8b65"
+  },
+  "source_stable_during_run": true,
+  "reference_job_directory": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1",
+  "references": [
+    {
+      "path_index": 0,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path00_reference0.json",
+      "file_sha256": "6a7baec322ba5f13ad7296c55fe9254b3ef1867eb2c8404049954f1ceaaa0c10",
+      "record_sha256": "c9928d54357048169b72ba2f0e22199bfa3dcbc56b76b36fe56476dc6b4e0520",
+      "identity_sha256": "985f1a1cfdefd4133f986607baff070d422f4a0295a6cc6e0b3a789b514152a3",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 0,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path00_reference1.json",
+      "file_sha256": "e30b7ea0bc0efd42fff2b06fe0b12d0009adaf539e98b3fa891afc2dddff222e",
+      "record_sha256": "a8087c536f027142fbb75762c894ecab5dbee815b7f80eba19eccbb5a3cbd627",
+      "identity_sha256": "7e7efe856b656da7b398fd217866d3e525c675f6269a0f1a203a3bee058d4541",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 1,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path01_reference0.json",
+      "file_sha256": "7805bbb0b7d2f2fd700ce99bf336a9dcf9c96b05d379e9345c7235e1f64f03d7",
+      "record_sha256": "015fd42c1931c340050421e0dcf05ce28033110709fe6ff4ca975f45b1a8eb18",
+      "identity_sha256": "b79ba961f92b6720bc626a4c7658beb5a1b5b9bcfa283c2764794acb774a47ca",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 1,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path01_reference1.json",
+      "file_sha256": "893b30eb70f9b35a28bd41282367f5941ed74b670c4ee4afa6e0b61068d73dea",
+      "record_sha256": "0b9254d9aec62fdf4f5ce9742cc86c9836c685ed421e727a3c9bb3bbeb99ff61",
+      "identity_sha256": "ec01375452f70f22d7f8296df094d98738d43dffe61a812485ce6393cf22af0b",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 2,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path02_reference0.json",
+      "file_sha256": "262b3c188d699c2feba198d8d6ce81b9e3c414943c2fe4d235a956e4b6633d9e",
+      "record_sha256": "811b90a9668f7d1daf6606db106c403a8093f6420292c838fef27c1043f7f15e",
+      "identity_sha256": "0fc00b1368cc66bdc98bf098b35296165308624ef12d37214c85cbcd9986557b",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 2,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path02_reference1.json",
+      "file_sha256": "d598f619772044f9d816fae8c03effb7ee1d7a88a96c7ee6a3a141c22376180c",
+      "record_sha256": "27d57f43a22c0b86f1fc87ba975dd960219023273f7c53483f967164eccfd399",
+      "identity_sha256": "b52d6799f2d63436113f0854e782c6be754287904c4fe0a028aeb2ff35eb27cd",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 3,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path03_reference0.json",
+      "file_sha256": "42a54323afa1b059d8408cd903555cd3f3d312e12bc87f6be9de3bcd89866635",
+      "record_sha256": "d427697455ef4a5054f39c499de11639667cdb2bf0b488515431fcf417fb7de3",
+      "identity_sha256": "da52a1dbc5d478b0f09a39c1dc9c01c92f35c006dbe74fcc7e22de1b67bea750",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 3,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path03_reference1.json",
+      "file_sha256": "183cab294e0e850eb2e8aafcd8a351b1f84dd6f1c4932dec4e4d2d9de374122a",
+      "record_sha256": "1b2040b0050413c2c966b9c12bcc1d83fa25b56fb76526a206f7110f4a0270d6",
+      "identity_sha256": "4ba2a415c50ee72bc6643232fd50e0ca0c6b54044b25868b463c44b56d654091",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 4,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path04_reference0.json",
+      "file_sha256": "6550735492c89645c5ed1d05e4dfa463c2c382fd4f6a2f8908e1990103507200",
+      "record_sha256": "87211101a65f75bb049ed7c4b0540cc3706476c7cc4ae17eeb2a92a7a04abd80",
+      "identity_sha256": "d1dc96edff8a28425458996127d6914d0e09f24e695edd0f42c7858e957bc662",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 4,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path04_reference1.json",
+      "file_sha256": "7d94dc8fdaff3e9cd01176781b8e67af6427f6c093eedde5dff48aa05282ae41",
+      "record_sha256": "9a474300b25c9f446c86b11e062e80b688ec65ead1858bf4d7f6a91ffac38776",
+      "identity_sha256": "21476a881d4dda663f93938097629b28eba8c2fe5c4a4f92b1662b19d35d6d71",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 5,
+      "level": 0,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path05_reference0.json",
+      "file_sha256": "88565ed40c0ef6aed74225d41ba5d6bb7936295543d1cd64c52bd1dbe970899c",
+      "record_sha256": "dc5893b4ee09fca3c88de5d91f09fb1f55e1c7d51250551f7d3a98512fe779e8",
+      "identity_sha256": "79b935e3582d5c65bd0fee2b09dc59ff63911c8bb941096f9b924c428878c089",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    },
+    {
+      "path_index": 5,
+      "level": 1,
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_reference_jobs_v1\\path05_reference1.json",
+      "file_sha256": "61bf19975b5d7c1c97317593ba68b7522c9c929ae844666003af5ae249db6207",
+      "record_sha256": "8d1f3097820399cd893a59d88f77e6221e76bd76acc4b3990e3afd4746f8c2d5",
+      "identity_sha256": "316f7d6918c64a0d4129f10c24b178d20efc53d14ebde28af37d99be3bcc3487",
+      "runtime_blas_threads": [
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        },
+        {
+          "user_api": "blas",
+          "internal_api": "openblas",
+          "num_threads": 1,
+          "prefix": "libscipy_openblas",
+          "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+          "version": "0.3.30",
+          "threading_layer": "pthreads",
+          "architecture": "SkylakeX"
+        }
+      ]
+    }
+  ],
+  "reference_cache": [
+    {
+      "key": "d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1",
+      "hit": true,
+      "payload_digest": "60f58edd2524c64181e5418ae9803cf837dd17bb6eb6f12dcf0bdd3c377e344c",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+    },
+    {
+      "key": "574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed",
+      "hit": true,
+      "payload_digest": "0a931acb4ede8a636fc900aad153455c7058f25675d412c12e176811000f563d",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+    },
+    {
+      "key": "a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3",
+      "hit": true,
+      "payload_digest": "5191bc1682651dae8ea1df49560c499104f2bf60ca50e749b571201f531fb85e",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+    },
+    {
+      "key": "b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e",
+      "hit": true,
+      "payload_digest": "2366e245d57803bac3de43140efd2d013f000d34b49d2bea64aa217f76dd7110",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+    },
+    {
+      "key": "3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095",
+      "hit": true,
+      "payload_digest": "9ed62f2058332ddd0c0b1f2bf83cf9202110ed294d6297bb447636bcff8e0324",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+    },
+    {
+      "key": "dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13",
+      "hit": true,
+      "payload_digest": "cbff186858e3606e6c015e826891a4fbd651fcff1347425e35ffffef259310e9",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+    },
+    {
+      "key": "aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295",
+      "hit": true,
+      "payload_digest": "06d6566867cc6896a8f2f804b4b64365f339915190a461a750ddc9fc1a26c1dd",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+    },
+    {
+      "key": "3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90",
+      "hit": true,
+      "payload_digest": "161ae2d2ce37f8efb4daa97cf49123adb69dc59bdb76feb285e9136d3f55ab8d",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+    },
+    {
+      "key": "065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34",
+      "hit": true,
+      "payload_digest": "74d6ebc03a9e2394c4ccda5ca62ff737e7d027b3888b0ef73dbcb0ff492c9357",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+    },
+    {
+      "key": "2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b",
+      "hit": true,
+      "payload_digest": "6d942df95cdcd9e8f66b652f11656cc502d868e78c073995d6b5fee88aabbd2c",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+    },
+    {
+      "key": "e83fcbdb6045fc3b5dbd341d93392641a997537eecdebd6cbf822296f73d1b1c",
+      "hit": true,
+      "payload_digest": "19e83b8f2459c4130a8e1270a2e9e6492aae16906630cc8120cedcd9d895b872",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e83fcbdb6045fc3b5dbd341d93392641a997537eecdebd6cbf822296f73d1b1c.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+    },
+    {
+      "key": "cc85086b827276bbde42ffc95180a42adea294139684fee77acc12070f2b60ec",
+      "hit": true,
+      "payload_digest": "13836124566a944731f4b6e26d00c36bd26218785aa10230e0d757b50c5484ee",
+      "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\cc85086b827276bbde42ffc95180a42adea294139684fee77acc12070f2b60ec.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+    }
+  ],
+  "primary_cache_jobs": [
+    {
+      "path_index": 0,
+      "segments": 8723,
+      "key": "98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178",
+      "hit": true,
+      "payload_digest": "0e6482b009111142bf462154890dd782eb7f3e79e7bdcbf45de15f3f77893e85",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+    },
+    {
+      "path_index": 0,
+      "segments": 4362,
+      "key": "e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8",
+      "hit": true,
+      "payload_digest": "250f9c25c5903c21eab9eb8cc4b0aec70c08dcbe5563a09402f30fca75098491",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+    },
+    {
+      "path_index": 1,
+      "segments": 1557,
+      "key": "44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7",
+      "hit": true,
+      "payload_digest": "b303261f525a9ef14c1a853e48736d5b9f25892f9624e2abe21732bf93109fa3",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+    },
+    {
+      "path_index": 1,
+      "segments": 3114,
+      "key": "9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1",
+      "hit": true,
+      "payload_digest": "50c06beb0e0c287523d3600891ba2b84de47901b5743550b386405075b09bdf0",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+    },
+    {
+      "path_index": 1,
+      "segments": 6228,
+      "key": "866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac",
+      "hit": false,
+      "payload_digest": "da3c1359ccabfb6db1840bae5d7c45a7ef19a4439f7ff03d7441af711dc07845",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+    },
+    {
+      "path_index": 2,
+      "segments": 4081,
+      "key": "be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09",
+      "hit": true,
+      "payload_digest": "ce3934f51ada0675d01d75a52c9577634019594d8f04fba976d8e215887e2210",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+    },
+    {
+      "path_index": 2,
+      "segments": 8162,
+      "key": "a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f",
+      "hit": true,
+      "payload_digest": "651e3ee6ca4bd28a25ed2714c45dae66f8fe73824f02bfe7e05803060892540e",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+    },
+    {
+      "path_index": 0,
+      "segments": 17445,
+      "key": "e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0",
+      "hit": false,
+      "payload_digest": "ce60177361be666967233027b88b6cbc9e32ca873c52c7800f54a0d7cb5579a1",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+    },
+    {
+      "path_index": 3,
+      "segments": 1353,
+      "key": "5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866",
+      "hit": true,
+      "payload_digest": "f2fa1f874bdfc6fcfeb7c233c5efbe1f2d7a796dbfd0f4d420490c717c204949",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+    },
+    {
+      "path_index": 3,
+      "segments": 2706,
+      "key": "5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457",
+      "hit": true,
+      "payload_digest": "84d0292a72f0095cdbc7fb6e5b881ac54454c2841e2bf615267a785cd90813a6",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+    },
+    {
+      "path_index": 2,
+      "segments": 16323,
+      "key": "b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529",
+      "hit": false,
+      "payload_digest": "eb572969dc028c64baf09bfb2045e02b058cfa19fb3b7e347e0d767ee54b2b84",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+    },
+    {
+      "path_index": 4,
+      "segments": 4400,
+      "key": "8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28",
+      "hit": true,
+      "payload_digest": "5439c038e06ff41ce78329e52b5d5b029cf4fa3540b255b75b13e8d03ccd6e9a",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+    },
+    {
+      "path_index": 4,
+      "segments": 8799,
+      "key": "ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd",
+      "hit": true,
+      "payload_digest": "1afaee75c7795f18055be70097537a7a111b845456e0c067265bc2a0e23ed075",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+    },
+    {
+      "path_index": 3,
+      "segments": 5411,
+      "key": "56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c",
+      "hit": false,
+      "payload_digest": "a45f6c52172969017e6f53dbf7a571178fdca48db7a9c7de3e4fd9d118a51e2b",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+    },
+    {
+      "path_index": 5,
+      "segments": 797,
+      "key": "73a977bb2b896145718d021b8432a499d5022d02e740bbd31b5c7f0ab36c8c4d",
+      "hit": true,
+      "payload_digest": "24b5caf7da7fd3848f8396315113c6e9fc72e4fd31014e8fa1141f7ac3928b2d",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\73a977bb2b896145718d021b8432a499d5022d02e740bbd31b5c7f0ab36c8c4d.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+    },
+    {
+      "path_index": 5,
+      "segments": 1593,
+      "key": "c157e4e276814ae1ff7cde2ec429381585d7d5ba247e738ca53e189a9101d487",
+      "hit": true,
+      "payload_digest": "37af8bbfc2beb965148461a192ecbfe03e1773a6479307fbcc572534ec2320f4",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\c157e4e276814ae1ff7cde2ec429381585d7d5ba247e738ca53e189a9101d487.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+    },
+    {
+      "path_index": 5,
+      "segments": 3185,
+      "key": "fc6c5268f2b77bafa98b09625d756d1d744250623f25620f70ec238c2c32792f",
+      "hit": false,
+      "payload_digest": "f1e46166899e6c3a3f08f2ee0e969a45f53a32983b12b7aeb28c5ea3b5cd922c",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\fc6c5268f2b77bafa98b09625d756d1d744250623f25620f70ec238c2c32792f.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+    },
+    {
+      "path_index": 4,
+      "segments": 17597,
+      "key": "1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053",
+      "hit": false,
+      "payload_digest": "f81791bf67cbf911b0cba8cbfaa3029dcd9a4e648e5a549f23ac3bbf8a710240",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\rb_thermal_path_cache_v1\\1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053.json",
+      "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+    }
+  ],
+  "declared_plan": {
+    "workload_powers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "seeds": [
+      11,
+      211,
+      811
+    ],
+    "executed_pilot": {
+      "power": 0,
+      "seed": 11,
+      "all_boundary_paths": 6
+    },
+    "path_plan": {
+      "primary": [
+        {
+          "method": "CF4-exact-spectral-microscopic-source-propagation-v1",
+          "resolution": 4096000000.0,
+          "parameters": {
+            "max_step_s": 2.44140625e-10,
+            "order": 4
+          }
+        },
+        {
+          "method": "CF4-exact-spectral-microscopic-source-propagation-v1",
+          "resolution": 8192000000.0,
+          "parameters": {
+            "max_step_s": 1.220703125e-10,
+            "order": 4
+          }
+        },
+        {
+          "method": "CF4-exact-spectral-microscopic-source-propagation-v1",
+          "resolution": 16384000000.0,
+          "parameters": {
+            "max_step_s": 6.103515625e-11,
+            "order": 4
+          }
+        }
+      ],
+      "reference": [
+        {
+          "method": "independent-backward-observable-Lindblad-products-v1",
+          "resolution": 999999999.9999999,
+          "parameters": {
+            "rtol": 1e-09,
+            "atol": 1e-12,
+            "max_step_fraction": 0.015625
+          }
+        },
+        {
+          "method": "independent-backward-observable-Lindblad-products-v1",
+          "resolution": 3333333333.3333335,
+          "parameters": {
+            "rtol": 3e-10,
+            "atol": 3e-13,
+            "max_step_fraction": 0.015625
+          }
+        }
+      ]
+    },
+    "path_budgets": {
+      "primary_refinement": 0.001,
+      "independent_reference": 5e-06,
+      "independent_refinement": 2e-06
+    },
+    "ensemble_budget": 0.05,
+    "error_definition": "Maximum relative Frobenius error per RF AND named source; 128*machine-epsilon times the stated SI dimensional scale is the dark floor; mean rows use Euclidean norm. No clipping or occupancy renormalization.",
+    "restriction": "No other grid/seed is evaluated. The six pilot paths are fixed before solving; no clipping or selected-path substitution."
+  },
+  "workload": {
+    "powers": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "seeds": [
+      11,
+      211,
+      811
+    ],
+    "grids": [
+      {
+        "power": 0,
+        "seed": 11,
+        "path_count": 6,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 0,
+        "residence_range_s": [
+          1.9435230788485214e-07,
+          1.0739894020060414e-06
+        ],
+        "speed_range_m_s": [
+          328.38779565830964,
+          617.8243112998441
+        ],
+        "mean_occupancy": 926512567.343226,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.617675044895484,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "PATH_FAILED"
+      },
+      {
+        "power": 0,
+        "seed": 211,
+        "path_count": 6,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 0,
+        "residence_range_s": [
+          2.1481035525996667e-08,
+          2.440395779268669e-06
+        ],
+        "speed_range_m_s": [
+          187.15226403458914,
+          497.9963577801953
+        ],
+        "mean_occupancy": 2069232962.1791756,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 1.3794886414527838,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 0,
+        "seed": 811,
+        "path_count": 6,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 0,
+        "residence_range_s": [
+          8.847780904420083e-08,
+          1.7072607349311198e-06
+        ],
+        "speed_range_m_s": [
+          233.37840024030663,
+          601.0358234834368
+        ],
+        "mean_occupancy": 417276842.9363335,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.27818456195755564,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 1,
+        "seed": 11,
+        "path_count": 12,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 6,
+        "residence_range_s": [
+          1.9435230788485214e-07,
+          2.0934481899133344e-06
+        ],
+        "speed_range_m_s": [
+          192.82954239622265,
+          617.8243112998441
+        ],
+        "mean_occupancy": 1418150986.9433584,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.9454339912955723,
+        "total_arrival_rate_s_inverse": 1338855305362414.0,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 1,
+        "seed": 211,
+        "path_count": 12,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 6,
+        "residence_range_s": [
+          2.1481035525996667e-08,
+          2.674431869510707e-06
+        ],
+        "speed_range_m_s": [
+          124.93211449423812,
+          616.0591935341172
+        ],
+        "mean_occupancy": 2076819438.468361,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 1.3845462923122407,
+        "total_arrival_rate_s_inverse": 1338855305362414.0,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 1,
+        "seed": 811,
+        "path_count": 12,
+        "new_unique_physical_paths": 6,
+        "reused_physical_paths": 6,
+        "residence_range_s": [
+          3.803865311285205e-08,
+          1.7072607349311198e-06
+        ],
+        "speed_range_m_s": [
+          202.55392496767175,
+          604.0843430097782
+        ],
+        "mean_occupancy": 609951215.7277862,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.40663414381852414,
+        "total_arrival_rate_s_inverse": 1338855305362414.0,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 2,
+        "seed": 11,
+        "path_count": 24,
+        "new_unique_physical_paths": 12,
+        "reused_physical_paths": 12,
+        "residence_range_s": [
+          6.448008009479555e-08,
+          3.4566795645565433e-06
+        ],
+        "speed_range_m_s": [
+          192.82954239622265,
+          659.5857923811661
+        ],
+        "mean_occupancy": 1245340281.4371407,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.8302268542914272,
+        "total_arrival_rate_s_inverse": 1338855305362414.2,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 2,
+        "seed": 211,
+        "path_count": 24,
+        "new_unique_physical_paths": 12,
+        "reused_physical_paths": 12,
+        "residence_range_s": [
+          2.1481035525996667e-08,
+          2.674431869510707e-06
+        ],
+        "speed_range_m_s": [
+          124.93211449423812,
+          616.0591935341172
+        ],
+        "mean_occupancy": 1665422396.7815793,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 1.110281597854386,
+        "total_arrival_rate_s_inverse": 1338855305362414.2,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 2,
+        "seed": 811,
+        "path_count": 24,
+        "new_unique_physical_paths": 12,
+        "reused_physical_paths": 12,
+        "residence_range_s": [
+          3.803865311285205e-08,
+          2.699117529164067e-06
+        ],
+        "speed_range_m_s": [
+          125.2524049223212,
+          604.0843430097782
+        ],
+        "mean_occupancy": 1284220258.0762196,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.8561468387174797,
+        "total_arrival_rate_s_inverse": 1338855305362414.2,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 3,
+        "seed": 11,
+        "path_count": 48,
+        "new_unique_physical_paths": 24,
+        "reused_physical_paths": 24,
+        "residence_range_s": [
+          6.448008009479555e-08,
+          3.992320531978714e-06
+        ],
+        "speed_range_m_s": [
+          109.50073831915992,
+          659.5857923811661
+        ],
+        "mean_occupancy": 1372964531.8405461,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.9153096878936974,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 3,
+        "seed": 211,
+        "path_count": 48,
+        "new_unique_physical_paths": 24,
+        "reused_physical_paths": 24,
+        "residence_range_s": [
+          2.1481035525996667e-08,
+          2.674431869510707e-06
+        ],
+        "speed_range_m_s": [
+          124.93211449423812,
+          616.0591935341172
+        ],
+        "mean_occupancy": 1514630589.0161576,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 1.0097537260107718,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0,
+        "tau_over_5us_occupancy_fraction": 0.0,
+        "status": "NOT_EVALUATED"
+      },
+      {
+        "power": 3,
+        "seed": 811,
+        "path_count": 48,
+        "new_unique_physical_paths": 24,
+        "reused_physical_paths": 24,
+        "residence_range_s": [
+          1.7641884929763194e-08,
+          6.010583612679368e-06
+        ],
+        "speed_range_m_s": [
+          111.06514924804078,
+          604.0843430097782
+        ],
+        "mean_occupancy": 1417319748.9433718,
+        "equilibrium_nV": 1500000000.0,
+        "occupancy_over_nV": 0.9448798326289145,
+        "total_arrival_rate_s_inverse": 1338855305362414.5,
+        "tau_over_5us_arrival_fraction": 0.0316770947040754,
+        "tau_over_5us_occupancy_fraction": 0.17911054480047264,
+        "status": "NOT_EVALUATED"
+      }
+    ],
+    "grid_path_entries": 270,
+    "unique_physical_paths": 144,
+    "calculations_per_path": 5,
+    "scope": "Actual physical boundary nodes, no ODE or spectrum convergence inferred from these moments"
+  },
+  "pilot_paths": [
+    {
+      "path_index": 0,
+      "entry_position_m": [
+        -0.00017320508075688773,
+        4.731942621311679e-05,
+        -0.004161955503514036
+      ],
+      "velocity_m_s": [
+        238.74208050195796,
+        118.2334103810606,
+        -191.99381241223392
+      ],
+      "residence_time_s": 1.064721504167456e-06,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 5.072440729439393e-10,
+        "lesser": 4.739030556126608e-10,
+        "greater_by_source": 2.7277095917371106e-09,
+        "lesser_by_source": 2.5444374565814807e-09,
+        "mean_pulse": 1.4602120205506206e-08,
+        "mean_outer": 2.071714352708243e-08,
+        "retarded_response": 4.503425943701614e-12,
+        "exit_state": 1.3664168168215742e-08
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_VERIFIED",
+      "ledger": {
+        "physical_path_key": "e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0",
+        "target_digest": "5b5ad218cdd95713585d665e4e98794b6f598d9ab55b8dbf72d67659c6f0682a",
+        "cache_records": [
+          {
+            "key": "e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8",
+            "hit": true,
+            "payload_digest": "250f9c25c5903c21eab9eb8cc4b0aec70c08dcbe5563a09402f30fca75098491",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178",
+            "hit": true,
+            "payload_digest": "0e6482b009111142bf462154890dd782eb7f3e79e7bdcbf45de15f3f77893e85",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0",
+            "hit": true,
+            "payload_digest": "ce60177361be666967233027b88b6cbc9e32ca873c52c7800f54a0d7cb5579a1",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1",
+            "hit": true,
+            "payload_digest": "60f58edd2524c64181e5418ae9803cf837dd17bb6eb6f12dcf0bdd3c377e344c",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed",
+            "hit": true,
+            "payload_digest": "0a931acb4ede8a636fc900aad153455c7058f25675d412c12e176811000f563d",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 1.7796497830742787e-07,
+            "lesser": 1.7210756605851037e-07,
+            "greater_by_source": 2.949528353443529e-07,
+            "lesser_by_source": 2.1450379467622152e-07,
+            "mean_pulse": 0.00010481657732114382,
+            "mean_outer": 0.00014859617189366797,
+            "retarded_response": 4.903630011616323e-09,
+            "exit_state": 6.39763016946386e-06
+          },
+          {
+            "greater": 2.039433643367685e-09,
+            "lesser": 1.8825699846376063e-09,
+            "greater_by_source": 4.976470397029808e-09,
+            "lesser_by_source": 4.560140469941601e-09,
+            "mean_pulse": 7.262366944403082e-07,
+            "mean_outer": 1.0279240242141723e-06,
+            "retarded_response": 2.4104083669215257e-11,
+            "exit_state": 6.588532486640058e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 2.380111832754407e-10,
+          "lesser": 2.2525214733359253e-10,
+          "greater_by_source": 1.1815708020706046e-09,
+          "lesser_by_source": 1.1020136885481025e-09,
+          "mean_pulse": 3.5718654241954736e-08,
+          "mean_outer": 5.064216506126845e-08,
+          "retarded_response": 3.092621060503086e-12,
+          "exit_state": 6.7245625900411485e-09
+        },
+        "independent_refinement": {
+          "greater": 5.072440729439393e-10,
+          "lesser": 4.739030556126608e-10,
+          "greater_by_source": 2.7277095917371106e-09,
+          "lesser_by_source": 2.5444374565814807e-09,
+          "mean_pulse": 1.4602120205506206e-08,
+          "mean_outer": 2.071714352708243e-08,
+          "retarded_response": 4.503425943701614e-12,
+          "exit_state": 1.3664168168215742e-08
+        },
+        "passed": true,
+        "reasons": []
+      }
+    },
+    {
+      "path_index": 1,
+      "entry_position_m": [
+        0.00017320508075688773,
+        3.232058952601087e-05,
+        -0.0010522026394028218
+      ],
+      "velocity_m_s": [
+        -290.514521594762,
+        -540.7455015611886,
+        70.01781856807516
+      ],
+      "residence_time_s": 3.800783727086487e-07,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 3.221915554399153e-10,
+        "lesser": 2.906474777693577e-10,
+        "greater_by_source": 1.7024516176993105e-09,
+        "lesser_by_source": 1.6288690735321526e-09,
+        "mean_pulse": 6.078151162398661e-09,
+        "mean_outer": 1.010087431889301e-08,
+        "retarded_response": 7.727382107910184e-12,
+        "exit_state": 8.29463381460082e-09
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_VERIFIED",
+      "ledger": {
+        "physical_path_key": "866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1",
+        "target_digest": "2db8c36e2b59a76a66f2cd3e31a480f4d787c66fa1e24cc7f8d107d8593823f8",
+        "cache_records": [
+          {
+            "key": "44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7",
+            "hit": true,
+            "payload_digest": "b303261f525a9ef14c1a853e48736d5b9f25892f9624e2abe21732bf93109fa3",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1",
+            "hit": true,
+            "payload_digest": "50c06beb0e0c287523d3600891ba2b84de47901b5743550b386405075b09bdf0",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac",
+            "hit": true,
+            "payload_digest": "da3c1359ccabfb6db1840bae5d7c45a7ef19a4439f7ff03d7441af711dc07845",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3",
+            "hit": true,
+            "payload_digest": "5191bc1682651dae8ea1df49560c499104f2bf60ca50e749b571201f531fb85e",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e",
+            "hit": true,
+            "payload_digest": "2366e245d57803bac3de43140efd2d013f000d34b49d2bea64aa217f76dd7110",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.6842960305465503e-07,
+            "lesser": 2.632423165255637e-07,
+            "greater_by_source": 7.546688365764517e-07,
+            "lesser_by_source": 7.064224830894271e-07,
+            "mean_pulse": 0.0002378429441489279,
+            "mean_outer": 0.0003970615029693401,
+            "retarded_response": 1.629450282629353e-08,
+            "exit_state": 1.781326973877813e-05
+          },
+          {
+            "greater": 3.222898316235126e-09,
+            "lesser": 3.5238024681743696e-09,
+            "greater_by_source": 1.0713037506576576e-08,
+            "lesser_by_source": 1.0185492768127545e-08,
+            "mean_pulse": 1.4926924495714929e-06,
+            "mean_outer": 2.3432343998098294e-06,
+            "retarded_response": 9.623842773196315e-11,
+            "exit_state": 9.940555888508313e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 2.004207670500306e-10,
+          "lesser": 2.1253376055254325e-10,
+          "greater_by_source": 8.059081879157136e-10,
+          "lesser_by_source": 7.708839086869034e-10,
+          "mean_pulse": 6.669130365052073e-08,
+          "mean_outer": 1.03483620280606e-07,
+          "retarded_response": 4.9668093154719965e-12,
+          "exit_state": 5.580175800205434e-09
+        },
+        "independent_refinement": {
+          "greater": 3.221915554399153e-10,
+          "lesser": 2.906474777693577e-10,
+          "greater_by_source": 1.7024516176993105e-09,
+          "lesser_by_source": 1.6288690735321526e-09,
+          "mean_pulse": 6.078151162398661e-09,
+          "mean_outer": 1.010087431889301e-08,
+          "retarded_response": 7.727382107910184e-12,
+          "exit_state": 8.29463381460082e-09
+        },
+        "passed": true,
+        "reasons": []
+      }
+    },
+    {
+      "path_index": 2,
+      "entry_position_m": [
+        -0.00015955452381846867,
+        -0.00017320508075688773,
+        0.004856532200938091
+      ],
+      "velocity_m_s": [
+        32.223837179475716,
+        347.7185122761856,
+        140.44629246144444
+      ],
+      "residence_time_s": 9.962373278493412e-07,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 2.415589052874797e-10,
+        "lesser": 2.552163161933567e-10,
+        "greater_by_source": 2.123598370405493e-09,
+        "lesser_by_source": 2.0200851336679436e-09,
+        "mean_pulse": 1.3323290634497918e-08,
+        "mean_outer": 1.888265294986057e-08,
+        "retarded_response": 2.7918243472364152e-12,
+        "exit_state": 9.463424471107552e-09
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_VERIFIED",
+      "ledger": {
+        "physical_path_key": "b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2",
+        "target_digest": "11ef4f8f9ea6e6796502c711f3c4c0447b40c75a74fe13d99218bdf51ef33f06",
+        "cache_records": [
+          {
+            "key": "be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09",
+            "hit": true,
+            "payload_digest": "ce3934f51ada0675d01d75a52c9577634019594d8f04fba976d8e215887e2210",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f",
+            "hit": true,
+            "payload_digest": "651e3ee6ca4bd28a25ed2714c45dae66f8fe73824f02bfe7e05803060892540e",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529",
+            "hit": true,
+            "payload_digest": "eb572969dc028c64baf09bfb2045e02b058cfa19fb3b7e347e0d767ee54b2b84",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095",
+            "hit": true,
+            "payload_digest": "9ed62f2058332ddd0c0b1f2bf83cf9202110ed294d6297bb447636bcff8e0324",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13",
+            "hit": true,
+            "payload_digest": "cbff186858e3606e6c015e826891a4fbd651fcff1347425e35ffffef259310e9",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.5156717387261015e-07,
+            "lesser": 2.4786978202169104e-07,
+            "greater_by_source": 7.162982861571861e-07,
+            "lesser_by_source": 8.579785567715279e-07,
+            "mean_pulse": 0.00027175902132639486,
+            "mean_outer": 0.0003911819015440133,
+            "retarded_response": 1.6205143983873702e-08,
+            "exit_state": 2.2459545720053486e-05
+          },
+          {
+            "greater": 1.6782376038815554e-09,
+            "lesser": 1.7327025236881521e-09,
+            "greater_by_source": 4.6285446770018834e-09,
+            "lesser_by_source": 4.3336190643593735e-09,
+            "mean_pulse": 4.695919239737691e-07,
+            "mean_outer": 6.639999679500314e-07,
+            "retarded_response": 2.696177791236912e-11,
+            "exit_state": 6.846976893771915e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.4247599215625622e-10,
+          "lesser": 1.4894524766903507e-10,
+          "greater_by_source": 9.50554094585442e-10,
+          "lesser_by_source": 9.038138970165194e-10,
+          "mean_pulse": 2.6206448562829614e-08,
+          "mean_outer": 3.705947078672647e-08,
+          "retarded_response": 3.2604660012874758e-12,
+          "exit_state": 5.505470194589439e-09
+        },
+        "independent_refinement": {
+          "greater": 2.415589052874797e-10,
+          "lesser": 2.552163161933567e-10,
+          "greater_by_source": 2.123598370405493e-09,
+          "lesser_by_source": 2.0200851336679436e-09,
+          "mean_pulse": 1.3323290634497918e-08,
+          "mean_outer": 1.888265294986057e-08,
+          "retarded_response": 2.7918243472364152e-12,
+          "exit_state": 9.463424471107552e-09
+        },
+        "passed": true,
+        "reasons": []
+      }
+    },
+    {
+      "path_index": 3,
+      "entry_position_m": [
+        -9.143675365602784e-05,
+        0.00017320508075688773,
+        0.006192803458543495
+      ],
+      "velocity_m_s": [
+        -175.5649010532419,
+        -353.71079338760387,
+        173.1954142849422
+      ],
+      "residence_time_s": 3.302428167203388e-07,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 2.564074963590645e-10,
+        "lesser": 3.6451015652502216e-10,
+        "greater_by_source": 1.787125661625623e-09,
+        "lesser_by_source": 1.7073240198503132e-09,
+        "mean_pulse": 6.971445172507675e-09,
+        "mean_outer": 1.1087237588611323e-08,
+        "retarded_response": 7.646067861518825e-12,
+        "exit_state": 7.54523223721145e-09
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_VERIFIED",
+      "ledger": {
+        "physical_path_key": "56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3",
+        "target_digest": "8244d7c28c7863cb3544d3de1079e3e51d082612cdf829a58db4831ef63d60aa",
+        "cache_records": [
+          {
+            "key": "5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866",
+            "hit": true,
+            "payload_digest": "f2fa1f874bdfc6fcfeb7c233c5efbe1f2d7a796dbfd0f4d420490c717c204949",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457",
+            "hit": true,
+            "payload_digest": "84d0292a72f0095cdbc7fb6e5b881ac54454c2841e2bf615267a785cd90813a6",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c",
+            "hit": true,
+            "payload_digest": "a45f6c52172969017e6f53dbf7a571178fdca48db7a9c7de3e4fd9d118a51e2b",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295",
+            "hit": true,
+            "payload_digest": "06d6566867cc6896a8f2f804b4b64365f339915190a461a750ddc9fc1a26c1dd",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90",
+            "hit": true,
+            "payload_digest": "161ae2d2ce37f8efb4daa97cf49123adb69dc59bdb76feb285e9136d3f55ab8d",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.3636911910298668e-07,
+            "lesser": 2.9472863673535003e-07,
+            "greater_by_source": 1.029953471948967e-06,
+            "lesser_by_source": 7.518618108351842e-07,
+            "mean_pulse": 0.00011155748151085799,
+            "mean_outer": 0.00016845526293414578,
+            "retarded_response": 7.277418285871963e-08,
+            "exit_state": 4.197360499545697e-06
+          },
+          {
+            "greater": 9.40048706210183e-10,
+            "lesser": 1.4740748243143084e-09,
+            "greater_by_source": 1.8227121653498062e-09,
+            "lesser_by_source": 3.5849099861846633e-09,
+            "mean_pulse": 7.762749642633174e-07,
+            "mean_outer": 1.2589719099378876e-06,
+            "retarded_response": 3.9568337345391806e-11,
+            "exit_state": 9.44114770584401e-09
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.1576368542297204e-10,
+          "lesser": 1.675239310502646e-10,
+          "greater_by_source": 7.628728981523924e-10,
+          "lesser_by_source": 7.288335133274458e-10,
+          "mean_pulse": 3.640110002123785e-08,
+          "mean_outer": 5.8883134459098854e-08,
+          "retarded_response": 3.4709114530597898e-12,
+          "exit_state": 2.8655155313009553e-09
+        },
+        "independent_refinement": {
+          "greater": 2.564074963590645e-10,
+          "lesser": 3.6451015652502216e-10,
+          "greater_by_source": 1.787125661625623e-09,
+          "lesser_by_source": 1.7073240198503132e-09,
+          "mean_pulse": 6.971445172507675e-09,
+          "mean_outer": 1.1087237588611323e-08,
+          "retarded_response": 7.646067861518825e-12,
+          "exit_state": 7.54523223721145e-09
+        },
+        "passed": true,
+        "reasons": []
+      }
+    },
+    {
+      "path_index": 4,
+      "entry_position_m": [
+        0.00013134517413745077,
+        -0.00015410609879033338,
+        -0.00625
+      ],
+      "velocity_m_s": [
+        -283.5691435366933,
+        45.437170721078154,
+        226.19733133190763
+      ],
+      "residence_time_s": 1.0739894020060414e-06,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 2.5366917059579487e-10,
+        "lesser": 2.431426491298385e-10,
+        "greater_by_source": 2.1578620336109862e-09,
+        "lesser_by_source": 2.0624800460351084e-09,
+        "mean_pulse": 2.518813777219492e-08,
+        "mean_outer": 3.460105004430353e-08,
+        "retarded_response": 3.1275543331241386e-12,
+        "exit_state": 9.289706421033651e-09
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_FAILED",
+      "ledger": {
+        "physical_path_key": "1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4",
+        "target_digest": "09f6b4bc53785158eab1c1713cee1402ba269ea07f25f186afef6846f96cbea6",
+        "cache_records": [
+          {
+            "key": "8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28",
+            "hit": true,
+            "payload_digest": "5439c038e06ff41ce78329e52b5d5b029cf4fa3540b255b75b13e8d03ccd6e9a",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd",
+            "hit": true,
+            "payload_digest": "1afaee75c7795f18055be70097537a7a111b845456e0c067265bc2a0e23ed075",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053",
+            "hit": true,
+            "payload_digest": "f81791bf67cbf911b0cba8cbfaa3029dcd9a4e648e5a549f23ac3bbf8a710240",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34",
+            "hit": true,
+            "payload_digest": "74d6ebc03a9e2394c4ccda5ca62ff737e7d027b3888b0ef73dbcb0ff492c9357",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b",
+            "hit": true,
+            "payload_digest": "6d942df95cdcd9e8f66b652f11656cc502d868e78c073995d6b5fee88aabbd2c",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 1.1048081497032466e-06,
+            "lesser": 1.1591786872970199e-06,
+            "greater_by_source": 1.7550600885322609e-06,
+            "lesser_by_source": 1.6805362205186592e-06,
+            "mean_pulse": 0.0018756938457734518,
+            "mean_outer": 0.002551068648081919,
+            "retarded_response": 1.9069225605563987e-07,
+            "exit_state": 7.398817400859837e-05
+          },
+          {
+            "greater": 1.306616380642633e-09,
+            "lesser": 1.3723439206379022e-09,
+            "greater_by_source": 3.474327142120561e-09,
+            "lesser_by_source": 3.2723164355659053e-09,
+            "mean_pulse": 1.0201411708729297e-06,
+            "mean_outer": 1.4461215621083534e-06,
+            "retarded_response": 1.9798157069557163e-11,
+            "exit_state": 5.149668308379122e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.1937637145975242e-10,
+          "lesser": 1.1676001341451964e-10,
+          "greater_by_source": 9.593614993126439e-10,
+          "lesser_by_source": 9.166955036185544e-10,
+          "mean_pulse": 5.519840035206369e-08,
+          "mean_outer": 7.826240650288645e-08,
+          "retarded_response": 2.6736369542138472e-12,
+          "exit_state": 4.3936704463920734e-09
+        },
+        "independent_refinement": {
+          "greater": 2.5366917059579487e-10,
+          "lesser": 2.431426491298385e-10,
+          "greater_by_source": 2.1578620336109862e-09,
+          "lesser_by_source": 2.0624800460351084e-09,
+          "mean_pulse": 2.518813777219492e-08,
+          "mean_outer": 3.460105004430353e-08,
+          "retarded_response": 3.1275543331241386e-12,
+          "exit_state": 9.289706421033651e-09
+        },
+        "passed": false,
+        "reasons": [
+          "path_refinement: observed numerical error exceeds its declared tolerance"
+        ]
+      }
+    },
+    {
+      "path_index": 5,
+      "entry_position_m": [
+        -0.00011204212414131018,
+        -0.00016795087418184404,
+        0.00625
+      ],
+      "velocity_m_s": [
+        -314.7014680773163,
+        98.43610660711322,
+        -413.4014527481187
+      ],
+      "residence_time_s": 1.9435230788485214e-07,
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "independent_reference_refinement": {
+        "greater": 1.2702139954326002e-10,
+        "lesser": 1.5473375183026963e-10,
+        "greater_by_source": 2.2412666851808623e-09,
+        "lesser_by_source": 1.9469025080593067e-09,
+        "mean_pulse": 2.0700366319999032e-09,
+        "mean_outer": 2.936364289084252e-09,
+        "retarded_response": 1.3399385461944035e-11,
+        "exit_state": 1.366521638593528e-08
+      },
+      "independent_reference_refinement_passed": true,
+      "status": "PATH_VERIFIED",
+      "ledger": {
+        "physical_path_key": "fc6c5268f2b77bafa98b09625d756d1d744250623f25620f70ec238c2c32792f",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5",
+        "target_digest": "c12cba5ddb0e418e9a5ede73e93e6bab9f9db416a699365a0e83c225ee9bf813",
+        "cache_records": [
+          {
+            "key": "73a977bb2b896145718d021b8432a499d5022d02e740bbd31b5c7f0ab36c8c4d",
+            "hit": true,
+            "payload_digest": "24b5caf7da7fd3848f8396315113c6e9fc72e4fd31014e8fa1141f7ac3928b2d",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\73a977bb2b896145718d021b8432a499d5022d02e740bbd31b5c7f0ab36c8c4d.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+          },
+          {
+            "key": "c157e4e276814ae1ff7cde2ec429381585d7d5ba247e738ca53e189a9101d487",
+            "hit": true,
+            "payload_digest": "37af8bbfc2beb965148461a192ecbfe03e1773a6479307fbcc572534ec2320f4",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\c157e4e276814ae1ff7cde2ec429381585d7d5ba247e738ca53e189a9101d487.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+          },
+          {
+            "key": "fc6c5268f2b77bafa98b09625d756d1d744250623f25620f70ec238c2c32792f",
+            "hit": true,
+            "payload_digest": "f1e46166899e6c3a3f08f2ee0e969a45f53a32983b12b7aeb28c5ea3b5cd922c",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\fc6c5268f2b77bafa98b09625d756d1d744250623f25620f70ec238c2c32792f.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+          },
+          {
+            "key": "e83fcbdb6045fc3b5dbd341d93392641a997537eecdebd6cbf822296f73d1b1c",
+            "hit": true,
+            "payload_digest": "19e83b8f2459c4130a8e1270a2e9e6492aae16906630cc8120cedcd9d895b872",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e83fcbdb6045fc3b5dbd341d93392641a997537eecdebd6cbf822296f73d1b1c.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+          },
+          {
+            "key": "cc85086b827276bbde42ffc95180a42adea294139684fee77acc12070f2b60ec",
+            "hit": true,
+            "payload_digest": "13836124566a944731f4b6e26d00c36bd26218785aa10230e0d757b50c5484ee",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\cc85086b827276bbde42ffc95180a42adea294139684fee77acc12070f2b60ec.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=5, node=5"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 1.0145188061259546e-07,
+            "lesser": 1.062646866035405e-07,
+            "greater_by_source": 1.195513790698309e-07,
+            "lesser_by_source": 1.276628735066136e-07,
+            "mean_pulse": 1.9783304774152496e-05,
+            "mean_outer": 3.159900860336651e-05,
+            "retarded_response": 5.115633879968889e-09,
+            "exit_state": 2.9792030647726574e-06
+          },
+          {
+            "greater": 2.1003745179250304e-09,
+            "lesser": 2.2242478689083928e-09,
+            "greater_by_source": 1.7876487393646228e-08,
+            "lesser_by_source": 1.5345295794633286e-08,
+            "mean_pulse": 2.4577201159485906e-07,
+            "mean_outer": 4.06905135426147e-07,
+            "retarded_response": 1.2239442561993438e-10,
+            "exit_state": 6.605036688475106e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.08068293589841e-10,
+          "lesser": 1.1158929833533489e-10,
+          "greater_by_source": 9.799018210122115e-10,
+          "lesser_by_source": 8.513705586472114e-10,
+          "mean_pulse": 9.515801631797372e-09,
+          "mean_outer": 1.6092304327056034e-08,
+          "retarded_response": 6.497596109305634e-12,
+          "exit_state": 6.5872747795716726e-09
+        },
+        "independent_refinement": {
+          "greater": 1.2702139954326002e-10,
+          "lesser": 1.5473375183026963e-10,
+          "greater_by_source": 2.2412666851808623e-09,
+          "lesser_by_source": 1.9469025080593067e-09,
+          "mean_pulse": 2.0700366319999032e-09,
+          "mean_outer": 2.936364289084252e-09,
+          "retarded_response": 1.3399385461944035e-11,
+          "exit_state": 1.366521638593528e-08
+        },
+        "passed": true,
+        "reasons": []
+      }
+    }
+  ],
+  "pilot_grid": {
+    "power": 0,
+    "seed": 11,
+    "model_digest": "735cb6ce660dd40124d35ab85b2cfea987b139e65511180923b3797234adcd25",
+    "plan_digest": "aaa0f9fc00ca9b18a8012511910fc1bc6123293c03b250a6a3575cae7f205444",
+    "path_count": 6,
+    "callback_count": 5,
+    "cache_hits": 25,
+    "cache_misses": 0,
+    "path_ledgers": [
+      {
+        "physical_path_key": "e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0",
+        "target_digest": "5b5ad218cdd95713585d665e4e98794b6f598d9ab55b8dbf72d67659c6f0682a",
+        "cache_records": [
+          {
+            "key": "e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8",
+            "hit": true,
+            "payload_digest": "250f9c25c5903c21eab9eb8cc4b0aec70c08dcbe5563a09402f30fca75098491",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e742310e40e74ecd2e88bfd3b03425d7c5e880c385bb145e33f73d83f41913b8.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178",
+            "hit": true,
+            "payload_digest": "0e6482b009111142bf462154890dd782eb7f3e79e7bdcbf45de15f3f77893e85",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\98cecb367921a1a531dad0efc090ce53fea3f6b9205b6eae0c5e0f31085d3178.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0",
+            "hit": true,
+            "payload_digest": "ce60177361be666967233027b88b6cbc9e32ca873c52c7800f54a0d7cb5579a1",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\e85733994c39f29e2dc9d01f431c4a5b570127a4479c94db3f05c7ec57e73fb0.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1",
+            "hit": true,
+            "payload_digest": "60f58edd2524c64181e5418ae9803cf837dd17bb6eb6f12dcf0bdd3c377e344c",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\d94322faf4bb6c8bc9440753962860472d33665c86a089ad85b6b8beaad4edc1.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          },
+          {
+            "key": "574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed",
+            "hit": true,
+            "payload_digest": "0a931acb4ede8a636fc900aad153455c7058f25675d412c12e176811000f563d",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\574d76da5029b857e6d9dffba0af9b37f02f92fbfd8aaf8539537a49cb69e1ed.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=0, node=0"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 1.7796497830742787e-07,
+            "lesser": 1.7210756605851037e-07,
+            "greater_by_source": 2.949528353443529e-07,
+            "lesser_by_source": 2.1450379467622152e-07,
+            "mean_pulse": 0.00010481657732114382,
+            "mean_outer": 0.00014859617189366797,
+            "retarded_response": 4.903630011616323e-09,
+            "exit_state": 6.39763016946386e-06
+          },
+          {
+            "greater": 2.039433643367685e-09,
+            "lesser": 1.8825699846376063e-09,
+            "greater_by_source": 4.976470397029808e-09,
+            "lesser_by_source": 4.560140469941601e-09,
+            "mean_pulse": 7.262366944403082e-07,
+            "mean_outer": 1.0279240242141723e-06,
+            "retarded_response": 2.4104083669215257e-11,
+            "exit_state": 6.588532486640058e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 2.380111832754407e-10,
+          "lesser": 2.2525214733359253e-10,
+          "greater_by_source": 1.1815708020706046e-09,
+          "lesser_by_source": 1.1020136885481025e-09,
+          "mean_pulse": 3.5718654241954736e-08,
+          "mean_outer": 5.064216506126845e-08,
+          "retarded_response": 3.092621060503086e-12,
+          "exit_state": 6.7245625900411485e-09
+        },
+        "independent_refinement": {
+          "greater": 5.072440729439393e-10,
+          "lesser": 4.739030556126608e-10,
+          "greater_by_source": 2.7277095917371106e-09,
+          "lesser_by_source": 2.5444374565814807e-09,
+          "mean_pulse": 1.4602120205506206e-08,
+          "mean_outer": 2.071714352708243e-08,
+          "retarded_response": 4.503425943701614e-12,
+          "exit_state": 1.3664168168215742e-08
+        },
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "physical_path_key": "866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1",
+        "target_digest": "2db8c36e2b59a76a66f2cd3e31a480f4d787c66fa1e24cc7f8d107d8593823f8",
+        "cache_records": [
+          {
+            "key": "44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7",
+            "hit": true,
+            "payload_digest": "b303261f525a9ef14c1a853e48736d5b9f25892f9624e2abe21732bf93109fa3",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\44ef3b01751fa26030a016d5a82fe11f42e2245e14001bae8770603f01b352e7.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1",
+            "hit": true,
+            "payload_digest": "50c06beb0e0c287523d3600891ba2b84de47901b5743550b386405075b09bdf0",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\9c2e7f2bc55a38cb4500aa61379485228adf16621da10f35c8da626bf90d9de1.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac",
+            "hit": true,
+            "payload_digest": "da3c1359ccabfb6db1840bae5d7c45a7ef19a4439f7ff03d7441af711dc07845",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\866254b6a37fa69fb659e7e041c92e275ef5f8471fdd02e51385457a1f035cac.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3",
+            "hit": true,
+            "payload_digest": "5191bc1682651dae8ea1df49560c499104f2bf60ca50e749b571201f531fb85e",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\a764c19290cfe181aed0f63412628b81da56fe7ff04311e48fc9c75843950da3.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          },
+          {
+            "key": "b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e",
+            "hit": true,
+            "payload_digest": "2366e245d57803bac3de43140efd2d013f000d34b49d2bea64aa217f76dd7110",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\b7c02f0f4c4680ffad4f2d42c0671a609c93680a5a8a821652e4d57a026a511e.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=1, node=1"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.6842960305465503e-07,
+            "lesser": 2.632423165255637e-07,
+            "greater_by_source": 7.546688365764517e-07,
+            "lesser_by_source": 7.064224830894271e-07,
+            "mean_pulse": 0.0002378429441489279,
+            "mean_outer": 0.0003970615029693401,
+            "retarded_response": 1.629450282629353e-08,
+            "exit_state": 1.781326973877813e-05
+          },
+          {
+            "greater": 3.222898316235126e-09,
+            "lesser": 3.5238024681743696e-09,
+            "greater_by_source": 1.0713037506576576e-08,
+            "lesser_by_source": 1.0185492768127545e-08,
+            "mean_pulse": 1.4926924495714929e-06,
+            "mean_outer": 2.3432343998098294e-06,
+            "retarded_response": 9.623842773196315e-11,
+            "exit_state": 9.940555888508313e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 2.004207670500306e-10,
+          "lesser": 2.1253376055254325e-10,
+          "greater_by_source": 8.059081879157136e-10,
+          "lesser_by_source": 7.708839086869034e-10,
+          "mean_pulse": 6.669130365052073e-08,
+          "mean_outer": 1.03483620280606e-07,
+          "retarded_response": 4.9668093154719965e-12,
+          "exit_state": 5.580175800205434e-09
+        },
+        "independent_refinement": {
+          "greater": 3.221915554399153e-10,
+          "lesser": 2.906474777693577e-10,
+          "greater_by_source": 1.7024516176993105e-09,
+          "lesser_by_source": 1.6288690735321526e-09,
+          "mean_pulse": 6.078151162398661e-09,
+          "mean_outer": 1.010087431889301e-08,
+          "retarded_response": 7.727382107910184e-12,
+          "exit_state": 8.29463381460082e-09
+        },
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "physical_path_key": "b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2",
+        "target_digest": "11ef4f8f9ea6e6796502c711f3c4c0447b40c75a74fe13d99218bdf51ef33f06",
+        "cache_records": [
+          {
+            "key": "be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09",
+            "hit": true,
+            "payload_digest": "ce3934f51ada0675d01d75a52c9577634019594d8f04fba976d8e215887e2210",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\be07c438281d7f7197ac274c31692e57d7d98680bfcc1440d15af3765f400c09.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f",
+            "hit": true,
+            "payload_digest": "651e3ee6ca4bd28a25ed2714c45dae66f8fe73824f02bfe7e05803060892540e",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\a948855be83d2c8c05192b0a9b4b211c23a218373229a03105532aae01e38a9f.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529",
+            "hit": true,
+            "payload_digest": "eb572969dc028c64baf09bfb2045e02b058cfa19fb3b7e347e0d767ee54b2b84",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\b51ee6f485d06afe157bb71a18646d7da7436e100fb2d590cb472857db63b529.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095",
+            "hit": true,
+            "payload_digest": "9ed62f2058332ddd0c0b1f2bf83cf9202110ed294d6297bb447636bcff8e0324",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3e7e977dca1c13cfe247b77270c324f527c05e55f9a2e48722d7263855a36095.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          },
+          {
+            "key": "dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13",
+            "hit": true,
+            "payload_digest": "cbff186858e3606e6c015e826891a4fbd651fcff1347425e35ffffef259310e9",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\dc55da0208c82a17294f30df5d81c0fdfbe946031ad574238e25748000718c13.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=2, node=2"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.5156717387261015e-07,
+            "lesser": 2.4786978202169104e-07,
+            "greater_by_source": 7.162982861571861e-07,
+            "lesser_by_source": 8.579785567715279e-07,
+            "mean_pulse": 0.00027175902132639486,
+            "mean_outer": 0.0003911819015440133,
+            "retarded_response": 1.6205143983873702e-08,
+            "exit_state": 2.2459545720053486e-05
+          },
+          {
+            "greater": 1.6782376038815554e-09,
+            "lesser": 1.7327025236881521e-09,
+            "greater_by_source": 4.6285446770018834e-09,
+            "lesser_by_source": 4.3336190643593735e-09,
+            "mean_pulse": 4.695919239737691e-07,
+            "mean_outer": 6.639999679500314e-07,
+            "retarded_response": 2.696177791236912e-11,
+            "exit_state": 6.846976893771915e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.4247599215625622e-10,
+          "lesser": 1.4894524766903507e-10,
+          "greater_by_source": 9.50554094585442e-10,
+          "lesser_by_source": 9.038138970165194e-10,
+          "mean_pulse": 2.6206448562829614e-08,
+          "mean_outer": 3.705947078672647e-08,
+          "retarded_response": 3.2604660012874758e-12,
+          "exit_state": 5.505470194589439e-09
+        },
+        "independent_refinement": {
+          "greater": 2.415589052874797e-10,
+          "lesser": 2.552163161933567e-10,
+          "greater_by_source": 2.123598370405493e-09,
+          "lesser_by_source": 2.0200851336679436e-09,
+          "mean_pulse": 1.3323290634497918e-08,
+          "mean_outer": 1.888265294986057e-08,
+          "retarded_response": 2.7918243472364152e-12,
+          "exit_state": 9.463424471107552e-09
+        },
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "physical_path_key": "56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3",
+        "target_digest": "8244d7c28c7863cb3544d3de1079e3e51d082612cdf829a58db4831ef63d60aa",
+        "cache_records": [
+          {
+            "key": "5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866",
+            "hit": true,
+            "payload_digest": "f2fa1f874bdfc6fcfeb7c233c5efbe1f2d7a796dbfd0f4d420490c717c204949",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\5651899bb6d09ee2b325ac0bb8fafcd387537727156850e564ab63da9badb866.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457",
+            "hit": true,
+            "payload_digest": "84d0292a72f0095cdbc7fb6e5b881ac54454c2841e2bf615267a785cd90813a6",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\5d817377ab598eeabd4ea2b72ad59bc5b13c153170b181dd8e9ce329227c5457.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c",
+            "hit": true,
+            "payload_digest": "a45f6c52172969017e6f53dbf7a571178fdca48db7a9c7de3e4fd9d118a51e2b",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\56c2c19b7e5bf47687c3ffed016e78d5669080ca3ac187bdf0fa91f513afae9c.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295",
+            "hit": true,
+            "payload_digest": "06d6566867cc6896a8f2f804b4b64365f339915190a461a750ddc9fc1a26c1dd",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\aea25b92249144491b78d5a52300decd1ae9f15e62e464d3115f379735b9e295.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          },
+          {
+            "key": "3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90",
+            "hit": true,
+            "payload_digest": "161ae2d2ce37f8efb4daa97cf49123adb69dc59bdb76feb285e9136d3f55ab8d",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\3cfb8b7cd4a6611de3262d1adea3bb7906cefe095a93b8e3ab7a7d10372f5d90.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=3, node=3"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 2.3636911910298668e-07,
+            "lesser": 2.9472863673535003e-07,
+            "greater_by_source": 1.029953471948967e-06,
+            "lesser_by_source": 7.518618108351842e-07,
+            "mean_pulse": 0.00011155748151085799,
+            "mean_outer": 0.00016845526293414578,
+            "retarded_response": 7.277418285871963e-08,
+            "exit_state": 4.197360499545697e-06
+          },
+          {
+            "greater": 9.40048706210183e-10,
+            "lesser": 1.4740748243143084e-09,
+            "greater_by_source": 1.8227121653498062e-09,
+            "lesser_by_source": 3.5849099861846633e-09,
+            "mean_pulse": 7.762749642633174e-07,
+            "mean_outer": 1.2589719099378876e-06,
+            "retarded_response": 3.9568337345391806e-11,
+            "exit_state": 9.44114770584401e-09
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.1576368542297204e-10,
+          "lesser": 1.675239310502646e-10,
+          "greater_by_source": 7.628728981523924e-10,
+          "lesser_by_source": 7.288335133274458e-10,
+          "mean_pulse": 3.640110002123785e-08,
+          "mean_outer": 5.8883134459098854e-08,
+          "retarded_response": 3.4709114530597898e-12,
+          "exit_state": 2.8655155313009553e-09
+        },
+        "independent_refinement": {
+          "greater": 2.564074963590645e-10,
+          "lesser": 3.6451015652502216e-10,
+          "greater_by_source": 1.787125661625623e-09,
+          "lesser_by_source": 1.7073240198503132e-09,
+          "mean_pulse": 6.971445172507675e-09,
+          "mean_outer": 1.1087237588611323e-08,
+          "retarded_response": 7.646067861518825e-12,
+          "exit_state": 7.54523223721145e-09
+        },
+        "passed": true,
+        "reasons": []
+      },
+      {
+        "physical_path_key": "1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053",
+        "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4",
+        "target_digest": "09f6b4bc53785158eab1c1713cee1402ba269ea07f25f186afef6846f96cbea6",
+        "cache_records": [
+          {
+            "key": "8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28",
+            "hit": true,
+            "payload_digest": "5439c038e06ff41ce78329e52b5d5b029cf4fa3540b255b75b13e8d03ccd6e9a",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\8fc3fbc8f936aac939b201b31a10a8aea32b3e17beaf3c0775834a08b4c21e28.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd",
+            "hit": true,
+            "payload_digest": "1afaee75c7795f18055be70097537a7a111b845456e0c067265bc2a0e23ed075",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\ccc926e535c336fba14237ba326a50ce44d979fe10129fd8dee15014c73fe0bd.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053",
+            "hit": true,
+            "payload_digest": "f81791bf67cbf911b0cba8cbfaa3029dcd9a4e648e5a549f23ac3bbf8a710240",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\1218a0ba2200f7e3ee6457fc44e2e6458c852e79a4ce640459d77719ee5e4053.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34",
+            "hit": true,
+            "payload_digest": "74d6ebc03a9e2394c4ccda5ca62ff737e7d027b3888b0ef73dbcb0ff492c9357",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\065b5f59985ca5bf52fe2f4568cf2e6c2c26308d4abc118bda8e527a8e3c0c34.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          },
+          {
+            "key": "2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b",
+            "hit": true,
+            "payload_digest": "6d942df95cdcd9e8f66b652f11656cc502d868e78c073995d6b5fee88aabbd2c",
+            "path": "docs\\grand_challenge\\rb_thermal_path_cache_v1\\2e0c2ac2cae76a4238293bbc1a712e2f77f7591022e4fda0ca69415c0136d66b.json",
+            "original_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4"
+          }
+        ],
+        "primary_refinement": [
+          {
+            "greater": 1.1048081497032466e-06,
+            "lesser": 1.1591786872970199e-06,
+            "greater_by_source": 1.7550600885322609e-06,
+            "lesser_by_source": 1.6805362205186592e-06,
+            "mean_pulse": 0.0018756938457734518,
+            "mean_outer": 0.002551068648081919,
+            "retarded_response": 1.9069225605563987e-07,
+            "exit_state": 7.398817400859837e-05
+          },
+          {
+            "greater": 1.306616380642633e-09,
+            "lesser": 1.3723439206379022e-09,
+            "greater_by_source": 3.474327142120561e-09,
+            "lesser_by_source": 3.2723164355659053e-09,
+            "mean_pulse": 1.0201411708729297e-06,
+            "mean_outer": 1.4461215621083534e-06,
+            "retarded_response": 1.9798157069557163e-11,
+            "exit_state": 5.149668308379122e-08
+          }
+        ],
+        "independent_reference": {
+          "greater": 1.1937637145975242e-10,
+          "lesser": 1.1676001341451964e-10,
+          "greater_by_source": 9.593614993126439e-10,
+          "lesser_by_source": 9.166955036185544e-10,
+          "mean_pulse": 5.519840035206369e-08,
+          "mean_outer": 7.826240650288645e-08,
+          "retarded_response": 2.6736369542138472e-12,
+          "exit_state": 4.3936704463920734e-09
+        },
+        "independent_refinement": {
+          "greater": 2.5366917059579487e-10,
+          "lesser": 2.431426491298385e-10,
+          "greater_by_source": 2.1578620336109862e-09,
+          "lesser_by_source": 2.0624800460351084e-09,
+          "mean_pulse": 2.518813777219492e-08,
+          "mean_outer": 3.460105004430353e-08,
+          "retarded_response": 3.1275543331241386e-12,
+          "exit_state": 9.289706421033651e-09
+        },
+        "passed": false,
+        "reasons": [
+          "path_refinement: observed numerical error exceeds its declared tolerance"
+        ]
+      }
+    ],
+    "candidate": {
+      "certified": false,
+      "path_evidence_passed": false,
+      "spectra": null,
+      "reasons": [
+        "packet internal physical/numerical audit did not pass",
+        "path_refinement: observed numerical error exceeds its declared tolerance"
+      ],
+      "candidate_digest": null,
+      "convention_digest": "804311e043596fd8c8858eac58fad30b8ce6689c454b45b89bf1a525bb07b289",
+      "model_scope": "smooth",
+      "model_id": "conditional-open-column-reduced-Rb-v1",
+      "analysis_axis": {
+        "analysis_axis_omega_rad_s": [
+          628318.5307179586,
+          6283185.307179586,
+          25132741.228718344
+        ]
+      },
+      "source_names": [
+        "atomic_inflow",
+        "jump:decay:0:2->0",
+        "jump:decay:1:2->1",
+        "jump:decay:2:3->0",
+        "jump:decay:3:3->1"
+      ],
+      "inflow_digest": "d7916334a4d10bd35daf347ecd31fdd82f1154c9bb4512ac1ae49ae779919f94",
+      "path_count": 6,
+      "consumed_path_count": 5,
+      "total_arrival_rate_s_inverse": 1338855305362414.5,
+      "mean_occupancy": 926512567.343226,
+      "equilibrium_nV": 1500000000.0,
+      "provenance": "Explicit square open-reservoir column, fixed RMS Rb and continuous Gaussian pump; assumed entry state",
+      "phase_provenance": "One common laboratory beat with actual nonclosed spatial wavevectors and entry phases",
+      "density_ledger": "density is included once in boundary rates; no additional density multiplier",
+      "scope": "conditional pump-only zero-cyclic atomic stream; no optical Maxwell channel, SQL or experimental certification",
+      "failed_path_index": 4,
+      "failed_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=4",
+      "failed_path_rate_s_inverse": 9149088167096.672,
+      "packet_chain_digest": "b94e4937c382fdd82570ae31b38cfde47bb528599731180e1ec03565a8c22e37"
+    },
+    "mean_occupancy": 926512567.343226,
+    "equilibrium_nV": 1500000000.0,
+    "occupancy_over_nV": 0.617675044895484,
+    "comparison_scales": {
+      "greater": 1909235.1147504563,
+      "lesser": 1909235.1147504563,
+      "greater_by_source": 1909235.1147504563,
+      "lesser_by_source": 1909235.1147504563,
+      "poisson_number": 1909235.1147504563,
+      "retarded_response": 9095864.649477744
+    },
+    "content_digest": "ab8167ed745c036c09ace83182d5a5753ebaa7e78048f52a2395c3ab0509a713"
+  },
+  "ensemble_gate": {
+    "passed": false,
+    "reasons": [
+      "Every declared seed is required on every evaluated grid",
+      "Every physical path requires complete passing numerical evidence",
+      "Incomplete or failed measured path/reference metrics",
+      "Three consecutive planned grids required"
+    ],
+    "comparisons": []
+  },
+  "pilot_all_path_evidence_passed": false,
+  "reference_refinements_passed": true,
+  "thermal_ensemble_converged": false,
+  "production_adapter_certified": false,
+  "physical_optical_prediction": false,
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "threadpoolctl": "3.6.0",
+    "workers": 2,
+    "elapsed_s": 660.885445300024
+  },
+  "limitations": [
+    "Square area equals the optical normalization area by assumption; it is not a measured vapor-cell cross-section.",
+    "Fresh unpolarized side inflow omits pump history outside this open column; the Gaussian field is already nonzero there.",
+    "The workload table is actual boundary geometry, not evaluated atomic spectrum or tail convergence.",
+    "A verified six-path grid would still lack the two grid refinements and all independent seed comparisons.",
+    "The retarded response is age-integrated atomic response, not nonlocal Maxwell propagation or optical SQL/squeezing."
+  ]
+}

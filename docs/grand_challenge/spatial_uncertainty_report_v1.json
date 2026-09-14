@@ -1,0 +1,3098 @@
+{
+  "schema": "gabes.stationary_spatial_uncertainty.v1",
+  "scope": "conditional joint five-output uncertainty, stationary centers, fixed pump and two fixed top-hat profiles",
+  "absolute_hot_vapor_prediction": false,
+  "experimental_validation": false,
+  "parent_artifact": {
+    "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\s1_spatial_field_report_v2.json",
+    "sha256": "0eb3341ba520db72066ecc6116be848a3134c1191a5008a0e3d17f9c975728d0",
+    "changed_parent_sources": [
+      {
+        "path": "gabes/kernels.py",
+        "parent_sha256": "04c7d1ba371724774d54669b54b10ecf5759d22cb7aa808c2687f0f248280cb7",
+        "current_sha256": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8"
+      },
+      {
+        "path": "gabes/doppler.py",
+        "parent_sha256": "a6b5da7fe145b76090f3173eed14481dbf57513835eef4484afd176b22d42b4e",
+        "current_sha256": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c"
+      },
+      {
+        "path": "gabes/schemes/fwm.py",
+        "parent_sha256": "d45245a4b472b85ec0a02c1429aa5b71e2fdccd89877daf9bcee57329721b2ff",
+        "current_sha256": "0511b8f17099e5f844503a9e3a6daddae0dde136e517ff10d2ae93aa25310390"
+      }
+    ],
+    "parent_code_matches_current_sources": false,
+    "scope": "historical fixture evidence; current nominal recomputed, not cached from this parent"
+  },
+  "source_sha256": {
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/kernels.py": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8",
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "gabes/zeeman.py": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2",
+    "gabes/doppler.py": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+    "gabes/observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/schemes/base.py": "0e4e9639b2307ab9b666f774525ae88ccb190f8249fb6c6c5596adcb6dc7470a",
+    "gabes/schemes/fwm.py": "0511b8f17099e5f844503a9e3a6daddae0dde136e517ff10d2ae93aa25310390",
+    "gabes/quantum/contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "gabes/quantum/traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "gabes/quantum/sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "gabes/quantum/readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "gabes/quantum/periodic.py": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+    "gabes/quantum/periodic_field.py": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+    "gabes/quantum/spatial_modes.py": "9516283b9b7d298f25e14a784279831809f3e6219710ff0a2f7e0fef182edc8c",
+    "gabes/quantum/uncertainty.py": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+    "gabes/quantum/spectrum_analysis.py": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+    "gabes/fwm_quantum/inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "gabes/fwm_quantum/normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "gabes/fwm_quantum/model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "gabes/fwm_quantum/field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "gabes/fwm_quantum/readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "gabes/fwm_quantum/kinetic.py": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+    "gabes/fwm_quantum/periodic.py": "56cf4e42959d7db9f290628a4956ae755eff725bcfd5c677bdc1ed48f41f3dc9",
+    "gabes/fwm_quantum/periodic_cell.py": "a3a9dfb11a320ea6a751c6a23afd5ab287ad8094cd525b20be71810b12ae970d",
+    "gabes/fwm_quantum/spatial_cell.py": "4b6321ae9df11e55d7d4d9335f9471179e185480ff3de3b698d52fd0edfd2ec5",
+    "analysis/grand_challenge/spatial_uncertainty_audit.py": "55406c43495c9b3c57a22468f25f2766b5eb0238daf3f6f42d192427fa56b914"
+  },
+  "source_stable_during_run": true,
+  "input_evidence": [
+    {
+      "parameter_id": "pump_power_W",
+      "value": 0.6,
+      "unit": "W",
+      "status": "assumed",
+      "source_id": "declared spatial sensitivity fixture",
+      "uncertainty": 0.006,
+      "estimation_method": "user-independent diagnostic assumption; not apparatus measurements",
+      "dataset_ids": [],
+      "observables_used": [],
+      "applicability": "stationary fixed-pump two-profile calculation",
+      "covariance_group": ""
+    },
+    {
+      "parameter_id": "conjugate_angle_rad",
+      "value": -0.004,
+      "unit": "rad",
+      "status": "assumed",
+      "source_id": "declared spatial sensitivity fixture",
+      "uncertainty": 1e-05,
+      "estimation_method": "user-independent diagnostic assumption; not apparatus measurements",
+      "dataset_ids": [],
+      "observables_used": [],
+      "applicability": "stationary fixed-pump two-profile calculation",
+      "covariance_group": ""
+    }
+  ],
+  "correlation_evidence": {
+    "status": "assumed",
+    "source_id": "explicit correlation sensitivity control",
+    "estimation_method": "predeclared correlation, never fitted to gain or squeezing",
+    "dataset_ids": [],
+    "applicability": "same two assumed input uncertainties"
+  },
+  "input_standard_uncertainties": [
+    0.006,
+    1e-05
+  ],
+  "base_input_correlation": [
+    [
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0
+    ]
+  ],
+  "declared_input_evidence_audit": {
+    "passed": false,
+    "reasons": [
+      "pump_power_W: assumed",
+      "conjugate_angle_rad: assumed",
+      "correlation: assumed"
+    ],
+    "scope": "declared scalar and correlation evidence only; no experimental validation"
+  },
+  "all_consumed_input_evidence_audit": {
+    "passed": false,
+    "reasons": [
+      "D1_centroid: missing input",
+      "aperture_height_m: missing input",
+      "aperture_width_m: missing input",
+      "conjugate_response_imag_0: missing input",
+      "conjugate_response_imag_1: missing input",
+      "conjugate_response_imag_2: missing input",
+      "conjugate_response_real_0: missing input",
+      "conjugate_response_real_1: missing input",
+      "conjugate_response_real_2: missing input",
+      "conjugate_transmission: missing input",
+      "detector_balance: missing input",
+      "electronics_psd_0: missing input",
+      "electronics_psd_1: missing input",
+      "electronics_psd_2: missing input",
+      "excited_hyperfine_splitting: missing input",
+      "ground_hyperfine_splitting: missing input",
+      "length_m: missing input",
+      "natural_decay: missing input",
+      "number_density_m3: missing input",
+      "one_photon_rad_s: missing input",
+      "phase_mismatch_rad_m: missing input",
+      "probe_angle_rad: missing input",
+      "probe_response_imag_0: missing input",
+      "probe_response_imag_1: missing input",
+      "probe_response_imag_2: missing input",
+      "probe_response_real_0: missing input",
+      "probe_response_real_1: missing input",
+      "probe_response_real_2: missing input",
+      "probe_transmission: missing input",
+      "pump_waist_m: missing input",
+      "reset_F2_population: missing input",
+      "reset_F3_population: missing input",
+      "rf_0: missing input",
+      "rf_1: missing input",
+      "rf_2: missing input",
+      "seed_phase_rad: missing input",
+      "seed_power_W: missing input",
+      "transit_rate_s_inverse: missing input",
+      "two_photon_rad_s: missing input",
+      "uniform_area_m2: missing input",
+      "velocity_x_m_s: missing input",
+      "velocity_y_m_s: missing input",
+      "velocity_z_m_s: missing input",
+      "pump_power_W: assumed",
+      "conjugate_angle_rad: assumed",
+      "correlation: assumed"
+    ],
+    "scope": "declared scalar and correlation evidence only; no experimental validation"
+  },
+  "consumed_input_ledger": {
+    "scalars": {
+      "pump_power_W": [
+        0.6,
+        "W"
+      ],
+      "pump_waist_m": [
+        0.00053,
+        "m"
+      ],
+      "number_density_m3": [
+        1e+18,
+        "m^-3"
+      ],
+      "uniform_area_m2": [
+        1.2e-07,
+        "m^2"
+      ],
+      "length_m": [
+        0.0125,
+        "m"
+      ],
+      "seed_power_W": [
+        8e-06,
+        "W"
+      ],
+      "one_photon_rad_s": [
+        5654866776.461628,
+        "rad/s"
+      ],
+      "two_photon_rad_s": [
+        -50265482.45743669,
+        "rad/s"
+      ],
+      "transit_rate_s_inverse": [
+        628318.5307179586,
+        "s^-1"
+      ],
+      "phase_mismatch_rad_m": [
+        0.0,
+        "rad/m"
+      ],
+      "seed_phase_rad": [
+        0.0,
+        "rad"
+      ],
+      "natural_decay": [
+        36103182.7750539,
+        "s^-1"
+      ],
+      "D1_centroid": [
+        377107385690000.0,
+        "Hz"
+      ],
+      "ground_hyperfine_splitting": [
+        3035732439.0,
+        "Hz"
+      ],
+      "excited_hyperfine_splitting": [
+        361580000.0,
+        "Hz"
+      ],
+      "reset_F2_population": [
+        0.4166666666666667,
+        "1"
+      ],
+      "reset_F3_population": [
+        0.5833333333333334,
+        "1"
+      ],
+      "detector_balance": [
+        1.0,
+        "1"
+      ],
+      "probe_transmission": [
+        0.85,
+        "1"
+      ],
+      "conjugate_transmission": [
+        0.85,
+        "1"
+      ],
+      "rf_0": [
+        100000.0,
+        "Hz"
+      ],
+      "probe_response_real_0": [
+        1.0,
+        "A/A"
+      ],
+      "probe_response_imag_0": [
+        0.0,
+        "A/A"
+      ],
+      "conjugate_response_real_0": [
+        1.0,
+        "A/A"
+      ],
+      "conjugate_response_imag_0": [
+        0.0,
+        "A/A"
+      ],
+      "electronics_psd_0": [
+        0.0,
+        "A^2/Hz"
+      ],
+      "rf_1": [
+        1000000.0,
+        "Hz"
+      ],
+      "probe_response_real_1": [
+        1.0,
+        "A/A"
+      ],
+      "probe_response_imag_1": [
+        0.0,
+        "A/A"
+      ],
+      "conjugate_response_real_1": [
+        1.0,
+        "A/A"
+      ],
+      "conjugate_response_imag_1": [
+        0.0,
+        "A/A"
+      ],
+      "electronics_psd_1": [
+        0.0,
+        "A^2/Hz"
+      ],
+      "rf_2": [
+        4000000.0,
+        "Hz"
+      ],
+      "probe_response_real_2": [
+        1.0,
+        "A/A"
+      ],
+      "probe_response_imag_2": [
+        0.0,
+        "A/A"
+      ],
+      "conjugate_response_real_2": [
+        1.0,
+        "A/A"
+      ],
+      "conjugate_response_imag_2": [
+        0.0,
+        "A/A"
+      ],
+      "electronics_psd_2": [
+        0.0,
+        "A^2/Hz"
+      ],
+      "probe_angle_rad": [
+        0.005,
+        "rad"
+      ],
+      "conjugate_angle_rad": [
+        -0.004,
+        "rad"
+      ],
+      "aperture_width_m": [
+        0.0004,
+        "m"
+      ],
+      "aperture_height_m": [
+        0.0003,
+        "m"
+      ],
+      "velocity_x_m_s": [
+        0.0,
+        "m/s"
+      ],
+      "velocity_y_m_s": [
+        0.0,
+        "m/s"
+      ],
+      "velocity_z_m_s": [
+        0.0,
+        "m/s"
+      ]
+    },
+    "convention": "uniform-zeeman-rms",
+    "derived": {
+      "base_dipole_C_m": 2.536789600380482e-29,
+      "dipole_matrix_C_m": [
+        [
+          0.0,
+          0.0,
+          6.904266784145584e-30,
+          1.291670040657815e-29
+        ],
+        [
+          0.0,
+          0.0,
+          1.0916604305673085e-29,
+          9.76410772438076e-30
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "pump_rabi_rad_s": 7699781236.363277,
+      "optical_carriers_rad_s": [
+        2369453313017833.0,
+        2369434188682893.5,
+        2369472437352772.5
+      ]
+    },
+    "assumptions": [
+      "uniform sublevels within each F, weak absorption RMS; positive four-level amplitudes are a conditional nonlinear surrogate",
+      "single velocity and uniform weak-field area",
+      "Gaussian pump peak sampled uniformly; no transverse average",
+      "Markov replacement to declared thermal populations",
+      "bright seed, prescribed undepleted pump; no target-fit parameters"
+    ],
+    "experimental_validation": false
+  },
+  "output_ids": [
+    "probe_power_gain",
+    "conjugate_power_gain",
+    "R_0.1MHz",
+    "R_1MHz",
+    "R_4MHz"
+  ],
+  "output_units": [
+    "1",
+    "1",
+    "1",
+    "1",
+    "1"
+  ],
+  "rf_hz": [
+    100000.0,
+    1000000.0,
+    4000000.0
+  ],
+  "numerics": {
+    "quadrature_orders_x": [
+      8,
+      12
+    ],
+    "quadrature_order_y": 1,
+    "mean_order": 4,
+    "response_order": 3,
+    "mean_ode_rtol": 2e-10,
+    "mean_ode_atol": 2e-12,
+    "quantum_propagation_rtol": 2e-09,
+    "coarse_steps": [
+      0.0006,
+      1e-06
+    ],
+    "fine_steps": [
+      0.0003,
+      5e-07
+    ]
+  },
+  "tolerances": {
+    "nominal_gain_absolute": 1e-07,
+    "nominal_spectrum_dB_absolute": 1e-06,
+    "weighted_response_absolute": 1e-08,
+    "weighted_response_relative": 0.001,
+    "standard_uncertainty_absolute": 1e-08,
+    "standard_uncertainty_relative": 0.001,
+    "quantum_eigenvalue_absolute": 1e-10
+  },
+  "Nx8_coarse_steps": {
+    "nominal": [
+      1.027772739897961,
+      0.030651495470772963,
+      0.9540881696353396,
+      0.9540993085133112,
+      0.9542703241151971
+    ],
+    "jacobian_per_input_unit": [
+      [
+        0.027689484076348414,
+        -58.49304374704656
+      ],
+      [
+        0.026704050624385862,
+        -58.7233557283384
+      ],
+      [
+        -0.04352871206193957,
+        88.98830108132678
+      ],
+      [
+        -0.04355058418096291,
+        88.96906242810073
+      ],
+      [
+        -0.043890019513397,
+        88.67523617221917
+      ]
+    ],
+    "steps_in_input_units": [
+      0.0006,
+      1e-06
+    ],
+    "weighted_response": [
+      [
+        0.00016613690445809048,
+        -0.0005849304374704657
+      ],
+      [
+        0.00016022430374631517,
+        -0.000587233557283384
+      ],
+      [
+        -0.0002611722723716374,
+        0.0008898830108132679
+      ],
+      [
+        -0.00026130350508577746,
+        0.0008896906242810074
+      ],
+      [
+        -0.000263340117080382,
+        0.0008867523617221918
+      ]
+    ],
+    "covariance": [
+      [
+        3.6974508770230705e-07,
+        3.7010995140247316e-07,
+        -5.63910011674649e-07,
+        -5.638192815330613e-07,
+        -5.62438958741496e-07
+      ],
+      [
+        3.7010995140247316e-07,
+        3.705150783106889e-07,
+        -5.644153115045119e-07,
+        -5.64323362347051e-07,
+        -5.629242307112421e-07
+      ],
+      [
+        -5.63910011674649e-07,
+        -5.644153115045119e-07,
+        8.601027287898514e-07,
+        8.59965801629445e-07,
+        8.578829982796164e-07
+      ],
+      [
+        -5.638192815330613e-07,
+        -5.64323362347051e-07,
+        8.59965801629445e-07,
+        8.598289287036415e-07,
+        8.577469579060773e-07
+      ],
+      [
+        -5.62438958741496e-07,
+        -5.629242307112421e-07,
+        8.578829982796164e-07,
+        8.577469579060773e-07,
+        8.556777682837942e-07
+      ]
+    ],
+    "standard_uncertainties": [
+      0.0006080666803092462,
+      0.0006086994975443046,
+      0.0009274172355471142,
+      0.0009272696095007329,
+      0.0009250285229568839
+    ],
+    "output_correlation": [
+      [
+        1.0,
+        0.9999461503214799,
+        -0.9999618606066298,
+        -0.9999601454351814,
+        -0.999928771736166
+      ],
+      [
+        0.9999461503214799,
+        1.0000000000000002,
+        -0.9998173774566461,
+        -0.9998136468380144,
+        -0.9997510650158742
+      ],
+      [
+        -0.9999618606066298,
+        -0.9998173774566461,
+        0.9999999999999999,
+        0.9999999811381145,
+        0.9999948742885023
+      ],
+      [
+        -0.9999601454351814,
+        -0.9998136468380144,
+        0.9999999811381145,
+        0.9999999999999999,
+        0.9999954772959424
+      ],
+      [
+        -0.999928771736166,
+        -0.9997510650158742,
+        0.9999948742885023,
+        0.9999954772959424,
+        0.9999999999999999
+      ]
+    ],
+    "zero_variance_output_indices": []
+  },
+  "Nx8_fine_steps": {
+    "nominal": [
+      1.027772739897961,
+      0.030651495470772963,
+      0.9540881696353396,
+      0.9540993085133112,
+      0.9542703241151971
+    ],
+    "jacobian_per_input_unit": [
+      [
+        0.02768947576818457,
+        -58.49306821241596
+      ],
+      [
+        0.026704042705592086,
+        -58.72338034490996
+      ],
+      [
+        -0.04352869705330514,
+        88.98833998112075
+      ],
+      [
+        -0.043550569157803073,
+        88.96910132212152
+      ],
+      [
+        -0.04389000427152329,
+        88.6752749512206
+      ]
+    ],
+    "steps_in_input_units": [
+      0.0003,
+      5e-07
+    ],
+    "weighted_response": [
+      [
+        0.0001661368546091074,
+        -0.0005849306821241597
+      ],
+      [
+        0.0001602242562335525,
+        -0.0005872338034490997
+      ],
+      [
+        -0.0002611721823198309,
+        0.0008898833998112075
+      ],
+      [
+        -0.00026130341494681844,
+        0.0008896910132212152
+      ],
+      [
+        -0.00026334002562913974,
+        0.0008867527495122061
+      ]
+    ],
+    "covariance": [
+      [
+        3.697453573496424e-07,
+        3.701102231805727e-07,
+        -5.639104289445489e-07,
+        -5.63819698701103e-07,
+        -5.624393741983559e-07
+      ],
+      [
+        3.701102231805727e-07,
+        3.70515352198891e-07,
+        -5.644157321584399e-07,
+        -5.643237828995188e-07,
+        -5.629246495579532e-07
+      ],
+      [
+        -5.639104289445489e-07,
+        -5.644157321584399e-07,
+        8.601033740772564e-07,
+        8.599664467560579e-07,
+        8.578836407135807e-07
+      ],
+      [
+        -5.63819698701103e-07,
+        -5.643237828995188e-07,
+        8.599664467560579e-07,
+        8.598295736694617e-07,
+        8.5774760017929e-07
+      ],
+      [
+        -5.624393741983559e-07,
+        -5.629246495579532e-07,
+        8.578836407135807e-07,
+        8.5774760017929e-07,
+        8.556784078658133e-07
+      ]
+    ],
+    "standard_uncertainties": [
+      0.0006080669020343423,
+      0.0006086997225224364,
+      0.0009274175834419231,
+      0.0009272699572775243,
+      0.0009250288686661694
+    ],
+    "output_correlation": [
+      [
+        1.0,
+        0.9999461503944915,
+        -0.9999618608031365,
+        -0.9999601456376573,
+        -0.9999287720384521
+      ],
+      [
+        0.9999461503944915,
+        0.9999999999999999,
+        -0.9998173780210806,
+        -0.9998136474116428,
+        -0.9997510657379336
+      ],
+      [
+        -0.9999618608031365,
+        -0.9998173780210806,
+        1.0,
+        0.9999999811381494,
+        0.9999948742975546
+      ],
+      [
+        -0.9999601456376573,
+        -0.9998136474116428,
+        0.9999999811381494,
+        1.0,
+        0.9999954773039066
+      ],
+      [
+        -0.9999287720384521,
+        -0.9997510657379336,
+        0.9999948742975546,
+        0.9999954773039066,
+        1.0
+      ]
+    ],
+    "zero_variance_output_indices": []
+  },
+  "Nx12_fine_steps": {
+    "nominal": [
+      1.0277727398979866,
+      0.030651495470772446,
+      0.9540881696354258,
+      0.9540993085133969,
+      0.9542703241152827
+    ],
+    "jacobian_per_input_unit": [
+      [
+        0.02768947589697044,
+        -58.493068303676296
+      ],
+      [
+        0.02670404270675435,
+        -58.723380341010305
+      ],
+      [
+        -0.04352869712435942,
+        88.98833993549059
+      ],
+      [
+        -0.04355056922904239,
+        88.96910127560317
+      ],
+      [
+        -0.04389000434646335,
+        88.67527490359204
+      ]
+    ],
+    "steps_in_input_units": [
+      0.0003,
+      5e-07
+    ],
+    "weighted_response": [
+      [
+        0.00016613685538182263,
+        -0.000584930683036763
+      ],
+      [
+        0.0001602242562405261,
+        -0.0005872338034101031
+      ],
+      [
+        -0.00026117218274615653,
+        0.000889883399354906
+      ],
+      [
+        -0.0002613034153742543,
+        0.0008896910127560318
+      ],
+      [
+        -0.00026334002607878007,
+        0.0008867527490359205
+      ]
+    ],
+    "covariance": [
+      [
+        3.6974535867401475e-07,
+        3.7011022381864023e-07,
+        -5.639104297623948e-07,
+        -5.638196995138639e-07,
+        -5.624393750072039e-07
+      ],
+      [
+        3.7011022381864023e-07,
+        3.7051535215532545e-07,
+        -5.644157319259108e-07,
+        -5.643237826619603e-07,
+        -5.629246493175615e-07
+      ],
+      [
+        -5.639104297623948e-07,
+        -5.644157319259108e-07,
+        8.601033734878348e-07,
+        8.599664461591661e-07,
+        8.578836401148176e-07
+      ],
+      [
+        -5.638196995138639e-07,
+        -5.643237826619603e-07,
+        8.599664461591661e-07,
+        8.598295730651035e-07,
+        8.577475995730938e-07
+      ],
+      [
+        -5.624393750072039e-07,
+        -5.629246493175615e-07,
+        8.578836401148176e-07,
+        8.577475995730938e-07,
+        8.556784072579348e-07
+      ]
+    ],
+    "standard_uncertainties": [
+      0.0006080669031233444,
+      0.0006086997224866506,
+      0.0009274175831241474,
+      0.0009272699569516439,
+      0.0009250288683375966
+    ],
+    "output_correlation": [
+      [
+        1.0,
+        0.9999461503863509,
+        -0.9999618608051689,
+        -0.9999601456396991,
+        -0.9999287720408369
+      ],
+      [
+        0.9999461503863509,
+        1.0000000000000002,
+        -0.999817378010537,
+        -0.9998136474009146,
+        -0.9997510657248898
+      ],
+      [
+        -0.9999618608051689,
+        -0.999817378010537,
+        0.9999999999999999,
+        0.9999999811381485,
+        0.9999948742974493
+      ],
+      [
+        -0.9999601456396991,
+        -0.9998136474009146,
+        0.9999999811381485,
+        1.0,
+        0.9999954773038199
+      ],
+      [
+        -0.9999287720408369,
+        -0.9997510657248898,
+        0.9999948742974493,
+        0.9999954773038199,
+        1.0000000000000002
+      ]
+    ],
+    "zero_variance_output_indices": []
+  },
+  "step_refinement_at_Nx8": {
+    "weighted_response_absolute_change": [
+      [
+        4.9848983066369536e-11,
+        2.4465369399706563e-10
+      ],
+      [
+        4.751276266173887e-11,
+        2.4616571565161393e-10
+      ],
+      [
+        9.005180655330403e-11,
+        3.8899793963764756e-10
+      ],
+      [
+        9.013895900522596e-11,
+        3.8894020789825846e-10
+      ],
+      [
+        9.145124224563261e-11,
+        3.8779001428679296e-10
+      ]
+    ],
+    "standard_uncertainty_absolute_change": [
+      2.217250960742309e-10,
+      2.249781318273275e-10,
+      3.478948088810052e-10,
+      3.4777679141454604e-10,
+      3.4570928552583174e-10
+    ],
+    "maximum_weighted_response_fraction_of_tolerance": 0.000432438054411022,
+    "maximum_standard_uncertainty_fraction_of_tolerance": 0.0003711204217053805,
+    "covariance_relative_change": 7.460858603259726e-07,
+    "passed": true
+  },
+  "quadrature_refinement_at_fine_steps": {
+    "weighted_response_absolute_change": [
+      [
+        7.72715225139109e-13,
+        9.126033262418787e-13
+      ],
+      [
+        6.9735883734267645e-15,
+        3.899657485817443e-14
+      ],
+      [
+        4.263256414560601e-13,
+        4.563015920666658e-13
+      ],
+      [
+        4.274358783584731e-13,
+        4.651835183722142e-13
+      ],
+      [
+        4.496403249731884e-13,
+        4.762856065099187e-13
+      ]
+    ],
+    "standard_uncertainty_absolute_change": [
+      1.0890021523435323e-12,
+      3.578582742636005e-14,
+      3.1777564520746315e-13,
+      3.2588038170744404e-13,
+      3.285727809623773e-13
+    ],
+    "maximum_weighted_response_fraction_of_tolerance": 4.3870161271134705e-06,
+    "maximum_standard_uncertainty_fraction_of_tolerance": 1.761948660962688e-06,
+    "covariance_relative_change": 9.59467203020517e-10,
+    "passed": true
+  },
+  "nominal_parent_comparisons": {
+    "Nx8": {
+      "maximum_gain_absolute_change": 0.0,
+      "maximum_spectrum_dB_absolute_change": 0.0,
+      "passed": true
+    },
+    "Nx12": {
+      "maximum_gain_absolute_change": 0.0,
+      "maximum_spectrum_dB_absolute_change": 0.0,
+      "passed": true
+    }
+  },
+  "correlation_cases_using_same_J": {
+    "-0.6": {
+      "nominal": [
+        1.0277727398979866,
+        0.030651495470772446,
+        0.9540881696354258,
+        0.9540993085133969,
+        0.9542703241152827
+      ],
+      "jacobian_per_input_unit": [
+        [
+          0.02768947589697044,
+          -58.493068303676296
+        ],
+        [
+          0.02670404270675435,
+          -58.723380341010305
+        ],
+        [
+          -0.04352869712435942,
+          88.98833993549059
+        ],
+        [
+          -0.04355056922904239,
+          88.96910127560317
+        ],
+        [
+          -0.04389000434646335,
+          88.67527490359204
+        ]
+      ],
+      "steps_in_input_units": null,
+      "weighted_response": [
+        [
+          0.00016613685538182263,
+          -0.000584930683036763
+        ],
+        [
+          0.0001602242562405261,
+          -0.0005872338034101031
+        ],
+        [
+          -0.00026117218274615653,
+          0.000889883399354906
+        ],
+        [
+          -0.0002613034153742543,
+          0.0008896910127560318
+        ],
+        [
+          -0.00026334002607878007,
+          0.0008867527490359205
+        ]
+      ],
+      "covariance": [
+        [
+          4.86359611829298e-07,
+          4.848789804872144e-07,
+          -7.442764614839282e-07,
+          -7.442126109271385e-07,
+          -7.432541597379204e-07
+        ],
+        [
+          4.848789804872144e-07,
+          4.834222714241403e-07,
+          -7.419857559387357e-07,
+          -7.419215502161536e-07,
+          -7.409575281902895e-07
+        ],
+        [
+          -7.442764614839282e-07,
+          -7.419857559387357e-07,
+          1.1389987212467434e-06,
+          1.138901715343618e-06,
+          1.1374458812838537e-06
+        ],
+        [
+          -7.442126109271385e-07,
+          -7.419215502161536e-07,
+          1.138901715343618e-06,
+          1.1388047333782198e-06,
+          1.1373492654231884e-06
+        ],
+        [
+          -7.432541597379204e-07,
+          -7.409575281902895e-07,
+          1.1374458812838537e-06,
+          1.1373492654231884e-06,
+          1.1358993977257936e-06
+        ]
+      ],
+      "standard_uncertainties": [
+        0.0006973948751097172,
+        0.0006952857480375535,
+        0.0010672388304623962,
+        0.0010671479435290217,
+        0.0010657858123121144
+      ],
+      "output_correlation": [
+        [
+          1.0,
+          0.9999799192461039,
+          -0.9999859873944268,
+          -0.9999853594064477,
+          -0.9999738942239457
+        ],
+        [
+          0.9999799192461039,
+          1.0,
+          -0.9999323582177768,
+          -0.9999309867286469,
+          -0.9999080226606714
+        ],
+        [
+          -0.9999859873944268,
+          -0.9999323582177768,
+          1.0000000000000002,
+          0.9999999931173637,
+          0.9999981339177396
+        ],
+        [
+          -0.9999853594064477,
+          -0.9999309867286469,
+          0.9999999931173637,
+          0.9999999999999998,
+          0.9999983536939209
+        ],
+        [
+          -0.9999738942239457,
+          -0.9999080226606714,
+          0.9999981339177396,
+          0.9999983536939209,
+          1.0
+        ]
+      ],
+      "zero_variance_output_indices": []
+    },
+    "0.0": {
+      "nominal": [
+        1.0277727398979866,
+        0.030651495470772446,
+        0.9540881696354258,
+        0.9540993085133969,
+        0.9542703241152827
+      ],
+      "jacobian_per_input_unit": [
+        [
+          0.02768947589697044,
+          -58.493068303676296
+        ],
+        [
+          0.02670404270675435,
+          -58.723380341010305
+        ],
+        [
+          -0.04352869712435942,
+          88.98833993549059
+        ],
+        [
+          -0.04355056922904239,
+          88.96910127560317
+        ],
+        [
+          -0.04389000434646335,
+          88.67527490359204
+        ]
+      ],
+      "steps_in_input_units": null,
+      "weighted_response": [
+        [
+          0.00016613685538182263,
+          -0.000584930683036763
+        ],
+        [
+          0.0001602242562405261,
+          -0.0005872338034101031
+        ],
+        [
+          -0.00026117218274615653,
+          0.000889883399354906
+        ],
+        [
+          -0.0002613034153742543,
+          0.0008896910127560318
+        ],
+        [
+          -0.00026334002607878007,
+          0.0008867527490359205
+        ]
+      ],
+      "covariance": [
+        [
+          3.6974535867401475e-07,
+          3.7011022381864023e-07,
+          -5.639104297623948e-07,
+          -5.638196995138639e-07,
+          -5.624393750072039e-07
+        ],
+        [
+          3.7011022381864023e-07,
+          3.7051535215532545e-07,
+          -5.644157319259108e-07,
+          -5.643237826619603e-07,
+          -5.629246493175615e-07
+        ],
+        [
+          -5.639104297623948e-07,
+          -5.644157319259108e-07,
+          8.601033734878348e-07,
+          8.599664461591661e-07,
+          8.578836401148176e-07
+        ],
+        [
+          -5.638196995138639e-07,
+          -5.643237826619603e-07,
+          8.599664461591661e-07,
+          8.598295730651035e-07,
+          8.577475995730938e-07
+        ],
+        [
+          -5.624393750072039e-07,
+          -5.629246493175615e-07,
+          8.578836401148176e-07,
+          8.577475995730938e-07,
+          8.556784072579348e-07
+        ]
+      ],
+      "standard_uncertainties": [
+        0.0006080669031233444,
+        0.0006086997224866506,
+        0.0009274175831241474,
+        0.0009272699569516439,
+        0.0009250288683375966
+      ],
+      "output_correlation": [
+        [
+          1.0,
+          0.9999461503863509,
+          -0.9999618608051689,
+          -0.9999601456396991,
+          -0.9999287720408369
+        ],
+        [
+          0.9999461503863509,
+          1.0000000000000002,
+          -0.999817378010537,
+          -0.9998136474009146,
+          -0.9997510657248898
+        ],
+        [
+          -0.9999618608051689,
+          -0.999817378010537,
+          0.9999999999999999,
+          0.9999999811381485,
+          0.9999948742974493
+        ],
+        [
+          -0.9999601456396991,
+          -0.9998136474009146,
+          0.9999999811381485,
+          1.0,
+          0.9999954773038199
+        ],
+        [
+          -0.9999287720408369,
+          -0.9997510657248898,
+          0.9999948742974493,
+          0.9999954773038199,
+          1.0000000000000002
+        ]
+      ],
+      "zero_variance_output_indices": []
+    },
+    "0.6": {
+      "nominal": [
+        1.0277727398979866,
+        0.030651495470772446,
+        0.9540881696354258,
+        0.9540993085133969,
+        0.9542703241152827
+      ],
+      "jacobian_per_input_unit": [
+        [
+          0.02768947589697044,
+          -58.493068303676296
+        ],
+        [
+          0.02670404270675435,
+          -58.723380341010305
+        ],
+        [
+          -0.04352869712435942,
+          88.98833993549059
+        ],
+        [
+          -0.04355056922904239,
+          88.96910127560317
+        ],
+        [
+          -0.04389000434646335,
+          88.67527490359204
+        ]
+      ],
+      "steps_in_input_units": null,
+      "weighted_response": [
+        [
+          0.00016613685538182263,
+          -0.000584930683036763
+        ],
+        [
+          0.0001602242562405261,
+          -0.0005872338034101031
+        ],
+        [
+          -0.00026117218274615653,
+          0.000889883399354906
+        ],
+        [
+          -0.0002613034153742543,
+          0.0008896910127560318
+        ],
+        [
+          -0.00026334002607878007,
+          0.0008867527490359205
+        ]
+      ],
+      "covariance": [
+        [
+          2.531311055187315e-07,
+          2.5534146715006606e-07,
+          -3.835443980408614e-07,
+          -3.834267881005892e-07,
+          -3.816245902764874e-07
+        ],
+        [
+          2.5534146715006606e-07,
+          2.576084328865105e-07,
+          -3.8684570791308594e-07,
+          -3.8672601510776686e-07,
+          -3.848917704448335e-07
+        ],
+        [
+          -3.835443980408614e-07,
+          -3.8684570791308594e-07,
+          5.812080257289262e-07,
+          5.810311769747142e-07,
+          5.783213989457812e-07
+        ],
+        [
+          -3.834267881005892e-07,
+          -3.8672601510776686e-07,
+          5.810311769747142e-07,
+          5.808544127519871e-07,
+          5.781459337229989e-07
+        ],
+        [
+          -3.816245902764874e-07,
+          -3.848917704448335e-07,
+          5.783213989457812e-07,
+          5.781459337229989e-07,
+          5.754574167900756e-07
+        ]
+      ],
+      "standard_uncertainties": [
+        0.0005031213626141624,
+        0.0005075514091070091,
+        0.000762370005790447,
+        0.000762138053604455,
+        0.0007585890961449919
+      ],
+      "output_correlation": [
+        [
+          1.0,
+          0.9999275947692013,
+          -0.9999472368235005,
+          -0.9999448479780367,
+          -0.9999009872540889
+        ],
+        [
+          0.9999275947692013,
+          1.0,
+          -0.9997512216454577,
+          -0.9997460657261932,
+          -0.9996592560735228
+        ],
+        [
+          -0.9999472368235005,
+          -0.9997512216454577,
+          1.0000000000000002,
+          0.9999999735559222,
+          0.9999927814451987
+        ],
+        [
+          -0.9999448479780367,
+          -0.9997460657261932,
+          0.9999999735559222,
+          1.0,
+          0.9999936288144138
+        ],
+        [
+          -0.9999009872540889,
+          -0.9996592560735228,
+          0.9999927814451987,
+          0.9999936288144138,
+          0.9999999999999998
+        ]
+      ],
+      "zero_variance_output_indices": []
+    }
+  },
+  "uncorrelated_covariance_contributions": {
+    "pump_power_W": [
+      [
+        2.760145471616065e-08,
+        2.661915408769238e-08,
+        -4.339032515465316e-08,
+        -4.341212773080882e-08,
+        -4.3750483828895685e-08
+      ],
+      [
+        2.661915408769238e-08,
+        2.5671812287829766e-08,
+        -4.1846118731217696e-08,
+        -4.186714538144915e-08,
+        -4.219345981683328e-08
+      ],
+      [
+        -4.339032515465316e-08,
+        -4.1846118731217696e-08,
+        6.821090904039179e-08,
+        6.82451833523196e-08,
+        6.877708941542478e-08
+      ],
+      [
+        -4.341212773080882e-08,
+        -4.186714538144915e-08,
+        6.82451833523196e-08,
+        6.827947488625008e-08,
+        6.881164821913043e-08
+      ],
+      [
+        -4.3750483828895685e-08,
+        -4.219345981683328e-08,
+        6.877708941542478e-08,
+        6.881164821913043e-08,
+        6.934796933517257e-08
+      ]
+    ],
+    "conjugate_angle_rad": [
+      [
+        3.421439039578541e-07,
+        3.4349106973094785e-07,
+        -5.205201046077417e-07,
+        -5.20407571783055e-07,
+        -5.186888911783083e-07
+      ],
+      [
+        3.4349106973094785e-07,
+        3.4484353986749566e-07,
+        -5.225696131946931e-07,
+        -5.224566372805112e-07,
+        -5.207311895007283e-07
+      ],
+      [
+        -5.205201046077417e-07,
+        -5.225696131946931e-07,
+        7.918924644474431e-07,
+        7.917212628068466e-07,
+        7.891065506993928e-07
+      ],
+      [
+        -5.20407571783055e-07,
+        -5.224566372805112e-07,
+        7.917212628068466e-07,
+        7.915500981788534e-07,
+        7.889359513539634e-07
+      ],
+      [
+        -5.186888911783083e-07,
+        -5.207311895007283e-07,
+        7.891065506993928e-07,
+        7.889359513539634e-07,
+        7.863304379227622e-07
+      ]
+    ]
+  },
+  "cross_covariance_at_rho_plus_0_6": [
+    [
+      -1.1661425315528331e-07,
+      -1.1476875666857413e-07,
+      1.803660317215334e-07,
+      1.8039291141327464e-07,
+      1.808147847307165e-07
+    ],
+    [
+      -1.1476875666857413e-07,
+      -1.1290691926881492e-07,
+      1.7757002401282495e-07,
+      1.775977675541934e-07,
+      1.7803287887272803e-07
+    ],
+    [
+      1.803660317215334e-07,
+      1.7757002401282495e-07,
+      -2.788953477589086e-07,
+      -2.789352691844519e-07,
+      -2.795622411690363e-07
+    ],
+    [
+      1.8039291141327464e-07,
+      1.775977675541934e-07,
+      -2.789352691844519e-07,
+      -2.789751603131164e-07,
+      -2.796016658500948e-07
+    ],
+    [
+      1.808147847307165e-07,
+      1.7803287887272803e-07,
+      -2.795622411690363e-07,
+      -2.796016658500948e-07,
+      -2.8022099046785907e-07
+    ]
+  ],
+  "current_evaluations": [
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.027772739897961,
+        0.030651495470772963,
+        0.9540881696353396,
+        0.9540993085133112,
+        0.9542703241151971
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.220451520072192e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.008086565620429e-14,
+          "minimum_eigenvalue": 0.00024326362811986346,
+          "minimum_relative_eigenvalue": 0.020556110024003347
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.006075927812724e-14,
+          "minimum_eigenvalue": 0.00024326362811985893,
+          "minimum_relative_eigenvalue": 0.020556110024002962
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024326362762005214,
+      "minimum_covariance_uncertainty_eigenvalue": 0.0042717317254484365,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 6.321229954900287e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108698986671009e-24,
+        1.410886370423208e-24,
+        1.4111392618986316e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787625961302371e-24,
+        1.4787625961302371e-24,
+        1.4787625961302371e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540881696353396,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540881696353396,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 88.51175579999108,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6006,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277893426964646,
+        0.030667507434085393,
+        0.9540620705888196,
+        0.9540731963560037,
+        0.9542440084932734
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2195679072645152e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.952270695019192e-14,
+          "minimum_eigenvalue": 0.00024319005373574966,
+          "minimum_relative_eigenvalue": 0.020556889588349943
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.954341727658974e-14,
+          "minimum_eigenvalue": 0.00024319005373575189,
+          "minimum_relative_eigenvalue": 0.020556889588349923
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024319005323307082,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004273792252725994,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 5.143430276756066e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108747780413088e-24,
+        1.4108912309166408e-24,
+        1.4111438292995829e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4788081630480892e-24,
+        1.4788081630480892e-24,
+        1.4788081630480892e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540620705888196,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540620705888196,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 59.25803170001018,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.5993999999999999,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.027756115315573,
+        0.030635462573336127,
+        0.954114305043294,
+        0.9541254570570209,
+        0.9542966765166895
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2191366187085843e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.1579540525917244e-14,
+          "minimum_eigenvalue": 0.00024333733926607662,
+          "minimum_relative_eigenvalue": 0.020555330512231997
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.1510940678441087e-14,
+          "minimum_eigenvalue": 0.0002433373392660765,
+          "minimum_relative_eigenvalue": 0.020555330512232014
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024333733875297678,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004269668569470518,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 5.2325521379356307e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108650137388047e-24,
+        1.410881504410747e-24,
+        1.4111346895312727e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787169695299612e-24,
+        1.4787169695299612e-24,
+        1.4787169695299612e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.954114305043294,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.954114305043294,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 39.37879969997448,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.003999
+      },
+      "outputs": [
+        1.0277142563276187,
+        0.030592781662147753,
+        0.9541771533612233,
+        0.9541882730037218,
+        0.9543589948281366
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31606.84923425361,
+          0.0,
+          7903646.09864611
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7910.894671978709,
+        -0.0,
+        -161.99254485219717
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.214815212215372e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.581023721053699e-14,
+          "minimum_eigenvalue": 0.00024332145799841066,
+          "minimum_relative_eigenvalue": 0.020564597934537583
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.5818201357623577e-14,
+          "minimum_eigenvalue": 0.00024332145799841812,
+          "minimum_relative_eigenvalue": 0.020564597934538128
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024332145748442172,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004265345038840421,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 6.241270974310786e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108452480504126e-24,
+        1.4108616895410978e-24,
+        1.4111141186354915e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4785988567013072e-24,
+        1.4785988567013072e-24,
+        1.4785988567013072e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9541771533612233,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9541771533612233,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 37.834591899998486,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.004001
+      },
+      "outputs": [
+        1.0278312424151128,
+        0.030710228373604445,
+        0.9539991767590607,
+        0.9540103348788656,
+        0.9541816443557921
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31622.65652638768,
+          0.0,
+          7903646.035416604
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7895.087379844637,
+        -0.0,
+        -162.0557743581012
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2232453590521248e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.9881582864140333e-14,
+          "minimum_eigenvalue": 0.00024320582840638567,
+          "minimum_relative_eigenvalue": 0.020547625906220668
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.988570406397753e-14,
+          "minimum_eigenvalue": 0.00024320582840639144,
+          "minimum_relative_eigenvalue": 0.020547625906221147
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024320582789899602,
+      "minimum_covariance_uncertainty_eigenvalue": 0.00427811945650841,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 4.3401517854601766e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108945573139507e-24,
+        1.4109110593517785e-24,
+        1.4111644134578407e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4789263887072328e-24,
+        1.4789263887072328e-24,
+        1.4789263887072328e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9539991767590607,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9539991767590607,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 41.20280860000639,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6003,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277810440177062,
+        0.03065950406681975,
+        0.9540751155714486,
+        0.9540862478909096,
+        0.9542571617114083
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2193651847046786e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.527159852354589e-14,
+          "minimum_eigenvalue": 0.00024322682385165257,
+          "minimum_relative_eigenvalue": 0.020556499799401055
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.513547552192919e-14,
+          "minimum_eigenvalue": 0.00024322682385165904,
+          "minimum_relative_eigenvalue": 0.020556499799401527
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024322682333425242,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004272762317393956,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 4.0029377161002616e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108723390481009e-24,
+        1.4108888013594436e-24,
+        1.4111415462196408e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787853870426659e-24,
+        1.4787853870426659e-24,
+        1.4787853870426659e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540751155714486,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540751155714486,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 67.23511929999222,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.5997,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277644303322453,
+        0.030643481641196395,
+        0.9541012327896806,
+        0.9541123782324042,
+        0.9542834957139712
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2191775240657646e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.697278387016679e-14,
+          "minimum_eigenvalue": 0.0002433004665785833,
+          "minimum_relative_eigenvalue": 0.020555720261749306
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.679165612883468e-14,
+          "minimum_eigenvalue": 0.00024330046657858586,
+          "minimum_relative_eigenvalue": 0.020555720261749254
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024330046607175745,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004270700476343105,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 6.473099310101453e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.410867456897717e-24,
+        1.4108839381073528e-24,
+        1.4111369763361613e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787397902972049e-24,
+        1.4787397902972049e-24,
+        1.4787397902972049e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9541012327896806,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9541012327896806,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 38.54896660000668,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.0039995000000000005
+      },
+      "outputs": [
+        1.0277434957321223,
+        0.03062213616729245,
+        0.954132662661661,
+        0.9541437919210981,
+        0.9543146606219954
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31610.801057298984,
+          0.0,
+          7903646.082841697
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7906.942848933333,
+        -0.0,
+        -162.0083492649719
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2169485221808452e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.28877044894515e-14,
+          "minimum_eigenvalue": 0.0002432925393039449,
+          "minimum_relative_eigenvalue": 0.020560353507154586
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 4.283058421614511e-14,
+          "minimum_eigenvalue": 0.00024329253930394703,
+          "minimum_relative_eigenvalue": 0.02056035350715452
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024329253880034127,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004268538250193122,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 4.646804666844285e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108575723498336e-24,
+        1.4108740289711882e-24,
+        1.4111266892248118e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4786807197377425e-24,
+        1.4786807197377425e-24,
+        1.4786807197377425e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.954132662661661,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.954132662661661,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 36.56783990000258,
+      "passed": true
+    },
+    {
+      "order_x": 8,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.0040005
+      },
+      "outputs": [
+        1.0278019888003347,
+        0.030680859547637315,
+        0.9540436743216799,
+        0.954054822819776,
+        0.9542259853470443
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31618.704703366013,
+          0.0,
+          7903646.051226944
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7899.039202866305,
+        -0.0,
+        -162.03996401838958
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2217872316847418e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 6.524703642881315e-14,
+          "minimum_eigenvalue": 0.00024323472447743954,
+          "minimum_relative_eigenvalue": 0.020551867489074616
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 6.531627711953515e-14,
+          "minimum_eigenvalue": 0.0002432347244774481,
+          "minimum_relative_eigenvalue": 0.0205518674890751
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024323472397425234,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004274925461798032,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 6.242422108210191e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108822269918403e-24,
+        1.4108987138867748e-24,
+        1.4111518366464026e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4788444858092793e-24,
+        1.4788444858092793e-24,
+        1.4788444858092793e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540436743216799,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540436743216799,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 36.33639369998127,
+      "passed": true
+    },
+    {
+      "order_x": 12,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277727398979866,
+        0.030651495470772446,
+        0.9540881696354258,
+        0.9540993085133969,
+        0.9542703241152827
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.219024841188274e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.432917409740433e-14,
+          "minimum_eigenvalue": 0.0002432636281198411,
+          "minimum_relative_eigenvalue": 0.020556110024001217
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 3.428345309902524e-14,
+          "minimum_eigenvalue": 0.0002432636281198376,
+          "minimum_relative_eigenvalue": 0.020556110024000644
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024326362760311422,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004271731725462964,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 4.145811914467216e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108698986672612e-24,
+        1.4108863704233677e-24,
+        1.4111392618987912e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787625961302716e-24,
+        1.4787625961302716e-24,
+        1.4787625961302716e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540881696354258,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540881696354258,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 57.681549800006906,
+      "passed": true
+    },
+    {
+      "order_x": 12,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6003,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277810440177366,
+        0.0306595040668202,
+        0.9540751155714096,
+        0.9540862478908703,
+        0.9542571617113674
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2191409080509137e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.8822596265077666e-14,
+          "minimum_eigenvalue": 0.00024322682385163294,
+          "minimum_relative_eigenvalue": 0.02055649979939903
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.8802406103681145e-14,
+          "minimum_eigenvalue": 0.00024322682385163015,
+          "minimum_relative_eigenvalue": 0.020556499799398765
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024322682334488788,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004272762317385657,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 3.8762828931801396e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108723390480845e-24,
+        1.410888801359427e-24,
+        1.4111415462196219e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787853870427094e-24,
+        1.4787853870427094e-24,
+        1.4787853870427094e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540751155714096,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540751155714096,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 55.05583440000191,
+      "passed": true
+    },
+    {
+      "order_x": 12,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.5997,
+        "conjugate_angle_rad": -0.004
+      },
+      "outputs": [
+        1.0277644303321984,
+        0.03064348164119615,
+        0.9541012327896842,
+        0.9541123782324077,
+        0.9542834957139753
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31614.75288033645,
+          0.0,
+          7903646.067035309
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7902.991025895866,
+        -0.0,
+        -162.02415565308183
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2188955507532554e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.087382565835037e-14,
+          "minimum_eigenvalue": 0.00024330046657855477,
+          "minimum_relative_eigenvalue": 0.020555720261746565
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.0881528465520536e-14,
+          "minimum_eigenvalue": 0.0002433004665785579,
+          "minimum_relative_eigenvalue": 0.02055572026174706
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024330046606941272,
+      "minimum_covariance_uncertainty_eigenvalue": 0.004270700476346191,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 6.471587313139304e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.410867456897659e-24,
+        1.4108839381072948e-24,
+        1.4111369763361044e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4787397902971387e-24,
+        1.4787397902971387e-24,
+        1.4787397902971387e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9541012327896842,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9541012327896842,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 59.14389919998939,
+      "passed": true
+    },
+    {
+      "order_x": 12,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.0039995000000000005
+      },
+      "outputs": [
+        1.027743495732099,
+        0.030622136167296313,
+        0.9541326626616516,
+        0.9541437919210882,
+        0.9543146606219847
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31610.801057298984,
+          0.0,
+          7903646.082841697
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7906.942848933333,
+        -0.0,
+        -162.0083492649719
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2169564631002705e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 5.944570315916312e-14,
+          "minimum_eigenvalue": 0.00024329253930391794,
+          "minimum_relative_eigenvalue": 0.020560353507152473
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 5.95214447919321e-14,
+          "minimum_eigenvalue": 0.0002432925393039213,
+          "minimum_relative_eigenvalue": 0.02056035350715226
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024329253880056833,
+      "minimum_covariance_uncertainty_eigenvalue": 0.0042685382501929355,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 4.697862463024835e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108575723497941e-24,
+        1.410874028971148e-24,
+        1.4111266892247703e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4786807197377157e-24,
+        1.4786807197377157e-24,
+        1.4786807197377157e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9541326626616516,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9541326626616516,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 64.96639980000327,
+      "passed": true
+    },
+    {
+      "order_x": 12,
+      "propagation_rtol": 2e-09,
+      "varied_inputs": {
+        "pump_power_W": 0.6,
+        "conjugate_angle_rad": -0.0040005
+      },
+      "outputs": [
+        1.0278019888004026,
+        0.03068085954763728,
+        0.9540436743217162,
+        0.9540548228198127,
+        0.9542259853470811
+      ],
+      "wavevectors_rad_m": [
+        [
+          0.0,
+          0.0,
+          7903645.504710572
+        ],
+        [
+          39517.74390623232,
+          0.0,
+          7903482.918230182
+        ],
+        [
+          -31618.704703366013,
+          0.0,
+          7903646.051226944
+        ]
+      ],
+      "loop_wavevector_rad_m": [
+        7899.039202866305,
+        -0.0,
+        -162.03996401838958
+      ],
+      "transfer_audit": {
+        "maximum_commutator_relative_residual": 1.2212704680517345e-12,
+        "noise_greater": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.7178290977254426e-14,
+          "minimum_eigenvalue": 0.0002432347244774186,
+          "minimum_relative_eigenvalue": 0.020551867489072458
+        },
+        "noise_lesser": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 2.726766872828299e-14,
+          "minimum_eigenvalue": 0.0002432347244774196,
+          "minimum_relative_eigenvalue": 0.02055186748907229
+        },
+        "passed": true
+      },
+      "minimum_channel_cp_eigenvalue": 0.00024323472396984127,
+      "minimum_covariance_uncertainty_eigenvalue": 0.0042749254618024935,
+      "quantum_propagation": {
+        "method": "DOP853",
+        "rtol": 2e-09,
+        "atol": 2.0000000000000002e-11,
+        "evaluations": 62,
+        "maximum_local_commutator_relative_residual": 5.2329051120665455e-14
+      },
+      "mean_ode_evaluations": 92,
+      "quantum_psd_A2_Hz": [
+        1.4108822269919841e-24,
+        1.4108987138869192e-24,
+        1.4111518366465473e-24
+      ],
+      "sql_psd_A2_Hz": [
+        1.4788444858093739e-24,
+        1.4788444858093739e-24,
+        1.4788444858093739e-24
+      ],
+      "band_analysis": {
+        "status": "bands_found",
+        "bands": [
+          {
+            "lower": {
+              "frequency_hz": 100000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "upper": {
+              "frequency_hz": 4000000.0,
+              "kind": "domain",
+              "bracket_hz": null,
+              "refinement_status": "not_applicable",
+              "iterations": 0
+            },
+            "minimum_ratio": 0.9540436743217162,
+            "minimum_frequency_hz": 100000.0,
+            "sample_count": 3,
+            "width_hz": null,
+            "observed_span_hz": 3900000.0
+          }
+        ],
+        "threshold_db": 0.0,
+        "threshold_ratio": 1.0,
+        "minimum_ratio": 0.9540436743217162,
+        "minimum_frequency_hz": 100000.0,
+        "invalid_sample_count": 0,
+        "unconverged_sample_count": 0,
+        "complete_domain": true,
+        "layer": "detected",
+        "provenance": "fixed conditional detector from parent ledger; no measured calibration claimed; quantum intensity-difference PSD",
+        "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+        "rf_refinement_status": "no_crossings",
+        "crossing_tolerance_hz": null,
+        "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+      },
+      "elapsed_seconds": 65.60402519998024,
+      "passed": true
+    }
+  ],
+  "unique_spatial_cell_evaluations": 14,
+  "historical_ode_refinement": {
+    "scope": "parent nominal-only evidence; perturbed-point ODE sensitivity not re-refined here",
+    "parent_quantum_ODE_change_at_Nx8": {
+      "maximum_gain_absolute_change": 0.0,
+      "maximum_spectrum_absolute_change_dB": 9.833023284500086e-12
+    },
+    "parent_mean_ODE_refinement_relative_trajectory_change": 7.299515485712864e-12
+  },
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "blas_threads": 1,
+    "timing_scope": "elapsed audit time; not a benchmark"
+  },
+  "limitations": [
+    "The two standard uncertainties and all tested correlations are assumed; no measured input or no-fit claim.",
+    "Other consumed inputs, fixed top-hat profiles and detector calibration are conditioned upon; zero uncertainty is not assigned to their unknown errors.",
+    "Central-difference and spatial-grid comparisons are deterministic errors, not added independent statistical covariance.",
+    "Linear covariance is local; no Gaussian ensemble, nonlinear coverage interval, or large-input-excursion bound was computed.",
+    "Three RF samples do not resolve intrinsic bandwidth or an RF minimum; censored bands retain width=None.",
+    "Atomic harmonic and ODE refinement are inherited nominal evidence only, not jointly refined at every perturbed input.",
+    "Moving atomic transport, inter-slice noise, walkoff, diffraction, extra collection modes and pump depletion remain outside this model."
+  ],
+  "expected_controls_passed": true
+}

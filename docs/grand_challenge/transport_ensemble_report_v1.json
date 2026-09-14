@@ -1,0 +1,3083 @@
+{
+  "schema": "gabes-pump-only-transport-ensemble-audit-v1",
+  "scope": "Conditional numerical audit of an imposed phase-mark family of a constant two-level atom; no thermal Rb optical prediction",
+  "toy_model": {
+    "hamiltonian": "zero 2 x 2",
+    "jump_reservoirs": [],
+    "boundary_state": {
+      "real": [
+        [
+          0.6,
+          0.18
+        ],
+        [
+          0.18,
+          0.4
+        ]
+      ],
+      "imag": [
+        [
+          0.0,
+          0.07
+        ],
+        [
+          -0.07,
+          0.0
+        ]
+      ]
+    },
+    "readout_operators": {
+      "real": [
+        [
+          [
+            0.45,
+            1.0
+          ],
+          [
+            0.0,
+            -0.04999999999999999
+          ]
+        ],
+        [
+          [
+            -0.04999999999999999,
+            0.0
+          ],
+          [
+            0.7,
+            0.25
+          ]
+        ],
+        [
+          [
+            0.45,
+            0.0
+          ],
+          [
+            1.0,
+            -0.04999999999999999
+          ]
+        ],
+        [
+          [
+            -0.04999999999999999,
+            0.7
+          ],
+          [
+            0.0,
+            0.25
+          ]
+        ]
+      ],
+      "imag": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            0.2,
+            0.0
+          ],
+          [
+            0.0,
+            0.2
+          ]
+        ],
+        [
+          [
+            -0.0,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.0
+          ]
+        ],
+        [
+          [
+            -0.2,
+            -0.0
+          ],
+          [
+            -0.0,
+            -0.2
+          ]
+        ]
+      ]
+    },
+    "reciprocal_drive_operators": {
+      "real": [
+        [
+          [
+            0.9,
+            0.0
+          ],
+          [
+            2.0,
+            -0.09999999999999998
+          ]
+        ],
+        [
+          [
+            -0.14999999999999997,
+            2.0999999999999996
+          ],
+          [
+            0.0,
+            0.75
+          ]
+        ],
+        [
+          [
+            0.9,
+            2.0
+          ],
+          [
+            0.0,
+            -0.09999999999999998
+          ]
+        ],
+        [
+          [
+            -0.14999999999999997,
+            0.0
+          ],
+          [
+            2.0999999999999996,
+            0.75
+          ]
+        ]
+      ],
+      "imag": [
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.0
+          ]
+        ],
+        [
+          [
+            -0.6000000000000001,
+            0.0
+          ],
+          [
+            0.0,
+            -0.6000000000000001
+          ]
+        ],
+        [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        [
+          [
+            0.6000000000000001,
+            0.0
+          ],
+          [
+            0.0,
+            0.6000000000000001
+          ]
+        ]
+      ]
+    },
+    "coupling_scales_s_inverse_sqrt_flux": [
+      2.0,
+      3.0,
+      2.0,
+      3.0
+    ],
+    "readout_scales": [
+      1.0975334750883978,
+      0.79250489150881,
+      1.0975334750883978,
+      0.79250489150881
+    ],
+    "mode_labels": [
+      "probe",
+      "conjugate",
+      "probe_dagger",
+      "conjugate_dagger"
+    ],
+    "phase_charges": [
+      1,
+      -1,
+      -1,
+      1
+    ],
+    "carrier_offsets_rad_s": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "port_wavevectors_rad_m": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "phase_marks_rad": [
+      0.173,
+      1.7437963267948966,
+      3.314592653589793,
+      4.88538898038469
+    ],
+    "minimum_boundary_state_eigenvalue": 0.28251436829068455,
+    "source_names": [
+      "atomic_inflow"
+    ]
+  },
+  "assumed_boundary_inputs": {
+    "lengths_m": [
+      0.0004,
+      0.0002,
+      0.0002
+    ],
+    "temperature_K": 373.0,
+    "mass_kg": 1.41e-25,
+    "density_m3": 3e+16,
+    "input_evidence": "All geometry/state/gas/readout values assumed for this numerical fixture; no independently measured dataset"
+  },
+  "frequency_hz": [
+    0.0,
+    10000.0,
+    30000.0
+  ],
+  "declared_plan": {
+    "available_powers_per_face": [
+      4,
+      6,
+      8,
+      10
+    ],
+    "seeds": [
+      11,
+      211
+    ],
+    "gauss_orders": [
+      24,
+      48
+    ],
+    "path_budget": 1e-09,
+    "stream_budget": 0.05,
+    "per_path_reference_work": "One factory call supplies the candidate; inside it two numerical age integrals and one closed-form calculation measure evidence. Four phase marks require no repeated transport solves.",
+    "literal_phase_budget": 2e-12,
+    "actual_transport_budget": 2e-08,
+    "stopping_rule": "Evaluate both seeds at each increasing grid; first passing actual-output gate at power >=8, else finish power10 uncertified",
+    "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+    "comparison_scales": "For a path: 4*tau^2*max(readout)^2, mean 2*tau*max(readout), response covariance scale*max(coupling). Stream uses tau=max(box length)/thermal sigma and multiplies by total boundary rate. These are unit-matched zero-signal scales, not claimed rigorous error bounds.",
+    "density_count": "Exactly once in physical boundary arrival rates; no occupancy or spectrum renormalization"
+  },
+  "grids": [
+    {
+      "power": 4,
+      "seed": 11,
+      "path_count": 96,
+      "callback_count": 96,
+      "consumed_path_count": 96,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "aa0e550c6959d8b61da342fe0c06cb037a5366557f162cdaa7f936bb4d4e5e20",
+      "packet_chain_digest": "9b02e362cca4f60e96b90b3ef01fba1e93021685e4e0939e1fdf99dbbf99d204",
+      "path_evidence_chain_sha256": "6bfde7ee65d965f32fbfe37463b1ccc311911e1edc0a0f7d578d46026e0246d7",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 9.270508386641447e-16,
+          "lesser": 9.70546682451916e-16,
+          "greater_by_source": 9.270508386641447e-16,
+          "lesser_by_source": 9.70546682451916e-16,
+          "mean_pulse": 4.884455411557233e-16,
+          "mean_outer": 9.673858306310403e-16,
+          "retarded_response": 5.537024026547003e-16
+        },
+        "independent_reference": {
+          "greater": 7.856155433159697e-16,
+          "lesser": 7.739450498973856e-16,
+          "greater_by_source": 7.856155433159697e-16,
+          "lesser_by_source": 7.739450498973856e-16,
+          "mean_pulse": 4.479798164473687e-16,
+          "mean_outer": 8.922136500674785e-16,
+          "retarded_response": 1.5462055141488971e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 45,
+        "residence_time_s": 2.0483630362168907e-06,
+        "target_digest": "68cac08f6c85c54d407ad5e76f1ebff6ceec76bab3b063394c6089c8cb0cde19",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 4.0518985878836024e-16,
+              "lesser": 4.0563108825189956e-16,
+              "greater_by_source": 4.0518985878836024e-16,
+              "lesser_by_source": 4.0563108825189956e-16,
+              "mean_pulse": 2.05707171680146e-16,
+              "mean_outer": 4.0953256146803923e-16,
+              "retarded_response": 1.9648303887718137e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "942834a88cb3cd9ef23d89a0b6f4aa2dd57238ebce6a497151cd7f834ca8eafd",
+            "candidate_id": "68cac08f6c85c54d407ad5e76f1ebff6ceec76bab3b063394c6089c8cb0cde19",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 4.0518985878836024e-16,
+              "lesser": 4.0563108825189956e-16,
+              "greater_by_source": 4.0518985878836024e-16,
+              "lesser_by_source": 4.0563108825189956e-16,
+              "mean_pulse": 2.2931127242569684e-16,
+              "mean_outer": 4.3248833339585047e-16,
+              "retarded_response": 1.5462055141488971e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:368dd1f5329c3ee484c0f15ad5b08e91e554826318e13d52e2b3ca877b9f63f5",
+            "candidate_id": "68cac08f6c85c54d407ad5e76f1ebff6ceec76bab3b063394c6089c8cb0cde19",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 3.4636399158990354e-16,
+        "lesser": 4.2590896386433187e-16,
+        "greater_by_source": 2.2179584259506736e-16,
+        "lesser_by_source": 1.9045221027656518e-16,
+        "poisson_number": 2.1035163537994365e-16,
+        "retarded_response": 2.844419981570101e-16
+      },
+      "mean_occupancy": 491984.4199174589,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 1.0249675414947061,
+      "total_arrival_rate_s_inverse": 914908816709.6671,
+      "residence_time_range_s": [
+        4.314687842536606e-09,
+        2.459089739454399e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739275,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 4,
+      "seed": 211,
+      "path_count": 96,
+      "callback_count": 96,
+      "consumed_path_count": 96,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "5c7eb8c5bd3f62693271070b4a27464789542686a71869fc18410d458fec1024",
+      "packet_chain_digest": "f1fc6be254ec6070115359c914589bb248d69dd29735fd047042eb3908243b3e",
+      "path_evidence_chain_sha256": "fa9d414892e2b93fdd1851c9f71888fce401f0a2465ab15b9c1adc23a5ec14cf",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.0875811204460512e-15,
+          "lesser": 1.0538635728441702e-15,
+          "greater_by_source": 1.0875811204460512e-15,
+          "lesser_by_source": 1.0538635728441702e-15,
+          "mean_pulse": 5.025199742360865e-16,
+          "mean_outer": 1.008826677785493e-15,
+          "retarded_response": 4.856556988266376e-16
+        },
+        "independent_reference": {
+          "greater": 7.453822628413375e-16,
+          "lesser": 7.453822628413375e-16,
+          "greater_by_source": 7.453822628413375e-16,
+          "lesser_by_source": 7.453822628413375e-16,
+          "mean_pulse": 4.133089250476963e-16,
+          "mean_outer": 8.143700227063269e-16,
+          "retarded_response": 1.289978651236137e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 53,
+        "residence_time_s": 8.289796942910565e-07,
+        "target_digest": "ac41d7de7b8c81ddad0dcd8d99513c39ba2991b6ecf4afa191ce15614788ce64",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 4.2810715064751324e-16,
+              "lesser": 4.2810715064751324e-16,
+              "greater_by_source": 4.2810715064751324e-16,
+              "lesser_by_source": 4.2810715064751324e-16,
+              "mean_pulse": 2.938642636510924e-16,
+              "mean_outer": 5.8863090207772e-16,
+              "retarded_response": 3.2963878866915205e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "770f7f9808baff6585ba0ed1a9e3c22c6d8c3342bbde697a7b308fe44cdbc740",
+            "candidate_id": "ac41d7de7b8c81ddad0dcd8d99513c39ba2991b6ecf4afa191ce15614788ce64",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 5.985062015644525e-16,
+              "lesser": 5.984297483950135e-16,
+              "greater_by_source": 5.985062015644525e-16,
+              "lesser_by_source": 5.984297483950135e-16,
+              "mean_pulse": 2.83707685414454e-16,
+              "mean_outer": 5.704223486061053e-16,
+              "retarded_response": 1.289978651236137e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:3f0c7f6ef48546aaa89b588dc09dd12e83bc9b0fc65028d05be836e0a099ed7b",
+            "candidate_id": "ac41d7de7b8c81ddad0dcd8d99513c39ba2991b6ecf4afa191ce15614788ce64",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 4.2245894949466927e-16,
+        "lesser": 3.9877931083960317e-16,
+        "greater_by_source": 2.5915735395382607e-16,
+        "lesser_by_source": 2.967505589171286e-16,
+        "poisson_number": 2.5406076646927206e-16,
+        "retarded_response": 3.9684060062034434e-16
+      },
+      "mean_occupancy": 584914.7210235958,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 1.2185723354658244,
+      "total_arrival_rate_s_inverse": 914908816709.6671,
+      "residence_time_range_s": [
+        2.341674231533556e-09,
+        2.8887758619990938e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739275,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 6,
+      "seed": 11,
+      "path_count": 384,
+      "callback_count": 384,
+      "consumed_path_count": 384,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "80ba23da77d5d3d01d2fc5d0206f68b6bde0aceb923dfeb3dbe59d1d549e695c",
+      "packet_chain_digest": "2a45993dbe534c8ced8d2e52a3847a77bafae42ea27fb0c76cbda4c6de4196c4",
+      "path_evidence_chain_sha256": "449e96b9161a8102879641a3e6e47ee581faa1405427ed6cabafeca23a1536f0",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.1752467227329837e-15,
+          "lesser": 1.1325533009982578e-15,
+          "greater_by_source": 1.1752467227329837e-15,
+          "lesser_by_source": 1.1325533009982578e-15,
+          "mean_pulse": 6.05685261867441e-16,
+          "mean_outer": 1.2454698446108477e-15,
+          "retarded_response": 5.943970427319366e-16
+        },
+        "independent_reference": {
+          "greater": 1.0090601217210384e-15,
+          "lesser": 1.0089820575108966e-15,
+          "greater_by_source": 1.0090601217210384e-15,
+          "lesser_by_source": 1.0089820575108966e-15,
+          "mean_pulse": 5.651689616872053e-16,
+          "mean_outer": 1.1270478896561115e-15,
+          "retarded_response": 1.5891122216228883e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 310,
+        "residence_time_s": 6.916378854936759e-07,
+        "target_digest": "814d98fba740e045ecd7992122160a16fa32dab02300a0452d2c0ed32a584ad7",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 2.339367809715533e-16,
+              "lesser": 2.339367809715533e-16,
+              "greater_by_source": 2.339367809715533e-16,
+              "lesser_by_source": 2.339367809715533e-16,
+              "mean_pulse": 1.4561291309029898e-16,
+              "mean_outer": 2.9345139421769286e-16,
+              "retarded_response": 2.2424458222113775e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "bba844f43bc0959311bcf2cfc11277a1093f31422cf2695f29318e2404d29609",
+            "candidate_id": "814d98fba740e045ecd7992122160a16fa32dab02300a0452d2c0ed32a584ad7",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 0.0,
+              "lesser": 0.0,
+              "greater_by_source": 0.0,
+              "lesser_by_source": 0.0,
+              "mean_pulse": 0.0,
+              "mean_outer": 0.0,
+              "retarded_response": 1.5891122216228883e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:3fba10d176e2debf1a503a020efe291a91e4ac79a9144ebe0bb6ad60fc5e794c",
+            "candidate_id": "814d98fba740e045ecd7992122160a16fa32dab02300a0452d2c0ed32a584ad7",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 8.48749282604307e-16,
+        "lesser": 7.814135707505423e-16,
+        "greater_by_source": 1.7604262661580342e-16,
+        "lesser_by_source": 1.474610987154214e-16,
+        "poisson_number": 1.2434199121621743e-16,
+        "retarded_response": 2.889505124821622e-16
+      },
+      "mean_occupancy": 478720.20801537007,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 0.9973337666986877,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        2.4877408783016746e-10,
+        4.125035146546045e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 6,
+      "seed": 211,
+      "path_count": 384,
+      "callback_count": 384,
+      "consumed_path_count": 384,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "111b6010998e2c9010e3fd8428916abfc277ea1fac2f0d88e26c74dc909e9dff",
+      "packet_chain_digest": "ae3656d2274ffe88237b5bc3538ac3cc4d70ae6ca50bb16529e3b220082cd807",
+      "path_evidence_chain_sha256": "9d4bfa23b72048163e5cddbe4b2ad1903b127b756ee2fd882a73fd028e9ab568",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.103810275365493e-15,
+          "lesser": 1.1458426043243326e-15,
+          "greater_by_source": 1.103810275365493e-15,
+          "lesser_by_source": 1.1458426043243326e-15,
+          "mean_pulse": 5.602734044580171e-16,
+          "mean_outer": 1.1322565427947841e-15,
+          "retarded_response": 5.615309167967594e-16
+        },
+        "independent_reference": {
+          "greater": 8.365758822288545e-16,
+          "lesser": 8.365758822288545e-16,
+          "greater_by_source": 8.365758822288545e-16,
+          "lesser_by_source": 8.365758822288545e-16,
+          "mean_pulse": 4.528018599726827e-16,
+          "mean_outer": 9.138071703349394e-16,
+          "retarded_response": 1.5149154243772803e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 158,
+        "residence_time_s": 6.680383638330911e-07,
+        "target_digest": "65c87d3f9fc8996f421bd33f72d4a036599634f44576783f0897a956d17a2a4d",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 3.688428226477602e-16,
+              "lesser": 3.689472135762231e-16,
+              "greater_by_source": 3.688428226477602e-16,
+              "lesser_by_source": 3.689472135762231e-16,
+              "mean_pulse": 1.4148162920146284e-16,
+              "mean_outer": 2.635738877509461e-16,
+              "retarded_response": 3.1724699352634263e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "bb714393bc1779a5335a72c7ca62defbcf80a25d7bec305b10efdddac46b0cb9",
+            "candidate_id": "65c87d3f9fc8996f421bd33f72d4a036599634f44576783f0897a956d17a2a4d",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 3.017845972880912e-16,
+              "lesser": 3.5790533174947067e-16,
+              "greater_by_source": 3.017845972880912e-16,
+              "lesser_by_source": 3.5790533174947067e-16,
+              "mean_pulse": 1.388343129893015e-16,
+              "mean_outer": 2.56918142868952e-16,
+              "retarded_response": 1.5149154243772803e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:4ca9a50f74866fd1a853806092a0fa3dc3a9f5a1b7ccdfde060188355712050a",
+            "candidate_id": "65c87d3f9fc8996f421bd33f72d4a036599634f44576783f0897a956d17a2a4d",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 8.685202844085999e-16,
+        "lesser": 8.180067666067158e-16,
+        "greater_by_source": 1.4720772316843586e-16,
+        "lesser_by_source": 1.690639716302697e-16,
+        "poisson_number": 1.8221173895849726e-16,
+        "retarded_response": 3.540934756141523e-16
+      },
+      "mean_occupancy": 492932.7552959542,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 1.0269432401999046,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        2.341674231533556e-09,
+        4.109485112592266e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 8,
+      "seed": 11,
+      "path_count": 1536,
+      "callback_count": 1536,
+      "consumed_path_count": 1536,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "7a9801adb2a91cbc2fbeec80a7140f7a9ab6d5e5f77065beaef9d53930bb90d9",
+      "packet_chain_digest": "f1c7cfa65bd69af842680a7582aa786961ca217e76d73d15f61570ef689df570",
+      "path_evidence_chain_sha256": "f9f2b48c8a792f893de46b19f1df9513ad6fc6bf00038768d04afe4f511ec77e",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.4744515088391962e-15,
+          "lesser": 1.5115988973631166e-15,
+          "greater_by_source": 1.4744515088391962e-15,
+          "lesser_by_source": 1.5115988973631166e-15,
+          "mean_pulse": 6.653348226200024e-16,
+          "mean_outer": 1.3506915782567653e-15,
+          "retarded_response": 6.23718456195102e-16
+        },
+        "independent_reference": {
+          "greater": 1.0090601217210384e-15,
+          "lesser": 1.0089820575108966e-15,
+          "greater_by_source": 1.0090601217210384e-15,
+          "lesser_by_source": 1.0089820575108966e-15,
+          "mean_pulse": 5.651689616872053e-16,
+          "mean_outer": 1.1270478896561115e-15,
+          "retarded_response": 1.6968905342587791e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 938,
+        "residence_time_s": 6.884233144357737e-07,
+        "target_digest": "e94985ab254925e2afbb08678a8bbdfcdc3825c99811ae038470ba02d33c3f03",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 4.4359759413198217e-16,
+              "lesser": 4.4348464220691984e-16,
+              "greater_by_source": 4.4359759413198217e-16,
+              "lesser_by_source": 4.4348464220691984e-16,
+              "mean_pulse": 1.6834576683408604e-16,
+              "mean_outer": 3.4969810153434224e-16,
+              "retarded_response": 2.3101268294485966e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "e8d1716092657456ccf9b1d28bf9e33114cef401c563af7bbc60be68ea1c6425",
+            "candidate_id": "e94985ab254925e2afbb08678a8bbdfcdc3825c99811ae038470ba02d33c3f03",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 0.0,
+              "lesser": 0.0,
+              "greater_by_source": 0.0,
+              "lesser_by_source": 0.0,
+              "mean_pulse": 5.0503687124658647e-17,
+              "mean_outer": 8.283481241983161e-17,
+              "retarded_response": 1.6968905342587791e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:14ad2edd05735fefb0940f5928f00503dfbebc686793ff911afb5b619a828285",
+            "candidate_id": "e94985ab254925e2afbb08678a8bbdfcdc3825c99811ae038470ba02d33c3f03",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 1.9771917486464123e-15,
+        "lesser": 1.913762261698586e-15,
+        "greater_by_source": 2.5920158355794246e-16,
+        "lesser_by_source": 3.102735917235426e-16,
+        "poisson_number": 1.9544409434860494e-16,
+        "retarded_response": 2.6212860513541097e-16
+      },
+      "mean_occupancy": 484912.46947644994,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 1.0102343114092707,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        2.4877408783016746e-10,
+        5.132930770743439e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 8,
+      "seed": 211,
+      "path_count": 1536,
+      "callback_count": 1536,
+      "consumed_path_count": 1536,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "62330e1f2d98998e820f150d0fcf7e9a372e9aae2302886c8af600bd063752c1",
+      "packet_chain_digest": "b9fb48e3b28e8b7769191aa79da23afa58920020ea23f1fa0ae62b9ec2a1c7c2",
+      "path_evidence_chain_sha256": "02b9adcbcb61e3456940c94e9b2533900e4d600268862f5618a539311270cf2a",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.3358888864342141e-15,
+          "lesser": 1.335975463591578e-15,
+          "greater_by_source": 1.3358888864342141e-15,
+          "lesser_by_source": 1.335975463591578e-15,
+          "mean_pulse": 5.99978164262549e-16,
+          "mean_outer": 1.1968405790437304e-15,
+          "retarded_response": 6.337266148273607e-16
+        },
+        "independent_reference": {
+          "greater": 9.753272747431886e-16,
+          "lesser": 9.754957735376694e-16,
+          "greater_by_source": 9.753272747431886e-16,
+          "lesser_by_source": 9.754957735376694e-16,
+          "mean_pulse": 4.95249850258211e-16,
+          "mean_outer": 9.940107586363543e-16,
+          "retarded_response": 1.7162392221350714e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 894,
+        "residence_time_s": 6.845829548307642e-07,
+        "target_digest": "6a79db0a06c0351bb727aa5aa097a034683f780fa23c9fe37d2d83aac32503e0",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 0.0,
+              "lesser": 0.0,
+              "greater_by_source": 0.0,
+              "lesser_by_source": 0.0,
+              "mean_pulse": 6.348325640977476e-18,
+              "mean_outer": 1.1821577616746514e-17,
+              "retarded_response": 2.5059527137477574e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "723bd8e93d7dad24f995d4d88d2fbe1a5b36e21c4b7fb666c446d17d524fea07",
+            "candidate_id": "6a79db0a06c0351bb727aa5aa097a034683f780fa23c9fe37d2d83aac32503e0",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 4.3704899778664336e-16,
+              "lesser": 4.3693175878924633e-16,
+              "greater_by_source": 4.3704899778664336e-16,
+              "lesser_by_source": 4.3693175878924633e-16,
+              "mean_pulse": 1.6150233954471946e-16,
+              "mean_outer": 3.0658899721365325e-16,
+              "retarded_response": 1.7162392221350714e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:89b5e2124e527d019b1fa5d0591980c139b288b038fbca4320d415cd5644f411",
+            "candidate_id": "6a79db0a06c0351bb727aa5aa097a034683f780fa23c9fe37d2d83aac32503e0",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 1.4329298882492992e-15,
+        "lesser": 1.4382902643938189e-15,
+        "greater_by_source": 1.5317734743580478e-16,
+        "lesser_by_source": 1.8463260904279372e-16,
+        "poisson_number": 1.4914409147928077e-16,
+        "retarded_response": 2.5981326275783044e-16
+      },
+      "mean_occupancy": 479721.63830115634,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 0.9994200797940758,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        2.940070166749164e-10,
+        4.576275702031104e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 10,
+      "seed": 11,
+      "path_count": 6144,
+      "callback_count": 6144,
+      "consumed_path_count": 6144,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "f2fd74c88358cec421688d39d728ffdbbeeb93decc422743289f45672586dd4a",
+      "packet_chain_digest": "6684ca117df1b8d2b7a3ecddc98967a8447f4f7cd2cf30a148b746381166f732",
+      "path_evidence_chain_sha256": "c171e0df88a73208fc5d29051f15ddfabda098d0f08dbf78e1dcf536b49a5ddc",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.4744515088391962e-15,
+          "lesser": 1.5115988973631166e-15,
+          "greater_by_source": 1.4744515088391962e-15,
+          "lesser_by_source": 1.5115988973631166e-15,
+          "mean_pulse": 6.759778912942554e-16,
+          "mean_outer": 1.3606048439775852e-15,
+          "retarded_response": 7.278557401627654e-16
+        },
+        "independent_reference": {
+          "greater": 1.1668719808010405e-15,
+          "lesser": 1.1668719808010405e-15,
+          "greater_by_source": 1.1668719808010405e-15,
+          "lesser_by_source": 1.1668719808010405e-15,
+          "mean_pulse": 5.875560148353665e-16,
+          "mean_outer": 1.174586267405625e-15,
+          "retarded_response": 1.8241676601931307e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 4821,
+        "residence_time_s": 6.669860521335436e-07,
+        "target_digest": "41b5aac1510ecdf100e9380a8c6632ac5eab63ee658a6892c98d28f51bd8449c",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 2.0843659345035016e-16,
+              "lesser": 2.084256566811192e-16,
+              "greater_by_source": 2.0843659345035016e-16,
+              "lesser_by_source": 2.084256566811192e-16,
+              "mean_pulse": 1.4050109415119788e-16,
+              "mean_outer": 2.4605482474606986e-16,
+              "retarded_response": 2.5695063281742476e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "64545135112e11b32fdc4c2d3acb60e21191617d9a7d7413fa28cb27cb1ac03a",
+            "candidate_id": "41b5aac1510ecdf100e9380a8c6632ac5eab63ee658a6892c98d28f51bd8449c",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 2.0843659345035016e-16,
+              "lesser": 2.084256566811192e-16,
+              "greater_by_source": 2.0843659345035016e-16,
+              "lesser_by_source": 2.084256566811192e-16,
+              "mean_pulse": 1.4050109415119788e-16,
+              "mean_outer": 2.4605482474606986e-16,
+              "retarded_response": 1.8241676601931307e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:9a0e8973748e1a9fc88d735d320370138431e950f9a2d9789a8bdcd4a89c84b2",
+            "candidate_id": "41b5aac1510ecdf100e9380a8c6632ac5eab63ee658a6892c98d28f51bd8449c",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 3.1152722208011165e-15,
+        "lesser": 3.069719861549214e-15,
+        "greater_by_source": 1.758991146564609e-16,
+        "lesser_by_source": 2.1764056060686406e-16,
+        "poisson_number": 1.572555159107618e-16,
+        "retarded_response": 2.246158387748344e-16
+      },
+      "mean_occupancy": 480528.92696002166,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 1.0011019311667118,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        1.2295653541749238e-10,
+        5.766894482581952e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    },
+    {
+      "power": 10,
+      "seed": 211,
+      "path_count": 6144,
+      "callback_count": 6144,
+      "consumed_path_count": 6144,
+      "callback_once_per_consumed_path": true,
+      "all_paths_consumed": true,
+      "path_evidence_passed": true,
+      "reasons": [
+        "actual stream quadrature convergence has not been supplied"
+      ],
+      "candidate_digest": "786be75dd3f3594054edd1f510a3c11291507e7608714b106ad47ebff2f83f90",
+      "packet_chain_digest": "8950a055fa680d08697c1bbbea19ff5890c9f1543a083709be6825a4f1c0a813",
+      "path_evidence_chain_sha256": "fb7c8f7f1db9d11a98026d465759ab0dac1f5f2782a204a679559cc99beb8576",
+      "max_path_errors": {
+        "path_refinement": {
+          "greater": 1.3358888864342141e-15,
+          "lesser": 1.335975463591578e-15,
+          "greater_by_source": 1.3358888864342141e-15,
+          "lesser_by_source": 1.335975463591578e-15,
+          "mean_pulse": 6.254777783421561e-16,
+          "mean_outer": 1.2496310905276183e-15,
+          "retarded_response": 7.222608129176906e-16
+        },
+        "independent_reference": {
+          "greater": 1.24383089291384e-15,
+          "lesser": 1.2437396324716539e-15,
+          "greater_by_source": 1.24383089291384e-15,
+          "lesser_by_source": 1.2437396324716539e-15,
+          "mean_pulse": 5.963062896421866e-16,
+          "mean_outer": 1.1654510887894606e-15,
+          "retarded_response": 1.8437408943365188e-15
+        }
+      },
+      "worst_path_evidence": {
+        "path_index": 4522,
+        "residence_time_s": 6.659277422141462e-07,
+        "target_digest": "3a9f559ea76791f3b52fd6e91bc39d9a289cab03a343dcc2c606bea9e35e590e",
+        "comparisons": [
+          {
+            "kind": "path_refinement",
+            "errors": {
+              "greater": 3.708331581373236e-16,
+              "lesser": 3.600396106861289e-16,
+              "greater_by_source": 3.708331581373236e-16,
+              "lesser_by_source": 3.600396106861289e-16,
+              "mean_pulse": 1.8319139752423454e-16,
+              "mean_outer": 3.466575305539281e-16,
+              "retarded_response": 4.6977226148426085e-16
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "fd4314b9d0128bc7a252bba62f39a294f8f40d059fd49688d97a57d3c9944aa9",
+            "candidate_id": "3a9f559ea76791f3b52fd6e91bc39d9a289cab03a343dcc2c606bea9e35e590e",
+            "control_values": [
+              24.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Actual Gauss-Legendre age/causal-triangle integrals on this same first-exit path",
+            "passed": true
+          },
+          {
+            "kind": "independent_reference",
+            "errors": {
+              "greater": 3.708331581373236e-16,
+              "lesser": 3.1611895952600586e-16,
+              "greater_by_source": 3.708331581373236e-16,
+              "lesser_by_source": 3.1611895952600586e-16,
+              "mean_pulse": 1.8319139752423454e-16,
+              "mean_outer": 3.466575305539281e-16,
+              "retarded_response": 1.8437408943365188e-15
+            },
+            "tolerances": {
+              "greater": 1e-09,
+              "lesser": 1e-09,
+              "greater_by_source": 1e-09,
+              "lesser_by_source": 1e-09,
+              "mean_pulse": 1e-09,
+              "mean_outer": 1e-09,
+              "retarded_response": 1e-09
+            },
+            "reference_id": "closed-form:2a94d416c90443563fa6aa8581393fcd421fb5b39f4c652b74cee887d2eb021b",
+            "candidate_id": "3a9f559ea76791f3b52fd6e91bc39d9a289cab03a343dcc2c606bea9e35e590e",
+            "control_values": [
+              0.0,
+              48.0
+            ],
+            "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+            "provenance": "Independent finite-pulse sinc/exponential and analytic causal-triangle formula, including DC",
+            "passed": true
+          }
+        ]
+      },
+      "literal_four_phase_errors": {
+        "greater": 2.6448623595776996e-15,
+        "lesser": 2.626272814424222e-15,
+        "greater_by_source": 2.218158864759731e-16,
+        "lesser_by_source": 2.495782125667044e-16,
+        "poisson_number": 1.4660381512834245e-16,
+        "retarded_response": 2.4563578033517527e-16
+      },
+      "mean_occupancy": 478729.87789523904,
+      "equilibrium_nV": 480000.0,
+      "occupancy_over_nV": 0.997353912281748,
+      "total_arrival_rate_s_inverse": 914908816709.667,
+      "residence_time_range_s": [
+        5.721927293214377e-12,
+        4.576275702031104e-06
+      ],
+      "comparison_scales": {
+        "mean_pulse": 4203384.070739274,
+        "lesser_by_source": 19.311692404152986,
+        "retarded_response": 57.93507721245896,
+        "poisson_number": 19.311692404152986,
+        "greater_by_source": 19.311692404152986,
+        "lesser": 19.311692404152986,
+        "mean_outer": 19.311692404152986,
+        "greater": 19.311692404152986
+      }
+    }
+  ],
+  "ensemble_convergence": [
+    {
+      "power": 6,
+      "certified": false,
+      "comparisons": [
+        {
+          "kind": "ensemble_refinement",
+          "errors": {
+            "greater": 0.009642705057315635,
+            "lesser": 0.009642705057315721,
+            "greater_by_source": 0.009642705057315643,
+            "lesser_by_source": 0.009642705057315612,
+            "poisson_number": 0.00964270505731599,
+            "retarded_response": 0.017062530353066686
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "aa0e550c6959d8b61da342fe0c06cb037a5366557f162cdaa7f936bb4d4e5e20",
+          "candidate_id": "80ba23da77d5d3d01d2fc5d0206f68b6bde0aceb923dfeb3dbe59d1d549e695c",
+          "control_values": [
+            16.0,
+            64.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on two physical boundary Sobol grids, same seed",
+          "passed": true
+        },
+        {
+          "kind": "independent_scramble",
+          "errors": {
+            "greater": 0.07859711269828273,
+            "lesser": 0.07859711269828278,
+            "greater_by_source": 0.07859711269828275,
+            "lesser_by_source": 0.07859711269828275,
+            "poisson_number": 0.07859711269828283,
+            "retarded_response": 0.07859711269828315
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "111b6010998e2c9010e3fd8428916abfc277ea1fac2f0d88e26c74dc909e9dff",
+          "candidate_id": "80ba23da77d5d3d01d2fc5d0206f68b6bde0aceb923dfeb3dbe59d1d549e695c",
+          "control_values": [
+            211.0,
+            11.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on an independent scrambled boundary Sobol grid",
+          "passed": false
+        }
+      ],
+      "reasons": [
+        "independent_scramble: observed numerical error exceeds its declared tolerance"
+      ]
+    },
+    {
+      "power": 8,
+      "certified": false,
+      "comparisons": [
+        {
+          "kind": "ensemble_refinement",
+          "errors": {
+            "greater": 0.07224191725139763,
+            "lesser": 0.07224191725139764,
+            "greater_by_source": 0.07224191725139788,
+            "lesser_by_source": 0.07224191725139781,
+            "poisson_number": 0.07224191725139703,
+            "retarded_response": 0.0722419172513973
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "80ba23da77d5d3d01d2fc5d0206f68b6bde0aceb923dfeb3dbe59d1d549e695c",
+          "candidate_id": "7a9801adb2a91cbc2fbeec80a7140f7a9ab6d5e5f77065beaef9d53930bb90d9",
+          "control_values": [
+            64.0,
+            256.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on two physical boundary Sobol grids, same seed",
+          "passed": false
+        },
+        {
+          "kind": "independent_scramble",
+          "errors": {
+            "greater": 0.09787295176788274,
+            "lesser": 0.09787295176788272,
+            "greater_by_source": 0.09787295176788299,
+            "lesser_by_source": 0.09787295176788281,
+            "poisson_number": 0.0978729517678823,
+            "retarded_response": 0.09787295176788191
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "62330e1f2d98998e820f150d0fcf7e9a372e9aae2302886c8af600bd063752c1",
+          "candidate_id": "7a9801adb2a91cbc2fbeec80a7140f7a9ab6d5e5f77065beaef9d53930bb90d9",
+          "control_values": [
+            211.0,
+            11.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on an independent scrambled boundary Sobol grid",
+          "passed": false
+        }
+      ],
+      "reasons": [
+        "ensemble_refinement: observed numerical error exceeds its declared tolerance",
+        "independent_scramble: observed numerical error exceeds its declared tolerance"
+      ]
+    },
+    {
+      "power": 10,
+      "certified": false,
+      "comparisons": [
+        {
+          "kind": "ensemble_refinement",
+          "errors": {
+            "greater": 0.06515211487643377,
+            "lesser": 0.06515211487643388,
+            "greater_by_source": 0.06515211487643455,
+            "lesser_by_source": 0.0651521148764346,
+            "poisson_number": 0.06515211487643204,
+            "retarded_response": 0.0651521148764337
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "7a9801adb2a91cbc2fbeec80a7140f7a9ab6d5e5f77065beaef9d53930bb90d9",
+          "candidate_id": "f2fd74c88358cec421688d39d728ffdbbeeb93decc422743289f45672586dd4a",
+          "control_values": [
+            256.0,
+            1024.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on two physical boundary Sobol grids, same seed",
+          "passed": false
+        },
+        {
+          "kind": "independent_scramble",
+          "errors": {
+            "greater": 0.0406419712562143,
+            "lesser": 0.04064197125621422,
+            "greater_by_source": 0.040641971256214084,
+            "lesser_by_source": 0.04064197125621395,
+            "poisson_number": 0.04064197125621488,
+            "retarded_response": 0.040641971256212446
+          },
+          "tolerances": {
+            "greater": 0.05,
+            "lesser": 0.05,
+            "greater_by_source": 0.05,
+            "lesser_by_source": 0.05,
+            "poisson_number": 0.05,
+            "retarded_response": 0.05
+          },
+          "reference_id": "786be75dd3f3594054edd1f510a3c11291507e7608714b106ad47ebff2f83f90",
+          "candidate_id": "f2fd74c88358cec421688d39d728ffdbbeeb93decc422743289f45672586dd4a",
+          "control_values": [
+            211.0,
+            11.0
+          ],
+          "error_definition": "Maximum across RF rows of the Frobenius difference divided by the larger of the reference-row norm and 1e-12 times the explicitly stated unit-matched comparison scale. Source blocks share one Frobenius norm at each RF. No covariance, rate or numerical discrepancy is clipped or fitted.",
+          "provenance": "Recomputed complete actual toy integrands on an independent scrambled boundary Sobol grid",
+          "passed": true
+        }
+      ],
+      "reasons": [
+        "ensemble_refinement: observed numerical error exceeds its declared tolerance"
+      ]
+    }
+  ],
+  "final_candidate": {
+    "certified": false,
+    "path_evidence_passed": true,
+    "candidate_digest": "f2fd74c88358cec421688d39d728ffdbbeeb93decc422743289f45672586dd4a",
+    "path_count": 6144,
+    "consumed_path_count": 6144,
+    "model_scope": "analytic_fixture",
+    "numerical_units": {
+      "covariance": "s",
+      "retarded_response": "sqrt(s)"
+    },
+    "reasons": [
+      "ensemble_refinement: observed numerical error exceeds its declared tolerance"
+    ],
+    "spectra": {
+      "greater_by_source": {
+        "real": [
+          [
+            [
+              [
+                0.22466232880053766,
+                0.0,
+                0.0,
+                0.15385899413037038
+              ],
+              [
+                0.0,
+                0.07380334280276153,
+                0.09667856849821437,
+                0.0
+              ],
+              [
+                0.0,
+                0.0966785684982144,
+                0.21593249282616264,
+                0.0
+              ],
+              [
+                0.15385899413037038,
+                0.0,
+                0.0,
+                0.14957831906033525
+              ]
+            ],
+            [
+              [
+                0.22439873555255826,
+                0.0,
+                0.0,
+                0.15367847346982935
+              ],
+              [
+                0.0,
+                0.07371675034667431,
+                0.09656513685163419,
+                0.0
+              ],
+              [
+                0.0,
+                0.0965651368516342,
+                0.21567914217573453,
+                0.0
+              ],
+              [
+                0.15367847346982935,
+                0.0,
+                0.0,
+                0.149402820857503
+              ]
+            ],
+            [
+              [
+                0.22232588571132403,
+                0.0,
+                0.0,
+                0.1522588914987069
+              ],
+              [
+                0.0,
+                0.07303580286327506,
+                0.09567313080668555,
+                0.0
+              ],
+              [
+                0.0,
+                0.09567313080668556,
+                0.21368683827742707,
+                0.0
+              ],
+              [
+                0.1522588914987069,
+                0.0,
+                0.0,
+                0.1480227345894961
+              ]
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              [
+                -2.810698820986076e-19,
+                0.0,
+                0.0,
+                -0.011916226105021742
+              ],
+              [
+                0.0,
+                6.751492409306552e-19,
+                0.00794415073668116,
+                0.0
+              ],
+              [
+                0.0,
+                -0.00794415073668116,
+                4.627960989727074e-19,
+                0.0
+              ],
+              [
+                0.011916226105021747,
+                0.0,
+                0.0,
+                -6.751492409306552e-19
+              ]
+            ],
+            [
+              [
+                -2.8074010663724197e-19,
+                0.0,
+                0.0,
+                -0.011902244959364362
+              ],
+              [
+                0.0,
+                6.743570975293187e-19,
+                0.00793482997290957,
+                0.0
+              ],
+              [
+                0.0,
+                -0.00793482997290957,
+                4.622531066182178e-19,
+                0.0
+              ],
+              [
+                0.011902244959364367,
+                0.0,
+                0.0,
+                -6.743570975293187e-19
+              ]
+            ],
+            [
+              [
+                -2.781468117862788e-19,
+                0.0,
+                0.0,
+                -0.011792299747268574
+              ],
+              [
+                0.0,
+                6.681278244493835e-19,
+                0.007861533164845695,
+                0.0
+              ],
+              [
+                0.0,
+                -0.007861533164845695,
+                4.579831125101664e-19,
+                0.0
+              ],
+              [
+                0.01179229974726858,
+                0.0,
+                0.0,
+                -6.681278244493835e-19
+              ]
+            ]
+          ]
+        ]
+      },
+      "lesser_by_source": {
+        "real": [
+          [
+            [
+              [
+                0.21593249282616267,
+                0.0,
+                0.0,
+                0.09667856849821437
+              ],
+              [
+                0.0,
+                0.14957831906033525,
+                0.15385899413037038,
+                0.0
+              ],
+              [
+                0.0,
+                0.15385899413037038,
+                0.22466232880053752,
+                0.0
+              ],
+              [
+                0.0966785684982144,
+                0.0,
+                0.0,
+                0.07380334280276153
+              ]
+            ],
+            [
+              [
+                0.21567914217573458,
+                0.0,
+                0.0,
+                0.09656513685163419
+              ],
+              [
+                0.0,
+                0.149402820857503,
+                0.15367847346982935,
+                0.0
+              ],
+              [
+                0.0,
+                0.15367847346982935,
+                0.22439873555255818,
+                0.0
+              ],
+              [
+                0.0965651368516342,
+                0.0,
+                0.0,
+                0.07371675034667431
+              ]
+            ],
+            [
+              [
+                0.2136868382774271,
+                0.0,
+                0.0,
+                0.09567313080668555
+              ],
+              [
+                0.0,
+                0.1480227345894961,
+                0.1522588914987069,
+                0.0
+              ],
+              [
+                0.0,
+                0.1522588914987069,
+                0.22232588571132397,
+                0.0
+              ],
+              [
+                0.09567313080668556,
+                0.0,
+                0.0,
+                0.07303580286327506
+              ]
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              [
+                -2.810698820986076e-19,
+                0.0,
+                0.0,
+                0.007944150736681166
+              ],
+              [
+                0.0,
+                6.751492409306552e-19,
+                -0.011916226105021747,
+                0.0
+              ],
+              [
+                0.0,
+                0.01191622610502175,
+                4.627960989727074e-19,
+                0.0
+              ],
+              [
+                -0.007944150736681166,
+                0.0,
+                0.0,
+                -6.751492409306552e-19
+              ]
+            ],
+            [
+              [
+                -2.8074010663724197e-19,
+                0.0,
+                0.0,
+                0.007934829972909575
+              ],
+              [
+                0.0,
+                6.743570975293187e-19,
+                -0.011902244959364367,
+                0.0
+              ],
+              [
+                0.0,
+                0.011902244959364372,
+                4.622531066182178e-19,
+                0.0
+              ],
+              [
+                -0.007934829972909575,
+                0.0,
+                0.0,
+                -6.743570975293187e-19
+              ]
+            ],
+            [
+              [
+                -2.781468117862788e-19,
+                0.0,
+                0.0,
+                0.007861533164845702
+              ],
+              [
+                0.0,
+                6.681278244493835e-19,
+                -0.01179229974726858,
+                0.0
+              ],
+              [
+                0.0,
+                0.011792299747268581,
+                4.579831125101664e-19,
+                0.0
+              ],
+              [
+                -0.007861533164845702,
+                0.0,
+                0.0,
+                -6.681278244493835e-19
+              ]
+            ]
+          ]
+        ]
+      },
+      "retarded_response": {
+        "real": [
+          [
+            [
+              -1.5143851406174988e-18,
+              0.0,
+              0.0,
+              -0.029790565262554376
+            ],
+            [
+              0.0,
+              0.0,
+              0.019860376841702797,
+              0.0
+            ],
+            [
+              0.0,
+              -0.029790565262554376,
+              0.0,
+              0.0
+            ],
+            [
+              0.01986037684170279,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          [
+            [
+              0.0002705708331724595,
+              0.0,
+              0.0,
+              -0.027097253962491467
+            ],
+            [
+              0.0,
+              -0.003522832247905461,
+              0.018064835974994316,
+              0.0
+            ],
+            [
+              0.0,
+              -0.03241397083433038,
+              -0.00027057083317246096,
+              0.0
+            ],
+            [
+              0.021609313889553453,
+              0.0,
+              0.0,
+              0.003522832247905461
+            ]
+          ],
+          [
+            [
+              0.0008012185667400853,
+              0.0,
+              0.0,
+              -0.021608776949949983
+            ],
+            [
+              0.0,
+              -0.010431865738955977,
+              0.01440585129996669,
+              0.0
+            ],
+            [
+              0.0,
+              -0.03735272178639284,
+              -0.0008012185667400867,
+              0.0
+            ],
+            [
+              0.024901814524261934,
+              0.0,
+              0.0,
+              0.010431865738955977
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              -0.008729835974374869,
+              0.0,
+              0.0,
+              -0.08577063844823318
+            ],
+            [
+              0.0,
+              0.11366246438636107,
+              0.05718042563215543,
+              0.0
+            ],
+            [
+              0.0,
+              0.08577063844823317,
+              0.00872983597437487,
+              0.0
+            ],
+            [
+              -0.05718042563215543,
+              0.0,
+              0.0,
+              -0.11366246438636107
+            ]
+          ],
+          [
+            [
+              -0.008719593376823672,
+              0.0,
+              0.0,
+              -0.08659332789549408
+            ],
+            [
+              0.0,
+              0.1135291057662446,
+              0.05772888526366247,
+              0.0
+            ],
+            [
+              0.0,
+              0.08474668195909155,
+              0.008719593376823674,
+              0.0
+            ],
+            [
+              -0.05649778797272797,
+              0.0,
+              0.0,
+              -0.1135291057662446
+            ]
+          ],
+          [
+            [
+              -0.00863904743389636,
+              0.0,
+              0.0,
+              -0.0876127993970325
+            ],
+            [
+              0.0,
+              0.11248039758933105,
+              0.058408532931355055,
+              0.0
+            ],
+            [
+              0.0,
+              0.0821444826790313,
+              0.008639047433896362,
+              0.0
+            ],
+            [
+              -0.05476298845268775,
+              0.0,
+              0.0,
+              -0.11248039758933105
+            ]
+          ]
+        ]
+      },
+      "poisson_number": {
+        "real": [
+          [
+            [
+              0.08284614339681784,
+              0.0,
+              0.0,
+              0.044395580847683636
+            ],
+            [
+              0.0,
+              0.04383119695194011,
+              0.04439558084768364,
+              0.0
+            ],
+            [
+              0.0,
+              0.04439558084768364,
+              0.08284614339681785,
+              0.0
+            ],
+            [
+              0.044395580847683636,
+              0.0,
+              0.0,
+              0.04383119695194011
+            ]
+          ],
+          [
+            [
+              0.08274894114605687,
+              0.0,
+              0.0,
+              0.0443434921178371
+            ],
+            [
+              0.0,
+              0.0437797704060254,
+              0.044343492117837106,
+              0.0
+            ],
+            [
+              0.0,
+              0.044343492117837106,
+              0.0827489411460569,
+              0.0
+            ],
+            [
+              0.0443434921178371,
+              0.0,
+              0.0,
+              0.0437797704060254
+            ]
+          ],
+          [
+            [
+              0.08198456014767666,
+              0.0,
+              0.0,
+              0.04393387572508002
+            ],
+            [
+              0.0,
+              0.04337536130847867,
+              0.04393387572508002,
+              0.0
+            ],
+            [
+              0.0,
+              0.04393387572508002,
+              0.08198456014767667,
+              0.0
+            ],
+            [
+              0.04393387572508002,
+              0.0,
+              0.0,
+              0.043375361308478674
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              1.8968778752017516e-20,
+              0.0,
+              0.0,
+              0.04074650941039479
+            ],
+            [
+              0.0,
+              -8.786443369401356e-21,
+              0.04074650941039479,
+              0.0
+            ],
+            [
+              0.0,
+              -0.04074650941039479,
+              2.3531847001431353e-20,
+              0.0
+            ],
+            [
+              -0.04074650941039479,
+              0.0,
+              0.0,
+              8.786443369401356e-21
+            ]
+          ],
+          [
+            [
+              1.041402845332846e-20,
+              0.0,
+              0.0,
+              0.040698702086324666
+            ],
+            [
+              0.0,
+              8.429746958654382e-21,
+              0.04069870208632467,
+              0.0
+            ],
+            [
+              0.0,
+              -0.04069870208632467,
+              -1.906153962567173e-20,
+              0.0
+            ],
+            [
+              -0.04069870208632467,
+              0.0,
+              0.0,
+              7.347741226037406e-21
+            ]
+          ],
+          [
+            [
+              -2.7823712225861056e-20,
+              0.0,
+              0.0,
+              0.040322753897711415
+            ],
+            [
+              0.0,
+              -2.2491615669978818e-20,
+              0.04032275389771143,
+              0.0
+            ],
+            [
+              0.0,
+              -0.04032275389771143,
+              -8.110795516490933e-20,
+              0.0
+            ],
+            [
+              -0.04032275389771141,
+              0.0,
+              0.0,
+              6.748678997675593e-21
+            ]
+          ]
+        ]
+      },
+      "internal_greater": {
+        "real": [
+          [
+            [
+              0.22466232880053766,
+              0.0,
+              0.0,
+              0.15385899413037038
+            ],
+            [
+              0.0,
+              0.07380334280276153,
+              0.09667856849821437,
+              0.0
+            ],
+            [
+              0.0,
+              0.0966785684982144,
+              0.21593249282616264,
+              0.0
+            ],
+            [
+              0.15385899413037038,
+              0.0,
+              0.0,
+              0.14957831906033525
+            ]
+          ],
+          [
+            [
+              0.22439873555255826,
+              0.0,
+              0.0,
+              0.15367847346982935
+            ],
+            [
+              0.0,
+              0.07371675034667431,
+              0.09656513685163419,
+              0.0
+            ],
+            [
+              0.0,
+              0.0965651368516342,
+              0.21567914217573453,
+              0.0
+            ],
+            [
+              0.15367847346982935,
+              0.0,
+              0.0,
+              0.149402820857503
+            ]
+          ],
+          [
+            [
+              0.22232588571132403,
+              0.0,
+              0.0,
+              0.1522588914987069
+            ],
+            [
+              0.0,
+              0.07303580286327506,
+              0.09567313080668555,
+              0.0
+            ],
+            [
+              0.0,
+              0.09567313080668556,
+              0.21368683827742707,
+              0.0
+            ],
+            [
+              0.1522588914987069,
+              0.0,
+              0.0,
+              0.1480227345894961
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              -2.810698820986076e-19,
+              0.0,
+              0.0,
+              -0.011916226105021742
+            ],
+            [
+              0.0,
+              6.751492409306552e-19,
+              0.00794415073668116,
+              0.0
+            ],
+            [
+              0.0,
+              -0.00794415073668116,
+              4.627960989727074e-19,
+              0.0
+            ],
+            [
+              0.011916226105021747,
+              0.0,
+              0.0,
+              -6.751492409306552e-19
+            ]
+          ],
+          [
+            [
+              -2.8074010663724197e-19,
+              0.0,
+              0.0,
+              -0.011902244959364362
+            ],
+            [
+              0.0,
+              6.743570975293187e-19,
+              0.00793482997290957,
+              0.0
+            ],
+            [
+              0.0,
+              -0.00793482997290957,
+              4.622531066182178e-19,
+              0.0
+            ],
+            [
+              0.011902244959364367,
+              0.0,
+              0.0,
+              -6.743570975293187e-19
+            ]
+          ],
+          [
+            [
+              -2.781468117862788e-19,
+              0.0,
+              0.0,
+              -0.011792299747268574
+            ],
+            [
+              0.0,
+              6.681278244493835e-19,
+              0.007861533164845695,
+              0.0
+            ],
+            [
+              0.0,
+              -0.007861533164845695,
+              4.579831125101664e-19,
+              0.0
+            ],
+            [
+              0.01179229974726858,
+              0.0,
+              0.0,
+              -6.681278244493835e-19
+            ]
+          ]
+        ]
+      },
+      "greater": {
+        "real": [
+          [
+            [
+              0.3075084721973555,
+              0.0,
+              0.0,
+              0.19825457497805402
+            ],
+            [
+              0.0,
+              0.11763453975470164,
+              0.14107414934589801,
+              0.0
+            ],
+            [
+              0.0,
+              0.14107414934589804,
+              0.2987786362229805,
+              0.0
+            ],
+            [
+              0.19825457497805402,
+              0.0,
+              0.0,
+              0.19340951601227535
+            ]
+          ],
+          [
+            [
+              0.30714767669861515,
+              0.0,
+              0.0,
+              0.19802196558766644
+            ],
+            [
+              0.0,
+              0.11749652075269972,
+              0.1409086289694713,
+              0.0
+            ],
+            [
+              0.0,
+              0.14090862896947132,
+              0.29842808332179144,
+              0.0
+            ],
+            [
+              0.19802196558766644,
+              0.0,
+              0.0,
+              0.1931825912635284
+            ]
+          ],
+          [
+            [
+              0.3043104458590007,
+              0.0,
+              0.0,
+              0.19619276722378692
+            ],
+            [
+              0.0,
+              0.11641116417175373,
+              0.13960700653176555,
+              0.0
+            ],
+            [
+              0.0,
+              0.13960700653176558,
+              0.29567139842510376,
+              0.0
+            ],
+            [
+              0.19619276722378692,
+              0.0,
+              0.0,
+              0.1913980958979748
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              -2.621011033465901e-19,
+              0.0,
+              0.0,
+              0.028830283305373045
+            ],
+            [
+              0.0,
+              6.663627975612538e-19,
+              0.048690660147075945,
+              0.0
+            ],
+            [
+              0.0,
+              -0.048690660147075945,
+              4.8632794597413875e-19,
+              0.0
+            ],
+            [
+              -0.02883028330537304,
+              0.0,
+              0.0,
+              -6.663627975612538e-19
+            ]
+          ],
+          [
+            [
+              -2.703260781839135e-19,
+              0.0,
+              0.0,
+              0.028796457126960304
+            ],
+            [
+              0.0,
+              6.827868444879731e-19,
+              0.04863353205923424,
+              0.0
+            ],
+            [
+              0.0,
+              -0.04863353205923424,
+              4.431915669925461e-19,
+              0.0
+            ],
+            [
+              -0.028796457126960308,
+              0.0,
+              0.0,
+              -6.670093563032813e-19
+            ]
+          ],
+          [
+            [
+              -3.059705240121399e-19,
+              0.0,
+              0.0,
+              0.028530454150442842
+            ],
+            [
+              0.0,
+              6.456362087794047e-19,
+              0.048184287062557125,
+              0.0
+            ],
+            [
+              0.0,
+              -0.048184287062557125,
+              3.7687515734525704e-19,
+              0.0
+            ],
+            [
+              -0.02853045415044283,
+              0.0,
+              0.0,
+              -6.6137914545170785e-19
+            ]
+          ]
+        ]
+      },
+      "internal_lesser": {
+        "real": [
+          [
+            [
+              0.21593249282616267,
+              0.0,
+              0.0,
+              0.09667856849821437
+            ],
+            [
+              0.0,
+              0.14957831906033525,
+              0.15385899413037038,
+              0.0
+            ],
+            [
+              0.0,
+              0.15385899413037038,
+              0.22466232880053752,
+              0.0
+            ],
+            [
+              0.0966785684982144,
+              0.0,
+              0.0,
+              0.07380334280276153
+            ]
+          ],
+          [
+            [
+              0.21567914217573458,
+              0.0,
+              0.0,
+              0.09656513685163419
+            ],
+            [
+              0.0,
+              0.149402820857503,
+              0.15367847346982935,
+              0.0
+            ],
+            [
+              0.0,
+              0.15367847346982935,
+              0.22439873555255818,
+              0.0
+            ],
+            [
+              0.0965651368516342,
+              0.0,
+              0.0,
+              0.07371675034667431
+            ]
+          ],
+          [
+            [
+              0.2136868382774271,
+              0.0,
+              0.0,
+              0.09567313080668555
+            ],
+            [
+              0.0,
+              0.1480227345894961,
+              0.1522588914987069,
+              0.0
+            ],
+            [
+              0.0,
+              0.1522588914987069,
+              0.22232588571132397,
+              0.0
+            ],
+            [
+              0.09567313080668556,
+              0.0,
+              0.0,
+              0.07303580286327506
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              -2.810698820986076e-19,
+              0.0,
+              0.0,
+              0.007944150736681166
+            ],
+            [
+              0.0,
+              6.751492409306552e-19,
+              -0.011916226105021747,
+              0.0
+            ],
+            [
+              0.0,
+              0.01191622610502175,
+              4.627960989727074e-19,
+              0.0
+            ],
+            [
+              -0.007944150736681166,
+              0.0,
+              0.0,
+              -6.751492409306552e-19
+            ]
+          ],
+          [
+            [
+              -2.8074010663724197e-19,
+              0.0,
+              0.0,
+              0.007934829972909575
+            ],
+            [
+              0.0,
+              6.743570975293187e-19,
+              -0.011902244959364367,
+              0.0
+            ],
+            [
+              0.0,
+              0.011902244959364372,
+              4.622531066182178e-19,
+              0.0
+            ],
+            [
+              -0.007934829972909575,
+              0.0,
+              0.0,
+              -6.743570975293187e-19
+            ]
+          ],
+          [
+            [
+              -2.781468117862788e-19,
+              0.0,
+              0.0,
+              0.007861533164845702
+            ],
+            [
+              0.0,
+              6.681278244493835e-19,
+              -0.01179229974726858,
+              0.0
+            ],
+            [
+              0.0,
+              0.011792299747268581,
+              4.579831125101664e-19,
+              0.0
+            ],
+            [
+              -0.007861533164845702,
+              0.0,
+              0.0,
+              -6.681278244493835e-19
+            ]
+          ]
+        ]
+      },
+      "lesser": {
+        "real": [
+          [
+            [
+              0.2987786362229805,
+              0.0,
+              0.0,
+              0.14107414934589801
+            ],
+            [
+              0.0,
+              0.19340951601227535,
+              0.19825457497805402,
+              0.0
+            ],
+            [
+              0.0,
+              0.19825457497805402,
+              0.3075084721973554,
+              0.0
+            ],
+            [
+              0.14107414934589804,
+              0.0,
+              0.0,
+              0.11763453975470164
+            ]
+          ],
+          [
+            [
+              0.29842808332179144,
+              0.0,
+              0.0,
+              0.1409086289694713
+            ],
+            [
+              0.0,
+              0.1931825912635284,
+              0.19802196558766647,
+              0.0
+            ],
+            [
+              0.0,
+              0.19802196558766647,
+              0.3071476766986151,
+              0.0
+            ],
+            [
+              0.14090862896947132,
+              0.0,
+              0.0,
+              0.11749652075269972
+            ]
+          ],
+          [
+            [
+              0.29567139842510376,
+              0.0,
+              0.0,
+              0.13960700653176555
+            ],
+            [
+              0.0,
+              0.19139809589797477,
+              0.19619276722378692,
+              0.0
+            ],
+            [
+              0.0,
+              0.19619276722378692,
+              0.30431044585900063,
+              0.0
+            ],
+            [
+              0.13960700653176558,
+              0.0,
+              0.0,
+              0.11641116417175373
+            ]
+          ]
+        ],
+        "imag": [
+          [
+            [
+              -2.621011033465901e-19,
+              0.0,
+              0.0,
+              0.04869066014707595
+            ],
+            [
+              0.0,
+              6.663627975612538e-19,
+              0.02883028330537304,
+              0.0
+            ],
+            [
+              0.0,
+              -0.028830283305373038,
+              4.8632794597413875e-19,
+              0.0
+            ],
+            [
+              -0.04869066014707595,
+              0.0,
+              0.0,
+              -6.663627975612538e-19
+            ]
+          ],
+          [
+            [
+              -2.703260781839135e-19,
+              0.0,
+              0.0,
+              0.04863353205923424
+            ],
+            [
+              0.0,
+              6.827868444879731e-19,
+              0.028796457126960308,
+              0.0
+            ],
+            [
+              0.0,
+              -0.0287964571269603,
+              4.431915669925461e-19,
+              0.0
+            ],
+            [
+              -0.04863353205923425,
+              0.0,
+              0.0,
+              -6.670093563032813e-19
+            ]
+          ],
+          [
+            [
+              -3.059705240121399e-19,
+              0.0,
+              0.0,
+              0.04818428706255712
+            ],
+            [
+              0.0,
+              6.456362087794047e-19,
+              0.02853045415044285,
+              0.0
+            ],
+            [
+              0.0,
+              -0.02853045415044285,
+              3.7687515734525704e-19,
+              0.0
+            ],
+            [
+              -0.04818428706255711,
+              0.0,
+              0.0,
+              -6.6137914545170785e-19
+            ]
+          ]
+        ]
+      }
+    },
+    "minimum_raw_greater_eigenvalue_s": 0.03328306965965072
+  },
+  "literal_four_phase_control_passed": true,
+  "streaming_callback_control_passed": true,
+  "negative_controls": {
+    "audit_true_without_path_evidence": {
+      "native_audit_boolean": true,
+      "certified": false,
+      "spectra_is_none": true,
+      "consumed_path_count": 1,
+      "reasons": [
+        "explicit path convergence evidence missing"
+      ]
+    },
+    "one_failed_path": {
+      "certified": false,
+      "spectra_is_none": true,
+      "failed_path_index": 2,
+      "callback_count": 3,
+      "failed_path_rate_s_inverse": 182981763341.93344,
+      "declared_total_rate_unchanged": true,
+      "reasons": [
+        "path_refinement: observed numerical error exceeds its declared tolerance"
+      ],
+      "failure_injected_for_gate_test": true
+    },
+    "path_evidence_without_ensemble_evidence": {
+      "certified": false,
+      "reasons": [
+        "explicit ensemble convergence evidence missing"
+      ]
+    },
+    "moment_only_evidence": {
+      "actual_occupancy_error": 0.001101931166711756,
+      "certified": false,
+      "reasons": [
+        "ensemble_refinement: required output metrics are missing",
+        "independent_scramble: required output metrics are missing"
+      ]
+    },
+    "delete_mean_outer_relative_raw_greater_error": 0.2986258302634337,
+    "average_mean_before_outer_relative_number_error": 1.0,
+    "passed": true
+  },
+  "actual_constant_transport_control": {
+    "scope": "Actual generic two-level transport integration; no optical Maxwell propagation",
+    "residence_time_s": 8.841837294116113e-07,
+    "ode_evaluations": 74,
+    "errors": {
+      "greater": 6.515183245582773e-16,
+      "lesser": 5.109773976014562e-16,
+      "greater_by_source": 6.515183245582773e-16,
+      "lesser_by_source": 5.109773976014562e-16,
+      "mean_pulse": 5.564018595606073e-16,
+      "mean_outer": 9.753782021719522e-16,
+      "retarded_response": 5.938732899848454e-16
+    },
+    "tolerance": 2e-08,
+    "state_audit_passed": true,
+    "wavepacket_audit_passed": true,
+    "passed": true
+  },
+  "actual_native_Rb_missing_evidence_control": {
+    "scope": "Actual native schema/phase/Doppler compatibility check at one frozen segment; no Rb ensemble certification",
+    "native_audit_passed": true,
+    "native_metadata": {
+      "mode_labels": [
+        "probe",
+        "conjugate",
+        "probe_dagger",
+        "conjugate_dagger"
+      ],
+      "entry_phase_rad": 0.0,
+      "entry_optical_demodulation_phases_rad": [
+        4.72839904312369,
+        -3.9541691600727327
+      ],
+      "carrier_offsets_rad_s": [
+        -19135695938.500065,
+        19133762919.806553,
+        19135695938.500065,
+        -19133762919.806553
+      ],
+      "pump_amplitudes_rad_s": [
+        7491811782.493482
+      ],
+      "coupling_s_inverse_sqrt_flux": [
+        4.764115314379086,
+        4.764140665130501
+      ],
+      "one_photon_doppler_rad_s": 7172317808.865826,
+      "loop_convective_frequency_rad_s": -1933018.693511963,
+      "boundary_source": "assumed unpolarized ground F populations",
+      "unused_input_fields": [
+        "number_density_m3",
+        "length_m",
+        "seed_power_W",
+        "seed_phase_rad"
+      ],
+      "scope": "one moving pump-only reduced RMS Rb atom; finite seed, full Zeeman, ensemble and Maxwell field absent"
+    },
+    "convention_digest": "51f016c7b7111b2867708691f1f6d5f59cf0552a85435468f1b3908d4163be75",
+    "certified": false,
+    "spectra_is_none": true,
+    "consumed_path_count": 1,
+    "path_entry_position_m": [
+      -0.0001,
+      2.7319883462041615e-05,
+      -6.659128805622458e-05
+    ],
+    "path_velocity_m_s": [
+      238.74208050195796,
+      118.2334103810606,
+      -191.99381241223392
+    ],
+    "residence_time_s": 1.7400931584213181e-07,
+    "frequency_hz": [
+      1000000.0
+    ],
+    "wavevectors_rad_m": [
+      [
+        0.0,
+        0.0,
+        7903645.504710572
+      ],
+      [
+        47421.2057483451,
+        0.0,
+        7903439.448751732
+      ],
+      [
+        -39518.38182272236,
+        0.0,
+        7903610.5004649935
+      ]
+    ],
+    "number_density_m3": 1e+18,
+    "reasons": [
+      "explicit path convergence evidence missing"
+    ],
+    "passed": true
+  },
+  "source_hashes_sha256": {
+    "analysis/grand_challenge/normalization_audit.py": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+    "analysis/grand_challenge/reference/atomic_qrt.py": "517f7abbb9b45d40fa3e4373b44240e6a5bd86f4ece3cc9434fa682825e6b35d",
+    "analysis/grand_challenge/reference/ballistic_linear_channel.py": "5f517494fa01a0b1f67a3fb4a8e8419a2648584cbdbee954958a43726c8e1515",
+    "analysis/grand_challenge/reference/direct_readout.py": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+    "analysis/grand_challenge/reference/fock_photocurrent.py": "8fedabb98b1b9193db41bb17650d29ebb178c3fe819937bbe604010ef7df2325",
+    "analysis/grand_challenge/reference/kinetic.py": "b0b9ba55cd448c8ddfb7d4d34a7b3a6b4d5fc1f2dfc76940dbef5ca19c91ec5c",
+    "analysis/grand_challenge/reference/periodic_field.py": "7fbd76a3f4d969abe4df2d84fe3657afd7f4176964944a30b2a51cae16642972",
+    "analysis/grand_challenge/reference/periodic_qrt.py": "bfa6fde63b7e769a1e5f3204841cd0f324cf27fa55b249e2e86f1c3ef1e698a3",
+    "analysis/grand_challenge/reference/segmented_qrt.py": "03d5d5ae261f77155fcf6da62f98ee1dc9763d6bea0207842fc57096e9b4d489",
+    "analysis/grand_challenge/reference/smooth_qrt.py": "385d5097bb9013ce84f79e0471d3834c9085a583d0f583ad0bdc83c8c45ec8b7",
+    "analysis/grand_challenge/reference/spatial_field.py": "14cfdfb241a85e9bc992715e378354477eb2e76222b4b145c833c063fafd9926",
+    "analysis/grand_challenge/reference/torus_qrt.py": "fac1b05ab70f7c3c5a84a872d50ed0e0cdd5b60e54bbed0835e858ac37343ab6",
+    "analysis/grand_challenge/reference/transport_qrt.py": "53909f46b7e703bc045ee62fe77f99cb6a8460105846fd8f77387b3f8a4dbd05",
+    "analysis/grand_challenge/reference/uncoupled_d1.py": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+    "analysis/grand_challenge/transport_ensemble_audit.py": "e1eba5371eeb667e1fc6ef837d235fceefcbd5ec0b5e93713477fb9c2824bc18",
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/doppler.py": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+    "gabes/fwm_quantum/__init__.py": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+    "gabes/fwm_quantum/field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "gabes/fwm_quantum/inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "gabes/fwm_quantum/kinetic.py": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+    "gabes/fwm_quantum/model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "gabes/fwm_quantum/normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "gabes/fwm_quantum/periodic.py": "56cf4e42959d7db9f290628a4956ae755eff725bcfd5c677bdc1ed48f41f3dc9",
+    "gabes/fwm_quantum/periodic_cell.py": "a3a9dfb11a320ea6a751c6a23afd5ab287ad8094cd525b20be71810b12ae970d",
+    "gabes/fwm_quantum/readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "gabes/fwm_quantum/seed_validity.py": "a7ee4d273c232c0debf64e8cde913a1ddd0050c591df468aac0111b7cddb7e9d",
+    "gabes/fwm_quantum/smooth_transport.py": "5cb5c6682e375b9a273a0abc325af2af6a28742981c5174826e1569e3592984c",
+    "gabes/fwm_quantum/spatial.py": "0e84b807ffdba30a245705057c19a09ea4a652445ad10a13fbe6d4658592f9b4",
+    "gabes/fwm_quantum/spatial_cell.py": "4b6321ae9df11e55d7d4d9335f9471179e185480ff3de3b698d52fd0edfd2ec5",
+    "gabes/fwm_quantum/transport.py": "a4279e9e322e1a0c19a85c2a3edd02e0721e80796f8440c25402d99a7930b858",
+    "gabes/fwm_quantum/transport_ensemble.py": "6a11257abdbddcd0163639dbba230764863b7ce0661c646b936e05475efb63f3",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "gabes/quantum/__init__.py": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "gabes/quantum/contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "gabes/quantum/diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "gabes/quantum/inflow.py": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2",
+    "gabes/quantum/periodic.py": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+    "gabes/quantum/periodic_field.py": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+    "gabes/quantum/photocounting.py": "92bce96856fe1f3e12d9600c6da2bae7f95a6619d1750a1be6a39da31d5e9c0c",
+    "gabes/quantum/readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/segmented_transport.py": "8a62bac3053f13678e38df7f85198cf9d6a4502701172de9d8b016735f258941",
+    "gabes/quantum/sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "gabes/quantum/smooth_transport.py": "95f00437ac8bbab32383dd5e621205e4075c4d24c8482d407a6dd1028c3f45b9",
+    "gabes/quantum/spatial.py": "ff9bfb9e3dbd9ecb1b85efd9e69f274ce79e3949ba063fd95f5becf1e4c1e145",
+    "gabes/quantum/spatial_modes.py": "9516283b9b7d298f25e14a784279831809f3e6219710ff0a2f7e0fef182edc8c",
+    "gabes/quantum/spectrum_analysis.py": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+    "gabes/quantum/transport.py": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1",
+    "gabes/quantum/traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "gabes/quantum/uncertainty.py": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+    "gabes/schemes/fwm.py": "bcc1a857db9b3be38ff53be41144a35ada41f63fe98736645a38f8c79f9c4c1e",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "tests/quantum/test_inflow.py": "65e1e6c13945e6bb6baec97f698fd972f54ca019ff712fc28008ebeb76a5f1d5",
+    "tests/quantum/test_segmented_transport.py": "5a173bef4eb12bf2d3f1fd660591bba19f1c2719c1f62f03c71f0aa1cef14950",
+    "tests/quantum/test_smooth_transport.py": "cb03b7c9a3311108d2f18a5e2aa68b316b1fe5b280660cd0c0e105e4dbfc0a31",
+    "tests/quantum/test_transport.py": "33c8bbbb118e15222c0417fe076429a6a81501c32b9c574c17495f2eafe5c3d0",
+    "tests/quantum/test_transport_ensemble.py": "557fe4cea3303215d1bd6d9ba7fa2a5e791c2ab5ead0dd8c51f650af9357c89a"
+  },
+  "source_hashes_stable": true,
+  "implementation_controls_passed": true,
+  "expected_controls_passed": false,
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "blas_threads": 1,
+    "elapsed_s": 46.247030100028496
+  },
+  "limitations": [
+    "The zero-offset toy uses an imposed phase-mark family, not the coherence dynamics of a physical nonzero Rb beat.",
+    "The 5% stream gate concerns this finite constant-atom integrand only. Independent scrambles are numerical controls, not rigorous statistical confidence bounds.",
+    "Only atomic_inflow contributes because the toy has no jumps; nonzero microscopic jump-source ensemble convergence is not established here.",
+    "The native reduced Rb calculation is one deliberately uncertified packet; passing its internal audit does not supply path or thermal-ensemble convergence.",
+    "Returned retarded response is an integrated finite-age response to a global weak drive; it is not a spatial Maxwell M matrix.",
+    "Uniform common phase gives the zero-cyclic time-averaged atomic stream. Other cyclic sectors and coherent mean lines are outside this artifact.",
+    "Self-consistent nonlocal optical propagation, field commutators/SQL, finite seed saturation, full Zeeman physics and held-out experimental validation remain downstream."
+  ]
+}

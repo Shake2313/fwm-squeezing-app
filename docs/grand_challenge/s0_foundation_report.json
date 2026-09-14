@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "stage": "S0 foundations, initial implementation",
+  "convention_id": "gabes-quantum-v1",
+  "expected_controls_passed": true,
+  "physical_squeezing_prediction": false,
+  "microscopic_diffusion_implemented": false,
+  "experimental_validation": false,
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1"
+  },
+  "source_sha256": {
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/schemes/fwm.py": "212a9039041e660339c4008317d4a0aeb3cc2105d9c9e2b608f47898d42a5f69",
+    "gabes/quantum/contracts.py": "4602f6b5573f5cb12eed084f3409fbc4d5e2bb0abc0df7f49af59526fa1fd41a",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "analysis/grand_challenge/foundation_audit.py": "657b9711235a85700586e5b95fbcdab69a3ac6e4579bd1c93396a18cc35e7d59"
+  },
+  "generator_audits": {
+    "explicit_radiative": {
+      "passed": true,
+      "trace_relative_residual": 0.0,
+      "hermiticity_relative_residual": 0.0,
+      "minimum_conditional_choi_eigenvalue_s_inverse": -1.101052570267712e-09,
+      "conditional_choi_tolerance_s_inverse": 0.0028087608430285575,
+      "generator_norm_s_inverse": 51757342.866514415,
+      "conditional_choi_norm_s_inverse": 28080253.269486364,
+      "scope": "numerical GKSL consistency of the supplied generator only"
+    },
+    "explicit_thermal_reset": {
+      "passed": true,
+      "trace_relative_residual": 0.0,
+      "hermiticity_relative_residual": 0.0,
+      "minimum_conditional_choi_eigenvalue_s_inverse": -7.433054905425952e-11,
+      "conditional_choi_tolerance_s_inverse": 3.6664715904385896e-05,
+      "generator_norm_s_inverse": 900833.3954243656,
+      "conditional_choi_norm_s_inverse": 366519.1429188092,
+      "scope": "numerical GKSL consistency of the supplied generator only"
+    },
+    "explicit_radiative_plus_reset": {
+      "passed": true,
+      "trace_relative_residual": 0.0,
+      "hermiticity_relative_residual": 0.0,
+      "minimum_conditional_choi_eigenvalue_s_inverse": -4.107233727491406e-09,
+      "conditional_choi_tolerance_s_inverse": 0.0028454254347647515,
+      "generator_norm_s_inverse": 52649438.702221565,
+      "conditional_choi_norm_s_inverse": 28446772.412405174,
+      "scope": "numerical GKSL consistency of the supplied generator only"
+    },
+    "legacy_default_counterexample": {
+      "passed": false,
+      "trace_relative_residual": 0.0,
+      "hermiticity_relative_residual": 0.0,
+      "minimum_conditional_choi_eigenvalue_s_inverse": -314159.26535898016,
+      "conditional_choi_tolerance_s_inverse": 0.0028087608430285575,
+      "generator_norm_s_inverse": 51757342.86651442,
+      "conditional_choi_norm_s_inverse": 28080253.269486364,
+      "scope": "numerical GKSL consistency of the supplied generator only"
+    },
+    "legacy_combined_121C": {
+      "passed": true,
+      "trace_relative_residual": 6.180326410976469e-19,
+      "hermiticity_relative_residual": 0.0,
+      "minimum_conditional_choi_eigenvalue_s_inverse": -9.631527104969869e-10,
+      "conditional_choi_tolerance_s_inverse": 0.0028454254347647515,
+      "generator_norm_s_inverse": 52649438.702221565,
+      "conditional_choi_norm_s_inverse": 28446772.412405174,
+      "scope": "numerical GKSL consistency of the supplied generator only"
+    }
+  },
+  "reset_assembly_relative_error": 1.6225224987012237e-16,
+  "passive_channel_audit": {
+    "passed": true,
+    "minimum_noise_eigenvalue": 0.07,
+    "minimum_cp_eigenvalue": -5.551115123125783e-17,
+    "tolerance": 1e-10,
+    "scope": "finite temporal-mode channel consistency only"
+  },
+  "passive_vacuum_max_error": 5.551115123125783e-17,
+  "analysis_axis_example_rad_s": [
+    -6283185.307179586,
+    0.0,
+    6283185.307179586
+  ],
+  "limits": [
+    "A failed legacy-default audit is the expected negative control, not repaired physics.",
+    "The combined 121 C generator passing does not identify its independent reservoirs.",
+    "The explicit thermal reset uses a nominal rate solely to check algebraic equivalence.",
+    "No diffusion, atomic field propagation, RF spectrum or measured no-fit prediction is supplied."
+  ]
+}

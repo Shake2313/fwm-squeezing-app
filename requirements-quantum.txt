@@ -1,0 +1,3 @@
+# Optional Grand Challenge field-propagation research path.
+-r requirements.txt
+scipy>=1.14,<2

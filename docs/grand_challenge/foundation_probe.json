@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-09",
+  "scope": "Design-stage read-only probe of current dissipative atomic generators; not an implementation of the quantum FWM theory.",
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0"
+  },
+  "choi_convention": "J(S) = sum_ij |i><j| tensor S(|i><j|), row-major density-matrix vectorization; unnormalized Choi.",
+  "generator_test": "P J(L) P with P=I-|Omega><Omega| and |Omega>=vec(I)/sqrt(n). Relative eigenvalue is divided by the spectral norm of L.",
+  "classification_relative_tolerance": 1e-10,
+  "default_gamma_gg_s_inverse": 628318.5307179586,
+  "thermal_configuration": {
+    "temperature_K": 394.15,
+    "density": "default hyperfine.number_density(T)",
+    "transit_rate": "default constants.GAMMA_GG"
+  },
+  "source_sha256": {
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/schemes/fwm.py": "212a9039041e660339c4008317d4a0aeb3cc2105d9c9e2b608f47898d42a5f69"
+  },
+  "results": [
+    {
+      "configuration": "radiative_only",
+      "n_levels": 4,
+      "min_conditional_choi_eigenvalue_s_inverse": -1.101052570267712e-09,
+      "relative_min_conditional_choi_eigenvalue": -2.1273359668161458e-17,
+      "finite_time_checks": [
+        {
+          "dt_s": 1e-10,
+          "min_choi_eigenvalue": -2.343258467236042e-16
+        },
+        {
+          "dt_s": 1e-09,
+          "min_choi_eigenvalue": -1.5744351594973477e-16
+        },
+        {
+          "dt_s": 1e-08,
+          "min_choi_eigenvalue": -3.03318571100872e-16
+        }
+      ],
+      "interpretation": "consistent_with_complete_positivity_at_this_configuration_within_roundoff",
+      "dephasing_entries": [
+        [
+          0,
+          1,
+          0.0
+        ],
+        [
+          1,
+          0,
+          0.0
+        ]
+      ],
+      "transit_reset_rate_s_inverse": null
+    },
+    {
+      "configuration": "registry_default",
+      "n_levels": 4,
+      "min_conditional_choi_eigenvalue_s_inverse": -314159.26535898016,
+      "relative_min_conditional_choi_eigenvalue": -0.006069849183896814,
+      "finite_time_checks": [
+        {
+          "dt_s": 1e-10,
+          "min_choi_eigenvalue": -3.1358477861507024e-05
+        },
+        {
+          "dt_s": 1e-09,
+          "min_choi_eigenvalue": -0.0003084170077438341
+        },
+        {
+          "dt_s": 1e-08,
+          "min_choi_eigenvalue": -0.0025752743118692594
+        }
+      ],
+      "interpretation": "violates_complete_positivity",
+      "dephasing_entries": [
+        [
+          0,
+          1,
+          628318.5307179586
+        ],
+        [
+          1,
+          0,
+          628318.5307179586
+        ]
+      ],
+      "transit_reset_rate_s_inverse": null
+    },
+    {
+      "configuration": "current_121C",
+      "n_levels": 4,
+      "min_conditional_choi_eigenvalue_s_inverse": -9.631527104969869e-10,
+      "relative_min_conditional_choi_eigenvalue": -1.8293693802595968e-17,
+      "finite_time_checks": [
+        {
+          "dt_s": 1e-10,
+          "min_choi_eigenvalue": -1.001413925224696e-19
+        },
+        {
+          "dt_s": 1e-09,
+          "min_choi_eigenvalue": -2.168404344971009e-19
+        },
+        {
+          "dt_s": 1e-08,
+          "min_choi_eigenvalue": -7.943493683101473e-18
+        }
+      ],
+      "interpretation": "consistent_with_complete_positivity_at_this_configuration_within_roundoff",
+      "dephasing_entries": [
+        [
+          0,
+          1,
+          18107.222335882998
+        ],
+        [
+          1,
+          0,
+          18107.222335882998
+        ],
+        [
+          0,
+          2,
+          4659607.024408739
+        ],
+        [
+          2,
+          0,
+          4659607.024408739
+        ],
+        [
+          0,
+          3,
+          4659607.024408739
+        ],
+        [
+          3,
+          0,
+          4659607.024408739
+        ],
+        [
+          1,
+          2,
+          4659607.024408739
+        ],
+        [
+          2,
+          1,
+          4659607.024408739
+        ],
+        [
+          1,
+          3,
+          4659607.024408739
+        ],
+        [
+          3,
+          1,
+          4659607.024408739
+        ]
+      ],
+      "transit_reset_rate_s_inverse": 628318.5307179586
+    }
+  ],
+  "limitations": [
+    "Only the three named settings are checked; this is not an all-parameter validation.",
+    "Combined-generator complete positivity does not establish the independent reservoir interpretation of each manually separated term.",
+    "The default-factory counterexample is not a claim that the 121 C collisional production setting fails the same check.",
+    "No source code was changed; model/reservoir corrections belong to the proposed S0 phase."
+  ],
+  "reproduction": "See the code block in docs/grand_challenge/blueprint.md.",
+  "criterion_source": "https://arxiv.org/html/2409.17072v2"
+}

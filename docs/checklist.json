@@ -1468,5 +1468,1537 @@
       "Cubic operating-point readout: require separate interpolation and overshoot checks."
     ],
     "not_equivalent": "A 10-percent sampled order audit is not a full-scan certificate; lowering N_F changes the finite-boundary problem; the two finite-drive seed configurations cannot be merged by the harmonic conjugation identity. These are not exact speed patches."
-  }
+  },
+  "grand_challenges": [
+    {
+      "id": "gabes-grand-challenge-parameter-free-hot-vapor-fwm",
+      "blueprint": "docs/grand_challenge/blueprint.md",
+      "blueprint_status": "design_draft_2026-09-09",
+      "foundation_evidence": "docs/grand_challenge/foundation_probe.json",
+      "title": "GABES Grand Challenge",
+      "subtitle": "Hot-vapor FWM의 parameter-free microscopic squeezing theory",
+      "created_at": "2026-09-09",
+      "area": "GABES seeded ⁸⁵Rb D1 double-Λ + microscopic quantum noise + propagation + experimental validation",
+      "registry_role": "일반 items와 구분한 최상급 장기 연구 과제. 기존 세부 과제를 연결하는 상위 연구 명세이며, 기존 항목의 상태나 완료 범위를 바꾸지 않는다. 이 영역의 엄격한 no-fit 완료 기준은 기존 exploratory gain fit이나 conditional Gaussian model의 허용 범위보다 강하다.",
+      "priority": "P1",
+      "effort": "research",
+      "difficulty": "grand_challenge",
+      "status": "in_progress",
+      "agent_brief": "최고 수준의 AI 에이전트가 장시간의 수학적 유도, 독립 구현, 수치 실험과 반례 탐색을 투자할 만한 연구 문제로 다룬다. 단기 UI 개선이나 기존 gain 곡선 재현으로 축소하지 않는다. 각 단계의 유도·반례·실패 원인·재현 명령을 남겨 여러 연구 세션에서 이어갈 수 있게 한다.",
+      "resource_policy": "고정 토큰 예산이나 자동 실행 일정은 이 등록에서 설정하지 않는다. 모델 이름, 다른 수학 문제를 풀었다는 전언, 투입 토큰 수는 본 과제의 해결 가능성이나 물리적 정당성의 증거가 아니다. 완료 여부는 아래 검증 관문으로 판단한다.",
+      "objective": "실험적으로 독립 측정 가능한 원자·광학 파라미터만을 입력으로 받아, hot ⁸⁵Rb D1 double-Λ FWM의 probe/conjugate gain과 전체 intensity-difference squeezing spectrum S₋(Ω)을 절대값으로 동시에 예측하는 microscopic quantum theory를 구축하라. Phenomenological squeezing efficiency, 임의 excess-noise coefficient, 사후 fitted loss로 결과를 맞추지 않는다.",
+      "problem": "현재 저장소는 finite-seed mean-field 계산과 pump-only/2D Doppler reference를 제공하지만 pumped atomic reservoirs에서 유도한 microscopic diffusion과 실험적으로 검증된 절대 squeezing spectrum은 제공하지 않는다. 비평형 원자 잡음, 공간 전파와 실제 검출을 동일한 정규화·입력·오차 예산으로 닫는 것이 핵심이다.",
+      "integrated_physics": [
+        "Hot-vapor Maxwell velocity distribution과 Doppler broadening",
+        "Non-collinear pump/seed/conjugate geometry와 vector phase matching",
+        "Full D1 hyperfine/Zeeman structure, polarization과 magnetic field",
+        "Strong pump saturation과 선언한 seed 세기에서의 pumped atomic state",
+        "Distributed absorption과 그에 동반하는 reservoir noise",
+        "Spontaneous-emission Langevin noise, transit/reset 및 검증된 collision channels",
+        "Propagation과 segmentwise self-consistent pump depletion",
+        "Transverse modes, collection/filter transfer와 mode covariance",
+        "독립 RF analysis frequency Ω에서의 양·음 sideband 응답",
+        "독립 측정한 검출 효율·전달함수·SQL로 환산한 absolute experimental squeezing spectrum"
+      ],
+      "no_fit_contract": {
+        "meaning": "Parameter-free는 물리적 입력이 없다는 뜻이 아니라 목표 FWM gain 또는 squeezing 데이터로 조절하는 자유 계수가 없다는 뜻이다. 원자 상수는 추적 가능한 독립 측정 문헌값을, 장치 파라미터는 해당 장치의 독립 측정값과 불확도를 사용한다.",
+        "allowed_inputs": [
+          "Transition frequencies, dipoles/CG coefficients, decay branching, isotope composition, density/temperature profile, cell length, magnetic field와 independently characterized collision/transit rates",
+          "Δ, δ, pump/seed powers, waist convention, beam profiles/crossing angles, polarization과 collection geometry",
+          "별도로 측정한 post-cell optical transmission, detector QE/transfer, electronic background, pump/seed technical-noise PSD와 필요한 cross spectra; target squeezing trace에서 역산하지 않는다"
+        ],
+        "forbidden_shortcuts": [
+          "Squeezing efficiency, arbitrary excess-noise coefficient, fitted loss 또는 유사한 숨은 noise scale",
+          "목표 gain이나 squeezing에 맞춘 residual coupling, mode-overlap/polarization/Zeeman participation penalty 또는 dephasing rate",
+          "현재의 inherited 0.74 residual, v7 gain-fit ell 또는 output-constrained Gaussian fit을 microscopic 입력으로 승격하는 것",
+          "M(Ω)의 commutator defect만으로 최소 vacuum noise를 선택한 뒤 이를 atomic D(Ω)로 부르는 것",
+          "셀 내부 absorption을 post-cell loss로 다시 적용하거나 임의 power cap으로 self-consistent depletion을 대체하는 것",
+          "Δ/δ scan을 RF noise spectrum으로 바꾸어 표기하거나 −7.8 dB 한 점의 일치를 전체 spectrum 검증으로 간주하는 것"
+        ],
+        "unknown_input_policy": "독립 입력이 없으면 필요한 측정과 그 입력에 대한 conditional sensitivity/uncertainty를 명시한다. 최적화로 숨기거나 missing 값을 편리한 상수로 채우지 않는다. Fitted exploratory 결과는 별도 진단이며 Grand Challenge의 no-fit 통과로 세지 않는다.",
+        "calibration_vs_holdout": "'한 operating point에 맞춘 뒤'는 독립 계측으로 장치 입력·단위·정규화를 확정하고 기준점 예측을 대조한다는 뜻이다. 기준점의 gain/S₋(Ω)을 목적함수로 물리 계수를 맞추는 것은 금지한다. 이후 다른 Δ, δ, T, P_pump 조건에서는 제어량과 독립 측정으로 확인된 입력 변화만 반영하고 모델 계수는 재조정하지 않는다."
+      },
+      "reference_operating_point": {
+        "source": "README.md의 Sim et al. Sci. Rep. 15, 7727 (2025) reference와 fwm-reference-parameter-provenance",
+        "source_url": "https://www.nature.com/articles/s41598-025-86479-w",
+        "nominal_inputs": {
+          "isotope": "85Rb",
+          "line": "D1",
+          "one_photon_detuning_GHz": 0.9,
+          "two_photon_detuning_MHz": -8,
+          "temperature_C": 121,
+          "pump_power_mW": 600,
+          "seed_power_uW": 8,
+          "cell_length_mm": 12.5,
+          "pump_waist_1e2_radius_um": 530,
+          "seed_waist_1e2_radius_um": 330,
+          "crossing_angle_deg": 0.32,
+          "legacy_total_detection_efficiency": 0.8694
+        },
+        "comparison_targets": "Nominal gain ≈15와 보고된 intensity-difference squeezing −7.8 dB 및 해당 측정 조건의 전체 RF spectrum. Gain 정의, 분석 주파수, SQL, 전자잡음 보정 여부와 불확도를 source-specific하게 확정한다.",
+        "provenance_boundary": "이 값들은 저장소의 문헌 reference defaults이며 현재 장치의 새 독립 측정을 의미하지 않는다. 특히 legacy detection efficiency는 재확인이 필요한 입력이다. Rounded output-power ratios와 nominal gain을 동일 정밀도의 한 데이터 행으로 합치지 않는다. −7.8 dB는 fitting anchor가 아니라 비교 대상이다."
+      },
+      "milestones": [
+        {
+          "id": "gc-fwm-1-reduced-four-level-theorem-model",
+          "title": "1. Reduced four-level theorem/model",
+          "status": "in_progress",
+          "acceptance_criteria": [
+            "유도에 사용할 atomic generator의 trace/Hermiticity/GKSL 조건과 각 reservoir의 명시적 provenance를 먼저 검증한다. Nonzero legacy coherence-only dephasing 및 추적되지 않은 superoperator 수정을 총 generator의 CP 통과만으로 승인하지 않는다.",
+            "현재 GABES double-Λ Hamiltonian, collapse operators, state normalization과 field/collective-atom normalization을 명시한다. 정리의 가정·적용 범위·선형화 오차를 적고 pump-only weak-seed 또는 finite-seed Floquet 기준 상태를 구분한다.",
+            "같은 pumped Lindbladian으로부터 drift M(Ω)와 microscopic D(Ω)를 각각 유도한다. Atomic operator Einstein relation 또는 동등한 microscopic reservoir derivation에서 시작해 spontaneous decay, dephasing, transit/reset 및 채택한 collision channels의 noise와 cross correlations를 추적한다. M만으로 D를 추정하지 않는다.",
+            "Atomic Markov diffusion과 원자 자유도 제거 후 frequency-dependent effective field diffusion을 구분한다. Operator ordering, Fourier sign, photon flux, Ω=2πf, Nambu/companion blocks와 reservoir commutator를 고정한다.",
+            "Local/global commutator preservation, generated-noise covariance의 Hermiticity/positivity와 total covariance의 quantum uncertainty를 자동 검증한다. ±Ω sidebands를 함께 유지하고, uncertainty 검사는 명시한 quadrature/physical temporal-mode convention에서 수행한다. Residual과 최소 고유값을 저장하며 임의 PSD clipping으로 실패를 가리지 않는다.",
+            "유도와 별도로 atomic Liouvillian/quantum-regression 또는 직접 reservoir-correlation reference를 구현해 응답과 noise를 대조한다. No-atom, zero-length, passive-loss, ideal-amplifier limits와 weak-seed reference parity를 검사한다.",
+            "Hot-vapor/non-collinear 확장에서 독립 velocity classes의 noise covariance를 올바른 density/volume weight로 합산한다. 평균 noise amplitude를 제곱하지 않으며 collision으로 class correlations가 생기는 경우 독립성을 재검토한다.",
+            "Floquet order, velocity quadrature/cutoff, RF grid와 propagation resolution의 독립 수렴을 보고한다. 내부 불변량 PASS는 유도한 모델의 일관성 검사이며 실험적 완전성의 증명으로 사용하지 않는다."
+          ],
+          "deliverables": [
+            "가정과 정규화가 명시된 reduced-model derivation/theorem 및 machine-readable drift/diffusion contract",
+            "독립 microscopic reference, 자동 invariant/limit/convergence 검증과 재현 가능한 실패 사례"
+          ]
+        },
+        {
+          "id": "gc-fwm-2-no-fit-absolute-prediction",
+          "title": "2. No-fit prediction",
+          "status": "parked",
+          "activation_trigger": "Milestone 1의 검증된 reduced core와 독립 입력 ledger가 준비되면 실행한다. 누락된 실측 입력은 conditional prediction으로 명시하고 실험 검증 상태를 별도로 유지한다.",
+          "acceptance_criteria": [
+            "하나의 입력 ledger와 동일한 pumped state/propagation에서 probe/conjugate powers와 명시된 두 gain, source covariance, detected S₋(Ω)을 동시에 계산한다. 모든 입력에 source, units, uncertainty, measurement date/applicability를 연결한다.",
+            "S₋(Ω)=PSD[i_probe−g i_conjugate]/PSD_SQL을 명시한 동일 mean photocurrents, detector transfer와 balancing weight g에 대해 정의한다. Linear SQL-normalized ratio, 10 log10 S₋ 및 calibrated absolute PSD를 구분해 출력한다. g는 실측/사전 선언한 readout 조건이고 spectrum에 맞추는 숨은 계수가 아니다.",
+            "최소 기존 0.1–4 MHz reference band를 다루고 실제 측정 전체 대역으로 확장한다. Source spectrum과 detector/technical-noise contributions, RBW/VBW/averaging 및 electronics subtraction convention을 분리해 동일 측정량끼리 비교한다.",
+            "입력 불확도와 수치 오차를 전파한 prediction interval을 gain과 RF spectrum 모두에 제공한다. 필요한 seed linearization, transport 또는 Markov approximation이 깨지는 영역은 출력의 적용 범위에서 표시한다.",
+            "No-fit contract를 기계적으로 감사한다. Reference point의 불일치는 결과로 보존하고 원인 후보를 제시하며 efficiency/loss/noise/coupling scale을 최적화해 제거하지 않는다."
+          ],
+          "deliverables": [
+            "입력 provenance/uncertainty ledger와 하나의 명령으로 재현하는 absolute gain + S₋(Ω) prediction bundle",
+            "Reference point 비교, source/detector/noise budget과 approximation/error report"
+          ]
+        },
+        {
+          "id": "gc-fwm-3-out-of-sample-validation",
+          "title": "3. Out-of-sample test",
+          "status": "blocked_external",
+          "blocked_on": [
+            "여러 Δ, δ, T, P_pump에서 gain/powers와 전체 RF squeezing spectrum을 함께 기록한 raw dataset 및 independently measured apparatus inputs",
+            "조건별 SQL/dark/transfer traces, RF settings, uncertainty와 모델 조정에 사용하지 않은 검증 조건"
+          ],
+          "unblock_condition": "Provenance와 uncertainty가 있는 dataset을 확보하고, 모델 선택/진단에 쓴 조건과 untouched holdout 조건 및 사전 평가 지표를 고정한다. 예측 실행에는 milestone 2가 필요하다.",
+          "acceptance_criteria": [
+            "Operating conditions 전체를 기준으로 split하여 같은 trace의 RF bins가 양쪽으로 새지 않게 한다. Δ, δ, T, P_pump 각각의 변화와 가능한 joint variations를 포함하고 검증 도메인을 선언한다.",
+            "모델·입력 추정 절차·평가 지표·허용 오차를 holdout 열람 전에 고정한다. 다른 조건의 gain과 전체 S₋(Ω)을 no-refit으로 예측하고 평균 잔차, spectral shape, 최저 noise와 사전 정의한 bandwidth에 대해 실측 불확도와 함께 평가한다.",
+            "실패하면 detuning/frequency/temperature/power에 따른 residual structure로 누락 physics 또는 잘못된 가정을 식별한다. 실패를 계수 보정으로 덮지 않는다. 이미 본 holdout은 이후 model-development data로 표시하고 개선 모델은 새로운 untouched data로 다시 검증한다.",
+            "공개된 −7.8 dB 한 점은 이미 알려진 reference이므로 blind holdout으로 부르지 않는다. 기준점 일치와 조건을 바꾼 예측 성공을 독립 관문으로 남긴다."
+          ],
+          "deliverables": [
+            "동결된 split/metrics manifest, gain과 spectrum의 joint holdout report 및 failure residual map",
+            "실패별 missing-physics 가설과 이를 구분할 후속 측정/계산 계획"
+          ]
+        },
+        {
+          "id": "gc-fwm-4-full-atom-physics-ablation",
+          "title": "4. Full atom 및 physics ablation",
+          "status": "parked",
+          "activation_trigger": "Reduced-model 유도와 예측 경로가 검증되고 적용 범위/잔차가 기록되면 확장한다. 수치 ablation은 실험 자료와 병행할 수 있지만 −7.8 dB의 원인에 대한 최종 주장은 held-out 검증을 요구한다.",
+          "acceptance_criteria": [
+            "Full ⁸⁵Rb D1 hyperfine/Zeeman, independently characterized collision/transit physics, transverse modes/collection, segmentwise pump depletion을 한 요소씩 추가한다. 각 variant에서 drift와 diffusion을 같은 microscopic model로 함께 갱신한다.",
+            "Explicit Zeeman CG paths는 averaged line strengths/participation penalties를 대체하고 population을 한 번만 센다. Collision model에는 상응하는 fluctuation channels와 velocity/spin correlations를 포함한다.",
+            "각 z segment에서 pump/probe/conjugate mean fields와 atomic state를 self-consistently 다시 풀고 local M,D를 재계산한다. Distributed absorption/reservoir energy와 pair-conversion energy accounting을 분리해 기록하고 step/iteration/mode convergence를 검증한다.",
+            "Add-one ablation과 full-model leave-one-out ablation을 수행한다. 중요한 physics 간 상호작용도 조사해 비가산적인 dB 변화를 단순 합으로 해석하지 않는다. 각 variant의 measured inputs를 고정하고 보상 계수를 refit하지 않는다.",
+            "Gain, 전체 S₋(Ω), bandwidth와 검증 잔차의 변화를 uncertainty 및 runtime과 함께 비교한다. 어떤 physics가 실제 관측된 −7.8 dB와 spectral shape를 결정하는지 정량화하고 unresolved contribution은 남긴다."
+          ],
+          "deliverables": [
+            "Full-atom/transport/mode reference와 versioned physics-variant configurations",
+            "No-refit ablation matrix, interaction/error budget과 held-out experimental validation report"
+          ]
+        }
+      ],
+      "completion_gate": [
+        "네 milestone의 acceptance criteria를 모두 충족하고 reduced-model derivation, no-fit prediction, out-of-sample validation과 full-physics ablation의 증거를 각각 제출한다.",
+        "−7.8 dB를 재현한 단일 숫자, gain-only approximation, fitted Gaussian covariance 또는 내부 commutator/positivity PASS만으로 done 처리하지 않는다.",
+        "독립 입력만으로 gain과 RF spectrum이 사전 선언한 실험 불확도/평가 기준 안에서 함께 검증되어야 한다. 실패 원인 규명이나 no-go 결과는 유효한 연구 산출물이지만 원래의 예측 목표 달성과는 구분한다.",
+        "Code/config/data hashes, raw 또는 접근 가능한 검증 데이터, derivation, reproduction commands, numerical tolerances와 적용 범위를 보존하고 python -m pytest -q를 통과한 구현을 전달한다."
+      ],
+      "related_items": [
+        "fwm-reference-parameter-provenance",
+        "fwm-coupling-normalization-audit",
+        "fwm-gain-only-trust-boundary",
+        "fwm-floquet-convergence-gate",
+        "fwm-pump-state-linear-response-reference",
+        "fwm-angular-doppler-reference",
+        "fwm-finite-seed-angular-doppler-production",
+        "fwm-option-a-and-loss-ledger",
+        "fwm-quantum-langevin-microscopic-core",
+        "fwm-balanced-readout-covariance-correction",
+        "fwm-rf-squeezing-spectrum-and-bandwidth",
+        "fwm-zeeman-resolved-reference-mode",
+        "sabes-calibration-trust-schema",
+        "sabes-calibration-campaign",
+        "sabes-collected-mode-noise-and-filter-transfer",
+        "sabes-balanced-detection-and-sql-calibration",
+        "fwm-squeezing-spectrum-heldout-validation"
+      ],
+      "starting_points": [
+        "gabes/atoms.py",
+        "gabes/core.py",
+        "gabes/doppler.py",
+        "gabes/hyperfine.py",
+        "gabes/zeeman.py",
+        "gabes/schemes/fwm.py",
+        "gabes/observables.py",
+        "tests/test_fwm_pump_response.py",
+        "tests/test_fwm_angular_doppler.py",
+        "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v2.tex",
+        "docs/squeezing_report/squeezing_report_v7.tex"
+      ],
+      "literature_context": {
+        "checked_at": "2026-09-09",
+        "review_scope": "아래 primary-source abstract/서지의 기본 범위를 확인한 등록용 조사다. 모든 본문·supplement·후속 연구를 재현하거나 포괄적으로 검토한 것은 아니다.",
+        "novelty_boundary": "사용자가 제시한 '모든 physics를 하나의 검증된 absolute hot-vapor squeezing 모델로 묶은 것은 없다'는 연구 동기이며 확정된 부재 증명이 아니다. 착수 시 각 선행 연구의 포함 physics, fitting 여부, parameter provenance와 held-out 검증 범위를 비교해야 한다. 기존 hot-vapor microscopic 연구의 존재를 지우거나 세계 최초를 미리 선언하지 않는다.",
+        "references": [
+          {
+            "citation": "Glorieux et al., Phys. Rev. A 82, 033819 (2010)",
+            "title": "Double-lambda microscopic model for entangled light generation by four-wave-mixing",
+            "url": "https://arxiv.org/abs/1007.1610",
+            "relevance": "Microscopic Heisenberg–Langevin double-Λ 모델로 relative-intensity noise spectrum을 계산하며 abstract에서 cold-atom regime 제한을 명시한다. Reduced-model limit의 비교 출발점이다."
+          },
+          {
+            "citation": "Jiang, Mei and Du, Phys. Rev. A 107, 053703 (2023); Erratum Phys. Rev. A 112, 019901 (2025)",
+            "title": "Quantum Langevin theory for two coupled phase-conjugated electromagnetic waves",
+            "url": "https://journals.aps.org/pra/abstract/10.1103/PhysRevA.107.053703",
+            "erratum_url": "https://doi.org/10.1103/PhysRevA.112.019901",
+            "relevance": "Macroscopic coupling matrix에서 commutation-preserving Langevin 구성을 제시하고 특정 SFWM microscopic model과 비교한다. 본 과제에서는 drift로부터의 일관성 구성과 pumped-atom diffusion의 독립 유도를 구분한다. 수식을 재사용하기 전에 erratum 본문까지 확인한다."
+          },
+          {
+            "citation": "Four-wave mixing with anti-parity-time symmetry in hot ⁸⁵Rb vapor, arXiv:2308.10850",
+            "url": "https://arxiv.org/abs/2308.10850",
+            "relevance": "Thermal ⁸⁵Rb anti-PT FWM의 quantum intensity correlations에서 loss와 Langevin noise를 다룬 선행 실험/이론이다. 실험 일치의 범위와 입력/fitting 절차는 착수 시 본문에서 감사한다."
+          },
+          {
+            "citation": "H. M. Florez, arXiv:2512.15051 (2025)",
+            "title": "Microscopic model for a spatial multimode generation based on Multi-pump Four Wave Mixing in hot vapours",
+            "url": "https://arxiv.org/abs/2512.15051",
+            "relevance": "Two-pump hot-vapor multimode generation의 gain/noise와 angle/two-photon dependence를 Floquet expansion으로 다룬다. 단일 pump의 본 장치, full Zeeman/transport와 no-fit absolute 검증까지 포함하는지는 별도 비교한다."
+          },
+          {
+            "citation": "Albuquerque et al., Phys. Rev. A 114, 013522 (29 July 2026)",
+            "title": "Experimental validation of a recursive density matrix expansion for four-wave mixing: Propagation and suppression effects in dense rubidium vapor",
+            "url": "https://doi.org/10.1103/yy3x-mbkq",
+            "relevance": "Dense thermal Rb D2 degenerate FWM의 suppression/saturation과 nonlinear propagation을 설명하는 semiclassical 연구다. D1 double-Λ의 microscopic quantum-noise spectrum 검증과 동일시하지 않는다."
+          },
+          {
+            "citation": "Q. Glorieux, arXiv:1101.5166 (2011)",
+            "url": "https://arxiv.org/abs/1101.5166",
+            "relevance": "Hot-vapor 실험과 four-level microscopic intensity-noise theory를 함께 다루는 후속 학위 연구다. 2010 cold-atom 제한만으로 이후 hot-vapor theory의 부재를 주장하지 않도록 우선 검토한다."
+          }
+        ]
+      },
+      "started_at": "2026-09-09",
+      "foundation_implementation": {
+        "stage": "S0 initial foundations",
+        "convention_id": "gabes-quantum-v1",
+        "conventions": "docs/grand_challenge/conventions.md",
+        "research_log": "docs/grand_challenge/research_log.md",
+        "report": "docs/grand_challenge/s0_foundation_report.json",
+        "entry_point": "python -m analysis.grand_challenge.foundation_audit",
+        "tests": "python -m pytest -q tests/quantum",
+        "implemented": [
+          "Separate RF/optical coordinates, scalar independent-input evidence and required-input/target-dataset audits.",
+          "Explicit radiative reservoir import with assembly parity; explicit thermal-reset jump construction; TP/HP/conditional-CP audits.",
+          "Named finite-temporal-mode Gaussian channels, covariance propagation/composition, vacuum-loss fixtures and CP/uncertainty checks.",
+          "Reproducible non-overwriting audit report with source hashes, scoped claims and the legacy-default counterexample."
+        ],
+        "remaining": [
+          "Full operating-domain and individual collision/dephasing reservoir provenance audits.",
+          "Physical input normalization and model-validity/measurement audits remain; conditional atomic, field and readout subsets have separate implementation records.",
+          "Mean-field solution contract, uncertainty propagation, spatial transport and experimental no-fit validation."
+        ],
+        "status_note": "Implementation has started; the reduced four-level milestone is not complete. Passing foundations does not enable a physical squeezing claim."
+      },
+      "atomic_noise_implementation": {
+        "stage": "S1 single-atom diffusion and independent QRT reference",
+        "convention_id": "gabes-quantum-v1",
+        "derivation": "docs/grand_challenge/derivation.md",
+        "report": "docs/grand_challenge/s1_atomic_noise_report.json",
+        "research_log": "docs/grand_challenge/research_log.md",
+        "entry_point": "python -m analysis.grand_challenge.atomic_noise_audit",
+        "tests": "python -m pytest -q tests/quantum",
+        "implemented": [
+          "Complete traceless Hermitian atomic basis, real drift, and per-reservoir ordered jump diffusion derived without inverting a covariance identity.",
+          "Independent full-Liouville adjoint Einstein and trace-bordered QRT references; analytic two-level Lorentzian sign, width, absolute normalization and integral checks.",
+          "Stationarity/stability, Lyapunov, expected atomic commutator balance, covariance/diffusion/spectral positivity and Hermiticity audits with signed diagnostics and no clipping.",
+          "Reduced four-level static-pump adapter with explicit radiation and optional declared thermal replacement; stationary-state parity with the existing pump reference under identical reservoirs.",
+          "Separate lab-RF and generator-frequency types, minus-sector conversion, and reproducible non-overwriting report for three declared atomic configurations."
+        ],
+        "remaining": [
+          "Local field M/D and prescribed-segment propagation are now implemented conditionally in field_noise_implementation; experimental atom-field normalization is still unvalidated.",
+          "Conditional temporal-mode/quadrature and bright-carrier intensity-difference/SQL are now recorded in readout_implementation; full validity and experimental calibration remain pending.",
+          "Angular-Doppler/transverse-mode convergence, generated-field back-action and self-consistent pump depletion.",
+          "Measured-input provenance, collision/transport validation, uncertainty propagation and held-out experiment comparison."
+        ],
+        "validation": {
+          "quantum_tests_passed": 37,
+          "full_suite_passed": 688,
+          "full_suite_failed": 1,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing pre-existing deleted docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "maximum_spectrum_qrt_relative_error": 6.65479880730312e-12
+        },
+        "status_note": "The original atomic snapshot remains scoped to single atoms. Conditional field M/D now has a separate implementation record; milestone 1 remains in progress and physical S_minus/experimental validation are pending."
+      },
+      "field_noise_implementation": {
+        "stage": "S1 conditional local field M/D and prescribed-segment propagation",
+        "convention_id": "gabes-quantum-v1",
+        "derivation": "docs/grand_challenge/field_derivation.md",
+        "report": "docs/grand_challenge/s1_field_noise_report.json",
+        "research_log": "docs/grand_challenge/research_log.md",
+        "entry_point": "python -m analysis.grand_challenge.field_noise_audit",
+        "dependencies": "requirements-quantum.txt",
+        "tests": "python -m pytest -q tests/quantum",
+        "implemented": [
+          "Reciprocal weak-field driving/emission and independent ordered atomic-jump projection to local photon-flux M and greater/lesser D.",
+          "Independent-atom slice normalization D_atom/(n A dz), common-uniform-area scaling and covariance summation for classes with explicit class density.",
+          "Separately computed main/companion sectors with named modes, signs and frequency frames; local field commutator and per-reservoir PSD/Hermiticity audits.",
+          "Constant-segment transfer and exact distributed covariance integral; spatial composition with global commutator/PSD checks and vacuum-output ordered spectra.",
+          "Existing same-reservoir Maxwell transfer parity, independent QRT noise projection, analytic passive/inverted-atom limits, and a rejected noise-only 1/12 coefficient.",
+          "Non-overwriting report of three conditional configurations across 81 signed RF points, both sectors, source hashes and dependency versions."
+        ],
+        "normalization_boundary": "The declared reduced structural 1/12 is applied as d_eff=d/sqrt(12) in both weak-field driving and emission. Pump-power/Rabi versus weak-field dipole normalization remains unvalidated. No 0.74 residual, squeezing efficiency or fitted loss is used.",
+        "remaining": [
+          "Conditional four-sideband Gaussian mapping, normalized flat spectral modes and bright-carrier intensity-difference/SQL are now implemented in readout_implementation; arbitrary filters and full finite-seed validity remain pending.",
+          "Physical pump-power/dipole/optical-carrier normalization and consumed independent-input provenance ledger.",
+          "Angular-Doppler/velocity and transverse-mode integration, class-correlation physics and convergence.",
+          "Generated-field back-action, self-consistent pump depletion, full-atom extensions and held-out experimental validation."
+        ],
+        "validation": {
+          "quantum_tests_passed": 47,
+          "full_suite_passed": 698,
+          "full_suite_failed": 1,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "maximum_maxwell_transfer_relative_error": 2.740618877009925e-14,
+          "maximum_field_noise_qrt_relative_error": 5.5774489744468986e-11,
+          "maximum_local_commutator_relative_residual": 1.0806900453923248e-13,
+          "maximum_global_commutator_relative_residual": 2.844553677558495e-14
+        },
+        "status_note": "The original field snapshot remains a selected-sector conditional model. Conditional detected readout is now recorded separately; no independent-input absolute hot-vapor prediction or experimental validation, and milestone 1 remains in progress."
+      },
+      "readout_implementation": {
+        "stage": "S1 conditional gain, four-sideband/normalized-mode covariance and bright-carrier intensity-difference readout",
+        "convention_id": "gabes-quantum-v1",
+        "derivation": "docs/grand_challenge/readout_derivation.md",
+        "report": "docs/grand_challenge/s1_readout_report_v2.json",
+        "figure": "docs/grand_challenge/s1_readout_spectrum_v2.png",
+        "research_log": "docs/grand_challenge/research_log.md",
+        "entry_point": "python -m analysis.grand_challenge.readout_audit",
+        "tests": "python -m pytest -q tests/quantum",
+        "implemented": [
+          "Main/companion and reflected-RF validation; real four-sideband Gaussian channels with CP and covariance uncertainty checks.",
+          "Normalized flat spectral filters with Gauss quadrature and explicit vacuum contribution from orthogonal spectral modes when transfer varies across the band.",
+          "RF=0 coherent carrier transfer and joint seeded probe/conjugate power gains with separate conjugate photon-flux gain.",
+          "Bright-carrier intensity-difference and same-current SQL in positive-frequency one-sided A^2/Hz, quantum/total ratios and dB.",
+          "Declared unequal optical/QE losses, fixed balancing, complex current response and separately added electronics PSD; no target-based coefficient fitting.",
+          "Independent ordered-Nambu current reference and analytic coherent/ideal-amplifier/loss limits; immutable reports and inspected scientific plot."
+        ],
+        "conditional_example": {
+          "source": "unchanged field-stage numerical fixture plus declared 8 uW seed, eta=0.85, g=1 and flat detector response; not independent measurements",
+          "probe_coherent_power_gain": 1.0517029257110075,
+          "conjugate_coherent_power_gain": 0.05398003597995851,
+          "source_s_minus_db_range": [
+            -0.43373966272019165,
+            -0.4331048232544659
+          ],
+          "detected_s_minus_db_range": [
+            -0.3658522796429018,
+            -0.3653210292252955
+          ],
+          "analysis_band_MHz": [
+            0.1,
+            4.0
+          ]
+        },
+        "remaining": [
+          "Follow normalization_implementation: reciprocal variants and consumed-value ledger implemented; full-Zeeman reduction proof and independent measurements/uncertainties remain.",
+          "Bright/weak-seed validity, omitted fluorescence, spontaneous mean photons and quadratic photocurrent corrections.",
+          "Angular-Doppler/velocity and transverse-mode convergence, self-consistent depletion and full atom.",
+          "Measured detector/SQL/RBW/VBW/uncertainties and held-out experimental gain/spectrum validation."
+        ],
+        "validation": {
+          "quantum_tests_passed": 59,
+          "full_suite_passed": 710,
+          "full_suite_failed": 1,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "maximum_direct_nambu_psd_relative_error": 3.3461874097517397e-15,
+          "maximum_equal_loss_ratio_error": 4.440892098500626e-16,
+          "band_order_8_to_16_ratio_change": 1.1102230246251565e-16
+        },
+        "status_note": "Conditional linearized S_minus is implemented. This is not an independent-input absolute hot-vapor prediction or a reproduction/validation of experimental -7.8 dB. Grand Challenge milestone 1 remains in progress."
+      },
+      "normalization_implementation": {
+        "stage": "S1 reciprocal power-to-readout and physical normalization audit",
+        "derivation": "docs/grand_challenge/normalization_derivation.md",
+        "report": "docs/grand_challenge/s1_normalization_report.json",
+        "figure": "docs/grand_challenge/s1_normalization_comparison.png",
+        "entry_point": "python -m analysis.grand_challenge.normalization_audit",
+        "implemented": [
+          "Same declared dipole matrix for Gaussian peak pump Hamiltonian, weak-field driving, polarization and both microscopic noise orderings.",
+          "Independent uncoupled I x J dipole reference verifies polarization-resolved strengths, absorption/emission closure and sublevel-sum versus manifold-mean distinction.",
+          "Historical mixed, carrier-only, historical reciprocal and uniform-Zeeman-RMS variants recompute the joint gain/spectrum without a fitted compensation coefficient.",
+          "F2-to-Fprime3 optical carrier anchored to the same hyperfine splittings as the atomic Hamiltonian.",
+          "Consumed SI values and units bound to input evidence; assumptions, missing inputs and held-out dataset leakage fail the metadata gate."
+        ],
+        "findings": {
+          "legacy_pump_to_weak_dipole_ratio": 1.9993734141073702,
+          "required_mean_factors_after_sublevel_sum": {
+            "F2": 0.2,
+            "F3": 0.14285714285714285
+          },
+          "common_1_over_12_matches_both_manifolds": false,
+          "optical_anchor_minus_centroid_hz": 1921502256.0833333,
+          "uniform_rms_probe_power_gain": 1.1106558665725086,
+          "uniform_rms_detected_s_minus_db_range": [
+            -0.7304162020872802,
+            -0.7284360651676278
+          ]
+        },
+        "validation": {
+          "quantum_tests_passed": 70,
+          "independent_strength_maximum_error": 1.1102230246251565e-16,
+          "direct_nambu_maximum_relative_error": 3.3626718858779177e-15,
+          "all_variant_channel_audits_passed": true,
+          "consumed_scalar_count": 260,
+          "independent_input_audit_passed": false,
+          "full_suite_passed": 721,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 255.76,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "remaining": [
+          "See seed_validity_implementation: finite-band Gaussian correction and local back-action diagnostics implemented; full fluorescence/cumulant bounds and finite-seed quantum diffusion remain.",
+          "Prove or replace the nonlinear reduced model using signed CG paths, actual polarizations and full Zeeman dynamics; RMS is only a weak-absorption surrogate.",
+          "Independent measured inputs and uncertainty propagation, angular-Doppler and transverse convergence, self-consistent depletion, held-out experimental gain/spectrum validation."
+        ],
+        "status_note": "Conditional normalization audit implemented. Neither the RMS surrogate nor internal CP checks constitute an absolute hot-vapor prediction or validation of -7.8 dB; milestone 1 remains in progress."
+      },
+      "seed_validity_implementation": {
+        "stage": "S1 finite-band Gaussian quadratic current and local finite-seed Floquet validity",
+        "derivation": "docs/grand_challenge/seed_validity_derivation.md",
+        "report": "docs/grand_challenge/s1_seed_validity_report_v2.json",
+        "figure": "docs/grand_challenge/s1_seed_validity_v2.png",
+        "initial_failed_convergence_report": "docs/grand_challenge/s1_seed_validity_report.json",
+        "entry_point": "python -m analysis.grand_challenge.seed_validity_audit",
+        "implemented": [
+          "Phase-selected ordered optical occupations/anomalous moments, declared collection bins and independent vacuum outside the optical band.",
+          "Gaussian Wick quadratic photocurrent including spontaneous shot noise, mean-current SQL correction, complex detector weights and exact fractional bin overlap.",
+          "Optical collection-band scan separated from fixed-band numerical convergence; no claim of an unfiltered fluorescence tail bound.",
+          "Prescribed local finite-seed Floquet mean states at z=0,L/2,L; order convergence, trace/Hermiticity/phase-sampled positivity and cancellation-aware residual checks.",
+          "Independent Fock-space fourth moments, dense Floquet reference and first-order parity with the microscopic field drift.",
+          "Seed-power sweep with declared readout/SQL/polarization diagnostics, no coefficient optimization."
+        ],
+        "conditional_baseline": {
+          "seed_power_W": 8e-06,
+          "optical_collection_half_width_hz": 1024000000.0,
+          "final_optical_bin_width_hz": 31250.0,
+          "maximum_readout_correction_db": 1.0329692833876969e-05,
+          "spontaneous_to_coherent_sql_ratio": 3.2124139715576974e-06,
+          "quadratic_to_bright_psd_maximum_ratio": 9.844129692356105e-07,
+          "maximum_local_polarization_relative_error": 9.737179807848593e-05,
+          "source_spontaneous_flux_s_inverse": [
+            64450819.82755066,
+            61458773.21408645
+          ],
+          "discrete_seed_powers_passing_declared_diagnostics_W": [
+            1e-08,
+            1e-07,
+            1e-06,
+            8e-06,
+            1e-05,
+            0.0001
+          ]
+        },
+        "validation": {
+          "quantum_tests_passed": 83,
+          "maximum_fixed_band_relative_grid_change": 3.185334693135249e-05,
+          "maximum_fock_covariance_error": 8.715250743307479e-15,
+          "maximum_dense_floquet_error": 5.1437599469648614e-14,
+          "source_hashes_verified": 28,
+          "expected_controls_passed": true,
+          "full_suite_passed": 734,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 150.44,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "remaining": [
+          "Periodic atomic noise and two-band finite-seed field propagation/readout are now implemented. Validate extra physical modes and recompute periodic higher-order photocurrent/cumulants instead of reusing the stationary correction.",
+          "Bound non-Gaussian connected fourth cumulants and unfiltered/out-of-sector collected fluorescence using physical mode/filter inputs.",
+          "Full Zeeman signed CG and actual polarization, independent inputs/uncertainties, angular-Doppler/modes, self-consistent depletion and held-out experimental validation."
+        ],
+        "status_note": "Historical conditional Gaussian readout/local back-action diagnostics are not full-model error bounds. Follow-up periodic_field_implementation now computes two-band finite-seed bright S_minus; full hot-vapor and experimental validation remain open."
+      },
+      "periodic_noise_implementation": {
+        "stage": "S1 periodic microscopic atomic drift, ordered diffusion and harmonic correlations",
+        "derivation": "docs/grand_challenge/periodic_noise_derivation.md",
+        "report": "docs/grand_challenge/s1_periodic_noise_report_v2.json",
+        "figure": "docs/grand_challenge/s1_periodic_noise_v2.png",
+        "initial_report": "docs/grand_challenge/s1_periodic_noise_report.json",
+        "entry_point": "python -m analysis.grand_challenge.periodic_noise_audit",
+        "implemented": [
+          "Complete Hermitian atomic basis: periodic A_q from the generator and independent per-reservoir D_q from explicit jump Gram products.",
+          "Dynamic Einstein and state-dependent atomic commutator balances including time derivatives; phase state/covariance/diffusion positivity and no eigenvalue clipping.",
+          "Harmonic-correlated Toeplitz greater/lesser diffusion; atomic-only transpose, signed beat, time-origin phases, one-zone quasifrequency and stable lifted resolvents.",
+          "Independent full-Liouville time-domain QRT with periodic fixed point, trace-bordered geometric infinite-period tail and connected correlations.",
+          "Independent mean/response order convergence on fixed interior blocks, phase/ODE convergence, zero-seed stationary limit and D-average ablation.",
+          "Shared pump/reservoir assembly and prescribed-carrier reduced Rb adapter; stationary baseline preserved."
+        ],
+        "scope": {
+          "periodic_atomic_quantum_noise_implemented": true,
+          "finite_seed_field_quantum_noise_implemented": true,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "carrier_policy": "8uW fixture defines the entrance; exit carriers use the prior weak-field mean; 1mW scales that prescribed exit by sqrt(125).",
+          "atomic_model": "Single-velocity four-level uniform-Zeeman-RMS surrogate with constant explicit reservoirs; input values are conditional.",
+          "finite_seed_field_scope": "Two declared optical carrier bands only; see periodic_field_implementation for the follow-up. Additional optical/spatial modes remain open."
+        },
+        "conditional_findings": {
+          "seed_power_W": 8e-06,
+          "prescribed_exit_probe_atomic_lesser_noise_ratio_at_1MHz": 1.4002023441519622,
+          "averaged_noise_interior_spectrum_relative_change_8uW": 0.0002258755096340898,
+          "averaged_noise_interior_spectrum_relative_change_1mW": 0.024112972157227228,
+          "interpretation": "Small mean polarization back-action does not bound a selected atomic noise component. This is not a correction to the detected squeezing spectrum."
+        },
+        "validation": {
+          "quantum_tests_passed": 93,
+          "maximum_time_domain_qrt_relative_error": 2.856948139256336e-12,
+          "maximum_independent_periodic_state_error": 3.8759235843050127e-13,
+          "maximum_dynamic_einstein_relative_residual": 1.4930264169877624e-16,
+          "maximum_dynamic_commutator_relative_residual": 6.330856760399233e-17,
+          "zero_seed_stationary_relative_error": 3.890084600168811e-15,
+          "maximum_final_response_order_relative_change": 8.155528405090892e-15,
+          "source_hashes_verified": 31,
+          "expected_controls_passed": true,
+          "full_suite_passed": 744,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 164.48,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "remaining": [
+          "Two-band full Nambu field M/D, nonlinear seed/conjugate mean, canonical commutators, uncertainty and bright readout are implemented in periodic_field_implementation. Extend physical optical/spatial-mode mapping and test discarded modes.",
+          "Angular-Doppler/transverse noise covariance integration, full Zeeman signed CG/polarization and self-consistent pump depletion remain.",
+          "Independent measured inputs/uncertainties, physical collection and higher-order photocurrent/cumulants, held-out experimental validation remain."
+        ],
+        "status_note": "The historical report validates atomic noise. The follow-up periodic_field_implementation connects two optical bands to finite-seed propagation/readout; optical-mode completeness and the full reduced hot-vapor milestone remain open."
+      },
+      "periodic_field_implementation": {
+        "stage": "S1 microscopic finite-seed two-band field, nonlinear carrier mean and bright readout",
+        "implemented_at": "2026-09-10",
+        "derivation": "docs/grand_challenge/periodic_field_derivation.md",
+        "report": "docs/grand_challenge/s1_periodic_field_report_v2.json",
+        "figure": "docs/grand_challenge/s1_periodic_field_v2.png",
+        "initial_failed_convergence_report": "docs/grand_challenge/s1_periodic_field_report.json",
+        "entry_point": "python -m analysis.grand_challenge.periodic_field_audit",
+        "implemented": [
+          "Explicit physical optical ports and full annihilator/creator field coordinates; atomic harmonic response cutoff is distinct from physical optical-mode content.",
+          "Independent density-operator driving B, Maxwell readout C0, microscopic M and per-reservoir greater/lesser D with harmonic and cross-sector correlations.",
+          "Local/global canonical commutator preservation, full paired-frequency physical sideband channel CP and covariance uncertainty, no fitted loss or covariance repair.",
+          "Nonlinear probe/conjugate mean propagation around a fixed classical pump; DC quantum transfer verified as the derivative of the mean map, not a mean-field transfer matrix.",
+          "Adaptive continuous-path T/N propagation after an initial midpoint convergence failure, with unchanged convergence criterion and both reports preserved.",
+          "Bright intensity-difference PSD and same-current SQL, independent full-Liouville M/time-QRT D/ordered-current references and cross-sector removal ablation."
+        ],
+        "scope": {
+          "finite_seed_two_band_field_implemented": true,
+          "fixed_classical_pump": true,
+          "additional_physical_optical_ports_propagated": false,
+          "atomic_harmonics_included": true,
+          "pump_depletion_implemented": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "note": "Two declared probe/conjugate carrier bands; single velocity, uniform area, zero phase mismatch and conditional RMS-dipole inputs. Bright readout does not include a new periodic quadratic-current correction."
+        },
+        "conditional_baseline": {
+          "seed_power_W": 8e-06,
+          "probe_power_gain": 1.1106391761362866,
+          "conjugate_power_gain": 0.113545281379276,
+          "detected_S_minus_1MHz_db": -0.730195692219109,
+          "maximum_pump_state_to_finite_seed_change_db": 9.895902252721189e-05,
+          "maximum_cross_sector_pinching_change_db": 0.039389786227276624,
+          "interpretation": "A selected atomic component can change strongly while the full intensity difference changes weakly; cross-sector correlations must be retained."
+        },
+        "validation": {
+          "quantum_tests_passed": 103,
+          "independent_full_liouville_drift_relative_error": 5.5186893308087506e-14,
+          "independent_time_qrt_field_noise_relative_error": 4.6238822633975394e-12,
+          "nonlinear_mean_tangent_maximum_relative_error": 5.688189936502825e-10,
+          "maximum_global_commutator_relative_residual": 5.955422411147052e-14,
+          "maximum_adaptive_tolerance_change_db": 2.417843703028666e-12,
+          "initial_midpoint_convergence_passed": false,
+          "insufficient_atomic_order_rejected": true,
+          "minimum_channel_cp_eigenvalue": 9.791078054153042e-05,
+          "source_hashes_verified": 33,
+          "expected_controls_passed": true,
+          "full_suite_passed": 754,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 215.64,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "remaining": [
+          "Specify non-collinear spatial phases and real optical-mode selection; quantify the effect of discarded physical optical bands independently of atomic harmonic convergence.",
+          "Velocity-class local mean/M/D and independent covariance sums are implemented in kinetic_implementation under explicit carrier closure. General noncollinear phases and finite-seed thermal propagation remain open.",
+          "Full Zeeman signed CG and polarization, self-consistent pump depletion/quantum pump ports, physical collection/filter inputs and periodic higher-order photocurrent/cumulants.",
+          "Independent measured inputs and uncertainties, held-out simultaneous gain/S_minus predictions and experimental validation."
+        ],
+        "status_note": "Finite-seed propagation and bright squeezing are implemented for two declared optical bands with a fixed pump. Full reduced hot-vapor milestone and experimental validation remain in progress."
+      },
+      "kinetic_implementation": {
+        "stage": "S1 velocity-resolved local mean/noise and conditional thermal pump-state propagation",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/kinetic_derivation.md",
+        "report": "docs/grand_challenge/s1_kinetic_report_v2.json",
+        "figure": "docs/grand_challenge/s1_kinetic_v2.png",
+        "entry_point": "python -m analysis.grand_challenge.kinetic_audit",
+        "implemented": [
+          "Explicit carrier wavevectors and laboratory optical/RF coordinates; atomic one-photon and signed Raman frequencies follow moving plane-wave phases.",
+          "Automatic single space-time-phase closure audit: nonzero 2*k0-kp-kc is rejected, never canceled by changing a measured carrier or an arbitrary coefficient.",
+          "Finite-seed local periodic mean/M/D for independent moving atoms, same z-plane canonical field coupling in atomic drive and field readout.",
+          "Density-weighted independent greater/lesser covariance sum, per-class and combined commutator/PSD audits, streaming reservoir sums and exact class-splitting invariance.",
+          "Thermal pump-state weak-field cell: integrate local M/D over velocities before propagation, then compute gain and bright S_minus with the existing physical-sideband detector.",
+          "Independent full-Liouville forced response and QRT, finite-seed local mean tangent, zero-velocity/zero-seed/reflection limits and independent longitudinal/transverse/cutoff refinement."
+        ],
+        "scope": {
+          "finite_seed_kinetic_local_model_implemented": true,
+          "thermal_pump_state_cell_implemented": true,
+          "finite_seed_thermal_propagation_implemented": false,
+          "general_noncollinear_geometry_implemented": false,
+          "velocity_changing_collisions_implemented": false,
+          "slow_envelope_atom_transport_correlations_implemented": false,
+          "pump_depletion_implemented": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "note": "Two optical bands, independent local ballistic velocity classes, reduced RMS dipoles and fixed pump. Noncollinear numerical fixture explicitly sets kc=2*k0-kp and is not a measured dispersion solution. Thermal readout is pump-state/bright; finite-seed validation is local on discrete velocities."
+        },
+        "validation": {
+          "kinetic_tests_passed": 10,
+          "kinetic_tests_seconds": 2.71,
+          "quantum_tests_passed_within_full_suite": 113,
+          "full_suite_passed": 764,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 261.94,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "expected_controls_passed": true,
+          "source_hashes_verified": 36,
+          "initial_longitudinal_convergence_passed": false,
+          "initial_longitudinal_D_relative_change": 1.1044613118688015e-05,
+          "final_longitudinal_D_relative_change": 8.420274776768364e-07,
+          "final_7_to_8_sigma_D_relative_change": 9.72436580727327e-08,
+          "independent_full_liouville_qrt_relative_errors": {
+            "drift": 1.3723711210748924e-14,
+            "greater": 1.9597534202419993e-12,
+            "lesser": 1.9597846735102508e-12
+          },
+          "finite_seed_local_mean_tangent_relative_error": 1.1239151015462473e-09,
+          "maximum_class_commutator_relative_residual": 3.294801426890999e-13,
+          "global_commutator_relative_residual": 2.035933646130867e-15,
+          "minimum_channel_cp_eigenvalue": 0.00010076536545059805,
+          "minimum_detected_covariance_uncertainty_eigenvalue": 0.012227611008472123,
+          "vacuum_opposite_angle_geometry_rejected": true,
+          "vacuum_5mrad_axial_mismatch_phase_rad": 2.4698840746073984,
+          "wrong_noise_amplitude_sum_rejected": true,
+          "artifact_overwrite_changed_source_and_repeated_refinement_rejected": true,
+          "convergence_scope": "Longitudinal 1024-to-1536 and cutoff 7-to-8 are refined; transverse and cutoff 6-to-7 retain parent grids and provenance. No rigorous tail/transport error bound."
+        },
+        "remaining": [
+          "Local two-phase atomic mean/noise, carrier-loop convection and Q=0 quotient are implemented in spatial_implementation. Physical optical-mode projection and general-geometry field M/D remain open.",
+          "Connect finite-seed thermal nonlinear mean and quantum propagation with jointly converged velocity, atomic harmonic and z grids; fixed-pump weak-field output is not that result.",
+          "Bound slow-envelope atomic transport and inter-slice noise correlation errors; add a microscopic velocity-changing collision kernel when required.",
+          "Full Zeeman and actual polarization, physical transverse/collection modes, pump depletion/quantum pump ports, higher-order photocurrent/cumulants.",
+          "Independent measured wavevectors/dispersion and input uncertainties, no-refit held-out simultaneous gain/S_minus validation."
+        ],
+        "status_note": "Carrier closure and independent velocity noise are implemented within a declared local model. General noncollinear hot-vapor theory, the full reduced milestone and experimental prediction remain in progress.",
+        "initial_failed_convergence_report": "docs/grand_challenge/s1_kinetic_report.json",
+        "refinement_entry_point": "python -m analysis.grand_challenge.kinetic_refinement_audit --parent docs/grand_challenge/s1_kinetic_report.json --output NEW.json --plot NEW.png",
+        "conditional_baseline": {
+          "kinetic_temperature_K": 394.15,
+          "seed_power_W": 8e-06,
+          "probe_power_gain": 1.110091612983278,
+          "conjugate_power_gain": 0.11316663682506972,
+          "rf_hz": [
+            100000.0,
+            1000000.0,
+            4000000.0
+          ],
+          "detected_S_minus_db": [
+            -0.728325262148437,
+            -0.7282073934284984,
+            -0.7264088444605867
+          ],
+          "selected_velocity_grid": {
+            "longitudinal_order": 1536,
+            "transverse_order": 48,
+            "cutoff_sigma": 7
+          },
+          "geometry": "synthetic explicitly closed carrier momentum; conjugate magnitude differs from vacuum; no measured dispersion",
+          "interpretation": "Conditional fixed-pump weak-field/bright readout; not finite-seed thermal propagation or an experimental squeezing prediction."
+        }
+      },
+      "spatial_implementation": {
+        "stage": "S1 two-phase convective atomic mean and microscopic ordered noise for nonclosed carrier geometry",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/spatial_derivation.md",
+        "report": "docs/grand_challenge/s1_spatial_report.json",
+        "figure": "docs/grand_challenge/s1_spatial.png",
+        "entry_point": "python -m analysis.grand_challenge.spatial_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Explicit (h,l) carrier/grating lattice with q=kp-k0, Q=kp+kc-2k0 and convective frequency h*nu-(h*q+l*Q).v; no rational frequency fitting or artificial closure.",
+          "Trace-zero affine mean solve, independent Liouvillian drift and jump-product reservoir diffusion, dynamic atomic Einstein/commutator identities and phase-sampled state/covariance positivity.",
+          "Selected ordered atomic spectra with independent mean/response h,l cutoffs, reservoir-resolved greater/lesser orderings and finite-lift stability/PSD checks.",
+          "Q=0 coherent quotient reuses the existing single-phase model; zero Q.v alone retains the spatial grating. Mathematical comments explain both quotient and exact selected-resolvent-row solve.",
+          "Independent two-frequency full-density trajectory/QRT reference with phase/history/ODE refinements, plus Rb fixed-grating full-Liouville periodic QRT with an exact geometric time tail.",
+          "Nonclosed vacuum +/-5 mrad Rb fixtures at three velocities; independent cutoff refinements and a recomputed zero-loop-convection negative control."
+        ],
+        "scope": {
+          "general_geometry_local_atomic_mean_and_noise": true,
+          "physical_optical_mode_projection": false,
+          "general_geometry_canonical_field_M_D": false,
+          "finite_seed_thermal_propagation": false,
+          "slow_envelope_atomic_transport": false,
+          "pump_depletion": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "note": "Local independent ballistic atom with prescribed plane-wave carriers and fixed pump. Auxiliary phase-coordinate spectra are not independent optical modes, gains or detected S_minus. Existing single-phase field guard remains active."
+        },
+        "validation": {
+          "expected_controls_passed": true,
+          "source_hashes_verified": 36,
+          "toy_direct_qrt_spectrum_relative_error": 6.686335007912088e-13,
+          "new_spatial_tests_passed_within_full_suite": 13,
+          "quantum_tests_passed_within_full_suite": 126,
+          "full_suite_passed": 791,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 199.08,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "toy_mean_reference_maximum_absolute_error": 3.2807745409257905e-10,
+          "rb_static_grating_qrt_spectrum_relative_error": 8.097247180588023e-13,
+          "rb_mean_reference_maximum_absolute_error": 5.689157369612291e-13,
+          "maximum_reference_refinement_relative_change": 1.2494778891534622e-11,
+          "maximum_final_rb_response_refinement_relative_change": 1.0241903651320789e-14,
+          "maximum_loop_convection_removal_atomic_spectrum_relative_change": 4.7381441339392326e-07,
+          "interpretation": "Atomic block norm changes are not bounds on optical readout or squeezing; Rb direct time-QRT is a static-grating reference, not a full moving-Rb/Maxwell validation."
+        },
+        "remaining": [
+          "Stationary-center fixed-profile spatial M/D, nonlinear gain/S_minus and fixed-aperture Q-to-zero checks are implemented in spatial_field_implementation. Moving-atom general-geometry field projection remains open; preserve the single-phase field guard.",
+          "Bound discarded optical-mode contributions separately from atomic-cutoff and spatial-quadrature convergence; two fixed profiles do not establish optical completeness.",
+          "Connect finite-seed thermal mean/noise propagation with velocity, spatial boundary and z convergence; bound slow-envelope and inter-slice noise correlations.",
+          "Full signed Zeeman/polarization, physical collection, velocity-changing collisions, pump depletion, higher-order photocurrent, independent inputs and held-out experimental validation."
+        ],
+        "status_note": "The next local atomic extension is implemented and independently checked. The full reduced hot-vapor milestone and all experimental completion gates remain in progress."
+      },
+      "spatial_field_implementation": {
+        "stage": "S1 finite-aperture canonical field for stationary atomic centers and two fixed transverse profiles",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/spatial_field_derivation.md",
+        "report": "docs/grand_challenge/s1_spatial_field_report_v2.json",
+        "figure": "docs/grand_challenge/s1_spatial_field_v2.png",
+        "initial_report_preserved": "docs/grand_challenge/s1_spatial_field_report.json",
+        "entry_point": "python -m analysis.grand_challenge.spatial_field_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Explicit complex normalized probe/conjugate profiles, finite positive area quadrature and reciprocal profile factors in atomic drive, Maxwell readout and reservoir noise. No silent normalization or fitted overlap.",
+          "Exact common time-origin quotient retains the full loop wavevector phase; exact equal-coupling area grouping and zero-density shortcuts are documented with mathematical reasons to avoid restoring redundant solves.",
+          "Local M and both D orderings use the same nonlinear periodic atomic state; independent original-optical-phase full-Liouville response and time-QRT references verify them.",
+          "Nonlinear mean propagation and its full Nambu quantum tangent share the same trajectory; physical paired RF sidebands give CP, covariance uncertainty and bright intensity-difference readout.",
+          "Reference-area invariance, area splitting, fixed-aperture Q-to-zero continuity, collinear parity, finite-difference mean tangents, no-atom/zero-length shot noise and unequal complex detector response tests.",
+          "Moving-grating negative control has positive ordered noise but fails canonical commutator; mean/response cutoff refinement preserves the failure. Nonzero velocity is explicitly rejected by this stationary-center adapter."
+        ],
+        "scope": {
+          "stationary_center_physical_optical_mode_projection": true,
+          "stationary_center_nonclosed_geometry_field_M_D": true,
+          "stationary_center_nonlinear_mean_and_bright_spectrum": true,
+          "moving_thermal_field_transport": false,
+          "optical_mode_completeness": false,
+          "diffraction_and_transverse_walkoff": false,
+          "pump_depletion": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "note": "Conditional reduced RMS atom, fixed uniform pump, direct density/reset inputs and synthetic 400x300 micrometre top-hat profiles. Three RF samples do not establish a full-band spectrum or intrinsic bandwidth."
+        },
+        "validation": {
+          "expected_controls_passed": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 41,
+          "new_spatial_field_tests_passed": 15,
+          "full_suite_passed": 856,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 231.76,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "independent_M_relative_error": 1.5773835199729547e-13,
+          "independent_D_maximum_relative_error": 3.858437046589761e-12,
+          "last_spatial_spectrum_change_dB": 3.921585278732209e-13,
+          "quantum_ODE_refinement_spectrum_change_dB": 9.833023284500086e-12,
+          "nonlinear_mean_DC_tangent_relative_error": 5.760624571031602e-10,
+          "invalid_moving_grating_commutator_relative_residual": 2.960913441411192e-05,
+          "invalid_grating_cutoff_refinement_residual_change": 4.133734234903694e-15,
+          "previous_Ultra_source_hashes_unchanged": true,
+          "interpretation": "Conditional numerical verification, including the 50 parallel downstream tests. No finite-seed thermal transport, complete optical-mode basis or experimental validation claim."
+        },
+        "remaining": [
+          "Finite prescribed Lindblad characteristics, boundary/internal noise and cross-position response/covariance are implemented in transport_implementation; moving periodic Rb plus nonlocal Maxwell closure remains open.",
+          "Connect velocity and spatial transport to the field at common lab RF, with separate velocity, boundary, longitudinal and response-cutoff controls.",
+          "Bound unretained transverse optical modes/walkoff/diffraction; add full Zeeman/polarization, collisions and self-consistent pump depletion.",
+          "Use independently measured inputs/uncertainties and held-out gain plus RF squeezing traces to test absolute hot-vapor predictions."
+        ],
+        "status_note": "Stationary-center field projection is a verified conditional submodel. The reduced hot-vapor milestone and Grand Challenge remain in progress."
+      },
+      "downstream_analysis_implementation": {
+        "stage": "Conditional RF squeezing bands and correlated input uncertainty; parallel downstream work",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/parallel_development.md",
+        "report": "docs/grand_challenge/s2_downstream_report_v2.json",
+        "figure": "docs/grand_challenge/s2_downstream_v2.png",
+        "entry_point": "python -m analysis.grand_challenge.downstream_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "SQL/target-dB connected bands, explicit censored/missing/unconverged edges and local threshold refinement without inventing an intrinsic width from a limited scan.",
+          "Declared correlated Gaussian inputs, joint sampling and J C J-transpose uncertainty propagation, including exact perfect-correlation null modes.",
+          "Independent analytic band/covariance references and conditional joint gain/S_minus sensitivity of the existing reduced pump-state model."
+        ],
+        "validation": {
+          "new_tests_passed": 50,
+          "source_hashes_verified": 25,
+          "expected_controls_passed": true
+        },
+        "scope": {
+          "conditional_downstream_analysis": true,
+          "measured_input_uncertainty": false,
+          "new_spatial_field_uncertainty_run": false,
+          "experimental_validation": false,
+          "note": "The existing reduced-model example assumes 1 percent pump power/waist uncertainty and correlation 0.6. A later conditional spatial-field connection is recorded separately in spatial_uncertainty_implementation. Neither is experimental validation or an intrinsic-bandwidth certificate."
+        }
+      },
+      "transport_implementation": {
+        "stage": "S1 finite atomic characteristics, inflow/internal noise, causal response and independent passive optical transport control",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/transport_derivation.md",
+        "report": "docs/grand_challenge/s1_transport_report_v2.json",
+        "figure": "docs/grand_challenge/s1_transport_v2.png",
+        "initial_report_preserved": "docs/grand_challenge/s1_transport_report.json",
+        "entry_point": "python -m analysis.grand_challenge.transport_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Prescribed Cartesian ballistic path with explicit inflow density matrix; complete-basis time-dependent Lindblad mean, independent jump-product D and source-resolved covariance propagation without resetting at numerical interval boundaries.",
+          "Causal C_out R B response kernel and cross-position ordered covariance retain the shared history of the same atom; finite wavepacket noise uses an augmented ODE that preserves the full double-time integral.",
+          "Exact interval propagator composition avoids inverse decaying fundamental matrices; exact cached jump products and Y/residence-time rescaling are documented mathematically and tested in SI versus rescaled units.",
+          "Independent full-density time-domain QRT and driven response, DC nonlinear mean finite differences, 3-level transient checks and finite-residence constant-atom stationary-spectrum limit.",
+          "Explicit independent Poisson age-protocol stream adds the uniquely specified mean-pulse number noise; identity readout separates count fluctuations from internal quantum noise.",
+          "Independent passive two-oscillator optical transport bridge retains atomic inflow and distributed reservoir noise, with exact exponential/Gramian versus direct ODE, nonconstant profile and nonlocal source-kernel controls."
+        ],
+        "validation": {
+          "expected_controls_passed": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 12,
+          "new_atomic_transport_tests_passed": 16,
+          "new_passive_transport_tests_passed": 24,
+          "full_suite_passed": 961,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 216.03,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: pre-existing missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+          "independent_QRT_maximum_relative_error": 1.7659150504064066e-13,
+          "independent_retarded_response_relative_error": 3.412562409212594e-14,
+          "DC_mean_finite_difference_relative_error": 4.0272018613881106e-10,
+          "inflow_omission_atomic_commutator_relative_defect": 0.20195932426533428,
+          "passive_full_field_commutator_error": 2.223197106710194e-16,
+          "passive_inflow_omission_commutator_deficit": 0.39792548503927216,
+          "sampled_full_kernel_finest_quadrature_relative_error": 9.175583559919935e-05
+        },
+        "scope": {
+          "prescribed_finite_atomic_characteristics": true,
+          "boundary_and_cross_position_atomic_noise": true,
+          "finite_atomic_retarded_response": true,
+          "independent_passive_optical_transport_control": true,
+          "moving_periodic_Rb_Maxwell_closure": false,
+          "entry_phase_and_thermal_path_average": false,
+          "self_consistent_mean_fields": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false,
+          "note": "The two-/three-level finite atom and passive oscillator are distinct conditional testbeds. Atomic wavepacket coordinates are not canonical optical modes. Poisson spectra assume identical stationary age protocols and do not replace entry-phase averaging for CW double-Lambda."
+        },
+        "remaining": [
+          "Thermal flux/path and common entry-phase foundations are now implemented in thermal_inflow_implementation; actual Rb polarization-ensemble integration remains open.",
+          "Moving pump-only Rb finite segments and one continuous Gaussian characteristic are verified in rb_transport_implementation and smooth_transport_implementation; thermal path convergence and finite-seed periodic dynamics remain open.",
+          "Close nonlocal Maxwell response and microscopic field noise with the same characteristics and verify optical commutator, CP and the stationary spatial-field limit.",
+          "Continue full atom, collisions, optical-mode completeness, pump depletion and independent held-out experimental prediction."
+        ],
+        "status_note": "Transport foundations and a canonical passive bridge are verified; the general moving-Rb squeezing model and Grand Challenge remain in progress."
+      },
+      "spatial_uncertainty_implementation": {
+        "stage": "Conditional joint gain and detected RF noise uncertainty of the stationary spatial field",
+        "implemented_at": "2026-09-11",
+        "derivation": "docs/grand_challenge/spatial_uncertainty_derivation.md",
+        "report": "docs/grand_challenge/spatial_uncertainty_report_v1.json",
+        "figure": "docs/grand_challenge/spatial_uncertainty_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.spatial_uncertainty_audit --output NEW.json --plot NEW.png",
+        "assumed_inputs": {
+          "pump_power_standard_uncertainty_W": 0.006,
+          "conjugate_angle_standard_uncertainty_rad": 1e-05,
+          "base_correlation": 0,
+          "correlation_sensitivity_controls": [
+            -0.6,
+            0,
+            0.6
+          ]
+        },
+        "validation": {
+          "new_tests_passed": 33,
+          "unique_spatial_cell_evaluations": 14,
+          "source_hashes_verified": 34,
+          "source_stable_during_run": true,
+          "expected_controls_passed": true,
+          "step_refinement_covariance_relative_change": 7.460858603259726e-07,
+          "spatial_refinement_covariance_relative_change": 9.59467203020517e-10,
+          "nominal_gain_and_dB_match_historical_parent": true,
+          "parent_sources_changed_since_snapshot": [
+            "gabes/kernels.py",
+            "gabes/doppler.py",
+            "gabes/schemes/fwm.py"
+          ],
+          "note": "All current nominal and perturbed points are newly computed. Historical ODE/harmonic controls were not repeated at every perturbed point; parent source parity is not claimed."
+        },
+        "conditional_result": {
+          "output_ids": [
+            "probe_power_gain",
+            "conjugate_power_gain",
+            "R_0.1MHz",
+            "R_1MHz",
+            "R_4MHz"
+          ],
+          "nominal": [
+            1.0277727398979866,
+            0.030651495470772446,
+            0.9540881696354258,
+            0.9540993085133969,
+            0.9542703241152827
+          ],
+          "standard_uncertainties": [
+            0.0006080669031233444,
+            0.0006086997224866506,
+            0.0009274175831241474,
+            0.0009272699569516439,
+            0.0009250288683375966
+          ],
+          "intrinsic_bandwidth_Hz": null
+        },
+        "scope": {
+          "stationary_spatial_field_joint_linear_uncertainty": true,
+          "measured_input_uncertainty": false,
+          "nonlinear_distribution_validation": false,
+          "moving_atom_transport_uncertainty": false,
+          "experimental_validation": false,
+          "note": "Assumed uncertainties conditioned on all other inputs, fixed classical pump and two top-hat profiles. Three sub-SQL RF samples have censored edges and do not establish intrinsic bandwidth. No target-data fit or Grand Challenge completion."
+        }
+      },
+      "rb_transport_implementation": {
+        "stage": "S1 moving pump-only reduced Rb finite characteristic; exact frozen segments with unresolved smooth-envelope convergence",
+        "implemented_at": "2026-09-14",
+        "status": "in_progress",
+        "derivation": "docs/grand_challenge/rb_transport_derivation.md",
+        "report": "docs/grand_challenge/rb_transport_report_v1.json",
+        "figure": "docs/grand_challenge/rb_transport_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.rb_transport_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Complete-basis augmented exponential propagation with independent jump-product D linear in the actual density; both ordered covariances preserve boundary and cross-segment history.",
+          "Moving reduced Rb D1 pump Hamiltonian and reciprocal infinitesimal Nambu ports retain all carrier Doppler phases, explicit nonclosed wavevectors and the prescribed entry state; phenomenological transit reset is rejected.",
+          "Independent full-density raw QRT reference carries positive-time triangles across segments and subtracts the global mean only at completion.",
+          "Exact identical-segment exponential reuse and exact pump-only common entry-phase integration have mathematical proof comments and regression tests; finite-seed phase reuse remains invalid.",
+          "Immutable multi-RF Gaussian refinement reports failed smooth-envelope gates separately from successful exact-segment quantum controls."
+        ],
+        "validation": {
+          "exact_segment_model_controls_passed": true,
+          "smooth_Gaussian_envelope_converged": false,
+          "all_certification_gates_passed": false,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 24,
+          "constant_independent_QRT_max_relative_error": 1.1825854335525694e-11,
+          "moving_frozen_segment_QRT_max_relative_error": 3.4812779706875063e-12,
+          "phase_theorem_max_relative_error": 1.326927172551252e-13,
+          "new_transport_tests": 17,
+          "new_independent_QRT_tests": 31,
+          "latest_Gaussian_refinement": {
+            "greater": 0.003993968745125039,
+            "lesser": 0.003720074701151861,
+            "mean_pulse": 0.029558485880038097,
+            "retarded_response": 0.00010738222547895615,
+            "exit_state": 0.00012832226588089697
+          },
+          "full_suite_passed": 1061,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 323.85,
+          "new_tests_in_this_turn": 91,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "moving_pump_only_reduced_Rb": true,
+          "finite_seed_saturation": false,
+          "smooth_Gaussian_envelope_certified": false,
+          "thermal_Rb_ensemble_evaluated": false,
+          "nonlocal_Maxwell_closure": false,
+          "absolute_hot_vapor_prediction": false,
+          "experimental_validation": false
+        },
+        "remaining": [
+          "The continuous solver now resolves the selected-path envelope issue in smooth_transport_implementation; the immutable frozen 8..128 report remains failed. General beam/path convergence still requires new evidence.",
+          "Connect converged Rb wavepackets to thermal boundary/path quadrature and certify the actual RF polarization spectra, not only equilibrium moments.",
+          "Add finite-seed periodic characteristics, nonlocal Maxwell feedback and optical commutator/CP checks, then full atom/collisions/modes/depletion and held-out experiment."
+        ],
+        "status_note": "Exact finite segment model verified; Gaussian 8..128 refinement remains UNCONVERGED at the declared 1e-3 joint criterion. Grand Challenge is not complete."
+      },
+      "thermal_inflow_implementation": {
+        "stage": "S1 explicit thermal boundary flux and common entry-phase marked-Poisson foundations",
+        "implemented_at": "2026-09-14",
+        "derivation": "docs/grand_challenge/inflow_derivation.md",
+        "report": "docs/grand_challenge/inflow_report_v1.json",
+        "figure": "docs/grand_challenge/inflow_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.inflow_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Positive six-face Maxwell boundary rates n f(v)|v.normal|dA dv, incoming Rayleigh normal speeds, Gaussian tangential velocities and true first-exit chord residence; no occupancy fitting.",
+          "One common laboratory beat phase with fixed geometric entry offsets; zero-cyclic connected stream covariance averages conditional raw moments before any mean subtraction.",
+          "Independent equilibrium occupancy/velocity/position identities, equal-volume shape controls, identity-pulse spectral refinement, independent Sobol seeds and wrong-measure/phase/noise negative controls."
+        ],
+        "validation": {
+          "expected_controls_passed": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 11,
+          "new_tests": 43,
+          "maximum_occupancy_relative_error": 0.0001215,
+          "maximum_scaled_phase_space_moment_error": 0.00032278,
+          "maximum_identity_spectrum_last_refinement_relative_change": 0.008771,
+          "full_suite_passed": 1061,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 323.85,
+          "new_tests_in_this_turn": 91,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "thermal_inflow_and_phase_measure": true,
+          "generic_marked_Poisson_average": true,
+          "actual_Rb_ensemble_evaluated": false,
+          "optical_SQL_or_Maxwell": false,
+          "experimental_validation": false
+        },
+        "remaining": [
+          "A guarded transport_ensemble_implementation now connects packets to boundary rates; actual Rb path evidence and actual thermal polarization-integrand convergence remain open."
+        ],
+        "status_note": "Assumed T=373 K, density=1e17 m^-3 and declared boxes; quadrature convergence of equilibrium/identity controls is not validation of Rb squeezing."
+      },
+      "smooth_transport_implementation": {
+        "stage": "S1 continuous Gaussian moving pump-only Rb characteristic; selected path numerically verified",
+        "implemented_at": "2026-09-14",
+        "status": "conditional_selected_path_verified",
+        "derivation": "docs/grand_challenge/smooth_transport_derivation.md",
+        "report": "docs/grand_challenge/smooth_transport_report_v2.json",
+        "figure": "docs/grand_challenge/smooth_transport_v2.png",
+        "preserved_failed_report": "docs/grand_challenge/smooth_transport_report_v1.json",
+        "entry_points": [
+          "python -m analysis.grand_challenge.smooth_transport_audit --output NEW.json --plot NEW.png --workers 3",
+          "python -m analysis.grand_challenge.smooth_transport_qrt_refinement --parent NEW.json --output REFINED.json --plot REFINED.png"
+        ],
+        "implemented": [
+          "Continuous affine Gaussian Hamiltonian, independent microscopic jump-product D, source-resolved ordered covariance and retarded response preserve full path correlations.",
+          "Sparse moment generator assembled once; exact RF-independent atomic covariance and ordering transpose identities reduce 11086 to 5461 complex variables. Proof comments and regression tests prevent redundant solves from being restored.",
+          "Independent full-density raw-QRT triangles provide total ordered covariance, mean and exit-state checks at the same physical 2 us path and three laboratory RF samples.",
+          "Initial QRT refinement failure is preserved. Tighter reference tolerances pass unchanged gates; byte-verified primary results are reused with parent report SHA256, not re-fit."
+        ],
+        "validation": {
+          "quantum_controls_passed": true,
+          "continuous_Gaussian_selected_path_converged": true,
+          "all_declared_controls_passed": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 28,
+          "tolerances": {
+            "successive_primary_relative": 0.001,
+            "independent_QRT_relative": 5e-06,
+            "independent_QRT_refinement_relative": 2e-06,
+            "required_successive_primary_comparisons": 2
+          },
+          "primary_refinements": [
+            {
+              "greater": 9.426665508975361e-09,
+              "lesser": 8.878131991755495e-09,
+              "mean_pulse": 1.1849960083485739e-07,
+              "retarded_response": 6.55366800036223e-11,
+              "exit_state": 9.161734346295527e-11
+            },
+            {
+              "greater": 3.274461574548394e-09,
+              "lesser": 3.083923786052202e-09,
+              "mean_pulse": 4.135541769669468e-08,
+              "retarded_response": 2.2765847245473288e-11,
+              "exit_state": 3.197817488777606e-11
+            }
+          ],
+          "independent_QRT_errors": {
+            "greater": 4.364404720474029e-10,
+            "lesser": 4.21280295425209e-10,
+            "mean_pulse": 4.639658734682836e-09,
+            "exit_state": 3.872703699272388e-12
+          },
+          "independent_QRT_refinement": {
+            "greater": 1.6618082836270414e-08,
+            "lesser": 1.5735843322122377e-08,
+            "mean_pulse": 2.0130232670903442e-07,
+            "exit_state": 1.5822471864726327e-10
+          },
+          "finest_primary_atomic_covariance_relative_residual": 2.445973172372787e-10,
+          "finest_primary_atomic_commutator_relative_residual": 7.93055671295014e-15,
+          "previous_128_segment_mean_error_vs_continuous": 0.01837110355274668,
+          "new_smooth_transport_tests": 18,
+          "new_independent_QRT_tests": 40,
+          "full_suite_passed": 1185,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 256.5,
+          "new_tests_in_this_turn": 124,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "same_pump_only_reduced_Rb_physics": true,
+          "continuous_Gaussian_single_path": true,
+          "finite_seed_saturation": false,
+          "thermal_Rb_ensemble_converged": false,
+          "nonlocal_Maxwell_field": false,
+          "full_Zeeman_atom": false,
+          "experimental_validation": false,
+          "absolute_hot_vapor_squeezing": false
+        },
+        "remaining": [
+          "선택된 실제 Rb 경로의 independent source별 covariance·retarded response는 adjoint_transport_implementation에서 검증 완료. 다른 thermal path에는 별도 증거 필요.",
+          "Certify actual Rb polarization integrals over thermal paths/velocities, with convergence-preserving acceleration; this single path does not certify the ensemble.",
+          "Add finite-seed periodic dynamics, nonlocal Maxwell field closure, full atom/collisions/transverse modes/depletion, and independent held-out experimental inputs."
+        ],
+        "status_note": "Same reduced pump-only physics, selected path and RF samples only. Quantum consistency, numerical convergence and experimental validation remain separate. No absolute squeezing claim."
+      },
+      "transport_ensemble_implementation": {
+        "stage": "S1 guarded pump-only atomic stream adapter; implementation verified, tested toy quadrature and thermal Rb uncertified",
+        "implemented_at": "2026-09-14",
+        "status": "implemented_with_unconverged_ensemble",
+        "derivation": "docs/grand_challenge/transport_ensemble_derivation.md",
+        "report": "docs/grand_challenge/transport_ensemble_report_v1.json",
+        "figure": "docs/grand_challenge/transport_ensemble_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.transport_ensemble_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Strict common lab RF, actual entry phase and Doppler, Nambu mode/units/coupling/density conventions bind physical packets to thermal boundary rates.",
+          "One packet callback per path; exact common-phase covariance mask retains Poisson conditional mean outer terms, with proof comments against redundant phase solves.",
+          "Hash-bound observed error ledgers require path refinements and independent covariance/source/mean/response comparisons. Missing or failed paths return no partial spectra and are never discarded with renormalized rates.",
+          "Actual-integrand ensemble refinement and independent scramble are required separately from occupation nV or per-path quantum checks. Declared model and reference limitations remain explicit."
+        ],
+        "validation": {
+          "implementation_controls_passed": true,
+          "expected_controls_passed": false,
+          "tested_toy_ensemble_certified": false,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 63,
+          "maximum_path_reference_relative_error": 1.8437408943365188e-15,
+          "final_ensemble_comparison_max_relative_errors": {
+            "ensemble_refinement": 0.0651521148764346,
+            "independent_scramble": 0.04064197125621488
+          },
+          "ensemble_relative_tolerance": 0.05,
+          "final_occupancy_relative_error": 0.001101931166711756,
+          "delete_mean_outer_relative_error": 0.2986258302634337,
+          "average_mean_before_outer_relative_error": 1.0,
+          "native_Rb_missing_evidence_refusal_passed": true,
+          "total_path_callbacks": 16320,
+          "final_paths_per_seed": 6144,
+          "new_tests": 66,
+          "new_tests_in_this_turn": 124,
+          "full_suite_passed": 1185,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 256.5,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "guarded_packet_stream_adapter": true,
+          "tested_toy_ensemble_converged": false,
+          "actual_thermal_Rb_ensemble_evaluated": false,
+          "physical_Rb_independent_source_and_response_coverage_complete": false,
+          "finite_seed": false,
+          "nonlocal_Maxwell_M": false,
+          "optical_SQL": false,
+          "absolute_squeezing": false,
+          "experimental_validation": false
+        },
+        "remaining": [
+          "동일 toy quadrature의 5% 수렴은 transport_ensemble_refinement_implementation에서 해결. 과거 report·production candidate의 실패 상태 보존. 실제 Rb grid/scramble 증거 별도 필요.",
+          "선택된2us/3RF Rb 경로의 complete source/response evidence는 adjoint_transport_implementation에서 확보. 그 외 모든 실제 thermal path의 refinement·독립 reference 추가 필요.",
+          "Accelerate validated path calculations before actual thermal Rb integration, then derive the spatially nonlocal Maxwell response and field-noise closure."
+        ],
+        "status_note": "The closed-form two-level fixture validates implementation and refusal controls. Its finest 6144-path candidate remains uncertified because refinement exceeds 5%; one internally valid native Rb packet is also refused without path evidence."
+      },
+      "transport_ensemble_refinement_implementation": {
+        "stage": "S1 상수 원자 thermal boundary ensemble: 동일 모델·5% 기준 수렴",
+        "implemented_at": "2026-09-14",
+        "status": "conditional_toy_ensemble_verified",
+        "derivation": "docs/grand_challenge/transport_ensemble_refinement.md",
+        "report": "docs/grand_challenge/transport_ensemble_refinement_report_v1.json",
+        "figure": "docs/grand_challenge/transport_ensemble_refinement_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.transport_ensemble_refinement --output NEW.json --plot NEW.png",
+        "implemented": [
+          "기존 H=0, no-jump, fixed-state/readout/drive, zero-offset fixture 유지. Scalar pulse 합으로 정확히 분리; 수학적 동등성 주석·기존 callback parity 검증.",
+          "사전고정 p10/12/14/16 × seeds11/211/811. 모든 실제 boundary path의 24/48/closed-form 7metric 검증; density 한 번, mean outer·복소 response 유지.",
+          "모든 seed의 최근 두 successive refinement + 최근 두 grid의 모든 directed seed pair를 AND. 5% gate·path1e-9·closed-form2e-12 유지."
+        ],
+        "validation": {
+          "implementation_controls_passed": true,
+          "all_declared_controls_passed": true,
+          "constant_atom_ensemble_converged": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 17,
+          "maximum_required_grid_relative_change": 0.02311644922254773,
+          "maximum_required_scramble_relative_change": 0.008835426464804806,
+          "maximum_path_relative_error": 4.5284185256991636e-14,
+          "maximum_closed_form_stream_relative_error": 3.295044541634055e-16,
+          "total_paths_evaluated": 1566720,
+          "final_paths_per_seed": 393216,
+          "new_tests": 51,
+          "audit_elapsed_seconds": 9.563664599962067,
+          "full_suite_passed": 1264,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 232.46,
+          "new_tests_in_this_turn": 79,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "same_constant_atom_fixture": true,
+          "production_adapter_high_resolution_certified": false,
+          "physical_Rb_ensemble_certified": false,
+          "nonzero_jump_thermal_convergence": false,
+          "nonlocal_Maxwell_M": false,
+          "absolute_squeezing": false
+        },
+        "remaining": [
+          "선택 Rb 경로 source/response 검증 완료(adjoint_transport_implementation). 다른 실제 path와 thermal integrand 수렴은 별도. Toy factorization 일반화 금지.",
+          "실제 Rb 계산의 오차 보존 가속; 고해상도 production packet digest chain 연결.",
+          "위치별 causal Maxwell kernel·광장 commutator/CP·finite seed 후속."
+        ],
+        "status_note": "과거 실패 report 불변. p14 gate 실패도 기록; p16에서 조건부 상수 모델 수렴. 실제 Rb ensemble 또는 squeezing 인증 아님."
+      },
+      "adjoint_transport_implementation": {
+        "stage": "S1 실제 moving Rb 단일 경로: 잡음원별 공분산·복소 응답 독립 검증",
+        "implemented_at": "2026-09-14",
+        "status": "conditional_selected_path_source_response_verified",
+        "derivation": "docs/grand_challenge/adjoint_transport_derivation.md",
+        "report": "docs/grand_challenge/adjoint_transport_report_v1.json",
+        "figure": "docs/grand_challenge/adjoint_transport_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.adjoint_transport_audit --output NEW.json --plot NEW.png",
+        "implemented": [
+          "Full-density 전방1회 + 역방향 관측자 A_j. 직접 Lindblad product 적분으로 boundary·각 실제 jump source·두 ordering 구성. 기존 전방 D/A/C 입력 없음.",
+          "동일 역방향 관측자로 복소 retarded response 도출. 부호·carrier phase·identity 성분·SI units 유지; source 제거 ablation과 구분.",
+          "RF/source-independent density 재사용 및 정확한 eta 좌표변환의 수학적 근거 주석·회귀검증. Forward16+backward624 complex variables; 생산 Ultra 속도 배수 주장 없음.",
+          "Parent smooth v2의28source hash·물리 입력·metadata 검증 후 primary3해 재사용. 각 source/RF norm에서 mean_outer까지 포함한 두 successive error 새로 계산.",
+          "실제 packet digest에 연결한 complete path evidence 승인. 총 QRT만 제출하거나 response 변경 후 과거 evidence 사용 시 거부."
+        ],
+        "validation": {
+          "all_declared_controls_passed": true,
+          "complete_path_evidence_accepted": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 34,
+          "budgets": {
+            "primary_refinement": 0.001,
+            "independent_reference": 5e-06,
+            "independent_refinement": 2e-06
+          },
+          "primary_refinements": [
+            {
+              "greater": 9.536825002938209e-09,
+              "lesser": 9.046723079219715e-09,
+              "greater_by_source": 5.3088477128505766e-08,
+              "lesser_by_source": 4.714960473877202e-08,
+              "mean_pulse": 1.1943079462898668e-07,
+              "mean_outer": 2.1464546036914167e-07,
+              "retarded_response": 6.580086219888122e-11,
+              "exit_state": 9.161734346295528e-11
+            },
+            {
+              "greater": 3.3126906430963434e-09,
+              "lesser": 3.142481733970214e-09,
+              "greater_by_source": 1.844090856902041e-08,
+              "lesser_by_source": 1.637796343615003e-08,
+              "mean_pulse": 4.1680869906035736e-08,
+              "mean_outer": 7.52553788011413e-08,
+              "retarded_response": 2.2857840275358658e-11,
+              "exit_state": 3.197817488777606e-11
+            }
+          ],
+          "independent_reference_errors": {
+            "greater": 1.4634875917074399e-09,
+            "lesser": 1.3713316193630571e-09,
+            "greater_by_source": 7.804046238476938e-09,
+            "lesser_by_source": 6.928064048590588e-09,
+            "mean_pulse": 2.7033241931274555e-08,
+            "mean_outer": 4.0693643727046934e-08,
+            "retarded_response": 1.0222695485972461e-11,
+            "exit_state": 5.528448861861236e-09
+          },
+          "independent_refinement": {
+            "greater": 4.5838932676732514e-10,
+            "lesser": 4.526392318774805e-10,
+            "greater_by_source": 2.6234629088932744e-09,
+            "lesser_by_source": 2.48444949354394e-09,
+            "mean_pulse": 3.965310580358656e-08,
+            "mean_outer": 5.562295790154987e-08,
+            "retarded_response": 3.4240281971821746e-12,
+            "exit_state": 1.2988578700277742e-08
+          },
+          "negative_controls": {
+            "total_QRT_only_rejected": true,
+            "total_QRT_only_reasons": [
+              "independent_reference: required output metrics are missing"
+            ],
+            "modified_response_digest_rejected": true
+          },
+          "fine_reference_source_minimum_eigenvalues_s2": {
+            "greater": 2.293580153827412e-22,
+            "lesser": 2.296486386412203e-22
+          },
+          "reference_elapsed_seconds": [
+            478.8529854999506,
+            553.9238017000025
+          ],
+          "new_reference_tests": 24,
+          "new_evidence_tests": 4,
+          "new_tests_in_this_turn": 79,
+          "full_suite_passed": 1264,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 232.46,
+          "known_existing_failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public: missing docs/FWM physics and analytic reconstruction/FWM_physics.tex"
+        },
+        "scope": {
+          "physical_Rb_selected_path_source_and_response_reference": true,
+          "complete_selected_path_evidence": true,
+          "thermal_Rb_ensemble_converged": false,
+          "nonlocal_Maxwell_field": false,
+          "finite_seed": false,
+          "absolute_squeezing": false
+        },
+        "remaining": [
+          "검증된 수치 오차 유지하며 실제 Rb path 계산 가속. 현재 독립 reference 한 경로 약554s; 대규모 열적 적분 전 병목 해소 필요.",
+          "다른 entry/velocity/residence/operating point에 경로별 증거 생성. 현재 digest 재사용으로 미계산 경로 승인 금지.",
+          "실제 thermal Rb polarization 적분의 경로·속도·독립 scramble 수렴. Toy factorization과 별도.",
+          "위치별 causal Maxwell kernel 및 field commutator/CP, finite seed, full atom/collision/modes/depletion, held-out experiment."
+        ],
+        "status_note": "현재2us 경로·RF0.1/1/4MHz에서 source/response coverage 완료. 열적Rb ensemble·Maxwell·absolute squeezing 인증 아님."
+      },
+      "exponential_transport_implementation": {
+        "stage": "S1 실제 moving Rb 경로: source·mean·response의 정확한 고유모드 분리와 CF4 시간 적분",
+        "implemented_at": "2026-09-14",
+        "status": "conditional_selected_path_source_response_accelerated",
+        "derivation": "docs/grand_challenge/exponential_transport_derivation.md",
+        "report": "docs/grand_challenge/exponential_transport_report_v1.json",
+        "figure": "docs/grand_challenge/exponential_transport_v1.png",
+        "entry_point": "python -m analysis.grand_challenge.exponential_transport_audit --output NEW.json",
+        "implemented": [
+          "동일한 고정 Lindblad 구간의 source covariance convolution을 16/19차 고유모드로 정확히 분리. 489차 block exponential의 수학적 항등식 및 회귀검증.",
+          "동일 고유모드로 mean·복소 retarded response의 96차 exponential 제거. RF/source-independent density 재사용 증명 주석 유지. 별도 mean recentering·fit 없음.",
+          "조건수·고유방정식 residual·finite kernel 검사 후 spectral 경로 선택. 불안정 eigenbasis는 기존 inverse-free block exponential 적용.",
+          "전체 affine moment lift에 positive-duration CF4 적용. Fixed-map 동일성과 연속 Gaussian 경로의 관측 수렴 구분.",
+          "기본17개 완료 macro endpoint만 저장. 모든 내부 substep의 covariance·commutator·state positivity는 동일한 streaming norm으로 검사.",
+          "38source·독립 reference hash·물리 입력 검증 후 동일 adjoint 계산 재사용. 최종 source/response packet digest로 evidence 연결."
+        ],
+        "validation": {
+          "all_declared_controls_passed": true,
+          "complete_path_evidence_accepted": true,
+          "source_stable_during_run": true,
+          "source_hashes_verified": 38,
+          "segments": [
+            4096,
+            8192,
+            16384
+          ],
+          "budgets": {
+            "primary_refinement": 0.001,
+            "independent_reference": 5e-06,
+            "independent_refinement": 2e-06
+          },
+          "primary_refinements": [
+            {
+              "greater": 2.052949434216869e-07,
+              "lesser": 2.429460290629185e-07,
+              "greater_by_source": 1.0736407445205189e-06,
+              "lesser_by_source": 1.1492016750889308e-06,
+              "mean_pulse": 0.0006208709179097113,
+              "mean_outer": 0.0009418527588303601,
+              "retarded_response": 5.20394582313696e-09,
+              "exit_state": 3.1239381264866267e-05
+            },
+            {
+              "greater": 4.653955598111408e-08,
+              "lesser": 4.7975808607007875e-08,
+              "greater_by_source": 1.0418637439452055e-07,
+              "lesser_by_source": 9.953017848878023e-08,
+              "mean_pulse": 0.00011294807243059854,
+              "mean_outer": 0.0001613801105161257,
+              "retarded_response": 1.2344426741867735e-09,
+              "exit_state": 8.28618710512158e-06
+            }
+          ],
+          "independent_reference_errors": {
+            "greater": 8.007448591914671e-10,
+            "lesser": 8.415307664954656e-10,
+            "greater_by_source": 2.652163364523342e-09,
+            "lesser_by_source": 2.4804727081930633e-09,
+            "mean_pulse": 5.732685420085476e-07,
+            "mean_outer": 8.69080121095909e-07,
+            "retarded_response": 8.899831955854504e-12,
+            "exit_state": 4.1069563429842466e-08
+          },
+          "runtime_seconds": [
+            63.146413400012534,
+            129.59982270002365,
+            250.31007109995699
+          ],
+          "fixed_map_benchmark": {
+            "segments": 16,
+            "order": 2,
+            "errors": {
+              "greater": 9.756473348757104e-13,
+              "lesser": 9.528618764586614e-13,
+              "greater_by_source": 1.3024993817438125e-12,
+              "lesser_by_source": 1.1716667132620493e-12,
+              "mean_pulse": 9.953386071034867e-12,
+              "mean_outer": 1.7645327250899033e-11,
+              "retarded_response": 1.5224974419531807e-12,
+              "exit_state": 1.6210418660077988e-13
+            },
+            "tolerance": 2e-08,
+            "passed": true,
+            "original_seconds": 14.899239999998827,
+            "spectral_seconds": 0.1555814000312239,
+            "same_discretization_speed_ratio": 95.76491789512546,
+            "scope": "Identical coarse midpoint maps only. This does not certify continuum accuracy or an Ultra speedup."
+          },
+          "modified_response_digest_rejected": true,
+          "new_solver_tests": 73,
+          "new_evidence_tests": 18,
+          "independent_code_math_review": "no blockers",
+          "full_suite_passed": 1487,
+          "full_suite_failed": 1,
+          "full_suite_seconds": 338.88,
+          "new_tests_in_this_stage": 223,
+          "known_failure": "Existing deleted docs/FWM physics and analytic reconstruction/FWM_physics.tex; test_repository_visibility_wording_is_consistently_public"
+        },
+        "remaining": [
+          "실제 thermal 경로마다 3개 refinement·독립 reference 직접 검증. 선택된 2us 경로의 수렴을 다른 경로로 확대 금지.",
+          "Thermal integrand grid·scramble 수렴, nonlocal Maxwell, finite seed, full atom, absolute experimental squeezing 후속.",
+          "고정 midpoint16 계산의 약95.76배는 해당 동일 이산화 전용. 생산 Ultra·연속 경로 전체·thermal ensemble 속도배수 아님.",
+          "과거 adaptive 실행은 실제 BLAS thread 정보 미기록. 공정한 continuum speed ratio는 미검증."
+        ]
+      },
+      "thermal_rb_ensemble_implementation": {
+        "stage": "S1 조건부 open-column thermal Rb: 실제 boundary 경로와 source/response 수렴 증거",
+        "implemented_at": "2026-09-14",
+        "status": "conditional_six_path_thermal_Rb_pilot_verified_ensemble_open",
+        "derivation": "docs/grand_challenge/rb_thermal_ensemble.md",
+        "reports": [
+          "docs/grand_challenge/rb_thermal_ensemble_report_v1.json",
+          "docs/grand_challenge/rb_thermal_ensemble_report_v2.json",
+          "docs/grand_challenge/rb_thermal_ensemble_report_v3.json"
+        ],
+        "reference_directory": "docs/grand_challenge/rb_thermal_reference_jobs_v1",
+        "cache_directory": "docs/grand_challenge/rb_thermal_path_cache_v1",
+        "implemented": [
+          "373K Maxwell box inflow의 실제 p0/seed11 경로6개를 사전 고정. 입사 위치·속도·전체 first-exit 시간·carrier 위상·모든 radiative source 유지.",
+          "각 경로에 연속 full-density/backward-observable reference 두 정밀도. 총12개 immutable record를 입력·source35·물리 행렬·metadata·실제 BLAS1 정보로 검증.",
+          "Primary 3개와 independent reference2개의 완전한 source/RF별 8metric 비교. 모든 경로의 실제 packet digest와 현재 모델/phase/rate 계약 검증.",
+          "전체 물리 입력·경로·solver 수치계획·source/runtime identity에 묶인 cache. 중첩 Sobol 경로의 동일 원자 계산 재사용, 현재 rate와 packet digest는 다시 계산.",
+          "Rate를 정확히 한 번 적용. Greater/lesser source·Poisson mean outer·복소 응답 유지. 한 경로라도 실패하면 부분 spectrum 대신 spectra=None 반환.",
+          "Ensemble gate는 최근 두 grid edge와 마지막 두 grid의 모든 directed seed pair를 별도 요구. 한 grid pilot 또는 nV moment 일치만으로 인증하지 않음."
+        ],
+        "physical_scope": {
+          "model": "conditional reduced-Rb pump-only Gaussian open reservoir",
+          "temperature_K": 373,
+          "pilot_power": 0,
+          "pilot_seed": 11,
+          "pilot_paths": 6,
+          "assumptions": [
+            "정사각형 열린 column 단면적을 optical normalization area와 같게 설정. 측정된 cell cross-section 아님.",
+            "입사 원자는 unpolarized fresh reservoir. Column 밖 pump 이력 미포함.",
+            "계산은 atomic stream. Maxwell 광장·finite seed·실험 squeezing 검증 아님."
+          ]
+        },
+        "validation": {
+          "v1_source_hashes_verified": 62,
+          "v1_source_stable_during_run": true,
+          "reference_job_count": 12,
+          "reference_refinements_passed": true,
+          "v1_pilot_all_path_evidence_passed": false,
+          "v1_path_status": {
+            "0": "PATH_VERIFIED",
+            "1": "PATH_FAILED",
+            "2": "PATH_FAILED",
+            "3": "PATH_VERIFIED",
+            "4": "PATH_FAILED",
+            "5": "PATH_VERIFIED"
+          },
+          "v1_all_finest_independent_comparisons_passed": true,
+          "path_budgets": {
+            "primary_refinement": 0.001,
+            "independent_reference": 5e-06,
+            "independent_refinement": 2e-06
+          },
+          "new_cache_tests": 83,
+          "new_audit_tests": 49,
+          "full_suite_passed": 1487,
+          "full_suite_failed": 1,
+          "physical_Rb_ensemble_converged": false,
+          "production_adapter_certified": false,
+          "physical_optical_prediction": false,
+          "v2_pilot_all_path_evidence_passed": false,
+          "v2_path_status": {
+            "0": "PATH_VERIFIED",
+            "1": "PATH_VERIFIED",
+            "2": "PATH_VERIFIED",
+            "3": "PATH_VERIFIED",
+            "4": "PATH_FAILED",
+            "5": "PATH_VERIFIED"
+          },
+          "v2_source_stable_during_run": true,
+          "v2_finer_edge_max": 2.3432343998098294e-06,
+          "v2_independent_reference_max": 1.03483620280606e-07,
+          "v3_pilot_all_path_evidence_passed": true,
+          "v3_path_status": {
+            "0": "PATH_VERIFIED",
+            "1": "PATH_VERIFIED",
+            "2": "PATH_VERIFIED",
+            "3": "PATH_VERIFIED",
+            "4": "PATH_VERIFIED",
+            "5": "PATH_VERIFIED"
+          },
+          "v3_source_stable_during_run": true,
+          "v3_primary_edge_maxima": [
+            2.3432343998098294e-06,
+            9.462599128234302e-08
+          ],
+          "v3_independent_reference_max": 1.8223766592339282e-08,
+          "independent_refinement_max": 3.460105004430353e-08,
+          "final_max_steps_s": [
+            1.220703125e-10,
+            6.103515625e-11,
+            3.0517578125e-11
+          ],
+          "grid_path_count": 6,
+          "grid_cache_hits": 30,
+          "grid_cache_misses": 0,
+          "final_grid_consumed_paths": 6,
+          "final_grid_occupancy_over_nV": 0.617675044895484,
+          "accumulated_primary_calculations": 30,
+          "accumulated_reference_calculations": 12,
+          "finest_new_primary_calculations": 6,
+          "finest_workers": 4,
+          "finest_blas_threads_per_worker": 1,
+          "finest_job_wall_seconds": 627.4470052999677,
+          "manual_weighted_matrix_validation": "All eight stream terms bitwise equal to independent weighted reassembly; forbidden phase-mask entries zero",
+          "uncomputed_grid_seed_combinations": 11
+        },
+        "remaining": [
+          "v1/v2 실패와 v3 전체6경로 통과를 모두 보존. 관측 수렴이며 전역 오차의 엄밀한 상계 아님. 현재 pilot 집계는 기존42계산 cache 재사용; 새 ODE 속도로 해석 금지.",
+          "추가 p0..p3 × seeds11/211/811의 actual thermal integrand grid/scramble 수렴. 현재 하나의 pilot grid로 전체 ensemble 인증 금지.",
+          "입사경계의 실제 pump history·측정 cell geometry, nonlocal Maxwell, finite seed, full atom·실험 absolute spectrum 후속."
+        ],
+        "report": "docs/grand_challenge/rb_thermal_ensemble_report_v3.json",
+        "figure": "docs/grand_challenge/rb_thermal_ensemble_v3.png",
+        "finest_jobs_report": "docs/grand_challenge/rb_thermal_finest_jobs_v1.json"
+      }
+    }
+  ]
 }

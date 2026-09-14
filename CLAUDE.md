@@ -22,6 +22,8 @@ Orientation for AI assistants working in this repo.
   (derived-table markdown). Reuse these instead of re-implementing per scheme.
 
 ## Conventions
+- 정리용 Markdown: 한국어 `caveman` full 문체. 군더더기 생략;
+  수식·조건·오차·검증 범위 보존. 기존 기록 일괄 압축 불필요.
 - Gold references: **FWM Squeezing** for physics realism, **Absorption
   Spectroscopy (OD/SAS)** for cross-scheme uniformity. New schemes should match
   their naming/units/structure.

@@ -160,6 +160,27 @@ python tests/test_schemes_render.py  # every registered scheme computes + render
 ```
 (or `pytest tests/`)
 
+Microscopic FWM 연구: `gabes/quantum/`, `gabes/fwm_quantum/`.
+독립 참조: `analysis/grand_challenge/`. [연구 기록](docs/grand_challenge/research_log.md).
+
+최신: [정확한 고유모드 적분·CF4 경로 가속](docs/grand_challenge/exponential_transport_derivation.md),
+[실제 thermal Rb 경로·재사용 계약](docs/grand_challenge/rb_thermal_ensemble.md).
+선택 경로·실제 thermal pilot6경로의 독립 오차 기준 통과.
+한 격자 진단까지 완료. 전체 thermal ensemble 인증은 후속.
+
+기준: [Rb 경로의 잡음원·응답 독립 검증](docs/grand_challenge/adjoint_transport_derivation.md),
+[상수 원자 앙상블 수렴 확장](docs/grand_challenge/transport_ensemble_refinement.md).
+실제 열적 Rb ensemble·nonlocal Maxwell·실험 squeezing 검증은 후속.
+
+기반: [연속 Gaussian 경로](docs/grand_challenge/smooth_transport_derivation.md),
+[엄격한 ensemble evidence 계약](docs/grand_challenge/transport_ensemble_derivation.md),
+[characteristic transport](docs/grand_challenge/transport_derivation.md).
+[정지 원자 공간 광장](docs/grand_challenge/spatial_field_derivation.md)·
+[공동 입력 불확도](docs/grand_challenge/spatial_uncertainty_derivation.md)·
+[RF 후처리](docs/grand_challenge/parallel_development.md)는 별도 조건부 검증.
+생산 scheme의 실험 검증된 squeezing 출력은 아직 비활성.
+전용 검사: `python -m pytest -q tests/quantum`.
+
 ## Adding a scheme
 
 Subclass `gabes.schemes.base.Scheme` — declare `param_schema()`, `compute(params)`,

@@ -1,0 +1,817 @@
+{
+  "schema_version": 1,
+  "stage": "parallel RF-band and correlated-input uncertainty tools",
+  "expected_controls_passed": true,
+  "absolute_hot_vapor_prediction": false,
+  "experimental_validation": false,
+  "sources_unchanged_during_run": true,
+  "source_sha256": {
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "gabes/schemes/fwm.py": "d45245a4b472b85ec0a02c1429aa5b71e2fdccd89877daf9bcee57329721b2ff",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "gabes/quantum/contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "gabes/quantum/traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "gabes/quantum/sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "gabes/quantum/readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "gabes/quantum/uncertainty.py": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+    "gabes/quantum/spectrum_analysis.py": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+    "gabes/fwm_quantum/model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "gabes/fwm_quantum/normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "gabes/fwm_quantum/inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "gabes/fwm_quantum/field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "gabes/fwm_quantum/readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "analysis/grand_challenge/downstream_audit.py": "210c810669e0334de25997e5a66c95172c5cc6dfcd858e9341d7170d4975c832",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "requirements-quantum.txt": "6df54e8f26b5ae8c9dc1715acdab5654f505df3f936ff199e2a47a73000deb35"
+  },
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0"
+  },
+  "analytic_bands": {
+    "formula": "R(f)=0.25+((f-center)/scale)^2; linear-ratio threshold interpolation",
+    "center_hz": 2100000.0,
+    "scale_hz": 1300000.0,
+    "exact_edges_hz": [
+      974166.9750802298,
+      3225833.02491977
+    ],
+    "refinements": [
+      {
+        "samples": 81,
+        "maximum_edge_error_hz": 109.3766401419416,
+        "analysis": {
+          "status": "bands_found",
+          "bands": [
+            {
+              "lower": {
+                "frequency_hz": 974232.9700272481,
+                "kind": "crossing",
+                "bracket_hz": [
+                  928750.0,
+                  977500.0000000001
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "upper": {
+                "frequency_hz": 3225723.6482796283,
+                "kind": "crossing",
+                "bracket_hz": [
+                  3219999.9999999995,
+                  3268749.9999999995
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "minimum_ratio": 0.25000092455621303,
+              "minimum_frequency_hz": 2098750.0,
+              "sample_count": 47,
+              "width_hz": 2251490.6782523803,
+              "observed_span_hz": 2251490.6782523803
+            }
+          ],
+          "threshold_db": 0.0,
+          "threshold_ratio": 1.0,
+          "minimum_ratio": 0.25000092455621303,
+          "minimum_frequency_hz": 2098750.0,
+          "invalid_sample_count": 0,
+          "unconverged_sample_count": 0,
+          "complete_domain": true,
+          "layer": "source",
+          "provenance": "analytic valley fixture; not an atomic spectrum",
+          "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+          "rf_refinement_status": "sampled_only",
+          "crossing_tolerance_hz": null,
+          "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+        }
+      },
+      {
+        "samples": 321,
+        "maximum_edge_error_hz": 16.45769346272573,
+        "analysis": {
+          "status": "bands_found",
+          "bands": [
+            {
+              "lower": {
+                "frequency_hz": 974180.0498407865,
+                "kind": "crossing",
+                "bracket_hz": [
+                  965312.4999999999,
+                  977500.0000000001
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "upper": {
+                "frequency_hz": 3225816.5672263075,
+                "kind": "crossing",
+                "bracket_hz": [
+                  3219999.9999999995,
+                  3232187.5
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "minimum_ratio": 0.25000092455621303,
+              "minimum_frequency_hz": 2098750.0,
+              "sample_count": 185,
+              "width_hz": 2251636.517385521,
+              "observed_span_hz": 2251636.517385521
+            }
+          ],
+          "threshold_db": 0.0,
+          "threshold_ratio": 1.0,
+          "minimum_ratio": 0.25000092455621303,
+          "minimum_frequency_hz": 2098750.0,
+          "invalid_sample_count": 0,
+          "unconverged_sample_count": 0,
+          "complete_domain": true,
+          "layer": "source",
+          "provenance": "analytic valley fixture; not an atomic spectrum",
+          "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+          "rf_refinement_status": "sampled_only",
+          "crossing_tolerance_hz": null,
+          "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+        }
+      },
+      {
+        "samples": 1281,
+        "maximum_edge_error_hz": 0.35045784257818013,
+        "analysis": {
+          "status": "bands_found",
+          "bands": [
+            {
+              "lower": {
+                "frequency_hz": 974167.3255380724,
+                "kind": "crossing",
+                "bracket_hz": [
+                  971406.25,
+                  974453.125
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "upper": {
+                "frequency_hz": 3225832.7019434506,
+                "kind": "crossing",
+                "bracket_hz": [
+                  3223046.875,
+                  3226093.75
+                ],
+                "refinement_status": "interpolated",
+                "iterations": 0
+              },
+              "minimum_ratio": 0.25000092455621303,
+              "minimum_frequency_hz": 2098750.0,
+              "sample_count": 739,
+              "width_hz": 2251665.3764053783,
+              "observed_span_hz": 2251665.3764053783
+            }
+          ],
+          "threshold_db": 0.0,
+          "threshold_ratio": 1.0,
+          "minimum_ratio": 0.25000092455621303,
+          "minimum_frequency_hz": 2098750.0,
+          "invalid_sample_count": 0,
+          "unconverged_sample_count": 0,
+          "complete_domain": true,
+          "layer": "source",
+          "provenance": "analytic valley fixture; not an atomic spectrum",
+          "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+          "rf_refinement_status": "sampled_only",
+          "crossing_tolerance_hz": null,
+          "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+        }
+      }
+    ],
+    "locally_refined": {
+      "status": "bands_found",
+      "bands": [
+        {
+          "lower": {
+            "frequency_hz": 974166.9777780771,
+            "kind": "crossing",
+            "bracket_hz": [
+              974166.9748723507,
+              974166.9806838036
+            ],
+            "refinement_status": "refined",
+            "iterations": 23
+          },
+          "upper": {
+            "frequency_hz": 3225833.022072911,
+            "kind": "crossing",
+            "bracket_hz": [
+              3225833.0191671844,
+              3225833.024978637
+            ],
+            "refinement_status": "refined",
+            "iterations": 23
+          },
+          "minimum_ratio": 0.25000092455621303,
+          "minimum_frequency_hz": 2098750.0,
+          "sample_count": 47,
+          "width_hz": 2251666.0442948337,
+          "observed_span_hz": 2251666.0442948337
+        }
+      ],
+      "threshold_db": 0.0,
+      "threshold_ratio": 1.0,
+      "minimum_ratio": 0.25000092455621303,
+      "minimum_frequency_hz": 2098750.0,
+      "invalid_sample_count": 0,
+      "unconverged_sample_count": 0,
+      "complete_domain": true,
+      "layer": "source",
+      "provenance": "analytic valley fixture; not an atomic spectrum",
+      "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+      "rf_refinement_status": "refined",
+      "crossing_tolerance_hz": 0.01,
+      "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+    },
+    "locally_refined_maximum_edge_error_hz": 0.002846859395503998,
+    "flat_sub_sql": {
+      "status": "bands_found",
+      "bands": [
+        {
+          "lower": {
+            "frequency_hz": 100000.0,
+            "kind": "domain",
+            "bracket_hz": null,
+            "refinement_status": "not_applicable",
+            "iterations": 0
+          },
+          "upper": {
+            "frequency_hz": 4000000.0,
+            "kind": "domain",
+            "bracket_hz": null,
+            "refinement_status": "not_applicable",
+            "iterations": 0
+          },
+          "minimum_ratio": 0.4,
+          "minimum_frequency_hz": 100000.0,
+          "sample_count": 101,
+          "width_hz": null,
+          "observed_span_hz": 3900000.0
+        }
+      ],
+      "threshold_db": 0.0,
+      "threshold_ratio": 1.0,
+      "minimum_ratio": 0.4,
+      "minimum_frequency_hz": 100000.0,
+      "invalid_sample_count": 0,
+      "unconverged_sample_count": 0,
+      "complete_domain": true,
+      "layer": "source",
+      "provenance": "analytic valley fixture; not an atomic spectrum",
+      "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+      "rf_refinement_status": "no_crossings",
+      "crossing_tolerance_hz": null,
+      "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+    },
+    "common_electronic_lowpass_width_change_hz": 0.0,
+    "extreme_ratio_crossings_finite_and_ordered": true,
+    "passed": true
+  },
+  "correlated_band_uncertainty": {
+    "input_values": [
+      2100000.0,
+      1300000.0
+    ],
+    "input_units": [
+      "Hz",
+      "Hz"
+    ],
+    "input_standard_uncertainties": [
+      20000.0,
+      50000.0
+    ],
+    "input_correlation": [
+      [
+        1.0,
+        0.6
+      ],
+      [
+        0.6,
+        1.0
+      ]
+    ],
+    "evidence_audit": {
+      "passed": false,
+      "reasons": [
+        "center: assumed",
+        "scale: assumed",
+        "correlation: missing joint evidence"
+      ],
+      "scope": "declared scalar and correlation evidence only; no experimental validation"
+    },
+    "output_ids": [
+      "lower_edge",
+      "upper_edge",
+      "bandwidth"
+    ],
+    "output_units": [
+      "Hz",
+      "Hz",
+      "Hz"
+    ],
+    "nominal": [
+      974166.9750993606,
+      3225833.0249332353,
+      2251666.0498338747
+    ],
+    "exact_covariance": [
+      [
+        1235769515.4586735,
+        -1474999999.9999998,
+        -2710769515.4586735
+      ],
+      [
+        -1474999999.9999995,
+        3314230484.541326,
+        4789230484.541326
+      ],
+      [
+        -2710769515.458673,
+        4789230484.541326,
+        7499999999.999998
+      ]
+    ],
+    "linear_covariance": [
+      [
+        1235769510.6858356,
+        -1474999986.6958272,
+        -2710769497.381663
+      ],
+      [
+        -1474999986.6958272,
+        3314230453.578858,
+        4789230440.274686
+      ],
+      [
+        -2710769497.381663,
+        4789230440.274686,
+        7499999937.656348
+      ]
+    ],
+    "linear_standard_uncertainties": [
+      35153.51348991784,
+      57569.35342331767,
+      86602.54001850262
+    ],
+    "linear_covariance_relative_error": 8.559745024188396e-09,
+    "ensemble_count": 512,
+    "ensemble_seed": 9112026,
+    "ensemble_covariance": [
+      [
+        1235969655.0459948,
+        -1450317449.6760216,
+        -2686287104.722015
+      ],
+      [
+        -1450317449.6760216,
+        3319747907.2584763,
+        4770065356.934497
+      ],
+      [
+        -2686287104.722015,
+        4770065356.934497,
+        7456352461.656512
+      ]
+    ],
+    "ensemble_covariance_relative_error": 0.006168958215039937,
+    "ensemble_quantiles_025_50_975": [
+      [
+        904327.155171195,
+        3113227.910192916,
+        2082124.4289518218
+      ],
+      [
+        975054.2300392408,
+        3224101.9290126855,
+        2247177.595188841
+      ],
+      [
+        1044499.8411448905,
+        3331134.7864985587,
+        2412881.49664714
+      ]
+    ],
+    "deterministic_replay": true,
+    "passed": true
+  },
+  "singular_input_controls": {
+    "input_count": 5,
+    "correlation": "all entries exactly one",
+    "sample_difference_maximum": 0.0,
+    "amplified_contrast_variance": 0.0,
+    "minimum_correlation_eigenvalue": -5.223441168861566e-18,
+    "factorization_correlation_max_error": 0.0,
+    "passed": true
+  },
+  "conditional_atomic_uncertainty": {
+    "scope": "existing single-velocity, undepleted, weak-field bright reduced atom; conditional on all fixed inputs",
+    "fixed_consumed_input_ledger": {
+      "scalars": {
+        "pump_power_W": [
+          0.6,
+          "W"
+        ],
+        "pump_waist_m": [
+          0.00053,
+          "m"
+        ],
+        "number_density_m3": [
+          1e+18,
+          "m^-3"
+        ],
+        "uniform_area_m2": [
+          1.2e-07,
+          "m^2"
+        ],
+        "length_m": [
+          0.0125,
+          "m"
+        ],
+        "seed_power_W": [
+          8e-06,
+          "W"
+        ],
+        "one_photon_rad_s": [
+          5654866776.461628,
+          "rad/s"
+        ],
+        "two_photon_rad_s": [
+          -50265482.45743669,
+          "rad/s"
+        ],
+        "transit_rate_s_inverse": [
+          628318.5307179586,
+          "s^-1"
+        ],
+        "phase_mismatch_rad_m": [
+          0.0,
+          "rad/m"
+        ],
+        "seed_phase_rad": [
+          0.0,
+          "rad"
+        ],
+        "natural_decay": [
+          36103182.7750539,
+          "s^-1"
+        ],
+        "D1_centroid": [
+          377107385690000.0,
+          "Hz"
+        ],
+        "ground_hyperfine_splitting": [
+          3035732439.0,
+          "Hz"
+        ],
+        "excited_hyperfine_splitting": [
+          361580000.0,
+          "Hz"
+        ],
+        "reset_F2_population": [
+          0.4166666666666667,
+          "1"
+        ],
+        "reset_F3_population": [
+          0.5833333333333334,
+          "1"
+        ],
+        "detector_balance": [
+          1.0,
+          "1"
+        ],
+        "probe_transmission": [
+          0.85,
+          "1"
+        ],
+        "conjugate_transmission": [
+          0.85,
+          "1"
+        ],
+        "rf_0": [
+          100000.0,
+          "Hz"
+        ],
+        "probe_response_real_0": [
+          1.0,
+          "A/A"
+        ],
+        "probe_response_imag_0": [
+          0.0,
+          "A/A"
+        ],
+        "conjugate_response_real_0": [
+          1.0,
+          "A/A"
+        ],
+        "conjugate_response_imag_0": [
+          0.0,
+          "A/A"
+        ],
+        "electronics_psd_0": [
+          0.0,
+          "A^2/Hz"
+        ],
+        "rf_1": [
+          1000000.0,
+          "Hz"
+        ],
+        "probe_response_real_1": [
+          1.0,
+          "A/A"
+        ],
+        "probe_response_imag_1": [
+          0.0,
+          "A/A"
+        ],
+        "conjugate_response_real_1": [
+          1.0,
+          "A/A"
+        ],
+        "conjugate_response_imag_1": [
+          0.0,
+          "A/A"
+        ],
+        "electronics_psd_1": [
+          0.0,
+          "A^2/Hz"
+        ],
+        "rf_2": [
+          4000000.0,
+          "Hz"
+        ],
+        "probe_response_real_2": [
+          1.0,
+          "A/A"
+        ],
+        "probe_response_imag_2": [
+          0.0,
+          "A/A"
+        ],
+        "conjugate_response_real_2": [
+          1.0,
+          "A/A"
+        ],
+        "conjugate_response_imag_2": [
+          0.0,
+          "A/A"
+        ],
+        "electronics_psd_2": [
+          0.0,
+          "A^2/Hz"
+        ]
+      },
+      "convention": "uniform-zeeman-rms",
+      "derived": {
+        "base_dipole_C_m": 2.536789600380482e-29,
+        "dipole_matrix_C_m": [
+          [
+            0.0,
+            0.0,
+            6.904266784145584e-30,
+            1.291670040657815e-29
+          ],
+          [
+            0.0,
+            0.0,
+            1.0916604305673085e-29,
+            9.76410772438076e-30
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "pump_rabi_rad_s": 7699781236.363277,
+        "optical_carriers_rad_s": [
+          2369453313017833.0,
+          2369434188682893.5,
+          2369472437352772.5
+        ]
+      },
+      "assumptions": [
+        "uniform sublevels within each F, weak absorption RMS; positive four-level amplitudes are a conditional nonlinear surrogate",
+        "single velocity and uniform weak-field area",
+        "Gaussian pump peak sampled uniformly; no transverse average",
+        "Markov replacement to declared thermal populations",
+        "bright seed, prescribed undepleted pump; no target-fit parameters"
+      ],
+      "experimental_validation": false
+    },
+    "varied_input_evidence": [
+      {
+        "parameter_id": "pump_power_W",
+        "value": 0.6,
+        "unit": "W",
+        "status": "assumed",
+        "source_id": "downstream analytic fixture",
+        "uncertainty": 0.006,
+        "estimation_method": "declared diagnostic input",
+        "dataset_ids": [],
+        "observables_used": [],
+        "applicability": "conditional software check; not measured apparatus uncertainty",
+        "covariance_group": ""
+      },
+      {
+        "parameter_id": "pump_waist_m",
+        "value": 0.00053,
+        "unit": "m",
+        "status": "assumed",
+        "source_id": "downstream analytic fixture",
+        "uncertainty": 5.3e-06,
+        "estimation_method": "declared diagnostic input",
+        "dataset_ids": [],
+        "observables_used": [],
+        "applicability": "conditional software check; not measured apparatus uncertainty",
+        "covariance_group": ""
+      }
+    ],
+    "input_correlation": [
+      [
+        1.0,
+        0.6
+      ],
+      [
+        0.6,
+        1.0
+      ]
+    ],
+    "evidence_audit": {
+      "passed": false,
+      "reasons": [
+        "pump_power_W: assumed",
+        "pump_waist_m: assumed",
+        "correlation: missing joint evidence"
+      ],
+      "scope": "declared scalar and correlation evidence only; no experimental validation"
+    },
+    "rf_hz": [
+      100000.0,
+      1000000.0,
+      4000000.0
+    ],
+    "output_ids": [
+      "probe_power_gain",
+      "conjugate_power_gain",
+      "R_0.1MHz",
+      "R_1MHz",
+      "R_4MHz"
+    ],
+    "nominal": [
+      1.1106558665725086,
+      0.11356221274499645,
+      0.8451978425278949,
+      0.8452215592525809,
+      0.8455832927500971
+    ],
+    "input_jacobian": [
+      [
+        0.08376814158551439,
+        -189.66367604628226
+      ],
+      [
+        0.08275352145947291,
+        -187.36642321434792
+      ],
+      [
+        -0.0964752516593184,
+        218.43447825526422
+      ],
+      [
+        -0.09652551661447951,
+        218.54828566090208
+      ],
+      [
+        -0.09729821719004085,
+        220.29779580080537
+      ]
+    ],
+    "output_covariance": [
+      [
+        6.568004006321842e-07,
+        6.488450734845266e-07,
+        -7.564329421085243e-07,
+        -7.568270542041562e-07,
+        -7.628855624729536e-07
+      ],
+      [
+        6.488450734845266e-07,
+        6.40986103205661e-07,
+        -7.472708412420416e-07,
+        -7.476601797555462e-07,
+        -7.53645305889895e-07
+      ],
+      [
+        -7.564329421085243e-07,
+        -7.472708412420416e-07,
+        8.711791213224181e-07,
+        8.716330177751798e-07,
+        8.786105641197682e-07
+      ],
+      [
+        -7.568270542041562e-07,
+        -7.476601797555462e-07,
+        8.716330177751798e-07,
+        8.720871507143134e-07,
+        8.790683324577048e-07
+      ],
+      [
+        -7.628855624729536e-07,
+        -7.53645305889895e-07,
+        8.786105641197682e-07,
+        8.790683324577048e-07,
+        8.861053995544055e-07
+      ]
+    ],
+    "output_standard_uncertainties": [
+      0.000810432230746152,
+      0.0008006160772840257,
+      0.0009333697666640044,
+      0.0009338560653089497,
+      0.0009413317160036654
+    ],
+    "uncorrelated_standard_uncertainties": [
+      0.0011238673604250585,
+      0.0011102548043305934,
+      0.0012943510700859262,
+      0.0012950254450360178,
+      0.0013053923082841836
+    ],
+    "step_refinement_covariance_relative_change": 6.72078801727115e-07,
+    "sampled_band_analysis": {
+      "status": "bands_found",
+      "bands": [
+        {
+          "lower": {
+            "frequency_hz": 100000.0,
+            "kind": "domain",
+            "bracket_hz": null,
+            "refinement_status": "not_applicable",
+            "iterations": 0
+          },
+          "upper": {
+            "frequency_hz": 4000000.0,
+            "kind": "domain",
+            "bracket_hz": null,
+            "refinement_status": "not_applicable",
+            "iterations": 0
+          },
+          "minimum_ratio": 0.8451978425278949,
+          "minimum_frequency_hz": 100000.0,
+          "sample_count": 3,
+          "width_hz": null,
+          "observed_span_hz": 3900000.0
+        }
+      ],
+      "threshold_db": 0.0,
+      "threshold_ratio": 1.0,
+      "minimum_ratio": 0.8451978425278949,
+      "minimum_frequency_hz": 100000.0,
+      "invalid_sample_count": 0,
+      "unconverged_sample_count": 0,
+      "complete_domain": true,
+      "layer": "detected",
+      "provenance": "assumed 85 percent flat balanced detection; fixed for uncertainty diagnostic; quantum intensity-difference PSD",
+      "measurement_filter_scope": "pointwise PSD; no RBW/VBW convolution",
+      "rf_refinement_status": "no_crossings",
+      "crossing_tolerance_hz": null,
+      "scope": "strict below-threshold components on the sampled RF domain; linear-ratio interpolation; sampled minima; unresolved bands between samples require independent RF-grid refinement"
+    },
+    "passed": true
+  },
+  "references": [
+    "https://www.bipm.org/en/doi/10.59161/jcgm102-2011"
+  ],
+  "limits": [
+    "Band interpolation describes the supplied RF samples; it cannot exclude unresolved narrow features.",
+    "Scan-limited intervals do not establish intrinsic finite squeezing bandwidth.",
+    "Gaussian input PDFs and correlations are declared assumptions here, not measured apparatus distributions.",
+    "First-order covariance is a local approximation; step refinement measures derivative numerics, not model validity.",
+    "The atomic sensitivity varies only two pump inputs, conditioned on every other ledger value.",
+    "No target data, fitted squeezing efficiency, RF filter fit, or out-of-sample experimental test is used.",
+    "Current optical spatial-mode work, finite-seed thermal propagation and full-atom physics are separate tasks."
+  ]
+}
