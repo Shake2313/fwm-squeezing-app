@@ -816,7 +816,7 @@
       "id": "pole-residue-doppler-reuse",
       "area": "gabes/pole_doppler.py + gabes/adaptive_scan.py",
       "title": "Apply the pole-residue Maxwell average and adaptive scan to other slow paths",
-      "problem": "The FWM full-scan extra view keeps its earlier grid settings; analysis/squeezing scanners, OD/SAS Doppler tables, Lambda affine scans and magneto buffer grids still solve one linear system per velocity class.",
+      "problem": "Done for the FWM full-scan extra view on 2026-09-14 (both pole tiers solve every displayed probe detuning; analysis/fwm_lite/DEVLOG.md). analysis/squeezing scanners, OD/SAS Doppler tables, Lambda affine scans and magneto buffer grids still solve one linear system per velocity class.",
       "source_documents": [
         "analysis/fwm_lite/DEVLOG.md"
       ],

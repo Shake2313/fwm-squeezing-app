@@ -77,19 +77,57 @@ def cubic_spline(x_nodes, y_nodes, x):
     return out.reshape(x.shape + tail)
 
 
-def refine_scan_nodes(n_points, solve, disagrees, *, start_stride=32, max_rounds=16):
+def initial_scan_nodes(n_points, start_stride, x=None):
+    """Starting nodes: every ``start_stride``-th point of a uniform display.
+
+    With the display coordinates ``x`` the stride is measured in units of the
+    finest display spacing: consecutive starting nodes are never farther apart
+    than ``start_stride`` times that spacing.  A uniform axis gives exactly
+    every ``start_stride``-th point; a coarse stretch of a mixed axis (a wide
+    scan around a dense resonance window) has every point as a node, because a
+    refinement check validated at the fine resolution says nothing about a
+    feature hidden between coarse samples.
+
+    The finest spacing is the smallest step that persists over four consecutive
+    steps, so an isolated near-duplicate (a coarse sample that happens to land
+    next to a dense-window sample) cannot collapse the stride.
+    """
+    n_points = int(n_points)
+    stride = max(1, int(start_stride))
+    if x is None:
+        return sorted(set(range(0, n_points, stride)) | {n_points - 1})
+    x = np.asarray(x, dtype=float)
+    steps = np.diff(x)
+    if x.shape != (n_points,) or np.any(steps <= 0.0):
+        raise ValueError("x must be strictly increasing with n_points entries")
+    run = 4
+    if steps.size >= run:
+        finest = float(np.min(np.lib.stride_tricks.sliding_window_view(steps, run).max(axis=1)))
+    else:
+        finest = float(np.min(steps))
+    limit = stride * finest * (1.0 + 1e-9)
+    nodes = [0]
+    while nodes[-1] < n_points - 1:
+        last = nodes[-1]
+        reach = int(np.searchsorted(x, x[last] + limit, side="right")) - 1
+        nodes.append(min(max(reach, last + 1), n_points - 1))
+    return nodes
+
+
+def refine_scan_nodes(n_points, solve, disagrees, *, start_stride=32, max_rounds=16, x=None):
     """Bisection refinement of display indices ``0..n_points-1``.
 
     ``solve(rows)`` computes and stores exact values for new display rows.
     ``disagrees(nodes, candidates)`` returns a boolean array: True where the
     prediction built from ``nodes`` misses the exact value at ``candidates``.
-    Returns ``(sorted node indices, rounds)``; both scan ends are always nodes.
+    ``x`` (optional display coordinates) sets the starting nodes through
+    :func:`initial_scan_nodes`.  Returns ``(sorted node indices, rounds)``;
+    both scan ends are always nodes.
     """
     n_points = int(n_points)
     if n_points < 2:
         raise ValueError("a scan needs at least two points")
-    stride = max(1, int(start_stride))
-    nodes = sorted(set(range(0, n_points, stride)) | {n_points - 1})
+    nodes = initial_scan_nodes(n_points, start_stride, x)
     solve(np.asarray(nodes))
     active = [(a, b) for a, b in zip(nodes[:-1], nodes[1:]) if b - a > 1]
     rounds = 1

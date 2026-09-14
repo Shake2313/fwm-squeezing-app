@@ -246,8 +246,41 @@ G3.8 numba 비활성 경로의 최대 상대차 1.7e-11, G4.1 전체 pytest 921 
 ## 후속 (체크리스트에 기록)
 
 - Ultra의 4σ 절단이 공명 무리를 자르는 조건(hot 등)에서 ~0.1 dB 영향 — tier 정의 재검토.
-- Full-scan extra view(−8…12 GHz, 두 branch)는 기존 격자 설정 유지 — 극점 엔진 적용 후보.
 - `analysis/squeezing` 스캐너와 다른 scheme(OD/SAS, Λ, magneto)에 적용.
+
+## Full probe scan 전환 (2026-09-14)
+
+두 branch를 −8…12 GHz로 그리는 extra view(브랜치당 약 701점: 66.7 MHz 간격 301점 + 브랜치 중심 ±80 MHz의
+0.4 MHz 간격 401점)도 Fast/Balanced에서 극점 엔진으로 옮겼다. 이전에는 옛 격자 설정(3σ, `PHASE_BALANCED/FINE`)을
+썼고 default에서 Fast 4.07 s, Balanced 8.13 s, Ultra 22–24 s였다.
+
+**기준(구현 전 고정).** 같은 모델(`PHASE_ULTRA`, 1 m/s·4σ)의 Ultra full scan 대비, 네 동작점(default, frontier,
+near_res, hot)의 두 branch 전 구간에서
+- Balanced: S_dB 점별 최대 ≤ 0.05 dB, p95 ≤ 0.015 dB, log10 G_s 점별 최대 ≤ 0.005
+- Fast: S_dB tube 최대 ≤ 0.10 dB, p95 ≤ 0.03 dB, log10 G_s tube 최대 ≤ 0.010
+- 공통: 모든 풀이 행 가드 ≤ 1e-6, Floquet 판정이 Ultra와 같음, 이전보다 빠름
+
+**경과.**
+1. Fast에 적응 세분을 그대로 쓰니 인덱스 stride 32가 66.7 MHz 구간에서 약 2 GHz가 되어, 조밀 창 바로 밖의
+   이득 절벽과 먼 공명을 건너뛰었다. 보간한 점에서 S 최대 7.1 dB, 풀이한 점의 오차는 0이었다.
+2. 초기 노드 간격을 "stride × 네 칸 연속 유지되는 최소 표시 간격" 이하로 묶었다(`adaptive_scan.initial_scan_nodes`).
+   거친 구간은 전부 풀리고, 균일 축인 메인 곡선의 노드와 출력은 비트 단위로 그대로다. 단순 최솟값 규칙은 조밀 창
+   점과 1 kHz 떨어진 거친 점 하나 때문에 모든 점을 푸는 것으로 무너져서 네 칸 규칙으로 바꿨다.
+3. 그래도 150 °C에서 조밀 창 안의 폭 약 2 MHz 이득 구조(G_s가 2 MHz 안에서 3–4배)를 놓쳤다(log10 G_s tube
+   0.156). 그 구간의 S_dB는 평평해 판정에 드러나지 않았다. 적응 세분은 표시 간격 2.75 MHz에서 검증했는데 이
+   창은 7배 촘촘하다.
+4. 기준을 완화하지 않았다. full scan에서는 **두 극점 tier 모두 모든 표시 점을 푼다.** 적응 세분은 검증된 메인
+   401점 곡선에만 쓴다.
+
+**결과(PASS).** 네 동작점, 두 branch 모두 S_dB 점별 최대 ≤ 0.0008 dB, log10 G_s 차 < 1e-4, 가드 ≤ 2.5e-10,
+격자 교체 0행, Floquet CONVERGED(Ultra와 동일). Default view 시간은 Fast 0.72 s(5.6×), Balanced 0.67–1.27 s
+(측정 실행 간 흔들림, 약 7–12×)이며 full scan에서 두 tier는 같은 계산이다. 메인 Fast/Balanced 출력은 이 변경
+전후로 비트 단위로 같다.
+
+**교훈.** 적응 보간을 믿을 수 있는 범위는 검증한 표시 해상도까지다. 더 촘촘한 표시 창에서는 좁은 이득·분산
+구조가 보이므로 모든 점을 푸는 편이 정확하고, 극점 엔진 덕분에 비용도 작다. 기준·검증 스크립트는 탐색
+스크립트처럼 세션 scratch에서 실행했고, 운영 경로의 계약은 `tests/test_fwm_fast_tiers.py`(view가 넘기는 방법·모델,
+넓은 스캔 두 branch의 극점=격자)와 `tests/test_pole_doppler.py`(초기 노드 규칙)가 고정한다.
 
 ## 재현
 

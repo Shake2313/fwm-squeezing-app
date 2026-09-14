@@ -374,7 +374,9 @@ as the default full-scan solver.
   (`gabes/pole_doppler.py`), and the continuous Gaussian is a closed-form Faddeeva
   function. Balanced solves all 401 probe detunings; Fast refines them adaptively
   (`gabes/adaptive_scan.py`) and splines the averaged responses. Every solved row
-  is guarded against the compiled kernel. See `analysis/fwm_lite/DEVLOG.md`.
+  is guarded against the compiled kernel. The two-branch full probe-scan view
+  solves every displayed detuning with poles in both tiers. See
+  `analysis/fwm_lite/DEVLOG.md`.
 
 ## FWM future physics work
 

@@ -102,6 +102,37 @@ def test_refine_scan_nodes_concentrates_on_a_sharp_feature():
     assert np.max(np.abs(full - f)) < 0.05 * np.max(np.abs(f))
 
 
+def test_initial_scan_nodes_match_the_index_stride_on_a_uniform_axis():
+    x = np.linspace(-0.55, 0.55, 401)
+    assert adaptive_scan.initial_scan_nodes(401, 32, x) == adaptive_scan.initial_scan_nodes(401, 32)
+    assert adaptive_scan.initial_scan_nodes(401, 32)[-2:] == [384, 400]
+
+
+def test_initial_scan_nodes_keep_every_point_of_a_coarse_stretch():
+    coarse = np.linspace(-8.0, 12.0, 301)
+    fine = np.linspace(1.0 - 0.08, 1.0 + 0.08, 401)
+    x = np.unique(np.concatenate((coarse, fine)))
+    nodes = np.asarray(adaptive_scan.initial_scan_nodes(x.size, 32, x))
+    fine_step = 0.16 / 400
+    assert nodes[0] == 0 and nodes[-1] == x.size - 1
+    gaps = np.diff(x[nodes])
+    adjacent = np.diff(nodes) == 1                         # a coarse step cannot be split
+    assert np.all(adjacent | (gaps <= 32 * fine_step * (1 + 1e-6)))
+    outside = np.flatnonzero(np.abs(x - 1.0) > 0.08 + 1e-12)
+    assert set(outside) <= set(nodes)                      # every coarse sample is solved
+    inside = nodes[np.abs(x[nodes] - 1.0) < 0.08]
+    assert 5 < inside.size < 40                            # the dense window still refines
+
+
+def test_initial_scan_nodes_ignore_an_isolated_near_duplicate():
+    x = np.linspace(0.0, 1.0, 401)
+    crowded = np.sort(np.append(x, x[200] + 1e-9))
+    uniform = adaptive_scan.initial_scan_nodes(x.size, 32, x)
+    nodes = adaptive_scan.initial_scan_nodes(crowded.size, 32, crowded)
+    assert len(uniform) == 14
+    assert len(nodes) <= len(uniform) + 1                  # not one node per point
+
+
 def _seeded_systems(T, D_GHz, branch, order):
     Op = fwm.rabi_freq(0.6, fwm.W_PUMP)
     Os = fwm.rabi_freq(8e-6, fwm.W_PROBE)

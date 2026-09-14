@@ -125,7 +125,43 @@ def test_tier_table_keeps_ultra_and_maps_earlier_labels():
         settings = fwm.FWM_FIDELITY[tier]
         assert settings["coarse_points"] == 401
         assert (settings["velocity_step"], settings["velocity_cutoff"]) == (1.0, 4.0)
-        assert "full_scan" in settings
+        assert "full_scan" not in settings      # the full-scan view shares these settings
+
+
+@pytest.mark.parametrize("tier, method", (
+    (fwm.FIDELITY_FAST, fwm.RESPONSE_POLE),          # dense windows: every point solved
+    (fwm.FIDELITY_BALANCED, fwm.RESPONSE_POLE),
+    (fwm.FIDELITY_ULTRA, fwm.RESPONSE_GRID)))
+def test_full_scan_view_uses_the_tier_response_and_model(monkeypatch, tier, method):
+    captured = {}
+    monkeypatch.setattr(fwm, "full_spectrum",
+                        lambda *args, **kwargs: captured.update(kwargs) or {"ok": True})
+    scheme = fwm.FWMScheme()
+    assert scheme.extra_views()[0].compute(dict(scheme.defaults(), resolution=tier)) == {"ok": True}
+    settings = fwm.FWM_FIDELITY[tier]
+    assert captured["response_method"] == method
+    assert captured["phase_detail"] == fwm.PHASE_ULTRA
+    assert captured["model_fidelity"] == tier
+    assert (captured["velocity_step"], captured["velocity_cutoff"]) == (
+        settings["velocity_step"], settings["velocity_cutoff"])
+
+
+def test_full_spectrum_pole_branches_match_the_grid():
+    common = dict(L=fwm.L_CELL, phase_detail=fwm.PHASE_BALANCED,
+                  velocity_step=40.0, velocity_cutoff=4.0)
+    grid = fwm.full_spectrum(0.9, 394.15, 600.0, 8.0, 0.74, 5.5,
+                             response_method=fwm.RESPONSE_GRID, **common)
+    pole = fwm.full_spectrum(0.9, 394.15, 600.0, 8.0, 0.74, 5.5,
+                             response_method=fwm.RESPONSE_POLE, **common)
+    for branch in ("minus", "plus"):
+        exact, fast = grid[branch], pole[branch]
+        np.testing.assert_array_equal(fast["probe_axis_GHz"], exact["probe_axis_GHz"])
+        for key in ("G_s", "G_c"):
+            np.testing.assert_allclose(fast[key], exact[key], rtol=1e-6)
+        np.testing.assert_allclose(fast["S_dB"], exact["S_dB"], rtol=0, atol=1e-5)
+        assert fast["response_estimator"]["method"] == fwm.RESPONSE_POLE
+        assert fast["response_estimator"]["pole_guard_max_relative"] >= 0.0
+        assert fast["floquet_convergence"]["status"] == exact["floquet_convergence"]["status"]
 
 
 @pytest.mark.parametrize("P_pump, P_seed", ((0.6, 8e-6), (0.05, 2e-4), (1.2, 1e-6)))

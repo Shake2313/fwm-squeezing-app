@@ -2357,7 +2357,8 @@ def _pole_scan_response(systems, *, orders, delta_axis, probe_axis_GHz, Delta,
     for _attempt in range(3):
         if adaptive:
             nodes, rounds = adaptive_scan.refine_scan_nodes(
-                n_points, solve, disagrees, start_stride=start_stride)
+                n_points, solve, disagrees, start_stride=start_stride,
+                x=probe_axis_GHz)
         else:
             nodes, rounds = np.arange(n_points), 1
             solve(nodes)
@@ -2393,6 +2394,10 @@ def _pole_scan_response(systems, *, orders, delta_axis, probe_axis_GHz, Delta,
         "scan_tolerance_dB": float(tolerance_dB) if adaptive else None,
         "scan_tolerance_log10_gain": float(tolerance_log10_gain) if adaptive else None,
         "scan_start_stride": int(start_stride) if adaptive else None,
+        "scan_start_rule": (
+            "starting nodes no farther apart than the stride times the finest "
+            "display spacing that persists over four steps; coarse samples of a "
+            "mixed axis are all solved" if adaptive else None),
         "audit_scope": (
             "solved probe detunings; displayed points between them are interpolated"
             if interpolated else "every displayed probe detuning"),
@@ -3417,8 +3422,11 @@ TPD_LIMIT_MHZ = 500.0
 # the same Ultra readout exactly through poles and residues (one eigenproblem
 # per probe detuning instead of ~1,600 solves); Balanced solves all 401 probe
 # detunings, Fast solves an adaptively refined subset and splines the averaged
-# responses between them.  See analysis/fwm_lite/DEVLOG.md.  Labels estimate
-# the reference (deployment) environment the earlier labels used.
+# responses between them.  The two-branch full probe-scan view uses the same
+# model and measure but solves every displayed probe detuning for both pole
+# tiers: its 0.4 MHz resonance windows are finer than the display resolution the
+# adaptive refinement was validated at.  See analysis/fwm_lite/DEVLOG.md.
+# Labels estimate the reference (deployment) environment the earlier labels used.
 FIDELITY_FAST = "Fast  (~1 s)"
 FIDELITY_BALANCED = "Balanced  (~2 s)"
 FIDELITY_ULTRA = "Ultra  (slow)"
@@ -3433,15 +3441,10 @@ FWM_FIDELITY = {
                             response_method=RESPONSE_POLE_ADAPTIVE,
                             scan_tolerance_dB=SCAN_TOLERANCE_DB,
                             scan_tolerance_log10_gain=SCAN_TOLERANCE_LOG10_GAIN,
-                            scan_start_stride=SCAN_START_STRIDE,
-                            # The wide two-branch view keeps its earlier grid.
-                            full_scan=dict(velocity_step=4.0, velocity_cutoff=3.0,
-                                           phase_detail=PHASE_BALANCED)),
+                            scan_start_stride=SCAN_START_STRIDE),
     FIDELITY_BALANCED: dict(coarse_points=401, velocity_step=1.0,
                             velocity_cutoff=4.0, phase_detail=PHASE_ULTRA,
-                            response_method=RESPONSE_POLE,
-                            full_scan=dict(velocity_step=2.0, velocity_cutoff=3.0,
-                                           phase_detail=PHASE_FINE)),
+                            response_method=RESPONSE_POLE),
     FIDELITY_ULTRA:    dict(coarse_points=401, velocity_step=1.0,
                             velocity_cutoff=4.0, phase_detail=PHASE_ULTRA),
 }
@@ -4459,8 +4462,7 @@ class FWMScheme(Scheme):
     def extra_views(self):
         def _compute_full(params):
             fidelity = normalize_fidelity(params.get("resolution", FIDELITY_FAST))
-            fidelity_settings = FWM_FIDELITY[fidelity].get(
-                "full_scan", FWM_FIDELITY[fidelity])
+            fidelity_settings = FWM_FIDELITY[fidelity]
             return full_spectrum(
                 params["opd"], params["temp_c"] + 273.15,
                 params["pump_mw"], params["probe_uw"], params["line_strength"],
@@ -4480,6 +4482,18 @@ class FWMScheme(Scheme):
                 model_fidelity=fidelity,
                 velocity_step=fidelity_settings["velocity_step"],
                 velocity_cutoff=fidelity_settings.get("velocity_cutoff", 3.0),
+                # Dense 0.4 MHz windows can hold ~2 MHz gain structure that an
+                # interpolated display misses; both pole tiers solve every point.
+                response_method=(
+                    RESPONSE_GRID if fidelity_settings.get(
+                        "response_method", RESPONSE_GRID) == RESPONSE_GRID
+                    else RESPONSE_POLE),
+                scan_tolerance_dB=fidelity_settings.get(
+                    "scan_tolerance_dB", SCAN_TOLERANCE_DB),
+                scan_tolerance_log10_gain=fidelity_settings.get(
+                    "scan_tolerance_log10_gain", SCAN_TOLERANCE_LOG10_GAIN),
+                scan_start_stride=fidelity_settings.get(
+                    "scan_start_stride", SCAN_START_STRIDE),
                 transit_rate=(2.0 * np.pi
                               * params.get("transit_rate_khz", 100.0) * 1e3),
                 eom_residual_carrier_power=(
@@ -4543,6 +4557,10 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                    pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
                    model_fidelity=FIDELITY_FAST,
                    velocity_step=4.0, velocity_cutoff=3.0,
+                   response_method=RESPONSE_GRID,
+                   scan_tolerance_dB=SCAN_TOLERANCE_DB,
+                   scan_tolerance_log10_gain=SCAN_TOLERANCE_LOG10_GAIN,
+                   scan_start_stride=SCAN_START_STRIDE,
                    transit_rate=constants.GAMMA_GG,
                   eom_residual_carrier_power=0.0,
                   eom_other_sidebands_power=0.0,
@@ -4555,6 +4573,8 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
     because each compiled Floquet kernel already occupies the Numba worker pool;
     wrapping both in Python threads oversubscribes that pool and is slower on the
     benchmark hardware. This scheduling choice is not a numerical approximation.
+    ``response_method`` and the scan settings are forwarded unchanged, so the
+    pole-residue tiers solve each branch exactly as ``compute_spectrum`` does.
     """
     common = dict(
         T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
@@ -4575,7 +4595,10 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         eom_seed_spectrum_status=eom_seed_spectrum_status,
         eom_seed_spectrum_application=eom_seed_spectrum_application,
         coarse_points=301, fine_points=401,
-        velocity_step=velocity_step, velocity_cutoff=velocity_cutoff)
+        velocity_step=velocity_step, velocity_cutoff=velocity_cutoff,
+        response_method=response_method, scan_tolerance_dB=scan_tolerance_dB,
+        scan_tolerance_log10_gain=scan_tolerance_log10_gain,
+        scan_start_stride=scan_start_stride)
 
     def _branch(b):
         with blas_single_thread():
