@@ -82,8 +82,9 @@ class ExtraView:
     key: str
     description: str
     compute: Callable[[dict], dict]      # heavy -> picklable dict (UI caches it)
-    render: Callable[[dict], Any]        # dict -> matplotlib Figure
+    render: Callable[..., Any]          # render(data[, params]) -> matplotlib Figure
     param_keys: tuple[str, ...] = ()     # non-recompute inputs used by this view
+    render_with_params: bool = False    # render(data, params) for cheap readout knobs
 
 
 class Scheme(ABC):

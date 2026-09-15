@@ -202,6 +202,15 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   the pump Rabi through I=2P/πw² **and** the Gaussian crossing overlap; the seed
   waist is nearly inert (its own Rabi is weak and the overlap is already ≈1), so it
   matters mainly for the downstream divergence λ/πw₀, which this scheme does not model.
+- **Excess Noise N** under Detection & scaling is a dimensionless source-noise
+  input in linear SQL units (0–5, step 0.01, default 0). It represents external
+  noise generated along the FWM beam path that cannot be spatially separated
+  from the collected beams. The detected indicator is `S = S₀ + ηN`, where
+  `S₀` is the existing zero-N model; for ideal twin-beam gain this reduces to
+  `S = (1−η) + η[1/(2G−1) + N]`. Positive `10 log₁₀(S)` is above SQL (0 dB).
+  N updates the readout and full-scan rendering without another atomic solve;
+  N=0 preserves the existing result. It is a phenomenological input, not a
+  microscopic noise calculation.
 
 ### Generic SFWM / biphoton mode
 

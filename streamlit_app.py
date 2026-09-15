@@ -1985,7 +1985,8 @@ for view_def in scheme.extra_views():
             with st.spinner("Running…"):
                 data = _cached_extra(
                     scheme.name, view_def.key, extra_items, cache_version)
-            extra_fig = view_def.render(data)
+            extra_fig = (view_def.render(data, params)
+                         if view_def.render_with_params else view_def.render(data))
             st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
             _render_fig(extra_fig)
 

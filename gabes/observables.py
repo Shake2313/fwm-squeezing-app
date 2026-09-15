@@ -387,13 +387,34 @@ def ideal_twin_beam_noise(G_s, G_c):
     return np.clip((G_s - G_c) ** 2 / total, 0.0, 1.0)
 
 
-def gain_referred_noise_dB(G_s, G_c, eta):
+def add_source_excess_noise_dB(noise_dB, eta, excess_noise=0.0):
+    """Add source excess noise N in linear SQL units, before detection loss.
+
+    N describes unresolved noise in the same collected spatial mode as the
+    FWM beams. Its detected contribution is eta*N, so S = S_baseline + eta*N.
+    This phenomenological input does not supply microscopic atomic covariance.
+    """
+    excess_noise = float(excess_noise)
+    if not np.isfinite(excess_noise) or excess_noise < 0.0:
+        raise ValueError("excess noise N must be finite and non-negative")
+    noise_dB = np.asarray(noise_dB, dtype=float)
+    if excess_noise == 0.0:
+        return noise_dB
+    S = 10.0 ** (noise_dB / 10.0) + np.asarray(eta) * excess_noise
+    return 10.0 * np.log10(np.maximum(S, 1e-30))
+
+
+def gain_referred_noise_dB(G_s, G_c, eta, *, excess_noise=0.0):
     """Algebraic gain-referred intensity-difference diagnostic in dB.
 
     This completes a mean-field gain pair with the ideal lossless twin-beam
     identity and symmetric detection efficiency η:
         S_ideal = (G_s − G_c)² / (G_s + G_c)      [see `ideal_twin_beam_noise`]
-        S(η)    = η · S_ideal + (1 − η)
+        S(η, N) = η · (S_ideal + N) + (1 − η)
+
+    For G_s=G, G_c=G−1 this is (1−η) + η[1/(2G−1) + N]. N is a
+    non-negative source excess noise in linear SQL units, sharing the FWM
+    collection path. It can raise the result above SQL (0 dB).
 
     A negative result is *not* a physical squeezing prediction unless the
     frequency-dependent atomic Langevin diffusion and collected-mode covariance
@@ -401,16 +422,17 @@ def gain_referred_noise_dB(G_s, G_c, eta):
     """
     S_ideal = ideal_twin_beam_noise(G_s, G_c)
     S = eta * S_ideal + (1.0 - eta)
-    return 10.0 * np.log10(np.maximum(S, 1e-30))
+    return add_source_excess_noise_dB(
+        10.0 * np.log10(np.maximum(S, 1e-30)), eta, excess_noise)
 
 
-def intensity_difference_squeezing_dB(G_s, G_c, eta):
+def intensity_difference_squeezing_dB(G_s, G_c, eta, *, excess_noise=0.0):
     """Backward-compatible alias for :func:`gain_referred_noise_dB`.
 
     The historical name is retained for callers, but it must not be interpreted
     as a physical squeezing spectrum without a microscopic noise covariance.
     """
-    return gain_referred_noise_dB(G_s, G_c, eta)
+    return gain_referred_noise_dB(G_s, G_c, eta, excess_noise=excess_noise)
 
 
 def balanced_twin_beam_noise(

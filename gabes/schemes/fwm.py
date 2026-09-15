@@ -3493,7 +3493,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-pole-residue-tiers-v9"
+    cache_version = "fwm-source-excess-noise-v10"
     defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True
@@ -3588,6 +3588,13 @@ class FWMScheme(Scheme):
                       0.0, 100.0, 0.1, "%", visible_if=seeded,
                       help="Total efficiency after the cell, including optical and "
                            "detector loss."),
+            ParamSpec("excess_noise", "Excess Noise N", "Detection & scaling",
+                      0.0, 0.0, 5.0, 0.01, recompute=False, visible_if=seeded,
+                      help="Source excess noise in linear SQL units, generated along "
+                           "the FWM beam path and spatially inseparable from it. "
+                           "Adds ηN to the detected noise: "
+                           "S ≈ (1−η) + η[1/(2G−1) + N]. "
+                           "N = 0 preserves the baseline; S > 1 is above SQL (0 dB)."),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling",
                       SEEDED_POST_CELL_LOSS_PCT,
                       0.0, 50.0, 0.5, "%", visible_if=seeded, hidden=True),
@@ -3759,6 +3766,7 @@ class FWMScheme(Scheme):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0,
                     detection_eff_pct=SEEDED_DETECTION_EFFICIENCY_PCT,
+                    excess_noise=0.0,
                     loss_pct=SEEDED_POST_CELL_LOSS_PCT,
                     transit_rate_khz=100.0,
                     eom_residual_carrier_uw=0.0,
@@ -3851,7 +3859,11 @@ class FWMScheme(Scheme):
             "gains; without atomic Langevin covariance it shows trends, not a "
             "physical squeezing spectrum. A pump-energy cap prevents unbounded "
             "small-signal gain but is not a depleted three-field solve. Numerical "
-            "checks and solver provenance are listed under Model diagnostics.\n\n"
+            "checks and solver provenance are listed under Model diagnostics. "
+            "Excess Noise N adds a spatially inseparable source-noise contribution "
+            "in linear SQL units before detection loss: S = S₀ + ηN, where S₀ is "
+            "the N = 0 indicator. For ideal twin-beam gain G this reduces to "
+            "S ≈ (1−η) + η[1/(2G−1) + N]; 10 log₁₀(S) > 0 dB is above SQL.\n\n"
             "**Biphoton.** The Reduced model calculates a Doppler-averaged waveform "
             "and vector phase matching. Absolute widths remain approximate and the "
             "pair-rate scale is anchored to a literature reference. The Reference "
@@ -3943,7 +3955,12 @@ class FWMScheme(Scheme):
 
     def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
-        op = operating_point(raw, tpd, branch=-1)
+        excess_noise = float(params.get("excess_noise", 0.0))
+        noise_db = observables.add_source_excess_noise_dB(
+            raw["gain_referred_noise_dB"], raw["eta"], excess_noise)
+        # Readout-only knobs must not mutate the cached mean-field spectrum.
+        readout = dict(raw, gain_referred_noise_dB=noise_db, S_dB=noise_db)
+        op = operating_point(readout, tpd, branch=-1)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
         claim_gate = raw.get("claim_gate", {})
         floquet_convergence = raw.get("floquet_convergence", {})
@@ -3961,10 +3978,11 @@ class FWMScheme(Scheme):
             axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
             axG.set_ylabel("Seed gain G_s")
             axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
-                          f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f}")
+                          f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f},  "
+                          f"N = {excess_noise:.2f}")
             if np.nanmax(raw["G_s"]) > 50:
                 axG.set_yscale("log")
-            axS.plot(d_axis, raw["gain_referred_noise_dB"], color="#2ca02c", lw=1.8)
+            axS.plot(d_axis, noise_db, color="#2ca02c", lw=1.8)
             axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axS.axhline(0.0, color="black", lw=0.6)
             axS.scatter([tpd], [op["gain_referred_noise_dB"]],
@@ -3979,8 +3997,9 @@ class FWMScheme(Scheme):
             dict(label="Squeezing indicator",
                  value=f"{op['gain_referred_noise_dB']:.2f} dB",
                  delta="physical squeezing unavailable",
-                 help="Mean-field gain estimate; atomic Langevin covariance is not "
-                      "included.", tier="hero"),
+                 help="Mean-field gain estimate plus the detected excess noise ηN. "
+                      "SQL is 0 dB; positive values are above SQL. "
+                      "Atomic Langevin covariance is not included.", tier="hero"),
             dict(label="Seed gain G_s", value=f"{op['G_s']:.2f}",
                  help="Mean-field seed power gain at the selected detuning.",
                  tier="hero"),
@@ -4033,6 +4052,8 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection efficiency η | {raw['eta']:.4f} |\n"
+            f"| Excess Noise N (linear SQL units) | {excess_noise:.2f} |\n"
+            f"| Detected excess noise ηN (linear SQL units) | {raw['eta'] * excess_noise:.4f} |\n"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
             f"| Cell length | {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm |\n"
             f"| Pump waist | {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm |\n"
@@ -4510,8 +4531,9 @@ class FWMScheme(Scheme):
                 eom_seed_spectrum_application=params.get(
                     "eom_seed_spectrum_application", "unapplied"))
 
-        def _render_full(full):
+        def _render_full(full, params=None):
             import matplotlib.pyplot as plt
+            excess_noise = float((params or {}).get("excess_noise", 0.0))
             figF, (aG, aS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
             for ax in (aG, aS):
                 ax.grid(alpha=0.3)
@@ -4522,13 +4544,18 @@ class FWMScheme(Scheme):
             for key, style in styles.items():
                 spec = full[key]
                 aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
-                aS.plot(spec["probe_axis_GHz"],
-                        spec["gain_referred_noise_dB"], lw=1.4, **style)
+                noise_db = spec["gain_referred_noise_dB"]
+                if excess_noise != 0.0:
+                    noise_db = observables.add_source_excess_noise_dB(
+                        noise_db, spec["eta"], excess_noise)
+                aS.plot(spec["probe_axis_GHz"], noise_db, lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
             aG.set_ylabel("Seed gain G_s")
             stored_detail = full["minus"].get("model_fidelity", "unknown")
-            aG.set_title(
-                f"Solver detail: {FIDELITY_LABELS.get(stored_detail, stored_detail)}")
+            title = f"Solver detail: {FIDELITY_LABELS.get(stored_detail, stored_detail)}"
+            if excess_noise != 0.0:
+                title += f",  N = {excess_noise:.2f}"
+            aG.set_title(title)
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
@@ -4546,6 +4573,7 @@ class FWMScheme(Scheme):
             description="Runs both Raman branches using the selected geometry and "
                         "solver detail.",
             compute=_compute_full, render=_render_full,
+            render_with_params=True,
         )]
 
 
