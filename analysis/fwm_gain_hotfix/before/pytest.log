@@ -1,0 +1,152 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 17%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+.....................................................F.................. [ 30%]
+........................................................................ [ 34%]
+........................................................................ [ 38%]
+.................................sss.................................... [ 42%]
+........................................................................ [ 47%]
+........................................................................ [ 51%]
+........................................................................ [ 55%]
+........................................................................ [ 60%]
+......................F................................................. [ 64%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 77%]
+........................................................................ [ 81%]
+........................................................................ [ 85%]
+........................................................................ [ 90%]
+........................................................................ [ 94%]
+........................................................................ [ 98%]
+...................                                                      [100%]
+================================== FAILURES ===================================
+_ test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[numerics] _
+
+model = ThermalRbModel(inputs=ReducedPowerInputs(pump_power_W=0.6, pump_waist_m=0.00053, number_density_m3=1e+18, uniform_area...        +0.j, 0.        +0.j, 0.        +0.j, 0.        +0.j]]), pump_center_xy_m=array([0., 0.]), entry_phase_rad=0.0)
+reference_directory = WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-260/test_other_valid_cached_refere1/references')
+tmp_path = WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-260/test_other_valid_cached_refere1')
+changed = 'numerics'
+
+    @pytest.mark.parametrize('changed', ['matrices', 'numerics'])
+    def test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job(
+            model, reference_directory, tmp_path, changed):
+        from analysis.grand_challenge.reference import exponential_transport
+        assert exponential_transport is not None
+        extra = [Path(audit.__file__), audit.r.ROOT/'tests/quantum/test_rb_thermal_ensemble.py', Path(__file__)]
+        directory = tmp_path/'mismatched-reference-cache'
+        cache = audit.r.PathCache(directory, audit.r.consumed_hashes(extra))
+        reference = audit.verified_references(reference_directory, model)[0]
+        altered = deepcopy(reference['packet'])
+        if changed == 'matrices':
+            altered['greater'] *= 1.01
+            altered['greater_by_source'] *= 1.01
+        else:
+            altered['numerics']['backward_evaluations'] += 1
+        # This alternate packet passes the actual cache's PSD/identity checks.
+        _, stored = cache.get(model, model.inflow(0, 11).path(0), audit.plan_for().reference[0],
+            provider=lambda model, path, spec: altered)
+        before = Path(stored['path']).read_bytes()
+        with pytest.raises(ValueError, match='Cached reference differs'):
+>           audit.build_report(reference_directory, directory, compute_primary=False)
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:356: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_ensemble_audit.py:167: in build_report
+    cache = r.PathCache(cache_directory, sources)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_ensemble.py:255: in __init__
+    self._check_sources()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <analysis.grand_challenge.rb_thermal_ensemble.PathCache object at 0x000001E1828A5D90>
+
+    def _check_sources(self):
+        for name, expected in self.source_hashes.items():
+            path = Path(name)
+            path = path if path.is_absolute() else ROOT/path
+            if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+>               raise ValueError('Dependency source changed; create a cache request with the current manifest')
+E               ValueError: Dependency source changed; create a cache request with the current manifest
+
+analysis\grand_challenge\rb_thermal_ensemble.py:262: ValueError
+
+During handling of the above exception, another exception occurred:
+
+model = ThermalRbModel(inputs=ReducedPowerInputs(pump_power_W=0.6, pump_waist_m=0.00053, number_density_m3=1e+18, uniform_area...        +0.j, 0.        +0.j, 0.        +0.j, 0.        +0.j]]), pump_center_xy_m=array([0., 0.]), entry_phase_rad=0.0)
+reference_directory = WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-260/test_other_valid_cached_refere1/references')
+tmp_path = WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-260/test_other_valid_cached_refere1')
+changed = 'numerics'
+
+    @pytest.mark.parametrize('changed', ['matrices', 'numerics'])
+    def test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job(
+            model, reference_directory, tmp_path, changed):
+        from analysis.grand_challenge.reference import exponential_transport
+        assert exponential_transport is not None
+        extra = [Path(audit.__file__), audit.r.ROOT/'tests/quantum/test_rb_thermal_ensemble.py', Path(__file__)]
+        directory = tmp_path/'mismatched-reference-cache'
+        cache = audit.r.PathCache(directory, audit.r.consumed_hashes(extra))
+        reference = audit.verified_references(reference_directory, model)[0]
+        altered = deepcopy(reference['packet'])
+        if changed == 'matrices':
+            altered['greater'] *= 1.01
+            altered['greater_by_source'] *= 1.01
+        else:
+            altered['numerics']['backward_evaluations'] += 1
+        # This alternate packet passes the actual cache's PSD/identity checks.
+        _, stored = cache.get(model, model.inflow(0, 11).path(0), audit.plan_for().reference[0],
+            provider=lambda model, path, spec: altered)
+        before = Path(stored['path']).read_bytes()
+>       with pytest.raises(ValueError, match='Cached reference differs'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'Cached reference differs'
+E        Input: 'Dependency source changed; create a cache request with the current manifest'
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:355: AssertionError
+__________ test_repository_visibility_wording_is_consistently_public __________
+
+    def test_repository_visibility_wording_is_consistently_public():
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        guide = (
+            ROOT / "docs" / "Userguide" / "GABES_User_Guide_v2.html"
+        ).read_text(encoding="utf-8")
+        paper = (ROOT / "docs" / "squeezing_report" / "squeezing_paper.tex").read_text(
+            encoding="utf-8")
+        physics = (
+            ROOT
+            / "docs"
+            / "FWM physics and analytic reconstruction"
+            / "FWM_physics.tex"
+>       ).read_text(encoding="utf-8")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_docs_consistency.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\�ڼ���\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('G:/�� ����̺�/Coding/GABES - Generic Atomic Bloch Equation Solver/docs/FWM physics and analytic reconstruction/FWM_physics.tex')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'G:\\�� ����̺�\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\FWM physics and analytic reconstruction\\FWM_physics.tex'
+
+C:\Users\�ڼ���\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/quantum/test_rb_thermal_ensemble_audit.py::test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[numerics]
+FAILED tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public
+2 failed, 1670 passed, 3 skipped in 261.25s (0:04:21)

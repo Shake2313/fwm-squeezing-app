@@ -1,0 +1,28 @@
+{
+  "unpatched_gold_gain": 394.2990582397479,
+  "naive_1d_curve_angular_convolution": {
+    "angular_rms_mhz": 1.380173563663881,
+    "sc_amplitude_ratio": 1.0001575051277392,
+    "cs_amplitude_ratio": 1.00015732392715,
+    "sc_phase_difference_deg": 0.00011018592671886201,
+    "cs_phase_difference_deg": -0.00010831440776222281,
+    "probe_gain": 394.7535072374416,
+    "conjugate_gain": 396.97786891853036,
+    "qualifier": "Diagnostic only: convolution of finite-seed one-dimensional lab-detuning curves changes both lab beat and Raman frequency; separate two-dimensional reference keeps lab beat fixed and is not equivalent. Do not adopt as validated angular model."
+  },
+  "transit_rate_sensitivity": {
+    "50.0 kHz": {
+      "G_s": 617.0844105676729,
+      "G_c": 620.1829669544948
+    },
+    "100.0 kHz": {
+      "G_s": 394.2990582397479,
+      "G_c": 396.5202055646072
+    },
+    "200.0 kHz": {
+      "G_s": 183.80371147472385,
+      "G_c": 184.93174752633172
+    }
+  },
+  "elapsed_seconds": 4.097385499997472
+}

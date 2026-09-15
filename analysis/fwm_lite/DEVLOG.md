@@ -309,3 +309,11 @@ python -m analysis.fwm_lite.gate --output analysis/fwm_lite/gate_report.json
   분리 트리에서 Ultra default의 G_s/G_c는 그 캡처와 1e-13까지 같지만 S_dB는 규약에 따라 달라지므로,
   다른 세션의 흡수 규약 교정이 반영되기 전에는 `gate.py`의 G3.7(Ultra 불변 비교)이 이 커밋 단독으로는
   재현되지 않는다. 이는 Ultra 코드 변경이 아니라 기준 캡처의 전제 차이다.
+
+## 후속 gain 핫픽스 (2026-09-15)
+
+Fast/Balanced에 별도 [유효 결합 교정](../fwm_gain_hotfix/DEVLOG.md) 추가.
+원자 응답·극점 가드·Maxwell 측도는 위 기록과 동일. 기본값에서는 전파 전 비선형 결합만 교정.
+`gain_closure_enabled=False`이면 기존 Ultra와 같은 물리의 결과 재현.
+이 문서의 solver acceleration gate는 명시적으로 correction off를 사용.
+Ultra production physics 유지. Gold calibration과 held-out 한계는 새 개발 기록 참고.

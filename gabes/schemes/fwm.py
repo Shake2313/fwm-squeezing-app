@@ -18,8 +18,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .. import (adaptive_scan, atoms, beam, constants, doppler, hyperfine, kernels,
-               observables, pole_doppler, species)
+from .. import (adaptive_scan, atoms, beam, constants, doppler, fwm_gain_closure,
+               hyperfine, kernels, observables, pole_doppler, species)
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import (
     _EXP_ARG_CLAMP,
@@ -2793,6 +2793,7 @@ def compute_spectrum(D_GHz, *,
                      phase_detail=PHASE_LEGACY,
                      pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
                      model_fidelity=None,
+                     gain_closure_enabled=True,
                      excess_noise_model=None,
                      floquet_order=SEEDED_FLOQUET_ORDER,
                      enforce_floquet_convergence=True,
@@ -2813,6 +2814,9 @@ def compute_spectrum(D_GHz, *,
     the Maxwell drift; distributed loss vacuum and atomic diffusion are not
     supplied.  EOM residual carrier/sideband powers are carried as explicit input
     provenance but remain unapplied until a measured coupling model exists.
+    Explicit Fast/Balanced tiers default to the temporary off-diagonal coupling
+    closure. Ultra and untiered API calls retain the original propagation.
+    ``gain_closure_enabled=False`` reproduces the pre-hotfix tier physics.
     """
     branch = _single_branch(branch, branches)
     floquet_order = int(floquet_order)
@@ -2836,6 +2840,14 @@ def compute_spectrum(D_GHz, *,
     coupling_ledger = physical_coupling_ledger(branch)
     coupling_norm = coupling_ledger["macroscopic_coupling_norm"]
     coupling_ls = factors.combined_residual * coupling_norm
+    # Eligibility follows declared fidelity, never the shared PHASE_ULTRA
+    # propagator or the response backend (which can fall back to the grid).
+    closure_fidelity = _FIDELITY_LEGACY.get(model_fidelity, model_fidelity)
+    gain_closure = fwm_gain_closure.provenance(
+        enabled=gain_closure_enabled,
+        eligible=closure_fidelity in (FIDELITY_FAST, FIDELITY_BALANCED),
+        w_pump=w_pump, w_probe=w_probe, w_conjugate=w_conj)
+    cross_coupling_scale = gain_closure["coupling_multiplier"]
     eta = (qe * (1.0 - loss_frac) if detection_efficiency is None
            else float(detection_efficiency))
     if not 0.0 <= eta <= 1.0:
@@ -2980,7 +2992,8 @@ def compute_spectrum(D_GHz, *,
 
         def score_readout(chi4, rows):
             """Pointwise copy of the readout below, used only to steer refinement."""
-            chi_ss, chi_cs, chi_sc, chi_cc = chi4
+            chi_ss, chi_cs, chi_sc, chi_cc = fwm_gain_closure.apply(
+                chi4, cross_coupling_scale)
             rows = np.asarray(rows, dtype=int)
             if phase_detail == PHASE_LEGACY:
                 k_probe_rows = np.full(rows.size, K_VEC, dtype=float)
@@ -3063,6 +3076,11 @@ def compute_spectrum(D_GHz, *,
                 "analytic Voigt (Faddeeva), untruncated Maxwell; reference line "
                 f"weights {convention}")
     response_estimator["velocity_classes"] = int(v_grid.size)
+    # Keep the atomic truncation audit and pole guards on the original response.
+    # Both adjacent-order transfer maps use the same corrected cross couplings.
+    atomic_high_response = (chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg)
+    chi_ss_avg, chi_cs_avg, chi_sc_avg, chi_cc_avg = fwm_gain_closure.apply(
+        atomic_high_response, cross_coupling_scale)
     delta_k_z = None
     delta_k_z_vacuum = None
     k_probe_prop = np.full_like(probe_axis_GHz, K_VEC, dtype=float)
@@ -3141,7 +3159,8 @@ def compute_spectrum(D_GHz, *,
     canonical = observables.canonical_transfer_diagnostics(
         T_small_signal, omega_probe, omega_conj, area_probe, area_conj)
     if lower_order_response is not None:
-        low_ss, low_cs, low_sc, low_cc = lower_order_response
+        low_ss, low_cs, low_sc, low_cc = fwm_gain_closure.apply(
+            lower_order_response, cross_coupling_scale)
         _, _, T_lower_order = observables.gain_from_chi(
             low_ss, low_sc, low_cs, low_cc,
             k_probe_prop, k_conj_prop, L, N_atoms, line_strength=coupling_ls,
@@ -3156,16 +3175,12 @@ def compute_spectrum(D_GHz, *,
             high_order=floquet_order,
             low_order=floquet_order - 1,
             high_response={
-                "chi_ss": chi_ss_avg,
-                "chi_cs": chi_cs_avg,
-                "chi_sc": chi_sc_avg,
-                "chi_cc": chi_cc_avg,
+                name: value for name, value in zip(
+                    ("chi_ss", "chi_cs", "chi_sc", "chi_cc"), atomic_high_response)
             },
             low_response={
-                "chi_ss": low_ss,
-                "chi_cs": low_cs,
-                "chi_sc": low_sc,
-                "chi_cc": low_cc,
+                name: value for name, value in zip(
+                    ("chi_ss", "chi_cs", "chi_sc", "chi_cc"), lower_order_response)
             },
             high_transfer=canonical["transfer_canonical"],
             low_transfer=canonical_lower["transfer_canonical"],
@@ -3279,6 +3294,11 @@ def compute_spectrum(D_GHz, *,
         eom_spectrum_application=eom_seed_spectrum_application,
         response_estimator=response_estimator,
     )
+    if gain_closure["applied"]:
+        claim_gate["badges"] += ("SEMI_EMPIRICAL_GAIN_ESTIMATE",)
+        claim_gate["reasons"] += (
+            "off-diagonal coupling includes one Sim2025 representative-gain fit; "
+            "held-out comparison is mixed (McCormick2008 about 4.7x low)",)
 
     return {
         "D_GHz": D_GHz,
@@ -3339,6 +3359,7 @@ def compute_spectrum(D_GHz, *,
             noncollinear_doppler_reference_provenance()),
         "floquet_convergence": floquet_convergence,
         "response_estimator": response_estimator,
+        "gain_closure": gain_closure,
         "floquet_order": floquet_order,
         "floquet_convergence_enforced": bool(enforce_floquet_convergence),
         "parameter_provenance": parameter_provenance,
@@ -3419,16 +3440,18 @@ def operating_point(spectrum, delta_mhz, branch=-1):
 # =========================================================
 WINDOW_GHZ = 0.55          # half-width of the focused probe window around (−) Raman
 TPD_LIMIT_MHZ = 500.0
-# Three tiers, one model.  Ultra is the brute-force reference: one compiled
+# Three tiers share the atomic solve. Ultra is the brute-force reference: one compiled
 # finite-Floquet solve per (probe detuning, Maxwell class) on a 1 m/s, 4σ grid.
 # Fast and Balanced evaluate the same steady state, the same Maxwell measure and
-# the same Ultra readout exactly through poles and residues (one eigenproblem
+# the same atomic response exactly through poles and residues (one eigenproblem
 # per probe detuning instead of ~1,600 solves); Balanced solves all 401 probe
 # detunings, Fast solves an adaptively refined subset and splines the averaged
 # responses between them.  The two-branch full probe-scan view uses the same
 # model and measure but solves every displayed probe detuning for both pole
 # tiers: its 0.4 MHz resonance windows are finer than the display resolution the
-# adaptive refinement was validated at.  See analysis/fwm_lite/DEVLOG.md.
+# adaptive refinement was validated at. Fast/Balanced additionally apply the
+# optional semi-empirical cross-coupling closure before propagation; Ultra never
+# does. See analysis/fwm_lite/DEVLOG.md and analysis/fwm_gain_hotfix/DEVLOG.md.
 # Labels estimate the reference (deployment) environment the earlier labels used.
 FIDELITY_FAST = "Fast  (~1 s)"
 FIDELITY_BALANCED = "Balanced  (~2 s)"
@@ -3493,7 +3516,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-source-excess-noise-v10"
+    cache_version = "fwm-gain-closure-v11"
     defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True
@@ -3606,6 +3629,15 @@ class FWMScheme(Scheme):
                            "eta = QE·(1−loss) in the gain-referred diagnostic. The "
                            "92% default is a historical model input, not a validation "
                            "of physical squeezing or a measured device calibration."),
+            ParamSpec("gain_closure_enabled", "Semi-empirical gain correction",
+                      "Detection & scaling", True, control="checkbox",
+                      advanced=True, advanced_group="Gain estimate",
+                      visible_if={"mode": MODE_SEEDED,
+                                  "resolution": (FIDELITY_FAST, FIDELITY_BALANCED)},
+                      help="One Sim 2025 reference-gain calibration of the "
+                           "effective nonlinear coupling. "
+                           "Absolute accuracy away from that point is unknown. "
+                           "Switch off to compare the original mean-field gain."),
             ParamSpec("line_strength", "Inherited residual factor",
                       "Detection & scaling", SEEDED_REFERENCE_RESIDUAL,
                       0.2, 5.0, 0.01, "×",
@@ -3855,7 +3887,10 @@ class FWMScheme(Scheme):
     def info(self):
         return (
             "**Seeded FWM.** Computes mean-field seed and conjugate gain for the "
-            "⁸⁵Rb D1 double-Λ system. The Squeezing indicator is derived from those "
+            "⁸⁵Rb D1 double-Λ system. Fast/Balanced default to a semi-empirical "
+            "nonlinear-coupling correction calibrated to the Sim 2025 representative "
+            "probe gain 15.5. Advanced → Gain estimate switches it off for comparison. "
+            "Ultra retains the uncalibrated model. The Squeezing indicator is derived from those "
             "gains; without atomic Langevin covariance it shows trends, not a "
             "physical squeezing spectrum. A pump-energy cap prevents unbounded "
             "small-signal gain but is not a depleted three-field solve. Numerical "
@@ -3923,6 +3958,7 @@ class FWMScheme(Scheme):
             phase_detail=res["phase_detail"],
             pump_probe_angle_deg=params.get("seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
             model_fidelity=fidelity,
+            gain_closure_enabled=params.get("gain_closure_enabled", True),
             floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
             enforce_floquet_convergence=True,
             response_method=res.get("response_method", RESPONSE_GRID),
@@ -4001,7 +4037,11 @@ class FWMScheme(Scheme):
                       "SQL is 0 dB; positive values are above SQL. "
                       "Atomic Langevin covariance is not included.", tier="hero"),
             dict(label="Seed gain G_s", value=f"{op['G_s']:.2f}",
-                 help="Mean-field seed power gain at the selected detuning.",
+                 delta=("semi-empirical estimate" if raw.get(
+                     "gain_closure", {}).get("applied") else None),
+                 help="Probe output power / input seed power at the selected detuning. "
+                      "The Fast/Balanced correction uses one representative Gold gain; "
+                      "accuracy at other operating points is unknown.",
                  tier="hero"),
             dict(label="Conjugate gain G_c", value=f"{op['G_c']:.2f}",
                  help="Generated conjugate power gain at the selected detuning."),
@@ -4062,6 +4102,19 @@ class FWMScheme(Scheme):
             + depletion_warning
         )
         claim_reasons = "; ".join(claim_gate.get("reasons", ())) or "none recorded"
+        closure = raw.get("gain_closure", {})
+        closure_rows = (
+            f"| Gain correction | {closure.get('status', 'disabled')} |\n"
+        )
+        if closure.get("applied"):
+            closure_rows += (
+                f"| Cross-coupling multiplier | {closure['coupling_multiplier']:.6f} |\n"
+                "| Participation source | one fitted effective mixing coefficient; contributions unresolved |\n"
+                "| Gain convention | P_probe,out / P_seed,in; no detection correction |\n"
+                "| Calibration target | Sim 2025 representative 15.5 (range 15–16) |\n"
+                "| Separate rounded-power ratios | probe 111/8 = 13.875; conjugate 109/8 = 13.625 |\n"
+                "| Held-out comparison | Liu: 6.445 vs 8; McCormick: 1.926 vs 9 (4.7× low); conditional |\n"
+            )
         diagnostics_table = (
             f"| Check | Value |\n|---|---|\n"
             f"| Model scope | Gain-only diagnostic (physical squeezing unavailable) |\n"
@@ -4112,7 +4165,7 @@ class FWMScheme(Scheme):
             f"| Effective coupling scale | {raw.get('effective_line_strength', float('nan')):.4f} |\n"
             f"| Pump-depletion cap on G_s (Manley-Rowe) | {cap:.3e} |\n"
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
-            + phase_rows
+            + closure_rows + phase_rows
         )
         return {
             "metrics": metrics,
@@ -4504,6 +4557,7 @@ class FWMScheme(Scheme):
                 pump_probe_angle_deg=params.get(
                     "seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
                 model_fidelity=fidelity,
+                gain_closure_enabled=params.get("gain_closure_enabled", True),
                 velocity_step=fidelity_settings["velocity_step"],
                 velocity_cutoff=fidelity_settings.get("velocity_cutoff", 3.0),
                 # Dense 0.4 MHz windows can hold ~2 MHz gain structure that an
@@ -4586,7 +4640,8 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                    floquet_order=SEEDED_FLOQUET_ORDER,
                    phase_detail=PHASE_BALANCED,
                    pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
-                   model_fidelity=FIDELITY_FAST,
+                   model_fidelity=None,
+                   gain_closure_enabled=True,
                    velocity_step=4.0, velocity_cutoff=3.0,
                    response_method=RESPONSE_GRID,
                    scan_tolerance_dB=SCAN_TOLERANCE_DB,
@@ -4606,6 +4661,8 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
     benchmark hardware. This scheduling choice is not a numerical approximation.
     ``response_method`` and the scan settings are forwarded unchanged, so the
     pole-residue tiers solve each branch exactly as ``compute_spectrum`` does.
+    Untiered calls retain the original model. The app passes an explicit fidelity
+    and ``gain_closure_enabled`` to both branches.
     """
     common = dict(
         T=T_K, P_pump=P_pump_mW * 1e-3, P_probe=P_probe_uW * 1e-6,
@@ -4619,6 +4676,7 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         phase_detail=phase_detail,
         pump_probe_angle_deg=pump_probe_angle_deg,
         model_fidelity=model_fidelity,
+        gain_closure_enabled=gain_closure_enabled,
         transit_rate=transit_rate,
         eom_residual_carrier_power=eom_residual_carrier_power,
         eom_other_sidebands_power=eom_other_sidebands_power,

@@ -1,0 +1,22 @@
+{
+  "command": "python -m pytest -q",
+  "exit_code": 1,
+  "passed": 1670,
+  "skipped": 3,
+  "failed": 2,
+  "duration_seconds": 261.25,
+  "log": "pytest.log",
+  "failures": [
+    {
+      "test": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public",
+      "cause": "Missing docs/FWM physics and analytic reconstruction/FWM_physics.tex",
+      "classification": "known preexisting missing-document failure"
+    },
+    {
+      "test": "tests/quantum/test_rb_thermal_ensemble_audit.py::test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[numerics]",
+      "cause": "Expected 'Cached reference differs', got 'Dependency source changed' while production files were edited concurrently",
+      "classification": "baseline run contaminated by concurrent source editing; not evidence of a preexisting failure"
+    }
+  ],
+  "limitation": "Numerical snapshots and warm benchmarks completed before production changes. Baseline pytest retained pre-edit imported FWM code, but its live source-hash tests can observe later disk changes. Final pytest must run after source edits are frozen."
+}

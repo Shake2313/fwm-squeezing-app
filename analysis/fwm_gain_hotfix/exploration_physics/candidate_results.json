@@ -1,0 +1,108 @@
+{
+  "operating_point": {
+    "opd_GHz": 0.9,
+    "tpd_MHz": -8.0,
+    "T_K": 394.15,
+    "pump_W": 0.6,
+    "seed_W": 8e-06
+  },
+  "base_gain": [
+    394.29905823951185,
+    396.52020556433854
+  ],
+  "propagator_parity": [
+    394.29905823951185,
+    396.52020556433854
+  ],
+  "offdiag_only": {
+    "0.0": [
+      1.0,
+      0.0
+    ],
+    "0.25": [
+      2.019517801094783,
+      1.0832068064429416
+    ],
+    "0.5": [
+      10.1256472557508,
+      9.300580585543857
+    ],
+    "0.720626": [
+      50.31847495778486,
+      49.90397828827748
+    ],
+    "1.0": [
+      394.29905823951185,
+      396.52020556433854
+    ]
+  },
+  "whole_response": {
+    "0.4": [
+      4.0646405397226815,
+      3.1130000779003204
+    ],
+    "0.5": [
+      8.464553885057127,
+      7.558802825318264
+    ],
+    "0.6": [
+      18.303262221413718,
+      17.49062092814368
+    ],
+    "0.720626": [
+      46.814929438909815,
+      46.2532749871523
+    ],
+    "1.0": [
+      394.29905823951185,
+      396.52020556433854
+    ]
+  },
+  "offdiag_fit": {
+    "target": 15.5,
+    "coefficient": 0.5594938026863172,
+    "gain": [
+      15.500000000000158,
+      14.737394352474746
+    ],
+    "residual_after_transverse_factor": 0.7763997304632483
+  },
+  "transverse_factor": 0.7206259620318112,
+  "angular_budget": {
+    "sigma_velocity_m_s": 196.4548931950632,
+    "axial_rms_rad_s": 36748.55412479787,
+    "transverse_rms_rad_s": 8671808.392179081,
+    "total_rms_rad_s": 8671886.256570587,
+    "axial_rms_hz": 5848.7140404416405,
+    "transverse_rms_hz": 1380161.171161082,
+    "total_rms_hz": 1380173.563663881
+  },
+  "gamma_collision_over_2pi_hz": 2881.853940419755,
+  "pump_rabi_over_2pi_MHz": 707.550820522967,
+  "x_model": 3.681067366414522,
+  "x_exp": 2.0470333343160427,
+  "raw_power_ratio": 13.875,
+  "x_raw_power_ratio": 1.9896660475867587,
+  "exact_evaluation_settings": {
+    "coarse_points": 3,
+    "fine_points": 0,
+    "scan_min_GHz": -2.143832439,
+    "scan_max_GHz": -2.1436324389999997,
+    "response_method": "pole_residue",
+    "velocity_step": 1.0,
+    "velocity_cutoff": 4.0,
+    "phase_detail": "ultra",
+    "line_strength_residual": 0.74,
+    "macroscopic_norm": 0.08333333333333333,
+    "waist_pump_m": 0.00053,
+    "waist_probe_m": 0.00033,
+    "cell_length_m": 0.0125,
+    "crossing_angle_deg": 0.32,
+    "floquet_order": 3,
+    "gamma_transit_over_2pi_hz": 100000.0
+  },
+  "elapsed_seconds": 0.9278290999936871,
+  "model_boundary": "Offdiagonal mixing only; Gaussian mode participation assumes local nonlinear coupling proportional to pump intensity. Strong-pump correction is a Fermi closure, not controlled spatial integration. One residual calibrated; no separate Zeeman, polarization, angular, or Raman fits.",
+  "x_ratio_canonical": 0.5560977647387961,
+  "x_ratio_raw_power": 0.5405133483130893
+}

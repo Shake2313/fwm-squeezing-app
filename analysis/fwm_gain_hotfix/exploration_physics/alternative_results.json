@@ -1,0 +1,542 @@
+{
+  "constant_factor": 0.5594938027,
+  "fit_target": 15.5,
+  "role": "Single Gold-calibrated offdiagonal effective mixing participation; no separately identified Zeeman/spatial/Raman/density cause.",
+  "cases": {
+    "Sim_2025_gold_final": {
+      "input": {
+        "opd": 0.9,
+        "tpd": -8,
+        "temp_c": 121,
+        "pump_mw": 600,
+        "probe_uw": 8,
+        "pump_waist_um": 530,
+        "probe_waist_um": 330,
+        "cell_mm": 12.5,
+        "seeded_angle_deg": 0.32
+      },
+      "G_s_before": 394.29905823951185,
+      "G_c_before": 396.52020556433854,
+      "G_s_candidate": 15.500000001530413,
+      "G_c_candidate": 14.73739435402217,
+      "factor": 0.5594938027,
+      "floquet_status": "CONVERGED",
+      "G_s_gaussian": 15.50000000296212,
+      "G_c_gaussian": 14.73739435546993,
+      "literature_targets": {
+        "probe_gain": 15.5,
+        "reported_probe_gain_range": [
+          15,
+          16
+        ]
+      }
+    },
+    "McCormick_2008_PRA": {
+      "input": {
+        "opd": 0.8,
+        "tpd": -4.267561,
+        "temp_c": 110,
+        "pump_mw": 400,
+        "probe_uw": 100,
+        "pump_waist_um": 650,
+        "probe_waist_um": 350,
+        "cell_mm": 12.5,
+        "seeded_angle_deg": 0.3
+      },
+      "G_s_before": 7.133038786001537,
+      "G_c_before": 6.220429940323283,
+      "G_s_candidate": 1.9264370527596313,
+      "G_c_candidate": 0.9663456572691307,
+      "factor": 0.5594938027,
+      "floquet_status": "CONVERGED",
+      "G_s_gaussian": 2.1376436264658265,
+      "G_c_gaussian": 1.179979194157923,
+      "literature_targets": {
+        "probe_gain": 9
+      }
+    },
+    "Liu_2011_OL": {
+      "input": {
+        "opd": 0.8,
+        "tpd": -4,
+        "temp_c": 120,
+        "pump_mw": 400,
+        "probe_uw": 10,
+        "pump_waist_um": 550,
+        "probe_waist_um": 300,
+        "cell_mm": 12,
+        "seeded_angle_deg": 0.4
+      },
+      "G_s_before": 127.57718346262008,
+      "G_c_before": 128.15783477321563,
+      "G_s_candidate": 6.445081192471462,
+      "G_c_candidate": 5.61017560826788,
+      "factor": 0.5594938027,
+      "floquet_status": "CONVERGED",
+      "G_s_gaussian": 8.266729490037479,
+      "G_c_gaussian": 7.462453476258871,
+      "literature_targets": {
+        "probe_gain": 8,
+        "conjugate_gain": 7
+      }
+    }
+  },
+  "nearby_sweeps": {
+    "pump_mw": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 480,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 303.72813652192326,
+        "G_c_before": 305.3886583504926,
+        "G_s_candidate": 13.060076181397854,
+        "G_c_candidate": 12.276508353081784,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 13.060076182564602,
+        "G_c_gaussian": 12.276508354262521
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 720,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 464.3952313910111,
+        "G_c_before": 467.0242386478252,
+        "G_s_candidate": 17.143683640197636,
+        "G_c_candidate": 16.394044184679675,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 17.143683641815496,
+        "G_c_gaussian": 16.39404418631497
+      }
+    ],
+    "temp_c": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 116,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 56.42091826474168,
+        "G_c_before": 55.920927951185185,
+        "G_s_candidate": 5.305175601400624,
+        "G_c_candidate": 4.391579019398535,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 5.305175601740539,
+        "G_c_gaussian": 4.391579019742129
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 126,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 4010.826102103219,
+        "G_c_before": 4039.4188528695813,
+        "G_s_candidate": 61.018057989253386,
+        "G_c_candidate": 60.91452828513193,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 61.01805799691811,
+        "G_c_gaussian": 60.91452829288678
+      }
+    ],
+    "pump_waist_um": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 477,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 472.34060364868134,
+        "G_c_before": 475.0040693288159,
+        "G_s_candidate": 17.35157931906958,
+        "G_c_candidate": 16.603442502180084,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 13.468306350070632,
+        "G_c_gaussian": 12.677684127858441
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 583,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 318.04795962220845,
+        "G_c_before": 319.8055749017434,
+        "G_s_candidate": 13.44707389993876,
+        "G_c_candidate": 12.666990311507641,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 16.43811199038017,
+        "G_c_gaussian": 15.692795268608691
+      }
+    ],
+    "probe_waist_um": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 297,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.06573623186966,
+        "G_c_before": 396.2764061658032,
+        "G_s_candidate": 15.494822282971894,
+        "G_c_candidate": 14.731822497770557,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 19.444323383153527,
+        "G_c_gaussian": 18.724635358003123
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 363,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.51364028520186,
+        "G_c_before": 396.74280245738515,
+        "G_s_candidate": 15.50473712526314,
+        "G_c_candidate": 14.742432246016834,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 12.407368143372377,
+        "G_c_gaussian": 11.609606609436879
+      }
+    ],
+    "seeded_angle_deg": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.22
+        },
+        "G_s_before": 386.20599063768924,
+        "G_c_before": 387.9332045634874,
+        "G_s_candidate": 15.051127234351986,
+        "G_c_candidate": 14.257689308531708,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.051127235744193,
+        "G_c_gaussian": 14.257689309937417
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.42
+        },
+        "G_s_before": 264.6075269810799,
+        "G_c_before": 266.39933529989133,
+        "G_s_candidate": 9.308130852084625,
+        "G_c_candidate": 8.509822354528763,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 9.308130852950384,
+        "G_c_gaussian": 8.509822355407783
+      }
+    ],
+    "opd": [
+      {
+        "input": {
+          "opd": 0.8,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 440.0338095148026,
+        "G_c_before": 442.7208711442832,
+        "G_s_candidate": 16.414183265540252,
+        "G_c_candidate": 15.672723351426873,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 16.414183267083523,
+        "G_c_gaussian": 15.672723352988017
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 1.0,
+          "tpd": -8,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 345.8418317406183,
+        "G_c_before": 347.6420244616458,
+        "G_s_candidate": 14.438769305428583,
+        "G_c_candidate": 13.657478283116914,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 14.438769306734654,
+        "G_c_gaussian": 13.657478284437413
+      }
+    ],
+    "tpd": [
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -10.0,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 344.5092831551886,
+        "G_c_before": 346.3050417357762,
+        "G_s_candidate": 14.224789881251114,
+        "G_c_candidate": 13.44128384192211,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 14.224789882541284,
+        "G_c_gaussian": 13.441283843226586
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -8.0,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 394.29905823951185,
+        "G_c_before": 396.52020556433854,
+        "G_s_candidate": 15.500000001530413,
+        "G_c_candidate": 14.73739435402217,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 15.50000000296212,
+        "G_c_gaussian": 14.73739435546993
+      },
+      {
+        "input": {
+          "opd": 0.9,
+          "tpd": -6.0,
+          "temp_c": 121,
+          "pump_mw": 600,
+          "probe_uw": 8,
+          "pump_waist_um": 530,
+          "probe_waist_um": 330,
+          "cell_mm": 12.5,
+          "seeded_angle_deg": 0.32
+        },
+        "G_s_before": 451.08345812349876,
+        "G_c_before": 453.79613133356,
+        "G_s_candidate": 16.833813145040338,
+        "G_c_candidate": 16.093851940217114,
+        "factor": 0.5594938027,
+        "floquet_status": "CONVERGED",
+        "G_s_gaussian": 16.833813146624284,
+        "G_c_gaussian": 16.093851941819068
+      }
+    ]
+  },
+  "elapsed_seconds": 7.4055144999947515
+}

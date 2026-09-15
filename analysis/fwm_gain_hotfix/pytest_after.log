@@ -1,0 +1,68 @@
+........................................................................ [  4%]
+........................................................................ [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+........................................................................ [ 21%]
+........................................................................ [ 25%]
+........................................................................ [ 29%]
+........................................................................ [ 33%]
+........................................................................ [ 38%]
+.................................sss.................................... [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+........................................................................ [ 59%]
+......................F................................................. [ 63%]
+........................................................................ [ 67%]
+........................................................................ [ 71%]
+........................................................................ [ 76%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+........................................................................ [ 88%]
+........................................................................ [ 93%]
+........................................................................ [ 97%]
+...............................................                          [100%]
+================================== FAILURES ===================================
+__________ test_repository_visibility_wording_is_consistently_public __________
+
+    def test_repository_visibility_wording_is_consistently_public():
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        guide = (
+            ROOT / "docs" / "Userguide" / "GABES_User_Guide_v2.html"
+        ).read_text(encoding="utf-8")
+        paper = (ROOT / "docs" / "squeezing_report" / "squeezing_paper.tex").read_text(
+            encoding="utf-8")
+        physics = (
+            ROOT
+            / "docs"
+            / "FWM physics and analytic reconstruction"
+            / "FWM_physics.tex"
+>       ).read_text(encoding="utf-8")
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_docs_consistency.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\�ڼ���\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('G:/�� ����̺�/Coding/GABES - Generic Atomic Bloch Equation Solver/docs/FWM physics and analytic reconstruction/FWM_physics.tex')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'G:\\�� ����̺�\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\FWM physics and analytic reconstruction\\FWM_physics.tex'
+
+C:\Users\�ڼ���\AppData\Local\Programs\Python\Python314\Lib\pathlib\__init__.py:771: FileNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public
+1 failed, 1699 passed, 3 skipped in 261.90s (0:04:21)

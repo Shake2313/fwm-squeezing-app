@@ -1,0 +1,12 @@
+# Preserve only the frozen fixtures and validation logs for this hotfix.
+!before/fast_default.npz
+!before/balanced_default.npz
+!before/ultra_default.npz
+!before/ultra_detuned.npz
+!before/pytest.log
+!pytest_after.log
+!before_parent/fast_default.npz
+!before_parent/balanced_default.npz
+!before_parent/ultra_default.npz
+!before_parent/ultra_detuned.npz
+!commit_pytest.log

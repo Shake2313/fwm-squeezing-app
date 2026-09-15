@@ -53,7 +53,10 @@ SCHEME = fwm.FWMScheme()
 
 
 def params_for(case, resolution):
-    params = dict(SCHEME.defaults(), mode=fwm.MODE_SEEDED, resolution=resolution)
+    # This gate tests the 2026-09-11 common-model solver acceleration. The later
+    # gain closure has independent physics/calibration gates under fwm_gain_hotfix.
+    params = dict(SCHEME.defaults(), mode=fwm.MODE_SEEDED, resolution=resolution,
+                  gain_closure_enabled=False)
     params.update(CASES[case])
     return params
 
@@ -115,7 +118,8 @@ def git_unchanged(paths):
 def cold_start_seconds():
     code = ("import time, json; t0=time.perf_counter(); from gabes.schemes import fwm; "
             "t1=time.perf_counter(); s=fwm.FWMScheme(); p=s.defaults(); "
-            "p['resolution']=fwm.FIDELITY_FAST; s.compute(p); t2=time.perf_counter(); "
+            "p['resolution']=fwm.FIDELITY_FAST; p['gain_closure_enabled']=False; "
+            "s.compute(p); t2=time.perf_counter(); "
             "print(json.dumps({'import_s': t1-t0, 'first_fast_call_s': t2-t1}))")
     out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True,
                          text=True, encoding="utf-8", check=True)
@@ -133,6 +137,7 @@ def numba_disabled_arrays():
         "for tag, tier in (('fast', fwm.FIDELITY_FAST), ('balanced', fwm.FIDELITY_BALANCED)):",
         "    p = s.defaults()",
         "    p['resolution'] = tier",
+        "    p['gain_closure_enabled'] = False",
         "    raw = s.compute(p)",
         "    for k in ('G_s', 'G_c', 'S_dB'):",
         "        out[tag + '__' + k] = np.asarray(raw[k])",

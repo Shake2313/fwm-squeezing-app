@@ -212,6 +212,28 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   N=0 preserves the existing result. It is a phenomenological input, not a
   microscopic noise calculation.
 
+### Fast/Balanced gain hotfix
+
+Fast/Balanced default to a temporary **semi-empirical gain estimate**. The
+correction multiplies both off-diagonal nonlinear susceptibilities by the fitted
+effective participation **0.5594938027** before Maxwell propagation. The atomic
+solve, diagonal absorption/dispersion, and detector/noise
+parameters retain their definitions. Ultra keeps its original production physics.
+**Advanced → Gain estimate → Semi-empirical gain correction** switches the patch
+off; API callers can pass `gain_closure_enabled=False`. Untiered
+`compute_spectrum` and `full_spectrum` calls keep the original physics.
+
+Calibration uses the repository's Sim 2025 representative probe power gain
+**15.5** (reported range 15–16), with `G_s = P_probe,out / P_seed,in`.
+The separately reported rounded powers give **111/8 = 13.875** for the probe and
+**109/8 = 13.625** for conjugate/seed; these are not alternative loss-corrected
+versions of 15.5. This is a single-point calibration. Other operating conditions
+remain conditional estimates, and physical squeezing remains unavailable.
+Frozen-coefficient comparisons give Liu **6.45 vs 8** and McCormick **1.93 vs 9**;
+the latter deteriorates from the original **7.13**. Broad accuracy is unsupported.
+Raw output records the correction in `gain_closure`.
+See [calibration, held-out comparisons, limitations and runtime measurements](analysis/fwm_gain_hotfix/DEVLOG.md).
+
 ### Generic SFWM / biphoton mode
 
 - Mode selector: **Squeezing** selects the 85Rb
@@ -404,8 +426,10 @@ as the default full-scan solver.
   general two-chain fallback and full adjacent-order audit remain available.
   See [the proof and performance validation](docs/ultra_performance.md) before
   reintroducing a redundant negative-chain solve for numerical rigor.
-- Squeezing **Fast/Balanced** solve the same finite-Floquet model, Maxwell measure
-  and Ultra readout without a per-velocity solve. At fixed δ the velocity enters
+- Squeezing **Fast/Balanced** solve the same finite-Floquet atomic model and Maxwell
+  measure without a per-velocity solve, then apply the optional gain hotfix before
+  propagation. With that correction off, they retain the shared Ultra readout.
+  At fixed δ the velocity enters
   only through `−Δ_eff·S_v`, so eliminating the shift-free coordinates makes each
   response an exact partial fraction in Δ_eff; the Maxwell sum is a cheap pole sum
   (`gabes/pole_doppler.py`), and the continuous Gaussian is a closed-form Faddeeva
@@ -444,8 +468,9 @@ G. Sim, H. Kim, H. S. Moon, Sci. Rep. **15**, 7727 (2025). 85Rb squeezing-optima
 
 Geometry: cell L=12.5 mm, pump⊥probe. Pump/seed waist, crossing angle and detector
 efficiency describe this apparatus point. GABES exposes total detection efficiency
-η; SABES retains the optical-loss and detector-QE split. The current reduced model
-does not reproduce its absolute gain or physical squeezing.
+η; SABES retains the optical-loss and detector-QE split. Fast/Balanced's optional
+gain hotfix is calibrated at this point; Ultra retains the uncalibrated reduced
+model. Neither path predicts validated physical squeezing.
 
 **Detection caveat.** The 86.94 % default combines the historical 92 % QE with
 5.5 % post-cell loss. The separate compatibility inputs remain available to SABES

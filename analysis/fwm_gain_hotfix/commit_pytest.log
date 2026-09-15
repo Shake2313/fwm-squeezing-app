@@ -1,0 +1,1150 @@
+....................................F................................... [  4%]
+........................................................................ [  9%]
+..................FFFFFFFFF.......F..................................... [ 14%]
+........................................................................ [ 19%]
+......................................................................EE [ 24%]
+EEEEEEEEEEEEEEEEEE...................EEEE....E.......................... [ 29%]
+........................................................................ [ 34%]
+........................................................................ [ 39%]
+........................................................................ [ 43%]
+........................................................................ [ 48%]
+........................................................................ [ 53%]
+..............................................................s......... [ 58%]
+........................................................................ [ 63%]
+........................................................................ [ 68%]
+........................................................................ [ 73%]
+........................................................................ [ 78%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+...................................                                      [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_reference_jobs_and_pilot_share_exact_physical_paths_and_canonical_phase_metadata _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_use_actual_sealed_record_validation_and_file_hashes _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[missing] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[unsealed_payload] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[identity] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[source_hash] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[frequency] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[missing_metric] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[mean_outer] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[source_closure] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[blas_threads] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[work_counter] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_verified_references_reject_missing_tampered_or_incomplete_jobs[duplicate_json_key] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[inputs] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[box] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[temperature] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[geometry] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[rf] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[state] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_references_cannot_be_attached_to_a_different_physical_model[phase] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_reference_only_pilot_cannot_certify_paths_grid_or_thermal_ensemble _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_even_a_complete_synthetic_pilot_cache_cannot_certify_the_thermal_ensemble _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[matrices] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[numerics] _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_ ERROR at setup of test_source_change_during_build_prevents_report_and_plot_creation _
+
+    @pytest.fixture(scope='module')
+    def reference_plan():
+>       return refs.prepare_plan()
+               ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_rb_thermal_ensemble_audit.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\rb_thermal_reference_jobs.py:321: in prepare_plan
+    snapshot = source_snapshot()
+               ^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\rb_thermal_reference_jobs.py:87: in source_snapshot
+    sources = audit.hashes()
+              ^^^^^^^^^^^^^^
+analysis\grand_challenge\adjoint_transport_audit.py:62: in hashes
+    names = list(parent_report()['source_sha256'])+[
+                 ^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+================================== FAILURES ===================================
+___________ test_parent_reuse_binds_physical_packet_and_all_metrics ___________
+
+    def test_parent_reuse_binds_physical_packet_and_all_metrics():
+>       parent = audit.parent_report()
+                 ^^^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_adjoint_transport_audit.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_____________ test_matching_evidence_and_changed_response_digest ______________
+
+    def test_matching_evidence_and_changed_response_digest():
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+______________ test_each_metric_can_prevent_convergence[greater] ______________
+
+metric = 'greater'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+______________ test_each_metric_can_prevent_convergence[lesser] _______________
+
+metric = 'lesser'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_________ test_each_metric_can_prevent_convergence[greater_by_source] _________
+
+metric = 'greater_by_source'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_________ test_each_metric_can_prevent_convergence[lesser_by_source] __________
+
+metric = 'lesser_by_source'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+____________ test_each_metric_can_prevent_convergence[mean_pulse] _____________
+
+metric = 'mean_pulse'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+____________ test_each_metric_can_prevent_convergence[mean_outer] _____________
+
+metric = 'mean_outer'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_________ test_each_metric_can_prevent_convergence[retarded_response] _________
+
+metric = 'retarded_response'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+____________ test_each_metric_can_prevent_convergence[exit_state] _____________
+
+metric = 'exit_state'
+
+    @pytest.mark.parametrize('metric', audit.adj.METRICS)
+    def test_each_metric_can_prevent_convergence(metric):
+>       p, convention, path, reference, row = data()
+                                              ^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\quantum\test_exponential_transport_audit.py:12: in data
+    report = audit.reference_report()
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+_______________ test_changed_reference_source_cannot_be_reused ________________
+
+tmp_path = WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-263/test_changed_reference_source_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002251ED148D0>
+
+    def test_changed_reference_source_cannot_be_reused(tmp_path, monkeypatch):
+>       report = audit.reference_report()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_exponential_transport_audit.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\exponential_transport_audit.py:37: in reference_report
+    parent = adj.parent_report()
+             ^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def parent_report():
+        report = json.loads(PARENT.read_text(encoding='utf-8'))
+        if (report.get('schema') != 'gabes-continuous-rb-transport-v2'
+                or not report.get('all_declared_controls_passed')
+                or not report.get('source_stable_during_run')):
+            raise ValueError('verified continuous selected-path parent required')
+        if any(file_hash(ROOT/name) != digest for name, digest in report['source_sha256'].items()):
+>           raise ValueError('parent source changed: rerun the primary/reference audit')
+E           ValueError: parent source changed: rerun the primary/reference audit
+
+analysis\grand_challenge\adjoint_transport_audit.py:49: ValueError
+=========================== short test summary info ===========================
+FAILED tests\quantum\test_adjoint_transport_audit.py::test_parent_reuse_binds_physical_packet_and_all_metrics
+FAILED tests\quantum\test_exponential_transport_audit.py::test_matching_evidence_and_changed_response_digest
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[greater]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[lesser]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[greater_by_source]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[lesser_by_source]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[mean_pulse]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[mean_outer]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[retarded_response]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_each_metric_can_prevent_convergence[exit_state]
+FAILED tests\quantum\test_exponential_transport_audit.py::test_changed_reference_source_cannot_be_reused
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_reference_jobs_and_pilot_share_exact_physical_paths_and_canonical_phase_metadata
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_use_actual_sealed_record_validation_and_file_hashes
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[missing]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[unsealed_payload]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[identity]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[source_hash]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[frequency]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[missing_metric]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[mean_outer]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[source_closure]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[blas_threads]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[work_counter]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_verified_references_reject_missing_tampered_or_incomplete_jobs[duplicate_json_key]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[inputs]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[box]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[temperature]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[geometry]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[rf]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[state]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_references_cannot_be_attached_to_a_different_physical_model[phase]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_reference_only_pilot_cannot_certify_paths_grid_or_thermal_ensemble
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_even_a_complete_synthetic_pilot_cache_cannot_certify_the_thermal_ensemble
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[matrices]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_other_valid_cached_reference_cannot_replace_the_verified_immutable_job[numerics]
+ERROR tests\quantum\test_rb_thermal_ensemble_audit.py::test_source_change_during_build_prevents_report_and_plot_creation
+11 failed, 1438 passed, 1 skipped, 25 errors in 215.38s (0:03:35)

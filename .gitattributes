@@ -5,3 +5,4 @@ gabes/quantum/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-
 gabes/fwm_quantum/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 tests/quantum/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 docs/grand_challenge/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+analysis/fwm_gain_hotfix/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

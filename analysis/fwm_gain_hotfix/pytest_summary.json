@@ -1,0 +1,23 @@
+{
+  "full_suite": {
+    "command": "python -m pytest -q",
+    "passed": 1699,
+    "skipped": 3,
+    "failed": 1,
+    "seconds": 261.90,
+    "failed_test": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public",
+    "failure_reason": "FWM_physics.tex was already deleted in the input working tree",
+    "new_hotfix_failures": 0,
+    "log": "pytest_after.log"
+  },
+  "after_portable_fixture_tolerance_adjustment": {
+    "command": "python -m pytest -q tests/test_fwm_gain_hotfix.py",
+    "passed": 28,
+    "failed": 0,
+    "seconds": 16.86,
+    "production_changed_since_full_suite": false
+  },
+  "baseline_source_hash_failure": "concurrent-edit contamination; resolved in final source-frozen full run",
+  "experimental_gain_validated": false,
+  "physical_squeezing_validated": false
+}

@@ -1,0 +1,677 @@
+{
+  "schema_version": 1,
+  "prepared_date": "2026-09-15",
+  "purpose": "Frozen source-gain calibration and conditional literature comparison for the Fast/Balanced temporary gain closure",
+  "sources": {
+    "canonical_csv": {
+      "path": "references/fwm_squeezing_paper_parameters.csv",
+      "role": "repository compilation; values can belong to different measurement groups"
+    },
+    "defaults": {
+      "path": "gabes/schemes/fwm.py",
+      "locator": "FWMScheme._squeezing_defaults",
+      "role": "canonical application operating parameters"
+    },
+    "constants": {
+      "path": "gabes/constants.py",
+      "locator": "NU_GROUND_HF = 3.035732439e9",
+      "role": "frequency conversion constant"
+    },
+    "history": {
+      "path": "docs/squeezing_report/squeezing_report_history.md",
+      "locator": "primary-source corrections, lines 139-161",
+      "role": "source-linked reconciliation; original CSV intentionally preserved"
+    },
+    "sim2025": {
+      "doi": "10.1038/s41598-025-86479-w",
+      "url": "https://www.nature.com/articles/s41598-025-86479-w",
+      "local_pdf": "references/Intensity-difference squeezing from four-wave mixing in hot 85Rb and 87Rb atoms in electro-optic-modulation-based single diode laser pumping system.pdf",
+      "title": "Intensity-difference squeezing from four-wave mixing in hot 85Rb and 87Rb atoms in single diode laser pumping system",
+      "checked": "2026-09-15",
+      "quoted_unit_definition": "1/e² radius"
+    },
+    "mccormick2008": {
+      "doi": "10.1103/PhysRevA.78.043816",
+      "url": "https://arxiv.org/pdf/quant-ph/0703111",
+      "version": "arXiv quant-ph/0703111v2",
+      "title": "Strong Low-Frequency Quantum Correlations From a Four-Wave Mixing Amplifier",
+      "checked": "2026-09-15",
+      "quoted_unit_definition": "1/e² radius"
+    },
+    "liu2011": {
+      "doi": "10.1364/OL.36.002979",
+      "url": "https://zhifanzhou.com/files/Realization%20of%20low%20frequency%20and%20controllable%20bandwidth%20squeezing.pdf",
+      "title": "Realization of low frequency and controllable bandwidth squeezing based on a four-wave-mixing amplifier in rubidium vapor",
+      "checked": "2026-09-15",
+      "quoted_tpd_definition": "ω−ω₋−νHF"
+    }
+  },
+  "conventions": {
+    "opd": "nu_pump - nu(85Rb F=2 -> F'=3), ordinary frequency in GHz",
+    "tpd": "nu_seed = nu_pump - nu_HF + delta; ordinary frequency delta in MHz",
+    "ground_hyperfine_hz": 3035732439,
+    "source_gain": "Output signal power / input seed power; detection loss is excluded from calibration.",
+    "beam_waist": "1/e^2 intensity radius; I0 = 2 P / (pi w^2)",
+    "calibration_policy": "Only Gold representative probe gain 15.5 may be fitted. Freeze that fitted parameter for held-out comparisons.",
+    "validation_policy": "Gold agreement is calibration. McCormick/Liu are conditional literature comparisons with unresolved source assumptions; no independent gain-gradient or physical-squeezing validation is claimed.",
+    "uncertainty_policy": "Null means unknown, never zero. Approximate ranges and decimal arithmetic are not statistical uncertainties.",
+    "conditional_model_inputs": "Runtime defaults not listed in params (including transit rate, collision/dephasing law, empirical residual and polarization factors) are model assumptions, not measured source fields."
+  },
+  "gold": {
+    "id": "Sim_2025_gold_final",
+    "params": {
+      "opd": 0.9,
+      "tpd": -8,
+      "temp_c": 121,
+      "pump_mw": 600,
+      "probe_uw": 8,
+      "pump_waist_um": 530,
+      "probe_waist_um": 330,
+      "cell_mm": 12.5,
+      "seeded_angle_deg": 0.32
+    },
+    "field_provenance": {
+      "params.opd": {
+        "unit": "GHz",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.tpd": {
+        "unit": "MHz",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.temp_c": {
+        "unit": "degC",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.pump_mw": {
+        "unit": "mW",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.probe_uw": {
+        "unit": "uW",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.pump_waist_um": {
+        "unit": "um, 1/e^2 intensity radius",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.probe_waist_um": {
+        "unit": "um, 1/e^2 intensity radius",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.cell_mm": {
+        "unit": "mm",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "params.seeded_angle_deg": {
+        "unit": "degree",
+        "source": "sim2025",
+        "locator": "Experimental schematic; Gain spectra; Squeezing in 85Rb",
+        "value_status": "reported_approximate",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "targets.probe_gain": {
+        "unit": "dimensionless power gain",
+        "source": "canonical_csv",
+        "locator": "fwm_gain_primary, Sim_2025_gold_final (line 35)",
+        "value_status": "representative_calibration_choice",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Midpoint of approximately 15 IDS-operation gain and approximately 16 gain-scan value. Not an independently measured central value or a confidence interval."
+      },
+      "targets.reported_probe_gain_range": {
+        "unit": "dimensionless power gain",
+        "source": "sim2025",
+        "locator": "Gain spectra and Squeezing in 85Rb; canonical_csv lines 36-37",
+        "value_status": "reported_approximate_range",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+      },
+      "power_observations.seed_input_uw": {
+        "unit": "uW",
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb; Fig. 3 operating-point paragraph",
+        "value_status": "reported_rounded",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Outputs treated as cell-output powers for comparison; measurement-plane and rounding discrepancy with nominal gain remains unresolved."
+      },
+      "power_observations.probe_output_uw": {
+        "unit": "uW",
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb; Fig. 3 operating-point paragraph",
+        "value_status": "reported_rounded",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Outputs treated as cell-output powers for comparison; measurement-plane and rounding discrepancy with nominal gain remains unresolved."
+      },
+      "power_observations.conjugate_output_uw": {
+        "unit": "uW",
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb; Fig. 3 operating-point paragraph",
+        "value_status": "reported_rounded",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Outputs treated as cell-output powers for comparison; measurement-plane and rounding discrepancy with nominal gain remains unresolved."
+      },
+      "power_observations.probe_to_seed_ratio": {
+        "unit": "dimensionless power ratio",
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb; Fig. 3 operating-point paragraph",
+        "value_status": "arithmetic_from_rounded_reported_powers",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Outputs treated as cell-output powers for comparison; measurement-plane and rounding discrepancy with nominal gain remains unresolved."
+      },
+      "power_observations.conjugate_to_seed_ratio": {
+        "unit": "dimensionless power ratio",
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb; Fig. 3 operating-point paragraph",
+        "value_status": "arithmetic_from_rounded_reported_powers",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Outputs treated as cell-output powers for comparison; measurement-plane and rounding discrepancy with nominal gain remains unresolved."
+      },
+      "detection_context.paper_total_efficiency": {
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb, loss paragraph",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.code_total_efficiency": {
+        "source": "defaults",
+        "locator": "SEEDED detection defaults",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.paper_total_loss_pct": {
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb, loss paragraph",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.paper_optical_loss_pct": {
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb, loss paragraph",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.paper_system_loss_pct": {
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb, loss paragraph",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.code_post_cell_loss_pct": {
+        "source": "defaults",
+        "locator": "SEEDED detection defaults",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.code_qe_pct": {
+        "source": "defaults",
+        "locator": "SEEDED detection defaults",
+        "value_status": "context_only",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      },
+      "detection_context.used_in_gain_calibration": {
+        "source": "sim2025",
+        "locator": "Squeezing in 85Rb, loss paragraph",
+        "value_status": "hotfix_scope_policy",
+        "uncertainty": null,
+        "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+        "note": "Detector loss does not enter source-gain correction. Paper system loss is not independently established photodiode QE. Paper loss numbers carry (2) in last digit, i.e. 0.2 percentage point; do not transfer this to gain uncertainty."
+      }
+    },
+    "role": "calibration_only",
+    "targets": {
+      "probe_gain": 15.5,
+      "reported_probe_gain_range": [
+        15,
+        16
+      ]
+    },
+    "power_observations": {
+      "seed_input_uw": 8,
+      "probe_output_uw": 111,
+      "conjugate_output_uw": 109,
+      "probe_to_seed_ratio": 13.875,
+      "conjugate_to_seed_ratio": 13.625
+    },
+    "detection_context": {
+      "paper_total_efficiency": 0.865,
+      "code_total_efficiency": 0.8694,
+      "paper_total_loss_pct": 13.5,
+      "paper_optical_loss_pct": 5.5,
+      "paper_system_loss_pct": 8,
+      "code_post_cell_loss_pct": 5.5,
+      "code_qe_pct": 92,
+      "used_in_gain_calibration": false
+    },
+    "notes": [
+      "Choose the canonical compilation target 15.5 once; retain approximately 15-16 and raw power ratios separately.",
+      "Gain definition is output probe power divided by input seed power; approximate gain-scan and IDS-operation values are not a single precision power-calibrated observation.",
+      "Setup text uses 10 uW seed; the selected IDS paragraph explicitly uses 8 uW.",
+      "The final primary source explicitly calls 530/330 um 1/e^2 radii; the CSV beam-context caveat is stale.",
+      "Calibration does not use output conjugate gain, detection efficiency, squeezing, excess noise, or held-out observations."
+    ]
+  },
+  "held_out": [
+    {
+      "id": "McCormick_2008_PRA",
+      "params": {
+        "opd": 0.8,
+        "tpd": -4.267561,
+        "temp_c": 110,
+        "pump_mw": 400,
+        "probe_uw": 100,
+        "pump_waist_um": 650,
+        "probe_waist_um": 350,
+        "cell_mm": 12.5,
+        "seeded_angle_deg": 0.3
+      },
+      "field_provenance": {
+        "params.opd": {
+          "unit": "GHz",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "Reference is F=2 -> 5P1/2 D1; exact excited F' is not stated. Using GABES F'=3 origin is an explicit conditional assumption."
+        },
+        "params.tpd": {
+          "unit": "MHz",
+          "source": "mccormick2008",
+          "locator": "p. 2, reported 3040 MHz red pump-seed spacing",
+          "value_status": "arithmetic_from_rounded_reported_spacing",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "(3035.732439 - 3040) MHz = -4.267561 MHz. Decimal arithmetic does not imply MHz-level measurement precision."
+        },
+        "params.temp_c": {
+          "unit": "degC",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.pump_mw": {
+          "unit": "mW",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.probe_uw": {
+          "unit": "uW",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.pump_waist_um": {
+          "unit": "um, 1/e^2 intensity radius",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.probe_waist_um": {
+          "unit": "um, 1/e^2 intensity radius",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.cell_mm": {
+          "unit": "mm",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.seeded_angle_deg": {
+          "unit": "degree",
+          "source": "mccormick2008",
+          "locator": "pp. 1-2, experiment description",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "targets.probe_gain": {
+          "unit": "dimensionless effective power gain",
+          "source": "mccormick2008",
+          "locator": "p. 2, 800 MHz OPD / 3040 MHz spacing paragraph",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        }
+      },
+      "role": "held_out_conditional_comparison",
+      "targets": {
+        "probe_gain": 9
+      },
+      "tpd_conversion": {
+        "adopted_basis": "reported_red_spacing",
+        "reported_red_spacing_mhz": 3040,
+        "ground_hyperfine_mhz": 3035.732439,
+        "formula": "delta_GABES_MHz = ground_hyperfine_MHz - (nu_pump - nu_seed)_MHz",
+        "adopted_tpd_mhz": -4.267561,
+        "canonical_csv_rounded_tpd_mhz": -4.27,
+        "alternative_from_reported_tpd_mhz": -4,
+        "ambiguity_mhz": 0.267561,
+        "uncertainty": null,
+        "source": "mccormick2008, p. 2; constants"
+      },
+      "gain_convention": "Measured effective probe gain Geff is cell-output/input probe power, corrected for window losses (p. 3). Intrinsic distributed-amplifier G=9-15 is a different model-derived observable.",
+      "limitations": [
+        "Exact excited hyperfine OPD reference is unspecified.",
+        "Setup seed is approximately 100 uW; finite-seed comparison is conditional on that representative input.",
+        "Low-frequency-run powers 305/290 uW occur in a separate paragraph; dividing them by the setup 100 uW would create an unsupported matched-condition observation.",
+        "Reported paper +4 MHz two-photon detuning maps to GABES -4 MHz; rounded 3040 MHz spacing maps to -4.267561 MHz. Check sensitivity if a narrow gain feature makes this difference material.",
+        "Transit/ground-coherence, unresolved polarization participation, and apparatus loss planes are not independently calibrated by this record."
+      ]
+    },
+    {
+      "id": "Liu_2011_OL",
+      "params": {
+        "opd": 0.8,
+        "tpd": -4,
+        "temp_c": 120,
+        "pump_mw": 400,
+        "probe_uw": 10,
+        "pump_waist_um": 550,
+        "probe_waist_um": 300,
+        "cell_mm": 12,
+        "seeded_angle_deg": 0.4
+      },
+      "field_provenance": {
+        "params.opd": {
+          "unit": "GHz",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "Optimum paragraph says 0.8 GHz; setup separately says about 1 GHz. Exact excited F' reference is unspecified; use F'=3 origin conditionally."
+        },
+        "params.tpd": {
+          "unit": "MHz",
+          "source": "liu2011",
+          "locator": "p. 2, detuning definitions paragraph",
+          "value_status": "sign_conversion",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "Paper delta = omega_pump - omega_seed - nu_HF; reported +4 MHz becomes GABES -4 MHz."
+        },
+        "params.temp_c": {
+          "unit": "degC",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.pump_mw": {
+          "unit": "mW",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.probe_uw": {
+          "unit": "uW",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.pump_waist_um": {
+          "unit": "um, 1/e^2 intensity radius",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "Source says waist without explicitly stating the 1/e^2 convention; GABES radius interpretation follows the repository compilation."
+        },
+        "params.probe_waist_um": {
+          "unit": "um, 1/e^2 intensity radius",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding",
+          "note": "Source says waist without explicitly stating the 1/e^2 convention; GABES radius interpretation follows the repository compilation."
+        },
+        "params.cell_mm": {
+          "unit": "mm",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "params.seeded_angle_deg": {
+          "unit": "degree",
+          "source": "liu2011",
+          "locator": "pp. 1-2, geometry and optimum-condition paragraphs",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "targets.probe_gain": {
+          "unit": "dimensionless power ratio",
+          "source": "liu2011",
+          "locator": "p. 2, 400 mW pump / 10 uW input / 80 and 70 uW output paragraph",
+          "value_status": "arithmetic_from_rounded_reported_powers",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "targets.conjugate_gain": {
+          "unit": "dimensionless power ratio",
+          "source": "liu2011",
+          "locator": "p. 2, 400 mW pump / 10 uW input / 80 and 70 uW output paragraph",
+          "value_status": "arithmetic_from_rounded_reported_powers",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "power_observations.seed_input_uw": {
+          "unit": "uW",
+          "source": "liu2011",
+          "locator": "p. 2, 400 mW pump / 10 uW input / 80 and 70 uW output paragraph",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "power_observations.probe_output_uw": {
+          "unit": "uW",
+          "source": "liu2011",
+          "locator": "p. 2, 400 mW pump / 10 uW input / 80 and 70 uW output paragraph",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        },
+        "power_observations.conjugate_output_uw": {
+          "unit": "uW",
+          "source": "liu2011",
+          "locator": "p. 2, 400 mW pump / 10 uW input / 80 and 70 uW output paragraph",
+          "value_status": "reported_approximate",
+          "uncertainty": null,
+          "uncertainty_status": "unknown; do not infer a statistical error bar from rounding"
+        }
+      },
+      "role": "held_out_conditional_comparison",
+      "targets": {
+        "probe_gain": 8,
+        "conjugate_gain": 7
+      },
+      "power_observations": {
+        "seed_input_uw": 10,
+        "probe_output_uw": 80,
+        "conjugate_output_uw": 70
+      },
+      "gain_convention": "Approximate output/input seed ratios for the same stated 400 mW operating condition.",
+      "limitations": [
+        "Exact excited F' OPD reference and explicit waist-intensity convention are incomplete.",
+        "Output powers are approximate; absolute measurement-plane and gain uncertainty are unknown.",
+        "Pump-off 90% probe transmission is not symmetric post-cell detector efficiency and must not be absorbed into gain correction.",
+        "Pump scan from 100 to 700 mW measures SQL-crossing squeezing bandwidth from 5.5 to 16.5 MHz; these endpoints are not measured gain targets.",
+        "Transit/ground-coherence and unresolved participation values remain conditional inherited model inputs."
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "id": "McCormick_2007_OL",
+      "role": "excluded_from_quantitative_gain_comparison",
+      "reasons": [
+        "Natural-abundance vapor differs from pure-85Rb production model.",
+        "Cell-length source conflict: CSV 19 mm versus accessible arXiv v1 approximately 8 mm effective Brewster-tilted path; final wording unresolved.",
+        "Exact excited hyperfine OPD reference and rounded 3.030 GHz spacing limit precision."
+      ],
+      "source": {
+        "csv_column": "McCormick_2007_OL",
+        "history": "docs/squeezing_report/squeezing_report_history.md:149",
+        "url": "https://arxiv.org/pdf/physics/0607254",
+        "doi": "10.1364/OL.32.000178"
+      }
+    },
+    {
+      "id": "Vogl_2012_SPIE",
+      "role": "incompatible_raman_branch",
+      "reasons": [
+        "Primary source uses blue seed; hotfix calibration concerns standard red-seeded branch.",
+        "Exact TPD missing; gain 4-10 is a range and CSV 7 is its representative midpoint."
+      ],
+      "source": {
+        "csv_column": "Vogl_2012_SPIE",
+        "history": "docs/squeezing_report/squeezing_report_history.md:147",
+        "url": "https://arxiv.org/pdf/1209.2464"
+      }
+    },
+    {
+      "id": "Wu_2019_OE",
+      "role": "incompatible_measurement_group",
+      "reasons": [
+        "Dual-seeded low-frequency IDS is a different mode from single-seeded comparison.",
+        "CSV probe 129 uW and conjugate 17 uW are not a matched twin-beam pair: same output channel from 6.4 and 0.9 uW seed runs.",
+        "TPD sign is insufficiently defined for exact regression."
+      ],
+      "source": {
+        "csv_column": "Wu_2019_OE",
+        "history": "docs/squeezing_report/squeezing_report_history.md:145",
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8658049/",
+        "doi": "10.1364/OE.27.004769"
+      }
+    },
+    {
+      "id": "de_Araujo_2024_OE",
+      "role": "incompatible_vacuum_seed_homodyne",
+      "reasons": [
+        "Vacuum-seeded homodyne experiment; classical seed gain target and seed waist absent.",
+        "OPD/TPD incomplete."
+      ],
+      "source": {
+        "csv_column": "de_Araujo_2024_OE",
+        "history": "docs/squeezing_report/squeezing_report_v7.tex:638",
+        "url": "https://doi.org/10.1364/OE.507727"
+      }
+    },
+    {
+      "id": "Allen_2026_OE",
+      "role": "no_matched_gain_target",
+      "reasons": [
+        "Seeded experiment and useful stability observations, but curated table has no representative probe gain or matched output/input pair.",
+        "Conjugate output 218 uW and representative seed 12 uW are not established as one matched gain condition."
+      ],
+      "source": {
+        "csv_column": "Allen_2026_OE",
+        "history": "docs/squeezing_report/squeezing_report_v7.tex:641",
+        "url": "https://doi.org/10.1364/OE.600911"
+      }
+    },
+    {
+      "id": "Jain_2025_OL",
+      "role": "incomplete_source_and_fiber_measurement",
+      "reasons": [
+        "OPD, input seed, and source gain target missing.",
+        "Fiber collection/spatial filtering changes measurement class."
+      ],
+      "source": {
+        "csv_column": "Jain_2025_OL",
+        "history": "docs/squeezing_report/squeezing_report_v7.tex:644",
+        "url": "https://doi.org/10.1364/OL.564233"
+      }
+    },
+    {
+      "id": "Monsa_2026_preprint",
+      "role": "incomplete_geometry",
+      "reasons": [
+        "Both beam waists missing; do not fill them with Gold values.",
+        "Preprint noise/loss definitions unresolved; nominal gain approximately 15 at 300 mW is qualitative context only."
+      ],
+      "source": {
+        "csv_column": "Monsa_2026_preprint",
+        "history": "docs/squeezing_report/squeezing_report_history.md:157",
+        "url": "https://arxiv.org/pdf/2601.13939v1"
+      }
+    }
+  ]
+}
