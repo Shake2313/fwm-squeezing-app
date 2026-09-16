@@ -1638,12 +1638,14 @@ def _render_param(container, scheme_name, sp, scheme_obj=None):
         idx = options.index(current) if current in options else 0
         return container.selectbox(label, options, index=idx, key=key, help=help_,
                                    on_change=on_change, **choice_kwargs)
+    slider_format = getattr(sp, "format", None)
+    slider_kwargs = {"format": slider_format} if slider_format else {}
     if has_state:
         val = container.slider(label, sp.vmin, sp.vmax, step=sp.step,
-                               key=key, help=help_)
+                               key=key, help=help_, **slider_kwargs)
     else:
         val = container.slider(label, sp.vmin, sp.vmax, value=current,
-                               step=sp.step, key=key, help=help_)
+                               step=sp.step, key=key, help=help_, **slider_kwargs)
     endpoints = getattr(sp, "endpoints", None)
     if endpoints:
         left, right = endpoints
@@ -1805,8 +1807,11 @@ if st.session_state.get(defaults_key) != defaults_version:
         st.session_state[_skey(scheme.name, sp.name)] = sp.default
     st.session_state[defaults_key] = defaults_version
 else:
-    for sp in specs:                               # seed defaults once
-        st.session_state.setdefault(_skey(scheme.name, sp.name), sp.default)
+    for sp in specs:
+        key = _skey(scheme.name, sp.name)
+        # Preserve hidden controls through widget cleanup and send their saved
+        # values to the browser when they become visible again.
+        st.session_state[key] = st.session_state.get(key, sp.default)
 
 # Presets — one click overwrites the relevant sliders.
 scheme_presets = scheme.presets()

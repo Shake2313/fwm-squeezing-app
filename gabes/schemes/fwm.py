@@ -678,6 +678,13 @@ MODE_LABELS = {
     MODE_BIPHOTON: "Biphoton",
 }
 
+NOISE_CONSTANT = "constant"
+NOISE_GAIN_PROPORTIONAL = "gain_proportional"
+NOISE_MODE_LABELS = {
+    NOISE_CONSTANT: "Constant Noise N",
+    NOISE_GAIN_PROPORTIONAL: "Gain proportional Noise a",
+}
+
 # Biphoton source model. "Predictive" solves the Doppler-averaged cascade/double-Λ
 # biphoton amplitude from first principles (Chen et al. PRR 4, 023132 (2024)
 # Eq. (3-5); Kim et al. QST 9, 045006 (2024) Eq. (2); Du, Wen, Rubin JOSAB 25,
@@ -3512,11 +3519,28 @@ def _detection_efficiency_from_params(params):
     return legacy_eta if legacy_inputs_changed else float(direct_pct) / 100.0
 
 
+def _seeded_excess_noise(G_s, params):
+    """Source-referred noise selected by cheap readout controls only."""
+    mode = params.get("excess_noise_mode") or NOISE_CONSTANT
+    if mode == NOISE_CONSTANT:
+        return float(params.get("excess_noise", 0.0))
+    if mode == NOISE_GAIN_PROPORTIONAL:
+        return observables.gain_proportional_excess_noise(
+            G_s, params.get("excess_noise_slope", 0.0))
+    raise ValueError(f"Unknown excess noise mode: {mode}")
+
+
+def _seeded_noise_caption(params):
+    if (params.get("excess_noise_mode") or NOISE_CONSTANT) == NOISE_GAIN_PROPORTIONAL:
+        return f"a = {float(params.get('excess_noise_slope', 0.0)):.4f}"
+    return f"N = {float(params.get('excess_noise', 0.0)):.2f}"
+
+
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-gain-closure-v11"
+    cache_version = "fwm-gain-proportional-noise-v12"
     defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True
@@ -3611,13 +3635,31 @@ class FWMScheme(Scheme):
                       0.0, 100.0, 0.1, "%", visible_if=seeded,
                       help="Total efficiency after the cell, including optical and "
                            "detector loss."),
+            ParamSpec("excess_noise_mode", "Excess noise model", "Detection & scaling",
+                      NOISE_CONSTANT, choices=(NOISE_CONSTANT, NOISE_GAIN_PROPORTIONAL),
+                      choice_labels=NOISE_MODE_LABELS, control="segmented",
+                      recompute=False, visible_if=seeded,
+                      help="Choose a constant source noise N or N = a·max(G_s−1, 0). "
+                           "G_s is the displayed seed power gain. Each model adds "
+                           "ηN in linear SQL units; switching preserves both controls."),
             ParamSpec("excess_noise", "Excess Noise N", "Detection & scaling",
-                      0.0, 0.0, 5.0, 0.01, recompute=False, visible_if=seeded,
+                      0.0, 0.0, 5.0, 0.01, recompute=False,
+                      visible_if={"mode": MODE_SEEDED,
+                                  "excess_noise_mode": (NOISE_CONSTANT, None)},
                       help="Source excess noise in linear SQL units, generated along "
                            "the FWM beam path and spatially inseparable from it. "
                            "Adds ηN to the detected noise: "
                            "S ≈ (1−η) + η[1/(2G−1) + N]. "
                            "N = 0 preserves the baseline; S > 1 is above SQL (0 dB)."),
+            ParamSpec("excess_noise_slope", "Noise slope a", "Detection & scaling",
+                      0.0, 0.0, 1.0, 0.0001, recompute=False, format="%.4f",
+                      visible_if={"mode": MODE_SEEDED,
+                                  "excess_noise_mode": NOISE_GAIN_PROPORTIONAL},
+                      help="Dimensionless slope in N = a·max(G_s−1, 0). "
+                           "The subtraction makes N = 0 at unity gain; clipping "
+                           "prevents negative noise in absorbing regions. "
+                           "This replaces the constant N and can raise noise at high gain. "
+                           "a = 0 preserves the baseline."),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling",
                       SEEDED_POST_CELL_LOSS_PCT,
                       0.0, 50.0, 0.5, "%", visible_if=seeded, hidden=True),
@@ -3798,7 +3840,9 @@ class FWMScheme(Scheme):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0,
                     detection_eff_pct=SEEDED_DETECTION_EFFICIENCY_PCT,
+                    excess_noise_mode=NOISE_CONSTANT,
                     excess_noise=0.0,
+                    excess_noise_slope=0.0,
                     loss_pct=SEEDED_POST_CELL_LOSS_PCT,
                     transit_rate_khz=100.0,
                     eom_residual_carrier_uw=0.0,
@@ -3899,6 +3943,12 @@ class FWMScheme(Scheme):
             "in linear SQL units before detection loss: S = S₀ + ηN, where S₀ is "
             "the N = 0 indicator. For ideal twin-beam gain G this reduces to "
             "S ≈ (1−η) + η[1/(2G−1) + N]; 10 log₁₀(S) > 0 dB is above SQL.\n\n"
+            "**Excess noise model.** Constant Noise N uses the same N across the scan. "
+            "Gain proportional Noise a uses N = a·max(G_s−1, 0) at each detuning, "
+            "with the displayed seed power gain G_s. The zero floor prevents "
+            "negative noise where G_s < 1. These are alternative phenomenological "
+            "models, with ηN added to the existing indicator; no microscopic "
+            "noise covariance is inferred.\n\n"
             "**Biphoton.** The Reduced model calculates a Doppler-averaged waveform "
             "and vector phase matching. Absolute widths remain approximate and the "
             "pair-rate scale is anchored to a literature reference. The Reference "
@@ -3991,12 +4041,23 @@ class FWMScheme(Scheme):
 
     def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
-        excess_noise = float(params.get("excess_noise", 0.0))
+        noise_mode = params.get("excess_noise_mode") or NOISE_CONSTANT
+        excess_noise = _seeded_excess_noise(raw["G_s"], params)
         noise_db = observables.add_source_excess_noise_dB(
             raw["gain_referred_noise_dB"], raw["eta"], excess_noise)
         # Readout-only knobs must not mutate the cached mean-field spectrum.
         readout = dict(raw, gain_referred_noise_dB=noise_db, S_dB=noise_db)
         op = operating_point(readout, tpd, branch=-1)
+        if noise_mode == NOISE_GAIN_PROPORTIONAL:
+            # Evaluate the selected point from its displayed gain, rather than
+            # interpolating log(noise) after applying the gain-dependent term.
+            baseline_op = operating_point(raw, tpd, branch=-1)
+            op_excess_noise = float(_seeded_excess_noise(baseline_op["G_s"], params))
+            op_noise_db = float(observables.add_source_excess_noise_dB(
+                baseline_op["gain_referred_noise_dB"], raw["eta"], op_excess_noise))
+            op.update(gain_referred_noise_dB=op_noise_db, S_dB=op_noise_db)
+        else:
+            op_excess_noise = float(excess_noise)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
         claim_gate = raw.get("claim_gate", {})
         floquet_convergence = raw.get("floquet_convergence", {})
@@ -4015,10 +4076,18 @@ class FWMScheme(Scheme):
             axG.set_ylabel("Seed gain G_s")
             axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
                           f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f},  "
-                          f"N = {excess_noise:.2f}")
+                          f"{_seeded_noise_caption(params)}")
             if np.nanmax(raw["G_s"]) > 50:
                 axG.set_yscale("log")
-            axS.plot(d_axis, noise_db, color="#2ca02c", lw=1.8)
+            noise_axis, plot_noise = d_axis, noise_db
+            if noise_mode == NOISE_GAIN_PROPORTIONAL:
+                # Include the exact selected point so marker, curve and metric
+                # share the same N=a*max(G_s-1,0), including between grid points.
+                idx = int(np.searchsorted(d_axis, tpd))
+                if idx == d_axis.size or not np.isclose(d_axis[idx], tpd, rtol=0.0, atol=1e-9):
+                    noise_axis = np.insert(d_axis, idx, tpd)
+                    plot_noise = np.insert(noise_db, idx, op["gain_referred_noise_dB"])
+            axS.plot(noise_axis, plot_noise, color="#2ca02c", lw=1.8)
             axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axS.axhline(0.0, color="black", lw=0.6)
             axS.scatter([tpd], [op["gain_referred_noise_dB"]],
@@ -4083,6 +4152,18 @@ class FWMScheme(Scheme):
             "temperature or raise the seed power to return to the linear regime.\n"
             if depletion_limited else ""
         )
+        noise_rows = (
+            f"| Excess noise model | {NOISE_MODE_LABELS[noise_mode]} |\n"
+        )
+        if noise_mode == NOISE_GAIN_PROPORTIONAL:
+            noise_rows += (
+                f"| Noise slope a | {float(params.get('excess_noise_slope', 0.0)):.4f} |\n"
+                "| Source noise law | N = a·max(G_s−1, 0) |\n"
+            )
+        noise_rows += (
+            f"| Excess Noise N (linear SQL units) | {op_excess_noise:.6g} |\n"
+            f"| Detected excess noise ηN (linear SQL units) | {raw['eta'] * op_excess_noise:.6g} |\n"
+        )
         operating_table = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| ⁸⁵Rb density | {raw['N_atoms']:.3e} /m³ |\n"
@@ -4092,8 +4173,7 @@ class FWMScheme(Scheme):
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
             f"| Detection efficiency η | {raw['eta']:.4f} |\n"
-            f"| Excess Noise N (linear SQL units) | {excess_noise:.2f} |\n"
-            f"| Detected excess noise ηN (linear SQL units) | {raw['eta'] * excess_noise:.4f} |\n"
+            f"{noise_rows}"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
             f"| Cell length | {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm |\n"
             f"| Pump waist | {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm |\n"
@@ -4587,7 +4667,7 @@ class FWMScheme(Scheme):
 
         def _render_full(full, params=None):
             import matplotlib.pyplot as plt
-            excess_noise = float((params or {}).get("excess_noise", 0.0))
+            params = params or {}
             figF, (aG, aS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
             for ax in (aG, aS):
                 ax.grid(alpha=0.3)
@@ -4599,7 +4679,8 @@ class FWMScheme(Scheme):
                 spec = full[key]
                 aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
                 noise_db = spec["gain_referred_noise_dB"]
-                if excess_noise != 0.0:
+                excess_noise = _seeded_excess_noise(spec["G_s"], params)
+                if np.any(np.asarray(excess_noise) != 0.0):
                     noise_db = observables.add_source_excess_noise_dB(
                         noise_db, spec["eta"], excess_noise)
                 aS.plot(spec["probe_axis_GHz"], noise_db, lw=1.4, **style)
@@ -4607,8 +4688,9 @@ class FWMScheme(Scheme):
             aG.set_ylabel("Seed gain G_s")
             stored_detail = full["minus"].get("model_fidelity", "unknown")
             title = f"Solver detail: {FIDELITY_LABELS.get(stored_detail, stored_detail)}"
-            if excess_noise != 0.0:
-                title += f",  N = {excess_noise:.2f}"
+            if ((params.get("excess_noise_mode") or NOISE_CONSTANT) == NOISE_GAIN_PROPORTIONAL
+                    or float(params.get("excess_noise", 0.0)) != 0.0):
+                title += f",  {_seeded_noise_caption(params)}"
             aG.set_title(title)
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")

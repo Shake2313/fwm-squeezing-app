@@ -387,18 +387,35 @@ def ideal_twin_beam_noise(G_s, G_c):
     return np.clip((G_s - G_c) ** 2 / total, 0.0, 1.0)
 
 
+def gain_proportional_excess_noise(G_s, slope=0.0):
+    """Phenomenological source noise N = a*max(G_s-1, 0), in linear SQL units.
+
+    G_s is the displayed seed power gain, including any gain correction or
+    depletion cap. Passive (G_s < 1) regions must not produce negative noise.
+    """
+    slope = float(slope)
+    if not np.isfinite(slope) or slope < 0.0:
+        raise ValueError("excess noise slope a must be finite and non-negative")
+    G_s = np.asarray(G_s, dtype=float)
+    if not np.all(np.isfinite(G_s)) or np.any(G_s < 0.0):
+        raise ValueError("seed gain must be finite and non-negative")
+    return slope * np.maximum(G_s - 1.0, 0.0)
+
+
 def add_source_excess_noise_dB(noise_dB, eta, excess_noise=0.0):
     """Add source excess noise N in linear SQL units, before detection loss.
 
     N describes unresolved noise in the same collected spatial mode as the
     FWM beams. Its detected contribution is eta*N, so S = S_baseline + eta*N.
+    N may be a scalar or an array broadcastable to the baseline noise curve.
     This phenomenological input does not supply microscopic atomic covariance.
     """
-    excess_noise = float(excess_noise)
-    if not np.isfinite(excess_noise) or excess_noise < 0.0:
+    excess_noise = np.asarray(excess_noise, dtype=float)
+    if not np.all(np.isfinite(excess_noise)) or np.any(excess_noise < 0.0):
         raise ValueError("excess noise N must be finite and non-negative")
-    noise_dB = np.asarray(noise_dB, dtype=float)
-    if excess_noise == 0.0:
+    noise_dB, excess_noise = np.broadcast_arrays(
+        np.asarray(noise_dB, dtype=float), excess_noise)
+    if np.all(excess_noise == 0.0):
         return noise_dB
     S = 10.0 ** (noise_dB / 10.0) + np.asarray(eta) * excess_noise
     return 10.0 * np.log10(np.maximum(S, 1e-30))

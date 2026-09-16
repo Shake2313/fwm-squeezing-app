@@ -202,15 +202,30 @@ sidebar controls and the plots follow `param_schema()` and the observables dict.
   the pump Rabi through I=2P/πw² **and** the Gaussian crossing overlap; the seed
   waist is nearly inert (its own Rabi is weak and the overlap is already ≈1), so it
   matters mainly for the downstream divergence λ/πw₀, which this scheme does not model.
-- **Excess Noise N** under Detection & scaling is a dimensionless source-noise
-  input in linear SQL units (0–5, step 0.01, default 0). It represents external
+- **Excess noise model** under Detection & scaling switches between
+  **Constant Noise N** (0–5, step 0.01) and **Gain proportional Noise a**
+  (slope 0–1, step 0.0001). Constant mode is the default; both coefficients
+  default to 0 and retain their values when switching noise modes.
+  N is dimensionless source noise in linear SQL units. It represents external
   noise generated along the FWM beam path that cannot be spatially separated
   from the collected beams. The detected indicator is `S = S₀ + ηN`, where
   `S₀` is the existing zero-N model; for ideal twin-beam gain this reduces to
   `S = (1−η) + η[1/(2G−1) + N]`. Positive `10 log₁₀(S)` is above SQL (0 dB).
-  N updates the readout and full-scan rendering without another atomic solve;
-  N=0 preserves the existing result. It is a phenomenological input, not a
-  microscopic noise calculation.
+  Gain proportional mode uses `N = a·max(G_s−1, 0)` with the displayed seed
+  power gain (after gain correction and depletion limiting). The zero floor
+  avoids negative noise in absorbing regions. Only the selected noise model
+  contributes; constant N and gain-proportional N are not added together.
+  Mode and coefficient changes update the readout and full-scan rendering
+  without another atomic solve; N=0 or a=0 preserves the existing noise values.
+  At an off-grid operating point, gain-proportional N uses the displayed
+  interpolated gain and is added to the interpolated baseline indicator; this
+  selected point is included in the plotted curve. This is a phenomenological
+  input, not a microscopic noise calculation.
+  As an algebraic check in the ideal twin-beam limit, for `η>0` and `0<a<2`,
+  the noise minimum is at `G* = (1+sqrt(2/a))/2`, and the noise crosses back
+  above SQL at `G = 1/2 + 1/a`. Thus sufficiently large gain can worsen the
+  noise when a is nonzero; actual mean-field scans need not follow that ideal
+  optimum.
 
 ### Fast/Balanced gain hotfix
 
