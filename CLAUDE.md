@@ -4,6 +4,9 @@ Orientation for AI assistants working in this repo.
 
 ## Where things live
 - **Basics, architecture, physics traps, references** → `README.md`. Read it first.
+- **Front-end design refactor (UI redesign)** → `docs/ui_redesign/README.md`: plan,
+  decisions, dev log, before/after metrics from `tools/ui_audit.py`. Read it before
+  touching `streamlit_app.py` layout or styling.
 - **Deferred / planned work (not done yet on purpose)** → `docs/checklist.json`.
   Anything intentionally left for later (e.g. wiring Rydberg beam power to the OBE
   drive, a predictive biphoton model) is recorded there, not in code TODOs.
