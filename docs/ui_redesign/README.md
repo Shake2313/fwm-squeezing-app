@@ -5,7 +5,7 @@
 
 ## 현재 상태
 - 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
-- 진행 단계: P0 준비 완료 (측정 도구·baseline·문서). 현재: **P1 토큰·타이포·포맷**.
+- 진행 단계: P0 준비 · P1 토큰·타이포·포맷 완료. 다음: **P2 셸 레이아웃**.
 - 시안 canvas (비공개): https://claude.ai/artifact/C8d3dLBYDjH3ZJm84FPEQw
   — 현재 화면 진단, B(SAS·FWM·폰), A(보수안), ScrubField 동작 프로토타입.
 
@@ -18,8 +18,10 @@
 | `log.md` | 날짜별 개발 로그, 최신이 위 | 작업 세션마다 |
 | `audit/<tag>/` | `tools/ui_audit.py` 측정값(`metrics.json`, `summary.md`) + 첫 화면 스크린샷 | 단계 종료마다 새 tag |
 
+스크린샷 PNG는 repo `.gitignore`(`*.png`) 정책으로 git 제외 — Google Drive 동기 폴더에만 보존. 수치는 git에 남음.
+
 ## 작업 규칙
-- **범위**: `streamlit_app.py`, 새 UI 패키지(P2부터 `gabes_ui/`), `assets/`, `static/`, `.streamlit/config.toml`,
+- **범위**: `streamlit_app.py`, UI 패키지 `gabes_ui/`(P1 시작: theme·format), `assets/`, `static/`, `.streamlit/config.toml`,
   `sabes_page.py`의 공유 스타일. 계산 경로(`compute`, `observables`의 물리값) 무수정.
 - **예외**: P4 metric 표시 계약(`tier`/`attach_to`/`evidence`)만 `gabes/schemes/*` 수정. 계산 세션 커밋 후 진행.
 - **감량 원칙** (`decisions.md` D4): 새 요소는 기존 요소 ≥1 대체 또는 조건부 표시만 허용. "혹시 쓸모" 추가 금지.

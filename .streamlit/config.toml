@@ -1,14 +1,114 @@
 [theme]
 base = "light"
+# Tokens mirror gabes_ui/theme.py (docs/ui_redesign/decisions.md D2).
 primaryColor = "#0284C7"
-backgroundColor = "#F6F8FB"
+backgroundColor = "#F5F7FA"
 secondaryBackgroundColor = "#FFFFFF"
-textColor = "#0F172A"
-font = "sans serif"
+textColor = "#0E1726"
+borderColor = "#E3E8EF"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+linkColor = "#0369A1"
+# IBM Plex (OFL-1.1, static/fonts/OFL.txt), self-hosted from static/fonts.
+# Sans: latin 400-700, latin-ext and greek 400-600; Mono: latin 400-500.
+# Glyphs outside these ranges (superscript digits, arrows) fall back.
+font = "IBM Plex Sans, sans-serif"
+headingFont = "IBM Plex Sans, sans-serif"
+codeFont = "IBM Plex Mono, monospace"
+
+[theme.sidebar]
+backgroundColor = "#FBFCFD"
+secondaryBackgroundColor = "#FFFFFF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-400-normal.woff2"
+weight = 400
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-500-normal.woff2"
+weight = 500
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-600-normal.woff2"
+weight = 600
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-700-normal.woff2"
+weight = 700
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-ext-400-normal.woff2"
+weight = 400
+style = "normal"
+unicodeRange = "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-greek-400-normal.woff2"
+weight = 400
+style = "normal"
+unicodeRange = "U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-ext-500-normal.woff2"
+weight = 500
+style = "normal"
+unicodeRange = "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-greek-500-normal.woff2"
+weight = 500
+style = "normal"
+unicodeRange = "U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-latin-ext-600-normal.woff2"
+weight = 600
+style = "normal"
+unicodeRange = "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans-greek-600-normal.woff2"
+weight = 600
+style = "normal"
+unicodeRange = "U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF"
+
+[[theme.fontFaces]]
+family = "IBM Plex Mono"
+url = "app/static/fonts/ibm-plex-mono-latin-400-normal.woff2"
+weight = 400
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
+
+[[theme.fontFaces]]
+family = "IBM Plex Mono"
+url = "app/static/fonts/ibm-plex-mono-latin-500-normal.woff2"
+weight = 500
+style = "normal"
+unicodeRange = "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD"
 
 [client]
 toolbarMode = "minimal"
 
 [server]
-# Serve the User's Guide as a static file at app/static/GABES_User_Guide.html
+# Serve the User's Guide and the UI fonts from ./static (app/static/<file>).
 enableStaticServing = true

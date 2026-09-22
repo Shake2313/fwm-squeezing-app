@@ -1,0 +1,396 @@
+/* GABES stylesheet. Colours and fonts come from --g-* tokens that
+   gabes_ui/theme.py prepends (docs/ui_redesign/decisions.md D2).
+
+   Streamlit internals targeted here (re-check after a Streamlit upgrade):
+   stAppViewContainer, stHeader, stToolbar, stDecoration, stStatusWidget,
+   stMainBlockContainer, stAppViewBlockContainer, stSidebar, stSidebarHeader,
+   stSidebarContent, stSidebarUserContent, stBaseButton-headerNoPadding,
+   stIconMaterial, stImage, stCaptionContainer, stMarkdownContainer, stButton,
+   stSelectbox, stSlider, stSliderThumbValue, stSliderTickBar, stExpander,
+   stMain, stFullScreenFrame, stDataFrame, stTable. */
+
+[data-testid="stAppViewContainer"] {
+  background: var(--g-ground);
+}
+
+[data-testid="stHeader"] {
+  height: 0 !important;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+
+[data-testid="stHeader"] > div,
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.stDeployButton {
+  display: none !important;
+}
+
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewBlockContainer"],
+section.main > div,
+.main .block-container,
+.block-container {
+  padding-top: 0.85rem !important;
+  padding-left: clamp(0.75rem, 1vw, 1rem) !important;
+  padding-right: clamp(0.75rem, 1vw, 1rem) !important;
+  padding-bottom: 1.35rem !important;
+  max-width: none !important;
+}
+
+[data-testid="stSidebar"] {
+  background: var(--g-rail);
+  border-right: 1px solid var(--g-line);
+}
+
+[data-testid="stSidebarHeader"] {
+  display: flex !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 30;
+}
+
+[data-testid="stSidebarHeader"] button[data-testid="stBaseButton-headerNoPadding"] {
+  position: absolute;
+  top: 0.55rem;
+  right: -1.25rem;
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  padding: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  border-radius: 8px !important;
+  background: var(--g-surface) !important;
+  border: 1px solid var(--g-line) !important;
+  box-shadow: 0 1px 3px rgba(14, 23, 38, 0.08);
+}
+
+[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarContent"] {
+  overflow: visible !important;
+}
+
+[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] button[data-testid="stBaseButton-headerNoPadding"] {
+  transform: translateX(312px);
+}
+
+[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] [data-testid="stIconMaterial"] {
+  font-size: 0 !important;
+}
+
+[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] [data-testid="stIconMaterial"]::before {
+  content: "keyboard_double_arrow_right";
+  font-family: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+[data-testid="stSidebarContent"],
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0.85rem !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stImage"] {
+  margin: 0 0 0.45rem;
+}
+
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+  color: var(--g-muted);
+}
+
+[data-testid="stSidebar"] hr {
+  margin: 0.75rem 0 1rem;
+  border-color: var(--g-line);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--g-ink);
+  letter-spacing: 0;
+}
+
+p, li, label, [data-testid="stMarkdownContainer"] {
+  color: var(--g-ink);
+}
+
+/* Numbers line up in columns: tabular figures on slider values and ticks. */
+[data-testid="stSliderThumbValue"],
+[data-testid="stSliderTickBar"] {
+  font-family: var(--g-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+div[data-testid="stButton"] > button {
+  border-radius: 8px;
+  border: 1px solid var(--g-line);
+  background: var(--g-surface);
+  color: var(--g-ink);
+  box-shadow: none;
+}
+
+div[data-testid="stButton"] > button:hover {
+  border-color: var(--g-accent);
+  color: var(--g-accent-ink);
+}
+
+[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+[data-testid="stSlider"] {
+  color: var(--g-ink);
+}
+
+[data-testid="stExpander"] {
+  border: 1px solid var(--g-line);
+  border-radius: 8px;
+  background: var(--g-surface);
+  box-shadow: none;
+}
+
+[data-testid="stSidebar"] [data-testid="stExpander"] {
+  margin-top: 0.48rem;
+}
+
+/* Scheme header (replaced by the top bar in phase P2). */
+.gabes-header {
+  margin: 0 0 0.72rem;
+  padding: 0.78rem 0.9rem 0.85rem;
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+}
+
+.gabes-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.34rem;
+  margin-bottom: 0.34rem;
+}
+
+.gabes-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.2rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid var(--g-line);
+  background: var(--g-surface);
+  color: var(--g-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.gabes-header h1 {
+  margin: 0;
+  color: var(--g-ink);
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.gabes-header p {
+  max-width: 68rem;
+  margin: 0.34rem 0 0;
+  color: var(--g-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* Control groups: neutral small caps, no colour coding. */
+.gabes-group-header {
+  margin: 1rem 0 0.3rem;
+  padding: 0.1rem 0.04rem;
+  color: var(--g-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gabes-advanced-subheader {
+  margin: 0.75rem 0 0.2rem;
+  color: var(--g-muted);
+  font-size: 0.66rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gabes-endpoints {
+  display: flex;
+  justify-content: space-between;
+  margin-top: -0.72rem;
+  color: var(--g-muted);
+  font-size: 0.72rem;
+}
+
+/* Readout: heroes + ribbon (becomes the one-line strip in phase P2). */
+.gabes-readout {
+  display: grid;
+  width: 100%;
+  max-width: 50rem;
+  margin-inline: auto;
+  gap: 0.46rem;
+}
+
+.gabes-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.46rem;
+}
+
+.gabes-hero-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.gabes-hero-card {
+  position: relative;
+  min-width: 0;
+  min-height: 5.15rem;
+  padding: 0.75rem 0.9rem 0.7rem;
+  overflow: hidden;
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+}
+
+.gabes-hero-label,
+.gabes-ribbon-label {
+  min-width: 0;
+  color: var(--g-muted);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.gabes-hero-label {
+  font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gabes-hero-value {
+  min-width: 0;
+  margin-top: 0.25rem;
+  color: var(--g-ink);
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.gabes-hero-value--num {
+  font-family: var(--g-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* Ribbon cells are narrow: Plex Sans tabular figures instead of Mono, so long
+   values ("-1304.16 to -1285.29 MHz") do not wrap more than before. */
+.gabes-ribbon-value--num {
+  font-variant-numeric: tabular-nums;
+}
+
+.gabes-hero-unit {
+  margin-left: 0.28em;
+  color: var(--g-muted);
+  font-family: var(--g-font-sans);
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.gabes-metric-delta {
+  margin-top: 0.15rem;
+  color: var(--g-muted);
+  font-size: 0.7rem;
+  line-height: 1.25;
+}
+
+.gabes-metric-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--g-line);
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+}
+
+.gabes-ribbon-item {
+  min-width: 0;
+  min-height: 3.55rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--g-surface);
+}
+
+.gabes-ribbon-label {
+  font-size: 0.68rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gabes-ribbon-value {
+  min-width: 0;
+  margin-top: 0.15rem;
+  color: var(--g-ink);
+  font-size: clamp(0.88rem, 1.1vw, 1rem);
+  font-weight: 600;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .gabes-hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gabes-hero-card {
+    min-height: 4.65rem;
+  }
+
+  .gabes-metric-ribbon {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 330px) {
+  .gabes-metric-ribbon {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gabes-section-gap {
+  height: 0.42rem;
+}
+
+.gabes-plot-gap {
+  height: 0.56rem;
+}
+
+/* Cap chart width so a fixed-aspect figure can't overflow viewport height in the no-max-width wide layout. */
+[data-testid="stMain"] [data-testid="stImage"] img {
+  max-width: 50rem !important;
+  height: auto !important;
+}
+
+/* stFullScreenFrame stays full-width even once the image inside it is capped; re-center the capped image within it. */
+[data-testid="stMain"] [data-testid="stFullScreenFrame"] {
+  display: flex;
+  justify-content: center;
+}
+
+.stDataFrame, [data-testid="stTable"] {
+  border-radius: 8px;
+}

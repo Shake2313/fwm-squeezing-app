@@ -33,18 +33,20 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [x] git index 정리: stale staged 40개 unstage(`git restore --staged`, worktree 무변경) + 5일 된 `.git/index.lock`·`AUTO_MERGE.lock` 삭제
 - [x] 커밋: P0 파일만 (`docs/ui_redesign/**`, `tools/ui_audit.py`, CLAUDE.md 해당 3줄) — 임시 index + commit-tree
 
-## P1 · 토큰 · 타이포 · 포맷 (계산 코드 무접촉)
-- [ ] IBM Plex Sans(400/500/600/700) + Plex Mono(400/500) woff2 self-host → `static/fonts/` + `OFL.txt`.
-      출처·파일명·용량 명시 후 사용자 승인 받고 다운로드
-- [ ] `.streamlit/config.toml`: `font`/`codeFont`/`headingFont` + `[[theme.fontFaces]]`(`app/static/fonts/…`),
-      `baseRadius`, `buttonRadius`, `borderColor`, `showWidgetBorder`, `showSidebarBorder`, `primaryColor` 토큰화.
-      1.54 옵션 확인 완료(`theme.light.*`/`theme.dark.*` 분리 지원 → P5 다크에 재사용)
-- [ ] `_inject_css` → `assets/ui/gabes.css` 한 파일 + CSS 변수 토큰 (`decisions.md` D2 색표). testid 선택자 목록 주석화
-- [ ] 장식 제거: 그라데이션 헤어라인, hero left-border+gradient, group 색 점(`GROUP_STYLES`/`METRIC_STYLES` 색 → 중립),
-      BETA 로즈 pill → 외곽선 태그, Guide 그라데이션 버튼 → ghost
-- [ ] 숫자 포맷: `format` 미지정 slider에 step 기반 자릿수 + 실제 값 유효숫자 보존(86.94 유지). 순수 함수 + 단위 테스트
-- [ ] matplotlib 폰트: `gabes/plot_style.py` FONT_STACK 앞에 Plex 추가 검토 (없으면 fallback; 축 문자열 ASCII 유지)
-- [ ] 완료 기준: pytest 통과 · audit `p1` · 하드코딩 hex 색 `streamlit_app.py`에서 토큰 참조로 대체 · 스크린샷 비교
+## P1 · 토큰 · 타이포 · 포맷 (계산 코드 무접촉) — 2026-09-21
+- [x] IBM Plex woff2 12종 self-host → `static/fonts/` + `OFL.txt` (jsDelivr `@fontsource/*@5`, 207 KB, 사용자 승인)
+      Sans latin 400–700 · latin-ext/greek 400–600 · Mono latin 400–500
+- [x] `.streamlit/config.toml`: Plex `font`/`headingFont`/`codeFont` + `[[theme.fontFaces]]` 12개(unicodeRange),
+      `borderColor`, `showWidgetBorder`, `showSidebarBorder`, `baseRadius`/`buttonRadius` 0.5rem, `linkColor`, sidebar 배경
+- [x] 토큰 단일 출처 `gabes_ui/theme.py` (LIGHT + iframe용 DARK 최소) → `--g-*` CSS 변수.
+      `_inject_css` 458줄 → `assets/ui/gabes.css` (Streamlit testid 목록 머리 주석)
+- [x] 장식 제거: 그라데이션 헤어라인 · hero left-border+gradient · 그룹 색 점(`GROUP_STYLES`/`METRIC_STYLES`/
+      `_concept_style`/`_metric_style` 삭제) · BETA 로즈 pill → 외곽선 · Guide 그라데이션 버튼 → ghost + SVG 아이콘(이모지 제거)
+- [x] 숫자 포맷 `gabes_ui/format.py::slider_format` (`decisions.md` D7) + `tests/test_ui_format.py` 23개.
+      slider 표시 `40.00 → 40`, `75.00 → 75.0`, `0.00 → 0.0`; hero 숫자 Plex Mono, ribbon Sans tabular
+- [-] matplotlib 폰트: 보류 — woff2는 matplotlib 불가, TTF 별도 다운로드 필요. P2에서 앱 plot 제목 숨기면
+      남는 건 축 라벨·눈금뿐 → P5 재검토
+- [x] 완료 기준: `streamlit_app.py` 하드코딩 hex 0 · audit `p1` · 스크린샷 확인 · SABES 페이지 오류 0 · pytest (`log.md`)
 
 ## P2 · 셸 레이아웃
 - [ ] 상단 바: mark+wordmark · scheme 전환기(`role=combobox`, aria-label "Scheme" 유지) · ⓘ About popover
@@ -56,8 +58,10 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [ ] plot 카드: carousel iframe → 탭 + `st.image`/`st.pyplot`, figure 제목 앱에선 숨김(export 유지),
       툴바: Overlay data(comparison 있을 때만, 우측 패널) · Export popover
 - [ ] More pills: tables · diagnostic figures · extra views(Run) — `segmented_control` 선택 없음 기본
-- [ ] 모듈 분할: `streamlit_app.py`(2000줄) → `gabes_ui/{theme,layout,controls,readout,plot,overlay,export,guide}.py`,
+- [ ] 모듈 분할: `streamlit_app.py`(P1 후 ~1550줄) → `gabes_ui/{theme,layout,controls,readout,plot,overlay,export,guide}.py`,
       `streamlit_app.py`는 라우팅·캐시만. SABES 라우터 유지
+- [ ] 테스트 계약 갱신: `tests/test_sabes_page.py`가 `sabes_page.render` < `st.sidebar.image` 순서를 검사 → 로고 이동 시 라우터 선행 조건으로 수정.
+      `tests/test_fwm_excess_noise.py`는 `_skey`/`_render_param`/`_param_visible`을 AST로 떼어 실행 → 이 함수들은 자기완결 유지
 - [ ] 완료 기준: plot 5/5 첫 화면 · iframe 0 · main expander ≤ 1 · pytest · audit `p2` · `design:design-critique`
 
 ## P3 · ScrubField

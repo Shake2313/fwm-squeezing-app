@@ -63,3 +63,11 @@
   `docs/checklist.json`(과학 작업 레지스트리)엔 넣지 않음 — 구조·소유 세션 상이.
 - 측정 `tools/ui_audit.py`: Edge/Chrome headless + DevTools(tornado websocket, 추가 패키지 0).
   5 scheme × (1440×900, 390×844) 지표 + 첫 화면 PNG. 단계마다 tag 추가, `--compare`로 비교.
+
+## D7 · 숫자 표시 규칙 · 폰트 적용 범위 — 2026-09-21
+- slider 자릿수 = max(step 자릿수, min(기본값 자릿수, step 자릿수 + 2)). 명시 `format` 우선, 정수 slider는 Streamlit 기본.
+  예: step 1 → `40`; step 0.1·기본 86.94 → `86.94`; 계산된 기본 1326.2572434514343·step 1 → `1326.26`.
+  이유: 손으로 정한 off-grid 기본값은 그대로 보이되, 계산값의 부동소수 꼬리는 막음.
+- Plex Mono = hero 숫자·slider 값·눈금. ribbon 값은 Plex Sans tabular (좁은 칸에서 Mono가 줄바꿈 늘림).
+- status 문자열(`resolution-limited` 등)은 Sans (숫자로 시작할 때만 Mono, `looks_numeric`).
+- matplotlib 글꼴은 DejaVu Sans 유지 (woff2 불가). 재검토 P5.
