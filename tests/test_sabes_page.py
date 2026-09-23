@@ -286,8 +286,10 @@ def test_the_router_constant_matches_what_the_page_expects():
     source = (ROOT / "streamlit_app.py").read_text(encoding="utf-8")
     assert 'SABES_QUERY_VALUE = "sabes"' in source
     assert 'st.query_params.get("app") == SABES_QUERY_VALUE' in source
-    # The router must sit before GABES touches the sidebar, or both pages draw.
-    assert source.index("sabes_page.render") < source.index("st.sidebar.image")
+    # The router must sit before GABES draws its rail or top bar, or both pages draw.
+    router = source.index("sabes_page.render")
+    assert router < source.index("st.sidebar.")
+    assert router < source.index('key="gabes_topbar"')
 
 
 def test_sabes_is_not_reachable_from_the_scheme_registry():

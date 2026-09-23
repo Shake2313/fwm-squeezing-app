@@ -14,11 +14,12 @@ Usage
 DOM contract the redesign must keep (or update here in the same commit):
   * stApp carries Streamlit's data-test-script-state attribute;
   * the scheme switcher is a role=combobox whose aria-label contains "Scheme",
-    and its options are role=option elements whose text is the scheme title;
+    reachable with the sidebar closed (top bar), and its options are
+    role=option elements whose text is the scheme title;
   * the main plot is the largest img / iframe / canvas inside stMain;
   * the control rail is Streamlit's sidebar (stSidebar / stSidebarContent);
-  * the advanced toggle is a sidebar summary/button whose text starts with
-    "Advanced" or "Show advanced".
+  * the advanced toggle is a sidebar summary/button whose text contains
+    "Advanced controls", "Show advanced" or "Hide advanced".
 """
 from __future__ import annotations
 
@@ -369,20 +370,27 @@ async def wait_ready(cdp, *, expect_title=None, timeout=600.0, min_wait=0.0):
 
 
 async def switch_scheme(cdp, title):
-    pos = await cdp.js(_center_js(
-        "[...document.querySelectorAll('[role=\"combobox\"]')]"
-        ".find(e => (e.getAttribute('aria-label') || '').includes('Scheme'))"))
-    if not pos:
-        raise RuntimeError("scheme switcher (role=combobox, aria-label ~ 'Scheme') not found")
-    await cdp.click(*pos)
-    await asyncio.sleep(0.5)
+    """Open the scheme switcher and pick `title`; retried because a rerun that is
+    still settling can re-render the select and close its menu."""
     title_js = json.dumps(title)
-    opt = await cdp.js(_center_js(
-        "[...document.querySelectorAll('[role=\"option\"]')]"
-        f".find(e => (e.textContent || '').trim() === {title_js})"))
-    if not opt:
-        raise RuntimeError(f"scheme option {title!r} not found")
-    await cdp.click(*opt)
+    for _attempt in range(4):
+        await wait_ready(cdp, min_wait=0.5)
+        pos = await cdp.js(_center_js(
+            "[...document.querySelectorAll('[role=\"combobox\"]')]"
+            ".find(e => (e.getAttribute('aria-label') || '').includes('Scheme'))"))
+        if not pos:
+            raise RuntimeError("scheme switcher (role=combobox, aria-label ~ 'Scheme') not found")
+        await cdp.click(*pos)
+        for _poll in range(10):
+            await asyncio.sleep(0.25)
+            opt = await cdp.js(_center_js(
+                "[...document.querySelectorAll('[role=\"option\"]')]"
+                f".find(e => (e.textContent || '').trim() === {title_js})"))
+            if opt:
+                await cdp.click(*opt)
+                return
+        await cdp.send("Input.dispatchKeyEvent", type="keyDown", key="Escape")
+    raise RuntimeError(f"scheme option {title!r} not found")
 
 
 async def screenshot(cdp, path):
@@ -416,27 +424,35 @@ async def run_audit(url, out_dir, browser):
             results[row["name"]]["desktop"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_desktop.png")
             if row["n_advanced_controls"] and await cdp.js(JS_ADVANCED_TOGGLE):
-                await asyncio.sleep(1.2)
+                # The toggle may be client-side (expander) or a rerun (button):
+                # wait for a settled page either way.
+                await wait_ready(cdp, expect_title=row["title"], min_wait=1.2)
                 m = await cdp.js(JS_MEASURE)
                 results[row["name"]]["desktop_rail_advanced_open"] = m["rail_scroll_height"]
                 await cdp.js(JS_ADVANCED_TOGGLE)
-                await asyncio.sleep(0.8)
+                await wait_ready(cdp, expect_title=row["title"], min_wait=0.8)
 
         # Mobile pass: fresh session at phone width, sidebar closed for measurement.
         await cdp.send("Emulation.setDeviceMetricsOverride", **MOBILE)
         await cdp.send("Page.navigate", url=url)
         await wait_ready(cdp, expect_title=first, min_wait=1.0)
         for idx, row in enumerate(inventory):
-            if idx:
-                await cdp.js(JS_SIDEBAR + "(true)")
-                await asyncio.sleep(0.8)
-                await switch_scheme(cdp, row["title"])
-                await wait_ready(cdp, expect_title=row["title"], min_wait=1.0)
+            # The switcher lives in the top bar; an open sidebar would cover it.
             await cdp.js(JS_SIDEBAR + "(false)")
             await asyncio.sleep(0.8)
+            if idx:
+                await switch_scheme(cdp, row["title"])
+                await wait_ready(cdp, expect_title=row["title"], min_wait=1.0)
             log(f"mobile: {row['title']}")
             results[row["name"]]["mobile"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_mobile.png")
+    except Exception:
+        # Keep the page as it was at the failure for diagnosis.
+        try:
+            await screenshot(cdp, out_dir / "_failure.png")
+        except Exception:
+            pass
+        raise
     finally:
         await cdp.close()
         proc.terminate()

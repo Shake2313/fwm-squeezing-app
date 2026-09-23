@@ -14,22 +14,12 @@ Run with:
     streamlit run streamlit_app.py
 """
 import base64
-import csv
 import hashlib
 import importlib
-import re
 import inspect
-import json
-import subprocess
-from datetime import datetime
-from io import BytesIO, StringIO
 import matplotlib
-import zipfile
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
-import numpy as np
 import streamlit as st
-import streamlit.components.v1 as components
-from io import BytesIO
 from pathlib import Path
 from html import escape
 from threading import RLock
@@ -66,9 +56,16 @@ with _EXPERIMENTAL_CSV_IMPORT_LOCK:
     ExperimentalCSVError = _experimental_csv.ExperimentalCSVError
     load_experimental_csv = _experimental_csv.load_experimental_csv
 from gabes.plot_style import PALETTE, apply_gabes_plot_style
-from gabes.ui_metrics import partition_metrics, split_metric_value
+from gabes_ui import export as ui_export
 from gabes_ui import theme as ui_theme
-from gabes_ui.format import looks_numeric
+from gabes_ui.guide import guide_button
+from gabes_ui.readout import (
+    caption_html,
+    clean_choice_label,
+    metrics_table_markdown,
+    partition_readout,
+    strip_html,
+)
 
 APP_DIR = Path(__file__).resolve().parent
 _PLOT_LOCK = RLock()
@@ -81,7 +78,6 @@ def _asset_text(filename):
 
 THEME_BASE = (st.get_option("theme.base") or "light").lower()
 TOKENS = ui_theme.tokens(THEME_BASE)
-LOGO_ASSET = "gabes-logo-v3-dark.svg" if THEME_BASE == "dark" else "gabes-logo-v3.svg"
 ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v3.svg"
 
 # User's Guide, served as a static file (config.toml -> server.enableStaticServing).
@@ -91,95 +87,7 @@ ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v
 # by docs/Userguide/build_static_guide.py), so it needs no sibling assets.
 GUIDE_URL = "app/static/GABES_User_Guide.html"
 
-# BETA tag appended to the wordmark logo (this is "the GABES logo" the app shows):
-# a quiet outline, so the brightest thing on screen is a result, not chrome.
-_BETA_BADGE = (
-    '<g transform="translate(582 74)">'
-    f'<rect x="1.5" y="1.5" width="89" height="35" rx="6" fill="none" '
-    f'stroke="{TOKENS["line-strong"]}" stroke-width="3"/>'
-    '<text x="46" y="26" text-anchor="middle" '
-    'font-family="IBM Plex Sans, Segoe UI, Arial, sans-serif" '
-    f'font-size="20" font-weight="600" letter-spacing="2.5" fill="{TOKENS["muted"]}">BETA</text>'
-    '</g></svg>'
-)
-
-
-def _with_beta_badge(svg):
-    """Insert the BETA badge just before the closing </svg> tag."""
-    return svg.replace('</svg>', _BETA_BADGE, 1)
-
-
-# Guide launcher: a tiny in-app button that opens the User's Guide in a new tab,
-# RENDERED. Streamlit's static handler serves the file as text/plain (a security
-# default), so a plain <a> would show source. Instead we fetch the file and open
-# it as a text/html Blob — works on any computer with no external hosting. The
-# heavy 851 KB file is fetched only on click (then browser-cached); the launcher
-# itself is ~2 KB so it costs nothing on rerun.
-_GUIDE_LAUNCHER_TMPL = """<!doctype html><html><head><meta charset="utf-8"><style>
-@font-face{font-family:"IBM Plex Sans";font-weight:500;font-style:normal;
-  src:url("app/static/fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2");}
-html,body{margin:0;padding:0;background:transparent;overflow:hidden;font-family:__FONT__;}
-.bar{display:flex;justify-content:__JUSTIFY__;align-items:center;}
-button.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
-  cursor:pointer;__WIDTH__padding:.5rem .9rem;border-radius:8px;border:1px solid __LINE__;
-  background:__SURFACE__;color:__INK__;font-family:inherit;
-  font-weight:500;font-size:.85rem;line-height:1;transition:background .12s ease,border-color .12s ease;}
-button.gbtn:hover{background:__FILL__;border-color:__LINE_STRONG__;}
-button.gbtn:focus-visible{outline:2px solid __ACCENT__;outline-offset:2px;}
-button.gbtn svg{width:16px;height:16px;flex-shrink:0;}
-</style></head><body>
-<div class="bar">
-  <button class="gbtn" id="gbtn" title="사용자 안내서를 새 창에서 엽니다">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 4.5C6.8 3.6 5 3.2 2.5 3.3v8.4c2.5-.1 4.3.3 5.5 1.2 1.2-.9 3-1.3 5.5-1.2V3.3C11 3.2 9.2 3.6 8 4.5z"/><path d="M8 4.5v8.4"/></svg>
-    User&rsquo;s Guide
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11l6-6"/><path d="M6 5h5v5"/></svg></button>
-</div>
-<script>
-(function(){
-  var GURL="__URL__";
-  var btn=document.getElementById("gbtn");
-  btn.addEventListener("click", function(){
-    var old=btn.innerHTML; btn.disabled=true; btn.innerHTML="\\uC5EC\\uB294 \\uC911\\u2026";
-    var done=function(){ btn.disabled=false; btn.innerHTML=old; };
-    fetch(GURL).then(function(r){ return r.text(); }).then(function(t){
-      var u=URL.createObjectURL(new Blob([t],{type:"text/html"}));
-      if(!window.open(u,"_blank")){ window.open(GURL,"_blank"); }
-      done();
-    }).catch(function(){ window.open(GURL,"_blank"); done(); });
-  });
-})();
-</script>
-</body></html>"""
-
-
-def _guide_launcher(container=None, height=56, align="end", full_width=False):
-    justify = {"end": "flex-end", "center": "center",
-               "start": "flex-start"}.get(align, "flex-end")
-    html = (_GUIDE_LAUNCHER_TMPL
-            .replace("__JUSTIFY__", justify)
-            .replace("__WIDTH__", "width:100%;" if full_width else "")
-            .replace("__URL__", GUIDE_URL)
-            .replace("__FONT__", ui_theme.FONT_SANS)
-            .replace("__LINE_STRONG__", TOKENS["line-strong"])
-            .replace("__LINE__", TOKENS["line"])
-            .replace("__SURFACE__", TOKENS["surface"])
-            .replace("__INK__", TOKENS["ink-2"])
-            .replace("__FILL__", TOKENS["fill-soft"])
-            .replace("__ACCENT__", TOKENS["accent"]))
-    if container is None:
-        components.html(html, height=height)
-    else:
-        with container:
-            components.html(html, height=height)
-
-
-LOGO_SVG = _with_beta_badge(_asset_text(LOGO_ASSET))
 ICON_SVG = _asset_text(ICON_ASSET)
-SIDEBAR_LOGO_SVG = LOGO_SVG.replace(
-    'width="960" height="232" viewBox="0 0 960 232"',
-    'width="738" height="232" viewBox="0 0 738 232"',
-    1,
-)
 
 st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
@@ -190,8 +98,9 @@ READOUT_CACHE_VERSION = "hero-ribbon-v3-single-hero"
 
 def _inject_css():
     # Tokens + stylesheet live in gabes_ui/theme.py and assets/ui/gabes.css.
-    st.markdown(f"<style>{ui_theme.app_css(THEME_BASE)}</style>",
-                unsafe_allow_html=True)
+    # The anchor lets the stylesheet hide its own element slot (no layout gap).
+    st.markdown(f"<style>{ui_theme.app_css(THEME_BASE)}</style>"
+                "<span class='gabes-style-anchor'></span>", unsafe_allow_html=True)
 
 
 _inject_css()
@@ -245,271 +154,6 @@ def _cached_experimental_csv(
     )
 
 
-def _safe_token(value, fallback="item"):
-    token = str(value).strip() if value is not None else fallback
-    token = re.sub(r"[^A-Za-z0-9._-]+", "-", token).strip(".-_")
-    return token or fallback
-
-
-def _to_json_primitive(value):
-    if value is None:
-        return None
-    if isinstance(value, (str, bool, int, float)):
-        return value
-    if isinstance(value, (np.integer, np.floating, np.bool_)):
-        return value.item()
-    if isinstance(value, (bytes, bytearray)):
-        return value.hex()
-    if isinstance(value, datetime):
-        return value.isoformat()
-    if isinstance(value, complex):
-        return {
-            "__complex__": True,
-            "real": float(np.real(value)),
-            "imag": float(np.imag(value)),
-        }
-    if isinstance(value, np.ndarray):
-        if np.iscomplexobj(value):
-            return {
-                "__complex_array__": True,
-                "real": _to_json_primitive(np.real(value).tolist()),
-                "imag": _to_json_primitive(np.imag(value).tolist()),
-            }
-        return _to_json_primitive(value.tolist())
-    if isinstance(value, (list, tuple, set)):
-        return [_to_json_primitive(item) for item in value]
-    if isinstance(value, dict):
-        return {str(k): _to_json_primitive(v) for k, v in value.items()}
-    return str(value)
-
-
-def _split_label_unit(label):
-    text = str(label or "")
-    text = text.strip()
-    if text.endswith("]") and "[" in text:
-        base, unit = text.rsplit("[", 1)
-        return base.strip(), unit[:-1].strip()
-    return text, ""
-
-
-def _collect_figure_curve_payloads(fig):
-    payload = {"traces": []}
-    if not hasattr(fig, "axes"):
-        return payload
-    fig_title = getattr(fig, "_suptitle", None)
-    payload["figure_title"] = (
-        str(fig_title.get_text() if fig_title is not None else "").strip()
-        or "Figure"
-    )
-    for axis_index, axis in enumerate(fig.axes):
-        x_axis_label = axis.get_xlabel() or f"Axis {axis_index} X"
-        y_axis_label = axis.get_ylabel() or f"Axis {axis_index} Y"
-        x_name, x_unit = _split_label_unit(x_axis_label)
-        y_name, y_unit = _split_label_unit(y_axis_label)
-        for curve_index, curve in enumerate(axis.get_lines()):
-            label = str(curve.get_label() or f"curve {curve_index + 1}")
-            if label.startswith("_"):
-                label = f"line {curve_index + 1}"
-            x_data = np.asarray(curve.get_xdata())
-            y_data = np.asarray(curve.get_ydata())
-            if x_data.size == 0 or y_data.size == 0:
-                continue
-            n = min(len(x_data), len(y_data))
-            payload["traces"].append({
-                "axis_index": int(axis_index),
-                "curve_index": int(curve_index),
-                "figure_curve_label": label,
-                "x_label": x_name or "x",
-                "y_label": y_name or "y",
-                "x_unit": x_unit,
-                "y_unit": y_unit,
-                "x_data": _to_json_primitive(np.asarray(x_data[:n]).tolist()),
-                "y_data": _to_json_primitive(np.asarray(y_data[:n]).tolist()),
-                "color": str(curve.get_color()),
-            })
-    return payload
-
-
-def _collect_view_plot_payloads(view, main_figure):
-    payloads = []
-    seen = set()
-
-    def add_payload(label, figure_obj, source):
-        if not hasattr(figure_obj, "axes"):
-            return
-        fid = id(figure_obj)
-        if fid in seen:
-            return
-        seen.add(fid)
-        payload = _collect_figure_curve_payloads(figure_obj)
-        payload["label"] = str(label)
-        payload["source"] = source
-        payloads.append(payload)
-
-    add_payload("primary", main_figure, "figure")
-    for item in view.get("figure_views", ()):
-        if isinstance(item, dict):
-            add_payload(item.get("label", "view"), item.get("figure"), "figure_view")
-    for figure_title, extra_figure in view.get("figures", ()):
-        add_payload(figure_title, extra_figure, "diagnostic")
-    return payloads
-
-
-def _curve_csv_bytes(trace):
-    x_data = trace.get("x_data", [])
-    y_data = trace.get("y_data", [])
-    n = min(len(x_data), len(y_data))
-    x_unit = trace.get("x_unit", "")
-    y_unit = trace.get("y_unit", "")
-    x_name = trace.get("x_label", "x")
-    y_name = trace.get("y_label", "y")
-    x_hdr = f"{x_name}"
-    y_hdr = f"{y_name}"
-    if x_unit:
-        x_hdr = f"{x_hdr} [{x_unit}]"
-    if y_unit:
-        y_hdr = f"{y_hdr} [{y_unit}]"
-    buf = StringIO()
-    writer = csv.writer(buf)
-    writer.writerow([x_hdr, y_hdr])
-    for idx in range(n):
-        writer.writerow([x_data[idx], y_data[idx]])
-    return buf.getvalue().encode("utf-8")
-
-
-def _build_plot_zip_bytes(plot_payloads):
-    if not plot_payloads:
-        return None
-    has_traces = any(
-        bool(payload.get("traces")) for payload in plot_payloads if isinstance(payload, dict)
-    )
-    if not has_traces:
-        return None
-    zip_buffer = BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
-        for plot_index, plot_payload in enumerate(plot_payloads):
-            if not isinstance(plot_payload, dict):
-                continue
-            plot_label = _safe_token(plot_payload.get("label", f"figure_{plot_index}"), f"figure{plot_index}")
-            for trace_index, trace in enumerate(plot_payload.get("traces", ())):
-                if not isinstance(trace, dict):
-                    continue
-                trace_label = _safe_token(
-                    trace.get("figure_curve_label", f"trace{trace_index}"),
-                    f"trace{trace_index}")
-                curve_name = f"{plot_label}/{trace_label}.csv"
-                zf.writestr(curve_name, _curve_csv_bytes(trace))
-    return zip_buffer.getvalue()
-
-
-@st.cache_data(show_spinner=False, max_entries=1)
-def _app_revision():
-    try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"],
-            cwd=str(APP_DIR),
-            stderr=subprocess.STDOUT,
-            text=True,
-        ).strip()
-    except Exception:
-        return "unavailable"
-
-
-def _build_export_payload(
-    *,
-    scheme,
-    raw,
-    params,
-    view,
-    plot_payloads,
-    comparison_payload,
-    cache_version,
-):
-    return {
-        "generated_at_utc": datetime.utcnow().isoformat() + "Z",
-        "app_revision": _app_revision(),
-        "scheme": {
-            "name": scheme.name,
-            "title": scheme.title,
-            "cluster": scheme.cluster,
-            "cache_version": cache_version,
-            "defaults_version": scheme.defaults_version,
-            "readout_cache_version": READOUT_CACHE_VERSION,
-        },
-        "defaults": _to_json_primitive(scheme.defaults()),
-        "params": _to_json_primitive(params),
-        "raw": _to_json_primitive(raw),
-        "view": {
-            "metrics": _to_json_primitive(view.get("metrics", [])),
-            "hero_count": view.get("hero_count", None),
-            "tables": _to_json_primitive(view.get("tables", [])),
-            "figure_views": [
-                {"label": item.get("label"), "source": item.get("source")}
-                for item in plot_payloads
-                if isinstance(item, dict)
-            ],
-            "comparison": _to_json_primitive(comparison_payload),
-        },
-        "plots": _to_json_primitive(plot_payloads),
-    }
-
-
-def _render_export_panel(*, scheme, raw, params, view, plot_payloads, comparison_payload, cache_version):
-    if not plot_payloads and not comparison_payload:
-        return
-    payload = _build_export_payload(
-        scheme=scheme,
-        raw=raw,
-        params=params,
-        view=view,
-        plot_payloads=plot_payloads,
-        comparison_payload=comparison_payload,
-        cache_version=cache_version,
-    )
-    payload_json = json.dumps(payload, indent=2, ensure_ascii=False)
-    payload_bytes = payload_json.encode("utf-8")
-    timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    scheme_token = _safe_token(scheme.name or "gabes", "gabes")
-    with st.expander("Result export"):
-        st.caption("Download the arrays, parameters, and provenance used for this render.")
-        st.download_button(
-            "Download result bundle (JSON)",
-            data=payload_bytes,
-            file_name=f"{scheme_token}_result_{timestamp}.json",
-            mime="application/json",
-            key=f"download_bundle_{scheme_token}_{timestamp}",
-        )
-        plot_zip = _build_plot_zip_bytes(plot_payloads)
-        if plot_zip is not None:
-            st.download_button(
-                "Download all plotted curves (CSV zip)",
-                data=plot_zip,
-                file_name=f"{scheme_token}_plots_{timestamp}.zip",
-                mime="application/zip",
-                key=f"download_zip_{scheme_token}_{timestamp}",
-            )
-        export_curves = [
-            (plot_index, trace_index, trace)
-            for plot_index, plot_payload in enumerate(plot_payloads)
-            for trace_index, trace in enumerate(plot_payload.get("traces", ()))
-        ]
-        if export_curves:
-            st.markdown("Download individual plotted curves")
-            for row in range(0, len(export_curves), 2):
-                cols = st.columns(min(2, len(export_curves) - row))
-                for col_offset, col in enumerate(cols):
-                    plot_index, trace_index, curve = export_curves[row + col_offset]
-                    plot_label = plot_payloads[plot_index].get("label", f"Figure {plot_index + 1}")
-                    trace_label = curve.get("figure_curve_label", f"trace{trace_index}")
-                    key = _safe_token(f"{scheme_token}_{plot_label}_{trace_label}_{row}_{col_offset}")
-                    col.download_button(
-                        f"{plot_label}: {trace_label}",
-                        data=_curve_csv_bytes(curve),
-                        file_name=f"{_safe_token(plot_label)}__{_safe_token(trace_label)}.csv",
-                        mime="text/csv",
-                        key=f"download_curve_{key}",
-                    )
-
 def _close_fig(fig):
     import matplotlib.pyplot as plt
     plt.close(fig)
@@ -522,208 +166,6 @@ def _render_fig(fig):
     _close_fig(fig)
 
 
-def _figure_data_url(fig):
-    """Serialize one styled Matplotlib figure for the client-side carousel."""
-    buffer = BytesIO()
-    apply_gabes_plot_style(fig)
-    fig.savefig(
-        buffer,
-        format="png",
-        dpi=160,
-        bbox_inches="tight",
-        pad_inches=0.14,
-        facecolor=fig.get_facecolor(),
-        edgecolor="none",
-    )
-    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
-    return f"data:image/png;base64,{encoded}"
-
-
-def _plot_carousel_html(pages):
-    """Build an isolated, responsive carousel with arrows and touch dragging."""
-    labels = [str(page["label"]) for page in pages]
-    labels_json = json.dumps(labels, ensure_ascii=False).replace("<", "\\u003c")
-    slides = "".join(
-        '<div class="slide" role="group" '
-        f'aria-label="{escape(label, quote=True)}" '
-        f'aria-hidden="{"false" if index == 0 else "true"}">'
-        f'<img src="{url}" alt="{escape(label, quote=True)} graph" '
-        'draggable="false"></div>'
-        for index, (label, url) in enumerate(
-            zip(labels, (page["url"] for page in pages))
-        )
-    )
-    dots = "".join(
-        '<button class="dot" type="button" '
-        f'aria-label="Show {escape(label, quote=True)}" data-index="{index}"></button>'
-        for index, label in enumerate(labels)
-    )
-    surface, ink, muted = TOKENS["surface"], TOKENS["ink"], TOKENS["muted"]
-    border, accent = TOKENS["line"], TOKENS["accent"]
-    accent_ink, accent_soft = TOKENS["accent-ink"], TOKENS["accent-soft"]
-    return f"""<!doctype html>
-<html><head><meta charset="utf-8"><style>
-*{{box-sizing:border-box}}
-html,body{{margin:0;padding:0;background:transparent;overflow:hidden;
-  font-family:{ui_theme.FONT_SANS};
-  color:{ink};}}
-.shell{{position:relative;width:100%;padding:.15rem 3.15rem 0;}}
-.viewport{{width:100%;overflow:hidden;touch-action:pan-y pinch-zoom;border:1px solid {border};
-  border-radius:10px;background:{surface};
-  cursor:grab;}}
-.viewport.dragging{{cursor:grabbing;}}
-.track{{display:flex;width:100%;transform:translate3d(0,0,0);
-  transition:transform .28s cubic-bezier(.22,.75,.25,1);will-change:transform;}}
-.slide{{flex:0 0 100%;min-width:100%;display:grid;place-items:center;background:{surface};}}
-.slide img{{display:block;width:100%;height:auto;max-height:650px;object-fit:contain;
-  user-select:none;-webkit-user-drag:none;}}
-.nav{{position:absolute;z-index:3;top:calc(50% - 1.9rem);width:2.55rem;height:2.55rem;
-  border-radius:999px;border:1px solid {border};background:{surface};color:{accent_ink};
-  font-size:1.75rem;line-height:1;
-  display:grid;place-items:center;cursor:pointer;transition:.14s ease;}}
-.nav:hover:not(:disabled){{background:{accent_soft};}}
-.nav:focus-visible,.dot:focus-visible,.shell:focus-visible{{outline:2px solid {accent};
-  outline-offset:2px;}}
-.nav:disabled{{opacity:.28;cursor:default;box-shadow:none;}}
-.prev{{left:.2rem}} .next{{right:.2rem}}
-.meta{{min-height:2.45rem;display:flex;align-items:center;justify-content:center;
-  gap:.75rem;color:{muted};font-size:.82rem;padding:.45rem .25rem .15rem;}}
-.label{{min-width:8.5rem;color:{ink};font-weight:600;text-align:right;}}
-.dots{{display:flex;gap:.38rem;align-items:center;}}
-.dot{{width:.5rem;height:.5rem;padding:0;border:0;border-radius:999px;background:{border};
-  cursor:pointer;transition:width .18s ease,background .18s ease;}}
-.dot.active{{width:1.35rem;background:{accent};}}
-.hint-mobile{{display:none}}
-@media (max-width:700px), (hover:none), (pointer:coarse){{
-  .shell{{padding:.1rem 0 0}} .nav{{display:none}}
-  .viewport{{border-radius:10px}} .meta{{font-size:.78rem;gap:.55rem}}
-  .label{{min-width:0;text-align:center}} .hint-desktop{{display:none}}
-  .hint-mobile{{display:inline}}
-}}
-</style></head><body>
-<div class="shell" id="shell" tabindex="0" aria-label="Spectrum graph carousel">
-  <button class="nav prev" type="button" aria-label="Previous graph">&#8249;</button>
-  <div class="viewport" id="viewport"><div class="track" id="track">{slides}</div></div>
-  <button class="nav next" type="button" aria-label="Next graph">&#8250;</button>
-  <div class="meta"><span class="label" id="label" aria-live="polite"></span>
-    <span class="dots">{dots}</span>
-    <span class="hint-desktop">Use arrows</span><span class="hint-mobile">Swipe</span>
-  </div>
-</div>
-<script>
-(function(){{
-  const labels={labels_json};
-  const shell=document.getElementById("shell");
-  const viewport=document.getElementById("viewport");
-  const track=document.getElementById("track");
-  const label=document.getElementById("label");
-  const prev=document.querySelector(".prev");
-  const next=document.querySelector(".next");
-  const dots=Array.from(document.querySelectorAll(".dot"));
-  const slideNodes=Array.from(document.querySelectorAll(".slide"));
-  let index=0,startX=null,startY=null,lastX=null,horizontal=false,activePointer=null;
-
-  function resizeHost(){{
-    const height=Math.ceil(shell.getBoundingClientRect().bottom+3);
-    try{{
-      const frames=Array.from(window.parent.document.querySelectorAll("iframe"));
-      const frame=frames.find(item => item.contentWindow===window);
-      if(frame){{ frame.style.height=height+"px"; frame.setAttribute("height",height); }}
-    }}catch(_error){{}}
-  }}
-  function show(nextIndex,animate=true){{
-    index=Math.max(0,Math.min(labels.length-1,nextIndex));
-    track.style.transition=animate?"transform .28s cubic-bezier(.22,.75,.25,1)":"none";
-    track.style.transform=`translate3d(${{-index*100}}%,0,0)`;
-    label.textContent=`${{labels[index]}}  ·  ${{index+1}}/${{labels.length}}`;
-    prev.disabled=index===0; next.disabled=index===labels.length-1;
-    slideNodes.forEach((slide,i)=>{{
-      const active=i===index;
-      slide.setAttribute("aria-hidden",active?"false":"true");
-      if("inert" in slide)slide.inert=!active;
-    }});
-    dots.forEach((dot,i)=>{{dot.classList.toggle("active",i===index);
-      dot.setAttribute("aria-current",i===index?"true":"false");}});
-    requestAnimationFrame(resizeHost);
-  }}
-  prev.addEventListener("click",()=>show(index-1));
-  next.addEventListener("click",()=>show(index+1));
-  dots.forEach(dot=>dot.addEventListener("click",()=>show(Number(dot.dataset.index))));
-  shell.addEventListener("keydown",event=>{{
-    if(event.key==="ArrowLeft"){{event.preventDefault();show(index-1);}}
-    if(event.key==="ArrowRight"){{event.preventDefault();show(index+1);}}
-  }});
-  viewport.addEventListener("pointerdown",event=>{{
-    if(!event.isPrimary || activePointer!==null)return;
-    if(event.pointerType==="mouse" && event.button!==0)return;
-    activePointer=event.pointerId;
-    startX=lastX=event.clientX;startY=event.clientY;horizontal=false;
-    viewport.classList.add("dragging");
-    try{{viewport.setPointerCapture(event.pointerId);}}catch(_error){{}}
-  }});
-  viewport.addEventListener("pointermove",event=>{{
-    if(startX===null || event.pointerId!==activePointer)return;
-    lastX=event.clientX;
-    const dx=lastX-startX,dy=event.clientY-startY;
-    if(!horizontal && Math.max(Math.abs(dx),Math.abs(dy))>7){{
-      horizontal=Math.abs(dx)>Math.abs(dy);
-    }}
-    if(!horizontal)return;
-    event.preventDefault();
-    const edge=(index===0 && dx>0)||(index===labels.length-1 && dx<0);
-    const drag=edge?dx*.24:dx;
-    track.style.transition="none";
-    track.style.transform=`translate3d(calc(${{-index*100}}% + ${{drag}}px),0,0)`;
-  }});
-  function finish(event){{
-    if(startX===null || event.pointerId!==activePointer)return;
-    const dx=(lastX===null?startX:lastX)-startX;
-    const threshold=Math.min(90,Math.max(42,viewport.clientWidth*.12));
-    viewport.classList.remove("dragging");
-    if(horizontal && Math.abs(dx)>=threshold)show(index+(dx<0?1:-1));
-    else show(index);
-    startX=startY=lastX=null;horizontal=false;activePointer=null;
-  }}
-  viewport.addEventListener("pointerup",finish);
-  viewport.addEventListener("pointercancel",finish);
-  document.querySelectorAll("img").forEach(img=>{{
-    img.addEventListener("dragstart",event=>event.preventDefault());
-    if(!img.complete)img.addEventListener("load",resizeHost,{{once:true}});
-  }});
-  window.addEventListener("resize",resizeHost);
-  if(window.ResizeObserver)new ResizeObserver(resizeHost).observe(shell);
-  show(0,false);setTimeout(resizeHost,60);
-}})();
-</script></body></html>"""
-
-
-def _render_figure_views(figure_views):
-    """Render labelled figures as a no-recompute desktop/mobile carousel."""
-    pages = [
-        {"label": item.get("label", f"View {index + 1}"), "figure": item.get("figure")}
-        for index, item in enumerate(figure_views)
-        if isinstance(item, dict) and item.get("figure") is not None
-    ]
-    if not pages:
-        return
-    if len(pages) == 1:
-        _render_fig(pages[0]["figure"])
-        return
-
-    figures = [page["figure"] for page in pages]
-    try:
-        with _PLOT_LOCK:
-            for page in pages:
-                page["url"] = _figure_data_url(page["figure"])
-        components.html(_plot_carousel_html(pages), height=720, scrolling=False)
-    finally:
-        closed = set()
-        for fig in figures:
-            if id(fig) not in closed:
-                _close_fig(fig)
-                closed.add(id(fig))
-
-
 def _diagnostic_value(obj, *names, default=None):
     for name in names:
         if hasattr(obj, name):
@@ -731,8 +173,8 @@ def _diagnostic_value(obj, *names, default=None):
     return default
 
 
-def _render_experimental_comparison(view, scheme_name):
-    """Render a scheme-declared CSV panel and overlay its corrected trace.
+def _render_experimental_comparison(view, scheme_name, panel):
+    """Render a scheme-declared CSV panel into `panel` and overlay its trace.
 
     Uploaded bytes and alignment controls intentionally stay outside `params`:
     changing them must reuse both the heavy solve and the cached base figure.
@@ -752,7 +194,6 @@ def _render_experimental_comparison(view, scheme_name):
     raw_x_unit = descriptor.get("raw_x_unit", "Arb. unit")
     raw_y_unit = descriptor.get("raw_y_unit", "Arb. unit")
 
-    panel = st.expander("Experimental CSV comparison")
     with panel:
         panel.caption(
             "Column A = detuning, column B = detector signal. Later columns and "
@@ -1077,8 +518,8 @@ def _render_experimental_comparison(view, scheme_name):
             "framed_scale": float(framed_scale),
             "framed_shift": float(framed_shift),
             "comparison_trace": {
-                "detuning": _to_json_primitive(aligned_x),
-                "transmission": _to_json_primitive(aligned_y),
+                "detuning": ui_export.to_json_primitive(aligned_x),
+                "transmission": ui_export.to_json_primitive(aligned_y),
                 "detuning_unit": str(x_unit),
                 "transmission_unit": str(raw_y_unit),
                 "transmission_label": str(trace.transmission_label),
@@ -1089,7 +530,7 @@ def _render_experimental_comparison(view, scheme_name):
                 "ignored_rows": ignored_rows,
                 "merged_duplicates": merged_rows,
             },
-            "warnings": _to_json_primitive(
+            "warnings": ui_export.to_json_primitive(
                 tuple(str(item).strip() for item in comparison_warnings if str(item).strip())
             ),
         }
@@ -1110,13 +551,6 @@ def _current_params(scheme_name, scheme_obj):
 def _render_group_header(container, group):
     container.markdown(
         f"<div class='gabes-group-header'>{escape(group)}</div>",
-        unsafe_allow_html=True,
-    )
-
-
-def _render_advanced_subheader(container, group):
-    container.markdown(
-        f"<div class='gabes-advanced-subheader'>{escape(group)}</div>",
         unsafe_allow_html=True,
     )
 
@@ -1214,81 +648,200 @@ def _param_visible(scheme_name, sp):
     return True
 
 
-def _render_scheme_header(scheme):
-    st.markdown(
-        "<section class='gabes-header'>"
-        "<div class='gabes-header-row'>"
-        f"<span class='gabes-badge'>{escape(scheme.cluster)}</span>"
-        "</div>"
-        f"<h1>{escape(scheme.title)}</h1>"
-        f"<p>{escape(scheme.caption)}</p>"
-        "</section>",
-        unsafe_allow_html=True,
+# ----------------------------------------------------------------------
+# Shell pieces (docs/ui_redesign/decisions.md D1, D4)
+# ----------------------------------------------------------------------
+ADVANCED_FOLD = 6     # an advanced-only group longer than this starts folded
+
+
+def _brand_html(variant):
+    mark = base64.b64encode(ICON_SVG.encode("utf-8")).decode("ascii")
+    return (f"<div class='gabes-brand {variant}'>"
+            f"<img src='data:image/svg+xml;base64,{mark}' alt=''>"
+            "<b>GABES</b><small>beta</small></div>")
+
+
+def _render_regime_selector(scheme_name, sp, scheme_obj):
+    """The scheme's regime/mode switch, shown in the top bar."""
+    key = _skey(scheme_name, sp.name)
+    last_key = _skey(scheme_name, f"_{sp.name}_last")
+    options = list(sp.choices or ())
+    labels = getattr(sp, "choice_labels", None) or {}
+    if st.session_state.get(key) in options:
+        st.session_state[last_key] = st.session_state[key]
+
+    def _changed():
+        # A segmented control can be clicked off; keep a regime selected.
+        if st.session_state.get(key) not in options:
+            st.session_state[key] = st.session_state.get(last_key, sp.default)
+        if getattr(sp, "applies_defaults", False):
+            _apply_recommended_defaults(scheme_name, scheme_obj, key)
+
+    st.segmented_control(
+        sp.label, options, key=key, help=sp.help or None, on_change=_changed,
+        format_func=lambda value: clean_choice_label(labels.get(value, value)),
+        label_visibility="collapsed",
     )
 
 
-def _metric_card_html(metric, *, hero=False, primary=False):
-    label = str(metric.get("label", ""))
-    value = str(metric.get("value", ""))
-    delta = metric.get("delta")
-    help_text = metric.get("help") or ""
-    numeric = looks_numeric(value)
-    delta_html = ""
-    if delta is not None:
-        delta_html = f"<div class='gabes-metric-delta'>{escape(str(delta))}</div>"
-    title = escape(str(help_text))
-    if hero:
-        primary_class = " gabes-hero-card--primary" if primary else ""
-        number, unit = split_metric_value(value, kind=metric.get("kind"))
-        if unit is None:
-            value_html = escape(number)
+def _render_preset_selector(scheme_name, scheme_obj, sets):
+    """Recommended default sets (e.g. OD / SAS) as a segmented control whose
+    selection shows which set the current parameters match, if any."""
+    key = _skey(scheme_name, "_preset")
+    labels = list(sets)
+    current = _current_params(scheme_name, scheme_obj)
+    st.session_state[key] = next(
+        (label for label in labels
+         if all(current.get(k) == v for k, v in (sets[label] or {}).items())),
+        None,
+    )
+
+    def _changed():
+        picked = st.session_state.get(key)
+        if picked is not None:
+            _apply_default_set(scheme_name, scheme_obj, picked)
+
+    st.segmented_control(
+        "Defaults", labels, key=key, on_change=_changed,
+        format_func=lambda label: clean_choice_label(label).removesuffix(" default"),
+        help="Load a ready-made parameter set.", label_visibility="collapsed",
+    )
+
+
+def _apply_default_set(sname, sc, label):
+    cur = _current_params(sname, sc)
+    sets = sc.recommended_defaults(cur) or {}
+    for k, v in (sets.get(label) or {}).items():
+        st.session_state[_skey(sname, k)] = v
+
+
+def _pop_figure_title(fig):
+    """Take the title text off the image; the plot card shows it as a caption."""
+    parts = []
+    suptitle = getattr(fig, "_suptitle", None)
+    if suptitle is not None and suptitle.get_text().strip():
+        parts.append(suptitle.get_text())
+        suptitle.set_text("")
+    for ax in fig.axes:
+        for loc in ("left", "center", "right"):
+            text = ax.get_title(loc=loc)
+            if text.strip():
+                parts.append(text)
+                ax.set_title("", loc=loc)
+    return "  ·  ".join(parts)
+
+
+def _render_plot_card(view, scheme, spec_by_name):
+    """Plot views as tabs, overlay/export tools, figure. Returns (comparison
+    payload, plot payloads, export popover) for the export step."""
+    fig = view.get("figure")
+    pages = [
+        (item.get("label") or f"View {index + 1}", item.get("figure"))
+        for index, item in enumerate(view.get("figure_views", []) or [])
+        if isinstance(item, dict) and item.get("figure") is not None
+    ]
+    if not pages and fig is not None:
+        pages = [("Plot", fig)]
+    if not pages:
+        return None, [], None
+
+    labels = [label for label, _ in pages]
+    selected = labels[0]
+    card = st.container(border=True, key="gabes_plotcard")
+    with card:
+        head = st.container(horizontal=True, vertical_alignment="center",
+                            gap="small", key="gabes_plothead")
+    with head:
+        if len(pages) > 1:
+            view_key = _skey(scheme.name, "_plot_view")
+            last_key = _skey(scheme.name, "_plot_view_last")
+            if st.session_state.get(view_key) not in labels:
+                st.session_state[view_key] = (
+                    st.session_state.get(last_key)
+                    if st.session_state.get(last_key) in labels else labels[0])
+
+            def _keep_view(k=view_key, lk=last_key):
+                if st.session_state.get(k) not in labels:
+                    st.session_state[k] = st.session_state.get(lk, labels[0])
+
+            selected = st.segmented_control(
+                "Plot view", labels, key=view_key, on_change=_keep_view,
+                label_visibility="collapsed") or labels[0]
+            st.session_state[last_key] = selected
+        caption_slot = st.empty()
+        tools = st.container(horizontal=True, horizontal_alignment="right",
+                             vertical_alignment="center", gap="small",
+                             key="gabes_plottools")
+    with tools:
+        overlay_on = bool(view.get("comparison")) and st.toggle(
+            "Overlay data", key=_skey(scheme.name, "_overlay"))
+        export_box = st.popover("Export", icon=":material/download:", type="tertiary")
+
+    with card:
+        if overlay_on:
+            plot_area, panel = st.columns([2.6, 1], gap="medium")
+            comparison_payload = _render_experimental_comparison(view, scheme.name, panel)
         else:
-            value_html = (
-                f"<span class='gabes-hero-number'>{escape(number)}</span> "
-                f"<span class='gabes-hero-unit'>{escape(unit)}</span>"
-            )
-        return (
-            f"<article class='gabes-hero-card{primary_class}' "
-            f"title='{title}'>"
-            f"<div class='gabes-hero-label'>{escape(label)}</div>"
-            f"<div class='gabes-hero-value{' gabes-hero-value--num' if numeric else ''}'>"
-            f"{value_html}</div>"
-            f"{delta_html}"
-            "</article>"
-        )
-    return (
-        "<div class='gabes-ribbon-item' role='listitem' "
-        f"title='{title}'>"
-        f"<div class='gabes-ribbon-label'>{escape(label)}</div>"
-        f"<div class='gabes-ribbon-value{' gabes-ribbon-value--num' if numeric else ''}'>"
-        f"{escape(value)}</div>"
-        f"{delta_html}"
-        "</div>"
-    )
+            plot_area, comparison_payload = st.container(), None
+
+    plot_payloads = ui_export.collect_view_plot_payloads(view, fig)
+    page_fig = dict(pages)[selected]
+    caption = _pop_figure_title(page_fig)
+    with plot_area:
+        for control_name in view.get("figure_controls", []):
+            control_spec = spec_by_name.get(control_name)
+            if control_spec is not None:
+                _render_param(st, scheme.name, control_spec, scheme)
+        _render_fig(page_fig)
+    if caption:
+        caption_slot.markdown(
+            f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
+            f"{caption_html(caption)}</div>", unsafe_allow_html=True)
+    for _label, other in pages:
+        if other is not page_fig:
+            _close_fig(other)
+    return comparison_payload, plot_payloads, export_box
 
 
-def _render_metrics(metrics, *, hero_count=2):
-    heroes, ribbon = partition_metrics(metrics, hero_count=hero_count)
-    single_class = " gabes-hero-grid--single" if len(heroes) == 1 else ""
-    hero_cards = "".join(
-        _metric_card_html(metric, hero=True, primary=(index == 0))
-        for index, metric in enumerate(heroes)
-    )
-    ribbon_html = ""
-    if ribbon:
-        ribbon_cards = "".join(
-            _metric_card_html(metric) for metric in ribbon
-        )
-        ribbon_html = (
-            "<div class='gabes-metric-ribbon' role='list'>"
-            f"{ribbon_cards}</div>"
-        )
-    st.markdown(
-        "<section class='gabes-readout' aria-label='Key results'>"
-        f"<div class='gabes-hero-grid{single_class}'>{hero_cards}</div>"
-        f"{ribbon_html}</section>",
-        unsafe_allow_html=True,
-    )
+def _render_more(view, scheme, params, cache_version):
+    """Tables, diagnostic figures and heavy on-demand views behind pills."""
+    items = [(table["title"], "table", table) for table in view.get("tables", [])]
+    items += [(f"Diagnostic · {title}", "figure", extra_fig)
+              for title, extra_fig in view.get("figures", [])]
+    items += [(view_def.key, "extra", view_def) for view_def in scheme.extra_views()]
+    if not items:
+        return
+    labels = [label for label, _, _ in items]
+    more_key = _skey(scheme.name, "_more")
+    if st.session_state.get(more_key) not in labels:
+        st.session_state[more_key] = None
+    with st.container(horizontal=True, vertical_alignment="center", gap="small",
+                      key="gabes_more"):
+        st.markdown("<span class='g-more-label'>More</span>",
+                    unsafe_allow_html=True, width="content")
+        picked = st.pills("More", labels, key=more_key, label_visibility="collapsed")
+    for label, kind, obj in items:
+        if kind == "figure" and label != picked:
+            _close_fig(obj)
+    if picked is None:
+        return
+    _label, kind, obj = items[labels.index(picked)]
+    with st.container(border=True, key="gabes_morepanel"):
+        if kind == "table":
+            st.markdown(obj["markdown"])
+        elif kind == "figure":
+            _render_fig(obj)
+        else:
+            st.caption(obj.description)
+            if st.button("Run", key=f"run__{scheme.name}__{obj.key}",
+                         icon=":material/play_arrow:"):
+                extra_keys = set(scheme.recompute_keys()) | set(obj.param_keys)
+                extra_items = tuple(sorted(
+                    (key, params[key]) for key in extra_keys if key in params))
+                with st.spinner("Running…"):
+                    data = _cached_extra(scheme.name, obj.key, extra_items, cache_version)
+                _render_fig(obj.render(data, params) if obj.render_with_params
+                            else obj.render(data))
 
 
 # ----------------------------------------------------------------------
@@ -1319,10 +872,11 @@ if st.query_params.get("app") == SABES_QUERY_VALUE:
 
 
 # ----------------------------------------------------------------------
-# Sidebar — scheme selection
+# Top bar — brand, scheme, about, regime, guide, SABES
 # ----------------------------------------------------------------------
-st.sidebar.image(SIDEBAR_LOGO_SVG, width=230)
-_guide_launcher(st.sidebar, height=46, align="center", full_width=True)
+# The rail's brand band and the top bar share one 52 px line; the top-bar copy
+# of the brand shows only while the sidebar is collapsed (phone, or folded).
+st.sidebar.markdown(_brand_html("gabes-brand--rail"), unsafe_allow_html=True)
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
@@ -1335,11 +889,14 @@ if saved_scheme_title in _scheme_title_migrations:
     st.session_state["_scheme_choice"] = _scheme_title_migrations[saved_scheme_title]
 elif saved_scheme_title is not None and saved_scheme_title not in titles:
     del st.session_state["_scheme_choice"]
-choice = st.sidebar.selectbox("Scheme", titles, key="_scheme_choice",
-                              help="Pick the experiment / physics to model.")
+
+topbar = st.container(horizontal=True, vertical_alignment="center", gap="small",
+                      key="gabes_topbar")
+with topbar:
+    st.markdown(_brand_html("gabes-brand--top"), unsafe_allow_html=True, width="content")
+    choice = st.selectbox("Scheme", titles, key="_scheme_choice",
+                          label_visibility="collapsed", width=310)
 scheme = all_schemes[titles.index(choice)]
-st.sidebar.caption(f"Cluster {scheme.cluster}")
-st.sidebar.divider()
 
 specs = scheme.param_schema()
 defaults_version = getattr(scheme, "defaults_version", "1")
@@ -1355,6 +912,54 @@ else:
         # values to the browser when they become visible again.
         st.session_state[key] = st.session_state.get(key, sp.default)
 
+# The regime/mode switch moves to the top bar: the first segmented control that
+# applies a recommended default set (FWM Mode, Λ/Rydberg/magneto Regime).
+regime_spec = next(
+    (sp for sp in specs
+     if getattr(sp, "applies_defaults", False)
+     and getattr(sp, "control", "auto") == "segmented"
+     and _param_visible(scheme.name, sp)),
+    None,
+)
+# Schemes without such a switch offer their recommended sets (e.g. OD / SAS)
+# there instead. Probed defensively so a scheme without the hook never breaks.
+_rec_fn = getattr(scheme, "recommended_defaults", None)
+_rec_sets = None
+if callable(_rec_fn):
+    try:
+        _rec_sets = _rec_fn(_current_params(scheme.name, scheme))
+    except Exception:
+        _rec_sets = None
+_mode_driven_defaults = any(getattr(sp, "applies_defaults", False) for sp in specs)
+
+with topbar:
+    about = st.popover("About", icon=":material/info:", type="tertiary",
+                       help="What this scheme models, and its references.")
+    if regime_spec is not None:
+        _render_regime_selector(scheme.name, regime_spec, scheme)
+    elif isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
+        _render_preset_selector(scheme.name, scheme, _rec_sets)
+    with st.container(horizontal=True, horizontal_alignment="right",
+                      vertical_alignment="center", gap="small", key="gabes_topbar_end"):
+        guide_button(GUIDE_URL)
+        st.button("SABES", icon=":material/north_east:", icon_position="right",
+                  type="tertiary", on_click=_open_sabes,
+                  help="A separate, lab-facing simulator for one experiment: the "
+                       "EOM-based 85Rb twin-beam squeezing setup, driven from "
+                       "primary settings (waveplate angles, generator frequency, "
+                       "lens choices).")
+with about:
+    st.caption(f"Cluster {scheme.cluster}")
+    st.markdown(scheme.caption)
+    info = scheme.info()
+    if info:
+        st.divider()
+        st.markdown(info)
+
+
+# ----------------------------------------------------------------------
+# Control rail
+# ----------------------------------------------------------------------
 # Presets — one click overwrites the relevant sliders.
 scheme_presets = scheme.presets()
 if scheme_presets and getattr(scheme, "presets_group", None):
@@ -1363,102 +968,56 @@ for preset in scheme_presets:
     def _apply(p=preset, sname=scheme.name):
         for k, v in p.values.items():
             st.session_state[_skey(sname, k)] = v
-    st.sidebar.button(f"{preset.icon} {preset.name}", on_click=_apply,
+    st.sidebar.button(preset.name, on_click=_apply,
                       use_container_width=True, help=preset.help)
 
-# Context-aware default buttons — one per labelled preset the scheme offers for
-# the current selection (e.g. "OD default" / "SAS default"). Probed defensively so
-# a scheme without the optional hook never breaks the app.
-_rec_fn = getattr(scheme, "recommended_defaults", None)
-_rec_sets = None
-if callable(_rec_fn):
-    try:
-        # Probe with the live selection (not static defaults) so a scheme can
-        # offer readout/mode-dependent default buttons (e.g. magneto shows
-        # transmission regimes vs an NMOR default). Keys are stable for SAS/FWM.
-        _rec_sets = _rec_fn(_current_params(scheme.name, scheme))
-    except Exception:
-        _rec_sets = None
-# A control flagged applies_defaults (e.g. FWM's Mode) already applies these sets
-# on selection, so the standalone "Default" buttons would just duplicate it.
-_mode_driven_defaults = any(getattr(sp, "applies_defaults", False) for sp in specs)
-def _apply_default_set(sname, sc, label):
-    cur = _current_params(sname, sc)
-    sets = sc.recommended_defaults(cur) or {}
-    for k, v in (sets.get(label) or {}).items():
-        st.session_state[_skey(sname, k)] = v
-
-if isinstance(_rec_sets, dict) and _rec_sets and not _mode_driven_defaults:
-    if getattr(scheme, "recommended_defaults_as_dropdown", False):
-        # Dropdown that keeps the chosen regime visible; picking one loads its
-        # full parameter set. Defaults to the first regime offered.
-        _options = list(_rec_sets)
-        _dkey = _skey(scheme.name, "_default_choice")
-        if st.session_state.get(_dkey) not in _options:
-            st.session_state[_dkey] = _options[0]
-
-        def _apply_default_dropdown(sname=scheme.name, sc=scheme, dkey=_dkey):
-            _apply_default_set(sname, sc, st.session_state.get(dkey))
-
-        st.sidebar.selectbox("Default", _options, key=_dkey,
-                             on_change=_apply_default_dropdown,
-                             help="Load a ready-made regime's full parameter set.")
-    else:
-        _render_group_header(st.sidebar, "Default")
-        _cols = st.sidebar.columns(len(_rec_sets))
-        for _col, _label in zip(_cols, _rec_sets):
-            def _apply_default(sname=scheme.name, sc=scheme, lbl=_label):
-                _apply_default_set(sname, sc, lbl)
-            _short = _label.replace(" default", "")
-            _col.button(_short, on_click=_apply_default, use_container_width=True)
-
-# Controls — grouped sections; advanced/numeric knobs fold into an expander.
-visible_specs = [sp for sp in specs if _param_visible(scheme.name, sp)]
+# Grouped sections. "Show advanced" reveals advanced knobs inside the group they
+# belong to (a pump waist next to the pump power); advanced-only groups follow,
+# folded when long.
+visible_specs = [sp for sp in specs
+                 if _param_visible(scheme.name, sp) and sp is not regime_spec]
 params = {}
 group_order = []
 for sp in visible_specs:
     if not sp.advanced and sp.group not in group_order:
         group_order.append(sp.group)
+advanced = [sp for sp in visible_specs if sp.advanced]
+advanced_by_group = {}
+for sp in advanced:
+    advanced_by_group.setdefault(getattr(sp, "advanced_group", "") or sp.group, []).append(sp)
+advanced_key = _skey(scheme.name, "_show_advanced")
+show_advanced = bool(st.session_state.get(advanced_key, False))
 
 for g in group_order:
     _render_group_header(st.sidebar, g)
     for sp in visible_specs:
         if sp.group == g and not sp.advanced:
             params[sp.name] = _render_param(st.sidebar, scheme.name, sp, scheme)
+    if show_advanced:
+        for sp in advanced_by_group.pop(g, []):
+            params[sp.name] = _render_param(st.sidebar, scheme.name, sp, scheme)
 
-advanced = [sp for sp in visible_specs if sp.advanced]
 if advanced:
-    exp = st.sidebar.expander("Advanced controls")
-    advanced_group_order = []
-    for sp in advanced:
-        group = getattr(sp, "advanced_group", "") or sp.group
-        if group not in advanced_group_order:
-            advanced_group_order.append(group)
-    show_advanced_subgroups = len(advanced_group_order) > 1
-    for group in advanced_group_order:
-        group_specs = [
-            sp for sp in advanced
-            if (getattr(sp, "advanced_group", "") or sp.group) == group
-        ]
-        if show_advanced_subgroups:
-            _render_advanced_subheader(exp, group)
-        for sp in group_specs:
-            params[sp.name] = _render_param(exp, scheme.name, sp, scheme)
+    def _toggle_advanced(k=advanced_key):
+        st.session_state[k] = not st.session_state.get(k, False)
+
+    st.sidebar.button(
+        "Hide advanced" if show_advanced else f"Show advanced · {len(advanced)}",
+        key=_skey(scheme.name, "_advanced_toggle"), on_click=_toggle_advanced,
+        type="tertiary", icon=":material/tune:")
+    if show_advanced:
+        for group, group_specs in advanced_by_group.items():
+            if len(group_specs) > ADVANCED_FOLD:
+                box = st.sidebar.expander(f"{group} · {len(group_specs)}")
+            else:
+                _render_group_header(st.sidebar, group)
+                box = st.sidebar
+            for sp in group_specs:
+                params[sp.name] = _render_param(box, scheme.name, sp, scheme)
 
 for sp in specs:
     if sp.name not in params:
         params[sp.name] = st.session_state[_skey(scheme.name, sp.name)]
-
-# Foot of the sidebar: the way across to SABES. Kept last and visually separate
-# because it leaves this app rather than changing anything in it.
-st.sidebar.divider()
-st.sidebar.button("SABES — specific setup simulator →", on_click=_open_sabes,
-                  use_container_width=True,
-                  help="A separate, lab-facing simulator for one experiment: the "
-                       "EOM-based 85Rb twin-beam squeezing setup. Drives this "
-                       "engine from primary settings (waveplate angles, generator "
-                       "frequency, lens choices) instead of processed physics "
-                       "parameters.")
 
 
 # ----------------------------------------------------------------------
@@ -1480,70 +1039,33 @@ else:
 
 
 # ----------------------------------------------------------------------
-# Header + readout
+# Readout strip → plot card → More
 # ----------------------------------------------------------------------
-_render_scheme_header(scheme)
-
 metrics = view.get("metrics", [])
 if metrics:
-    _render_metrics(metrics, hero_count=view.get("hero_count", 2))
-    st.markdown("<div class='gabes-section-gap'></div>", unsafe_allow_html=True)
-
-comparison_payload = _render_experimental_comparison(view, scheme.name)
+    heroes, secondary, statuses, overflow = partition_readout(
+        metrics, hero_count=view.get("hero_count") or 2)
+    with st.container(horizontal=True, vertical_alignment="center", gap="small",
+                      key="gabes_readout"):
+        st.markdown(strip_html(heroes, secondary, statuses), unsafe_allow_html=True)
+        if overflow:
+            with st.popover(f"+{len(overflow)} more", type="tertiary"):
+                st.markdown(metrics_table_markdown(metrics))
 
 spec_by_name = {sp.name: sp for sp in specs}
-for control_name in view.get("figure_controls", []):
-    control_spec = spec_by_name.get(control_name)
-    if control_spec is not None:
-        _render_param(st, scheme.name, control_spec, scheme)
+comparison_payload, plot_payloads, export_box = _render_plot_card(view, scheme, spec_by_name)
 
-fig = view.get("figure")
-plot_payloads = _collect_view_plot_payloads(view, fig)
-if fig is not None:
-    figure_views = view.get("figure_views", [])
-    if figure_views:
-        _render_figure_views(figure_views)
-    else:
-        _render_fig(fig)
+_render_more(view, scheme, params, cache_version)
 
-# ----------------------------------------------------------------------
-# Reference / derived tables / optional heavy views
-# ----------------------------------------------------------------------
-info = scheme.info()
-if info:
-    with st.expander("Reference / about"):
-        st.markdown(info)
-
-for table in view.get("tables", []):
-    with st.expander(table["title"]):
-        st.markdown(table["markdown"])
-
-for _title, _extra_fig in view.get("figures", []):
-    with st.expander(f"Diagnostic plot · {_title}"):
-        _render_fig(_extra_fig)
-
-for view_def in scheme.extra_views():
-    with st.expander(view_def.key):
-        st.caption(view_def.description)
-        if st.button("Run", key=f"run__{scheme.name}__{view_def.key}"):
-            extra_keys = set(scheme.recompute_keys()) | set(view_def.param_keys)
-            extra_items = tuple(sorted(
-                (key, params[key]) for key in extra_keys if key in params))
-            with st.spinner("Running…"):
-                data = _cached_extra(
-                    scheme.name, view_def.key, extra_items, cache_version)
-            extra_fig = (view_def.render(data, params)
-                         if view_def.render_with_params else view_def.render(data))
-            st.markdown("<div class='gabes-plot-gap'></div>", unsafe_allow_html=True)
-            _render_fig(extra_fig)
-
-_render_export_panel(
-    scheme=scheme,
-    raw=raw,
-    params=params,
-    view=view,
-    plot_payloads=plot_payloads,
-    comparison_payload=comparison_payload,
-    cache_version=cache_version,
-)
-
+if export_box is not None:
+    ui_export.render_export(
+        export_box,
+        scheme=scheme,
+        raw=raw,
+        params=params,
+        view=view,
+        plot_payloads=plot_payloads,
+        comparison_payload=comparison_payload,
+        cache_version=cache_version,
+        readout_cache_version=READOUT_CACHE_VERSION,
+    )

@@ -1,0 +1,272 @@
+{
+ "tag": "p2",
+ "git_head": "4cb011f",
+ "created": "2026-09-22 16:53:53 +0900",
+ "url_mode": "spawned",
+ "meta": {
+  "transfer_kb": 1709,
+  "requests": 67
+ },
+ "schemes": {
+  "sas": {
+   "name": "sas",
+   "title": "Absorption spectroscopy (OD / SAS)",
+   "n_main_controls": 6,
+   "n_advanced_controls": 8,
+   "ready_ms_desktop": 5289,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 238,
+     "bottom": 754,
+     "width": 1079,
+     "height": 516,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 900,
+    "rail_open": true,
+    "rail_scroll_height": 900,
+    "help_glyphs": 17,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 64,
+    "dom_nodes": 855
+   },
+   "desktop_rail_advanced_open": 1633,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 529,
+     "bottom": 689,
+     "width": 334,
+     "height": 160,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "help_glyphs": 17,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 30,
+    "dom_nodes": 862
+   }
+  },
+  "lambda": {
+   "name": "lambda",
+   "title": "Λ coherence (EIT / AT / CPT)",
+   "n_main_controls": 9,
+   "n_advanced_controls": 4,
+   "ready_ms_desktop": 3846,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 229,
+     "bottom": 857,
+     "width": 864,
+     "height": 628,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 942,
+    "rail_open": true,
+    "rail_scroll_height": 1036,
+    "help_glyphs": 17,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 56,
+    "dom_nodes": 571
+   },
+   "desktop_rail_advanced_open": 1471,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 349,
+     "bottom": 592,
+     "width": 334,
+     "height": 243,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "help_glyphs": 17,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 20,
+    "dom_nodes": 578
+   }
+  },
+  "rydberg_eit": {
+   "name": "rydberg_eit",
+   "title": "Rydberg-EIT electrometry",
+   "n_main_controls": 10,
+   "n_advanced_controls": 21,
+   "ready_ms_desktop": 1705,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 229,
+     "bottom": 804,
+     "width": 1079,
+     "height": 575,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 900,
+    "rail_open": true,
+    "rail_scroll_height": 1091,
+    "help_glyphs": 21,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 66,
+    "dom_nodes": 645
+   },
+   "desktop_rail_advanced_open": 2029,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 416,
+     "bottom": 594,
+     "width": 334,
+     "height": 178,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "help_glyphs": 21,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 26,
+    "dom_nodes": 652
+   }
+  },
+  "magneto": {
+   "name": "magneto",
+   "title": "Magneto-optics (Hanle/MOR)",
+   "n_main_controls": 9,
+   "n_advanced_controls": 10,
+   "ready_ms_desktop": 1723,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 229,
+     "bottom": 778,
+     "width": 1079,
+     "height": 549,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 900,
+    "rail_open": true,
+    "rail_scroll_height": 1128,
+    "help_glyphs": 23,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 60,
+    "dom_nodes": 630
+   },
+   "desktop_rail_advanced_open": 2178,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 480,
+     "bottom": 650,
+     "width": 334,
+     "height": 170,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "help_glyphs": 23,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 26,
+    "dom_nodes": 637
+   }
+  },
+  "fwm": {
+   "name": "fwm",
+   "title": "Four-wave mixing (Squeezing / Biphoton)",
+   "n_main_controls": 13,
+   "n_advanced_controls": 3,
+   "ready_ms_desktop": 1729,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 251,
+     "bottom": 879,
+     "width": 869,
+     "height": 628,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 965,
+    "rail_open": true,
+    "rail_scroll_height": 1400,
+    "help_glyphs": 27,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 60,
+    "dom_nodes": 760
+   },
+   "desktop_rail_advanced_open": 1757,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 390,
+     "bottom": 631,
+     "width": 334,
+     "height": 241,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "help_glyphs": 27,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 23,
+    "dom_nodes": 767
+   }
+  }
+ }
+}

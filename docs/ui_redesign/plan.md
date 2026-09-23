@@ -48,21 +48,20 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
       남는 건 축 라벨·눈금뿐 → P5 재검토
 - [x] 완료 기준: `streamlit_app.py` 하드코딩 hex 0 · audit `p1` · 스크린샷 확인 · SABES 페이지 오류 0 · pytest (`log.md`)
 
-## P2 · 셸 레이아웃
-- [ ] 상단 바: mark+wordmark · scheme 전환기(`role=combobox`, aria-label "Scheme" 유지) · ⓘ About popover
-      (caption + `info()` + cluster) · regime/mode segmented (`applies_defaults` param 또는 `recommended_defaults`) ·
-      Guide(components v2 런처, iframe 제거) · SABES 링크
-- [ ] rail: 로고·Guide·Scheme·Cluster·SABES 제거, 그룹 헤더 중립 small caps, Default 버튼 제거(상단 segmented로 통합)
-- [ ] Advanced: 각 그룹 안 인라인 공개, advanced 전용 그룹은 하단, 항목 > 6 그룹은 접힘 + 개수
-- [ ] readout strip: hero/ribbon → 한 줄 strip. status → 칩, `delta` → 보조줄, 전체 metric popover(숨긴 metric 있을 때만)
-- [ ] plot 카드: carousel iframe → 탭 + `st.image`/`st.pyplot`, figure 제목 앱에선 숨김(export 유지),
-      툴바: Overlay data(comparison 있을 때만, 우측 패널) · Export popover
-- [ ] More pills: tables · diagnostic figures · extra views(Run) — `segmented_control` 선택 없음 기본
-- [ ] 모듈 분할: `streamlit_app.py`(P1 후 ~1550줄) → `gabes_ui/{theme,layout,controls,readout,plot,overlay,export,guide}.py`,
-      `streamlit_app.py`는 라우팅·캐시만. SABES 라우터 유지
-- [ ] 테스트 계약 갱신: `tests/test_sabes_page.py`가 `sabes_page.render` < `st.sidebar.image` 순서를 검사 → 로고 이동 시 라우터 선행 조건으로 수정.
-      `tests/test_fwm_excess_noise.py`는 `_skey`/`_render_param`/`_param_visible`을 AST로 떼어 실행 → 이 함수들은 자기완결 유지
-- [ ] 완료 기준: plot 5/5 첫 화면 · iframe 0 · main expander ≤ 1 · pytest · audit `p2` · `design:design-critique`
+## P2 · 셸 레이아웃 — 2026-09-22
+- [x] 상단 바: 브랜드(접힘 때만) · scheme 전환기(`role=combobox`, aria-label "Scheme") · About popover(cluster + caption + `info()`) ·
+      regime/preset segmented (`decisions.md` D8) · Guide(`st.components.v2`, iframe 제거) · SABES
+- [x] rail: 로고·Guide·Scheme·Cluster·SABES·Default 버튼 제거, 52 px 브랜드 띠
+- [x] Advanced: 그룹 안 인라인 공개, advanced 전용 그룹 하단, 7개 이상 접힘+개수
+- [x] readout strip: status 칩 · delta 보조줄 · "+N more" popover(전 metric + help)
+- [x] plot 카드: 밑줄 탭(선택 그림만 렌더) · 제목 → 캡션 · Overlay data 토글 → 우측 패널 · Export popover(지연 생성)
+- [x] More pills: 표 · 진단 그림 · extra view(Run)
+- [~] 모듈 분할: `gabes_ui/{export,guide,readout}.py` 분리 → `streamlit_app.py` 2007 → ~1070줄.
+      상단 바·rail·plot 카드 조립은 아직 `streamlit_app.py` (테스트가 `_render_param` 등을 AST로 떼어 씀) → P3에서 controls 모듈과 함께
+- [x] 테스트 계약 갱신: `tests/test_sabes_page.py` 라우터 순서 검사 → `st.sidebar.` / `key="gabes_topbar"` 기준
+- [x] `tests/test_ui_readout.py` 10개 (partition·strip·칩·캡션·이모지 제거)
+- [x] `tools/ui_audit.py`: 버튼형 Advanced 토글 대기, 전환 재시도, 폰은 sidebar 닫고 전환, 실패 시 `_failure.png`
+- [x] 완료 기준: plot 5/5 첫 화면 · iframe 0 · main expander 0 · audit `p2` · `design:design-critique`(`log.md`) · pytest
 
 ## P3 · ScrubField
 - [ ] `st.components.v2` 인라인 컴포넌트 (html/css/js). props: label, unit, min, max, step, value, default, endpoints,
@@ -73,19 +72,23 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [ ] fallback: v2 없음/예외 → `st.slider`
 - [ ] 단위 파서 Python 미러 + 표 기반 테스트, AppTest로 fallback 경로
 - [ ] 접근성: `role=spinbutton`, aria-value*, focus-visible, 라벨 hover help (`aria-describedby`) → `design:accessibility-review`
+- [ ] 모듈 분할 마무리: controls(rail 조립·ScrubField)·shell(상단 바)·plotcard → `gabes_ui/`, AST 테스트 대상 함수 이동 시 테스트도 갱신
+- [ ] slider 끝점 캡션 행(◀ OD / SAS ▶)을 track 양끝 인라인으로 (P2 critique)
 - [ ] 완료 기준: rail px/control ≤ 60 · help glyph 0 · rail ≤ 900 · ready ms 악화 없음 · audit `p3`
 
 ## P4 · readout 계약 (`gabes/schemes/*` 수정 — 계산 세션 커밋 후)
 - [ ] `base.py` 계약 문서화: `tier`, `attach_to`, `evidence` (`decisions.md` D5)
 - [ ] 5 scheme 태깅. SAS: FWHM + resolution 칩(근거 3) · FWM: 3칸 + 보조줄 · Rydberg/magneto/lambda 동일 규칙
 - [ ] magneto regime 이모지 라벨 정리, 긴 choice label 단축 (`design:ux-copy`)
-- [ ] figure 제목 속 파생값(Rydberg Ω_c 등) → `detail` metric 승격
+- [ ] figure 제목 속 파생값(Rydberg Ω_c 등) → `detail` metric 승격 → 캡션 유지 여부 재결정 (D8)
+- [ ] status 칩을 대상 값 옆으로 (`attach_to`) — P2에선 strip 끝 (critique)
+- [ ] SAS strip: 근거 진단값(edges·samples·scan-edge) 대신 Doppler FWHM·phase가 보이도록 tier 태깅
 - [ ] 완료 기준: strip ≤ 5칸 · 모든 metric ≤ 1 조작 도달 · pytest · audit `p4`
 
 ## P5 · 마감
-- [ ] 폰 390: plot 상단 ≤ 360, Controls 버튼 → sidebar
+- [ ] 폰 390: plot 상단 ≤ 360 (P2: 349–530), 보조 metric 폰에선 2칸, plot 머리 Export 행 축소, 터치 타깃 44 px
 - [ ] 다크: `theme.dark.*` + CSS 토큰 + matplotlib 팔레트(`dataviz`) — 선택
-- [ ] a11y 감사(WCAG AA), ux-copy 점검
+- [ ] a11y 감사(WCAG AA), ux-copy 점검 (Export 단일 곡선 이름 "primary: line N", 긴 extra view 이름)
 - [ ] SABES 페이지 토큰 정렬
 - [ ] User Guide 스크린샷 9장 재캡처 → `docs/Userguide/build_static_guide.py`
 - [ ] 최종 audit `final` + `--compare baseline final` 표 → `log.md`

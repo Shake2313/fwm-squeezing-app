@@ -7,10 +7,17 @@
    stSidebarContent, stSidebarUserContent, stBaseButton-headerNoPadding,
    stIconMaterial, stImage, stCaptionContainer, stMarkdownContainer, stButton,
    stSelectbox, stSlider, stSliderThumbValue, stSliderTickBar, stExpander,
-   stMain, stFullScreenFrame, stDataFrame, stTable. */
+   stMain, stFullScreenFrame, stDataFrame, stTable, stElementContainer,
+   stButtonGroup, stBaseButton-segmented_control(Active), stSelectbox; plus
+   .st-key-<key> classes Streamlit puts on keyed containers. */
 
 [data-testid="stAppViewContainer"] {
   background: var(--g-ground);
+}
+
+/* The element that injects this stylesheet takes no slot in the layout. */
+[data-testid="stElementContainer"]:has(.gabes-style-anchor) {
+  display: none;
 }
 
 [data-testid="stHeader"] {
@@ -32,7 +39,7 @@
 section.main > div,
 .main .block-container,
 .block-container {
-  padding-top: 0.85rem !important;
+  padding-top: 0 !important;
   padding-left: clamp(0.75rem, 1vw, 1rem) !important;
   padding-right: clamp(0.75rem, 1vw, 1rem) !important;
   padding-bottom: 1.35rem !important;
@@ -93,7 +100,7 @@ section.main > div,
 
 [data-testid="stSidebarContent"],
 [data-testid="stSidebarUserContent"] {
-  padding-top: 0.85rem !important;
+  padding-top: 0 !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stImage"] {
@@ -125,7 +132,7 @@ p, li, label, [data-testid="stMarkdownContainer"] {
   font-variant-numeric: tabular-nums;
 }
 
-div[data-testid="stButton"] > button {
+div[data-testid="stButton"] > button[data-testid="stBaseButton-secondary"] {
   border-radius: 8px;
   border: 1px solid var(--g-line);
   background: var(--g-surface);
@@ -133,8 +140,17 @@ div[data-testid="stButton"] > button {
   box-shadow: none;
 }
 
-div[data-testid="stButton"] > button:hover {
+div[data-testid="stButton"] > button[data-testid="stBaseButton-secondary"]:hover {
   border-color: var(--g-accent);
+  color: var(--g-accent-ink);
+}
+
+/* Tertiary = quiet text buttons (rail toggle, top-bar links, popover triggers). */
+button[data-testid="stBaseButton-tertiary"] {
+  color: var(--g-ink-2);
+}
+
+button[data-testid="stBaseButton-tertiary"]:hover {
   color: var(--g-accent-ink);
 }
 
@@ -154,70 +170,12 @@ div[data-testid="stButton"] > button:hover {
   margin-top: 0.48rem;
 }
 
-/* Scheme header (replaced by the top bar in phase P2). */
-.gabes-header {
-  margin: 0 0 0.72rem;
-  padding: 0.78rem 0.9rem 0.85rem;
-  background: var(--g-surface);
-  border: 1px solid var(--g-line);
-  border-radius: 10px;
-}
-
-.gabes-header-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.34rem;
-  margin-bottom: 0.34rem;
-}
-
-.gabes-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.2rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: 4px;
-  border: 1px solid var(--g-line);
-  background: var(--g-surface);
-  color: var(--g-muted);
-  font-size: 0.68rem;
-  font-weight: 500;
-  line-height: 1;
-}
-
-.gabes-header h1 {
-  margin: 0;
-  color: var(--g-ink);
-  font-size: clamp(1.4rem, 2vw, 1.9rem);
-  line-height: 1.15;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.gabes-header p {
-  max-width: 68rem;
-  margin: 0.34rem 0 0;
-  color: var(--g-muted);
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
 /* Control groups: neutral small caps, no colour coding. */
 .gabes-group-header {
   margin: 1rem 0 0.3rem;
   padding: 0.1rem 0.04rem;
   color: var(--g-muted);
   font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.gabes-advanced-subheader {
-  margin: 0.75rem 0 0.2rem;
-  color: var(--g-muted);
-  font-size: 0.66rem;
-  line-height: 1.2;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -231,152 +189,294 @@ div[data-testid="stButton"] > button:hover {
   font-size: 0.72rem;
 }
 
-/* Readout: heroes + ribbon (becomes the one-line strip in phase P2). */
-.gabes-readout {
-  display: grid;
-  width: 100%;
-  max-width: 50rem;
-  margin-inline: auto;
-  gap: 0.46rem;
+/* ---- Shell (P2): top bar, rail brand band, readout strip, plot card, More ---- */
+
+/* Top bar: one 52 px band. The rail's brand band has the same height and rule,
+   so sidebar + main read as a single bar. */
+/* Streamlit wraps keyed containers in stLayoutWrapper; the bleed (edge to
+   edge of the main area) and stickiness go on that wrapper. */
+[data-testid="stLayoutWrapper"]:has(> .st-key-gabes_topbar) {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: calc(100% + 2 * clamp(0.75rem, 1vw, 1rem)) !important;
+  min-width: calc(100% + 2 * clamp(0.75rem, 1vw, 1rem));
+  max-width: none !important;
+  margin: 0 calc(-1 * clamp(0.75rem, 1vw, 1rem)) 0.25rem;
 }
 
-.gabes-hero-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.46rem;
+.st-key-gabes_topbar {
+  min-height: 52px;
+  padding: 0.3rem clamp(0.75rem, 1vw, 1rem);
+  background: var(--g-surface);
+  border-bottom: 1px solid var(--g-line);
+  flex-wrap: wrap;
 }
 
-.gabes-hero-grid--single {
-  grid-template-columns: minmax(0, 1fr);
+.st-key-gabes_topbar > [data-testid="stLayoutWrapper"]:has(> .st-key-gabes_topbar_end) {
+  flex: 1 0 auto;
+  width: auto !important;
 }
 
-.gabes-hero-card {
-  position: relative;
+.st-key-gabes_topbar_end {
+  flex-wrap: nowrap;
+  width: auto !important;
+}
+
+.st-key-gabes_topbar [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.st-key-gabes_topbar [data-testid="stSelectbox"] div[data-baseweb="select"] > div:hover {
+  background: var(--g-fill-soft);
+}
+
+.gabes-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.25rem;
+  white-space: nowrap;
+}
+
+.gabes-brand img {
+  width: 26px;
+  height: 26px;
+}
+
+.gabes-brand b {
+  color: var(--g-ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.gabes-brand small {
+  padding: 1px 5px;
+  border: 1px solid var(--g-line-strong);
+  border-radius: 4px;
+  color: var(--g-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gabes-brand--rail {
+  height: 52px;
+  margin: 0 -1.5rem 0.5rem;
+  padding: 0 1.5rem;
+  background: var(--g-surface);
+  border-bottom: 1px solid var(--g-line);
+}
+
+/* The top-bar brand only while the rail (and its brand band) is hidden. */
+[data-testid="stAppViewContainer"]:has([data-testid="stSidebar"][aria-expanded="true"])
+  .st-key-gabes_topbar [data-testid="stElementContainer"]:has(.gabes-brand--top) {
+  display: none;
+}
+
+/* Readout strip: heroes, secondary values, then status chips. */
+.st-key-gabes_readout {
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+/* "+N more metrics" reads as the strip's last cell, not a floating button. */
+.st-key-gabes_readout [data-testid="stPopover"],
+.st-key-gabes_readout [data-testid="stPopover"] > div,
+.st-key-gabes_readout [data-testid="stPopover"] > div > div,
+.st-key-gabes_readout [data-testid="stPopover"] [data-testid^="stTooltip"],
+.st-key-gabes_readout [data-testid="stPopoverButton"] {
+  height: 100%;
+}
+
+.st-key-gabes_readout [data-testid="stPopoverButton"] {
+  padding: 0 0.8rem;
+  border: 1px solid var(--g-line) !important;
+  border-radius: 10px;
+  background: var(--g-surface) !important;
+  color: var(--g-accent-ink);
+  font-weight: 600;
+}
+
+.st-key-gabes_readout > [data-testid="stElementContainer"]:first-child {
+  flex: 1 1 0;
   min-width: 0;
-  min-height: 5.15rem;
-  padding: 0.75rem 0.9rem 0.7rem;
+}
+
+.g-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
   overflow: hidden;
   background: var(--g-surface);
   border: 1px solid var(--g-line);
   border-radius: 10px;
 }
 
-.gabes-hero-label,
-.gabes-ribbon-label {
+.g-cell {
+  display: flex;
+  flex: 1 1 8.5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
   min-width: 0;
-  color: var(--g-muted);
-  font-weight: 500;
-  line-height: 1.25;
+  padding: 0.7rem 1rem;
+  border-left: 1px solid var(--g-line-soft);
 }
 
-.gabes-hero-label {
-  font-size: 0.78rem;
-  white-space: nowrap;
+.g-cell:first-child {
+  border-left: 0;
+}
+
+.g-cell--hero {
+  flex: 1.5 1 11rem;
+}
+
+.g-cell--status {
+  flex: 0 1 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.g-cell-label {
   overflow: hidden;
+  color: var(--g-muted);
+  font-size: 0.74rem;
   text-overflow: ellipsis;
-}
-
-.gabes-hero-value {
-  min-width: 0;
-  margin-top: 0.25rem;
-  color: var(--g-ink);
-  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  overflow-wrap: anywhere;
-}
-
-.gabes-hero-value--num {
-  font-family: var(--g-font-mono);
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
-
-/* Ribbon cells are narrow: Plex Sans tabular figures instead of Mono, so long
-   values ("-1304.16 to -1285.29 MHz") do not wrap more than before. */
-.gabes-ribbon-value--num {
-  font-variant-numeric: tabular-nums;
-}
-
-.gabes-hero-unit {
-  margin-left: 0.28em;
-  color: var(--g-muted);
-  font-family: var(--g-font-sans);
-  font-size: 0.5em;
-  font-weight: 500;
-  letter-spacing: 0;
   white-space: nowrap;
 }
 
-.gabes-metric-delta {
-  margin-top: 0.15rem;
-  color: var(--g-muted);
-  font-size: 0.7rem;
-  line-height: 1.25;
-}
-
-.gabes-metric-ribbon {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-  gap: 1px;
-  overflow: hidden;
-  background: var(--g-line);
-  border: 1px solid var(--g-line);
-  border-radius: 10px;
-}
-
-.gabes-ribbon-item {
-  min-width: 0;
-  min-height: 3.55rem;
-  padding: 0.5rem 0.7rem;
-  background: var(--g-surface);
-}
-
-.gabes-ribbon-label {
-  font-size: 0.68rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.gabes-ribbon-value {
-  min-width: 0;
-  margin-top: 0.15rem;
+.g-cell-value {
   color: var(--g-ink);
-  font-size: clamp(0.88rem, 1.1vw, 1rem);
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 500;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 520px) {
-  .gabes-hero-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .gabes-hero-card {
-    min-height: 4.65rem;
-  }
-
-  .gabes-metric-ribbon {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.g-cell--hero .g-cell-value {
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
 }
 
-@media (max-width: 330px) {
-  .gabes-metric-ribbon {
-    grid-template-columns: minmax(0, 1fr);
-  }
+.g-cell--hero .g-cell-value.g-num {
+  font-family: var(--g-font-mono);
+  letter-spacing: -0.02em;
 }
 
-.gabes-section-gap {
-  height: 0.42rem;
+.g-num {
+  font-variant-numeric: tabular-nums;
 }
 
-.gabes-plot-gap {
-  height: 0.56rem;
+.g-unit {
+  margin-left: 0.3em;
+  color: var(--g-muted);
+  font-family: var(--g-font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.g-cell-sub {
+  color: var(--g-muted);
+  font-size: 0.7rem;
+}
+
+.g-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  padding: 0 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.g-chip--warn {
+  background: var(--g-warn-bg);
+  border-color: var(--g-warn-line);
+  color: var(--g-warn-ink);
+}
+
+.g-chip--neutral {
+  background: var(--g-fill-soft);
+  border-color: var(--g-line);
+  color: var(--g-ink-3);
+}
+
+/* Plot card: view tabs + caption + tools, then the figure. */
+.st-key-gabes_plotcard {
+  background: var(--g-surface);
+  border-radius: 10px;
+}
+
+.st-key-gabes_plothead {
+  min-height: 2.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--g-line-soft);
+  flex-wrap: nowrap;
+}
+
+/* Caption takes the slack; tabs and tools keep their natural width. */
+.st-key-gabes_plothead > [data-testid="stElementContainer"]:has(.g-plot-caption) {
+  display: flex;
+  align-items: center;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.st-key-gabes_plothead > [data-testid="stElementContainer"]:has([data-testid="stButtonGroup"]),
+.st-key-gabes_plothead > [data-testid="stLayoutWrapper"]:has(.st-key-gabes_plottools) {
+  flex: 0 0 auto;
+  width: auto !important;
+}
+
+.st-key-gabes_plottools {
+  flex-wrap: nowrap;
+  width: auto !important;
+}
+
+.st-key-gabes_plothead [data-testid="stButtonGroup"] > div {
+  gap: 1.1rem;
+}
+
+.st-key-gabes_plothead button[data-testid^="stBaseButton-segmented_control"] {
+  min-height: 2rem;
+  padding: 0 0.15rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--g-muted);
+  box-shadow: none;
+}
+
+.st-key-gabes_plothead button[data-testid="stBaseButton-segmented_controlActive"] {
+  border-bottom-color: var(--g-accent);
+  color: var(--g-ink);
+  font-weight: 600;
+}
+
+.g-plot-caption {
+  overflow: hidden;
+  color: var(--g-muted);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.g-more-label {
+  color: var(--g-muted);
+  font-size: 0.75rem;
 }
 
 /* Cap chart width so a fixed-aspect figure can't overflow viewport height in the no-max-width wide layout. */
@@ -393,4 +493,64 @@ div[data-testid="stButton"] > button:hover {
 
 .stDataFrame, [data-testid="stTable"] {
   border-radius: 8px;
+}
+
+.st-key-gabes_plotcard [data-testid="stImage"] img {
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 17rem);
+  object-fit: contain;
+}
+
+/* Phone: the top bar is two short rows and scrolls away; the plot head keeps
+   tabs and tools, drops the caption. */
+@media (max-width: 640px) {
+  [data-testid="stLayoutWrapper"]:has(> .st-key-gabes_topbar) {
+    position: static;
+  }
+
+  .st-key-gabes_topbar {
+    padding-left: 3rem;   /* clear the sidebar's expand button */
+  }
+
+  /* Phone: the scheme name needs the room more than the wordmark does. */
+  .st-key-gabes_topbar [data-testid="stElementContainer"]:has(.gabes-brand--top) {
+    display: none;
+  }
+
+  .st-key-gabes_topbar > [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {
+    flex: 1 1 10rem;
+    min-width: 10rem;
+    width: auto !important;
+  }
+
+  .st-key-gabes_topbar_end button p {
+    display: none;   /* SABES keeps its arrow icon; the guide hides its own label */
+  }
+
+  .st-key-gabes_readout {
+    flex-wrap: wrap;
+  }
+
+  .st-key-gabes_readout > *:first-child,
+  .st-key-gabes_readout > *:has([data-testid="stPopover"]) {
+    flex: 1 1 100%;
+  }
+
+  .st-key-gabes_readout [data-testid="stPopover"],
+  .st-key-gabes_readout [data-testid="stPopover"] > div,
+  .st-key-gabes_readout [data-testid="stPopover"] > div > div,
+  .st-key-gabes_readout [data-testid="stPopover"] [data-testid^="stTooltip"],
+  .st-key-gabes_readout [data-testid="stPopoverButton"] {
+    width: 100%;
+    height: auto;
+  }
+
+  .st-key-gabes_plothead {
+    flex-wrap: wrap;
+  }
+
+  .st-key-gabes_plothead > [data-testid="stElementContainer"]:has(.g-plot-caption) {
+    display: none;
+  }
 }

@@ -71,3 +71,22 @@
 - Plex Mono = hero 숫자·slider 값·눈금. ribbon 값은 Plex Sans tabular (좁은 칸에서 Mono가 줄바꿈 늘림).
 - status 문자열(`resolution-limited` 등)은 Sans (숫자로 시작할 때만 Mono, `looks_numeric`).
 - matplotlib 글꼴은 DejaVu Sans 유지 (woff2 불가). 재검토 P5.
+
+## D8 · P2 셸 구현 규칙 — 2026-09-22
+- **상단 바 regime**: `applies_defaults`인 첫 segmented param(FWM Mode, Λ·Rydberg·magneto Regime)을 상단 바로 이동.
+  없으면(SAS) `recommended_defaults` 세트를 segmented로 — 현재 param이 한 세트와 정확히 같을 때만 그 세트 선택 표시
+  (값 하나라도 바꾸면 선택 해제 = "지금 프리셋 상태 아님"을 정직하게 표시). 선택지 앞 이모지는 표시할 때 제거.
+- **브랜드**: rail 상단 52 px 띠 + 상단 바 같은 높이·선 → 한 줄로 보임. 상단 바 복사본은 sidebar 접힘일 때만, 폰에선 숨김.
+- **plot 제목**: 이미지에서 떼어 카드 머리의 muted 캡션으로 (ASCII→기호 복원: Ω<sub>c</sub>, µW, °C, η, →).
+  D4의 "숨김" 대신 캡션 유지 — 스크린샷 출처 정보 + 파생값(Rydberg Ω_c, Λ buffer relax)이 아직 metric에 없음. P4 승격 후 재검토.
+- **plot view**: carousel(3장 모두 PNG 인코딩) → 밑줄 탭 segmented, 선택된 그림만 렌더 (rerun당 savefig 3 → 1).
+- **Overlay data**: 토글 → 우측 패널(2.6:1 열), plot 가림 없음. 토글 끄면 업로드 위젯이 렌더되지 않아 파일 재업로드 필요 — 수용.
+- **Export**: popover. JSON 번들·CSV zip은 클릭 시 생성(`download_button` callable data, `on_click="ignore"`) → 일반 rerun에서 직렬화 0.
+- **More**: `st.pills`, 기본 선택 없음. 표·진단 그림·무거운 스캔.
+- **Advanced**: 버튼 "Show advanced · N". 켜면 각 그룹 안에 인라인, advanced 전용 그룹은 버튼 아래, 7개 이상이면 접힌 expander + 개수.
+- **readout strip**: status → 칩 (문구로 톤: limited/required/unavailable… → 주의색), 나머지 hero(`partition_metrics`) +
+  보조 4칸, 초과분 "+N more" popover = 전 metric + delta + help 표. `delta` → 보조줄.
+- **CSS 주입**: `st.markdown(<style>…<span class=gabes-style-anchor>)` + `:has(.gabes-style-anchor){display:none}`.
+  `st.html` style-only는 1.54에서 event container에 들어가지만 실제로 적용 안 됨(빈 element) — 사용 금지.
+- **Streamlit 1.54 배치 사실**: key 준 container는 `stLayoutWrapper`로 감싸짐 → 폭·bleed·sticky는 wrapper에 (`max-width` 해제 필요).
+  segmented 버튼 testid `stBaseButton-segmented_control(Active)`, pills `stBaseButton-pills(Active)`.
