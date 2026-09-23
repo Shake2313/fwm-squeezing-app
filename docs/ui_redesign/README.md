@@ -5,7 +5,7 @@
 
 ## 현재 상태
 - 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
-- 진행 단계: P0 · P1(커밋 `4cb011f`) · P2 셸 레이아웃 완료. 다음: **P3 ScrubField**.
+- 진행 단계: P0 · P1(`4cb011f`) · P2 셸(`7a95e9e`) · P3 ScrubField 완료. 다음: **P4 readout 계약**.
 - 푸시: 보이는 뷰가 어느 정도 완성되면(사용자 판단) — 그 전엔 로컬 커밋만.
 - 시안 canvas (비공개): https://claude.ai/artifact/C8d3dLBYDjH3ZJm84FPEQw
   — 현재 화면 진단, B(SAS·FWM·폰), A(보수안), ScrubField 동작 프로토타입.
@@ -22,8 +22,10 @@
 스크린샷 PNG는 repo `.gitignore`(`*.png`) 정책으로 git 제외 — Google Drive 동기 폴더에만 보존. 수치는 git에 남음.
 
 ## 작업 규칙
-- **범위**: `streamlit_app.py`, UI 패키지 `gabes_ui/`(theme·format·readout·export·guide), `assets/`, `static/`, `.streamlit/config.toml`,
-  `sabes_page.py`의 공유 스타일. 계산 경로(`compute`, `observables`의 물리값) 무수정.
+- **범위**: `streamlit_app.py`(라우터·상단 바·흐름), UI 패키지 `gabes_ui/`, `assets/`, `static/`,
+  `.streamlit/config.toml`, `sabes_page.py`의 공유 스타일. 계산 경로(`compute`, `observables`의 물리값) 무수정.
+  - `theme` 토큰 · `format` 숫자 포맷 · `units` 단위 파서 · `scrub` ScrubField 컴포넌트 ·
+    `controls` rail 조립 · `shell` 상단 바 조각 · `plotcard` 그림·오버레이·More · `readout` strip · `export` · `guide`
 - **예외**: P4 metric 표시 계약(`tier`/`attach_to`/`evidence`)만 `gabes/schemes/*` 수정. 계산 세션 커밋 후 진행.
 - **감량 원칙** (`decisions.md` D4): 새 요소는 기존 요소 ≥1 대체 또는 조건부 표시만 허용. "혹시 쓸모" 추가 금지.
 - **matplotlib 축 문자열 ASCII 유지** (CLAUDE.md mathtext layout-lock). UI 라벨·단위는 unicode.
@@ -44,6 +46,8 @@
 - 메인 plot = `stMain` 안 최대 `img`/`iframe`/`canvas`.
 - control rail = Streamlit sidebar.
 - Advanced 토글 = sidebar 안 summary/button, 텍스트 "Advanced…" 또는 "Show advanced".
+- 숫자 knob(ScrubField)은 **shadow DOM 안**(`.stBidiComponent` 호스트 → `.sf`). 일반 `document.querySelector`로 안 잡힘 —
+  DOM을 훑는 도구는 `el.shadowRoot`를 재귀로 들어가야 함. 값 = `[role=spinbutton]`.
 
 ## 유용 스킬
 `design:design-critique`, `design:accessibility-review`, `design:design-system`, `design:ux-copy`,

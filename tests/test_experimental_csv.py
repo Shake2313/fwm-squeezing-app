@@ -15,9 +15,12 @@ REFERENCE_OD = ROOT / "references" / "AutoOD" / "ReferenceOD.csv"
 
 
 def test_streamlit_import_repairs_stale_experimental_csv_module():
+    # The repair guard lives with the only code that uses the CSV API — the
+    # plot card (gabes_ui/plotcard.py) — and importing the app must still run it.
     script = r'''
 import importlib
 import inspect
+import sys
 
 import gabes as gabes_package
 import gabes.experimental_csv as ecsv
@@ -48,8 +51,9 @@ class StopAfterImports(BaseException):
 def verify_bindings_then_stop(*args, **kwargs):
     namespace = inspect.currentframe().f_back.f_globals
     assert namespace["__name__"] == "streamlit_app"
-    assert all(namespace[name] is getattr(ecsv, name) for name in required)
-    import_lock = namespace["_EXPERIMENTAL_CSV_IMPORT_LOCK"]
+    plotcard = sys.modules["gabes_ui.plotcard"]
+    assert all(getattr(plotcard, name) is getattr(ecsv, name) for name in required)
+    import_lock = plotcard._EXPERIMENTAL_CSV_IMPORT_LOCK
     assert import_lock is gabes_package._streamlit_experimental_csv_import_lock
     import_locks.append(import_lock)
     raise StopAfterImports
@@ -74,9 +78,14 @@ assert len(import_locks) == 2 and import_locks[0] is import_locks[1]
         cwd=ROOT,
         capture_output=True,
         text=True,
+        # A traceback from the child carries this repository's path, which is
+        # not decodable in the console codepage on a Korean Windows install;
+        # without this the failure message itself would fail to build.
+        encoding="utf-8",
+        errors="replace",
         timeout=30,
     )
-    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.returncode == 0, (result.stdout or "") + (result.stderr or "")
 
 
 def _csv_bytes(x, y, *, header=None):

@@ -189,6 +189,46 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   font-size: 0.72rem;
 }
 
+/* ---- Knobs (P3): ScrubField rows and the widgets that sit between them ---- */
+
+/* A ScrubField is one 34 px row; the rail reads as a list, not as cards. */
+[data-testid="stSidebar"] [data-testid="stElementContainer"]:has(> .stBidiComponent) {
+  margin-bottom: -0.35rem;
+}
+
+/* Labels for the widgets that cannot carry their own help (select, segmented):
+   same size and colour as a ScrubField label, help on hover. */
+/* Streamlit's own markdown container carries margin-bottom: -1rem, which
+   cancels the rail's 16 px element gap; 0.25rem puts the gap back to 4 px so
+   the label reads as part of the widget below it, not as a line of its own. */
+.gabes-knob-label {
+  margin: 0 0 0.25rem;
+  color: var(--g-ink-3);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+.gabes-knob-label[title] {
+  cursor: help;
+  text-decoration: underline dotted transparent;
+  text-underline-offset: 3px;
+}
+
+.gabes-knob-label[title]:hover {
+  text-decoration-color: var(--g-line-strong);
+}
+
+/* Selects in the rail: one line high, matching the ScrubField rhythm. */
+[data-testid="stSidebar"] [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+  min-height: 2.1rem;
+  font-size: 0.82rem;
+}
+
+[data-testid="stSidebar"] [data-testid="stCheckbox"] label {
+  font-size: 0.8rem;
+  color: var(--g-ink-3);
+}
+
 /* ---- Shell (P2): top bar, rail brand band, readout strip, plot card, More ---- */
 
 /* Top bar: one 52 px band. The rail's brand band has the same height and rule,

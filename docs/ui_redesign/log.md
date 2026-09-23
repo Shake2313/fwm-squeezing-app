@@ -2,6 +2,70 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-09-23 · P3 ScrubField
+**한 일**
+- P2 커밋 `7a95e9e`. 사전 검증: 후보 트리를 별도로 export해 전체 pytest → 실패 36개 전부 `tests/quantum`(기존),
+  UI·앱 테스트 실패 0.
+- **ScrubField** `gabes_ui/scrub.py` (`st.components.v2`, 인라인 HTML/CSS/JS, shadow DOM): 숫자 knob 전부 교체.
+  값 = `role=spinbutton`. 드래그(Shift ×0.1) · 클릭/Enter 입력 · ↑↓·PgUp/PgDn·Home/End · 3 px track 거친 조정 ·
+  범위 밖 clamp + 알림 한 줄 · 기본값과 다르면 점(클릭 = 복원) · 끝점 캡션은 track 양끝 인라인.
+- **단위 파서** `gabes_ui/units.py`: 브라우저는 사람이 친 문자열만 보내고 해석은 Python에서만 (D9).
+  `1.25 W`→mW 환산, `300 K`→°C, `1 G`→µT, `1,234.5`, `−7`(진짜 빼기표), `1.5e3` 허용. 다른 물리량이면 거부.
+- **help `?` 제거**: ScrubField는 라벨 hover, select·segmented는 직접 그린 라벨(hover) + 위젯 라벨 숨김.
+  checkbox만 `?` 유지(라벨이 클릭 영역).
+- **모듈 분할**: `gabes_ui/controls.py`(rail 조립·`render_param`) · `shell.py`(브랜드·regime/preset) ·
+  `plotcard.py`(그림·CSV 오버레이·More·matplotlib 락). `streamlit_app.py` 1072 → 265줄.
+  AST로 함수를 떼어 쓰던 `tests/test_fwm_excess_noise.py`는 모듈 import로 교체,
+  `tests/test_experimental_csv.py`의 stale 모듈 복구 계약은 `gabes_ui.plotcard` 기준으로 갱신.
+
+**함정 (재발 방지)**
+- bidi component id에 `__` 금지 → knob key를 `scrub-scheme-param`으로 접음. 안 그러면 mount가 통째로 예외.
+- `setStateValue("value", {객체})`는 Python까지 오지 않음(콜백 미발생). JSON **문자열**로 보내야 도착.
+- `AppTest`는 컴포넌트 매니저를 MagicMock으로 바꿔 mount가 `TypeError` → slider fallback 경로가 실제로 돌아감.
+  그래서 AppTest로는 ScrubField 자체를 검증할 수 없음 (브라우저 CDP 스크립트로 확인).
+- `stMarkdownContainer`에 `margin-bottom: -1rem`이 기본으로 걸려 있어 sidebar의 16 px element gap을 상쇄함.
+  직접 그린 라벨에 음수 margin을 더 주면 위젯이 라벨 위로 올라와 글자를 덮음.
+- `scrollHeight`는 뷰포트(900) 밑으로 안 내려감 → rail이 1화면에 들어온 뒤로는 비교 불가. `rail_content_height` 신설.
+- `stTooltipIcon`은 help 붙은 **버튼**(About·SABES)도 감쌈 → 물음표 개수와 다름. `help_icons`(버튼 제외) 신설.
+- 모듈을 옮기면 **소스를 직접 들여다보는 테스트**가 조용히 깨짐. 후보 트리 전체 pytest가
+  `test_streamlit_import_repairs_stale_experimental_csv_module`(streamlit_app 네임스페이스에서 CSV API 바인딩 확인)을 잡아냄
+  → `gabes_ui.plotcard` 기준으로 갱신. 덤으로 그 테스트의 subprocess를 `encoding="utf-8", errors="replace"`로 바꿈:
+  자식 traceback에 한글 경로가 들어가면 cp949 디코딩이 터져 실패 메시지 자체가 못 만들어졌음.
+- bash heredoc으로 Python을 쓰면 `\n`·`\w` 이스케이프가 한 겹 벗겨짐 → 이스케이프 많은 파일은 Write/Edit 도구로.
+
+**측정** `--compare baseline p3` (1440×900 / 390×844):
+
+| 지표 | sas | lambda | rydberg | magneto | fwm |
+|---|---|---|---|---|---|
+| rail 내용 높이 | (1402) → 599 | (1558) → 688 | (1610) → 650 | (1666) → 776 | (1922) → 862 |
+| rail, Advanced 펼침 | 2236 → 1192 | 2017 → 1078 | 3657 → 1350 | 2672 → 1559 | 2261 → 1269 |
+| help `?` icon | 35* → 0 | 22* → 0 | 62* → 0 | 42* → 0 | 34* → 0 |
+| text leaves, 1st screen | 56 → 44 | 38 → 34 | 55 → 38 | 45 → 44 | 39 → 32 |
+
+\* baseline은 glyph 지표(버튼 hover 포함). P3의 같은 지표는 전 scheme 7 = About·SABES·preset 버튼 hover 영역.
+plot 상단·iframe·expander는 P2에서 바뀐 뒤 그대로 (238·229·229·229·251 px, 0, 0).
+
+- **knob 1행 = 34 px + 10 px 간격.** rail 전체 평균은 65–100 px/control (baseline 148–234) — 분모에 안 들어가는
+  브랜드 띠(44)·그룹 머리글(26×4)·Advanced 버튼(40)이 SAS처럼 knob 적은 scheme에서 평균을 끌어올림. 목표 60은 knob 행만 충족.
+- **첫 로드 시간**: 같은 기계에서 P2 트리와 P3 트리를 각각 띄워 cold 3회 — P2 중앙값 2871 ms, P3 3545 ms (+0.7 s).
+  scheme 전환 시간은 변화 없음(rydberg 1725→1706, magneto 1726→1720, fwm 1728→1714). 컴포넌트 런타임 1회 비용으로 판단.
+  (audit의 sas 5267→8813은 streamlit 서버 cold start까지 포함한 값이라 과장됨.)
+
+**검증**
+- 브라우저 CDP로 실제 입력: 드래그 +60 px → 0.50→1.10, `1.25 W` 입력 → 2.00 + "clamped to 2",
+  `3 MHz` 입력 → 값 유지 + "expected mW", track 80 % 클릭 → 1.60, 복원 점 → 0.50.
+  키보드 ↑↑·PgUp·Shift+↓·End·Home 모두 동작하고 포커스 유지, `aria-valuenow/min/max/text`·`aria-describedby` 채워짐.
+- navigate-only knob(FWM δ) 0.7 s 드래그(125 ms 간격 12회 전송) → 실제 rerun 1회. Streamlit이 합침.
+- About·Export·More·탭·Overlay·Show advanced·프리셋 클릭 smoke → `stException` 0. FWM Biphoton 뷰(그림 위 knob) 정상.
+- pytest: 작업트리 전체 2027 통과 · 2 실패 → 하나는 기존(`test_docs_consistency`, 다른 세션이 지운 파일),
+  하나는 내 탓(모듈 이동으로 깨진 CSV 복구 계약) → 고침. 커밋 후보 트리 재검증: 1542 통과, 실패 36개 전부 기존 `tests/quantum`.
+
+**남은 일·주의**
+- P3 커밋 대기 (사용자 승인).
+- clamp·거부 알림은 한 번 보이고 다음 rerun에 사라짐(pop). 오래 남겨 낡은 정보가 되지 않게 한 선택.
+- checkbox `?` 3개(sas 2·fwm 1)는 유지. 라벨 자체가 클릭 영역이라 hover 대체가 어려움.
+- 폰(390)은 P5: rail 접힘 상태, plot 상단 349–529 px.
+
 ## 2026-09-22 · P2 셸 레이아웃
 **한 일**
 - P1 커밋 `4cb011f`. 사전 검증: HEAD 단독 export와 HEAD+P1 export 각각 전체 pytest → 실패 집합 동일

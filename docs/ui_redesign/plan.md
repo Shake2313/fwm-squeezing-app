@@ -14,13 +14,15 @@ baseline = `audit/baseline/summary.md` (commit `2998dc1`, 1440×900 / 390×844).
 | rail 높이 (Advanced 닫힘) | 1402 · 1558 · 1610 · 1666 · 1922 | ≤ 900 (1화면) | P2·P3 |
 | rail px / main control | 234 · 173 · 161 · 185 · 148 | ≤ 60 | P3 |
 | rail 높이, Advanced 펼침 | 2236 · 2017 · 3657 · 2672 · 2261 | ≤ 1300 | P2·P3 |
-| help `?` glyph | 35 · 22 · 62 · 42 · 34 | 0 (라벨 hover) | P3 |
+| help `?` icon | 35 · 22 · 62 · 42 · 34 (glyph 지표) | 0 (라벨 hover) | P3 |
 | iframe | 2 · 1 · 1 · 1 · 1 | 0 | P2 |
 | main expander | 4 · 2 · 6 · 4 · 5 | 0–1 (More pills 대체) | P2 |
 | 초기 전송량 | 1680 KB / 67 요청 | ≤ 1680 + 폰트 150 KB | 전 단계 |
 | switch 후 ready (ms) | 5267 · 3146 · 1725 · 1726 · 1728 | 악화 금지 | 전 단계 |
 
 `text leaves, 1st screen`은 기록만 (control이 압축되면 오히려 늘 수 있어 목표 아님).
+`rail 높이`(= `scrollHeight`)는 뷰포트(900) 밑으로 내려가지 않음 → P3부터 `rail content height`(실제 내용 높이) 병기.
+`help ? icon`은 라벨 옆 물음표만 셈. `help glyph`(baseline 수치)는 help 붙은 버튼 hover 영역도 포함해 0이 될 수 없음.
 ready ms 잡음: 같은 commit 두 번 측정에서 lambda 2424 → 3146 (+30 %). 단일 측정 비교 금지 — 악화 의심 시 3회 중앙값.
 SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 
@@ -63,18 +65,24 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [x] `tools/ui_audit.py`: 버튼형 Advanced 토글 대기, 전환 재시도, 폰은 sidebar 닫고 전환, 실패 시 `_failure.png`
 - [x] 완료 기준: plot 5/5 첫 화면 · iframe 0 · main expander 0 · audit `p2` · `design:design-critique`(`log.md`) · pytest
 
-## P3 · ScrubField
-- [ ] `st.components.v2` 인라인 컴포넌트 (html/css/js). props: label, unit, min, max, step, value, default, endpoints,
-      format, live(`recompute=False`), help
-- [ ] 동작: `decisions.md` D3 전부. 단위 표: power(W…nW), length(m…µm), temperature(°C/K), frequency(Hz…GHz),
-      field(T/mT/µT/G), time(s…ns)
-- [ ] 상태 동기: `session_state[key]`가 진실 원천. preset/default 적용 → data로 전달 → 컴포넌트 반영. 제스처당 rerun 1
-- [ ] fallback: v2 없음/예외 → `st.slider`
-- [ ] 단위 파서 Python 미러 + 표 기반 테스트, AppTest로 fallback 경로
-- [ ] 접근성: `role=spinbutton`, aria-value*, focus-visible, 라벨 hover help (`aria-describedby`) → `design:accessibility-review`
-- [ ] 모듈 분할 마무리: controls(rail 조립·ScrubField)·shell(상단 바)·plotcard → `gabes_ui/`, AST 테스트 대상 함수 이동 시 테스트도 갱신
-- [ ] slider 끝점 캡션 행(◀ OD / SAS ▶)을 track 양끝 인라인으로 (P2 critique)
-- [ ] 완료 기준: rail px/control ≤ 60 · help glyph 0 · rail ≤ 900 · ready ms 악화 없음 · audit `p3`
+## P3 · ScrubField — 2026-09-23
+- [x] `st.components.v2` 인라인 컴포넌트 `gabes_ui/scrub.py` (html/css/js). props: label, unit, min, max, step, value,
+      text(Python 포맷), decimals, default, ends, fmt, live(`recompute=False`), help, note
+- [x] 동작: `decisions.md` D3 전부 — 값 드래그(Shift ×0.1) · 클릭/Enter 직접 입력 · ↑↓·PgUp/PgDn·Home/End(키 반복 1회 전송) ·
+      3 px track 거친 조정 · clamp 알림 · 기본값과 다르면 점(클릭 = 복원)
+- [x] 단위: SI 접두사 + 기본 단위 표 + 브리지(G↔T, °C↔K) `gabes_ui/units.py`. 파서는 Python에만 (D9)
+- [x] 상태 동기: `session_state[key]`(평범한 항목)가 진실 원천, 컴포넌트 key는 `scrub-…` 별도
+- [x] fallback: mount 예외 → 같은 key로 `st.slider` (AppTest가 이 경로)
+- [x] 테스트: `tests/test_ui_units.py` 41개, `tests/test_ui_scrub.py` 11개, `tests/test_fwm_excess_noise.py` fallback 계약
+- [x] 접근성: `role=spinbutton`, aria-value(now/min/max/text), aria-label, `aria-describedby`, focus-visible, 라벨 hover help
+- [x] 모듈 분할: `gabes_ui/controls.py`·`shell.py`·`plotcard.py` → `streamlit_app.py` 1072 → 265줄.
+      소스를 들여다보던 테스트 2개 갱신 (`test_fwm_excess_noise` AST → import, `test_experimental_csv` 복구 계약)
+- [x] slider 끝점 캡션을 track 양끝 인라인으로 (P2 critique)
+- [x] 완료 기준: rail 전 scheme 1화면(900) · help `?` 0 · audit `p3` · pytest
+- [-] rail px/main control ≤ 60: knob 1행은 34 px + 10 px 간격으로 충족, rail 전체 평균은 65–100 px/control.
+      차이는 분모 밖 요소(브랜드 띠 44 · 그룹 머리글 26 × N · Advanced 버튼 40). `rail_content_height` 신설해 측정
+- [-] ready ms: 첫 로드 +0.7 s (cold 3회 중앙값 2871 → 3545 ms, 같은 기계·같은 방법). scheme 전환은 변화 없음.
+      컴포넌트 런타임 1회 비용으로 판단하고 수용
 
 ## P4 · readout 계약 (`gabes/schemes/*` 수정 — 계산 세션 커밋 후)
 - [ ] `base.py` 계약 문서화: `tier`, `attach_to`, `evidence` (`decisions.md` D5)

@@ -290,8 +290,25 @@ JS_MEASURE = r"""
     main_scroll_height: main ? main.scrollHeight : null,
     rail_open: railOpen,
     rail_scroll_height: rail && railOpen ? rail.scrollHeight : null,
+    // scrollHeight never drops below the viewport, so a rail that now fits on
+    // one screen reads as a flat 900 px. This is what the controls occupy.
+    rail_content_height: (() => {
+      const box = rail && railOpen
+        ? rail.querySelector('[data-testid="stSidebarUserContent"]') : null;
+      if (!box) return null;
+      const kids = [...box.querySelectorAll(
+        ':scope > div > [data-testid="stVerticalBlock"] > *')];
+      if (!kids.length) return Math.round(box.getBoundingClientRect().height);
+      const top = kids[0].getBoundingClientRect().top;
+      const bottom = kids[kids.length - 1].getBoundingClientRect().bottom;
+      return Math.round(bottom - top);
+    })(),
     help_glyphs: document.querySelectorAll(
       '[data-testid="stTooltipIcon"],[data-testid="stTooltipHoverTarget"]').length,
+    // The "?" next to a widget label. The same testid also wraps buttons that
+    // merely carry a tooltip (About, SABES), which draw no glyph at all.
+    help_icons: [...document.querySelectorAll('[data-testid="stTooltipIcon"]')]
+      .filter(e => !e.querySelector('button')).length,
     iframes: document.querySelectorAll('iframe').length,
     main_expanders: main ? main.querySelectorAll('[data-testid="stExpander"]').length : 0,
     text_leaves_first_viewport: leaves,
@@ -479,9 +496,11 @@ ROWS = [
     ("plot top (desktop, px)", lambda s: (s.get("desktop") or {}).get("plot", {}) and s["desktop"]["plot"]["top"]),
     ("plot fully on 1st screen", lambda s: (s.get("desktop") or {}).get("plot", {}) and s["desktop"]["plot"]["fully_visible"]),
     ("rail height (px)", lambda s: (s.get("desktop") or {}).get("rail_scroll_height")),
+    ("rail content height", lambda s: (s.get("desktop") or {}).get("rail_content_height")),
     ("rail height, advanced open", lambda s: s.get("desktop_rail_advanced_open")),
     ("rail px / main control", lambda s: _per_control(s)),
     ("help glyphs", lambda s: (s.get("desktop") or {}).get("help_glyphs")),
+    ("help ? icons", lambda s: (s.get("desktop") or {}).get("help_icons")),
     ("iframes", lambda s: (s.get("desktop") or {}).get("iframes")),
     ("main expanders", lambda s: (s.get("desktop") or {}).get("main_expanders")),
     ("text leaves, 1st screen", lambda s: (s.get("desktop") or {}).get("text_leaves_first_viewport")),

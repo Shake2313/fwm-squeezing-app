@@ -452,7 +452,12 @@ def test_full_gain_noise_render_uses_each_branch_gain_and_efficiency(seeded_spec
 
 
 def test_hidden_noise_sliders_retain_values_across_streamlit_reruns():
-    """Exercise real widget cleanup without running the atomic solver."""
+    """Exercise real widget cleanup without running the atomic solver.
+
+    AppTest stubs Streamlit's component manager, so the ScrubField cannot
+    mount and every numeric knob falls back to a slider — which is exactly the
+    path this test is here to pin (gabes_ui/scrub.py).
+    """
     import ast
     from pathlib import Path
 
@@ -462,12 +467,6 @@ def test_hidden_noise_sliders_retain_values_across_streamlit_reruns():
     source = (Path(__file__).resolve().parents[1] / "streamlit_app.py").read_text(
         encoding="utf-8-sig")
     tree = ast.parse(source)
-    helper_names = {"_skey", "_render_param", "_param_visible"}
-    helpers = "\n\n".join(
-        ast.get_source_segment(source, node)
-        for node in tree.body
-        if isinstance(node, ast.FunctionDef) and node.name in helper_names
-    )
     initialization_names = {"specs", "defaults_version", "defaults_key"}
     initialization = "\n".join(
         ast.get_source_segment(source, node)
@@ -483,35 +482,30 @@ def test_hidden_noise_sliders_retain_values_across_streamlit_reruns():
         )
     )
     # Run the application's actual initialization and parameter collection:
-    # both widget cleanup and restored frontend slider values matter.
-    collection = next(
-        ast.get_source_segment(source, node)
-        for node in tree.body
-        if isinstance(node, ast.For)
-        and isinstance(node.iter, ast.Name) and node.iter.id == "specs"
-        and any(
-            isinstance(child, ast.Compare)
-            and any(isinstance(op, ast.NotIn) for op in child.ops)
-            and any(isinstance(value, ast.Name) and value.id == "params"
-                    for value in child.comparators)
-            for child in ast.walk(node)
-        )
-    )
+    # both widget cleanup and restored frontend slider values matter. The
+    # trailing loop mirrors the tail of gabes_ui.controls.render_rail, which
+    # collects the knobs that were not rendered this run.
     app = (
         "import streamlit as st\nfrom gabes.schemes import fwm\n"
-        + helpers
-        + "\nscheme = fwm.FWMScheme()\n"
+        "from gabes_ui.controls import param_visible, render_param, skey\n"
+        "\nscheme = fwm.FWMScheme()\n"
         + initialization
         + "\nparams = {}\n"
         "for sp in specs:\n"
         "    if sp.name in ('excess_noise_mode', 'excess_noise', 'excess_noise_slope') "
-        "and _param_visible(scheme.name, sp):\n"
-        "        params[sp.name] = _render_param(st, scheme.name, sp, scheme)\n"
-        + collection
-        + "\nst.metric('Source excess noise', float(fwm._seeded_excess_noise(3.0, params)))\n"
+        "and param_visible(scheme.name, sp):\n"
+        "        params[sp.name] = render_param(st, scheme.name, sp, scheme)\n"
+        "for sp in specs:\n"
+        "    if sp.name not in params:\n"
+        "        params[sp.name] = st.session_state[skey(scheme.name, sp.name)]\n"
+        "\nst.metric('Source excess noise', "
+        "float(fwm._seeded_excess_noise(3.0, params)))\n"
     )
     app_test = AppTest.from_string(app).run()
     assert not app_test.exception
+    from gabes_ui import scrub
+    assert not scrub.available(), "the sliders below are the ScrubField fallback"
+    assert app_test.slider, "numeric knobs must still render something drivable"
 
     def rerun(mode, **slider_values):
         # AppTest's ButtonGroup serializer assumes a multiselect and fails for

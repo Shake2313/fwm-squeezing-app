@@ -90,3 +90,31 @@
   `st.html` style-only는 1.54에서 event container에 들어가지만 실제로 적용 안 됨(빈 element) — 사용 금지.
 - **Streamlit 1.54 배치 사실**: key 준 container는 `stLayoutWrapper`로 감싸짐 → 폭·bleed·sticky는 wrapper에 (`max-width` 해제 필요).
   segmented 버튼 testid `stBaseButton-segmented_control(Active)`, pills `stBaseButton-pills(Active)`.
+
+## D9 · P3 ScrubField 구현 규칙 — 2026-09-23
+- **단위 해석은 Python 단독**: 브라우저는 사람이 친 문자열을 그대로 보내고 `gabes_ui/units.py`가 해석.
+  JS에 파서 복제 없음 → 규칙 한 벌, 테스트 한 벌(`tests/test_ui_units.py` 41개).
+- **접두사 분해 조건**: 남은 문자열의 머리가 알려진 기본 단위일 때만. 아니면 통째로 원자 단위.
+  이래야 `dB`≠deci-B, `Torr`≠tera-orr, `cps`≠centi-ps. 홀로 쓴 `G`=가우스, `GHz`=기가.
+  `°C`↔`K`는 오프셋 환산이라 접두사와 섞이면 거부(`mK` 거절). 10의 거듭제곱은 지수 정수로 계산
+  (`10**(a-b)` 한 번) — 인자 두 개를 곱하고 나누면 0.5 mT가 500.00000000000006 µT가 됨.
+- **표시 자릿수**: slider 포맷(D7)을 우선 쓰되, 타이핑한 값이 그 포맷으로 왕복되지 않으면
+  왕복되는 최소 유효숫자로 전부 보여줌(`%.2f` 칸에 1.234567 입력 → `1.234567`). 정확 입력을 표시에서 반올림해 숨기지 않음.
+- **제스처 전송 형식**: `setStateValue("value", JSON 문자열)`. 객체를 넘기면 1.54에서 Python까지 오지 않음(콜백 미발생).
+  문자열 안에 일련번호 `n` 포함 — 같은 값을 두 번 보내도 "변화 없음"으로 먹히지 않게.
+  종류: `v`(브라우저가 step에 맞춘 수), `t`(사람이 친 문자열), `r`(기본값 복원).
+- **컴포넌트 key**: bidi component id에 `__` 금지(`BidiComponentInvalidIdError`). knob key(`scheme__param`)를
+  `scrub-scheme-param`으로 접어서 사용. 값의 진실 원천은 여전히 `session_state[scheme__param]`(위젯 상태 아닌 평범한 항목)
+  → preset·default 세트가 그대로 쓰고, 안 그려진 knob도 값 유지.
+- **fallback**: `AppTest`는 컴포넌트 매니저를 MagicMock으로 갈아끼워 mount가 `TypeError` → 같은 key로 `st.slider`.
+  프로세스당 한 번 판정하고 로그 1줄. 덕분에 fallback 경로가 `tests/test_fwm_excess_noise.py`에서 실제로 검증됨.
+- **navigate-only knob 스트리밍**: 드래그 중 125 ms 간격 전송. 단 Streamlit이 실행 중인 rerun 뒤의 요청을 합치므로
+  0.7 s 드래그(12회 전송)에서 실제 rerun은 1회 — 폭주하지 않음. "제스처 1회 = rerun 1회"는 결과적으로 유지.
+- **help `?` 제거 범위**: ScrubField는 라벨 hover(`title` + `aria-describedby`). select·segmented는 라벨을
+  직접 그리고(`gabes-knob-label`, hover) 위젯은 `label_visibility="collapsed"`. checkbox는 라벨이 클릭 영역이라 `?` 유지.
+  `stTooltipIcon`은 help 붙은 *버튼*(About·SABES)도 감싸므로 glyph 수와 다름 → audit에 `help_icons`(버튼 제외) 추가.
+- **Streamlit 여백 사실**: `stMarkdownContainer`에 `margin-bottom: -1rem`이 걸려 있어 rail의 16 px element gap을 상쇄함.
+  직접 그린 라벨은 `margin-bottom: 0.25rem`로 4 px만 띄움.
+- **모듈 분할**: `gabes_ui/controls.py`(rail 조립·`render_param`), `shell.py`(브랜드·regime/preset),
+  `plotcard.py`(그림·CSV 오버레이·More·matplotlib 락). `streamlit_app.py` 1072 → 265줄 = 라우터 + 상단 바 조립 + 흐름.
+  라우터(`SABES_QUERY_VALUE`)는 남김 — 아무것도 그리기 전에 돌아야 하고 `tests/test_sabes_page.py`가 순서를 검사.
