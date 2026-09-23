@@ -348,12 +348,16 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   min-width: 0;
 }
 
+/* Cells are separated by 1 px gaps that let the strip's own colour through,
+   rather than by a left border: a strip that wraps onto a second row then gets
+   the same divider between rows as between columns. */
 .g-strip {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
+  gap: 1px;
   overflow: hidden;
-  background: var(--g-surface);
+  background: var(--g-line-soft);
   border: 1px solid var(--g-line);
   border-radius: 10px;
 }
@@ -366,11 +370,7 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   gap: 0.3rem;
   min-width: 0;
   padding: 0.7rem 1rem;
-  border-left: 1px solid var(--g-line-soft);
-}
-
-.g-cell:first-child {
-  border-left: 0;
+  background: var(--g-surface);
 }
 
 .g-cell--hero {
@@ -514,6 +514,14 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   white-space: nowrap;
 }
 
+/* Streamlit sizes a markdown block to its content, so a long caption would
+   keep its natural width and run under the tools instead of eliding. */
+.st-key-gabes_plothead [data-testid="stMarkdown"],
+.st-key-gabes_plothead [data-testid="stMarkdownContainer"] {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .g-more-label {
   color: var(--g-muted);
   font-size: 0.75rem;
@@ -592,5 +600,58 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 
   .st-key-gabes_plothead > [data-testid="stElementContainer"]:has(.g-plot-caption) {
     display: none;
+  }
+}
+
+/* ---- Narrow desktop: a rotated monitor, or a half-width window ---- */
+/* Below 1440 the top bar and the readout strip stop fitting on one row. */
+@media (min-width: 641px) and (max-width: 1439px) {
+  /* The scheme name gives up width first, so the bar stays one row for as
+     long as the regime switch allows. */
+  .st-key-gabes_topbar > [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {
+    flex: 1 1 12rem;
+    min-width: 9rem;
+    width: auto !important;
+  }
+
+  /* The chip cell grows like the others, so a wrapped row never ends in a
+     blank slot. */
+  .g-cell--status {
+    flex: 1 1 9rem;
+  }
+}
+
+/* Narrower still: the plot head cannot hold tabs, caption and tools side by
+   side, so the caption takes its own row instead of being elided to nothing. */
+@media (min-width: 641px) and (max-width: 1200px) {
+  /* The caption keeps its whole row under the tabs and tools. */
+  .st-key-gabes_plothead {
+    flex-wrap: wrap;
+    row-gap: 0.1rem;
+  }
+
+  .st-key-gabes_plothead > [data-testid="stElementContainer"]:has(.g-plot-caption) {
+    order: 3;
+    flex: 1 1 100%;
+  }
+
+  .g-plot-caption {
+    overflow: visible;
+    white-space: normal;
+  }
+}
+
+/* ---- Tall viewport (portrait monitor) ---- */
+/* A spectrum has a fixed aspect and the figure is already as wide as the
+   column, so extra height cannot make it bigger: the space below the card is
+   room for what the page grows into (overlay panel, More tables), not a hole
+   to fill. What the height does buy is a looser rhythm between the blocks. */
+@media (min-width: 641px) and (min-height: 1100px) {
+  [data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"] {
+    gap: clamp(1rem, 1.6vh, 1.75rem);
+  }
+
+  .st-key-gabes_plotcard {
+    padding-block: clamp(0.25rem, 1.2vh, 1rem);
   }
 }

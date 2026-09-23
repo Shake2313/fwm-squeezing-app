@@ -118,3 +118,20 @@
 - **모듈 분할**: `gabes_ui/controls.py`(rail 조립·`render_param`), `shell.py`(브랜드·regime/preset),
   `plotcard.py`(그림·CSV 오버레이·More·matplotlib 락). `streamlit_app.py` 1072 → 265줄 = 라우터 + 상단 바 조립 + 흐름.
   라우터(`SABES_QUERY_VALUE`)는 남김 — 아무것도 그리기 전에 돌아야 하고 `tests/test_sabes_page.py`가 순서를 검사.
+
+## D10 · 세로(포트레이트) 데스크톱 대응 — 2026-09-23
+1080×1920(모니터 회전) 기준. 폰(≤640)과 1440 사이가 비어 있었음.
+- **readout strip 구분선**: `border-left` → `gap: 1px` + strip 배경색. 폭 무관 전역 적용.
+  줄바꿈된 두 번째 행도 같은 선으로 나뉘고, 칸이 늘어나므로 행 끝에 빈 칸이 남지 않음. 1440 표시는 동일.
+- **≤1439**: scheme 이름 칸이 먼저 줄어들어(`flex: 1 1 12rem`, 최소 9rem) 상단 바가 한 줄을 유지.
+  regime 선택지가 많은 magneto(5개)는 그래도 두 줄 — 좁은 창에서는 정상 동작으로 수용.
+  status 칩 칸도 늘어나게(`flex: 1 1 9rem`).
+- **≤1200**: plot 머리(탭·캡션·도구)가 한 줄에 안 들어감 → 캡션이 자기 줄로 내려감(`order: 3`, 줄바꿈 허용).
+- **캡션 넘침 버그**: Streamlit markdown 블록은 내용 폭을 가지므로 긴 캡션이 줄지 않고 도구 위로 겹쳐 그려짐.
+  `.st-key-gabes_plothead [data-testid="stMarkdown"/"stMarkdownContainer"] { min-width: 0; max-width: 100% }`로 고정. 폭 무관.
+- **≥1100 높이**: 블록 간격·plot 카드 상하 여백만 조금 키움(`clamp`).
+- **남는 세로 공간은 채우지 않음**: 스펙트럼은 가로:세로 비가 고정이고 그림은 이미 열 폭을 꽉 채우므로
+  높이를 더 줘도 커지지 않음. 카드를 늘려 그림을 가운데 두는 안은 1190 px짜리 빈 흰 상자가 되어 기각.
+  세로 가운데 정렬은 sticky 상단 바와 본문이 560 px 떨어져 더 나쁨 → 기각.
+  빈 공간은 Overlay 패널·More 표가 열리면 채워지는 작업 공간으로 둠(1080×1920에서 1140 → 462 px).
+  더 채우려면 창 높이를 Python이 알아야 함(보고용 v2 컴포넌트 + rerun 1회) — 비용 있어 사용자 결정 대기.

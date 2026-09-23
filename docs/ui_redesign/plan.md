@@ -93,6 +93,12 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [ ] SAS strip: 근거 진단값(edges·samples·scan-edge) 대신 Doppler FWHM·phase가 보이도록 tier 태깅
 - [ ] 완료 기준: strip ≤ 5칸 · 모든 metric ≤ 1 조작 도달 · pytest · audit `p4`
 
+## P4.5 · 세로 데스크톱 (P3 후속, 2026-09-23 완료)
+- [x] 1080×1920 등 회전 모니터: 캡션 겹침 수정, strip 줄바꿈 구분선·빈 칸 수정, 상단 바 한 줄 유지(≤1439),
+      캡션 자기 줄(≤1200), 높은 창에서 간격 소폭 확대 (`decisions.md` D10)
+- [-] 남는 세로 공간(1080×1920에서 ~1100 px)은 채우지 않음 — 스펙트럼 비율 고정. 채우려면 창 높이를 Python이
+      알아야 하고(컴포넌트 + rerun 1회) 그림 여러 장을 그려야 함. 사용자 결정 대기
+
 ## P5 · 마감
 - [ ] 폰 390: plot 상단 ≤ 360 (P2: 349–530), 보조 metric 폰에선 2칸, plot 머리 Export 행 축소, 터치 타깃 44 px
 - [ ] 다크: `theme.dark.*` + CSS 토큰 + matplotlib 팔레트(`dataviz`) — 선택
