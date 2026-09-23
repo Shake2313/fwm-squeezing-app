@@ -6,7 +6,7 @@
 ## 현재 상태
 - 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
 - 진행 단계: P0 · P1(`4cb011f`) · P2 셸(`7a95e9e`) · P3 ScrubField 완료. 다음: **P4 readout 계약**.
-- 푸시: 보이는 뷰가 어느 정도 완성되면(사용자 판단) — 그 전엔 로컬 커밋만.
+- 푸시: P0–P3 네 커밋 `origin/main`에 반영 (2026-09-23, 사용자 승인). 이후에도 단계마다 승인 받고 커밋·푸시.
 - 시안 canvas (비공개): https://claude.ai/artifact/C8d3dLBYDjH3ZJm84FPEQw
   — 현재 화면 진단, B(SAS·FWM·폰), A(보수안), ScrubField 동작 프로토타입.
 
