@@ -1,0 +1,23 @@
+{
+  "command": [
+    "xelatex",
+    "-disable-installer",
+    "-interaction=nonstopmode",
+    "-halt-on-error",
+    "-output-directory=G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build",
+    "squeezing_report_v8.tex"
+  ],
+  "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report",
+  "passes": [
+    {
+      "pass": 1,
+      "returncode": 0,
+      "log": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build/final_compile_pass1.txt"
+    },
+    {
+      "pass": 2,
+      "returncode": 0,
+      "log": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build/final_compile_pass2.txt"
+    }
+  ]
+}

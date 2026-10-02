@@ -1424,6 +1424,158 @@ Eqs.~\eqref{eq:langevin}--\eqref{eq:covariance}. Cell optical-depth factors
 $\exp(-{\rm OD}_{p,c,\rm seg})$ are not applied a second time after
 propagation.
 
+\subsection{TMSV marginals, photon thinning, and what loss noise means}
+\label{sec:tmsv-loss-statistics}
+
+The following calculation is an analytic fixture for one collected
+spatiotemporal mode in each arm, with vacuum incident on an ideal two-mode
+squeezer.  It is not a claim that the present dissipative GABES production
+transfer has this covariance.  With an irrelevant squeezing phase suppressed,
+the two-mode squeezed vacuum (TMSV) is
+\begin{equation}
+ \ket{\psi_r}=\sqrt{1-\lambda}\sum_{n=0}^{\infty}
+ \lambda^{n/2}\ket{n}_p\ket{n}_c,
+ \qquad
+ \lambda=\tanh^2r,\qquad
+ \bar n=\frac{\lambda}{1-\lambda}=\sinh^2r .
+ \label{eq:tmsv-fock}
+\end{equation}
+Tracing out either arm gives a geometric, equivalently single-mode thermal,
+number distribution \cite{Xiang2017},
+\begin{equation}
+ \begin{aligned}
+ \rho_p=\Tr_c\ketbra{\psi_r}{\psi_r}
+ &=\sum_{n=0}^{\infty}\frac{\bar n^n}{(1+\bar n)^{n+1}}
+ \ketbra{n}{n},\\
+ \langle N_p\rangle&=\bar n,\qquad
+ \operatorname{Var}N_p=\bar n(\bar n+1),\\
+ g_p^{(2)}(0)&=\frac{\langle N_p(N_p-1)\rangle}{\bar n^2}=2 .
+ \end{aligned}
+ \label{eq:tmsv-marginal}
+\end{equation}
+The same equations hold for $c$.  Thus a pure bipartite state can have a mixed
+thermal marginal: the local number uncertainty is the uncertainty of the
+shared pair number, not an independently injected thermal field.
+
+A quantum-limited post-cell attenuator is exactly a beam splitter with an
+independent vacuum environment mode \cite{Ivan2011,Lami2020}:
+\begin{equation}
+ \hat a_{j,{\rm det}}=\sqrt{\eta_j}\,\hat a_{j,{\rm out}}
+ +\sqrt{1-\eta_j}\,\hat v_j,
+ \qquad \langle\hat v_j^\dagger\hat v_j\rangle=0,\qquad j\in\{p,c\}.
+ \label{eq:pure-loss-operator}
+\end{equation}
+This is the annihilation-operator form of Eq.~\eqref{eq:detection-loss} with
+$V_{\rm vac}=I/2$.  Conditional on $N=n$ photons before this beam splitter,
+the transmitted count obeys Bernoulli thinning,
+\begin{equation}
+ K\mid N=n\sim {\rm Binomial}(n,\eta),
+ \qquad
+ \mathbb E[K\mid N]=\eta N,\qquad
+ \operatorname{Var}(K\mid N)=\eta(1-\eta)N .
+ \label{eq:loss-thinning}
+\end{equation}
+Applying the law of total variance to the thermal input gives
+\begin{align}
+ \mathbb E K&=\eta\bar n,\nonumber\\
+ \operatorname{Var}K
+ &=\underbrace{\eta^2\operatorname{Var}N}_{\text{attenuated source fluctuation}}
+  +\underbrace{\eta(1-\eta)\mathbb E N}_{\text{partition noise}}
+  =\eta\bar n+(\eta\bar n)^2 .
+ \label{eq:loss-total-variance}
+\end{align}
+Equivalently, the probability-generating function transforms as
+$G_K(z)=G_N(1-\eta+\eta z)=[1+\eta\bar n(1-z)]^{-1}$, so the output remains
+thermal with $\bar n_{\rm out}=\eta\bar n$.  The second term in
+Eq.~\eqref{eq:loss-total-variance} is therefore binomial partition noise and is
+linear in flux (shot-noise-like); it does not mean that vacuum injects a
+Poisson-distributed photon population.  The complete marginal is still
+thermal.  Indeed, vacuum loss scales every normally ordered factorial moment
+as
+\begin{equation}
+ \left\langle(\hat a_{\rm det}^\dagger)^m
+ \hat a_{\rm det}^m\right\rangle
+ =\eta^m\left\langle(\hat a_{\rm out}^\dagger)^m
+ \hat a_{\rm out}^m\right\rangle ,
+\end{equation}
+and hence leaves normalized $g^{(m)}$ invariant for nonzero transmitted mean;
+in particular $g^{(2)}(0)=2$.  At $\eta\bar n\ll1$ the Fano factor
+$\operatorname{Var}K/\mathbb E K=1+\eta\bar n$ approaches one even though the normalized
+single-mode statistic remains thermal.  This distinction explains why a
+strongly attenuated thermal beam can look shot-noise dominated without becoming
+a coherent state.
+
+For independent loss ports on the two TMSV arms, the same pre-loss geometric
+pair number $N$ is thinned separately.  The resulting moments are
+\begin{equation}
+ \langle K_j\rangle=\eta_j\bar n,\qquad
+ \operatorname{Var}K_j=\eta_j\bar n+(\eta_j\bar n)^2,\qquad
+ \operatorname{Cov}(K_p,K_c)=\eta_p\eta_c\bar n(\bar n+1).
+ \label{eq:two-arm-loss-statistics}
+\end{equation}
+Consequently,
+\begin{align}
+ \operatorname{Var}(K_p-K_c)
+ ={}&\bar n\!\left[\eta_p(1-\eta_p)+\eta_c(1-\eta_c)\right]
+ +(\eta_p-\eta_c)^2\bar n(\bar n+1),
+ \label{eq:tmsv-difference-loss}\\
+ \operatorname{Var}(K_p-wK_c)
+ ={}&\bar n\!\left[\eta_p(1-\eta_p)+w^2\eta_c(1-\eta_c)\right]
+ +(\eta_p-w\eta_c)^2\bar n(\bar n+1).
+ \label{eq:tmsv-weighted-difference}
+\end{align}
+For $\eta_p=\eta_c=\eta$, the common thermal pair-number fluctuation cancels
+from the raw difference.  With
+${\rm NRF}=\operatorname{Var}(K_p-K_c)/\langle K_p+K_c\rangle$, one obtains
+\begin{equation}
+ \operatorname{Var}(K_p-K_c)=2\eta(1-\eta)\bar n,
+ \qquad {\rm NRF}=1-\eta .
+ \label{eq:tmsv-symmetric-nrf}
+\end{equation}
+Unequal efficiencies leak the common thermal fluctuation back into the raw
+difference through the last term of Eq.~\eqref{eq:tmsv-difference-loss}.  For
+this ideal TMSV count model, $w=\eta_p/\eta_c$ cancels that term in
+Eq.~\eqref{eq:tmsv-weighted-difference}; it is not a universal claim that this
+weight minimizes a detector-normalized spectrum.  Once coherent carriers,
+electronic transfer, or a noncanonical source covariance is present, the
+optimal weight must be obtained from the full covariance and the matching SQL,
+as in the next section.
+
+A coherently seeded ideal two-mode squeezer also requires a different local
+state label.  Each single-arm marginal is displaced thermal rather than an
+undisplaced thermal state,
+\begin{equation}
+ \rho_j=D(\alpha_j)\rho_{\rm th}(\bar n_{\rm th})D^\dagger(\alpha_j),
+ \qquad
+ g_j^{(2)}(0)=1+
+ \frac{\bar n_{\rm th}^2+2\bar n_{\rm th}|\alpha_j|^2}
+ {(\bar n_{\rm th}+|\alpha_j|^2)^2} .
+ \label{eq:seeded-displaced-thermal}
+\end{equation}
+It interpolates from $2$ at zero displacement to $1$ for a dominant coherent
+carrier.  Thus hard-coding $g^{(2)}=2$ is valid only for the declared
+vacuum-input, ideal single-mode TMSV fixture, not for the total bright seeded
+beam.
+
+Finally, an attenuator whose unused port is genuinely thermal, with occupation
+$n_E$, is a thermal-loss channel rather than pure loss \cite{Lami2020,Xiang2017}:
+\begin{equation}
+ V_{j,{\rm det}}=\eta_j V_{j,{\rm out}}
+ +(1-\eta_j)\left(n_E+\tfrac12\right)I,
+ \qquad
+ \bar n_{j,{\rm det}}=\eta_j\bar n_{j,{\rm out}}+(1-\eta_j)n_E .
+ \label{eq:thermal-attenuator}
+\end{equation}
+Here the environment really does add thermal photons; ordinary optical path
+loss is normally modeled by $n_E\simeq0$.  Neither Eq.~\eqref{eq:pure-loss-operator}
+nor Eq.~\eqref{eq:thermal-attenuator} permits distributed in-cell absorption and
+spontaneous emission to be replaced, in general, by one beam splitter after an
+ideal source.  Gain and attenuation are interleaved along $z$ and need not
+commute.  Their physical fluctuation prediction requires the distributed
+coupling $B(z,\Omega_{\rm SA})$ and symmetrized diffusion
+$D(z,\Omega_{\rm SA})$ in Eqs.~\eqref{eq:langevin}--\eqref{eq:covariance}; those
+microscopic inputs remain unavailable in the current production model.
+
 \section{Electronic weighting and SQL normalization}
 
 The linearized photocurrent is
@@ -2884,7 +3036,7 @@ The document-level status is reported once, in
 Table~\ref{tab:validation-hierarchy} and the conclusion, rather than repeated
 in a second acceptance table.
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{99}
 
 \bibitem{Sim2025}
 G. Sim, H. Kim, and H. S. Moon,
@@ -2913,6 +3065,22 @@ based on atomic coherence}, \emph{Physical Review Letters} \textbf{82},
 C. M. Caves,
 \emph{Quantum limits on noise in linear amplifiers},
 \emph{Physical Review D} \textbf{26}, 1817--1839 (1982).
+
+\bibitem{Lami2020}
+L. Lami, M. B. Plenio, V. Giovannetti, and A. S. Holevo,
+\emph{Bosonic quantum communication across arbitrarily high loss channels},
+\emph{Physical Review Letters} \textbf{125}, 110504 (2020).
+
+\bibitem{Ivan2011}
+J. S. Ivan, K. K. Sabapathy, and R. Simon,
+\emph{Operator-sum representation for bosonic Gaussian channels},
+\emph{Physical Review A} \textbf{84}, 042311 (2011).
+
+\bibitem{Xiang2017}
+Y. Xiang, B. Xu, L. Mi\v{s}ta, Jr., T. Tufarelli, Q. He, and G. Adesso,
+\emph{Investigating Einstein--Podolsky--Rosen steering of continuous-variable
+bipartite states by non-Gaussian pseudospin measurements},
+\emph{Physical Review A} \textbf{96}, 042326 (2017).
 
 \bibitem{Torrey1949}
 H. C. Torrey,

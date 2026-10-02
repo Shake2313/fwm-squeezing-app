@@ -10,8 +10,10 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 ANALYSIS = ROOT / "analysis" / "squeezing" / "analytic_reconstruction"
 GENERATED = ANALYSIS / "generated"
-TEX = (ROOT / "docs" / "FWM physics and analytic reconstruction"
-       / "squeezing_analytic_reconstruction_v2.tex")
+PUBLICATIONS = json.loads(
+    (ROOT / "docs" / "grand_challenge" / "current_publications.json").read_text(
+        encoding="utf-8"))
+TEX = ROOT / PUBLICATIONS["publications"]["analytic_reconstruction"]["source"]
 
 
 def _audit():

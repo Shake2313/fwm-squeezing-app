@@ -1,0 +1,543 @@
+"""Initial editorial assembly snapshot only; final source includes subsequent reviewed edits.
+The maintained source is squeezing_report_v8.tex; build its PDF directly with XeLaTeX.
+This helper is retained as development provenance, not a final-source generator.
+Existing scientific arrays and figures are read unchanged; no atomic solve.
+"""
+from pathlib import Path
+import hashlib
+import json
+import re
+
+ROOT = Path.cwd()
+BASE = ROOT / 'docs/squeezing_report'
+OUT = BASE / 'squeezing_report_v8.tex'
+if OUT.exists():
+    raise FileExistsError(OUT)
+s = (BASE / 'squeezing_report_v7.tex').read_text(encoding='utf-8-sig')
+
+def once(old, new):
+    global s
+    if s.count(old) != 1:
+        raise ValueError((old[:100], s.count(old)))
+    s = s.replace(old, new, 1)
+
+once('squeezing_report_v7.tex', 'squeezing_report_v8.tex')
+once(r'스퀴징 이론과 실험 비교 · v7', r'스퀴징 이론과 실험 비교')
+once(r'\date{2026년 9월 8일 · 보고서 v7}', r'\date{2026년 9월 18일}')
+once(r'\graphicspath{{v7_science/}{./}}', r'\graphicspath{{v7_science/}{v8_assets/}{./}{../grand_challenge/}}')
+once('최적 조건, 다변수 민감도 및 실험과의 정량 비교', '실험 정합성, 조건부 운전영역과 미시적 예측의 검증 범위')
+once(r'\end{abstract}', r'''
+
+미시적 계산은 동일한 원자 생성자로부터 응답과 양 순서의 잡음 공분산을
+계산하고 독립적인 양자회귀 검산과 대조한다. 단일 속도·정지 원자와 선택된
+운동 경로에서는 일관성 및 수치 정확성을 확인했지만, 열 원자 앙상블의
+독립 표본 비교는 5\% 기준을 충족하지 못했다. 따라서 이 보고서의
+실험 정합성, 보정된 평균장 지도, 조건부 미시적 계산을 각각 구분한다.
+실제 뜨거운 증기 셀의 절대 스퀴징이나 실험적으로 검증된 최적 운전 전선을
+확정할 근거는 아직 없다.
+\end{abstract}''')
+
+once(r'\section{이득·흡수·잡음으로 정해지는 스퀴징 함수}', r'''
+\subsection{증거 수준과 이 보고서의 적용 범위}
+실험과의 작은 차이는 어떤 양을 입력했는지에 따라 다른 의미를 갖는다.
+이득을 측정값으로 넣었다면 그 계산은 원자 이득의 예측을 검증하지 않는다.
+목표 이득에 맞춘 계수가 포함되면 잡음을 적합하지 않았더라도 전체 계산을
+독립 입력의 무보정 예측으로 부를 수 없다. 표~\ref{tab:claims}는 본문에서
+사용하는 결과의 범위를 구분한다.
+\begin{table}[htbp]\centering\small
+\caption{계산 결과를 해석하는 네 가지 증거 수준.}\label{tab:claims}
+\begin{tabularx}{\linewidth}{P{3.0cm}Y Y}
+\toprule 수준 & 실제 입력과 판정 & 허용되는 해석\\\midrule
+실측량 조건부 정합성 & 측정 gain·효율 또는 두 평균 출력으로 모형을 제약 &
+그 관측량에 조건을 둔 IDS의 설명. 원자 입력의 독립 예측 아님.\\
+보정된 평균장 탐색 & 기준 gain에 계수를 맞추고 나머지 조건에서 고정 &
+수치적 변수 민감도. 미시적 잡음이나 장치 공차 인증 아님.\\
+조건부 미시적 계산 & 명시한 원자·경로·모드에 대해 같은 상태의 응답과 잡음 계산 &
+선택한 모델·영역의 물리 일관성 및 수치 검증. 독립 실측 입력 부재.\\
+독립 입력의 실험 예측 & 입력 출처·불확도·측정면을 고정하고 미열람 조건에서 양 출력·PSD 비교 &
+해당 조건과 관측량의 예측 성능. 현재 전체 열 증기 경로에서 미달성.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+본 보고서는 식과 필요한 가정을 본문에 정의한다. 수치의 원본 배열과
+소스 식별자는 부록에 제시하며, 그 파일이나 다른 보고서를 먼저 읽어야
+결론을 이해하는 구조는 사용하지 않는다.
+
+\section{이득·흡수·잡음으로 정해지는 스퀴징 함수}''')
+
+once(r'\subsection{분포 이득·흡수와 vacuum 유입}', r'''
+\subsection{대칭 손실과 비대칭 손실은 다른 제한이다}
+이미 정한 같은 가중치의 차분 신호에 두 팔의 동일한 vacuum 손실만
+적용하면 $R_\eta=1-\eta+\eta R_{\rm src}$이다. 따라서
+$0\leq R_{\rm src}\leq1$인 신호는 SQL에 접근하며, 이 연산만으로
+$R_\eta>1$이 되지 않는다. 이 명제는 양 팔이 동일하게 감쇠한다는 조건을
+필요로 한다. 비대칭 손실이나 전자 가중치의 불일치는 큰 단일 팔 잡음의
+상쇄를 깨뜨리므로, vacuum 손실만으로도 차분 잡음이 SQL 위로 올라갈 수 있다.
+이는 식~\eqref{eq:weighted}의 분산·공분산과 SNL을 함께 사용하면 확인된다.
+
+고정 $w=1$의 SQL 초과를 곧바로 새로운 원자 잡음으로 해석하지 않는다.
+각 팔의 효율, 단일 팔 PSD, 복소 cross PSD, 검출 지연과 전자 가중치를
+먼저 같은 기준면에서 확인해야 한다. 세기차의 SQL 초과는 여기서
+``차분 초과잡음''으로 부르며, 다른 정준 quadrature의 anti-squeezing과도
+관측량을 구별한다.
+
+\subsection{분포 이득·흡수와 vacuum 유입}''')
+once(r'다르다\cite{mc08}.', r'다르다\cite{mc08,jasperse}.')
+
+once(r'\section{실험변수의 물리적 결합}', r'''
+\subsection{최저 dB와 실제 운전 전선의 구분}
+검출 floor 근처에서는 서로 다른 큰 gain이 거의 같은 dB로 보인다.
+따라서 최저 dB 한 점과 낮은 온도·pump·흡수에서 목표 성능을 달성하는
+운전 전선은 다른 최적화 문제다. 목표 $S_\star$와 허용 모델 영역
+$\mathcal D$에 대해
+\begin{equation}
+ \mathcal A(S_\star)=\{\bm x\in\mathcal D:
+ S_{\rm IDS}(\bm x)\leq S_\star\}
+\end{equation}
+를 정의하고, 이 안에서 온도·pump 파워·산란·제어 민감도의 비용벡터를
+모두 더 줄일 수 없는 점들을 Pareto 전선으로 삼을 수 있다. 어떤 비용을
+선택했는지, 다른 변수는 고정했는지 또는 재조정했는지를 함께 지정해야 한다.
+모델과 입력이 조건부이면 이 집합과 전선도 조건부이다.
+
+물리적 허용영역에는 단순한 양의 gain 이외에 상태의 trace·양성,
+광장 commutator, noise source closure, 공분산 불확정성, 독립 수치 수렴과
+선형화·pump 고갈의 적용 범위가 필요하다. 탐색창 끝이나 허용성 검사의
+경계에 놓인 최저점은 확정된 내부 최적점이 아니다. 실험 운전 전선을
+제시하려면 측정 오차와 모델 오차를 포함한 목표 달성 확률까지 검증해야 한다.
+
+\section{실험변수의 물리적 결합}''')
+
+once('마지막 수준에 완전한 원자 잡음 계산이 아직 없으므로, GABES 스캔에는',
+     '이 평균장 스캔에는 열 원자 수송과 연결된 미시적 잡음이 포함되지 않으므로, 그림에는')
+once('주 계산은 gold 조건, 표준 red-seeded branch, Ultra, $N_F=3$을 썼다.',
+     '이 절의 저장된 탐색 데이터는 gold 조건, 표준 red-seeded branch, Ultra, $N_F=3$을 썼다.\n계산 계약과 소스 해시는 부록의 원본 배열에 결합되어 있으며, 다른 원자·잡음 모델의 결과로 재해석하지 않는다.')
+
+once(r'\subsection{OPD--TPD와 온도의 결합}', r'''
+\subsection{일점 보정의 외삽 범위}
+전체 residual $\ell_*$을 맞춘 위 탐색과 별도로, 두 비대각 감수율에만
+$C_{\rm mix}=0.5594938027$를 곱하는 평균장 보정이 있다.
+이 계수는 Sim의 대표 probe gain 15.5에 맞추고 대각 감수율·검출손실·
+원자상태는 그 보정에서 직접 바꾸지 않는 계약이다. 따라서
+$\ell_*=0.42504822$와 같은 계수로 교환할 수 없다. 표~\ref{tab:frozenmix}는
+$C_{\rm mix}$를 고정한 조건별 비교다. 감수율의 변경에 상응하는 미시적
+확산을 새로 유도한 양자모형은 아니다.
+\begin{table}[htbp]\centering
+\caption{고정 비대각 보정계수의 probe power gain 비교. Sim은 적합점이며,
+나머지는 계수 적합에 쓰지 않은 열람된 문헌 조건이다. 새로운 blind holdout이 아니다.}
+\label{tab:frozenmix}
+\begin{tabularx}{\linewidth}{P{3.4cm}rrrY}
+\toprule 조건 & 문헌 & 보정 미적용 & 보정 적용 & 판정\\\midrule
+Sim & 15.5 & 394.299 & 15.500 & 적합으로 정한 일치\\
+Liu & 8 & 127.577 & 6.445 & 약19.4\% 낮음\\
+McCormick 2008 & 9 & 7.133 & 1.926 & 약78.6\% 낮음\\
+\bottomrule
+\end{tabularx}
+\end{table}
+한 계수는 Sim·Liu의 이득을 낮추지만 McCormick 조건의 차이를 크게 만든다.
+문헌의 excited-state detuning 기준과 미확인 apparatus 입력도 남아 있으므로,
+이 차이를 특정 원자 과정의 크기로 곧바로 분해하지 않는다. 다만 한 점의
+gain 일치가 넓은 조건의 정확성을 보장하지 않는다는 결과는 명확하다.
+보정된 고온 scan도 131에서 141\,$^\circ$C로 갈 때 gain 약320에서
+12,368로 크게 변하므로, 이 계수만으로 고온 외삽이 해결되지는 않는다.
+이들 수치는 부록의 고정계수 데이터에서 가져왔으며 본 보고서에서 다시
+적합하거나 새로운 원자 scan을 수행하지 않았다.
+
+\subsection{OPD--TPD와 온도의 결합}''')
+
+once(r'\subsection{다른 레퍼런스에서 드러나는 물리}', r'''
+Pooser 등\cite{pooser}은 Rb 동위원소와 D1/D2 전이를 비교하여 이득과
+상관 생성의 계 의존성을 조사했고, Jasperse 등\cite{jasperse}은 분포
+이득·손실을 실험 진단에 사용하는 해석 모형을 제시했다. 이런 자료는
+원자종·전이·검출 조건을 바꾸었을 때의 모형 범위를 정하는 데 유용하다.
+서로 다른 전이·검출량의 최고 dB를 하나의 예측오차 표에 합치지는 않는다.
+
+\subsection{다른 레퍼런스에서 드러나는 물리}''')
+
+start=s.index(r'\section{코드의 한계와 개발 과제}')
+end=s.index(r'\clearpage'+'\n'+r'\appendix', start)
+s=s[:start]+r'''
+\section{미시적 잡음 계산에서 확인한 범위}
+\subsection{응답과 잡음을 함께 계산하는 기준}
+평균 이득을 잡음으로 환산하는 대신, 명시한 Hamiltonian과 reservoir로
+원자 상태를 구하고 그 상태의 상관함수를 계산할 수 있다. 사용한 기본식은
+\begin{equation}
+ \dot\rho=\mathcal L\rho=-\frac{\ii}{\hbar}[H,\rho]
+ +\sum_r\left(L_r\rho L_r^\dagger-\tfrac12\{L_r^\dagger L_r,\rho\}\right).
+\end{equation}
+여기서 $L_r$는 자발방출·명시적 replacement 등 선택한 환경 채널이다.
+원자 관측량의 connected fluctuation $\delta O_j=O_j-\langle O_j\rangle$에
+대해 두 연산자 순서의 상관 $\langle\delta O_j(t)\delta O_k^\dagger(t')\rangle$와
+$\langle\delta O_k^\dagger(t')\delta O_j(t)\rangle$를 각각 유지한다.
+두 값의 차는 commutator와 관련되지만, 그 차만으로 두 잡음의 절대 크기를
+정할 수는 없다. 응답으로부터 필요한 최소 잡음을 역산하여 실제 reservoir
+잡음을 대신하지 않는다.
+
+독립 양자회귀(quantum regression, QRT) 계산은 같은 물리적
+$\mathcal L$에서 원자 density와 두 시간 상관을 직접 전파한다.
+응답·확산의 축약 결과를 다시 입력하는 방식이 아니라, 독립적인
+상관 전파와 비교하는 것이 검산이다. 광장으로 옮긴 뒤에는
+진공 공분산 $I/2$와 $[x,p]=\ii$인 명시적 quadrature 순서에서
+commutator, 완전양성 및 uncertainty를 확인한다. 부록의 미시적
+자료는 이 기준으로 얻은 수치이며, 각 모델의 생략된 자유도까지
+검증하는 것은 아니다.
+
+\subsection{단일 속도에서의 조건부 readout}
+표~\ref{tab:microreadout}는 reduced D1 원자 하나의 속도계급을 대표하는
+균일매질 계산이다. Pump $600$ mW, 반경 $530\,\mu$m, 밀도
+$10^{18}\,\mathrm{m}^{-3}$, 약한 장의 면적 $1.2\times10^{-7}$ m$^2$,
+길이 12.5 mm, seed $8\,\mu$W, $\Delta_\nu=.9$ GHz,
+$\delta_\nu=-8$ MHz, replacement rate $2\pi\times100$ kHz를 선언했다.
+Pump는 Gaussian 중심 강도로 고정하고, 검출 응답은 평탄하며 전자잡음은
+0으로 두었다. 이 조건의 density와 replacement rate는 별도 입력이며
+실험 온도로부터 검증된 thermal stream을 만든 값이 아니다.
+
+강도 평균을 재현하도록 정의한 양의 Zeeman RMS dipole을 pump·약한 장의
+구동·편극 readout에 일관되게 적용했다. 이 평균 dipole은 약한 흡수의
+manifold 평균을 보존하지만 실제 signed Clebsch--Gordan 경로와
+편광 간 간섭, pump로 변한 Zeeman population을 복원하지 않는다.
+\begin{table}[htbp]\centering
+\caption{같은 조건부 원자 상태에서 얻은 gain과 IDS. 모든 열은 실험 예측이 아닌
+명시한 단일 속도 모델의 출력이다.}\label{tab:microreadout}
+\begin{tabularx}{\linewidth}{P{3.9cm}rrr}
+\toprule 총 검출효율 & 0.1 MHz [dB] & 1 MHz [dB] & 4 MHz [dB]\\\midrule
+$\eta_s=\eta_c=1$ & $-.873105$ & $-.872957$ & $-.870698$\\
+$\eta_s=\eta_c=.85$ & $-.730416$ & $-.730294$ & $-.728436$\\
+$\eta_s=\eta_c=.50$ & $-.414648$ & $-.414582$ & $-.413565$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+Probe와 conjugate power gain은 각각 1.11065587과 0.11356221이며
+검출효율을 바꾸어도 동일하다. 밀도 또는 길이를 0으로 두면 각각
+$G_s=1$, $G_c=0$, $R=1$을 회복한다. SQL 한계의 절대 오차는
+$1.11\times10^{-16}$, 대칭손실 법칙의 오차는 $3.33\times10^{-16}$이고,
+모든 경우의 광장 channel 검사를 통과했다. 38개 소비 scalar를 assumed로
+기록한 독립 입력 감사는 실패한다. 이 실패는 수치 오작동이 아니라
+실측 입력의 근거가 없다는 정확한 표시다. 이 계산의 약 $-0.73\dB$를
+뜨거운 증기 실측 $-7.8\dB$와 빼서 실험 예측오차로 보고하지 않는다.
+
+\subsection{움직이는 원자와 열적 앙상블}
+열 원자 경로 계산에서는 경계로 들어오는 flux가
+\begin{equation}
+ dJ=n f_T(\bm v)|\bm v\cdot\bm n_{\rm face}|\,dA\,d^3v
+\end{equation}
+를 따른다. 경계 state의 불확도, 경로 내부의 자발방출 잡음, 경계를
+통과하는 원자 수의 Poisson 변동을 구별한다. 원자 경로를 직접 계산할 때
+동일한 transit를 별도의 순간적인 thermal reset으로 다시 적용하지 않는다.
+독립 Poisson 도착 경로의 스펙트럼은 경로별 raw second moment를 도착률로
+가중하여 합한다. 평균 pulse를 먼저 위상 평균하여 0으로 만든 뒤
+제곱하면 원자 수 변동의 항을 잃을 수 있다.
+
+선택된 moving Rb 경로의 독립 QRT 검산에서 boundary 항을 제거하면
+greater covariance norm이 18.06\%, 서로 다른 구간 사이의 covariance를
+제거하면 333.46\% 바뀌었다. 따라서 순간적인 local noise만 더하는
+계산은 일반적인 원자 수송과 같지 않다. 이 비율은 그 single-atom
+fixture의 행렬 norm 변화이며 실험의 dB 오차가 아니다.
+
+전체 열적 평균의 검증에는 각 경로의 정확성과 경로·속도 적분 수렴이
+둘 다 필요하다. 표~\ref{tab:thermalpath}의 최근 p2 캠페인은
+열린 정사각 기둥으로 유입되는 pump-only Gaussian reduced-Rb stream을
+가정한다. RF는 0.1, 1, 4 MHz이고 세 독립 Sobol scramble의 24경로씩을
+합하여 72개의 고유 경로를 다룬다. 각 경로에는 CF4 세 해상도와 독립
+adjoint 두 해상도의 다섯 계산이 있다. finite seed·실제 cell의 pump history·
+광장 nonlocal Maxwell 전파와 검출 SQL은 이 stream 계산에 포함하지 않는다.
+\begin{table}[htbp]\centering\small
+\caption{열적 경로 적분의 정확도와 앙상블 적분의 수렴은 별도 결과다.
+경로 오차는 seed 811의 24경로 최대값이다.}\label{tab:thermalpath}
+\begin{tabularx}{\linewidth}{P{7.1cm}YY}
+\toprule 검사 & 관측값 & 기준 또는 상태\\\midrule
+CF4 첫 / 둘째 refinement & $5.35\times10^{-6}$ / $2.13\times10^{-7}$ & 각각 $10^{-3}$ 통과\\
+Finest CF4 대 독립 adjoint & $6.08\times10^{-8}$ & $5\times10^{-6}$ 통과\\
+Adjoint 자체 refinement & $1.38\times10^{-7}$ & $2\times10^{-6}$ 통과\\
+서로 다른 scramble의 전체 방향 비교 & 0/6 방향 통과 & 각 metric 5\% 이하 필요\\
+선언한 격자 / 평가된 격자 & 9 / 3 & p3·p4 각 세 seed 미평가\\
+고유 경로 / 완료한 원자 계산 & 72 / 360 & 전체 요청 1,440 중 360\\
+검증된 격자 refinement edge & 0 & 전체 thermal 수렴 미인증\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[htbp]\centering\small
+\caption{p2 세 seed의 여섯 유향 비교에서 얻은 metric별 최대 상대 행렬 변화의 범위.
+범위의 양 끝은 여섯 방향 중 최소·최대이며 신뢰구간이 아니다.}\label{tab:thermalscramble}
+\begin{tabularx}{\linewidth}{P{8.0cm}Y}
+\toprule Metric & RF/source 최대값의 방향별 범위\\\midrule
+Greater / lesser 전체 & 12.86--19.90\% / 12.89--19.96\%\\
+Greater / lesser source별 & 25.56--43.61\% / 22.17--43.33\%\\
+Poisson number & 5.70--9.06\%\\
+복소 retarded response & 25.78--34.37\%\\
+\bottomrule
+\end{tabularx}
+\end{table}
+각 비교의 분모는 기준 행렬의 Frobenius norm과 선언한 SI roundoff
+scale 중 큰 값이다. 여섯 metric이 모두 기준 안에 들어야 한 방향이 통과한다.
+상대 변화는 참 적분오차의 상계나 확률적 신뢰구간이 아니며, source나
+seed를 평균하여 실패를 감추지 않는다. 점유수/$nV$도 각 seed에서
+0.8302, 1.1103, 0.8561로 달라 사후 재정규화를 적용하지 않았다.
+계산이 정확한 개별 경로를 많이 확보한 사실만으로 열적 적분은 인증되지 않는다.
+
+\begin{figure}[p]\centering
+\includegraphics[width=\linewidth]{thermal_campaign_scrambles_p2_three_seeds_v2.png}
+\caption{열적 p2 세 scramble의 여섯 유향 비교. 수평 기준선은 5\%다.
+각 곡선은 같은 물리 조건의 quadrature 표본을 바꾼 결과이며, 다른
+실험 detuning·온도·pump 조건에서의 예측 검증을 뜻하지 않는다.
+그림과 복소 행렬은 고정된 캠페인 증거를 재사용했다.}
+\label{fig:thermal}
+\end{figure}
+
+\subsection{현재 결과가 운전 전선에 주는 제약}
+열적 행렬의 5.70--43.61\% 변화는 광학 IDS의 같은 비율 오차로
+환산할 수 없다. 해당 원자 stream에 비국소 광장 전파와 동일 조건 SQL을
+연결하지 않았기 때문이다. 원자 response와 noise가 수렴한 뒤 그
+오차를 optical covariance와 검출 readout으로 전파해야 실제 dB 오차가 된다.
+독립 scramble은 수치 적분 검산이고, 독립 실험 조건은 예측 검산이다.
+
+그러므로 본문의 Gaussian 최적점은 해당 해석 모형의 최적점으로,
+평균장 지도는 목표 gain에 조건을 둔 탐색으로 사용한다. 열 원자 전체의
+microscopic gain·IDS·RF bandwidth를 이미 예측하는 것으로 승격하지 않는다.
+소스·불확도·수렴이 갖춰진 결과에 한해서만 탐색 영역을 점진적으로 넓힐 수 있다.
+
+\section{실험 예측과 운전영역을 검증하는 조건}
+\subsection{미확정 입력과 모델 범위}
+\begin{table}[htbp]\centering\small
+\caption{실험 적용을 제한하는 조건과 필요한 관측량.}\label{tab:limits}
+\begin{tabularx}{\linewidth}{P{3.0cm}Y Y}
+\toprule 항목 & 현재 근거와 한계 & 필요한 판정\\\midrule
+결합·평균 이득 & 기준 gain을 맞춘 두 종류의 유효계수는 독립 원자상수가 아니다.
+고정계수의 다른 조건 비교도 큰 잔차를 남긴다. & 두 출력과 입력 seed를
+동시에 측정하고 CG·편광·population·overlap·transit의 입력을 독립화한다.\\
+미시적 원자 잡음 & reduced 모델의 응답·ordered noise 및 일부 광장 readout은
+구현·검산됐다. 전체 thermal 광장 예측은 미완성이다. & 경로 및 앙상블 수렴,
+nonlocal Maxwell, 양 순서 source closure·commutator·CP를 함께 검사한다.\\
+이차원 운동과 공간모드 & Gold Raman RMS 약1.38 MHz, 정지 원자 고정 모드와
+pump-only moving path가 별도 조건에서 검증됐다. & finite seed의 공간 수송,
+diffraction·walk-off·추가 수집모드 및 velocity-changing collision을 제한한다.\\
+Pump 고갈 & 구간 pump-budget과 최종 cap은 세 광장·원자의 자기일관 해가 아니다.
+저장된 지도 최저점은 cap만으로 gain 약33\% 감소. & 위치별 세 mean field와
+원자 state·응답·잡음 재계산, 에너지 수지 및 모드·공간격자 수렴이 필요하다.\\
+RF와 기술잡음 & TPD 폭·Raman RMS·원자 pole·검출 roll-off는 RF IDS bandwidth와 다르다. &
+팔별 PSD와 complex cross PSD, SQL/dark/transfer, RIN·산란·지연 및 대역 정의를 맞춘다.\\
+측정면과 불확도 & Gold 효율 규약만으로 약0.11 dB 차이가 생긴다.
+현재 assumed ledger는 no-fit 조건을 충족하지 않는다. & 원시 powers·독립 losses·
+QE·측정일·적용 조건·공분산을 기록하고 예측구간에 전파한다.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+펌프로 원자 상태를 다시 푸는 4준위 모형에는 그 모형이 허용하는
+hyperfine population 재분배가 있다. 이를 ``정상상태이므로 광펌핑이 없다''고
+분류하지 않는다. 남은 문제는 실제 signed Zeeman 경로·편광·충돌·수송과
+모드의 충분성이다. 원자 generation의 CP 통과 또한 그 reservoir가
+해당 실험을 충분히 묘사한다는 증명은 아니다.
+
+\subsection{독립 입력과 미열람 실험 조건}
+Waist를 독립 beam-profile 측정에 fit하거나 detector 전달함수를 별도
+교정 trace에 fit하는 것은 독립 입력과 양립한다. 반대로 목표 FWM gain이나
+IDS를 보고 waist·coupling·loss를 정하면 target-fitted 입력이다.
+모든 소비 값에 단위·출처·불확도·적용 조건을 연결하고, 목표 데이터가
+입력 추정에 들어갔는지 확인해야 한다. fitted라는 표시만으로 독립성을
+승인하지 않는다. 현재 SABES 입력 85개 중 nominal 47개, lab 10개,
+fitted 13개, paper 8개, datasheet 7개라는 분류는 자료의 출처 요약이며
+독립 입력의 완성도나 실험 예측 정확도를 뜻하지 않는다.
+
+검증 데이터는 하나의 RF trace에서 bin을 일부 숨기는 방법 대신,
+$\Delta_\nu,\delta_\nu,T,P_p,P_s$와 geometry의 운전조건 전체를
+기준으로 나눈다. 모델·입력 추정·평가지표·허용오차를 고정한 뒤,
+미열람 조건에서 $G_s,G_c$와 전체 $S_{\rm IDS}(\Omega)$를 공동 비교한다.
+같은 조건의 SQL·dark·검출 transfer, RBW/VBW·평균화, 전자 배경 차감 규약과
+광학 손실의 기준면도 필요하다. 실험 $-7.8\dB$는 이미 알려진 reference이므로
+blind holdout이 아니며, 문헌을 열람하여 모델을 정한 조건 역시 분리해야 한다.
+
+\subsection{공동 오차와 실제 운전 허용영역}
+입력 $\bm x$의 독립 측정 공분산을 $\Sigma_x$라 하면 smooth한 국소
+영역에서 $\operatorname{Var}S\simeq\nabla S^T\Sigma_x\nabla S$이다.
+정상점에서는 일차항이 작아져 평균 악화가
+$\tfrac12\operatorname{Tr}(H\Sigma_x)$부터 시작한다. 알려지지 않은
+입력의 불확도를 0으로 두어 정밀한 공차를 만들지 않는다. 다봉형·경계·
+비선형 영역에서는 실제 joint 입력분포를 전파하고 수치 수렴 오차와
+모델 잔차를 별도로 보존해야 한다.
+
+Bandwidth도 사전에 정의한다. $R<1$인 연결구간, 지정 dB 이하 구간,
+선형 noise reduction의 half-depth 폭은 서로 다르다. 양쪽 교차점과
+불연속 밴드, 탐색창 끝 때문에 알 수 없는 경계, RF 격자와 입력오차의
+영향을 함께 제시한다. Gold의 0.1--4 MHz 대역으로 Liu의 16.5 MHz
+대역까지 검증했다고 할 수 없다. 그 비교에는 최소 그 이상의 source와
+detector 데이터가 필요하다.
+
+실험 운전에서는 먼저 독립 검출 교정과 synchronized 입력·출력·PSD를
+확보하고, 작은 OPD--TPD·pump--seed·온도 scan으로 실제 기울기를 확인한다.
+TPD 재조정이 다른 공명 가지로 불연속 이동하는지와 lock의 추종 가능성도
+확인한다. 이 절의 요구조건을 충족할 때만 조건부 허용영역을 장치의
+안정화 사양과 연결할 수 있다.
+
+\section{결론}
+실측 이득·손실을 입력한 직접 IDS 비교는 약0.03--0.16 dB 규모의
+정합성을 보인다. Gold의 두 평균 출력으로 제약한 분포 Gaussian 모형은
+스퀴징을 적합하지 않고 $-7.8\dB$와 약0.09 dB 이내의 값을 주지만,
+이는 입력한 평균 광학량에 조건을 둔 설명이며 원자 이득·잡음의 독립
+예측 정확도가 아니다. 효율 정의만으로 약0.11 dB가 바뀐다는 점도 남는다.
+
+목표 gain에 맞춘 평균장 지도는 변수 결합·탐색 경계·검출 floor의
+영향을 드러내며, 고정계수의 문헌 조건 비교는 외삽 실패를 보여 준다.
+흡수·검출손실·기술잡음·seed plateau·저각도 pump 배제는 같은 최적화
+문제 안에서 다뤄야 한다. 미시적 잡음이 없는 깊은 dB나 gain-gap을
+통과한 ridge를 실제 squeezing 전선으로 인증할 수는 없다.
+
+Reduced 원자와 일부 광장·운동 경로의 독립 검산은 의미 있는 수치적
+성과다. 그러나 thermal p2의 여섯 방향 비교는 모두 5\% 수렴 기준에
+실패하며, 전체 원자 stream에서 검출 SQL까지의 절대 예측은 미확정이다.
+현재 결과의 실용성은 조건부 탐색과 가정을 판별하는 검증 도구에 있다.
+독립 입력·열적 및 광장 수렴·같은 조건의 양 출력과 full RF spectrum을
+갖춘 미열람 실험 비교가 실험 운전영역을 확정하는 다음 관문이다.
+
+''' + s[end:]
+
+once(r'\section{재현 데이터와 수치 검증}', r'''
+\section{유한 seed의 정확한 모멘트와 검출}
+무손실 이상 증폭기에서 seed 평균 photon number를 $n$, 입력 분산을
+$n+E_n$, $H=G-1$로 쓰면 한 정규화된 temporal mode에 대해
+\begin{align}
+ \mu_s&=Gn+H,&\mu_c&=H(n+1),\\
+ V_s&=G(2G-1)n+GH+G^2E_n,&
+ V_c&=H(2G-1)n+GH+H^2E_n,\\
+ C_{sc}&=GH(2n+1)+GHE_n.
+\end{align}
+Independent vacuum loss 뒤에는
+\begin{equation}
+ \mu_j'=\eta_j\mu_j,\quad
+ V_j'=\eta_j^2V_j+\eta_j(1-\eta_j)\mu_j,\quad
+ C_{sc}'=\eta_s\eta_c C_{sc},\quad
+ R_w=\frac{V_s'+w^2V_c'-2wC_{sc}'}{\mu_s'+w^2\mu_c'}.
+\end{equation}
+독립 coherent 배경은 해당 photon number를 분자와 분모에 같은 가중치로
+더하며 전자잡음은 분자에만 더한다. 임의의 optical bandwidth에 있는
+photon number와 연속 RF PSD를 같은 양으로 혼용하지 않는다.
+RF 적용에는 sideband mode·검출 필터·단측/양측 규약이 필요하다.
+
+Bright limit에서 seed 초과 Fano factor $\xi$와
+$D_0=\eta_sG+w^2\eta_c(G-1)$를 쓰면
+\begin{align}
+ R_w={}&1+\frac{2G(G-1)(\eta_s-w\eta_c)^2
+                    -2w^2\eta_c^2(G-1)}{D_0}\\
+ &+\xi\frac{[\eta_sG-w\eta_c(G-1)]^2}{D_0}.
+\end{align}
+이 식은 손실 불균형·가중치·seed 잡음의 상호작용을 직접 보여 준다.
+$G=15$, 양 팔 효율 .8694를 기준으로 다른 팔을 고정한 추가 광손실의
+$+0.5\dB$ 허용치는 probe 약5.973\%, conjugate 약1.358\%로 서로 다르다.
+이는 양 팔 공통 손실의 허용치와 다른 문제다.
+
+\section{잡음 목적함수와 광역 탐색의 적용 한계}
+\subsection{Gain만으로 잡음을 정할 수 없는 이유}
+일반적인 감쇠·증폭 매질에서는 mean transfer만으로 reservoir covariance가
+정해지지 않는다. $G_c=G_s-1$인 lossless coherent-seed 증폭기에서만
+leading bright IDS가 $1/(2G_s-1)$로 환원된다.
+\begin{equation}
+ \frac{G_s+G_c-2\sqrt{G_sG_c-1}}{G_s+G_c}
+ \xrightarrow[G_c=G_s-1]{G_s\gg1}\frac{5}{8G_s^2}
+\end{equation}
+는 같은 IDS의 올바른 식이 아니다. 잘못된 고이득 scaling과 큰 수의
+뺄셈 민감도가 함께 있으므로 이 식의 극단값은 source 한계가 아니다.
+또한 $(G_s-G_c)^2/(G_s+G_c)$를 손실 매질의 임의 두 gain에 넣으면
+$G_s=G_c$에서 가짜 완전압축을 만들 수 있다. $0.5\leq G_s-G_c\leq1.5$라는
+선별은 그런 일부 점을 제외하는 휴리스틱이며, noise covariance의 양자
+물리성을 증명하지 않는다. 큰 gain과 낮은 diagonal OD가 함께 있다는
+사실만으로도 논리적 모순을 선언할 수 없다. 원자 응답·환경 잡음·
+에너지 수지의 독립 계산이 필요하다.
+
+\subsection{저장된 광역·저각도 탐색이 제공하는 진단}
+표~\ref{tab:surrogate}는 gain-gap 목적함수에 팔별 OD와 pump-scatter
+항을 적용한 저장 scan의 대표 수치다. 공통 입력은 pump 600 mW, seed
+$8\,\mu$W, 길이12.5 mm, 반경530/330\,$\mu$m, 표준 red-seeded branch다.
+기본 광역창은 OPD $[-3.5,3.0]$ GHz와 $T=60$--150\,$^\circ$C,
+TPD 창 $\pm0.7$ GHz이며 기본 각도는 $.32^\circ$다.
+저각도 보조창은 별도 국소 탐색이다. 이 결과는 목표함수와 geometry가
+극값을 어떻게 바꾸는지 보여주는 수치 자료이며, 현재 microscopic
+source spectrum이나 실험적으로 검증된 권고점이 아니다.
+\begin{table}[htbp]\centering\small
+\caption{미시적 잡음 인증이 없는 surrogate 탐색의 대표 저장값.
+두 dB 열은 해당 목적함수의 값이며 물리적 squeezing 한계로 사용하지 않는다.}
+\label{tab:surrogate}
+\begin{tabularx}{\linewidth}{P{3.2cm}rrrrY}
+\toprule 조건 & $\Delta_\nu$ [GHz] & $T$ [°C] & $\delta_\nu$ [MHz] & 각도 & 목적함수 dB\\\midrule
+기본 geometry 최소 & $-1.50$ & 110 & $-280$ & $.32^\circ$ & $-8.102$ ($\eta=.8694$); $-15.621$ ($\eta=1$)\\
+양 OPD lobe & $+1.40$ & 125 & $0$ & $.32^\circ$ & $-7.780$ ($\eta=.8694$)\\
+Gold 고정 readout & $+.90$ & 121 & $-8$ & $.32^\circ$ & $-7.203$ ($\eta=.8694$)\\
+상세 기본 angle & $-1.54$ & 106 & $-286.8$ & $.32^\circ$ & $-14.80$ ($\eta=1$)\\
+저각도 보조 ridge & $-1.66$ & 102 & $-307.0$ & $.02^\circ$ & $-20.70$ ($\eta=1$), gap .501\\
+선별 탈락 raw 점 & $-1.68$ & 88 & $-304.7$ & $.20^\circ$ & $-27.59$, gap $-.013$\\
+\bottomrule
+\end{tabularx}
+\end{table}
+기본 최소의 $G_s\simeq22.6$, gap $.623$과 저각도 ridge의 gap $.501$은
+일부 결과가 휴리스틱 경계에 가깝다는 사실을 보여 준다. 다른 공간모드,
+검출 pump 누설과 signed Zeeman 경로가 포함되지 않으면 red/blue lobe의
+작은 차이로 실제 원자 population의 우열을 확정할 수 없다.
+교차각을 낮추어 geometric mismatch를 줄이는 이득은 pump의 공간적
+배제·수집모드·transverse motion과 함께 검증해야 한다.
+
+이 surrogate의 기본 최소를 중심으로 수행한 fixed-TPD $+0.5$ dB
+허용 drift는 OPD $-32/+155$ MHz, TPD $-9.6/+4.2$ MHz, 온도
+$-3.3/+12$\,$^\circ$C, 외부손실 $+2.1$ percentage points였다.
+TPD 재조정 시 OPD 범위는 $-75/+158$ MHz, 온도는 $-3.3/+10.9$\,$^\circ$C다.
+Seed 1--64\,$\mu$W의 변화가 0.004 dB 미만인 결과도 저장되어 있다.
+이 수치는 해당 surrogate의 공차이며 검출배경·포화·RIN을 측정한
+장치 공차가 아니다. 따라서 seed를 마지막에 확인하거나 온도를
+임의로 올리라는 일반적인 실험 처방으로 사용하지 않는다.
+
+\section{재현 데이터와 수치 검증}''')
+
+once('재계산은 \\code{analyze_squeezing_v7.py},',
+     '평균장 탐색과 Gaussian 이론의 수치 출처는 \\code{analyze_squeezing_v7.py},')
+once('조건·배열·수렴판정·결과는 \\code{v7_science/}에 저장한다.',
+     '조건·배열·수렴판정·결과는 \\code{v7_science/}에 저장되어 있다.\n이 파일 식별자의 버전 표시는 numerical provenance이며 본문의 선행 문서를 뜻하지 않는다.\n이 보고서는 저장된 증거를 분석하며 새로운 heavy simulation을 수행하지 않았다.')
+once(r'\begin{thebibliography}{99}\small',r'''
+미시적 readout의 재현값과 입력·환경·소스 해시는
+\code{analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.json}에 있다.
+열적 비교의 원본 복소 행렬과 검증 판정은
+\code{docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds.json} 및
+그 파일이 참조하는 경로·격자 자료다. 독립 경로 증거·부호·roundoff 규약을
+포함한 설명은 \code{docs/grand_challenge/}의 thermal, transport,
+normalization 자료에 보존되어 있다. 이것들은 본문 수치의 근거이며,
+본문의 정의를 대신하는 선행학습 자료가 아니다.
+
+고정계수 gain 비교는
+\code{analysis/fwm_gain_hotfix/exploration_physics/alternative_results.json}과
+\code{reference_points.json}의 입력·관측량 계약을 사용한다.
+Surrogate 광역·각도·공차 수치는
+\code{analysis/squeezing/}의 해당 보존 배열과
+\code{squeezing_report_v6.tex}에 결합된 출처를 따른다.
+일부 초기 평원 그림은 raw grid가 소실되어 동일 scan의 완전 재현이 불가능하다.
+잘못된 잡음 식의 그림과 수치를 새 source 한계로 대체 인용하지 않았다.
+이 보고서의 source와 그림·JSON hash 목록은
+\code{v8_assets/source_manifest.json}에 저장한다. 재현은 각 증거의 고정
+소스·물리 규약에 한정되며 다른 checkout의 소스로 같은 경로명을 실행하는
+것만으로 수치 동등성이 보장되지는 않는다.
+
+\begin{thebibliography}{99}\small
+\bibitem{jasperse} M. Jasperse, L. D. Turner and R. E. Scholten,
+``Relative intensity squeezing by four-wave mixing with loss: an analytic model and experimental diagnostic,''
+Optics Express \textbf{19}, 3765--3774 (2011).
+\href{https://doi.org/10.1364/OE.19.003765}{doi:10.1364/OE.19.003765}.
+\bibitem{pooser} R. C. Pooser et al., ``Quantum correlated light beams from non-degenerate
+four-wave mixing in an atomic vapor: the D1 and D2 lines of $^{85}$Rb and $^{87}$Rb,''
+Optics Express \textbf{17}, 16722--16730 (2009).
+\href{https://doi.org/10.1364/OE.17.016722}{doi:10.1364/OE.17.016722}.
+''')
+
+# Keep ordinary hyphens in prose and TeX's own -- range notation.
+s=s.replace('–','--').replace('—','---').replace('\u2011','-')
+OUT.write_text(s, encoding='utf-8')
+sources=[BASE/f'squeezing_report_v{k}.tex' for k in range(1,8)]
+sources += [BASE/'squeezing_paper.tex', BASE/'v7_science/theory_notes.md',
+    BASE/'v7_science/results.json',BASE/'v7_science/refinement.json',BASE/'v7_science/theory_results.json',
+    ROOT/'docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds.json',
+    ROOT/'docs/grand_challenge/thermal_campaign_p2_seed811_v2.md',
+    ROOT/'analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.json',
+    ROOT/'analysis/fwm_gain_hotfix/exploration_physics/alternative_results.json',
+    ROOT/'analysis/fwm_gain_hotfix/reference_points.json']
+for figure in re.findall(r'\\includegraphics(?:\[[^]]*\])?\{([^}]+)\}',s):
+    candidate=next((d/figure for d in [BASE/'v7_science',BASE/'v8_assets',BASE,ROOT/'docs/grand_challenge'] if (d/figure).is_file()),None)
+    if candidate is None:raise FileNotFoundError(figure)
+    sources.append(candidate)
+manifest={str(p.relative_to(ROOT)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
+with (BASE/'v8_assets/source_manifest.json').open('x',encoding='utf-8') as f:
+    json.dump(dict(scope='Read-only publication evidence; no new heavy simulation',sources=manifest),f,indent=2,ensure_ascii=False)
+print(json.dumps(dict(tex=str(OUT),characters=len(s),sources=len(manifest),figures=len(re.findall(r'\\includegraphics',s))),ensure_ascii=True))

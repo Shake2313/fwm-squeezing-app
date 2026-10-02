@@ -1,0 +1,126 @@
+{
+  "diagnostic_file_sha256": "5591c0af0285b41ed82325acbbc04929c68c8b82c11fcc98f31913e7a2cec297",
+  "diagnostic_record_sha256": "021328bf7088d9773c5ea914f7856eb7cfe2d914369586bbad8b431bd1436985",
+  "renderer_sha256": "f27c2f9dabb435423c1c2e75be304d34519c25961736186d9edd900cc5833b1f",
+  "figure_sha256": "747dfb70b5e4966aa8056a57769c20e753d6337d60e856633be7f2aa196ab07b",
+  "plotted": {
+    "greater": {
+      "location": {
+        "array_index": [
+          1
+        ],
+        "rf_index": 1,
+        "frequency_hz": 1000000.0,
+        "source": null
+      },
+      "signed_percentage_points": [
+        4.6424673688329285,
+        -1.781206972133269,
+        -0.3194542007246124,
+        5.823663420345363,
+        2.1486566741163076,
+        0.0
+      ],
+      "net_relative_change": 0.10514126290436716
+    },
+    "lesser": {
+      "location": {
+        "array_index": [
+          1
+        ],
+        "rf_index": 1,
+        "frequency_hz": 1000000.0,
+        "source": null
+      },
+      "signed_percentage_points": [
+        2.9202573267435192,
+        -1.1626884367057078,
+        1.0681301611360803,
+        4.023029062420148,
+        0.9989358804887623,
+        0.0
+      ],
+      "net_relative_change": 0.07847663994082803
+    },
+    "greater_by_source": {
+      "location": {
+        "array_index": [
+          0,
+          2
+        ],
+        "rf_index": 2,
+        "frequency_hz": 4000000.0,
+        "source": "atomic_inflow"
+      },
+      "signed_percentage_points": [
+        6.936919314376722,
+        7.598404044646019,
+        1.4040042217524202,
+        -2.4930996055797836,
+        0.3424157835506325,
+        0.0
+      ],
+      "net_relative_change": 0.13788643758746022
+    },
+    "lesser_by_source": {
+      "location": {
+        "array_index": [
+          0,
+          2
+        ],
+        "rf_index": 2,
+        "frequency_hz": 4000000.0,
+        "source": "atomic_inflow"
+      },
+      "signed_percentage_points": [
+        5.667559211063846,
+        6.69197932043726,
+        1.5254563862932353,
+        -1.7924201887281586,
+        0.23837280456325896,
+        0.0
+      ],
+      "net_relative_change": 0.1233094753362945
+    },
+    "poisson_number": {
+      "location": {
+        "array_index": [
+          0
+        ],
+        "rf_index": 0,
+        "frequency_hz": 100000.0,
+        "source": null
+      },
+      "signed_percentage_points": [
+        2.5734010332972397,
+        0.16452350805667024,
+        0.17476262606455406,
+        0.5102803940124877,
+        0.25463122993954185,
+        0.0
+      ],
+      "net_relative_change": 0.03677598791370495
+    },
+    "retarded_response": {
+      "location": {
+        "array_index": [
+          0
+        ],
+        "rf_index": 0,
+        "frequency_hz": 100000.0,
+        "source": null
+      },
+      "signed_percentage_points": [
+        0.20540831427915884,
+        0.1100315600431953,
+        4.230912330652392,
+        11.689873717672375,
+        19.9332192511561,
+        0.0
+      ],
+      "net_relative_change": 0.361694451738032
+    }
+  },
+  "new_atomic_solves": 0,
+  "physical_optical_prediction": false
+}

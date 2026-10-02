@@ -10,6 +10,20 @@ Orientation for AI assistants working in this repo.
 - **Deferred / planned work (not done yet on purpose)** → `docs/checklist.json`.
   Anything intentionally left for later (e.g. wiring Rydberg beam power to the OBE
   drive, a predictive biphoton model) is recorded there, not in code TODOs.
+- **Grand Challenge research turns** → `docs/grand_challenge/AGENTS.md`, then
+  `blueprint.md` for the living master design and current experiment card, then
+  `NEXT_SESSION.md`. End every research turn with a principal-investigator review;
+  update the same blueprint, close bounded work packages, and state the single
+  next question. Sealed failures and official milestone criteria remain intact.
+- **Scientific publication policy** → `docs/grand_challenge/publication_policy.md`;
+  current artifacts → `docs/grand_challenge/current_publications.json`.
+  Squeezing report owns experiment agreement/frontier exploration; analytic
+  reconstruction owns theory/precision; quotient structure owns the explicit
+  logical and order-theoretic organization. Each latest document must stand alone.
+  Preserve substantive content when revising; document every omission/correction
+  in Grand Challenge coverage records. Development logs and version differences
+  belong only in `docs/grand_challenge/`, not the three scientific documents.
+  This policy continues after Grand Challenge completion.
 
 ## Quick mental model
 - `gabes/` is a generic atomic Bloch-equation engine; `streamlit_app.py` is a

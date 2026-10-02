@@ -1,0 +1,20 @@
+{
+  "command": [
+    "C:\\Users\\\ubc15\uc218\uc778\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "tools/thermal_campaign_grid.py",
+    "--run",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2",
+    "--grid",
+    "3",
+    "11",
+    "--output",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json"
+  ],
+  "started_utc": "2026-09-28T10:41:06.828839+00:00",
+  "finished_utc": "2026-09-28T10:48:27.098590+00:00",
+  "wall_seconds": 440.26975289999973,
+  "exit_code": 0,
+  "log": "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\progress_2026_09_28\\grid-p3-s11-controller.log",
+  "output": "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json",
+  "blas_threads": 1
+}

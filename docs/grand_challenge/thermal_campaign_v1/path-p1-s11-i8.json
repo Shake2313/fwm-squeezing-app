@@ -1,0 +1,1060 @@
+{
+  "schema": "gabes-frozen-thermal-path-audit-v1",
+  "selection": [
+    1,
+    11,
+    8
+  ],
+  "campaign_sha256": "76e8da20c905cde8f64e4f2e7a704e194a58934e193692996c93cd7c6ab16bea",
+  "physical_path": {
+    "entry_position_m": [
+      0.00013134517413745077,
+      -0.00015410609879033338,
+      -0.00625
+    ],
+    "velocity_m_s": [
+      -283.5691435366933,
+      45.437170721078154,
+      226.19733133190763
+    ],
+    "residence_time_s": 1.0739894020060414e-06
+  },
+  "jobs": [
+    {
+      "selection": [
+        1,
+        11,
+        8
+      ],
+      "level": 0,
+      "elapsed_s": 118.16650299998582,
+      "key": "bfc78fe7eea1e6262c6a03ef542aa59265fde0ea6c82defc5d1dfdbf82bf37d8",
+      "hit": false,
+      "record_sha256": "6cab376e620f49e5e7a25288950da26fa2ee352ce1d16b31abcf785e0865a062",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\bfc78fe7eea1e6262c6a03ef542aa59265fde0ea6c82defc5d1dfdbf82bf37d8.json",
+      "payload_digest": "d28431dbdf2d5d45467491996d74665e8888de94f1269236dfa342fe2fa130eb"
+    },
+    {
+      "selection": [
+        1,
+        11,
+        8
+      ],
+      "level": 1,
+      "elapsed_s": 249.88671419999446,
+      "key": "464fdbd2644cec97e78556f8d9b4e962fc4cbd2944668b15f44f01f6c87bf9fb",
+      "hit": false,
+      "record_sha256": "9b04c6befed5b018a4e38211bb14fcf546a1f338c01c7b53fe1a0d3f3d333490",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\464fdbd2644cec97e78556f8d9b4e962fc4cbd2944668b15f44f01f6c87bf9fb.json",
+      "payload_digest": "a2705301ecbf27a7072f34dfd846c14ebacb317ac7e954951ad115f6a01d3ec5"
+    },
+    {
+      "selection": [
+        1,
+        11,
+        8
+      ],
+      "level": 2,
+      "elapsed_s": 623.3451357999875,
+      "key": "ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06",
+      "hit": false,
+      "record_sha256": "a920e0d4deb63aaa6db10df33c2a22ca73e54f30c91ec5fc689f929937d7e963",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06.json",
+      "payload_digest": "20448926cdfb844f1c5bf1aa997ce6b47c63463cb0e5a2acb96e75a03b1220c5"
+    },
+    {
+      "selection": [
+        1,
+        11,
+        8
+      ],
+      "level": 3,
+      "elapsed_s": 168.21709360001842,
+      "key": "02acbce0616923fa7b1ef46068bad42114a56d68318240411dc6011301ccfc67",
+      "hit": false,
+      "record_sha256": "ca720cf051cdf4c2c70d4a710e89ab7f342431f8d20d4fc2a3cfb88f791cdf97",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\02acbce0616923fa7b1ef46068bad42114a56d68318240411dc6011301ccfc67.json",
+      "payload_digest": "4ada3c399dda059fe80d0849b8d7cc0983a444ff4a54bede8eb0422d919033bf"
+    },
+    {
+      "selection": [
+        1,
+        11,
+        8
+      ],
+      "level": 4,
+      "elapsed_s": 193.1159205000149,
+      "key": "3f0e6f801eb7efb9cf508cdcb6c6b941bf8ebd1e5fe2415bf430b8886d154782",
+      "hit": false,
+      "record_sha256": "d725d7d13e6b983a5177da416c494e4bc0ed7ecca5ec8357b09384d93c298848",
+      "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\3f0e6f801eb7efb9cf508cdcb6c6b941bf8ebd1e5fe2415bf430b8886d154782.json",
+      "payload_digest": "b84eb83d437365a7b60a055a1cb33303fb4255864e5f8409c402289e33e07cb6"
+    }
+  ],
+  "ledger": {
+    "physical_path_key": "ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06",
+    "current_path_source": "Assumed unpolarized open-reservoir Rb column; explicit Maxwell boundary, not a measured cell wall; face=4, node=8",
+    "target_digest": "4aabb994dbfb6222abd1660da4544a344a12edca80cd1370c356bef79bc223ef",
+    "cache_records": [
+      {
+        "key": "bfc78fe7eea1e6262c6a03ef542aa59265fde0ea6c82defc5d1dfdbf82bf37d8",
+        "hit": true,
+        "record_sha256": "6cab376e620f49e5e7a25288950da26fa2ee352ce1d16b31abcf785e0865a062",
+        "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\bfc78fe7eea1e6262c6a03ef542aa59265fde0ea6c82defc5d1dfdbf82bf37d8.json",
+        "payload_digest": "d28431dbdf2d5d45467491996d74665e8888de94f1269236dfa342fe2fa130eb"
+      },
+      {
+        "key": "464fdbd2644cec97e78556f8d9b4e962fc4cbd2944668b15f44f01f6c87bf9fb",
+        "hit": true,
+        "record_sha256": "9b04c6befed5b018a4e38211bb14fcf546a1f338c01c7b53fe1a0d3f3d333490",
+        "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\464fdbd2644cec97e78556f8d9b4e962fc4cbd2944668b15f44f01f6c87bf9fb.json",
+        "payload_digest": "a2705301ecbf27a7072f34dfd846c14ebacb317ac7e954951ad115f6a01d3ec5"
+      },
+      {
+        "key": "ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06",
+        "hit": true,
+        "record_sha256": "a920e0d4deb63aaa6db10df33c2a22ca73e54f30c91ec5fc689f929937d7e963",
+        "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06.json",
+        "payload_digest": "20448926cdfb844f1c5bf1aa997ce6b47c63463cb0e5a2acb96e75a03b1220c5"
+      },
+      {
+        "key": "02acbce0616923fa7b1ef46068bad42114a56d68318240411dc6011301ccfc67",
+        "hit": true,
+        "record_sha256": "ca720cf051cdf4c2c70d4a710e89ab7f342431f8d20d4fc2a3cfb88f791cdf97",
+        "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\02acbce0616923fa7b1ef46068bad42114a56d68318240411dc6011301ccfc67.json",
+        "payload_digest": "4ada3c399dda059fe80d0849b8d7cc0983a444ff4a54bede8eb0422d919033bf"
+      },
+      {
+        "key": "3f0e6f801eb7efb9cf508cdcb6c6b941bf8ebd1e5fe2415bf430b8886d154782",
+        "hit": true,
+        "record_sha256": "d725d7d13e6b983a5177da416c494e4bc0ed7ecca5ec8357b09384d93c298848",
+        "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v1\\cache\\3f0e6f801eb7efb9cf508cdcb6c6b941bf8ebd1e5fe2415bf430b8886d154782.json",
+        "payload_digest": "b84eb83d437365a7b60a055a1cb33303fb4255864e5f8409c402289e33e07cb6"
+      }
+    ],
+    "primary_refinement": [
+      {
+        "greater": 1.306616380642633e-09,
+        "lesser": 1.3723439206379022e-09,
+        "greater_by_source": 3.474327142120561e-09,
+        "lesser_by_source": 3.2723164355659053e-09,
+        "mean_pulse": 1.0201411708729297e-06,
+        "mean_outer": 1.4461215621083534e-06,
+        "retarded_response": 1.9798157069557163e-11,
+        "exit_state": 5.149668308379122e-08
+      },
+      {
+        "greater": 6.001772938868279e-11,
+        "lesser": 6.217646998459756e-11,
+        "greater_by_source": 9.62514729284759e-11,
+        "lesser_by_source": 1.1792198587186033e-10,
+        "mean_pulse": 4.306725246225137e-08,
+        "mean_outer": 6.109854594898121e-08,
+        "retarded_response": 2.748767332704872e-12,
+        "exit_state": 2.4975309253071496e-09
+      }
+    ],
+    "independent_reference": {
+      "greater": 1.0852570408871353e-10,
+      "lesser": 1.0405354681290807e-10,
+      "greater_by_source": 9.283108157835824e-10,
+      "lesser_by_source": 8.8723919138489e-10,
+      "mean_pulse": 1.3129058737240052e-08,
+      "mean_outer": 1.8223766592339282e-08,
+      "retarded_response": 2.6072653711924818e-12,
+      "exit_state": 3.921953663067122e-09
+    },
+    "independent_refinement": {
+      "greater": 2.5366917059579487e-10,
+      "lesser": 2.431426491298385e-10,
+      "greater_by_source": 2.1578620336109862e-09,
+      "lesser_by_source": 2.0624800460351084e-09,
+      "mean_pulse": 2.518813777219492e-08,
+      "mean_outer": 3.460105004430353e-08,
+      "retarded_response": 3.1275543331241386e-12,
+      "exit_state": 9.289706421033651e-09
+    },
+    "passed": true,
+    "reasons": []
+  },
+  "path_passed": true,
+  "thermal_ensemble_converged": false,
+  "physical_optical_prediction": false,
+  "source_manifest_after": {
+    "schema": "gabes.python-source-manifest.v1",
+    "files": [
+      {
+        "path": "analysis/grand_challenge/adjoint_transport_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "75d987a0594e5876beb193b36c0b99ce1ec7bc0ad94ffe13958b9d3a86e053c3",
+        "raw_bytes": 13566,
+        "normalized_sha256": "75d987a0594e5876beb193b36c0b99ce1ec7bc0ad94ffe13958b9d3a86e053c3",
+        "normalized_bytes": 13566
+      },
+      {
+        "path": "analysis/grand_challenge/atomic_noise_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "9aaaed3834ed804edb2185b9ad78995dcfa0e56e9c50a1af2d3841a3f0768e65",
+        "raw_bytes": 7297,
+        "normalized_sha256": "9aaaed3834ed804edb2185b9ad78995dcfa0e56e9c50a1af2d3841a3f0768e65",
+        "normalized_bytes": 7297
+      },
+      {
+        "path": "analysis/grand_challenge/downstream_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "210c810669e0334de25997e5a66c95172c5cc6dfcd858e9341d7170d4975c832",
+        "raw_bytes": 17288,
+        "normalized_sha256": "210c810669e0334de25997e5a66c95172c5cc6dfcd858e9341d7170d4975c832",
+        "normalized_bytes": 17288
+      },
+      {
+        "path": "analysis/grand_challenge/exponential_transport_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "55c1755ed43bded2233caca8164b6f9075c839360c61e4f1a286fff6105fa3fe",
+        "raw_bytes": 9853,
+        "normalized_sha256": "55c1755ed43bded2233caca8164b6f9075c839360c61e4f1a286fff6105fa3fe",
+        "normalized_bytes": 9853
+      },
+      {
+        "path": "analysis/grand_challenge/field_noise_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "3f7b7fa801ac1ec1dd7a48264a8a7d0b10824cf2496ddd702a22ee467292ff5c",
+        "raw_bytes": 11090,
+        "normalized_sha256": "3f7b7fa801ac1ec1dd7a48264a8a7d0b10824cf2496ddd702a22ee467292ff5c",
+        "normalized_bytes": 11090
+      },
+      {
+        "path": "analysis/grand_challenge/foundation_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "657b9711235a85700586e5b95fbcdab69a3ac6e4579bd1c93396a18cc35e7d59",
+        "raw_bytes": 4903,
+        "normalized_sha256": "657b9711235a85700586e5b95fbcdab69a3ac6e4579bd1c93396a18cc35e7d59",
+        "normalized_bytes": 4903
+      },
+      {
+        "path": "analysis/grand_challenge/inflow_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8fb853b2aef0adf6a084e6f2df65a496771c02ab61e9bfe50079742945833152",
+        "raw_bytes": 18219,
+        "normalized_sha256": "8fb853b2aef0adf6a084e6f2df65a496771c02ab61e9bfe50079742945833152",
+        "normalized_bytes": 18219
+      },
+      {
+        "path": "analysis/grand_challenge/kinetic_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "a60091241d0f649241633e5f0bf71692343058f3893bc0fdc52b50a7e297b75b",
+        "raw_bytes": 17329,
+        "normalized_sha256": "a60091241d0f649241633e5f0bf71692343058f3893bc0fdc52b50a7e297b75b",
+        "normalized_bytes": 17329
+      },
+      {
+        "path": "analysis/grand_challenge/kinetic_refinement_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "9d06de6a319e0b75990e50778d40e094d3be3b9854e58beaa87746d5c49bde7f",
+        "raw_bytes": 7351,
+        "normalized_sha256": "9d06de6a319e0b75990e50778d40e094d3be3b9854e58beaa87746d5c49bde7f",
+        "normalized_bytes": 7351
+      },
+      {
+        "path": "analysis/grand_challenge/normalization_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+        "raw_bytes": 10902,
+        "normalized_sha256": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+        "normalized_bytes": 10902
+      },
+      {
+        "path": "analysis/grand_challenge/periodic_field_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "7f9c0806e1734ca3eede9e898875469c719953e543e77e1d13797b2a5a698427",
+        "raw_bytes": 17645,
+        "normalized_sha256": "7f9c0806e1734ca3eede9e898875469c719953e543e77e1d13797b2a5a698427",
+        "normalized_bytes": 17645
+      },
+      {
+        "path": "analysis/grand_challenge/periodic_noise_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "1865a858607152af844e1fb0019363179ee6ef5001f6e8aebe1d62aa7a0c2058",
+        "raw_bytes": 15156,
+        "normalized_sha256": "1865a858607152af844e1fb0019363179ee6ef5001f6e8aebe1d62aa7a0c2058",
+        "normalized_bytes": 15156
+      },
+      {
+        "path": "analysis/grand_challenge/rb_thermal_ensemble.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8dec590392dd4801261f02c006ffc05409cf0592ac067123e8bd815dfcd53ba0",
+        "raw_bytes": 25917,
+        "normalized_sha256": "8dec590392dd4801261f02c006ffc05409cf0592ac067123e8bd815dfcd53ba0",
+        "normalized_bytes": 25917
+      },
+      {
+        "path": "analysis/grand_challenge/rb_thermal_ensemble_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ce61af4629ec8731fe5d60522fa68a2921389e593e72134744fcec28ce280509",
+        "raw_bytes": 17175,
+        "normalized_sha256": "ce61af4629ec8731fe5d60522fa68a2921389e593e72134744fcec28ce280509",
+        "normalized_bytes": 17175
+      },
+      {
+        "path": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8435761140df87cf4cd71771b871113600a0d007632707343abbe7a4a9afe480",
+        "raw_bytes": 20166,
+        "normalized_sha256": "8435761140df87cf4cd71771b871113600a0d007632707343abbe7a4a9afe480",
+        "normalized_bytes": 20166
+      },
+      {
+        "path": "analysis/grand_challenge/rb_transport_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "f461544ec693e0b3132334498ebb5e03ae4d1195d285ca7fb0ace425b11fdff0",
+        "raw_bytes": 11563,
+        "normalized_sha256": "f461544ec693e0b3132334498ebb5e03ae4d1195d285ca7fb0ace425b11fdff0",
+        "normalized_bytes": 11563
+      },
+      {
+        "path": "analysis/grand_challenge/readout_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "11c602f1a42e5254594f50b196b7f8165fdd257b4f55345e3ba4ce8bd6b1a8e9",
+        "raw_bytes": 14369,
+        "normalized_sha256": "11c602f1a42e5254594f50b196b7f8165fdd257b4f55345e3ba4ce8bd6b1a8e9",
+        "normalized_bytes": 14369
+      },
+      {
+        "path": "analysis/grand_challenge/reference/adjoint_transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "638228fa43f634901825d23b22ef107c8c6df0d8acc1e5373a1cecc9c087544f",
+        "raw_bytes": 8389,
+        "normalized_sha256": "638228fa43f634901825d23b22ef107c8c6df0d8acc1e5373a1cecc9c087544f",
+        "normalized_bytes": 8389
+      },
+      {
+        "path": "analysis/grand_challenge/reference/atomic_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "517f7abbb9b45d40fa3e4373b44240e6a5bd86f4ece3cc9434fa682825e6b35d",
+        "raw_bytes": 4317,
+        "normalized_sha256": "517f7abbb9b45d40fa3e4373b44240e6a5bd86f4ece3cc9434fa682825e6b35d",
+        "normalized_bytes": 4317
+      },
+      {
+        "path": "analysis/grand_challenge/reference/ballistic_linear_channel.py",
+        "encoding": "utf-8",
+        "raw_sha256": "5f517494fa01a0b1f67a3fb4a8e8419a2648584cbdbee954958a43726c8e1515",
+        "raw_bytes": 18958,
+        "normalized_sha256": "5f517494fa01a0b1f67a3fb4a8e8419a2648584cbdbee954958a43726c8e1515",
+        "normalized_bytes": 18958
+      },
+      {
+        "path": "analysis/grand_challenge/reference/direct_readout.py",
+        "encoding": "utf-8",
+        "raw_sha256": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+        "raw_bytes": 1174,
+        "normalized_sha256": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+        "normalized_bytes": 1174
+      },
+      {
+        "path": "analysis/grand_challenge/reference/exponential_transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4277edf26d5d54567ca51449f040c3f19287d295957b03c8eaabbf2f08b24861",
+        "raw_bytes": 22449,
+        "normalized_sha256": "b03ce3abaabe5032f1f935b81df8e46110955c3fda0c853422814fda44606d13",
+        "normalized_bytes": 22184
+      },
+      {
+        "path": "analysis/grand_challenge/reference/fock_photocurrent.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8fedabb98b1b9193db41bb17650d29ebb178c3fe819937bbe604010ef7df2325",
+        "raw_bytes": 1930,
+        "normalized_sha256": "8fedabb98b1b9193db41bb17650d29ebb178c3fe819937bbe604010ef7df2325",
+        "normalized_bytes": 1930
+      },
+      {
+        "path": "analysis/grand_challenge/reference/kinetic.py",
+        "encoding": "utf-8",
+        "raw_sha256": "b0b9ba55cd448c8ddfb7d4d34a7b3a6b4d5fc1f2dfc76940dbef5ca19c91ec5c",
+        "raw_bytes": 2578,
+        "normalized_sha256": "b0b9ba55cd448c8ddfb7d4d34a7b3a6b4d5fc1f2dfc76940dbef5ca19c91ec5c",
+        "normalized_bytes": 2578
+      },
+      {
+        "path": "analysis/grand_challenge/reference/periodic_field.py",
+        "encoding": "utf-8",
+        "raw_sha256": "7fbd76a3f4d969abe4df2d84fe3657afd7f4176964944a30b2a51cae16642972",
+        "raw_bytes": 2395,
+        "normalized_sha256": "7fbd76a3f4d969abe4df2d84fe3657afd7f4176964944a30b2a51cae16642972",
+        "normalized_bytes": 2395
+      },
+      {
+        "path": "analysis/grand_challenge/reference/periodic_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "bfa6fde63b7e769a1e5f3204841cd0f324cf27fa55b249e2e86f1c3ef1e698a3",
+        "raw_bytes": 4653,
+        "normalized_sha256": "bfa6fde63b7e769a1e5f3204841cd0f324cf27fa55b249e2e86f1c3ef1e698a3",
+        "normalized_bytes": 4653
+      },
+      {
+        "path": "analysis/grand_challenge/reference/segmented_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "03d5d5ae261f77155fcf6da62f98ee1dc9763d6bea0207842fc57096e9b4d489",
+        "raw_bytes": 7510,
+        "normalized_sha256": "03d5d5ae261f77155fcf6da62f98ee1dc9763d6bea0207842fc57096e9b4d489",
+        "normalized_bytes": 7510
+      },
+      {
+        "path": "analysis/grand_challenge/reference/smooth_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "385d5097bb9013ce84f79e0471d3834c9085a583d0f583ad0bdc83c8c45ec8b7",
+        "raw_bytes": 8600,
+        "normalized_sha256": "385d5097bb9013ce84f79e0471d3834c9085a583d0f583ad0bdc83c8c45ec8b7",
+        "normalized_bytes": 8600
+      },
+      {
+        "path": "analysis/grand_challenge/reference/spatial_field.py",
+        "encoding": "utf-8",
+        "raw_sha256": "14cfdfb241a85e9bc992715e378354477eb2e76222b4b145c833c063fafd9926",
+        "raw_bytes": 3461,
+        "normalized_sha256": "14cfdfb241a85e9bc992715e378354477eb2e76222b4b145c833c063fafd9926",
+        "normalized_bytes": 3461
+      },
+      {
+        "path": "analysis/grand_challenge/reference/torus_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "fac1b05ab70f7c3c5a84a872d50ed0e0cdd5b60e54bbed0835e858ac37343ab6",
+        "raw_bytes": 5094,
+        "normalized_sha256": "fac1b05ab70f7c3c5a84a872d50ed0e0cdd5b60e54bbed0835e858ac37343ab6",
+        "normalized_bytes": 5094
+      },
+      {
+        "path": "analysis/grand_challenge/reference/transport_qrt.py",
+        "encoding": "utf-8",
+        "raw_sha256": "53909f46b7e703bc045ee62fe77f99cb6a8460105846fd8f77387b3f8a4dbd05",
+        "raw_bytes": 4039,
+        "normalized_sha256": "53909f46b7e703bc045ee62fe77f99cb6a8460105846fd8f77387b3f8a4dbd05",
+        "normalized_bytes": 4039
+      },
+      {
+        "path": "analysis/grand_challenge/reference/uncoupled_d1.py",
+        "encoding": "utf-8",
+        "raw_sha256": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+        "raw_bytes": 1882,
+        "normalized_sha256": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+        "normalized_bytes": 1882
+      },
+      {
+        "path": "analysis/grand_challenge/seed_validity_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "827b708f0181e3d31e873768862b45a27fb2bf832c17ababf3a6c9aae3bcac83",
+        "raw_bytes": 16555,
+        "normalized_sha256": "827b708f0181e3d31e873768862b45a27fb2bf832c17ababf3a6c9aae3bcac83",
+        "normalized_bytes": 16555
+      },
+      {
+        "path": "analysis/grand_challenge/smooth_transport_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "d4f5984b8605234779af901dfe8b2ecad06bc2d1f0ae20074fe81ff3b3792589",
+        "raw_bytes": 9894,
+        "normalized_sha256": "d4f5984b8605234779af901dfe8b2ecad06bc2d1f0ae20074fe81ff3b3792589",
+        "normalized_bytes": 9894
+      },
+      {
+        "path": "analysis/grand_challenge/smooth_transport_qrt_refinement.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4dbd292a6489a620f17c76f453aaaa9b3c29eaef9f2c3a9a9911f4b10c016549",
+        "raw_bytes": 7363,
+        "normalized_sha256": "4dbd292a6489a620f17c76f453aaaa9b3c29eaef9f2c3a9a9911f4b10c016549",
+        "normalized_bytes": 7363
+      },
+      {
+        "path": "analysis/grand_challenge/source_provenance.py",
+        "encoding": "utf-8",
+        "raw_sha256": "0cd225db2b84094886cf488d6167a893b2e3d86f695dcc3942befe447a940bbf",
+        "raw_bytes": 9798,
+        "normalized_sha256": "0cd225db2b84094886cf488d6167a893b2e3d86f695dcc3942befe447a940bbf",
+        "normalized_bytes": 9798
+      },
+      {
+        "path": "analysis/grand_challenge/spatial_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "2931702dc7e491eb05ac5a983112330271dabc7c3cda695c2259454fefdff096",
+        "raw_bytes": 16206,
+        "normalized_sha256": "2931702dc7e491eb05ac5a983112330271dabc7c3cda695c2259454fefdff096",
+        "normalized_bytes": 16206
+      },
+      {
+        "path": "analysis/grand_challenge/spatial_field_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "2d367e5d31719a6b5a877b33b1e333764208193713bc361571824d82bbe8a47c",
+        "raw_bytes": 20295,
+        "normalized_sha256": "2d367e5d31719a6b5a877b33b1e333764208193713bc361571824d82bbe8a47c",
+        "normalized_bytes": 20295
+      },
+      {
+        "path": "analysis/grand_challenge/spatial_uncertainty_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "55406c43495c9b3c57a22468f25f2766b5eb0238daf3f6f42d192427fa56b914",
+        "raw_bytes": 22822,
+        "normalized_sha256": "55406c43495c9b3c57a22468f25f2766b5eb0238daf3f6f42d192427fa56b914",
+        "normalized_bytes": 22822
+      },
+      {
+        "path": "analysis/grand_challenge/thermal_campaign.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ff01e3500cd46e56989bab90ebf4a9495e3077e6e1d0d50b917080b20ee1e27d",
+        "raw_bytes": 17876,
+        "normalized_sha256": "ff01e3500cd46e56989bab90ebf4a9495e3077e6e1d0d50b917080b20ee1e27d",
+        "normalized_bytes": 17876
+      },
+      {
+        "path": "analysis/grand_challenge/transport_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "12a80c8f5afc2795711c03b1e32369b0a88c432982d2a830f81ea5973b6fda39",
+        "raw_bytes": 16054,
+        "normalized_sha256": "12a80c8f5afc2795711c03b1e32369b0a88c432982d2a830f81ea5973b6fda39",
+        "normalized_bytes": 16054
+      },
+      {
+        "path": "analysis/grand_challenge/transport_ensemble_audit.py",
+        "encoding": "utf-8",
+        "raw_sha256": "e1eba5371eeb667e1fc6ef837d235fceefcbd5ec0b5e93713477fb9c2824bc18",
+        "raw_bytes": 36083,
+        "normalized_sha256": "e1eba5371eeb667e1fc6ef837d235fceefcbd5ec0b5e93713477fb9c2824bc18",
+        "normalized_bytes": 36083
+      },
+      {
+        "path": "analysis/grand_challenge/transport_ensemble_refinement.py",
+        "encoding": "utf-8",
+        "raw_sha256": "5c9e24dd73247a9bbf3604e622ec9bb4b8401e7c825fab2434f919bcfa00de8f",
+        "raw_bytes": 25010,
+        "normalized_sha256": "5c9e24dd73247a9bbf3604e622ec9bb4b8401e7c825fab2434f919bcfa00de8f",
+        "normalized_bytes": 25010
+      },
+      {
+        "path": "analysis/grand_challenge/transport_fixtures.py",
+        "encoding": "utf-8",
+        "raw_sha256": "d89ebb6f50aa7a9438d4a3767a78f922103527f249f4dfc2a4c44c14a30da2a3",
+        "raw_bytes": 2040,
+        "normalized_sha256": "d89ebb6f50aa7a9438d4a3767a78f922103527f249f4dfc2a4c44c14a30da2a3",
+        "normalized_bytes": 2040
+      },
+      {
+        "path": "gabes/__init__.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+        "raw_bytes": 712,
+        "normalized_sha256": "ac53fc04a42e3f41e6fd046af5ff64441e890beb4cbc694825666fcac3892124",
+        "normalized_bytes": 700
+      },
+      {
+        "path": "gabes/_csv_numeric.py",
+        "encoding": "utf-8",
+        "raw_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+        "raw_bytes": 824,
+        "normalized_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+        "normalized_bytes": 824
+      },
+      {
+        "path": "gabes/adaptive_scan.py",
+        "encoding": "utf-8",
+        "raw_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+        "raw_bytes": 6314,
+        "normalized_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+        "normalized_bytes": 6314
+      },
+      {
+        "path": "gabes/atoms.py",
+        "encoding": "utf-8",
+        "raw_sha256": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+        "raw_bytes": 9449,
+        "normalized_sha256": "6c254d0a1d557a8f971cfc55152a8e20b87b920702aca30bb151de470a269c42",
+        "normalized_bytes": 9223
+      },
+      {
+        "path": "gabes/beam.py",
+        "encoding": "utf-8",
+        "raw_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+        "raw_bytes": 2237,
+        "normalized_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+        "normalized_bytes": 2237
+      },
+      {
+        "path": "gabes/constants.py",
+        "encoding": "utf-8",
+        "raw_sha256": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+        "raw_bytes": 3800,
+        "normalized_sha256": "256f73f40c3afbec1d3ad9c8b60dca8e75083b191000d8331a9516034d85f00c",
+        "normalized_bytes": 3709
+      },
+      {
+        "path": "gabes/core.py",
+        "encoding": "utf-8",
+        "raw_sha256": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+        "raw_bytes": 41780,
+        "normalized_sha256": "d00d45012e33b736097febb601c0f6b84101a89c4e8370d2760566b09a04a739",
+        "normalized_bytes": 41512
+      },
+      {
+        "path": "gabes/doppler.py",
+        "encoding": "utf-8",
+        "raw_sha256": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+        "raw_bytes": 10090,
+        "normalized_sha256": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+        "normalized_bytes": 10090
+      },
+      {
+        "path": "gabes/experimental_csv.py",
+        "encoding": "utf-8",
+        "raw_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+        "raw_bytes": 36633,
+        "normalized_sha256": "8433e684f539b19906299f168a558b001847d7accdaeee06276337b23f379cf8",
+        "normalized_bytes": 35632
+      },
+      {
+        "path": "gabes/fwm_quantum/__init__.py",
+        "encoding": "utf-8",
+        "raw_sha256": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+        "raw_bytes": 85,
+        "normalized_sha256": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+        "normalized_bytes": 85
+      },
+      {
+        "path": "gabes/fwm_quantum/field.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+        "raw_bytes": 3827,
+        "normalized_sha256": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+        "normalized_bytes": 3827
+      },
+      {
+        "path": "gabes/fwm_quantum/inputs.py",
+        "encoding": "utf-8",
+        "raw_sha256": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+        "raw_bytes": 6503,
+        "normalized_sha256": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+        "normalized_bytes": 6503
+      },
+      {
+        "path": "gabes/fwm_quantum/kinetic.py",
+        "encoding": "utf-8",
+        "raw_sha256": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+        "raw_bytes": 16773,
+        "normalized_sha256": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+        "normalized_bytes": 16773
+      },
+      {
+        "path": "gabes/fwm_quantum/model.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+        "raw_bytes": 2908,
+        "normalized_sha256": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+        "normalized_bytes": 2908
+      },
+      {
+        "path": "gabes/fwm_quantum/normalization.py",
+        "encoding": "utf-8",
+        "raw_sha256": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+        "raw_bytes": 5649,
+        "normalized_sha256": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+        "normalized_bytes": 5649
+      },
+      {
+        "path": "gabes/fwm_quantum/periodic.py",
+        "encoding": "utf-8",
+        "raw_sha256": "56cf4e42959d7db9f290628a4956ae755eff725bcfd5c677bdc1ed48f41f3dc9",
+        "raw_bytes": 1328,
+        "normalized_sha256": "56cf4e42959d7db9f290628a4956ae755eff725bcfd5c677bdc1ed48f41f3dc9",
+        "normalized_bytes": 1328
+      },
+      {
+        "path": "gabes/fwm_quantum/periodic_cell.py",
+        "encoding": "utf-8",
+        "raw_sha256": "a3a9dfb11a320ea6a751c6a23afd5ab287ad8094cd525b20be71810b12ae970d",
+        "raw_bytes": 8560,
+        "normalized_sha256": "a3a9dfb11a320ea6a751c6a23afd5ab287ad8094cd525b20be71810b12ae970d",
+        "normalized_bytes": 8560
+      },
+      {
+        "path": "gabes/fwm_quantum/readout.py",
+        "encoding": "utf-8",
+        "raw_sha256": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+        "raw_bytes": 3469,
+        "normalized_sha256": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+        "normalized_bytes": 3469
+      },
+      {
+        "path": "gabes/fwm_quantum/seed_validity.py",
+        "encoding": "utf-8",
+        "raw_sha256": "a7ee4d273c232c0debf64e8cde913a1ddd0050c591df468aac0111b7cddb7e9d",
+        "raw_bytes": 5479,
+        "normalized_sha256": "a7ee4d273c232c0debf64e8cde913a1ddd0050c591df468aac0111b7cddb7e9d",
+        "normalized_bytes": 5479
+      },
+      {
+        "path": "gabes/fwm_quantum/smooth_transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "5cb5c6682e375b9a273a0abc325af2af6a28742981c5174826e1569e3592984c",
+        "raw_bytes": 2884,
+        "normalized_sha256": "5cb5c6682e375b9a273a0abc325af2af6a28742981c5174826e1569e3592984c",
+        "normalized_bytes": 2884
+      },
+      {
+        "path": "gabes/fwm_quantum/spatial.py",
+        "encoding": "utf-8",
+        "raw_sha256": "0e84b807ffdba30a245705057c19a09ea4a652445ad10a13fbe6d4658592f9b4",
+        "raw_bytes": 4472,
+        "normalized_sha256": "0e84b807ffdba30a245705057c19a09ea4a652445ad10a13fbe6d4658592f9b4",
+        "normalized_bytes": 4472
+      },
+      {
+        "path": "gabes/fwm_quantum/spatial_cell.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4b6321ae9df11e55d7d4d9335f9471179e185480ff3de3b698d52fd0edfd2ec5",
+        "raw_bytes": 11031,
+        "normalized_sha256": "4b6321ae9df11e55d7d4d9335f9471179e185480ff3de3b698d52fd0edfd2ec5",
+        "normalized_bytes": 11031
+      },
+      {
+        "path": "gabes/fwm_quantum/transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "a4279e9e322e1a0c19a85c2a3edd02e0721e80796f8440c25402d99a7930b858",
+        "raw_bytes": 7540,
+        "normalized_sha256": "a4279e9e322e1a0c19a85c2a3edd02e0721e80796f8440c25402d99a7930b858",
+        "normalized_bytes": 7540
+      },
+      {
+        "path": "gabes/fwm_quantum/transport_ensemble.py",
+        "encoding": "utf-8",
+        "raw_sha256": "6a11257abdbddcd0163639dbba230764863b7ce0661c646b936e05475efb63f3",
+        "raw_bytes": 24362,
+        "normalized_sha256": "6a11257abdbddcd0163639dbba230764863b7ce0661c646b936e05475efb63f3",
+        "normalized_bytes": 24362
+      },
+      {
+        "path": "gabes/hyperfine.py",
+        "encoding": "utf-8",
+        "raw_sha256": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+        "raw_bytes": 3820,
+        "normalized_sha256": "492daed382006ea40fdddc81f606d9c9f064b500fbfa40550d33a99f0fd2b4c9",
+        "normalized_bytes": 3730
+      },
+      {
+        "path": "gabes/kernels.py",
+        "encoding": "utf-8",
+        "raw_sha256": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8",
+        "raw_bytes": 34245,
+        "normalized_sha256": "df69d69631d76677902984b45ac90c4fea03539dc885c26a5e91c68a167a48e5",
+        "normalized_bytes": 33414
+      },
+      {
+        "path": "gabes/lineshape.py",
+        "encoding": "utf-8",
+        "raw_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+        "raw_bytes": 11408,
+        "normalized_sha256": "bfd1bc01cf3620f813d876ce9e14ff7f498b6bce32b325a6a35d8f2fa2cd7fa6",
+        "normalized_bytes": 11155
+      },
+      {
+        "path": "gabes/observables.py",
+        "encoding": "utf-8",
+        "raw_sha256": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+        "raw_bytes": 25339,
+        "normalized_sha256": "dda713e2ff46c4c72ddfef7ce6e4c47e10169dcbac89578776958da36b7ed51f",
+        "normalized_bytes": 24763
+      },
+      {
+        "path": "gabes/plot_style.py",
+        "encoding": "utf-8",
+        "raw_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+        "raw_bytes": 3453,
+        "normalized_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+        "normalized_bytes": 3453
+      },
+      {
+        "path": "gabes/pole_doppler.py",
+        "encoding": "utf-8",
+        "raw_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+        "raw_bytes": 18177,
+        "normalized_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+        "normalized_bytes": 18177
+      },
+      {
+        "path": "gabes/probe_saturation.py",
+        "encoding": "utf-8",
+        "raw_sha256": "399a4955eda9fb0334960f70a05762d2443ccd5db672e967ea65fa65425016dd",
+        "raw_bytes": 12658,
+        "normalized_sha256": "399a4955eda9fb0334960f70a05762d2443ccd5db672e967ea65fa65425016dd",
+        "normalized_bytes": 12658
+      },
+      {
+        "path": "gabes/quantum/__init__.py",
+        "encoding": "utf-8",
+        "raw_sha256": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+        "raw_bytes": 366,
+        "normalized_sha256": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+        "normalized_bytes": 366
+      },
+      {
+        "path": "gabes/quantum/channels.py",
+        "encoding": "utf-8",
+        "raw_sha256": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+        "raw_bytes": 6140,
+        "normalized_sha256": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+        "normalized_bytes": 6140
+      },
+      {
+        "path": "gabes/quantum/contracts.py",
+        "encoding": "utf-8",
+        "raw_sha256": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+        "raw_bytes": 6612,
+        "normalized_sha256": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+        "normalized_bytes": 6612
+      },
+      {
+        "path": "gabes/quantum/diffusion.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+        "raw_bytes": 10682,
+        "normalized_sha256": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+        "normalized_bytes": 10682
+      },
+      {
+        "path": "gabes/quantum/inflow.py",
+        "encoding": "utf-8",
+        "raw_sha256": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2",
+        "raw_bytes": 18129,
+        "normalized_sha256": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2",
+        "normalized_bytes": 18129
+      },
+      {
+        "path": "gabes/quantum/periodic.py",
+        "encoding": "utf-8",
+        "raw_sha256": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+        "raw_bytes": 13020,
+        "normalized_sha256": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+        "normalized_bytes": 13020
+      },
+      {
+        "path": "gabes/quantum/periodic_field.py",
+        "encoding": "utf-8",
+        "raw_sha256": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+        "raw_bytes": 10152,
+        "normalized_sha256": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+        "normalized_bytes": 10152
+      },
+      {
+        "path": "gabes/quantum/photocounting.py",
+        "encoding": "utf-8",
+        "raw_sha256": "92bce96856fe1f3e12d9600c6da2bae7f95a6619d1750a1be6a39da31d5e9c0c",
+        "raw_bytes": 10154,
+        "normalized_sha256": "92bce96856fe1f3e12d9600c6da2bae7f95a6619d1750a1be6a39da31d5e9c0c",
+        "normalized_bytes": 10154
+      },
+      {
+        "path": "gabes/quantum/readout.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+        "raw_bytes": 8420,
+        "normalized_sha256": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+        "normalized_bytes": 8420
+      },
+      {
+        "path": "gabes/quantum/reservoirs.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+        "raw_bytes": 7830,
+        "normalized_sha256": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+        "normalized_bytes": 7830
+      },
+      {
+        "path": "gabes/quantum/segmented_transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8a62bac3053f13678e38df7f85198cf9d6a4502701172de9d8b016735f258941",
+        "raw_bytes": 10919,
+        "normalized_sha256": "8a62bac3053f13678e38df7f85198cf9d6a4502701172de9d8b016735f258941",
+        "normalized_bytes": 10919
+      },
+      {
+        "path": "gabes/quantum/sidebands.py",
+        "encoding": "utf-8",
+        "raw_sha256": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+        "raw_bytes": 8506,
+        "normalized_sha256": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+        "normalized_bytes": 8506
+      },
+      {
+        "path": "gabes/quantum/smooth_transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "95f00437ac8bbab32383dd5e621205e4075c4d24c8482d407a6dd1028c3f45b9",
+        "raw_bytes": 10835,
+        "normalized_sha256": "95f00437ac8bbab32383dd5e621205e4075c4d24c8482d407a6dd1028c3f45b9",
+        "normalized_bytes": 10835
+      },
+      {
+        "path": "gabes/quantum/spatial.py",
+        "encoding": "utf-8",
+        "raw_sha256": "ff9bfb9e3dbd9ecb1b85efd9e69f274ce79e3949ba063fd95f5becf1e4c1e145",
+        "raw_bytes": 12619,
+        "normalized_sha256": "ff9bfb9e3dbd9ecb1b85efd9e69f274ce79e3949ba063fd95f5becf1e4c1e145",
+        "normalized_bytes": 12619
+      },
+      {
+        "path": "gabes/quantum/spatial_modes.py",
+        "encoding": "utf-8",
+        "raw_sha256": "9516283b9b7d298f25e14a784279831809f3e6219710ff0a2f7e0fef182edc8c",
+        "raw_bytes": 3770,
+        "normalized_sha256": "9516283b9b7d298f25e14a784279831809f3e6219710ff0a2f7e0fef182edc8c",
+        "normalized_bytes": 3770
+      },
+      {
+        "path": "gabes/quantum/spectrum_analysis.py",
+        "encoding": "utf-8",
+        "raw_sha256": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+        "raw_bytes": 15566,
+        "normalized_sha256": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+        "normalized_bytes": 15566
+      },
+      {
+        "path": "gabes/quantum/transport.py",
+        "encoding": "utf-8",
+        "raw_sha256": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1",
+        "raw_bytes": 17196,
+        "normalized_sha256": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1",
+        "normalized_bytes": 17196
+      },
+      {
+        "path": "gabes/quantum/traveling.py",
+        "encoding": "utf-8",
+        "raw_sha256": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+        "raw_bytes": 12914,
+        "normalized_sha256": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+        "normalized_bytes": 12914
+      },
+      {
+        "path": "gabes/quantum/uncertainty.py",
+        "encoding": "utf-8",
+        "raw_sha256": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+        "raw_bytes": 20146,
+        "normalized_sha256": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+        "normalized_bytes": 20146
+      },
+      {
+        "path": "gabes/report.py",
+        "encoding": "utf-8",
+        "raw_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+        "raw_bytes": 1258,
+        "normalized_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+        "normalized_bytes": 1258
+      },
+      {
+        "path": "gabes/rydberg_electrometry.py",
+        "encoding": "utf-8",
+        "raw_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+        "raw_bytes": 22541,
+        "normalized_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+        "normalized_bytes": 22541
+      },
+      {
+        "path": "gabes/rydberg_experiment.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+        "raw_bytes": 32839,
+        "normalized_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+        "normalized_bytes": 32839
+      },
+      {
+        "path": "gabes/rydberg_experimental_csv.py",
+        "encoding": "utf-8",
+        "raw_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+        "raw_bytes": 24044,
+        "normalized_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+        "normalized_bytes": 24044
+      },
+      {
+        "path": "gabes/schemes/__init__.py",
+        "encoding": "utf-8",
+        "raw_sha256": "5ae65927cd9a59322fbb3c715d96dd1337121ffd17f3efc5a211bb96b5de264f",
+        "raw_bytes": 1671,
+        "normalized_sha256": "d42ebe8e30686b2bc556e1b3849c2e906ac26368870a6e937fe1b3f7ff25752f",
+        "normalized_bytes": 1637
+      },
+      {
+        "path": "gabes/schemes/absorption.py",
+        "encoding": "utf-8",
+        "raw_sha256": "f368a878dac8e815c236b23cc524e5e1880d7e3ccfac2cff2365de426ab0f356",
+        "raw_bytes": 41134,
+        "normalized_sha256": "7a35922764831b652936438857996601e82febd679efafc9af3ddd1c82651d09",
+        "normalized_bytes": 40334
+      },
+      {
+        "path": "gabes/schemes/base.py",
+        "encoding": "utf-8",
+        "raw_sha256": "0e4e9639b2307ab9b666f774525ae88ccb190f8249fb6c6c5596adcb6dc7470a",
+        "raw_bytes": 6579,
+        "normalized_sha256": "58d423fe5f18f776d7b1f568be0c8442a558a95f965425c94280d72576b5bd28",
+        "normalized_bytes": 6449
+      },
+      {
+        "path": "gabes/schemes/fwm.py",
+        "encoding": "utf-8",
+        "raw_sha256": "2b05d3e5dedf69295ea53158957a004d86c498471f1c2faafb91feacf31825fd",
+        "raw_bytes": 229308,
+        "normalized_sha256": "2b05d3e5dedf69295ea53158957a004d86c498471f1c2faafb91feacf31825fd",
+        "normalized_bytes": 229308
+      },
+      {
+        "path": "gabes/schemes/magneto.py",
+        "encoding": "utf-8",
+        "raw_sha256": "3ff0032e5f80003d651dfe27e0f5fa158d1e66549c8ea5661fd0f3e9e87e0f0e",
+        "raw_bytes": 49522,
+        "normalized_sha256": "d7ab9129b1b34db20e21289d74cd24f25ca3227a3d0aabb9da74cd6b6e15b118",
+        "normalized_bytes": 48600
+      },
+      {
+        "path": "gabes/schemes/rydberg.py",
+        "encoding": "utf-8",
+        "raw_sha256": "8e658687771478839f4951a712c2aa4edc4e1337074841a32515b654397ba877",
+        "raw_bytes": 86608,
+        "normalized_sha256": "3fb4b19b1c2fe0d3f1f757af04be85badcfff4e346f14a17e04f0211847bc2e4",
+        "normalized_bytes": 85120
+      },
+      {
+        "path": "gabes/schemes/sas.py",
+        "encoding": "utf-8",
+        "raw_sha256": "4553de411497d5ab8966237bef63fce165d3ab5763b71c708aae3ba7deca9c42",
+        "raw_bytes": 68245,
+        "normalized_sha256": "b4de8b7f2d37b06f9bdf5ffd9a8c1d926ebb94969d73ae50345724bc5e601061",
+        "normalized_bytes": 66901
+      },
+      {
+        "path": "gabes/species.py",
+        "encoding": "utf-8",
+        "raw_sha256": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+        "raw_bytes": 18502,
+        "normalized_sha256": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+        "normalized_bytes": 18502
+      },
+      {
+        "path": "gabes/ui_metrics.py",
+        "encoding": "utf-8",
+        "raw_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+        "raw_bytes": 2385,
+        "normalized_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+        "normalized_bytes": 2385
+      },
+      {
+        "path": "gabes/zeeman.py",
+        "encoding": "utf-8",
+        "raw_sha256": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2",
+        "raw_bytes": 11103,
+        "normalized_sha256": "7d35e2ebe4b07adbc8c7044daf0461d0acb8fca46cec55cf73087183d6159671",
+        "normalized_bytes": 10835
+      }
+    ],
+    "source_sha256": "a95cd29442281ca89733f5aaa38a449d2e7367b458a9a08e4aa789bbfdb7f6e0",
+    "manifest_sha256": "b47b7695b983380917a78f1adb1d027d26449a0dff1b372d4dbfe085992d5d8e"
+  },
+  "controller": {
+    "name": "thermal_campaign_batch.py",
+    "raw_sha256": "11a799f317c7f9f1df063747ea677e6108d06a6c1738f479ac2d8e8d0f5b2c62",
+    "raw_bytes": 9555
+  },
+  "record_sha256": "68a31bcb859c3e7adf0edd28aa1d49a47892ccadecb30fdc0d6aad1be8582a4a"
+}

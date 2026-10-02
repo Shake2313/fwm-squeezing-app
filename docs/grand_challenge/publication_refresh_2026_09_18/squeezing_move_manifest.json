@@ -1,0 +1,411 @@
+{
+  "Operation": "Move owned new v8 build and QA artifacts",
+  "Source": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets",
+  "Destination": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build",
+  "Count": 79,
+  "Files": [
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\automated_checks.json",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\automated_checks.json",
+      "SHA256": "D80F7F5BBB3586DA3B8BB0B22B8BE439F85D1D5C630E89BD3B7AEAC052FD81AA"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\build_report.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\build_report.txt",
+      "SHA256": "3475253F86B6593EB964F4C27205CED5C1302773ABE5591564BA68C0607EE41D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass2.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass2.txt",
+      "SHA256": "3738D42227C897CC75D8951C3F2886319D6678EDD3361CAB455AE198C0FC0FB9"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass3.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass3.txt",
+      "SHA256": "6AA9D23CEB8B636B50147591CB62DBB89ABB8D85FA86345D9C025F0DD1669465"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass4.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass4.txt",
+      "SHA256": "3041E79DE2BEF6E9BB7FE5FDA27E65BCE0DA1D2F9179506A98C2766BF7A078EC"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass5.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass5.txt",
+      "SHA256": "AB1598B456E47C654078A2F5A31CEB7C2349085A89043B9715ECB0835B227267"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass6.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass6.txt",
+      "SHA256": "91C6B2671CB6AAB5B0F5F742CF64D85CB324B9F8A2A5D59E7F78E2EC7EF63294"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\compile_pass7.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\compile_pass7.txt",
+      "SHA256": "91C6B2671CB6AAB5B0F5F742CF64D85CB324B9F8A2A5D59E7F78E2EC7EF63294"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_and_check.txt",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_and_check.txt",
+      "SHA256": "4B718804C6449BC460203F8A56D7810F749A1E61347F75D8F645A5E32CC16743"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render.log",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render.log",
+      "SHA256": "A383DBC9A4B956F0B17EC6851533DAAF4800D07DBB2B08899515147BE863A7BB"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\source_manifest.json",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\source_manifest.json",
+      "SHA256": "450ACC1E91A25B9DBFD30BE0D3AE9041747AD5C17FAD7F4E5CBF9DAE97F887D0"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\squeezing_report_v8.aux",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\squeezing_report_v8.aux",
+      "SHA256": "BF94C3E98FAF8D965FB270EB4F869BFAECB4F152903A4D995319AF6EA9E3D6A6"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\squeezing_report_v8.log",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\squeezing_report_v8.log",
+      "SHA256": "9B940DCC0FC27B77306DCE5955BB352663FFDB8148BF9B644BA05A0280AB5998"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\squeezing_report_v8.out",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\squeezing_report_v8.out",
+      "SHA256": "AD40BBA7230F246F36B4713CE8FE7349287F547F6D554E16C3F05397A1A5D31C"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\squeezing_report_v8.pdf",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\squeezing_report_v8.pdf",
+      "SHA256": "47A7C0E3BD121C41DC72A37A3F4EAE2280A27F4D24CFF8DE3404147C5BB24954"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\squeezing_report_v8.toc",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\squeezing_report_v8.toc",
+      "SHA256": "EACEDAE1FEAE0AF50DB9C87591E34C1CEBF93CAA2321240F4235E714BA046A36"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-1.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-1.png",
+      "SHA256": "0E2158677047317BB6A675FC67A36859B70F9FCEAD3224BFEC6AAD94F26F3A2D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-2.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-2.png",
+      "SHA256": "8C162C89CBF6AFD393898792B3509B400B02FCBDB49C22B3D447A320BC416B3B"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-3.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-3.png",
+      "SHA256": "6B3DABA7246FB57884751F1CDE5800897BD9906F85814852D5A8795248F17408"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-4.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-4.png",
+      "SHA256": "0D1BE47ABED243AEB7EDDF3F00D30D344AFEC8077BAC58FCC569F03DF3F7C40A"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-5.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-5.png",
+      "SHA256": "B3DCAE3D098A9B8454F7F2D4517BD1C21DE7C377D7DF08DE801A2B90B4A42FFA"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-6.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-6.png",
+      "SHA256": "8A1F4EB46BA700388CDA3571197DDE50FFC153FEBAB0F1AD317A9CB1B329082D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\contact-7.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\contact-7.png",
+      "SHA256": "9925598B270E60430D9A3A3689A05C9C316B1FC460D73E5E20E22782DDD2602C"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-01.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-01.png",
+      "SHA256": "E329CF5BF02B3D8B75C32162B95EA27F4C6E533CBE7FDBC8712B1246BF1A5EE4"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-02.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-02.png",
+      "SHA256": "C321D2135AC085A7BE51845E64FE1478E9C0363023671BFB049B2070BE956B96"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-03.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-03.png",
+      "SHA256": "654794CEDD30D55DEAFD70E060A2B594F9A7FA6879F7DFAA8E9C45CB5C564152"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-04.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-04.png",
+      "SHA256": "C095F1A3790C2A2D474A8F0475F902A45BDDA464D81F2B4A9B43C7F66EDC5DB3"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-05.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-05.png",
+      "SHA256": "509FD11B21D749C20D2C0DC7ACBC566AEFDF8DC702C585D213A26D9321E5A556"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-06.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-06.png",
+      "SHA256": "EFE26EB559BCE6068429994F93D5E77D0F90EE6FBF92AD65C61B6277F5083D3C"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-07.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-07.png",
+      "SHA256": "4D45A4A7F50DEB0E0ED340186194AE259A6A0359036FFD092B77EFF21F559106"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-08.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-08.png",
+      "SHA256": "35554F47A616AEAE5A14C6CCE9461ABC3F3EC26103836724A891A5CB4DD6F242"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-09.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-09.png",
+      "SHA256": "DD5DD28E5CC11C7DA2E54936E558EC954DFC1CC71C4ED6DFA0FC5B0B90BA07F3"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-10.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-10.png",
+      "SHA256": "22893C600B6A1080B7AF74C81D794C6896521BBCA14105485E5F5F66ABC18EDD"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-11.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-11.png",
+      "SHA256": "2A5F3E68A0D4A50BC6FCDDEC03C4CC3D51719F96BAB84D2CC1121CEC1AB150FD"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-12.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-12.png",
+      "SHA256": "B0CAD155EC843A01E562937E0FC468DB760EB2899CF14A5447FCF2882BD7BD4D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-13.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-13.png",
+      "SHA256": "7C39F08658E3FA58C6D77717FF16DB5A5AE9813F85F10D1F806BE85A9E7D8734"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-14.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-14.png",
+      "SHA256": "B9825CBFDA797F6ACB98B356D8BB8F13E869E84E262002E02658939D3AF375C0"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-15.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-15.png",
+      "SHA256": "F4B768872554CA34A6AA046ABFB292639E9D48A3C23E7C5C0B8FBC8C90323C01"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-16.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-16.png",
+      "SHA256": "E66353678CEF54243FD0C5079177A553F39458741C93F62666337EB0D21DC939"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-17.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-17.png",
+      "SHA256": "66744091418179D217BD49641BB334582F1BF71B185097D9DC0E6A8026A89215"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-18.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-18.png",
+      "SHA256": "81D262E3BD6FB2415A0E32AF0356E76C6AE1847B9B778D3143006B692B4E0E04"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-19.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-19.png",
+      "SHA256": "258C59052EF166E37127A1CEB0E799B7C51B40FC7E290113F114C5DD084DD2DA"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-20.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-20.png",
+      "SHA256": "7236A5B52C3F9FB1790F481F1D21BE15B2CB63652A33C80B9C669BA955F95367"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-21.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-21.png",
+      "SHA256": "FF077C54A3681B087B6B5745FD3410A03C9CE0393327B78A1CDFBD70C49F1667"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-22.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-22.png",
+      "SHA256": "44DA811CE6A97644DE21818C98366CACEE591B90959BC2E922B4EE5405D3B9F4"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-23.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-23.png",
+      "SHA256": "966BE9C25F00A439E3DF2820760A6C57DE2CE72A452C36191B6B36C6F1FFF690"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-24.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-24.png",
+      "SHA256": "32ECA659B99FEA03C8B44852CAE4AA2E2B2228107494E11D873BA93B44335ED2"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render\\page-25.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render\\page-25.png",
+      "SHA256": "0BECAD25917AE25D099813E939EB0DF58645331A874379F04D160202713B92A8"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-1.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-1.png",
+      "SHA256": "89C328E086A882C752F20CCF0CA012F6BFDA6776734F1EBE54E63077249468F8"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-2.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-2.png",
+      "SHA256": "427B8BDDAD2631613AB2BB4924BC9940B1ADA23B81A2183CB566572EEA373E6C"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-3.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-3.png",
+      "SHA256": "6595446B6BD6AA71A8B8E6E15B4451FD48341A46E6DEB3796A72F5472DFFD3DF"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-4.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-4.png",
+      "SHA256": "3350FDB0491C217395837E0E1D39B7D75CD8E3661E134E2D71908031400D0819"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-5.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-5.png",
+      "SHA256": "8B90548A05DD8C13CEC2C57D90D83F1A49995CA73EEB982E906CABFEC51FF8E3"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\contact-6.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\contact-6.png",
+      "SHA256": "8D075F7BF5E1D09776CAB41844725EE46DFE483937657955FA786A48D07ABCF5"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-01.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-01.png",
+      "SHA256": "E329CF5BF02B3D8B75C32162B95EA27F4C6E533CBE7FDBC8712B1246BF1A5EE4"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-02.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-02.png",
+      "SHA256": "FB3772BACBFECE50000899F31813CD21DB885A4395D6D025FF9A55BC0F5CE6D2"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-03.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-03.png",
+      "SHA256": "E128D6CFA5FAE3DA2EE019B8D1806734C0B8D58AE1E9DD4B0E090DBE10F302DD"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-04.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-04.png",
+      "SHA256": "004564F36D625D7969A141386772D5C0D5095A8A47AF70BA7CB52155F4A73668"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-05.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-05.png",
+      "SHA256": "993814595652EFE710A0914C1415AD362FB058FAA805C7F149A4FA7DBADBA140"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-06.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-06.png",
+      "SHA256": "C0F2403435DA97F7948BFC0BD3496EEBF709042C6C1547B74918A91D6A7A4A01"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-07.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-07.png",
+      "SHA256": "1D75D1401522526DE5BC734BA0F892D4935C2D3FF51676928AB18D17A06DD1C5"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-08.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-08.png",
+      "SHA256": "DD1711569CCFF79DEFF2C31EA8F572F9FFE8E1419912E5B52D56E2FB23A25678"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-09.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-09.png",
+      "SHA256": "5DE59A0273B0D7F6CEA49A743F075E214CDB875735417EF133388C92F520BE41"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-10.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-10.png",
+      "SHA256": "A8F0199A4DE7543DA1A9A4160C36A875C0E3AA5A32F87BF8622900D43B50EFE6"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-11.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-11.png",
+      "SHA256": "41E20DA5A9538DF2413ED8610BF1343B9AB571C1E58540F0392E4445761A5F5A"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-12.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-12.png",
+      "SHA256": "6BF1549FA51CF869BAA22545869FD348BC83BC67B7AE76E70832D9A289A0AB10"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-13.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-13.png",
+      "SHA256": "777726DEA9756F8BD64FA1C73943E74A8BFBA9DEEE002534C6F41F82B7835149"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-14.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-14.png",
+      "SHA256": "FFBD31194C498A448F2D7BCF02B8CA3399CD0F00532AB76BB3A1116C864AA2E6"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-15.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-15.png",
+      "SHA256": "F482FB15EA1A80789D02892B06DCC8A3FA7EA0851E6AB32F0E70F54ED5DC0CC3"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-16.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-16.png",
+      "SHA256": "AF79D1B607B457B1F08B5B341E2E3EFF7CEA547662A81AFAA6548553C81F4F1D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-17.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-17.png",
+      "SHA256": "B4647E38737F323D297FC3AB2554FF2CDF7EF38C9F972E07B768C986C2B43EEC"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-18.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-18.png",
+      "SHA256": "41EEF16B59A721FA39A993A10D6DE0C7FB524CD7FCA57473E228AE32FC43574E"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-19.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-19.png",
+      "SHA256": "EC99447EA3C3EC8125FA3380EF4F2BB44DDF24DD28F839ABA3B0C6DBDAB3D918"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-20.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-20.png",
+      "SHA256": "C04C163B6D5F480A16E5D32F1299C6A94F21DCC44084064692F3270CF1DFFAB1"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-21.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-21.png",
+      "SHA256": "6722E82E85118CA72B05DE5EB51329F8D423E8ED3A301683B936E1B62E66E4A1"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-22.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-22.png",
+      "SHA256": "AD0877536D920ACCD87D7DB93248F55B2F488356E1455B8ADEB87FAA4E24008D"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-23.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-23.png",
+      "SHA256": "5591A343F845890F47C7BE8211F32BFA28D44E23CD82BC8FF9A8C444B0915D45"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\page-24.png",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\page-24.png",
+      "SHA256": "83A255BDFB7897057A07EC151AD7ECB1B3E6842B90F0D36871AB2F4F660D891C"
+    },
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\v8_assets\\render_final\\render.log",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\render_final\\render.log",
+      "SHA256": "A383DBC9A4B956F0B17EC6851533DAAF4800D07DBB2B08899515147BE863A7BB"
+    }
+  ],
+  "AdditionalOwnedFileMoves": [
+    {
+      "From": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report\\texput.log",
+      "To": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build\\failed_relative_directory_texput.log",
+      "SHA256": "a1093d2a074ee5fdf4c15030c0f5cab0313f1a5dd8b7c41f41d3384dee313dcb",
+      "Reason": "New log from failed relative-directory shell invocation, moved to development QA location"
+    }
+  ]
+}

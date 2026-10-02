@@ -1,0 +1,169 @@
+{
+  "model": "Independent constant-coefficient distributed Gaussian gain/probe-loss reduction; not microscopic GABES",
+  "assumptions": [
+    "bright coherent single seed; conjugate vacuum",
+    "undepleted phase-matched constant coupling",
+    "probe-only distributed vacuum absorption",
+    "one spatial mode and flat analysis band",
+    "equal external channel efficiencies; unweighted IDS unless specified"
+  ],
+  "fit": {
+    "input_seed_uw": 8.0,
+    "target_probe_uw": 111.0,
+    "target_conjugate_uw": 109.0,
+    "probe_gain": 13.875,
+    "conjugate_gain": 13.625,
+    "intrinsic_G": 16.0259362441321,
+    "probe_only_T": 0.8211645241481312,
+    "max_gain_fit_residual": 3.552713678800501e-15,
+    "noise_in_fit": false,
+    "observed_S_db": -7.8,
+    "predicted_S_db_eta_0p8694": -7.81890347354036,
+    "predicted_S_db_eta_0p865": -7.70926151275678
+  },
+  "conditional_optima": {
+    "G_at_fixed_fitted_T": {
+      "G": 20.252753660234287,
+      "S_db": -7.845024309562599,
+      "search_G_domain": [
+        1,
+        200
+      ]
+    },
+    "T_at_fixed_fitted_G": {
+      "T": 0.930919963453311,
+      "S_db": -8.096600342911675,
+      "search_T_domain": [
+        0.3,
+        1
+      ]
+    },
+    "common_gain_absorption_scale": {
+      "x": 1.0033819966007311,
+      "S_db": -7.819046566235574,
+      "search_x_domain": [
+        0.1,
+        2
+      ]
+    }
+  },
+  "distributed_plus0p5db_tolerances": {
+    "reference_S_db": -7.81890347354036,
+    "threshold_S_db": -7.318903473540361,
+    "G_interval_at_fixed_T": [
+      7.581914702844206,
+      63.67708678349828
+    ],
+    "T_interval_at_fixed_G": [
+      0.7469705889095187,
+      1.0
+    ],
+    "common_gain_absorption_scale_interval": [
+      0.8036822912609889,
+      1.2042332531686377
+    ]
+  },
+  "ideal_budgets": {
+    "G": 15.0,
+    "eta": 0.8694,
+    "R0": 0.16057931034482764,
+    "S0_db": -7.943104116221318,
+    "loss_floor_db": -8.840568230609447,
+    "thresholds": {
+      "plus_0p5_db": {
+        "R_target": 0.1801729495859788,
+        "eta_min": 0.8491065879288077,
+        "G_min": 9.2688952065695,
+        "baseline_meets_target": true,
+        "additive_noise_max": 0.01959363924115115,
+        "seed_excess_Fano_max": 0.6535720473813933,
+        "unpaired_fraction_total_SNL_max": 0.023341858835049762,
+        "additive_noise_limit_db_rel_SNL": -17.078848924604348,
+        "delay_max_ns_500khz": 12.557418839155684,
+        "weight_interval": [
+          0.9822370556627182,
+          1.0908044705212994
+        ]
+      },
+      "target_minus7": {
+        "R_target": 0.19952623149688797,
+        "eta_min": 0.8290621173782231,
+        "G_min": 6.806742593632542,
+        "baseline_meets_target": true,
+        "additive_noise_max": 0.03894692115206033,
+        "seed_excess_Fano_max": 1.2991266544855644,
+        "unpaired_fraction_total_SNL_max": 0.04639738051734159,
+        "additive_noise_limit_db_rel_SNL": -14.095268686594775,
+        "delay_max_ns_500khz": 17.7054601117151,
+        "weight_interval": [
+          0.9694859378975453,
+          1.105151224526373
+        ]
+      },
+      "target_minus7p8": {
+        "R_target": 0.16595869074375605,
+        "eta_min": 0.8638284988725383,
+        "G_min": 12.794007239981422,
+        "baseline_meets_target": true,
+        "additive_noise_max": 0.005379380398928407,
+        "seed_excess_Fano_max": 0.1794364292258153,
+        "unpaired_fraction_total_SNL_max": 0.006408443900921975,
+        "additive_noise_limit_db_rel_SNL": -22.692677438173906,
+        "delay_max_ns_500khz": 6.579433814247271,
+        "weight_interval": [
+          0.9942948753852989,
+          1.0775762783785672
+        ]
+      },
+      "target_minus8": {
+        "R_target": 0.15848931924611134,
+        "eta_min": 0.8715646336379561,
+        "G_min": 16.086612070519152,
+        "baseline_meets_target": false,
+        "additive_noise_max": 0.0,
+        "seed_excess_Fano_max": 0.0,
+        "unpaired_fraction_total_SNL_max": 0.0,
+        "weight_interval": [
+          1.0025001349121772,
+          1.068756535900549
+        ]
+      }
+    },
+    "local_db_derivatives": {
+      "per_gain_unit": -0.05591757882676382,
+      "per_efficiency_unit": -26.11287900122626,
+      "per_output_SNL_additive_noise_unit": 27.045481822698626,
+      "per_seed_excess_Fano_unit": 0.8108048929880753
+    },
+    "optimal_weight": 1.0350983390135313,
+    "optimal_weight_S_db": -8.368561829081354
+  },
+  "validation": {
+    "ideal_max_absolute_R_error": 9.96425164601078e-15,
+    "passive_coherent_max_absolute_R_error": 0.0,
+    "minimum_symplectic_eigenvalue": 0.49999999999979067,
+    "interleaved_covariance_relative_errors": {
+      "32": 0.0018138711485822278,
+      "128": 0.00045637708584303537,
+      "512": 0.00011428089706209974
+    }
+  },
+  "plotted_domain_minimum": {
+    "G_domain": [
+      1,
+      50
+    ],
+    "T_domain": [
+      0.65,
+      1
+    ],
+    "grid_shape": [
+      120,
+      140
+    ],
+    "G": 50.0,
+    "T": 0.973529411764706,
+    "S_db": -8.592646146175063,
+    "gain_boundary_minimum": true
+  }
+}

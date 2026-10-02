@@ -1,0 +1,311 @@
+{
+  "schema": "independent-raw-matrix-arithmetic-probe-v1",
+  "reference_selection": [
+    2,
+    11
+  ],
+  "candidate_selection": [
+    3,
+    11
+  ],
+  "source_code_sha256": "db91245399dcebb851c58d7e0da1c0814b7098d3f7e68b56435ee71f39955b3e",
+  "inputs_sha256": {
+    "docs\\grand_challenge\\thermal_campaign_v2\\grid-p2-s11.json": "1b0d6d3848d9f70249cf4776096db0392b297992bdfa42609c07e97dd2079412",
+    "docs\\grand_challenge\\thermal_campaign_v2\\plan.json": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\29dc57864a3a6637c08edbeb22fbc548ee86d308e6b457c3781282a4cf14f26e.json": "59fc9f99394447183072c51c8b0b8c8a1af5c85d0a16c19a92e9c7c555892248",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\dbe6512c08042f7770d98f3aeb99a495733b9576265ef54b00c53321a8a8b870.json": "feeec93bcdc13b81388c2ff9cbd0fe5051dad6b692c2c9db2c6bb11f78521a50",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\02877bcd0c45dd2c07cc082b200ef488e1f2dc03697474b851a70b59c0b72d47.json": "e1cbd8cfd8502736a81ea4c90887bf11badb39fa4ce069ed19ec9ad016c64a64",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\5c93dadccb50816cd0cc9807df69f585e781da7b1dc74c89db935b70d3caea46.json": "d254fea834aa723d1547bab9b7374b57eead4a26e3d5dbb272a3d1d0f7d10325",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\17f22543fba5ba7c440b344ea08c7d2a110a984a0e79139b8beb37eff6dff76f.json": "c1d29b010411ba2d86d16bed186ea69bd36a7a85675025e6def1cbadf312b06c",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\3e57b43a59c3a684d005c885343301dd9beca1c86358644c0020b99fcaa9b88b.json": "60c4d4ee572f73753664ab8ff59914e726b959381baf8f9f6a1e73d8dc2051cc",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\a16b356fab73377ed132a543c22174d40ee1a8c44f8f0cfbf41c202d6b97652d.json": "a85db373817a0bd016b423ae0500c0129b74e5af760ce1914a7f67711616a258",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\6a3dc5d4d5ad2a84aa09bf858fe947be241f93ddb2b37ac5a5ec6b8c847f5811.json": "9416e9c59a3ac3e47a62cdeb95dfe7f1ca0fdaf1aa20a3cbff382810d16261b0",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\12a83d44e0489dae9b8ad95a4e823945c58965feb7f83b8355eb7b5cbcf240f5.json": "31a1bfb7767876550f4aa3b5e281380001caa08acc9f55efbfbd9549d6025e03",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\4afa6496689352fb642f59237fd6c89d19e1c6e0667510caa9f35c6279069389.json": "6765f93aa258a191d5a36da5d78909f127637ca7d2d2e067b8d270a1e1516e6e",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\cbdc4285262f39e06b952af99c054e56e9fe5ea8b49c11e519cb928618c99400.json": "4eccc3c53b36bb6883a0f5c83eca9ac9ab6f615ca11cc76b796b4bc3ed1b40d3",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\7f260ce18c2ba8deb68e7f23a627f0392259fba657315e09d86ca8850801b156.json": "6b1bc396066895c3cb9798695038ac93d423718ba42f904870a42d3776eedbdc",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\b3522d19b2d7db81b0d5f223e29e9318004657a5e6fcf2a5e316d5b19afc45c1.json": "ef76cc808c81344db06d284e68fd97a522ec1b05483064735e2e1a3461b31fd7",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\670d17abd661d2ca9ee3e2d6479fd91cc1d99a8fada26bc73931a3846e0d0df7.json": "1519357d671ee0bdb869463b28ad3603072c3c2c4616e3cdbcfe3acf7a0facc0",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\44a340e0aa9da426c1d4737382d82d1499d23a6cc9a7bf2e43c775d10a044034.json": "3470d530d29b18c8b881404c75df634e4fe6441087b3f4eab086114b274ccf4b",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\b9f302a8631cb79c5ed6f7914ec26bf36438a16840dd6e859bf4b58457ba1066.json": "d47257c37481230227179a0b009ffd7156573a12bfe74a9cad99f79a8cd0d120",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\ff1ed75461248703e0950cad0d5748f4ea9637d4bd645dd42ac3e4d40990fa06.json": "bd55b7a8a3e39469c568bd113ddb3822d4e6af1770a05bed3aaf1e35eec6a94d",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\2339ce0066cbeaef33b22d7675ce827be6ce1f8d758d2a8dfbfda460d9e4de5b.json": "11ea8b8335ef0c08d86d09366da41458e8bca3557013cd87b1494d8ac50cc766",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\2d0b5dab6fde99edc1dbb3dea483fe2abcefa391ae5abff6796331801ccfba56.json": "f3b413638a1625f1923959df143b41c654cde8ccaa48fb6a5d501a195097c096",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\8f5557d7f2f3164e39c9c4402f9659518d93c7a2692d21e937afdcc584007324.json": "3a6c3b962b2f57ebeb26d9b3cf2c04d74b549550e4582028ea06a64fafd70225",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\9972834a9242ae86f15079d5d0c7ac52c0b312112df16b45de30910fcdab8a84.json": "36dde976ec4fc7753bedf3f4b66cacb0cfa3af60d124ea2b8df57458a853782a",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\6449827bb67960fb420fc0342f18845b86aa009a94dc62e4fde682672098bfec.json": "c6c839b254894201348a004ebbd3145cddc59dee1a93506ddc3ea908fe485def",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\5f11748a3d0445b229f5172c42c142e703d238900cfc88f96e8e9cd98e558611.json": "aeb98296137ea83526f575ca1321efbc1b03b44ed2df78703d444149aad482f9",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\9dfa1e759825f2a4f5de09fa6087f00f920ac5300a928566fb1701588d5d3cfd.json": "574b4fbd166db16c5958b3ad4ace5d09c69a658f801cde95f0d8e5479cfc3887",
+    "docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\0a9b528e8bb96ddbf42a70c7ead1ab806212c6ba35829f11b51c56d027904670.json": "1868b6efc37b176bafab8011912a31e861e41bf13048db50db43959a84c5d9bd",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\f2ac2e16caaacbcfb018750147e05838645b9afcc9516bb504163768ac6565a3.json": "7a0948efe4de0287ca69cd716b286ece9766e5d00df4536881baa70d4c6f64d4",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\ac6ab5be37c30f0781a419fcbe2b24644e14cf9baef8035999637b3d1e3ce7de.json": "607301e4e1532a72174669ce8f76fd77be42e60203a4a6ed707397922e6a1f30",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\d7441922f73996984a909d04510ed832c7ad28ff9533ecfab3024721046375ea.json": "e6874e7975e64b0a73aca9298e7a544daf928e23ced4b3f2afb5e18fb20ba44e",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\54711b9c317b5b773d7b93b71f5aaf4388c243eefd2955d3cd637e62dd1891cb.json": "6c3a171b0be05a56893c2e28cf8ebec96c2c0bad17fead77c20f4a5acc4c644f",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\b6f2fdf38ffac84ccd776ccaa8179be25aaec5e3292bff75537263dec21ab0cb.json": "4658b0affe52fe23294d0327bee9b9c777c98a7c6b420fabc768b0628f0af5cc",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\aa964b660c195e13a618752f963ba38e7cd0474fa1660e94afcec982eafec652.json": "8fed05fdad22944b5f46b49da76c7e65785022b5bd6250674432b81bbe6c0ceb",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\695edbeafeda7cedccd4ff19b138c5cfc255d3dd64270569b8ac5af562e96080.json": "3680a945ae4ff2bf607cf3d5f01a4367d10cc11b9398afe031cd78e60b7adaa2",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\d16631c44f87a7d42de179ca111f68103c8e797808540ebb02a0381245192095.json": "74988175540e3a8d265e28809aec76daa09407ac1d815a7e6cbd57c1c1f2e1b8",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\7f012ba5b5d7b66c5b96c662d82b83bbece28815164f46f8ea36c7e7b0d443d2.json": "a0bc143f0931e185b6f07fe7b701821663d9f4dea132a753966eb1af4b7d2f73",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\58a02610ee949d5f9576b49eb3b30e578bc7769bdb02497df59b4e7d2a3883d7.json": "49a934f873dca3476037c5109ce448a24cb4f94e3a189b70c33eb92b471dfdcf",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\66696a6adcb4420b5a46b881c6c4f08a8c586231cddfcd6596e12124ffa8035e.json": "234d95adb0ec8a3a32bd49e571364aa6d29da2e093b78dbb2c76786c91ca9ab3",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\45ff56d5a40354a0b1d68be95d8d918bb019c271cf8399eb65ead8a2bd6325d1.json": "587e380603400d3ff12003b8808176cdc31a7b543b3a2240bf4d5dd198ae1e13",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\c0bf0f0b22fc3c6ec1b1b77136f39ba6daf16c96481dacb2399a9ad02bc9c801.json": "e80ad5eacfcf82b088a9dbb84dee38cfabb0f78518a2af8ec1269e86376b8f4b",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\cda5daed7093048bf436ca0ae1042849449891f0a6de70b7eea212f01f8b480b.json": "8f18121b2e07008dd9d79b91cd10efc4982e929f73c2c2328561c3335a7c6fa5",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\489081fe60e8b9ac6f9cc3e384dcd7160caf1e4cf0957e4ac037f40c9b4cd9a0.json": "735db62294af405d541a9063bd52cc01e7c9f7fe4a15ff954078b3ecfe1d6b11",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\66dd83a8715b5a267378de71433ba9b830b01e5564cf3410441f15c61531cea7.json": "d6a5d7fefe0f215a3b4559ca7355fde7e216d41e2086746670d66e220e65ffd9",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\0b60ec99ab1efc19919e89f4e1516adf3d9c45766cb5614d2e6357b045294cfc.json": "3d7202d2440430078c029406ce80073515bf6032c19ac861f5d4c93eec701dcf",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\b8967b890ae31ea8c3095da7b422fc225a379d6c456341d27867c3d1af954c20.json": "d36417c4da78ad479ba5ff24b5de20dd0d6080aef7e488e524e34c757fa8d569",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\d87b664f2a0d0178325625f38f10c1e5937df3215be942d980819368486e2a04.json": "6eff3864021b8d8091d863f4d6feda28497129d5385e969bee7cc21a0166789a",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\8ed79271a90d97b25b5b5267f5ab4b9b5fcad5cd0d9b0fe306b9ea59cb7c0e37.json": "e8ff52cdacdb6c1b71cf41cde631303d79c8e512e4d60933b128b3c79f9cbe07",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\8d319d4fcc0c8826830d93e35a44a83a01411e3e4ce0dca7e8442a6528980410.json": "92d4c05da6cb1791f8b7270dd75843951d50e9695f1794dc2ce35654e8c648e8",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\a0b452326387d79eb44fc5875af482286f3b0bbd99503e923a27edd1be263e58.json": "8a265366b21b3eddc0aaaed083f4ba59610c89ee85256882c550d9ba6bc01419",
+    "docs\\grand_challenge\\thermal_campaign_v2\\cache\\189ed71bd49befe4552679f6abfbed42351647005d3ed82538c3821f4ced1959.json": "e70486398a7b7b83cad283d056a5fca38b1be7030b3de5f69cb0482bdc281cca"
+  },
+  "reconstruction_errors": [
+    {
+      "greater": 1.7614968143136484e-16,
+      "lesser": 1.7425028080985407e-16,
+      "greater_by_source": 3.116601650920794e-16,
+      "lesser_by_source": 3.491976375248702e-16,
+      "poisson_number": 6.369781238503675e-17,
+      "retarded_response": 3.331591300100015e-16
+    },
+    {
+      "greater": 1.7115919694367673e-16,
+      "lesser": 1.8549466096401887e-16,
+      "greater_by_source": 4.624141996965386e-16,
+      "lesser_by_source": 4.690371260928855e-16,
+      "poisson_number": 5.342100135730768e-17,
+      "retarded_response": 2.8942613416166204e-16
+    }
+  ],
+  "diagnostics": {
+    "greater": {
+      "directed_error": 0.10514126290436716,
+      "worst_rf_index": 1,
+      "worst_source": null,
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.02857886079526508,
+          "signed_projection_fraction": -0.08273558708802498
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.039967228179825245,
+          "signed_projection_fraction": 0.29084245902275935
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.04543753173639272,
+          "signed_projection_fraction": 0.3855437160824526
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.04649069787927271,
+          "signed_projection_fraction": 0.41248412152184194
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.0014139129495620432,
+          "signed_projection_fraction": -0.010888899011211702
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.0005899751340800211,
+          "signed_projection_fraction": 0.004754189472183151
+        }
+      ]
+    },
+    "lesser": {
+      "directed_error": 0.07847663994082803,
+      "worst_rf_index": 1,
+      "worst_source": null,
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.017601296216303443,
+          "signed_projection_fraction": 0.05750956819362237
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.02323725739474147,
+          "signed_projection_fraction": 0.12278437585736623
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.03445536827743595,
+          "signed_projection_fraction": 0.2572474997987312
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.05038955333845748,
+          "signed_projection_fraction": 0.566952167085943
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.0010937851857338193,
+          "signed_projection_fraction": -0.00777804821682516
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.0004249323817159986,
+          "signed_projection_fraction": 0.003284437281162379
+        }
+      ]
+    },
+    "greater_by_source": {
+      "directed_error": 0.13788643758746022,
+      "worst_rf_index": 2,
+      "worst_source": "atomic_inflow",
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.02676048781286599,
+          "signed_projection_fraction": 0.10979165510918311
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.042018731015308154,
+          "signed_projection_fraction": 0.0201256114336545
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.036627305811330765,
+          "signed_projection_fraction": 0.26001405403915984
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.08678499368003155,
+          "signed_projection_fraction": 0.599015619749669
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.0005358628144865705,
+          "signed_projection_fraction": 0.0026783447155189015
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.00165336380741133,
+          "signed_projection_fraction": 0.008374714952814995
+        }
+      ]
+    },
+    "lesser_by_source": {
+      "directed_error": 0.1233094753362945,
+      "worst_rf_index": 2,
+      "worst_source": "atomic_inflow",
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.025337114483830383,
+          "signed_projection_fraction": 0.02553892765558094
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.058513317049626555,
+          "signed_projection_fraction": 0.2446328846781044
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.033133898517707656,
+          "signed_projection_fraction": 0.2615264906175248
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.06483682413041603,
+          "signed_projection_fraction": 0.4577661701081404
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.0005439885472746189,
+          "signed_projection_fraction": 0.003334677237584971
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.001354729478853481,
+          "signed_projection_fraction": 0.007200849703063503
+        }
+      ]
+    },
+    "poisson_number": {
+      "directed_error": 0.03677598791370495,
+      "worst_rf_index": 0,
+      "worst_source": null,
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.009503523522419285,
+          "signed_projection_fraction": 0.09435460992177191
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.021193794324972877,
+          "signed_projection_fraction": 0.17644346108061462
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.029261628291561797,
+          "signed_projection_fraction": -0.10689654117022485
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.03340204958446843,
+          "signed_projection_fraction": 0.8190778657386939
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.0003610012657865304,
+          "signed_projection_fraction": 0.002273167298723384
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.0007486554555850544,
+          "signed_projection_fraction": 0.01474743713042091
+        }
+      ]
+    },
+    "retarded_response": {
+      "directed_error": 0.361694451738032,
+      "worst_rf_index": 0,
+      "worst_source": null,
+      "face_contributions": [
+        {
+          "face": 0,
+          "relative_norm_at_worst": 0.05450530298122096,
+          "signed_projection_fraction": -0.08635404903257277
+        },
+        {
+          "face": 1,
+          "relative_norm_at_worst": 0.1772747864962901,
+          "signed_projection_fraction": 0.38555370867858624
+        },
+        {
+          "face": 2,
+          "relative_norm_at_worst": 0.1524184680627848,
+          "signed_projection_fraction": 0.3109733095570066
+        },
+        {
+          "face": 3,
+          "relative_norm_at_worst": 0.14897820147841478,
+          "signed_projection_fraction": 0.40184721671838836
+        },
+        {
+          "face": 4,
+          "relative_norm_at_worst": 0.006815663442152037,
+          "signed_projection_fraction": -0.017965005233895593
+        },
+        {
+          "face": 5,
+          "relative_norm_at_worst": 0.0024657895221090013,
+          "signed_projection_fraction": 0.005944819312487516
+        }
+      ]
+    }
+  },
+  "new_atomic_solves": 0,
+  "thermal_ensemble_converged": false,
+  "physical_optical_prediction": false,
+  "scope": "Secondary recorded-packet arithmetic only. No native ODE/path/environment recertification. Signed face projections may cancel and are not independent positive noise fractions."
+}

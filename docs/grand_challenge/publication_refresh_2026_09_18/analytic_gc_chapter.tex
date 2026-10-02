@@ -1,0 +1,679 @@
+% New theory material, incorporated verbatim into the standalone analytic source.
+\part{Microscopic quantum response and moving-atom transport}
+\label{part:gc-microscopic}
+
+\section{The precise object being validated}
+\label{sec:gc-contract}
+
+A model has three distinct tests: whether its equations define an admissible
+quantum process, whether its numerical solution approximates those equations,
+and whether its chosen degrees of freedom, reservoirs, boundary conditions and
+input parameters describe the apparatus. Passing one test does not imply the
+next. The microscopic construction below supplies frequency-dependent drift,
+ordered noise and photocurrent spectra for explicitly specified reduced models.
+It does not identify the phenomenological mean-field gains elsewhere in this
+document with a complete quantum channel. In particular, a commutator-preserving
+vacuum completion of an arbitrary drift and diffusion derived from atomic jumps
+are different physical models.
+
+The local stationary four-level model, periodically driven four-level model,
+finite spatial mode projection, ballistic single-atom trajectory and thermal
+inflow ensemble each have a different closure assumption. Equations below make
+those assumptions explicit. Internal QRT and complete-positivity tests constrain
+the chosen model; they are not certificates of an experimental squeezing value.
+The reported thermal ensemble is not converged, and nonlocal propagation through
+the cell is not yet an established apparatus calculation.
+
+\section{Atomic drift and diffusion from one GKSL generator}
+\label{sec:gc-atomic}
+
+Write the Hamiltonian in angular-frequency units, $h=H/\hbar$, and put rates
+inside collapse operators $L_r$, with units $\mathrm{s}^{-1/2}$:
+\begin{equation}
+ \mathcal L\rho=-\ii[h,\rho]+\sum_r
+ \left(L_r\rho L_r^\dagger-\tfrac12\{L_r^\dagger L_r,\rho\}\right).
+ \label{eq:gc-gksl}
+\end{equation}
+Choose a complete Hermitian traceless basis $F_i$ satisfying
+$\Tr F_iF_j=\delta_{ij}$, $i=1,\ldots,d^2-1$. If $\mu_i=\Tr\rho F_i$,
+the adjoint equation is exactly affine on this basis:
+\begin{equation}
+ \dot\mu=A\mu+b,\qquad
+ A_{ij}=\Tr[F_i\mathcal L(F_j)],\quad
+ b_i=\Tr[F_i\mathcal L(I/d)].
+ \label{eq:gc-atomic-drift}
+\end{equation}
+The real matrix $A$ has units $\mathrm{s}^{-1}$. This representation is exact
+for one finite atom; it does not assert that the atom has a Gaussian state.
+For centered operators $\delta F_i=F_i-\mu_i I$, define the ordered covariance
+$C_{ij}=\Tr\rho\,\delta F_i\delta F_j$. The adjoint product rule gives
+\begin{align}
+ D^{(r)}_{ij}&=\Tr\rho\,[L_r^\dagger,F_i][F_j,L_r],
+ &D&=\sum_rD^{(r)},\label{eq:gc-einstein}\\
+ \dot C&=AC+CA^T+D. &&\label{eq:gc-covariance-identity}
+\end{align}
+The Hamiltonian terms cancel from the product-rule defect. Each $D^{(r)}$
+is a Gram matrix: if $Q_i=[F_i,L_r]$, then
+$D^{(r)}_{ij}=\Tr\rho Q_i^\dagger Q_j$. Hence $D^{(r)}\succeq0$ for
+$\rho\succeq0$. Atomic $D$ has units $\mathrm{s}^{-1}$ and must not be
+confused with spatial field diffusion, whose units are $\mathrm{m}^{-1}$.
+For a stationary state,
+\begin{equation}
+ AC+CA^T+D=0,\qquad
+ AK+KA^T+D-D^T=0,\quad K=C-C^T.
+ \label{eq:gc-stationary-identities}
+\end{equation}
+The matrix $K$ is the expectation of atomic commutators and depends on the
+state. It is not the constant field commutator $J$.
+
+For a mixing stationary state, let
+$R(\Omega)=(-\ii\Omega I-A)^{-1}$. With the Fourier convention of
+Eq.~\eqref{eq:fourier}, the ordered spectra are
+\begin{equation}
+ S^>(\Omega)=RDR^\dagger,\quad
+ S^<(\Omega)=RD^TR^\dagger=S^>(-\Omega)^T,\quad
+ S^{\rm sym}=\tfrac12(S^>+S^<).
+ \label{eq:gc-ordered-spectra}
+\end{equation}
+An independent full-density-matrix quantum regression calculation instead
+propagates
+\begin{equation}
+ C_{ij}(t)=\Tr\left[\delta F_i\,e^{\mathcal L t}
+                 (\delta F_j\rho_{\rm ss})\right],\quad t\geq0,
+ \label{eq:gc-qrt}
+\end{equation}
+and adds the negative-time adjoint to its one-sided transform. Equality with
+Eq.~\eqref{eq:gc-ordered-spectra} tests both source ordering and resolvent signs.
+An independent probe of 30 random GKSL generators in dimensions $2,3,4$, each
+with four complex jumps and five RF frequencies, found a maximum relative
+ordered-spectrum discrepancy $9.99\times10^{-16}$ and maximum normalized
+commutator identity residual $6.58\times10^{-16}$. These 150 comparisons
+validate the finite-dimensional identities, not an alkali-vapor reservoir.
+If a stationary state is nonunique or has nondecaying peripheral modes,
+projecting those modes out discards elastic or preparation-dependent terms.
+The stationary continuous-spectrum formula must then be supplemented by those
+terms; a pseudoinverse alone is not a physical prescription.
+
+\subsection{Reservoir admissibility and the meaning of a transit reset}
+For $\rho_{\rm th}=\sum_i p_i\ketbra{i}{i}$, the operators
+$L_{ij}=\sqrt{\gamma p_i}\ketbra{i}{j}$ give
+\begin{equation}
+ \mathcal L_{\rm reset}\rho
+ =\gamma(\rho_{\rm th}\Tr\rho-\rho).
+ \label{eq:gc-reset}
+\end{equation}
+This is a trace-preserving thermal reload channel. It is a Markov replacement
+model, not a derivation of finite-flight transit times or a beam boundary
+condition. In a ballistic trajectory model, applying it again merely because
+the atom crosses numerical segments would reset the same atom repeatedly.
+
+Trace preservation, Hermiticity preservation and conditional complete
+positivity of the generator must be checked separately. In the Choi test,
+project the generator Choi matrix onto the space orthogonal to the maximally
+entangled vector and require positive semidefiniteness there. Positivity of a
+particular stationary density matrix does not imply this property. A
+coherence-only transit-damping variant has a projected-Choi eigenvalue about
+$-0.00607$ in its normalized generator audit and a normalized Choi eigenvalue
+about $-3.08\times10^{-4}$ after $1\,\mathrm{ns}$. This counterexample excludes
+that variant as a general GKSL reservoir even when its computed steady state
+looks admissible. Passing a radiative or selected thermal-reset model does not
+validate every phenomenological collision law.
+
+\section{Reciprocal SI normalization and hyperfine reduction}
+\label{sec:gc-normalization}
+
+For a Gaussian beam with $1/\e^2$ intensity radius $w$,
+\begin{equation}
+ I_0=\frac{2P}{\pi w^2},\quad
+ E_0=\sqrt{\frac{2I_0}{\epsilon_0c}},\quad
+ \Omega=\frac{dE_0}{\hbar},\quad h_{eg}=\frac{\Omega}{2}.
+ \label{eq:gc-si-drive}
+\end{equation}
+The same signed dipole must enter the drive, emitted polarization and
+radiative normalization. In the scalar D1 convention used here,
+\begin{equation}
+ d_\Gamma^2=\frac{3\pi\epsilon_0\hbar c^3\Gamma}{\omega_{D1}^3}.
+ \label{eq:gc-dipole-linewidth}
+\end{equation}
+It gives $d_\Gamma=2.5367896004\times10^{-29}\,\mathrm{C\,m}$ for the
+declared constants. A stored value $2.5377\times10^{-29}\,\mathrm{C\,m}$
+implies a linewidth $0.0717886\%$ larger. There is no additional universal
+$\sqrt2$ multiplier: a change of reduced-matrix-element convention requires
+changing the associated angular factors too. A diagnostic pump/weak-field
+comparison gives implicit dipoles $1.4646827595\times10^{-29}$ and
+$7.3257088906\times10^{-30}\,\mathrm{C\,m}$, a ratio $1.9993734141$.
+One cannot repair such a mismatch by fitting output gain alone.
+
+Let $S_{FF'}$ be hyperfine strengths normalized within a ground manifold.
+For an unpolarized manifold with population $p_F$, weak absorption in a fixed
+linear polarization has the population-weighted factor
+\begin{equation}
+ \frac{3C_F^2p_F}{2F+1}=\frac{p_FS_{FF'}}{3},
+ \qquad 3C_F^2=\frac{(2F+1)S_{FF'}}{3}.
+ \label{eq:gc-manifold-strength}
+\end{equation}
+For the four D1 branches $(2,2),(2,3),(3,2),(3,3)$, the required per-manifold
+factors $S_{FF'}/3$ are $(2,7,5,4)/27$. The alternative common-factor
+prescription $3C_F^2/12$ gives $(10,35,35,28)/324$, with ratios $5/12$,
+$5/12$, $7/12$, $7/12$ to those factors. Thus no single fitted scalar can
+replace both manifold denominators $5$ and $7$ when $p_2,p_3$ evolve
+independently. For a thermal distribution $p_F=(2F+1)/12$, the exact weak
+absorption factor is $3C_F^2/12$ \emph{after} including population once.
+Multiplying it by $p_F$ again is incorrect.
+
+A four-state surrogate may use $d_{FF'}=d_\Gamma\sqrt{S_{FF'}/3}$ with
+trace-one manifold populations. It reproduces this weak absorption average,
+but not the signs, coherences, polarization selection or optical pumping of
+the full Zeeman Hamiltonian under a strong drive. The residual $\ell_s=0.74$
+in the separate phenomenological model is therefore an assumption, not a
+microscopic line-strength determination.
+
+The optical carrier must also refer to the same transition as the detuning.
+For the specified ground and excited splittings, the transition anchor differs
+from the fine-structure centroid by
+$(7\omega_{\rm hf,g}+5\omega_{\rm hf,e})/12$, or
+$1.921502256083\GHz$ in ordinary frequency. Rounding the data tables can
+leave a $1\kHz$ splitting discrepancy. In one weak-gain fixture a carrier-only
+change moves $G_p$ from $1.0517029257$ to $1.0517034724$; its smallness in that
+fixture does not justify mixing carrier conventions in a derivation.
+
+\section{Eliminating the atom without guessing field noise}
+\label{sec:gc-field}
+
+Let $n$ denote number density, $A_\perp$ the collected area and
+$\lambda=nA_\perp$ the line density. Write the field amplitude as
+$E_j=Q_ja_j$, $Q_j=\sqrt{2\hbar\omega_j/(\epsilon_0cA_\perp)}$ and define
+$g_j=d_jQ_j/(2\hbar)$. Then $g_j$ has units $\mathrm{s}^{-1/2}$.
+For the Nambu vector $b=(a_p,a_c^\dagger)^T$, choose atomic operators $O_j$
+consistently with its creation/annihilation ordering. A reciprocal construction
+has, with signs fixed by that choice,
+\begin{equation}
+ W_{ji}=\Tr(O_jF_i),\quad
+ B_{ij}=-\ii g_j\Tr\{F_i[O_j^\dagger,\rho_{\rm ss}]\},\quad
+ C_0=-\ii J\operatorname{diag}(g_j)W.
+ \label{eq:gc-reciprocal-couplings}
+\end{equation}
+In a stationary local medium the linearized equations and the slice-averaged
+atomic source normalization are
+\begin{equation}
+ \partial_t\delta F=A\delta F+Bb+\xi,\quad
+ \partial_zb=\lambda C_0\delta F+K_{\rm geom}b,\quad
+ \langle\xi(z,t)\xi(z',t')^T\rangle
+ =\frac{D}{\lambda}\delta(z-z')\delta(t-t').
+ \label{eq:gc-local-equations}
+\end{equation}
+Eliminating the atom at the appropriate rotating-frame frequency gives
+\begin{align}
+ M(\Omega)&=\lambda C_0R(\Omega)B+K_{\rm geom},\label{eq:gc-field-drift}\\
+ D_f^>(\Omega)&=\lambda C_0R(\Omega)DR(\Omega)^\dagger C_0^\dagger,
+ \qquad
+ D_f^<(\Omega)=\lambda C_0R(\Omega)D^TR(\Omega)^\dagger C_0^\dagger.
+ \label{eq:gc-field-diffusion}
+\end{align}
+The conjugate-frequency sectors must be aligned before assembling the physical
+sideband matrix. Both drift and field diffusion are linear in density. For
+one common area, $\lambda g_ig_j$ is independent of that area; the coherent
+seed amplitude still scales as $\sqrt{P/\hbar\omega}$. Independent velocity
+classes contribute weighted drift and weighted covariance, not the square of
+an averaged noise amplitude. Every bath must appear once; radiation already
+represented by an explicitly retained field cannot also be counted as an
+independent unobserved reservoir without a consistent mode partition.
+
+The local approximation assumes short-range independent atomic fluctuations
+at different $z$. It is unsuitable for the same ballistic atom observed in
+successive illuminated regions. Sections~\ref{sec:gc-transport}--\ref{sec:gc-ensemble}
+replace its spatial delta function by an explicit two-position covariance.
+
+\section{Physical sidebands, complete positivity and finite RF modes}
+\label{sec:gc-sidebands}
+
+At a strictly positive analysis frequency the physical annihilation modes are
+$(a_{p,+},a_{c,-},a_{p,-},a_{c,+})$, with eight real quadratures. A complex
+$2\times2$ Nambu covariance is only one sector and is not by itself a
+two-oscillator covariance to which an arbitrary real symplectic test may be
+applied. Given a sector transfer $T$, its Bogoliubov matrices are
+$U=\operatorname{diag}(T_{00},T_{11}^*)$ and
+$V_{01}=T_{01}$, $V_{10}=T_{10}^*$, with the other entries zero. In an
+$(X_1,X_2,P_1,P_2)$ ordering its real transfer is
+\begin{equation}
+ X=\begin{pmatrix}
+ \Rea(U+V)&-\Ima(U-V)\\
+ \Ima(U+V)&\Rea(U-V)
+ \end{pmatrix}.
+ \label{eq:gc-bogoliubov-real}
+\end{equation}
+Permute it into the declared quadrature ordering and include both RF sectors.
+If $H=(N^>+N^<)/2$ is the integrated sector noise, its anomalous off-diagonal
+entry $m=H_{01}$ contributes the real cross block
+$\left(\begin{smallmatrix}\Rea m&\Ima m\\\Ima m&-\Rea m\end{smallmatrix}\right)$;
+the diagonal blocks are $H_{00}I_2,H_{11}I_2$.
+
+For canonical quadratures with vacuum $I/2$ and
+$J_R=\bigoplus_j\left(\begin{smallmatrix}0&1\\-1&0\end{smallmatrix}\right)$,
+the Gaussian channel and state conditions are respectively
+\begin{equation}
+ Y+\frac{\ii}{2}(J_R-XJ_RX^T)\succeq0,
+ \qquad V+\frac{\ii}{2}J_R\succeq0.
+ \label{eq:gc-cp}
+\end{equation}
+These are distinct from merely requiring $Y\succeq0$, and from the Nambu
+commutator identity. They use the canonical normalization of
+Ref.~\cite{Weedbrook2012}.
+
+A finite measured RF mode is
+$a_h=\int\dd\Omega\,h(\Omega)^*a(\Omega)/(2\pi)$ with
+$\int\dd\Omega\,|h|^2/(2\pi)=1$. A top-hat interval of width $B$ in Hz
+therefore has $|h|=1/\sqrt B$. Its time profile has sinc tails and is not a
+compact time gate. Tracing orthogonal vacuum modes after frequency-dependent
+transfer adds more than the average $Y$:
+\begin{equation}
+ \overline X=\sum_kp_kX_k,\qquad
+ Y_{\rm eff}=\sum_kp_kY_k+\tfrac12\sum_kp_k
+             (X_k-\overline X)(X_k-\overline X)^T,
+ \quad\sum_kp_k=1.
+ \label{eq:gc-filtered-channel}
+\end{equation}
+For equally weighted rotations by $\pm\theta$, the retained mode has
+$\overline X=\cos\theta I$, $Y_{\rm eff}=\sin^2\theta I/2$. Omitting the
+second term would turn a passive physical process into a CP violation.
+Equation~\eqref{eq:gc-filtered-channel} assumes the discarded input modes are
+vacuum and initially independent of the retained mode; a nonvacuum multimode
+input requires its full covariance.
+
+\section{Finite coherent seeds and periodic quantum regression}
+\label{sec:gc-periodic}
+
+A finite coherent seed makes the reference atom periodic. In a declared signed
+frequency convention write $h(t)=h_0+Ve^{-\ii\nu t}+V^\dagger e^{\ii\nu t}$,
+with $\nu=-\omega_{\rm hf}+\delta$ for the chosen Raman branch, and expand
+$\rho(t)=\sum_q\rho_qe^{-\ii q\nu t}$. The diffusion in
+Eq.~\eqref{eq:gc-einstein} is evaluated on $\rho(t)$, not just $\rho_0$.
+The exact time-dependent identity is still
+$\dot C=A(t)C+CA(t)^T+D(t)$.
+For harmonic indices $h,k$, the lifted matrices are
+\begin{equation}
+ \mathbb A_{hk}=A_{h-k}+\ii h\nu\delta_{hk}I,\quad
+ \mathbb D_{hk}=D_{h-k},\quad
+ \mathbb R(\Omega)=(-\ii\Omega I-\mathbb A)^{-1}.
+ \label{eq:gc-lifted-generator}
+\end{equation}
+The ordered spectrum is $\mathbb R\mathbb D\mathbb R^\dagger$. To form the
+lesser source, transpose the \emph{atomic operator indices} in each Fourier
+coefficient; transposing the entire harmonic matrix changes the harmonic
+ordering and is generally wrong. A shift of time origin rotates cross-harmonic
+blocks covariantly rather than deleting them.
+
+The density-state cutoff and response cutoff are separate approximation
+parameters. Check interior physical blocks under enlargement of both; positivity
+alone cannot certify harmonic convergence. The exact one-period propagator is
+CPTP and a mixing periodic solution has spectral radius below one on the
+traceless subspace. A finite harmonic matrix need not itself be a GKSL
+generator. An independent density-matrix period reference uses
+\begin{equation}
+ Q(\Omega)=\int_0^T\dd s\,e^{\ii\Omega s}\mathcal U(t_0+s,t_0),\quad
+ \int_0^\infty\dd t\,e^{\ii\Omega t}\mathcal U(t_0+t,t_0)
+ =Q(\Omega)[I-e^{\ii\Omega T}\mathcal P(t_0)]^{-1},
+ \label{eq:gc-period-qrt}
+\end{equation}
+with trace bordering/projection on the decaying subspace. This reference does
+not obtain its noise by copying the Floquet diffusion matrix.
+
+For finite propagating mean fields $\beta$, the mean equation is nonlinear,
+$\beta'=F(\beta,\beta^*)$. Its zero-frequency fluctuation transfer is the
+tangent map of this equation. In general the mean output is not obtained by
+applying that tangent transfer to the input mean. Holding the pump prescribed
+also remains different from solving three-field pump depletion.
+
+For the reciprocal four-state RMS-dipole fixture with
+$n=10^{18}\,\mathrm{m}^{-3}$, $A_\perp=1.2\times10^{-7}\,\mathrm{m}^2$,
+$L=12.5\,\mathrm{mm}$, pump $0.6\,\mathrm W$, $w=530\,\mu\mathrm m$,
+$\Delta/(2\pi)=0.9\GHz$, $\delta/(2\pi)=-8\MHz$,
+reset rate $2\pi\,100\kHz$, and illustrative efficiency $0.85$, the
+stationary reference gives $G_p=1.11065587$, $G_c=0.11356221$ and a detected
+ratio $-0.7302943383\dB$ at $1\MHz$. These inputs specify a mathematical
+fixture, not measured density, collisions or detector calibration.
+An $8\,\mu\mathrm W$ periodic-seed calculation changes this ratio by about
+$10^{-4}\dB$, while deleting cross-sector correlations changes a $0.1\MHz$
+example by $0.039\dB$. Individual noise components can differ by about
+$40\%$ despite a small final ratio change. These observations do not give a
+global finite-seed error bound.
+
+Gaussian photocounting adds a separate fourth-moment closure to the exact
+atomic second-moment QRT. Beyond the bright-seed linearization, the spontaneous
+mean and quadratic fluctuation intensity enter both PSD and SQL. A declared
+finite-band calculation at $8\,\mu\mathrm W$ changes the bright-seed result
+by $1.033\times10^{-5}\dB$, but increasing the optical collection bandwidth
+from $512$ to $1024\MHz$ increases spontaneous collected flux by $5.016\%$.
+Thus no bound on an unfiltered optical tail follows from the small finite-band
+photocurrent correction.
+
+\section{Two moving phases and spatial optical modes}
+\label{sec:gc-kinetic}
+
+Define laboratory wavevectors $\mathbf k_0,\mathbf k_p,\mathbf k_c$ and
+$\mathbf q=\mathbf k_p-\mathbf k_0$,
+$\mathbf Q=\mathbf k_p+\mathbf k_c-2\mathbf k_0$. Two phase coordinates are
+\begin{equation}
+ \theta_1=\nu t-\mathbf q\cdot\mathbf r,\qquad
+ \theta_2=-\mathbf Q\cdot\mathbf r,\qquad
+ \dot{\boldsymbol\theta}
+ =(\nu-\mathbf q\cdot\mathbf v,-\mathbf Q\cdot\mathbf v).
+ \label{eq:gc-moving-phases}
+\end{equation}
+For couplings $V_p,V_c$, a consistent Hamiltonian is
+$h=h_0+V_pe^{-\ii\theta_1}+V_ce^{-\ii(-\theta_1+\theta_2)}+\mathrm{h.c.}$.
+Expanding on the integer two-phase lattice yields
+\begin{equation}
+ 0=\sum_{\mathbf b}\mathcal L_{\mathbf a-\mathbf b}\rho_{\mathbf b}
+    +\ii(\mathbf a\cdot\dot{\boldsymbol\theta})\rho_{\mathbf a}.
+ \label{eq:gc-kinetic-lattice}
+\end{equation}
+At exact $\mathbf Q=0$, harmonics that represent the same physical phase
+must be coherently identified: combine $V_p+V_c^\dagger$ before solving.
+They are not independent photon ports. If $\mathbf Q\cdot\mathbf v=0$
+but $\mathbf Q\ne0$, the second phase is a static spatial label and cannot
+simply be discarded.
+
+This distinction has an observable consistency test. In a fixture with
+second-phase frequency $-1.123879\times10^6\,\mathrm{s}^{-1}$, freezing the
+moving grating omits the term $\dot\theta_2\partial_{\theta_2}K$ from the
+commutator identity. Diffusion remains PSD, but the normalized commutator
+defect is $2.96091344\times10^{-5}$. Increasing the lattice cutoff changes
+that residual by only $4.14\times10^{-15}$: the omission is physical, not a
+resolution error.
+
+For spatial profiles $u_j(\mathbf r_\perp)$ normalized by
+$\int |u_j|^2\dd^2r_\perp=1$, the mode-projected response integrates the
+local polarization with both drive and collection profiles. Cross-mode noise
+comes from shared atoms and must retain those cross correlations. The limit
+$\mathbf Q\to0$ is taken at fixed finite aperture, not by replacing its
+Fourier transform with an infinite-area delta function. A two-mode truncation
+does not establish convergence in the number of transverse modes.
+
+\begin{table}[ht]
+\centering\small
+\caption{Conditional stationary spatial fixture: a $400\times300\,\mu\mathrm m$
+rectangular aperture, prescribed pump, and the reciprocal model parameters of
+Sec.~\ref{sec:gc-periodic}. Noise ratios refer to $1\MHz$.}
+\label{tab:gc-spatial}
+\begin{tabular}{rrrr}
+\toprule
+Angles $(\theta_p,\theta_c)$ in mrad&$G_p$&$G_c$&$S_-\ (\dB)$\\
+\midrule
+$(0,0)$&1.1106391761&0.1135452814&$-0.7301956922$\\
+$(5,-5)$&1.0620337919&0.0650877602&$-0.4328093597$\\
+$(5,-4)$&1.0277727399&0.0306514955&$-0.2040641891$\\
+\bottomrule
+\end{tabular}
+\end{table}
+For the asymmetric-angle case, a transverse quadrature change $N_x=4\to8$
+moves the ratio by $3.5784\times10^{-6}\dB$ and fails a declared
+$10^{-6}\dB$ tolerance; $8\to12$ changes it by $3.93\times10^{-13}\dB$.
+Independent local QRT comparisons give relative noise and drift residuals
+$3.86\times10^{-12}$ and $1.58\times10^{-13}$; the DC mean-field tangent
+test gives $5.77\times10^{-10}$ and the global commutator test
+$1.38\times10^{-11}$. Only the RF points $0.1,1,4\MHz$ are sampled. Neither
+these three points nor transverse quadrature convergence establishes a
+bandwidth or a full spatial mode basis.
+
+\section{Ballistic finite-age atoms and nonlocal covariance}
+\label{sec:gc-transport}
+
+An atom enters at $\mathbf r_{\rm in}$ with velocity $\mathbf v$ and
+prepared state $\rho_{\rm in}$. Its age $a$ labels
+$\mathbf r(a)=\mathbf r_{\rm in}+\mathbf va$ and
+$\dot\rho(a)=\mathcal L(a)\rho(a)$ until its first exit at $a=\tau$.
+Let $\Phi(a,b)$ be the atomic fluctuation propagator. Then
+\begin{align}
+ C(a,b)={}&\Phi(a,0)C_{\rm in}\Phi(b,0)^T\nonumber\\
+ &+\sum_r\int_0^{\min(a,b)}\dd s\,
+      \Phi(a,s)D^{(r)}(s)\Phi(b,s)^T.
+ \label{eq:gc-transport-covariance}
+\end{align}
+The first term is initial internal quantum noise; the second is noise from
+jumps during the flight. Both contain correlations between different ages.
+The field response is also retarded, containing
+$\Theta(a-b)C_{\rm out}(a)\Phi(a,b)B_{\rm drive}(b)$. A diagonal-in-age
+noise replacement loses shared-atom correlations even when each retained
+diagonal block is PSD.
+
+One computes the integrated atomic output
+\begin{equation}
+ Y_j=\int_0^\tau\dd a\,e^{\ii\omega_j a}O_j(a)
+ \label{eq:gc-integrated-output}
+\end{equation}
+by augmenting the fluctuations with $Y/\tau$. Its drift has blocks
+$\left(\begin{smallmatrix}A&0\\e^{\ii\omega a}C_{\rm out}/\tau&0\end{smallmatrix}\right)$
+and its direct diffusion has $D$ only in the atomic block. The integrated
+covariance is the final output block multiplied by $\tau^2$; it includes all
+off-diagonal age correlations without storing an age-by-age kernel.
+
+An independent adjoint formulation defines operators
+\begin{equation}
+ \mathcal A_j(t)=\int_t^\tau\dd s\,
+  \mathcal U(s,t)^\dagger[O_j]e^{\ii\omega_js},\quad
+ \dot{\mathcal A}_j=-\mathcal L(t)^\dagger\mathcal A_j-e^{\ii\omega_jt}O_j,
+ \quad\mathcal A_j(\tau)=0.
+ \label{eq:gc-adjoint-output}
+\end{equation}
+For $\mu_j=\Tr\rho_{\rm in}\mathcal A_j(0)$, its source-resolved greater
+covariance is
+\begin{align}
+ C_{{\rm in},jk}^>&=\Tr[\rho_{\rm in}\mathcal A_j(0)\mathcal A_k(0)^\dagger]-\mu_j\mu_k^*,
+ \label{eq:gc-adjoint-boundary}\\
+ C_{r,jk}^>&=\int_0^\tau\dd t\,
+ \Tr\rho(t)[L_r^\dagger,\mathcal A_j(t)]
+                   [\mathcal A_k(t)^\dagger,L_r].
+ \label{eq:gc-adjoint-jumps}
+\end{align}
+The lesser covariance reverses the operator ordering. Linear response to an
+independent perturbation $V_ke^{-\ii\nu_kt}$ follows from
+\begin{equation}
+ \mathcal R_{jk}=-\ii\int_0^\tau\dd t\,
+ e^{-\ii\nu_kt}\Tr\{\rho(t)[\mathcal A_j(t),V_k]\}.
+ \label{eq:gc-adjoint-response}
+\end{equation}
+This reference constructs source covariances directly from commutators and
+the full density matrix, independently of the forward Einstein-matrix
+assembly. A separate two-time density-matrix QRT integral tests the complete
+integrated covariance. In a boundary-noise deletion counterexample all
+retained noise matrices stay PSD, but the commutator defect is $0.20196$ and
+the output spectrum changes by $14.59\%$. Likewise, a diagonal-only kernel
+sum decreases toward zero under refinement whereas the full two-time
+trapezoidal integral converges to a finite covariance.
+
+\section{Thermal inflow, random arrivals and the unresolved cell closure}
+\label{sec:gc-ensemble}
+
+For independent Poisson arrivals with rate $\mathcal J$, a single-path
+integrated mark with connected covariance $C$ and mean $\mu$ has spectrum
+\begin{equation}
+ S_{\rm stream}=\mathcal J(C+\mu\mu^\dagger),\qquad
+ \overline N=\mathcal J\tau.
+ \label{eq:gc-arrival-noise}
+\end{equation}
+The outer product is arrival-number noise, distinct from the internal atomic
+boundary covariance. For $O=I$ the internal noise vanishes, but random entry
+times still give $\mathcal J|\int_0^\tau e^{\ii\omega a}\dd a|^2$.
+With one random common entry phase, charges $(1,-1,-1,1)$ retain only
+equal-charge cross terms. Average $\mu\mu^\dagger$ before subtracting or
+combining means; a zero phase-averaged $\mu$ does not imply zero number noise.
+
+For a Maxwell velocity density $f_M$ normalized in three dimensions and an
+inward boundary normal, the incoming flux measure is
+\begin{equation}
+ \dd\mathcal J=n f_M(\mathbf v)|\mathbf v\cdot\mathbf n|
+   \dd^2r\,\dd^3v,\qquad
+ \int\tau(\mathbf r,\mathbf v)\dd\mathcal J=nV.
+ \label{eq:gc-thermal-flux}
+\end{equation}
+The first-exit lifetime $\tau$ depends on the boundary point and velocity.
+The occupancy identity checks geometric flux weights, not the oscillatory
+response/noise integral. Quadrature weights multiply path covariances once;
+squaring those weights or inserting density a second time is incorrect.
+
+The declared thermal fixture is a square column of side
+$\sqrt{1.2\times10^{-7}}=346.410\,\mu\mathrm m$, length $12.5\,\mathrm{mm}$,
+temperature $373\,\mathrm K$ and separately specified density
+$10^{18}\,\mathrm{m}^{-3}$. It injects an unpolarized internal state
+$\operatorname{diag}(5/12,7/12,0,0)$ at the box boundary, with no upstream
+pumping history, re-entry or velocity-changing collisions. This is a
+mathematical boundary-value problem, not automatically the physical boundary
+of a vapor cell. With a $530\,\mu\mathrm m$ pump waist, its boundary pump
+intensity is $0.652$--$0.808$ of peak. A frozen zero-velocity atom at a side
+midpoint, exposed to the declared $0.6\,\mathrm W$ pump and $0.9\GHz$
+detuning, changes its $F=3$ population from $0.583333$ to $0.645138$,
+$0.869748$, and $0.942976$ after $0.1,1,5\,\mu\mathrm s$. The corresponding
+Frobenius distances from the injected density matrix are $0.20293,0.42950,
+0.52642$. This is a boundary-sensitivity example, not an estimate of the
+experimental modeling error; it shows why entry-state preparation requires
+physical justification.
+
+In a transported ensemble the optical equation contains a spatially nonlocal
+susceptibility kernel, and the output noise contains a double spatial
+integral:
+\begin{align}
+ \partial_z b(z)&=K_{\rm geom}b(z)+
+   \int\dd z'\,\mathcal R(z,z';\Omega)b(z')+\eta(z),\nonumber\\
+ W_{\rm out}&=\int\dd z\,\dd z'\,
+ G(L,z)\mathcal C(z,z';\Omega)G(L,z')^\dagger.
+ \label{eq:gc-nonlocal-maxwell}
+\end{align}
+An integrated finite-age response is not, by dimensional relabeling, a local
+matrix $M(\Omega)$. Nor may correlated trajectory segments be composed as
+independent local Gaussian channels. A solved, converged nonlocal optical
+boundary problem is required before a thermal transport spectrum becomes a
+cell-output squeezing prediction.
+
+\section{Exact constant-step convolution and controlled trajectory numerics}
+\label{sec:gc-numerics}
+
+For a constant generator step, density evolution and source-resolved covariance
+can be integrated simultaneously. The scalar convolution
+\begin{equation}
+ F(x,y;h)=\int_0^h\dd u\,e^{x(h-u)}e^{yu}
+ =\begin{cases}(e^{yh}-e^{xh})/(y-x),&y\ne x,\\
+ he^{xh},&y=x,
+ \end{cases}
+ \label{eq:gc-divided-exponential}
+\end{equation}
+is evaluated with a stable divided-exponential expression near coincidence.
+If the density generator has eigenvalues $\lambda_k$, the augmented
+fluctuation drift has eigenvalues $\beta_a$, and each source $D_r(\rho)$
+is linear in density, the particular covariance solution in that eigenbasis
+has entries
+\begin{equation}
+ (\widetilde C_r(h))_{ab}
+ =e^{(\beta_a+\beta_b^*)h}(\widetilde C_r(0))_{ab}
+ +\sum_k\widetilde D_{r,abk}\,q_k
+      F(\beta_a+\beta_b^*,\lambda_k;h).
+ \label{eq:gc-exact-step}
+\end{equation}
+The eigenoperators of the density generator can be complex and nonpositive.
+Hermitizing, clipping their eigenvalues, or normalizing their traces destroys
+the linear expansion. A robust implementation checks eigenbasis condition
+numbers (a declared guard $10^6$), a roundoff amplification estimate
+$\epsilon\kappa(S)^2\kappa(R)\leq10^{-8}$, and eigen residuals
+$\leq10^{-12}$; otherwise it uses a block exponential or another stable
+coordinate-free solve. Exact integration of each constant step does not make
+a changing pump envelope exact.
+
+For an envelope $f(t)$ multiplying one Hamiltonian term, a fourth-order
+commutator-free composition uses nodes $c_{1,2}=1/2\mp\sqrt3/6$ and
+$a_{1,2}=(3\mp2\sqrt3)/12$:
+\begin{align}
+ f_A&=2(a_2f(c_1h)+a_1f(c_2h)),\quad
+ f_B=2(a_1f(c_1h)+a_2f(c_2h)),\nonumber\\
+ U_{\rm CF4}(h)&=\exp[\tfrac h2(G_0+f_BG_1)]
+                 \exp[\tfrac h2(G_0+f_AG_1)].
+ \label{eq:gc-cf4}
+\end{align}
+Here the entire affine density/covariance lift follows the same composition.
+Although $a_1<0$, each duration is positive and each substep uses a Hermitian
+Hamiltonian with the same positive-rate jumps, so that each atomic substep is
+GKSL. Clipping a combined envelope changes the method and its order.
+General background on such propagation is given in
+Ref.~\cite{Alvermann2012}.
+
+A declared path gate requires three primary resolutions with two successive
+relative changes below $10^{-3}$; agreement with a separately refined
+reference below $5\times10^{-6}$; and reference self-refinement below
+$2\times10^{-6}$. Gates apply to each RF matrix and each physical noise
+source, with a denominator floor $128\epsilon$ times a declared SI scale.
+That floor stabilizes a relative residual; it adds no physical noise.
+A demanding $2\,\mu\mathrm s$ trajectory changes by $9.4185\times10^{-4}$
+from 4096 to 8192 CF4 steps, then by $1.6138\times10^{-4}$ at 16384 steps,
+and differs from its independent reference by $8.6908\times10^{-7}$.
+For the separately sampled seed-811 path set, maximum successive changes are
+$5.347\times10^{-6}$ and $2.135\times10^{-7}$, the forward/adjoint
+discrepancy is $6.08\times10^{-8}$, and reference refinement is
+$1.385\times10^{-7}$. These are path-solver results, not ensemble convergence.
+
+\subsection{A converged path is not a converged thermal ensemble}
+The current thermal sample contains three independent scrambles, labelled
+11, 211 and 811, of the same coarse $p=2$ quadrature: 72 trajectories and 360
+primary/reference solves in total. Directional relative comparisons use the
+second sample as denominator, so both directions are tested. The range across
+the six ordered comparisons is:
+\begin{table}[ht]
+\centering\small
+\caption{Thermal ensemble differences for the declared coarse inflow problem.
+Every ordered seed-pair comparison fails the $5\%$ all-observable gate.}
+\label{tab:gc-thermal-convergence}
+\begin{tabular}{lrr}
+\toprule
+Quantity&Minimum difference (\%)&Maximum difference (\%)\\
+\midrule
+Greater ordered covariance&12.8553&19.9038\\
+Lesser ordered covariance&12.8928&19.9644\\
+Greater covariance, by source&25.5642&43.6110\\
+Lesser covariance, by source&22.1673&43.3337\\
+Arrival-number contribution&5.6997&9.0633\\
+Linear response&25.7841&34.3654\\
+\bottomrule
+\end{tabular}
+\end{table}
+The occupancy estimates divided by $nV$ are $0.8302268543$, $1.1102815979$
+and $0.8561468387$. Path accuracy can be good while the ensemble is
+under-resolved; agreement of one integral cannot validate the others. There
+is no accepted refinement sequence for all response, ordered covariance,
+source-resolved covariance and number-noise matrices. Consequently neither
+the thermal covariance nor a derived SQL-normalized squeezing spectrum is
+certified by these samples.
+
+\section{Readout precision and uncertainty conditional on the model}
+\label{sec:gc-readout}
+
+For detected currents $I_p,I_c$, complex electronic transfer functions $H_p,H_c$
+and subtraction weight $w$, the one-sided shot-noise PSD is
+\begin{equation}
+ S_{\rm SQL}^{(1)}(f)=2e\bigl(|H_p(f)|^2I_p+w^2|H_c(f)|^2I_c\bigr).
+ \label{eq:gc-sql}
+\end{equation}
+The quantum photocurrent quadratic form uses the same mean currents,
+sideband ordering and electronic phases. Electronics noise and its
+cross-correlations are added with their measured signs. With
+$\langle x^2\rangle=\int S_\Omega(\Omega)\dd\Omega/(2\pi)
+=\int S_f(f)\dd f$, the two-sided convention is
+$S_f(f)=S_\Omega(2\pi f)$: no extra $2\pi$ appears. For a real signal the
+positive-frequency one-sided PSD is twice that two-sided value. Numerator
+and SQL must use the same convention.
+
+Average linear PSD and SQL through the actual RF resolution filter before
+forming their ratio, and convert to $10\log_{10}$ only afterward. Averaging
+dB values is a different observable. Finite bright-seed, Gaussian fourth-moment
+and optical collection-band assumptions are stated in
+Sec.~\ref{sec:gc-periodic}; they are not consequences of the detector SQL
+identity.
+
+For independently characterized parameters $p$ with covariance $\Sigma_p$,
+linear propagation gives $\Sigma_y=J_p\Sigma_pJ_p^T$, where
+$(J_p)_{ij}=\partial y_i/\partial p_j$. Joint sampling is preferable when
+responses are nonlinear, but must preserve parameter correlations,
+nonnegative rates and physically allowed density matrices. A parameter fixed
+by assumption is not independently measured merely because it was not fitted
+to the final squeezing trace. Uncertainty intervals conditioned on an
+unconverged thermal grid or unjustified boundary state do not cover those
+model errors. Measured gain, bandwidth, mode overlap, phase response and
+detector calibration must be held out from any fit used to claim predictive
+agreement.

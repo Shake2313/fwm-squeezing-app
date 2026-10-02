@@ -1,0 +1,106 @@
+{
+  "scope": "Document build, artifact preservation and render checks; no new scientific solve",
+  "pages": 23,
+  "rendered_pages": 23,
+  "render_dpi": 95,
+  "render_exit_code": 0,
+  "tex_warning_lines": [],
+  "input_artifacts_checked": 31,
+  "changed_input_artifacts": [],
+  "equation_preservation": {
+    "equation": {
+      "baseline": 23,
+      "final": 28,
+      "exact_preserved": 23
+    },
+    "align": {
+      "baseline": 3,
+      "final": 5,
+      "exact_preserved": 3
+    }
+  },
+  "baseline_figures": [
+    "theory_gold_comparison.pdf",
+    "theory_gain_absorption.pdf",
+    "theory_tolerance.pdf",
+    "coupled_maps.pdf",
+    "tolerance.pdf"
+  ],
+  "final_figures": [
+    "theory_gold_comparison.pdf",
+    "theory_gain_absorption.pdf",
+    "theory_tolerance.pdf",
+    "coupled_maps.pdf",
+    "tolerance.pdf",
+    "thermal_campaign_scrambles_p2_three_seeds_v2.png"
+  ],
+  "baseline_labels_missing": [],
+  "source_sha256": "f02fb036db8af03f8ac25a8160c7d57266ce8980e52861ed69e94fe2184d3f41",
+  "built_pdf_sha256": "5eae22130cf5f61b0cecbd3963cb437cd5fc60d70613fe3a998fe50a4e7f3043",
+  "visual_review": {
+    "status": "passed",
+    "reviewed_page_numbers": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "render_directory": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build/render_delivery",
+    "method": "Poppler page PNGs at 95 dpi; all six contact sheets visually inspected; earlier individual pages reviewed where dense",
+    "findings": "No clipping, overlapping text, missing glyphs, missing figures, or table truncation. TOC fits one page; six figures and sixteen tables remain legible."
+  },
+  "publication": {
+    "path": "docs/squeezing_report/squeezing_report_v8.pdf",
+    "sha256": "5eae22130cf5f61b0cecbd3963cb437cd5fc60d70613fe3a998fe50a4e7f3043",
+    "bytes": 598899,
+    "identical_to_verified_build": true
+  },
+  "build": {
+    "command": [
+      "xelatex",
+      "-disable-installer",
+      "-interaction=nonstopmode",
+      "-halt-on-error",
+      "-output-directory=G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\publication_refresh_2026_09_18\\squeezing_build",
+      "squeezing_report_v8.tex"
+    ],
+    "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\squeezing_report",
+    "passes": [
+      {
+        "pass": 1,
+        "returncode": 0,
+        "log": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build/final_compile_pass1.txt"
+      },
+      {
+        "pass": 2,
+        "returncode": 0,
+        "log": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build/final_compile_pass2.txt"
+      }
+    ]
+  },
+  "scope_limits": [
+    "No new heavy scientific simulation was run.",
+    "No production source or historical report/asset was changed.",
+    "All source-model frontiers are conditional; thermal convergence and independent-input experimental validation remain unresolved."
+  ],
+  "coverage_file": "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_coverage.md"
+}

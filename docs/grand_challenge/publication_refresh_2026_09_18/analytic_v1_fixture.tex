@@ -1,0 +1,70 @@
+\section{Explicit countermodels: algebraic closure without physical validity}
+\label{app:gc-countermodels}
+
+Numerical agreement between a transfer matrix and its Gaussian completion
+cannot repair an inconsistent optical model. To make this distinction
+quantitative, consider the diagnostic variant that retains a duplicate
+manifold population factor and uses the opposite symmetric-frame mismatch
+sign. Its static drift and transfer are
+\begin{align}
+ M_D={}&\begin{pmatrix}
+ -1.330328+242.349727\ii&-0.410000+195.707754\ii\\
+ 0.693784-195.680004\ii&0.341352-171.013770\ii
+ \end{pmatrix}\,\mathrm{m}^{-1},\label{eq:gc-countermodel-drift}\\
+ T_D={}&\begin{pmatrix}
+ -0.376876+2.339296\ii&-0.929014+1.950994\ii\\
+ 0.931714-1.949376\ii&1.593377-1.777683\ii
+ \end{pmatrix}.
+ \label{eq:gc-countermodel-transfer}
+\end{align}
+Here equal photon energies and equal mode areas are approximated, so $Q$
+is proportional to the identity. The two squared transfer coefficients are
+5.61434 and 4.66816, with gap 0.946182. Its commutator-defect matrix $K$
+has eigenvalues 0.189391 and 3.153969. Omitting a reservoir gives a global
+commutator residual 0.0551; the independent-vacuum completion reduces the
+local and global residuals to $4.44\times10^{-16}$ and $1.04\times10^{-15}$.
+These accurate identities do not validate the duplicate population or
+mismatch sign.
+
+\begin{table}[ht]
+\centering\small
+\caption{Noise diagnostics for the deliberately inconsistent static variant.
+External efficiency is 0.8694. Values are dimensionless ratios; numbers in
+parentheses are dB. None is an apparatus prediction.}
+\label{tab:gc-countermodel-noise}
+\begin{tabularx}{\textwidth}{Y L{3.2cm}L{3.2cm}}
+\toprule
+Model and subtraction&Source ratio&Detected ratio\\
+\midrule
+Chosen independent-vacuum completion, $w=1$&0.09230 ($-10.35$)&0.21084 ($-6.76$)\\
+Same completion, DC balance $w=1.20269$&0.09774 ($-10.10$)&0.21558 ($-6.67$)\\
+Ideal canonical amplifier matched to $G_p=5.61434$&0.09776 ($-10.10$)&0.21560 ($-6.66$)\\
+\bottomrule
+\end{tabularx}
+\end{table}
+The ideal comparison has conjugate gain 4.61434 and therefore is a different
+channel. The static completion gives the same values at $0.1,0.15,2,4\MHz$,
+so it cannot explain a spectral bandwidth or an electronic-noise peak.
+Local logarithmic sensitivities of this variant are
+$\partial\ln G_p/\partial\ln\ell_s\simeq3.53$ and
+$\partial\ln G_c/\partial\ln\ell_s\simeq4.29$. Changing its coherence-only
+ground damping from 90 to $110\kHz$ moves $G_p$ from 5.6138 to 5.6033 and
+$G_c$ from 4.6631 to 4.6573. These derivatives are conditional on the
+inconsistent variant and do not determine uncertainty in the reciprocal
+model. Against approximate comparison gains 15.5 and 13.6, its discrepancies
+would be $-63.8\%$ and $-65.7\%$; the exact raw-power experimental comparison
+uses the separately specified seed powers in Table~\ref{tab:discrepancies}.
+
+The gain-only covariance ansatz
+\begin{equation}
+ C_{pc}^{\rm ansatz}=\tfrac12\left[(G_p+g_c^{(\Phi)})
+                    -(G_p-g_c^{(\Phi)})^2\right]
+ \label{eq:gc-gain-covariance-ansatz}
+\end{equation}
+forces the scalar score in Eq.~\eqref{eq:ids-legacy}; it does not derive
+an ordered atomic spectrum or ensure uncertainty/CP constraints. Negative
+diagnostic values such as $-8.10$ or $-15.62\dB$ computed from gain alone
+remain scores under that ansatz. The passive example $(G_p,g_c^{(\Phi)})=
+(0.2,0.1)$ already falsifies its use as a universal squeezing formula.
+Clipping the score into $[0,1]$ cannot supply missing vacuum noise.
+

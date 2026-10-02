@@ -1,0 +1,313 @@
+from pathlib import Path
+import re, json, hashlib
+root=Path.cwd()
+qa=root/'docs/grand_challenge/publication_refresh_2026_09_18'
+folder=root/'docs/FWM physics and analytic reconstruction'
+src=folder/'squeezing_analytic_reconstruction_v2.tex'
+out=folder/'squeezing_analytic_reconstruction_v3.tex'
+s=src.read_text(encoding='utf-8-sig')
+oldlabels=set(re.findall(r'\\label\{([^}]+)\}',s))
+def replace(a,b):
+    global s
+    if a not in s: raise RuntimeError('missing target '+a[:100])
+    s=s.replace(a,b)
+replace(r'\date{21 August 2026}',r'\date{18 September 2026}')
+replace('GABES model-audit report','GABES theory and precision study')
+s=s.replace('pdfauthor={GABES validation report}','pdfauthor={GABES theory and precision study}')
+s=s.replace(r'\rhead{\small model audit}',r'\rhead{\small theory and precision}')
+s=s.replace('Separation of semiclassical gain, quantum fluctuations, and external detection loss',
+            'Atomic response, microscopic noise, transport, and detected spectra')
+s=s.replace(r'S_{\rm legacy}',r'S_{\rm gain}')
+s=s.replace(r'{\rm hist}',r'{\rm diag}')
+a=s.index(r'\textbf{Scope and status.}')
+b=s.index(r'\end{minipage}}',a)
+s=s[:a]+r'''\textbf{Scope and status.}
+This self-contained study separates semiclassical gain, microscopic quantum
+fluctuations, transported atomic ensembles, and external detection. It derives
+the atomic GKSL drift and ordered diffusion, their independent quantum
+regression reference, reciprocal field normalization, physical sideband
+channels, periodic and spatial response, finite-age boundary noise, thermal
+inflow and nonlocal propagation requirements. These constructions yield
+conditional spectra for declared reduced models. They do not yet establish a
+converged thermal-vapor cell spectrum or quantitative apparatus agreement.
+
+The phenomenological gain model and reciprocal microscopic model are distinct
+model variants. The former gives $G_p=403.53550$ at one measured operating
+point and substantially disagrees with the measured output powers. A
+gain-only score or an independent-vacuum completion is not a microscopic
+squeezing prediction. The thermal inflow calculation passes selected path
+accuracy gates but all six directed comparisons between three coarse
+ensemble samples fail a $5\%$ gate; source-resolved differences reach
+$43.61\%$. Boundary preparation, ensemble refinement, nonlocal Maxwell
+closure, full Zeeman physics and measured detector inputs remain material
+conditions on any apparatus claim. All numerical values below state the
+model and test to which they belong.
+''' + s[b:]
+a=s.index(r'\begin{abstract}')
+b=s.index(r'\end{abstract}',a)
+s=s[:a]+r'''\begin{abstract}
+We develop a precision theory of seeded warm-vapor $^{85}$Rb D1
+double-$\Lambda$ four-wave mixing from the density-matrix generator to
+SQL-normalized detection. The stationary response is a projected Liouvillian
+resolvent, with a simple-pole expansion for diagonalizable generators and a
+Jordan/contour qualification at defective points. The distributed field-noise
+integral is an entire function of a Lyapunov superoperator, evaluated without
+singular eigenvector coordinates. Explicit conventions separate angular and
+ordinary frequencies, optical and analysis detunings, power and photon-flux
+gain, and atomic from spatial field diffusion.
+
+Microscopic ordered diffusion follows from the adjoint GKSL product rule.
+Its resolvent spectrum is independently checked by full-density-matrix quantum
+regression. Reciprocal dipole normalization exposes the limitations of a
+common scalar hyperfine factor in a pumped four-state surrogate. Physical
+positive/negative sidebands, Gaussian complete positivity, finite RF filters,
+periodic seeds, two moving optical phases and finite spatial collection modes
+are treated explicitly. Ballistic atoms carry initial quantum noise and jump
+noise across positions; Poisson entry adds number noise. An adjoint trajectory
+construction supplies a source-resolved reference, while exact constant-step
+convolutions and a fourth-order composition supply controlled path numerics.
+
+Numerical examples distinguish admissibility, discretization convergence and
+apparatus validation. The atomic Raman half-width $0.520\MHz$ at one zero-
+velocity operating point and the angular Doppler rms width $1.38\MHz$ do not
+determine a squeezing bandwidth. A positive finite Floquet state can still
+have a $16.8\%$ gain truncation error. Removing transported boundary noise
+can retain PSD noise while changing a spectrum by $14.59\%$. Selected
+trajectory solutions converge, but three independent coarse thermal samples
+disagree by as much as $43.61\%$ in source-resolved covariance. The resulting
+theory supports conditional reduced-model calculations and explicit
+counterexamples; a converged, measured-input cell squeezing prediction remains
+unestablished.
+''' + s[b:]
+replace('contains just three distinct values','contains four generically distinct values')
+replace('Because $\\mathcal L$ is a Lindblad generator \\cite{GKS1976}, the semigroup $\\e^{\\mathcal Lt}$ is',
+        'If $\\mathcal L$ has been established to be a Lindblad generator \\cite{GKS1976}, the semigroup $\\e^{\\mathcal Lt}$ is')
+replace('not validate omitted physics. Direct evaluation confirms the invariant: at',
+        'not validate omitted physics or prove that a phenomenological reservoir is GKSL.\nThe generator Choi test in Sec.~\\ref{sec:gc-atomic} addresses that separate issue.\nA numerical stability check of the specified reduced matrices finds that at')
+replace('$SU(1,1)$, and the requirement $TJT^\\dagger=J$ used below is exactly that',
+        '$U(1,1)$ (and $SU(1,1)$ after removing an overall phase), and the requirement $TJT^\\dagger=J$ used below is exactly that')
+a=s.index(r'\section{Present limitation of the frequency-dependent observable}')
+b=s.index(r'\part{External detection model}',a)
+s=s[:a]+r'''\section{What a static completion can and cannot determine}
+The final in-cell observable is a spectrum $S_-^{\rm out}(\Omega_{\rm SA})$.
+The static independent-vacuum fixture above is paired with a static detector
+and gives a flat curve. It cannot determine atomic frequency-dependent noise,
+group delay, a measured squeezing bandwidth, low-frequency technical noise,
+the apparatus-specific $2\MHz$ laser-source peak or detector transfer.
+Microscopic reduced-model spectra are instead constructed from the same
+atomic generator and its jumps in Part~\ref{part:gc-microscopic}. Their
+additional thermal-ensemble, nonlocal-field and measured-input requirements
+remain explicit.
+
+''' + (qa/'analytic_gc_chapter.tex').read_text(encoding='utf-8')+'\n'+s[b:]
+replace('microscopic inputs remain unavailable in the current production model.',
+        'microscopic inputs and measured collection conditions must be supplied by the chosen quantum model; the gain-only model does not supply them.')
+replace('Independent microscopic calculation & Multilevel Zeeman-resolved\nLiouvillian and atomic diffusion matrix & \\pending\\\\',
+        'Microscopic reduced-model calculation & GKSL drift/diffusion, independent QRT, periodic sidebands and conditional spatial channels & Verified in declared finite models; full strong-drive Zeeman model pending\\\\\nThermal transport ensemble & Source-resolved forward/adjoint trajectory covariance and independent inflow scrambles & Selected paths converge; coarse ensemble fails (Table~\\ref{tab:gc-thermal-convergence})\\\\')
+replace('complete only for the declared minus branch, angle, and quadrature; microscopic\ndiffusion and detector response pending',
+        'and conditional microscopic spectra available for declared models; converged thermal/nonlocal channel and measured detector response pending')
+a=s.index('The former $(32.56066,31.23207)$ result used')
+b=s.index(r'\begin{table}',a)
+s=s[:a]+r'''Five explicit model variants show the effect of inconsistent assumptions.
+The pair $(32.56066,31.23207)$ uses the opposite susceptibility-propagation
+sign and fails passive Beer--Lambert attenuation. The pair
+$(5.61434,4.66816)$ uses the passive sign but duplicates the manifold population
+factor and reverses the symmetric-frame mismatch sign. Removing only the
+population duplicate gives $(107.64682,107.36704)$; its mismatch sign is still
+wrong. With those signs repaired but a coherence-only transit floor, the
+pair is $(1054.30596,1061.88534)$. The phenomenological variant quoted above
+uses the trace-preserving thermal reload channel and gives
+$(403.53550,405.85359)$. These are distinct assumption sets, not successive
+approximations with a common error bound. The residual $\ell_s=0.74$ is held
+fixed. Even the last variant does not solve the manifold-normalization
+problem of Sec.~\ref{sec:gc-normalization}. The first two inconsistent
+variants are retained as counterexamples, with explicit matrices and noise
+completions in Appendix~\ref{app:gc-countermodels}.
+
+''' +s[b:]
+replace('Vanishing drive in the pole sum &','Vanishing perturbation coupling operator &')
+replace('$\\chibar\\to0$ & \\pass\\ analytically\\\\',
+        '$\\chibar\\to0$; taking only the probe amplitude to zero instead leaves a finite linear susceptibility & \\pass\\ analytically\\\\')
+replace('Zero dissipation &\nThe Langevin contribution vanishes and $TJT^\\dagger=J$ &',
+        'Closed-field lossless limit &\nFor a prescribed closed canonical field model, $B=D=0$ and $TJT^\\dagger=J$. Setting atomic jumps to zero alone does not remove initial atomic noise or nondecaying modes &')
+a=s.index(r'\section{Conclusions and validation status}')
+b=s.index(r'\appendix',a)
+s=s[:a]+r'''\section{Conclusions and validation status}
+The stationary resolvent, pole expansion with its defective-generator
+qualification, entire Lyapunov solution and post-cell detection map supply
+the analytic core. The microscopic extension derives ordered diffusion from
+GKSL jumps and checks it independently by QRT; it retains periodic
+cross-harmonic correlations, the physical sideband space, transverse phases,
+finite-age boundary noise and Poisson arrival noise. These are explicit
+physical constraints on reduced models, not fitted squeezing formulas.
+
+Admissibility and numerical accuracy remain separate. Positive density
+matrices do not certify Floquet convergence; PSD noise does not certify
+commutators or channel CP; accurate individual trajectories do not certify a
+thermal integral. The coarse thermal samples in
+Table~\ref{tab:gc-thermal-convergence} fail their declared agreement gate.
+Their injected internal state is an additional boundary assumption, and a
+nonlocal Maxwell solution is required to turn transported atomic kernels into
+cell-output fields.
+
+The phenomenological gain model substantially disagrees with measured output
+powers at the documented experimental setting. Conditional quantum results
+from a reciprocal four-state model use a different normalization and declared
+inputs and do not remove that discrepancy by themselves. A predictive
+apparatus spectrum requires a justified Zeeman/polarization reduction,
+independently characterized density and reservoirs, physically prepared inflow,
+converged thermal and spatial integrals, a solved optical boundary problem,
+and measured collection and detector functions. The pole, Doppler and
+conditional noise examples in this document constrain that work; none
+establishes the experimental squeezing bandwidth or noise level.
+
+''' +s[b:]
+replace('The formerly archived effective factor was assembled as',
+        'A double-population diagnostic convention assembles the factor as')
+replace('The corrected one-use normalization is','Removing that explicit duplicate gives the phenomenological convention')
+a=s.index('In a thermal reference state the response itself contributes')
+b=s.index('The normalization rule for future implementations is:',a)
+s=s[:a]+r'''Removing an explicit duplicate is necessary but does not establish the
+correct reduction of each populated hyperfine manifold. Equation~\eqref{eq:gc-manifold-strength}
+requires $3C_F^2p_F/(2F+1)$, not $3C_F^2p_F/12$. Only after setting
+$p_F=(2F+1)/12$ does the exact thermal weak-absorption factor reduce to
+$3C_F^2/12$. Thus Eq.~\eqref{eq:ell-effective-corrected} is retained as the
+definition of the phenomenological gain fixture, not a validated uniform
+factor for independently pumped $F=2,3$ populations. The residual $\ell_s$
+remains assumed and cannot supply the missing manifold or polarization
+physics by a scalar fit.
+
+''' +s[b:]
+replace('Representative-state coefficient test matches the AutoOD structural factor',
+        'Algebraic factor count only; separate manifold test in Sec.~\\ref{sec:gc-normalization} rejects a universal common factor')
+replace('\\item a microscopic frequency-dependent atomic diffusion matrix, excess\nfluorescence, and atom--reservoir correlations;',
+        '\\item a converged apparatus-level microscopic diffusion and collected fluorescence model; reduced-model jump diffusion is derived in Part~\\ref{part:gc-microscopic};')
+replace('Physics outside the current basis and reservoir model includes:',
+        'The following physics is absent from, or not jointly established in, a converged apparatus model. Some items are included conditionally in the reduced constructions of Part~\\ref{part:gc-microscopic}:')
+replace('a measured squeezing bandwidth additionally requires microscopic',
+        'a measured squeezing bandwidth additionally requires the complete microscopic')
+# Final scientific scope and timeless language corrections.
+replace('in Appendix~\\ref{app:normalization}. The structural factor is now\n$1/[2(2I+1)]=1/12$: the trace-normalized $\\rho_{\\rm ss}$ supplies the\nground-manifold population, while the inherited $0.74$ remains an empirical\nresidual rather than a first-principles quantity.',
+        'in Appendix~\\ref{app:normalization}. The phenomenological convention uses\n$1/[2(2I+1)]=1/12$ together with trace-one manifold populations. This removes\none explicit population duplicate but is not the manifold-resolved weak-absorption\nnormalization (Sec.~\\ref{sec:gc-normalization}); $0.74$ remains an assumed residual.')
+replace('retained only for implementation history and convergence diagnostics.',
+        'an explicit dispersion-double-counting counterexample used to isolate numerical convergence.')
+replace('Microscopic $M_q(\\Omega)$, $B(\\Omega)$, and $D(\\Omega)$ over 0.1--4 MHz &\nNot implemented in the current four-level code & \\pending\\\\',
+        'Microscopic completion of this phenomenological static drift &\nNot established for this assumption set. The reciprocal reduced model has its own drift and jump-derived noise (Secs.~\\ref{sec:gc-field}--\\ref{sec:gc-periodic}) & Separate models\\\\')
+replace('Microscopic quantum-Langevin model & 403.535 & 405.854 &\n\\pending & \\pending & Required physical calculation\\\\',
+        'Microscopic completion of this phenomenological assumption set & --- & --- &\n\\pending & \\pending & Not established; reciprocal model has different gains\\\\')
+replace('Microscopic diffusion and detector response missing',
+        'No established microscopic apparatus completion of this phenomenological model; see Part~\\ref{part:gc-microscopic}')
+replace('only $1/[2(2I+1)]$. & algebraic duplicate removed; structural test',
+        'only $1/[2(2I+1)]$. & duplicate removed; common manifold factor not validated')
+replace('The coefficient ledger now removes the algebraic population duplication and a\nrepresentative thermal-state/AutoOD coefficient identity is regression-tested.\nExecutable tests now also inspect the pump-state $\\rho_{\\rm ss}$ and its',
+        'The coefficient ledger distinguishes algebraic duplicate removal from a\nphysical manifold reduction. A representative-state coefficient identity is\nregression-tested, but it does not validate the factor for independently\npumped manifold populations. Dynamical tests inspect the pump-state $\\rho_{\\rm ss}$ and its')
+for a,b in [('now implements','implements'),('now includes','includes'),
+ ('are now an','are an'),('now use','use'),('now performs','performs'),
+ ('is now implemented','is explicitly defined'),('now supplies','supplies'),
+ ('reference now\nintegrates','reference\nintegrates'),
+ ('is now available as a separate reference','is evaluated by a separate reference'),
+ ('the archived\ndressed-wave-vector','the dispersion-double-counting\ndressed-wave-vector'),
+ ('the archived\n','the diagnostic\n'),('archived part of the audit','diagnostic calculation'),
+ ('archived numerical optimum','diagnostic numerical optimum'),
+ ('separated from the historical','separated from the phenomenological'),
+ ('after correcting the carrier and mismatch conventions','for the specified carrier and mismatch conventions'),
+ ('fails for optical pumping','fails for Zeeman-resolved optical pumping')]:
+    s=s.replace(a,b)
+# Reader-facing model names: keep identifiers/paths/labels unchanged.
+for a,b in [('historical leading-order approximation','rate-equation factorization'),
+ ('Validity of the historical rate/Sylvester factorization','Validity of the rate/Sylvester factorization'),
+ ('Legacy gain-only diagnostic and its failure domain','Gain-only diagnostic and its failure domain'),
+ ('Historical rate/Sylvester model','Rate/Sylvester model'),
+ ('archived reduced-model point','dressed-wavevector diagnostic point'),
+ ('archived reduced model','dressed-wavevector diagnostic model'),
+ ('archived-model calculation','dressed-wavevector diagnostic calculation'),
+ ('archived reduced scan','dressed-wavevector diagnostic scan'),
+ ('archived model','dressed-wavevector diagnostic model'),
+ ('archived point','dressed-wavevector diagnostic point'),
+ ('archived reference','dressed-wavevector diagnostic reference'),
+ ('archived finite-Floquet blocks','diagnostic finite-Floquet blocks'),
+ ('archived Floquet','diagnostic Floquet'),
+ ('archived optimizer','gain-score optimizer'),
+ ('historical propagation columns','diagnostic propagation columns'),
+ ('historical transfer-coefficient gap','diagnostic transfer-coefficient gap'),
+ ('historical coefficient gap','diagnostic coefficient gap'),
+ ('historical coefficients','diagnostic coefficients'),
+ ('historical $N_F=1$','diagnostic $N_F=1$'),
+ ('historical dressed-$k$','dressed-$k$ diagnostic'),
+ ('legacy numerical optimum','dressed-wavevector diagnostic optimum'),
+ ('legacy columns','diagnostic columns'),
+ ('reproduce historical scans','define the gain-only model'),
+ ('The historical coefficient gap','The diagnostic coefficient gap'),
+ ('formerly archived','diagnostic'),
+ ('The archived coefficient','The reduced coefficient')]:
+    s=s.replace(a,b)
+replace('Model--experiment comparison after correcting propagation signs and',
+        'Model--experiment comparison for the specified propagation signs and')
+replace('polarization, optical pumping, dark states, and magnetic response',
+        'polarization, Zeeman-resolved optical pumping, Zeeman dark states, and magnetic response')
+# Insert a compact numerical-data reference ledger; the equations remain self-contained.
+at=s.index(r'\begin{thebibliography}')
+s=s[:at]+r'''\section{Numerical reference data for the microscopic constructions}
+\label{app:gc-data}
+The equations, assumptions, model inputs and representative results are given
+in this document. The following machine-readable data provide full matrices,
+frequency grids and numerical residuals for the stated examples. They are
+numerical references within the declared models, not independent experimental
+measurements. Paths are relative to the repository root; version suffixes in
+data filenames identify immutable numerical artifacts.
+\begingroup\raggedright
+\begin{itemize}
+\item Atomic ordered noise, field elimination and normalization:
+\path{docs/grand_challenge/s1_atomic_noise_report.json},
+\path{docs/grand_challenge/s1_field_noise_report.json}, and
+\path{docs/grand_challenge/s1_normalization_report.json}.
+\item Finite seeds, periodic QRT, readout and spatial modes:
+\path{docs/grand_challenge/s1_seed_validity_report_v2.json},
+\path{docs/grand_challenge/s1_periodic_noise_report_v2.json},
+\path{docs/grand_challenge/s1_periodic_field_report_v2.json},
+\path{docs/grand_challenge/s1_readout_report_v2.json}, and
+\path{docs/grand_challenge/s1_spatial_field_report_v2.json}.
+\item Ballistic inflow, independent adjoint reference and step integration:
+\path{docs/grand_challenge/inflow_report_v1.json},
+\path{docs/grand_challenge/adjoint_transport_report_v1.json}, and
+\path{docs/grand_challenge/exponential_transport_report_v1.json}.
+\item Thermal-grid and scramble data:
+\path{docs/grand_challenge/thermal_campaign_v2/}, with the stated
+$(p,\mathrm{seed})=(2,11),(2,211),(2,811)$ conditions. Full matrix
+comparisons, rather than rounded scalar extrema, define the gate in
+Table~\ref{tab:gc-thermal-convergence}.
+\item Independent random-generator QRT and boundary-sensitivity probe:
+\path{analysis/grand_challenge/checkpoint_2026_09_18/physics_probe.json}
+and its adjacent plain-text reproducer. The random seed is 20260918;
+Python 3.14.2, NumPy 2.4.1 and SciPy 1.17.0 were used. Inputs and source
+SHA-256 hashes are embedded in the data.
+\end{itemize}
+\endgroup
+
+''' +s[at:]
+# Insert scientific countermodels before bibliography; no prior document dependency.
+at=s.index(r'\begin{thebibliography}')
+s=s[:at]+(qa/'analytic_v1_fixture.tex').read_text(encoding='utf-8')+'\n'+s[at:]
+s=s.replace(r'\end{thebibliography}',r'''\bibitem{Weedbrook2012}
+C. Weedbrook, S. Pirandola, R. Garc\'ia-Patr\'on, N. J. Cerf, T. C. Ralph,
+J. H. Shapiro and S. Lloyd, \emph{Gaussian quantum information},
+\emph{Reviews of Modern Physics} \textbf{84}, 621--669 (2012),
+doi:10.1103/RevModPhys.84.621.
+
+\bibitem{Alvermann2012}
+A. Alvermann, H. Fehske and P. B. Littlewood,
+\emph{Numerical time propagation of quantum systems in radiation fields},
+\emph{New Journal of Physics} \textbf{14}, 105008 (2012),
+doi:10.1088/1367-2630/14/10/105008.
+
+\end{thebibliography}''')
+newlabels=set(re.findall(r'\\label\{([^}]+)\}',s))
+assert oldlabels<=newlabels, sorted(oldlabels-newlabels)
+assert len(re.findall(r'\\label\{([^}]+)\}',s))==len(newlabels)
+out.write_text(s,encoding='utf-8')
+report={'v2_sha256':hashlib.sha256(src.read_bytes()).hexdigest(),
+        'v3_sha256':hashlib.sha256(out.read_bytes()).hexdigest(),
+        'v2_labels':len(oldlabels),'v3_labels':len(newlabels),
+        'missing_labels':sorted(oldlabels-newlabels),'added_labels':sorted(newlabels-oldlabels)}
+(qa/'analytic_source_validation.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+print(json.dumps({k:v for k,v in report.items() if k!='added_labels'},indent=2))

@@ -1,0 +1,33 @@
+from pathlib import Path
+import fitz,json,hashlib
+from PIL import Image, ImageOps, ImageDraw
+root=Path.cwd();qa=root/'docs/grand_challenge/publication_refresh_2026_09_18'
+pdf=qa/'analytic_compile/squeezing_analytic_reconstruction_v3.pdf'
+out=qa/'analytic_visual_qa';out.mkdir(exist_ok=True)
+doc=fitz.open(pdf)
+pages=[];issues=[]
+for i,page in enumerate(doc):
+    pix=page.get_pixmap(matrix=fitz.Matrix(1.3,1.3),alpha=False)
+    path=out/f'page_{i+1:03}.png';pix.save(str(path));pages.append(path)
+    for b in page.get_text('dict')['blocks']:
+        if b.get('type')!=0:continue
+        for line in b['lines']:
+            for span in line['spans']:
+                x0,y0,x1,y1=span['bbox']
+                if x0<5 or x1>page.rect.width-5 or y0<5 or y1>page.rect.height-5:
+                    issues.append({'page':i+1,'bbox':span['bbox'],'text':span['text']})
+for start in range(0,len(pages),6):
+    sheet=Image.new('RGB',(1560,2268),'#d9dce0');d=ImageDraw.Draw(sheet)
+    for j,p in enumerate(pages[start:start+6]):
+        im=Image.open(p).convert('RGB');im.thumbnail((758,720))
+        x=(j%2)*780+(780-im.width)//2;y=(j//2)*756+27
+        sheet.paste(im,(x,y));d.text((x, y-20),f'Page {start+j+1}',fill='black')
+    sheet.save(out/f'contact_{start//6+1:02}.jpg',quality=88)
+text='\n'.join(p.get_text() for p in doc)
+(out/'extracted_text.txt').write_text(text,encoding='utf-8')
+result={'pages':len(doc),'page_size_pt':[doc[0].rect.width,doc[0].rect.height],
+ 'pdf_sha256':hashlib.sha256(pdf.read_bytes()).hexdigest(),'out_of_page_text':issues,
+ 'replacement_character_count':text.count('\ufffd'),'render_scale':1.3,
+ 'rasterized_pages':len(pages),'contact_sheets':(len(pages)+5)//6}
+(qa/'analytic_pdf_validation.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+print(json.dumps(result,indent=2))

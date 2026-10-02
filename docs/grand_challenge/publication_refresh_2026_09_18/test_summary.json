@@ -1,0 +1,12 @@
+{
+  "command": "python -m pytest -q",
+  "exit_code": 1,
+  "passed": 1942,
+  "skipped": 3,
+  "failed": 1,
+  "duration_seconds": 822.78,
+  "failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public",
+  "reason": "FWM_physics.tex already absent before publication work",
+  "new_failures_relative_to_checkpoint": 0,
+  "current_analytic_document_tests_passed": 7
+}

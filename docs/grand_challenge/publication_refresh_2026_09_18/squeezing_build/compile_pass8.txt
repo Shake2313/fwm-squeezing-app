@@ -1,0 +1,15 @@
+This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.12) (preloaded format=xelatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+! I can't find file `../grand_challenge/publication_refresh_2026_09_18/squeezin
+g_build'.
+<*> ...ication_refresh_2026_09_18/squeezing_build 
+                                                  squeezing_report_v8.tex
+(Press Enter to retry, or Control-C to exit)
+Please type another input file name
+! Emergency stop.
+<*> ...ication_refresh_2026_09_18/squeezing_build 
+                                                  squeezing_report_v8.tex
+No pages of output.
+Transcript written on "G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation S
+olver\docs\squeezing_report\texput.log".

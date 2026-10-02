@@ -1,0 +1,169 @@
+{
+  "scope": "Read-only validation of final clean candidate checkout publication dependencies, exact recorded raw preservation hashes, TeX figure inputs, standalone HTML and existing publication preservation validator. No scientific solve/rebuild.",
+  "clean_checkout": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\.git\\grand-challenge-review-20261002\\clean-checkout",
+  "required_dependency_count": 85,
+  "recorded_raw_hash_count": 54,
+  "missing_dependencies": [],
+  "raw_hash_mismatches": [],
+  "current_publications": {
+    "docs/squeezing_report/squeezing_report_v8.tex": {
+      "exists": true,
+      "sha256": "f02fb036db8af03f8ac25a8160c7d57266ce8980e52861ed69e94fe2184d3f41"
+    },
+    "docs/squeezing_report/squeezing_report_v8.pdf": {
+      "exists": true,
+      "sha256": "5eae22130cf5f61b0cecbd3963cb437cd5fc60d70613fe3a998fe50a4e7f3043"
+    },
+    "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.tex": {
+      "exists": true,
+      "sha256": "20b052e8fdbdb10fd3015a4f9725ff9e6171861a36d6b35ff2cd470ea9592527"
+    },
+    "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.pdf": {
+      "exists": true,
+      "sha256": "20d621c00a0f65b41582aee8aac412a6460a23d142f3c16b8e289834ef52c926"
+    },
+    "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4_builder.py": {
+      "exists": true,
+      "sha256": "cc073ecc330537fcc9992203246af6395bfdcf6f325111739b6d8200e9cd8c67"
+    },
+    "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4.html": {
+      "exists": true,
+      "sha256": "9152f9450dd1bd98c696732b24915c3f520a4cc32f5c9ca311adcaecb50596ec"
+    }
+  },
+  "latex": {
+    "analytic_reconstruction": {
+      "external_reference_count": 0,
+      "references": [],
+      "all_resolved": true
+    },
+    "squeezing_report": {
+      "external_reference_count": 6,
+      "references": [
+        {
+          "reference": "theory_gold_comparison.pdf",
+          "resolved": "docs/squeezing_report/v7_science/theory_gold_comparison.pdf",
+          "exists": true
+        },
+        {
+          "reference": "theory_gain_absorption.pdf",
+          "resolved": "docs/squeezing_report/v7_science/theory_gain_absorption.pdf",
+          "exists": true
+        },
+        {
+          "reference": "theory_tolerance.pdf",
+          "resolved": "docs/squeezing_report/v7_science/theory_tolerance.pdf",
+          "exists": true
+        },
+        {
+          "reference": "coupled_maps.pdf",
+          "resolved": "docs/squeezing_report/v7_science/coupled_maps.pdf",
+          "exists": true
+        },
+        {
+          "reference": "tolerance.pdf",
+          "resolved": "docs/squeezing_report/v7_science/tolerance.pdf",
+          "exists": true
+        },
+        {
+          "reference": "thermal_campaign_scrambles_p2_three_seeds_v2.png",
+          "resolved": "docs/grand_challenge/thermal_campaign_scrambles_p2_three_seeds_v2.png",
+          "exists": true
+        }
+      ],
+      "all_resolved": true
+    }
+  },
+  "quotient_html": {
+    "external_runtime_assets": [],
+    "missing_local_links": [],
+    "missing_anchors": [],
+    "local_reference_count": 26,
+    "standalone_embedded_runtime": true
+  },
+  "publication_preservation_verifier": {
+    "exit_code": 0,
+    "receipt": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\.git\\grand-challenge-review-20261002\\publication-clean-preservation-verifier-final.json",
+    "stderr": "",
+    "all_checks_passed": true,
+    "checks": [
+      {
+        "name": "historical_documents_unchanged",
+        "passed": true
+      },
+      {
+        "name": "squeezing_report_source_exists",
+        "passed": true
+      },
+      {
+        "name": "squeezing_report_artifact_exists",
+        "passed": true
+      },
+      {
+        "name": "analytic_reconstruction_source_exists",
+        "passed": true
+      },
+      {
+        "name": "analytic_reconstruction_artifact_exists",
+        "passed": true
+      },
+      {
+        "name": "quotient_structure_source_exists",
+        "passed": true
+      },
+      {
+        "name": "quotient_structure_artifact_exists",
+        "passed": true
+      },
+      {
+        "name": "analytic_labels_preserved",
+        "passed": true
+      },
+      {
+        "name": "analytic_labels_unique",
+        "passed": true
+      },
+      {
+        "name": "squeezing_scientific_figures_preserved",
+        "passed": true
+      },
+      {
+        "name": "quotient_node_identity_preserved",
+        "passed": true
+      },
+      {
+        "name": "quotient_relations_preserved",
+        "passed": true
+      },
+      {
+        "name": "quotient_node_ids_unique",
+        "passed": true
+      },
+      {
+        "name": "quotient_edge_endpoints_exist",
+        "passed": true
+      },
+      {
+        "name": "quotient_no_network_runtime_dependency",
+        "passed": true
+      },
+      {
+        "name": "quotient_internal_links_resolve",
+        "passed": true
+      },
+      {
+        "name": "quotient_local_source_and_companion_links_resolve",
+        "passed": true
+      },
+      {
+        "name": "squeezing_report_pdf_text",
+        "passed": true
+      },
+      {
+        "name": "analytic_reconstruction_pdf_text",
+        "passed": true
+      }
+    ]
+  },
+  "all_passed": true
+}

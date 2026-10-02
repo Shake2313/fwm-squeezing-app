@@ -1,0 +1,22 @@
+{
+  "command": [
+    "C:\\Users\\\ubc15\uc218\uc778\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "tools/thermal_campaign_ensemble.py",
+    "--run",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2",
+    "--grids",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p2-s11.json",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p2-s211.json",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p2-s811.json",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json",
+    "--output",
+    "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\ensemble-p2-three-seeds-p3-s11.json"
+  ],
+  "started_utc": "2026-09-28T10:49:20.626102+00:00",
+  "finished_utc": "2026-09-28T11:13:27.236840+00:00",
+  "wall_seconds": 1446.6107415000442,
+  "exit_code": 0,
+  "log": "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\progress_2026_09_28\\ensemble-p2-three-seeds-p3-s11-controller.log",
+  "output": "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\ensemble-p2-three-seeds-p3-s11.json",
+  "blas_threads": 1
+}

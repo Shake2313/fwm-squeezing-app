@@ -1,0 +1,401 @@
+"""Secondary recorded-matrix validation; no solver imports or native audits.
+
+Run from the repository: python validate_strata.txt DIAGNOSTIC PROBE CAMPAIGN NEW_OUTPUT
+All paths must remain inside this repository; the campaign is read-only.
+Checksums establish internal consistency, not authenticity or physical validity.
+"""
+from datetime import datetime, timezone
+from pathlib import Path
+import hashlib
+import io
+import json
+import sys
+import zipfile
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[3]
+METRICS = ('greater', 'lesser', 'greater_by_source', 'lesser_by_source',
+           'poisson_number', 'retarded_response')
+PARTITIONS = {'inlet_face': (), 'residence_time_us': (.25, .5, 1., 2., 4.),
+              'longitudinal_velocity_sigma': (-2., -1., 0., 1., 2.),
+              'transverse_speed_sigma': (.5, 1., 2., 3.)}
+TOL, BUDGET = 1e-12, 1e-10
+FILES = {}
+CACHE_KEYS = set()
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def inside(value):
+    path = Path(value)
+    path = (path if path.is_absolute() else ROOT/path).resolve()
+    require(path.is_relative_to(ROOT), 'Path escapes repository: '+str(path))
+    return path
+
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def digest(value, ascii=False):
+    return sha(json.dumps(value, sort_keys=True, separators=(',', ':'),
+                         ensure_ascii=ascii, allow_nan=False).encode('utf-8'))
+
+
+def unique(pairs):
+    value = {}
+    for key, item in pairs:
+        require(key not in value, 'Duplicate JSON key: '+key)
+        value[key] = item
+    return value
+
+
+def raw_file(path):
+    path = inside(path)
+    raw = path.read_bytes()
+    name = path.relative_to(ROOT).as_posix()
+    require(name not in FILES or FILES[name] == sha(raw), 'Input changed: '+name)
+    FILES[name] = sha(raw)
+    return raw
+
+
+def read(path, sealed=True):
+    value = json.loads(raw_file(path).decode('utf-8'), object_pairs_hook=unique,
+                      parse_constant=lambda text: require(False, 'Nonfinite JSON: '+text))
+    require(isinstance(value, dict), 'Expected a JSON object')
+    if sealed:
+        require('record_sha256' in value, 'Missing record seal')
+        require(digest({k: v for k, v in value.items() if k != 'record_sha256'})
+                == value['record_sha256'], 'Record seal mismatch: '+str(path))
+    return value
+
+
+def array(value):
+    result = (np.asarray(value['real'])+1j*np.asarray(value['imag'])
+              if isinstance(value, dict) and set(value) == {'real', 'imag'}
+              else np.asarray(value))
+    require(np.isfinite(result).all(), 'Nonfinite array')
+    return result
+
+
+def close(left, right, message, tolerance=TOL):
+    left, right = array(left), array(right)
+    require(left.shape == right.shape, message+' shape differs')
+    error = float(np.max(np.abs(left-right)))
+    require(error <= tolerance, message+f': {error} > {tolerance}')
+    return error
+
+
+def manifest(value):
+    require(value['schema'] == 'gabes.python-source-manifest.v1', 'Source manifest schema')
+    require(digest({k: v for k, v in value.items() if k != 'manifest_sha256'}, True)
+            == value['manifest_sha256'], 'Source manifest seal')
+    names = [entry['path'] for entry in value['files']]
+    require(names == sorted(set(names)) and names, 'Source inventory')
+    identity = {'schema': value['schema'], 'files': [
+        {k: entry[k] for k in ('path', 'encoding', 'normalized_sha256', 'normalized_bytes')}
+        for entry in value['files']]}
+    require(digest(identity, True) == value['source_sha256'], 'Source identity digest')
+    return value['source_sha256']
+
+
+def controller(identity, campaign):
+    name, token = identity['name'], identity['raw_sha256']
+    require(name in ('thermal_campaign_diagnose.py', 'thermal_campaign_compare.py',
+                     'thermal_campaign_grid.py'), 'Unknown controller')
+    expected = 'controllers/'+Path(name).stem+'-'+token+'.py'
+    require(identity['archive'] == expected, 'Controller archive path')
+    path = inside(campaign/expected)
+    require(path.is_relative_to(campaign), 'Controller escapes campaign')
+    raw = raw_file(path)
+    require(sha(raw) == token and len(raw) == identity['raw_bytes'], 'Controller bytes changed')
+    return {'identity': identity, 'actual_path': path.relative_to(ROOT).as_posix(),
+            'actual_raw_sha256': sha(raw), 'actual_raw_bytes': len(raw), 'passed': True}
+
+
+def errors(candidate, reference, scales):
+    result = {}
+    for key in METRICS:
+        require(candidate[key].shape == reference[key].shape, 'Spectrum shape differs')
+        require(np.isfinite(scales[key]) and scales[key] > 0, 'Invalid SI floor')
+        denominator = np.maximum(np.linalg.norm(reference[key], axis=(-2, -1)),
+                                 128*np.finfo(float).eps*scales[key])
+        result[key] = float(np.max(np.linalg.norm(candidate[key]-reference[key],
+                                                 axis=(-2, -1))/denominator))
+    require(all(np.isfinite(x) for x in result.values()), 'Nonfinite errors')
+    return result
+
+
+def reconstruct(grid, campaign, plan):
+    selection, row = grid['selection'], grid['row']
+    require([row['power'], row['seed']] == selection, 'Grid row selection')
+    declared = [g for g in plan['grids'] if [g['power'], g['seed']] == selection]
+    require(len(declared) == 1, 'Undeclared grid')
+    nodes = declared[0]['paths']
+    require(len(nodes) == len(row['path_ledgers']) == 6*2**selection[0], 'Path coverage')
+    spectra = {k: array(row['candidate']['spectra'][k]) for k in METRICS}
+    sigma = np.sqrt(1.380649e-23*plan['model']['temperature_K']/plan['model']['mass_kg'])
+    require(np.isfinite(sigma) and sigma > 0, 'Invalid thermal speed')
+    parts = {}
+    for name, thresholds in PARTITIONS.items():
+        size = 6 if name == 'inlet_face' else len(thresholds)+1
+        parts[name] = {'sigma': float(sigma), 'indices': [[] for _ in range(size)],
+                      'rates': [0.]*size,
+                      'spectra': [{k: np.zeros_like(v) for k, v in spectra.items()}
+                                  for _ in range(size)]}
+    keep = np.equal.outer((1, -1, -1, 1), (1, -1, -1, 1))
+    for index, (node, ledger) in enumerate(zip(nodes, row['path_ledgers'])):
+        require(node['index'] == index and ledger['passed'] is True, 'Path identity/gate')
+        require(len(ledger['cache_records']) == 5, 'Five recorded path calculations required')
+        packet = None
+        for level, ref in enumerate(ledger['cache_records']):
+            CACHE_KEYS.add(ref['key'])
+            record = read(campaign/'cache'/(ref['key']+'.json'))
+            require(record['schema'] == 'gabes-native-thermal-packet-v1', 'Packet schema')
+            require(record['record_sha256'] == ref['record_sha256'], 'Cache reference seal')
+            identity = record['identity']
+            require(record['key'] == ref['key'] == digest(identity, True), 'Cache identity key')
+            require(identity['source_identity'] == plan['source_identity']
+                    and identity['model'] == plan['model']
+                    and identity['environment'] == plan['environment']
+                    and identity['path'] == node['physical_path'], 'Recorded packet identity')
+            require(digest(record['packet'], True) == ref['payload_digest'], 'Packet digest')
+            if level == 2:
+                packet = record['packet']
+        require(packet['source_names'] == row['candidate']['source_names']
+                and packet['analysis_axis'] == row['candidate']['analysis_axis'], 'Packet RF/source order')
+        mean = array(packet['mean_pulse'])
+        number = mean[:, :, None]*mean[:, None, :].conj()*keep
+        terms = {k: array(packet[k])*keep for k in METRICS if k != 'poisson_number'}
+        terms['poisson_number'] = number
+        terms['greater'] += number
+        terms['lesser'] += number
+        path = node['physical_path']
+        velocity = np.asarray(path['velocity_m_s'])
+        coordinates = (index//2**selection[0], path['residence_time_s']*1e6,
+                       velocity[2]/sigma, np.linalg.norm(velocity[:2])/sigma)
+        rate = node['rate_s_inverse']
+        require(np.isfinite(coordinates).all() and np.isfinite(rate) and rate > 0, 'Physical stratum inputs')
+        for (name, thresholds), coordinate in zip(PARTITIONS.items(), coordinates):
+            group = int(coordinate) if name == 'inlet_face' else int(np.searchsorted(thresholds, coordinate, side='right'))
+            part = parts[name]
+            part['indices'][group].append(index)
+            part['rates'][group] += rate
+            for key in METRICS:
+                part['spectra'][group][key] += rate*terms[key]
+    for part in parts.values():
+        total = {key: sum((group[key] for group in part['spectra']), np.zeros_like(spectra[key]))
+                 for key in METRICS}
+        part['errors'] = errors(total, spectra, row['comparison_scales'])
+        require(max(part['errors'].values()) <= BUDGET, 'Independent partition reconstruction failed')
+    return spectra, parts
+
+
+def main():
+    require(len(sys.argv) == 5, 'Expected DIAGNOSTIC PROBE CAMPAIGN NEW_OUTPUT')
+    requested_output = Path(sys.argv[4])
+    if not requested_output.is_absolute():
+        requested_output = ROOT/requested_output
+    require(not requested_output.exists() and not requested_output.is_symlink(), 'Output already exists')
+    diagnostic_path, probe_path, campaign, output = map(inside, sys.argv[1:])
+    require(not output.exists() and not output.is_symlink(), 'Output already exists')
+    require(not output.is_relative_to(campaign), 'Validation output must stay outside read-only campaign')
+    script_raw = raw_file(__file__)
+    report, probe, plan = read(diagnostic_path), read(probe_path, False), read(campaign/'plan.json')
+    require(report['schema'] == 'gabes-frozen-thermal-strata-diagnostic-v1'
+            and probe['schema'] == 'independent-raw-matrix-arithmetic-probe-v1', 'Input schemas')
+    require(report['audit_passed'] is True and report['new_solve_count'] == 0
+            and probe['new_atomic_solves'] == 0, 'Input audit/solve scope')
+    for item in (report, probe):
+        require(item['thermal_ensemble_converged'] is False
+                and item['physical_optical_prediction'] is False, 'Unsupported physical claim')
+    require(report['campaign_sha256'] == plan['record_sha256']
+            and report['source_identity'] == plan['source_identity']
+            and manifest(plan['source_manifest']) == manifest(report['source_manifest_after']) == plan['source_identity'],
+            'Campaign/source identity')
+    bundle = raw_file(campaign/'sources.zip')
+    require(sha(bundle) == plan['source_bundle_sha256'] == report['source_bundle_sha256'], 'Source ZIP hash')
+    with zipfile.ZipFile(io.BytesIO(bundle)) as archive:
+        require(sorted(archive.namelist()) == plan['source_paths'], 'ZIP source inventory')
+        for entry in plan['source_manifest']['files']:
+            raw = archive.read(entry['path'])
+            normalized = raw.decode(entry['encoding']).replace('\r\n', '\n').replace('\r', '\n').encode('utf-8')
+            require(sha(raw) == entry['raw_sha256'] and len(raw) == entry['raw_bytes']
+                    and sha(normalized) == entry['normalized_sha256']
+                    and len(normalized) == entry['normalized_bytes'], 'Bundled source bytes')
+    require(len(report['controllers']) == 3
+            and len({v['name'] for v in report['controllers']}) == 3, 'Controller coverage')
+    controller_checks = [controller(identity, campaign) for identity in report['controllers']]
+    require(sha(raw_file(probe_path.parent/'independent_matrix_probe.txt')) == probe['source_code_sha256'], 'Independent probe code changed')
+    for path, expected in probe['inputs_sha256'].items():
+        require(sha(raw_file(path)) == expected, 'Independent probe input changed: '+path)
+        read(path)
+    diagnostic = report['directed_diagnostic']
+    selections = [diagnostic['reference_grid'], diagnostic['candidate_grid']]
+    require(selections == [probe['reference_selection'], probe['candidate_selection']], 'Direction/selection mismatch')
+    require(len(probe['reconstruction_errors']) == 2, 'Independent reconstruction coverage')
+    for measured in probe['reconstruction_errors']:
+        require(set(measured) == set(METRICS)
+                and all(np.isfinite(v) and 0 <= v <= BUDGET for v in measured.values()),
+                'Independent reconstruction budget')
+    require(len(report['input_reports']) == 2, 'Two grid reports required')
+    grids = []
+    for ref, selection in zip(report['input_reports'], selections):
+        grid = read(ref['path'])
+        require(sha(raw_file(ref['path'])) == ref['file_sha256']
+                and grid['record_sha256'] == ref['record_sha256']
+                and grid['selection'] == ref['selection'] == selection, 'Grid reference identity')
+        require(grid['campaign_sha256'] == plan['record_sha256']
+                and grid['source_identity'] == plan['source_identity']
+                and grid['source_bundle_sha256'] == plan['source_bundle_sha256']
+                and grid['grid_passed'] is True, 'Grid campaign/audit identity')
+        controller(ref['controller'], campaign)
+        grids.append(grid)
+    left, before = reconstruct(grids[0], campaign, plan)
+    right, after = reconstruct(grids[1], campaign, plan)
+    byte_audit = report.get('consumed_cache_byte_audit')
+    if byte_audit is not None:
+        require(byte_audit['passed'] is True, 'Recorded byte audit failed')
+        snapshots = byte_audit['records']
+        require(len(snapshots) == len(CACHE_KEYS)
+                and {item['key'] for item in snapshots} == CACHE_KEYS, 'Consumed byte-audit coverage')
+        for item in snapshots:
+            path = campaign/'cache'/(item['key']+'.json')
+            require(inside(item['path']) == inside(path), 'Consumed cache snapshot path')
+            raw = raw_file(path)
+            require(sha(raw) == item['file_sha256'] and len(raw) == item['raw_bytes']
+                    and read(path)['record_sha256'] == item['record_sha256'], 'Consumed cache bytes changed')
+    axis = grids[0]['row']['candidate']['analysis_axis']
+    names = grids[0]['row']['candidate']['source_names']
+    require(axis == grids[1]['row']['candidate']['analysis_axis']
+            and names == grids[1]['row']['candidate']['source_names'], 'Grid RF/source mismatch')
+    scales = grids[1]['row']['comparison_scales']
+    calculated_errors = errors(right, left, scales)
+    require(set(diagnostic['errors']) == set(probe['diagnostics']) == set(METRICS), 'Metric coverage')
+    require(diagnostic['budget'] == plan['ensemble_budget'] == .05, 'Changed convergence budget')
+    require(diagnostic['passed'] == all(v <= .05 for v in calculated_errors.values()), 'Incorrect directed gate')
+    require(set(diagnostic['partitions']) == set(PARTITIONS), 'Partition coverage')
+    comparisons, maxima, checked_partitions = {}, {}, {}
+    for partition_name, part in diagnostic['partitions'].items():
+        old, new = before[partition_name], after[partition_name]
+        require(part['thresholds'] == list(PARTITIONS[partition_name])
+                and part['sigma_m_s'] == old['sigma'] == new['sigma'], 'Stratum definition changed')
+        require(len(part['groups']) == len(old['indices']), 'Stratum group count')
+        require(set(part['metrics']) == set(METRICS), 'Partition metric coverage')
+        maxima[partition_name] = {}
+        for field in ('reference_reconstruction_errors', 'candidate_reconstruction_errors', 'difference_reconstruction_errors'):
+            require(set(part[field]) == set(METRICS), 'Reconstruction metric coverage')
+            values = array(list(part[field].values()))
+            require(np.all((values >= 0) & (values <= BUDGET)), 'Recorded reconstruction budget')
+            maxima[partition_name][field] = float(values.max())
+        checked_partitions[partition_name] = {}
+        for key in METRICS:
+            delta = right[key]-left[key]
+            denominator = np.maximum(np.linalg.norm(left[key], axis=(-2, -1)), 128*np.finfo(float).eps*scales[key])
+            norm = np.linalg.norm(delta, axis=(-2, -1))
+            relative = norm/denominator
+            close(diagnostic['total_difference_spectra'][key], delta, 'Full difference')
+            info = part['metrics'][key]
+            close(info['relative_error'], relative, 'RF/source relative errors')
+            close(info['denominator'], denominator, 'Directional denominator')
+            close(info['worst_relative_error'], calculated_errors[key], 'Worst directed error')
+            worst = tuple(int(i) for i in np.unravel_index(np.argmax(relative), relative.shape))
+            location = {'array_index': list(worst), 'rf_index': worst[-1],
+                        'frequency_hz': axis['analysis_axis_omega_rad_s'][worst[-1]]/(2*np.pi),
+                        'source': names[worst[0]] if key.endswith('_by_source') else None}
+            require(info['worst_location'] == location, 'Worst RF/source identity')
+            unit = np.zeros_like(delta)
+            np.divide(delta, norm[..., None, None], out=unit, where=norm[..., None, None] > 0)
+            projections, magnitudes, differences = [], [], []
+            for index, group in enumerate(part['groups']):
+                require(group['reference_indices'] == old['indices'][index]
+                        and group['candidate_indices'] == new['indices'][index], 'Stratum path attribution')
+                if partition_name == 'inlet_face':
+                    require(group['definition']['face_index'] == index, 'Face attribution')
+                for prefix, data in (('reference', old), ('candidate', new)):
+                    rate = group[prefix+'_rate_s_inverse']
+                    require(abs(rate-data['rates'][index]) <= TOL*max(1., abs(rate)), 'Native arrival rate')
+                difference = new['spectra'][index][key]-old['spectra'][index][key]
+                close(group['difference_spectra'][key], difference, 'Group matrix difference')
+                matrix_error = np.linalg.norm(array(group['difference_spectra'][key])-difference,
+                                              axis=(-2, -1))/denominator
+                require(float(np.max(matrix_error)) <= BUDGET, 'Normalized group matrix difference')
+                magnitude = np.linalg.norm(difference, axis=(-2, -1))/denominator
+                projection = np.real(np.sum(unit.conj()*difference, axis=(-2, -1)))/denominator
+                close(group['metrics'][key]['relative_magnitude'], magnitude, 'Group magnitude')
+                close(group['metrics'][key]['signed_projection'], projection, 'Signed projection')
+                projections.append(array(group['metrics'][key]['signed_projection']))
+                magnitudes.append(array(group['metrics'][key]['relative_magnitude']))
+                differences.append(array(group['difference_spectra'][key]))
+            residual = float(np.max(np.abs(sum(projections)-relative)))
+            tolerance = BUDGET*max(1., float(relative.max()))
+            require(info['projection_sum_tolerance'] == tolerance and residual <= tolerance, 'Projection residual budget')
+            close(info['projection_sum_residual'], residual, 'Recorded projection residual')
+            close(info['sum_relative_magnitudes'], sum(magnitudes), 'Cancellation magnitudes')
+            reconstructed_error = float(np.max(np.linalg.norm(left[key]+sum(differences)-right[key], axis=(-2, -1)) /
+                np.maximum(np.linalg.norm(right[key], axis=(-2, -1)), 128*np.finfo(float).eps*scales[key])))
+            require(reconstructed_error <= BUDGET, 'Difference reconstruction budget')
+            for field, expected in (('reference_reconstruction_errors', old['errors'][key]),
+                                    ('candidate_reconstruction_errors', new['errors'][key]),
+                                    ('difference_reconstruction_errors', reconstructed_error)):
+                close(part[field][key], expected, 'Recorded reconstruction residual')
+            ranking = info['groups_at_worst']
+            require(sorted(item['group_index'] for item in ranking) == list(range(len(projections))), 'Worst-group coverage')
+            for item in ranking:
+                i = item['group_index']
+                close(item['relative_magnitude'], magnitudes[i][worst], 'Worst-group magnitude')
+                close(item['signed_projection'], projections[i][worst], 'Worst-group projection')
+            checked_partitions[partition_name][key] = {'projection_residual': residual,
+                'difference_reconstruction_error': reconstructed_error}
+            if partition_name == 'inlet_face':
+                independent = probe['diagnostics'][key]
+                difference = close(info['worst_relative_error'], independent['directed_error'], 'Independent directed error')
+                close(diagnostic['errors'][key], independent['directed_error'], 'Top-level directed error')
+                require(location['rf_index'] == independent['worst_rf_index']
+                        and location['source'] == independent['worst_source'], 'Independent worst RF/source')
+                faces = independent['face_contributions']
+                require(sorted(item['face'] for item in faces) == list(range(6)), 'Independent face coverage')
+                mag_error, proj_error = [], []
+                for item in faces:
+                    i, fraction = item['face'], item['signed_projection_fraction']
+                    require(fraction is not None or independent['directed_error'] == 0, 'Missing nonzero projection')
+                    signed = 0. if fraction is None else fraction*independent['directed_error']
+                    mag_error.append(close(magnitudes[i][worst], item['relative_norm_at_worst'], 'Independent face magnitude'))
+                    proj_error.append(close(projections[i][worst], signed, 'Independent face projection'))
+                comparisons[key] = {'directed_error': info['worst_relative_error'],
+                    'independent_directed_error': independent['directed_error'],
+                    'directed_error_absolute_difference': difference, 'same_worst_rf': True,
+                    'same_worst_source': True, 'worst_location': location,
+                    'face_magnitude_max_absolute_difference': max(mag_error),
+                    'face_signed_projection_max_absolute_difference': max(proj_error)}
+    for path, expected in FILES.items():
+        require(sha(inside(path).read_bytes()) == expected, 'Input changed before validation output: '+path)
+    result = {'schema': 'gabes-thermal-strata-secondary-validation-v1',
+        'checked_at_utc': datetime.now(timezone.utc).isoformat(), 'validation_passed': True,
+        'comparison_absolute_tolerance': TOL, 'input_file_sha256': FILES,
+        'validation_helper_sha256': sha(script_raw),
+        'validation_helper_source': script_raw.decode('utf-8'),
+        'diagnostic_record_sha256': report['record_sha256'],
+        'reference_selection': selections[0], 'candidate_selection': selections[1],
+        'artifact_captured_controllers': report['controllers'], 'archived_controller_byte_checks': controller_checks,
+        'comparisons': comparisons, 'reconstruction_maxima': maxima,
+        'maximum_reconstruction_error': max(max(v.values()) for v in maxima.values()),
+        'independent_partition_checks': checked_partitions,
+        'recorded_consumed_cache_byte_audit_checked': byte_audit is not None,
+        'projection_comparison': 'Independent probe reports fractions of the net difference; multiply each fraction by its directed error before comparing with the controller signed normalized projection.',
+        'new_atomic_solves': 0, 'new_native_cache_audits': 0,
+        'thermal_ensemble_converged': False, 'physical_optical_prediction': False,
+        'scope': 'Secondary recorded-matrix reconstruction, seal and archive-byte checks only. No native solver/path/environment recertification, continuous filesystem locking, or thermal/optical certification.'}
+    result['record_sha256'] = digest(result)
+    with output.open('x', encoding='utf-8', newline='\n') as handle:
+        json.dump(result, handle, ensure_ascii=False, allow_nan=False, indent=2)
+        handle.write('\n')
+    print(json.dumps({'validation_passed': True, 'maximum_reconstruction_error': result['maximum_reconstruction_error'],
+                      'new_atomic_solves': 0, 'output': str(output)}, ensure_ascii=True))
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,41 @@
+{
+  "scope": "Document build, artifact preservation and render checks; no new scientific solve",
+  "pages": 23,
+  "rendered_pages": 23,
+  "render_dpi": 95,
+  "render_exit_code": 0,
+  "tex_warning_lines": [],
+  "input_artifacts_checked": 31,
+  "changed_input_artifacts": [],
+  "equation_preservation": {
+    "equation": {
+      "baseline": 23,
+      "final": 28,
+      "exact_preserved": 23
+    },
+    "align": {
+      "baseline": 3,
+      "final": 5,
+      "exact_preserved": 3
+    }
+  },
+  "baseline_figures": [
+    "theory_gold_comparison.pdf",
+    "theory_gain_absorption.pdf",
+    "theory_tolerance.pdf",
+    "coupled_maps.pdf",
+    "tolerance.pdf"
+  ],
+  "final_figures": [
+    "theory_gold_comparison.pdf",
+    "theory_gain_absorption.pdf",
+    "theory_tolerance.pdf",
+    "coupled_maps.pdf",
+    "tolerance.pdf",
+    "thermal_campaign_scrambles_p2_three_seeds_v2.png"
+  ],
+  "baseline_labels_missing": [],
+  "source_sha256": "f02fb036db8af03f8ac25a8160c7d57266ce8980e52861ed69e94fe2184d3f41",
+  "built_pdf_sha256": "5eae22130cf5f61b0cecbd3963cb437cd5fc60d70613fe3a998fe50a4e7f3043",
+  "visual_review": "pending; inspect every contact sheet and relevant full-size pages"
+}

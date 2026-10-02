@@ -1,0 +1,506 @@
+{
+  "interpretation": "One-gain-calibrated mean-field map plus canonical bright-seed ideal noise; not microscopic atomic squeezing.",
+  "head": "c0c46f0a8b9db9c023f4c5b6ffe5185769f57018",
+  "parent_results_sha256": "43d206e74f6ed71a2fb711a5dcf5a6c68163b1525cb1aeaa7e05369c3bcf0b53",
+  "fitted_residual": 0.42504821908473966,
+  "threshold_db": -7.443104081255719,
+  "velocity_step_m_per_s": 2.5,
+  "velocity_cutoff_sigma": 5.0,
+  "floquet_order": 3,
+  "comparison_order": 2,
+  "fixed_tpd_MHz": -8.0,
+  "source_hashes": {
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/_csv_numeric.py": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/doppler.py": "a6b5da7fe145b76090f3173eed14481dbf57513835eef4484afd176b22d42b4e",
+    "gabes/experimental_csv.py": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/kernels.py": "7ada3f42948590d95aa070e1202b78793ebea83cb0e22c5c1a5bfecb4f4cbabf",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/observables.py": "324925bdd46e74a87b7fd752a90f5d284e2d583add4d42732562dc5cc957b0a3",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "gabes/probe_saturation.py": "399a4955eda9fb0334960f70a05762d2443ccd5db672e967ea65fa65425016dd",
+    "gabes/report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/rydberg_experimental_csv.py": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+    "gabes/schemes/__init__.py": "5ae65927cd9a59322fbb3c715d96dd1337121ffd17f3efc5a211bb96b5de264f",
+    "gabes/schemes/absorption.py": "f368a878dac8e815c236b23cc524e5e1880d7e3ccfac2cff2365de426ab0f356",
+    "gabes/schemes/base.py": "0e4e9639b2307ab9b666f774525ae88ccb190f8249fb6c6c5596adcb6dc7470a",
+    "gabes/schemes/fwm.py": "212a9039041e660339c4008317d4a0aeb3cc2105d9c9e2b608f47898d42a5f69",
+    "gabes/schemes/magneto.py": "a791ce4457797ac72ce0519d63f18f1646f2b1d2baf6e322e092bceb42bcfb62",
+    "gabes/schemes/rydberg.py": "8e658687771478839f4951a712c2aa4edc4e1337074841a32515b654397ba877",
+    "gabes/schemes/sas.py": "4553de411497d5ab8966237bef63fce165d3ab5763b71c708aae3ba7deca9c42",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "gabes/ui_metrics.py": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+    "gabes/zeeman.py": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2"
+  },
+  "refinement_script_sha256": "58ce58c005deff312f6dc9d84b42ab9543441f83301219418c2f5f196782a3c7",
+  "fixed_tpd_crossings": {
+    "D": {
+      "nominal": 0.9,
+      "unit": "GHz",
+      "lower": {
+        "status": "scan_edge",
+        "x": 0.4,
+        "drift": -0.5,
+        "refined_edge_conditional_db": -7.861694045536595
+      },
+      "upper": {
+        "x": 1.4327301025390624,
+        "conditional_db": -7.443105677316114,
+        "threshold_residual_db": -1.5960603949594088e-06,
+        "bracket": [
+          1.43272705078125,
+          1.432733154296875
+        ],
+        "bracket_width": 6.103515625133227e-06,
+        "iterations": 14,
+        "status": "bisected_crossing",
+        "drift": 0.5327301025390624,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.26890666262639,
+          "G_c": 8.373834802071956,
+          "conditional_db": -7.443105677316114,
+          "gain_referred_noise_dB": -7.535073333199764,
+          "photon_flux_gap_smallsignal": 0.895155461248688,
+          "G_s_smallsignal": 9.271597288424934,
+          "G_c_smallsignal": 8.376577044663879,
+          "pump_generated_gain_budget": 37500.0,
+          "G_s_before_final_cap_reconstructed": 9.27073039323048,
+          "s_final_cap_relative_reduction": 0.0001967191932817753,
+          "G_c_before_final_cap_reconstructed": 8.375705115965074,
+          "c_final_cap_relative_reduction": 0.0002233022613884703,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.443472226297123
+        }
+      }
+    },
+    "temp": {
+      "nominal": 121.0,
+      "unit": "degC",
+      "lower": {
+        "x": 119.03656005859375,
+        "conditional_db": -7.443074479119938,
+        "threshold_residual_db": 2.960213578173665e-05,
+        "bracket": [
+          119.0362548828125,
+          119.036865234375
+        ],
+        "bracket_width": 0.0006103515625,
+        "iterations": 13,
+        "status": "bisected_crossing",
+        "drift": -1.96343994140625,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.268677720305456,
+          "G_c": 8.369185118636342,
+          "conditional_db": -7.443074479119938,
+          "gain_referred_noise_dB": -7.054097660861617,
+          "photon_flux_gap_smallsignal": 0.8995783737301721,
+          "G_s_smallsignal": 9.271373448113842,
+          "G_c_smallsignal": 8.37193021705158,
+          "pump_generated_gain_budget": 37500.0,
+          "G_s_before_final_cap_reconstructed": 9.270501349912063,
+          "s_final_cap_relative_reduction": 0.00019671315905952125,
+          "G_c_before_final_cap_reconstructed": 8.371053355840955,
+          "c_final_cap_relative_reduction": 0.0002231782698302468,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.443441739509595
+        }
+      },
+      "upper": {
+        "status": "scan_edge",
+        "x": 145.0,
+        "drift": 24.0,
+        "refined_edge_conditional_db": -8.839790321402939
+      }
+    },
+    "pump": {
+      "nominal": 600.0,
+      "unit": "mW",
+      "lower": {
+        "x": 361.8438720703125,
+        "conditional_db": -7.443093896392791,
+        "threshold_residual_db": 1.0184862928142024e-05,
+        "bracket": [
+          361.8408203125,
+          361.846923828125
+        ],
+        "bracket_width": 0.006103515625,
+        "iterations": 14,
+        "status": "bisected_crossing",
+        "drift": -238.1561279296875,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.26882020923943,
+          "G_c": 8.387368927825005,
+          "conditional_db": -7.443093896392791,
+          "gain_referred_noise_dB": -7.016883215471256,
+          "photon_flux_gap_smallsignal": 0.8814894652518513,
+          "G_s_smallsignal": 9.273377784283396,
+          "G_c_smallsignal": 8.392023786056972,
+          "pump_generated_gain_budget": 22615.24200439453,
+          "G_s_before_final_cap_reconstructed": 9.271844647190306,
+          "s_final_cap_relative_reduction": 0.0003261959260494908,
+          "G_c_before_final_cap_reconstructed": 8.390480725492827,
+          "c_final_cap_relative_reduction": 0.0003708723933263462,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.443714679959834
+        }
+      },
+      "upper": {
+        "status": "scan_edge",
+        "x": 900.0,
+        "drift": 300.0,
+        "refined_edge_conditional_db": -8.121597894290316
+      }
+    },
+    "wp": {
+      "nominal": 530.0,
+      "unit": "um",
+      "lower": {
+        "status": "scan_edge",
+        "x": 250.0,
+        "drift": -280.0,
+        "refined_edge_conditional_db": -8.23489480303373
+      },
+      "upper": {
+        "x": 682.8765869140625,
+        "conditional_db": -7.443116489269767,
+        "threshold_residual_db": -1.2408014047338156e-05,
+        "bracket": [
+          682.87353515625,
+          682.879638671875
+        ],
+        "bracket_width": 0.006103515625,
+        "iterations": 14,
+        "status": "bisected_crossing",
+        "drift": 152.8765869140625,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.268986006598817,
+          "G_c": 8.387578160797613,
+          "conditional_db": -7.443116489269767,
+          "gain_referred_noise_dB": -7.016983358194275,
+          "photon_flux_gap_smallsignal": 0.8814846083621858,
+          "G_s_smallsignal": 9.271734284563266,
+          "G_c_smallsignal": 8.390385116774528,
+          "pump_generated_gain_budget": 37500.0,
+          "G_s_before_final_cap_reconstructed": 9.270809772206007,
+          "s_final_cap_relative_reduction": 0.0001967212845481597,
+          "G_c_before_final_cap_reconstructed": 8.389454619633577,
+          "c_final_cap_relative_reduction": 0.0002236687509546429,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.443490884348315
+        }
+      }
+    },
+    "length": {
+      "nominal": 12.5,
+      "unit": "mm",
+      "lower": {
+        "x": 10.898399353027344,
+        "conditional_db": -7.443098712044572,
+        "threshold_residual_db": 5.369211147687736e-06,
+        "bracket": [
+          10.898361206054688,
+          10.8984375
+        ],
+        "bracket_width": 7.62939453125e-05,
+        "iterations": 15,
+        "status": "bisected_crossing",
+        "drift": -1.6016006469726562,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.268855548346771,
+          "G_c": 8.364269330610712,
+          "conditional_db": -7.443098712044572,
+          "gain_referred_noise_dB": -7.0426712139091086,
+          "photon_flux_gap_smallsignal": 0.9046746915527581,
+          "G_s_smallsignal": 9.271522533861626,
+          "G_c_smallsignal": 8.366982905115512,
+          "pump_generated_gain_budget": 37500.0,
+          "G_s_before_final_cap_reconstructed": 9.270679256401648,
+          "s_final_cap_relative_reduction": 0.0001967178460647899,
+          "G_c_before_final_cap_reconstructed": 8.366135373531261,
+          "c_final_cap_relative_reduction": 0.00022304718214964244,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.4434620449626285
+        }
+      },
+      "upper": {
+        "status": "scan_edge",
+        "x": 25.0,
+        "drift": 12.5,
+        "refined_edge_conditional_db": -8.819586329649042
+      }
+    },
+    "angle": {
+      "nominal": 0.32,
+      "unit": "deg",
+      "lower": {
+        "status": "scan_edge",
+        "x": 0.0,
+        "drift": -0.32,
+        "refined_edge_conditional_db": -7.9948632088074625
+      },
+      "upper": {
+        "x": 0.3905322265625,
+        "conditional_db": -7.443087971082038,
+        "threshold_residual_db": 1.6110173681305184e-05,
+        "bracket": [
+          0.39052734375,
+          0.39053710937499997
+        ],
+        "bracket_width": 9.765624999991118e-06,
+        "iterations": 13,
+        "status": "bisected_crossing",
+        "drift": 0.07053222656249997,
+        "point": {
+          "delta": -8.0,
+          "G_s": 9.268776727364273,
+          "G_c": 8.403764176902172,
+          "conditional_db": -7.443087971082038,
+          "gain_referred_noise_dB": -7.048634286857836,
+          "photon_flux_gap_smallsignal": 0.865080061620599,
+          "G_s_smallsignal": 9.271658356927764,
+          "G_c_smallsignal": 8.40671399946723,
+          "pump_generated_gain_budget": 37500.0,
+          "G_s_before_final_cap_reconstructed": 9.270600400647318,
+          "s_final_cap_relative_reduction": 0.00019671576858364928,
+          "G_c_before_final_cap_reconstructed": 8.405647885771135,
+          "c_final_cap_relative_reduction": 0.00022410037805076693,
+          "raw_smallsignal_below_unity": false,
+          "output_at_unity_floor": false,
+          "conditional_db_from_raw_smallsignal": -7.443480543522501
+        }
+      }
+    }
+  },
+  "refined_calibration_point": {
+    "delta": -8.0,
+    "G_s": 14.998694857587248,
+    "G_c": 14.155560536388498,
+    "conditional_db": -7.943031129861326,
+    "gain_referred_noise_dB": -7.406614763242033,
+    "photon_flux_gap_smallsignal": 0.8432318962428961,
+    "G_s_smallsignal": 15.006429998184943,
+    "G_c_smallsignal": 14.163426733001529,
+    "pump_generated_gain_budget": 37500.0,
+    "G_s_before_final_cap_reconstructed": 15.003922501264702,
+    "s_final_cap_relative_reduction": 0.00034841846703843285,
+    "G_c_before_final_cap_reconstructed": 14.160906018052195,
+    "c_final_cap_relative_reduction": 0.0003774816143037144,
+    "raw_smallsignal_below_unity": false,
+    "output_at_unity_floor": false,
+    "conditional_db_from_raw_smallsignal": -7.943463521651698
+  },
+  "gain_calibration_grid_shift": -0.0013051424127521472,
+  "connected_tpd_interval": {
+    "search_domain_MHz": [
+      -80.0,
+      120.0
+    ],
+    "search_step_MHz": 0.5,
+    "center_MHz": -8.0,
+    "lower": {
+      "x": -18.40872192382806,
+      "conditional_db": -7.443104214363084,
+      "threshold_residual_db": -1.3310736424188008e-07,
+      "bracket": [
+        -18.408752441406186,
+        -18.408691406249936
+      ],
+      "bracket_width": 6.103515625e-05,
+      "iterations": 14,
+      "status": "bisected_crossing",
+      "drift": -10.408721923828061,
+      "point": {
+        "delta": -18.40872192382806,
+        "G_s": 9.268895926779738,
+        "G_c": 8.36356185508925,
+        "conditional_db": -7.443104214363084,
+        "gain_referred_noise_dB": -6.970035077658961,
+        "photon_flux_gap_smallsignal": 0.905422760130917,
+        "G_s_smallsignal": 9.271638119300198,
+        "G_c_smallsignal": 8.36635087361221,
+        "pump_generated_gain_budget": 37500.0,
+        "G_s_before_final_cap_reconstructed": 9.270719652647667,
+        "s_final_cap_relative_reduction": 0.00019671891031764515,
+        "G_c_before_final_cap_reconstructed": 8.36542758231669,
+        "c_final_cap_relative_reduction": 0.00022302831613574487,
+        "raw_smallsignal_below_unity": false,
+        "output_at_unity_floor": false,
+        "conditional_db_from_raw_smallsignal": -7.44347778726967
+      }
+    },
+    "upper": {
+      "x": 61.54507446289075,
+      "conditional_db": -7.443086861141518,
+      "threshold_residual_db": 1.722011420124403e-05,
+      "bracket": [
+        61.54504394531263,
+        61.54510498046888
+      ],
+      "bracket_width": 6.103515625e-05,
+      "iterations": 14,
+      "status": "bisected_crossing",
+      "drift": 69.54507446289075,
+      "point": {
+        "delta": 61.54507446289075,
+        "G_s": 9.26876858229779,
+        "G_c": 10.399878641955588,
+        "conditional_db": -7.443086861141518,
+        "gain_referred_noise_dB": -6.634457336673929,
+        "photon_flux_gap_smallsignal": -1.1320251053516646,
+        "G_s_smallsignal": 9.2934224477864,
+        "G_c_smallsignal": 10.425612001812937,
+        "pump_generated_gain_budget": 37500.0,
+        "G_s_before_final_cap_reconstructed": 9.270592251987663,
+        "s_final_cap_relative_reduction": 0.00019671555390457794,
+        "G_c_before_final_cap_reconstructed": 10.402763641406564,
+        "c_final_cap_relative_reduction": 0.0002773300971187997,
+        "raw_smallsignal_below_unity": false,
+        "output_at_unity_floor": false,
+        "conditional_db_from_raw_smallsignal": -7.446438356924715
+      }
+    }
+  },
+  "refined_nominal_scan_minimum": {
+    "domain_MHz": [
+      30.0,
+      60.0
+    ],
+    "step_MHz": 0.25,
+    "grid_edge": false,
+    "delta": 46.25,
+    "G_s": 222.0983570199378,
+    "G_c": 226.22461296691338,
+    "conditional_db": -8.77582075472027,
+    "gain_referred_noise_dB": -7.132930059587199,
+    "photon_flux_gap_smallsignal": -4.188217545770543,
+    "G_s_smallsignal": 224.36982443589594,
+    "G_c_smallsignal": 228.56166574542516,
+    "pump_generated_gain_budget": 37500.0,
+    "G_s_before_final_cap_reconstructed": 223.40967471768226,
+    "s_final_cap_relative_reduction": 0.005869565404459558,
+    "G_c_before_final_cap_reconstructed": 227.59763126142812,
+    "c_final_cap_relative_reduction": 0.006032656345784329,
+    "raw_smallsignal_below_unity": false,
+    "output_at_unity_floor": false,
+    "conditional_db_from_raw_smallsignal": -8.77647288302332
+  },
+  "selected_points": {
+    "nominal_fixed": {
+      "delta": -8.0,
+      "G_s": 14.998694857587248,
+      "G_c": 14.155560536388498,
+      "conditional_db": -7.943031129861326,
+      "gain_referred_noise_dB": -7.406614763242033,
+      "photon_flux_gap_smallsignal": 0.8432318962428961,
+      "G_s_smallsignal": 15.006429998184943,
+      "G_c_smallsignal": 14.163426733001529,
+      "pump_generated_gain_budget": 37500.0,
+      "G_s_before_final_cap_reconstructed": 15.003922501264702,
+      "s_final_cap_relative_reduction": 0.00034841846703843285,
+      "G_c_before_final_cap_reconstructed": 14.160906018052195,
+      "c_final_cap_relative_reduction": 0.0003774816143037144,
+      "raw_smallsignal_below_unity": false,
+      "output_at_unity_floor": false,
+      "conditional_db_from_raw_smallsignal": -7.943463521651698
+    },
+    "nominal_retuned": {
+      "domain_MHz": [
+        30.0,
+        60.0
+      ],
+      "step_MHz": 0.25,
+      "grid_edge": false,
+      "delta": 46.25,
+      "G_s": 222.0983570199378,
+      "G_c": 226.22461296691338,
+      "conditional_db": -8.77582075472027,
+      "gain_referred_noise_dB": -7.132930059587199,
+      "photon_flux_gap_smallsignal": -4.188217545770543,
+      "G_s_smallsignal": 224.36982443589594,
+      "G_c_smallsignal": 228.56166574542516,
+      "pump_generated_gain_budget": 37500.0,
+      "G_s_before_final_cap_reconstructed": 223.40967471768226,
+      "s_final_cap_relative_reduction": 0.005869565404459558,
+      "G_c_before_final_cap_reconstructed": 227.59763126142812,
+      "c_final_cap_relative_reduction": 0.006032656345784329,
+      "raw_smallsignal_below_unity": false,
+      "output_at_unity_floor": false,
+      "conditional_db_from_raw_smallsignal": -8.77647288302332
+    },
+    "coarse_map_edge_minimum": {
+      "parameters": {
+        "D": 1.1999999999999997,
+        "temp": 135.0
+      },
+      "delta": 26.00000000000002,
+      "G_s": 12369.676693306217,
+      "G_c": 12541.849827770693,
+      "conditional_db": -8.839399722974434,
+      "gain_referred_noise_dB": 0.09635288775096693,
+      "photon_flux_gap_smallsignal": -443.37075683044645,
+      "G_s_smallsignal": 28906.66617176226,
+      "G_c_smallsignal": 29350.505422106788,
+      "pump_generated_gain_budget": 37500.0,
+      "G_s_before_final_cap_reconstructed": 18457.066572325788,
+      "s_final_cap_relative_reduction": 0.3298135082931813,
+      "G_c_before_final_cap_reconstructed": 18844.320003520166,
+      "c_final_cap_relative_reduction": 0.33444932874055183,
+      "raw_smallsignal_below_unity": false,
+      "output_at_unity_floor": false,
+      "conditional_db_from_raw_smallsignal": -8.840068178484943
+    },
+    "nominal_raw_passive_minimum": {
+      "delta": 120.00000000000011,
+      "G_s": 1.0,
+      "G_c": 0.09983164977260325,
+      "conditional_db": 0.0,
+      "gain_referred_noise_dB": -0.9635314712753208,
+      "photon_flux_gap_smallsignal": -0.08809558640393995,
+      "G_s_smallsignal": 0.011734571940007139,
+      "G_c_smallsignal": 0.09983170209301177,
+      "pump_generated_gain_budget": 37500.0,
+      "G_s_before_final_cap_reconstructed": null,
+      "s_final_cap_relative_reduction": null,
+      "G_c_before_final_cap_reconstructed": 0.09983191554286534,
+      "c_final_cap_relative_reduction": 2.6621773272035447e-06,
+      "raw_smallsignal_below_unity": true,
+      "output_at_unity_floor": true,
+      "conditional_db_from_raw_smallsignal": null
+    },
+    "nominal_scan_floor_count": 111
+  },
+  "limitations": [
+    "One scalar ell fits Gs=15 only at nominal delta=-8 MHz; it does not independently validate Gc, parameter derivatives, loss, RIN, or microscopic noise.",
+    "The fit grid was dv=5 m/s cutoff=4 sigma. Refinement holds ell and threshold fixed, rather than fitting away the grid shift.",
+    "Conditional noise uses an imposed canonical ideal covariance from displayed Gs; the engine conjugate gain/flux gap is not made canonical by this reduction.",
+    "Large gains approach the chosen symmetric detection asymptote; a flat noise curve does not establish robust physical squeezing.",
+    "Raw smallsignal transfer versus displayed gain combines Ultra dynamic propagation and final soft saturation, not only the pump cap.",
+    "Output Gs=1 can be a passive-input floor of the cap; pre-cap Gs cannot be recovered uniquely there. A raw Gs<1 cannot define this ideal-amplifier comparison.",
+    "Only bisected crossings are thresholds; opposite scan edges remain censored. TPD minima and interval refer to the declared full -80..120 MHz domain.",
+    "All Floquet gates are numerical truncation checks, not microscopic diffusion or experimental validation."
+  ],
+  "evaluation_status_counts": {
+    "CONVERGED": 145
+  },
+  "solve_calls_including_cached": 145,
+  "elapsed_seconds": 1.9474291801452637,
+  "parent_results_unchanged": true,
+  "sources_unchanged": true
+}

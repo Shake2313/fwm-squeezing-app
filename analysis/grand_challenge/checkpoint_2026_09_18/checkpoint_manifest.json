@@ -1,0 +1,52 @@
+{
+  "created_utc": "2026-09-18T06:38:37.685377+00:00",
+  "git_head": "2998dc1af4b859bc2a1f3a153243dbcf990fd6a6",
+  "worktree_note": "Pre-existing dirty worktree. No production code or historical evidence changed in this checkpoint.",
+  "progress": {
+    "overall_estimated_percent_range": [
+      20,
+      30
+    ],
+    "estimate_method": "Reviewer partial credit, equal weights for four formal milestones; not time/accuracy/probability.",
+    "formal_completed_milestones": 0,
+    "formal_total_milestones": 4,
+    "thermal_unique_completed_solves": 360,
+    "thermal_declared_unique_solves": 1440
+  },
+  "pytest": {
+    "command": "python -m pytest -q",
+    "passed": 1942,
+    "skipped": 3,
+    "failed": 1,
+    "seconds": 721.66,
+    "exit_code": 1,
+    "failure": "tests/test_docs_consistency.py::test_repository_visibility_wording_is_consistently_public; missing pre-existing FWM_physics.tex",
+    "quantum_collected": 1157,
+    "quantum_passed": 1154,
+    "quantum_skipped": 3
+  },
+  "claims": {
+    "fresh_numerical_probes_passed": true,
+    "thermal_ensemble_converged": false,
+    "physical_optical_prediction_validated": false,
+    "experimental_accuracy_percent": null,
+    "scientific_novelty_established": false,
+    "scope": "Declared-model numerical verification and scientific utility audit, not apparatus validation."
+  },
+  "source_files_cross_checked": 63,
+  "source_disagreements": [],
+  "changed_since_probes": [],
+  "artifact_sha256": {
+    "analysis/grand_challenge/checkpoint_2026_09_18/checkpoint_probe.json": "83f5ebeea065231f8ffcc695fe508147d34f34765ba653820d42c3aed7640200",
+    "analysis/grand_challenge/checkpoint_2026_09_18/checkpoint_probe.txt": "e0107fc703dbb2ddf74673f90528cd8cc2fbb061658ee294ed180539c4f6c004",
+    "analysis/grand_challenge/checkpoint_2026_09_18/physics_probe.json": "e2e2c560c999bf3444e46f4e018ddce47ececa5c232c3365f04cea4ce53f99c5",
+    "analysis/grand_challenge/checkpoint_2026_09_18/physics_probe.txt": "95429f38b5b306cb81394e2663473676b30635cb67188f85fcf3d144e914f778",
+    "analysis/grand_challenge/checkpoint_2026_09_18/pytest_exit_code.txt": "f1b2f662800122bed0ff255693df89c4487fbdcf453d3524a42d4ec20c3d9c04",
+    "analysis/grand_challenge/checkpoint_2026_09_18/pytest_full.log": "92104e4f8b28bdd195b405554768eb419ac999d961d4b060e16d5538f870a102",
+    "analysis/grand_challenge/checkpoint_2026_09_18/quantum_collection.log": "c3222006103c066c84e1ce8b3700dac65f0dd877497d2621d3fb8ce16ce4cebb",
+    "analysis/grand_challenge/checkpoint_2026_09_18/thermal_checkpoint.png": "18d62a603545ff356f85308b565f38f0e63947cf174b9f59526a7d5944d4cf6b",
+    "analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.json": "0e7244baa3fb39f87c7d9b3b296c43e8e46cf2c81bba1af0cf3698a28773e352",
+    "analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.txt": "95d5282ab30a2db9e88e05eb67cbc064c300774d3a64cd535b3f6f10325586d1",
+    "docs/grand_challenge/checkpoint_2026_09_18.md": "ffbac2f7e3bb1627a67a4566ed7e83db783fb24eb64897e415954ce5ffe2cf42"
+  }
+}

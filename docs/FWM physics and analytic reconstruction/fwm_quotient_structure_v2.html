@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Φ — 규약 몫 · 참조 레인 · 인증 2-cell (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#10243A; --ink-2:#3A5068; --ink-3:#6F8199;
+  --paper:#E7EAEE; --card:#FBFCFD; --rule:#C7CFD8;
+  --teal:#1B7A74; --amber:#9E5C00; --violet:#5B5090;
+  --crimson:#A82F2F; --ghost:#9AA7B5;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);
+  font-family:"Newsreader","Pretendard","Apple SD Gothic Neo","Malgun Gothic",serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:34px 22px 80px}
+
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 18px}
+.eyebrow b{color:var(--teal);font-weight:500}
+.eyebrow i{color:var(--amber);font-style:normal}
+.term{font-size:clamp(19px,3.7vw,34px);line-height:1.4;letter-spacing:-.01em;
+  margin:0 0 8px;font-weight:400}
+.term .lhs{font-style:italic}
+.term .op{color:var(--ink-3);padding:0 .1em}
+.term .par{color:var(--violet)}
+.term .m{font-weight:500;color:var(--ink)}
+.term2{font-size:clamp(16px,2.9vw,25px);margin:0 0 12px;font-weight:400;color:var(--ink-2)}
+.term2 .cell{color:var(--teal);font-weight:500}
+.term2 .ref{font-style:italic}
+.sig{font-size:14.5px;color:var(--ink-2);margin:0;font-style:italic}
+.sig sup{font-style:normal}
+.subhead{font-size:14.5px;color:var(--ink-2);max-width:66ch;margin:16px 0 0}
+.subhead b{font-weight:500;color:var(--ink)}
+hr.rule{border:0;border-top:1px solid var(--rule);margin:24px 0}
+
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 6px}
+.tog{font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink-2);
+  border-radius:2px;padding:7px 11px;cursor:pointer;
+  transition:background .13s,color .13s,border-color .13s}
+.tog:hover{border-color:var(--ink-3)}
+.tog:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.tog .sw{display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--ghost);margin-right:7px;vertical-align:1px}
+.tog[aria-pressed="true"]{background:var(--ink);color:#F2F5F8;border-color:var(--ink)}
+.tog[data-l="choice"][aria-pressed="true"]{background:var(--violet);border-color:var(--violet)}
+.tog[data-l="valid"][aria-pressed="true"]{background:var(--amber);border-color:var(--amber)}
+.tog[data-l="cert"][aria-pressed="true"]{background:var(--teal);border-color:var(--teal)}
+.tog[data-l="conv"][aria-pressed="true"]{background:var(--ghost);border-color:var(--ghost);color:#fff}
+.tog[aria-pressed="true"] .sw{background:currentColor}
+.counter{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  color:var(--ink-3)}
+.counter b{color:var(--ink);font-weight:500}
+
+.stage{background:var(--card);border:1px solid var(--rule);border-radius:3px;
+  padding:6px;margin:12px 0 0;overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+
+.mod{cursor:pointer}
+.mod rect.body{fill:#fff;stroke:var(--ink);stroke-width:1.3;transition:fill .14s}
+.mod:hover rect.body{fill:#F1F5F9}
+.mod.sel rect.body{fill:#EBF1F6;stroke-width:2.2}
+.mod.diag rect.body{stroke:var(--amber)}
+.mod.diag:hover rect.body{fill:#FBF3E6}
+.mod.diag.sel rect.body{fill:#F8EDDC}
+.mod.ref rect.body{stroke:var(--teal);stroke-dasharray:5 3.5;fill:#F4FAF9}
+.mod.ref:hover rect.body{fill:#E6F3F1}
+.mod.ref.sel rect.body{fill:#DDEEEB;stroke-dasharray:none;stroke-width:2.2}
+.mod.out rect.body{fill:#E9F4F2;stroke:var(--teal);stroke-width:1.6;cursor:default}
+.mod:focus-visible rect.body{stroke:var(--violet);stroke-width:2.6}
+.mnum{font-family:"JetBrains Mono",monospace;font-size:10.5px;fill:var(--ink-3);letter-spacing:.1em}
+.mname{font-size:15px;fill:var(--ink)}
+.mterm{font-family:"JetBrains Mono",monospace;font-size:10px;fill:var(--ink-3)}
+.glyph{font-size:25px;fill:var(--ink);font-style:italic}
+.mod.ref .glyph{fill:var(--teal);font-size:21px}
+.mod.out .glyph{fill:var(--teal);font-size:15px;font-style:normal}
+
+.e-data{stroke:var(--ink);stroke-width:1.5;fill:none}
+.e-memo{stroke:var(--ink-3);stroke-width:1.2;fill:none;stroke-dasharray:5 4}
+.e-choice{stroke:var(--violet);stroke-width:1.4;fill:none;stroke-dasharray:4 3}
+.e-valid{stroke:var(--amber);stroke-width:1.8;fill:none}
+.e-cert{stroke:var(--teal);stroke-width:1.3;fill:none}
+.e-conv{stroke:var(--ghost);stroke-width:1.1;fill:none;stroke-dasharray:2 4}
+.elab{font-family:"JetBrains Mono",monospace;font-size:9.5px;fill:var(--ink-3)}
+.elab.v{fill:var(--amber)} .elab.c{fill:var(--teal)}
+.rail rect{fill:#DFE4EA;stroke:var(--ghost);stroke-width:1;stroke-dasharray:3 3}
+.lane{fill:none;stroke:var(--teal);stroke-width:1;stroke-dasharray:2 5;opacity:.55}
+.layer{transition:opacity .34s ease}
+.layer.off{opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.layer{transition:none}}
+
+.detail{margin-top:26px;display:grid;grid-template-columns:minmax(0,1fr) 318px;gap:22px}
+@media (max-width:900px){.detail{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:3px;padding:18px 20px}
+.panel h3{margin:0 0 3px;font-size:19px;font-weight:400}
+.panel .pnum{font-family:"JetBrains Mono",monospace;font-size:10.5px;
+  letter-spacing:.16em;color:var(--ink-3);display:block;margin-bottom:5px}
+.pterm{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink);
+  background:#EEF2F6;border-left:2px solid var(--ink);padding:9px 11px;margin:12px 0;
+  overflow-x:auto;white-space:nowrap}
+.verdict{font-size:13.5px;color:var(--ink-2);margin:10px 0 0}
+.verdict .tag{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.09em;
+  padding:2px 6px;border-radius:2px;margin-right:7px;vertical-align:1px}
+.tag.ok{background:#E9F4F2;color:var(--teal)}
+.tag.warn{background:#F8EDDC;color:var(--amber)}
+.tag.fix{background:#F2EEF8;color:var(--violet)}
+.tag.new{background:#EBF1F6;color:var(--ink)}
+.mini rect.n{fill:#fff;stroke:var(--ink);stroke-width:1.15}
+.mini rect.n.alt{stroke:var(--violet);stroke-dasharray:3.5 2.5;fill:#FAF8FD}
+.mini rect.n.blocked{stroke:var(--crimson);fill:#FBEEEE;stroke-width:1.6}
+.mini rect.n.dead{stroke:var(--crimson);stroke-dasharray:3 3;fill:#FCF4F4}
+.mini rect.n.diagn{stroke:var(--amber);fill:#FDF7EE}
+.mini rect.n.gate{stroke:var(--amber);fill:#FDF7EE;stroke-width:1.7}
+.mini rect.n.refn{stroke:var(--teal);stroke-dasharray:4 3;fill:#F4FAF9}
+.mini text.id{font-family:"JetBrains Mono",monospace;font-size:10.5px;font-weight:700;fill:var(--ink)}
+.mini text.lb{font-size:11px;fill:var(--ink-2)}
+.mini text.eq{font-family:"JetBrains Mono",monospace;font-size:8.4px;fill:var(--ink-3)}
+.hint{font-size:12.5px;color:var(--ink-3);font-style:italic;margin-top:9px}
+
+.side h4{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 10px;font-weight:400}
+.side + .side{margin-top:24px}
+.cert{list-style:none;margin:0;padding:0;font-size:12.5px}
+.cert li{display:flex;gap:9px;align-items:baseline;padding:6px 0;
+  border-bottom:1px solid #DDE3E9;color:var(--ink-2)}
+.cert li:last-child{border-bottom:0}
+.cert .st{font-family:"JetBrains Mono",monospace;font-size:8.8px;letter-spacing:.07em;
+  padding:2px 5px;border-radius:2px;flex:none;min-width:62px;text-align:center}
+.st.pass{background:#E9F4F2;color:var(--teal)}
+.st.fail{background:#F7E9E9;color:var(--crimson)}
+.st.pend{background:#F8EDDC;color:var(--amber)}
+.st.part{background:#EEF2F6;color:var(--ink-2)}
+.cert .er{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--ink-3);
+  margin-left:auto;flex:none;padding-left:8px}
+
+.ledger{margin-top:32px}
+.ledger h4{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;font-weight:400}
+.ledger table{width:100%;border-collapse:collapse;font-size:13.5px}
+.ledger th{text-align:left;font-family:"JetBrains Mono",monospace;font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:400;
+  border-bottom:1px solid var(--rule);padding:0 12px 8px 0}
+.ledger td{padding:11px 12px 11px 0;border-bottom:1px solid #DDE3E9;vertical-align:top;
+  color:var(--ink-2)}
+.ledger td:first-child{color:var(--ink);width:26%}
+.ledger td.n{font-family:"JetBrains Mono",monospace;font-size:11.5px;width:16%}
+.foot{margin-top:26px;font-size:12.5px;color:var(--ink-3);max-width:74ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">squeezing_analytic_reconstruction_v2 · 2026-08-21 &nbsp;·&nbsp; 규약 몫 <b>N-free</b> &nbsp;·&nbsp; 참조 레인 <i>2-cell</i></p>
+
+  <p class="term">
+    <span class="lhs">Φ</span><span class="op">=</span><span class="par">(</span><span class="m">B</span><span class="op">;</span><span class="m">C</span><span class="par">)</span><span class="op">;</span><span class="par">[</span>&nbsp;<span class="par">(</span><span class="m">D</span><span class="op">;</span><span class="m">X</span><span class="par">)</span><span class="op"> ∥ </span><span class="par">(</span><span class="m">E</span><span class="op">;</span><span class="m">F</span><span class="par">)</span>&nbsp;<span class="par">]</span>
+  </p>
+  <p class="term2">
+    <span class="cell">ν</span><span class="op"> : </span><span class="ref">(B̃ ; C̃)</span><span class="cell"> ⟹ </span><span class="ref">(B ; C)</span>
+  </p>
+  <p class="sig">Φ : P ⟶ (S<sub>−</sub>(Ω<sub>SA</sub>) × IDS)<sup>𝒞</sup> &nbsp;—&nbsp; 규약 𝒞 위의 Kleisli 사상, ν 는 인증 2-cell</p>
+
+  <p class="subhead">
+    개정본에서 <b>참조 경로가 독립 레인으로 분리</b>됐습니다. pump-only 참조는 생산 경로를 대체하지 않고 그와 <em>나란히</em> 달리며, 게이지 패리티와 응답 잔차로만 접촉합니다. 그래서 검증부(Part Ⅶ)는 DAG 노드가 아니라 두 함자 사이의 <b>2-cell 족 ν</b> 입니다 — 도식이 1-범주에서 2-범주로 올라갔습니다. 규약 몫에 의한 N-free 결과와 4항 SP 골격 자체는 그대로 유효합니다.
+  </p>
+
+  <hr class="rule">
+
+  <div class="bar">
+    <button class="tog" data-l="conv" aria-pressed="false"><span class="sw"></span>규약 되살리기</button>
+    <button class="tog" data-l="cert" aria-pressed="true"><span class="sw"></span>인증 2-cell ν</button>
+    <button class="tog" data-l="choice" aria-pressed="true"><span class="sw"></span>대체 경로 ⊕</button>
+    <button class="tog" data-l="valid" aria-pressed="true"><span class="sw"></span>유효성 게이트 ⇒</button>
+    <button class="tog" data-l="memo" aria-pressed="true"><span class="sw"></span>구조 평행</button>
+    <span class="counter" id="counter"></span>
+  </div>
+
+  <div class="stage"><svg id="spine" viewBox="0 0 1010 600" role="img" aria-label="모듈 수준 계산 구조"></svg></div>
+
+  <div class="detail">
+    <div class="panel" id="detail"></div>
+    <div>
+      <div class="side">
+        <h4>인증 사다리 ν (Part Ⅶ)</h4>
+        <ul class="cert" id="certlist"></ul>
+        <p class="hint">각 항목은 노드가 아니라 두 경로 사이의 2-cell 성분입니다. 오차 한계가 그 2-cell의 “진폭”에 해당합니다.</p>
+      </div>
+      <div class="side">
+        <h4>죽은 N-형 (여전히 유효)</h4>
+        <p class="mono" style="font-size:11.5px;line-height:2;color:var(--ink-2)">
+          <span style="color:#A82F2F">A5 &lt; B1</span><br>
+          <span style="color:#A82F2F">A1 &lt; B1</span><br>
+          <span style="color:#A82F2F">A1 &lt; C4</span><br>
+          <span style="color:#A82F2F">A5 ⊀ C4</span>
+        </p>
+        <p class="hint">규약 A1·A5가 𝒞로 내려가면 이 N이 소멸합니다. 새로 추가된 노드들은 N을 하나도 만들지 않았습니다 — 참조 레인은 접촉이 2-cell뿐이라 순서 관계를 늘리지 않기 때문입니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ledger">
+    <h4>v1 도식 대비 변경</h4>
+    <table>
+      <thead><tr><th>변경</th><th>위치</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>참조 레인 분리 → 2-cell</td><td class="n">B̃ · C̃ · ν</td><td>pump-only 참조가 실행 가능한 독립 경로가 됐습니다. 생산 경로에 <em>치환되지 않고</em> 게이지 패리티(8.37×10⁻¹⁵)와 응답 잔차(7.32×10⁻¹⁷)로만 접촉합니다. plus 브랜치는 <b>unsupported</b> 반환.</td></tr>
+        <tr><td>Lyapunov 3분기</td><td class="n">ε₆ ⊕ ε₆′ ⊕ ε₇</td><td>v1의 2분기 수정이 맞았고, 이제 셋입니다: 좌표무관 φ₁(계산 가능), 고유기저 trace–discriminant(<em>추론용</em>, 결함 드리프트에서 정확도 전멸), Van Loan(권장 구현). cond(S) 가드로 선택.</td></tr>
+        <tr><td>이득 갭 재정의</td><td class="n">δ₆ · ξ₄</td><td>정준 불변량은 𝒢<sub>flux</sub>=G<sub>p</sub>−(ω<sub>p</sub>/ω<sub>c</sub>)G<sub>c</sub> 이고 𝒢<sub>power</sub>=G<sub>p</sub>−G<sub>c</sub>는 아닙니다. v1의 게이트 조건이 틀렸었습니다.</td></tr>
+        <tr><td>N<sub>F</sub> 수렴 게이트 신설</td><td class="n">β₆</td><td>N<sub>F</sub>=1은 미수렴(G<sub>p</sub> 16.8% 변화, 계수 갭 부호 반전). 생산 기본값 N<sub>F</sub>=3, 전체 스캔 인접차수 비교 후에만 승인. 실패 시 <span class="mono">UNCONVERGED</span>.</td></tr>
+        <tr><td>Ⅴa 전면 개편</td><td class="n">ξ₀ · ξ<sub>L</sub></td><td>이상 IDS가 S=1/(2G<sub>p</sub>−1)로 바뀌고, v1이 “이상적”이라 표시했던 (G<sub>p</sub>−g<sub>c</sub>)²/(G<sub>p</sub>+g<sub>c</sub>)는 <b>레거시 점수</b>로 강등됐습니다 — 수동적 점에서도 1 미만을 줍니다.</td></tr>
+        <tr><td>구조 평행 재해석</td><td class="n">δ₄ ⇢ ε₆′</td><td>v1은 이걸 “고유쌍 재사용”이라 적었는데 틀렸습니다. (s,q) 파라미터화가 <em>형태만</em> 같고 값은 일반적으로 다릅니다 — M<sub>q</sub>(Ω)=M<sub>cl</sub>일 때만 일치.</td></tr>
+        <tr><td>분절 공분산 신설</td><td class="n">ε₈′</td><td>z-의존 드리프트에는 닫힌 형태가 없습니다. V<sup>(k+1)</sup>=T<sub>k</sub>V<sup>(k)</sup>T<sub>k</sup>†+W<sub>k</sub> 반복 — 평균장 분절 전파의 잡음 대응물.</td></tr>
+        <tr><td>2D Doppler 승격 보류</td><td class="n">γ₅</td><td>텐서 Gauss–Legendre 2D 평균은 <em>참조 레인에만</em> 있습니다. 생산 스캔은 여전히 1차원이라, 도식에서도 두 레인에 다르게 그렸습니다.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="foot">
+    v1에서 제안했던 프리즘 {0,1}³은 뺐습니다 — 문서가 이제 명시적 인증 사다리를 갖췄고, 그게 같은 정보를 상태·오차와 함께 더 정확히 담기 때문입니다. γ₆→γ₈, δ₁→δ₃ 같은 건너뛰기가 순서로는 이행적 잉여이지만 데이터로는 필수라는 점은 그대로입니다: 순서 구조는 완전히 SP, 남은 복잡도는 전부 모노이달(항등 배선) 성격입니다.
+  </p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const el=(n,a={})=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const txt=(x,y,s,c,extra={})=>{const t=el("text",Object.assign({x,y,class:c||""},extra));t.textContent=s;return t;};
+
+const MODS=[
+ {id:"Bref",num:"Ⅱ·ref",name:"pump-only 참조",term:"β̃₄ ; γ̃-gauge",x:180,y:96,w:168,cls:"ref",g:"B̃"},
+ {id:"Cref",num:"Ⅲ·ref",name:"Nambu 응답 · 2D",term:"χ̃′(Ω) ; 𝒟̃₂ᴰ",x:180,y:212,w:168,cls:"ref",g:"C̃"},
+ {id:"B",num:"Ⅱ",name:"펌프-only 정상상태",term:"(β₁;β₂;β₃) ; (β₄⊕β₄′) ; β₅ ; β₆",x:560,y:96,w:216,g:"B"},
+ {id:"C",num:"Ⅲ",name:"약한장 선형응답",term:"γ₁ ; (γ₂;γ₃⊕γ₃′) ; γ₄ ; γ₆ ; (γ₇∥id) ; γ₈",x:560,y:212,w:216,g:"C"},
+ {id:"D",num:"Ⅳ",name:"준고전 전파 · 두-이득",term:"δ₀;δ₁;(δ₂∥id);δ₃;δ₄;δ₅;δ₆",x:400,y:340,w:210,g:"D"},
+ {id:"E",num:"Ⅴ",name:"양자 요동 전파",term:"…;ε₅;(ε₆⊕ε₆′⊕ε₇);ε₈;ε₉",x:790,y:340,w:210,g:"E"},
+ {id:"X",num:"Ⅴa",name:"이득기준 진단",term:"ξ₀ ; (ξ₁;ξ₂;ξ₃ ⊕ ξ_L)",x:400,y:440,w:210,cls:"diag",g:"X"},
+ {id:"F",num:"Ⅵ",name:"외부 검출",term:"(φ₁∥φ₂∥φ₃) ; φ₄",x:790,y:440,w:210,g:"F"}
+];
+const OUTS=[
+ {name:"레거시 스칼라 (예측 아님)",glyph:"dB",x:400,y:534,w:210,cls:"diag"},
+ {name:"스펙트럼 S₋(Ω_SA)",glyph:"S₋",x:790,y:534,w:210}
+];
+const MH=62;
+
+const INT={
+Bref:{title:"pump-only 참조 (실행 가능 · 느림)",term:"ℒ_pump ρ̃_ss = 0 ,  Tr ρ̃_ss = 1",
+  tag:"new",verdict:"생산 경로와 <b>같은 물리, 다른 구현</b>입니다. 유한차원 영공간을 직접 풀고 게이지 사상으로 Floquet 상태를 재구성합니다. 생산 경로에 치환되지 않으며, plus 브랜치는 게이지 패리티 실패로 <span class='mono'>unsupported</span>를 반환합니다 — 조용히 매핑하지 않는다는 게 요점.",
+  n:[["β̃₁","프레임 변환","U₋=exp(+iΩ_beat t|g₂⟩⟨g₂|)",0,0,"refn"],
+     ["β̃₄","16×16 영공간 직접 해","한 행을 대각합 구속으로 치환",0,1,"refn"],
+     ["β̃ᵍ","게이지 사상 → Floquet","|n|≥2 조화 정확히 0",0,2,"refn"],
+     ["β̃⊥","plus 브랜치 패리티","실패 → unsupported",1.35,2,"dead"]],
+  e:[[0,1,"d"],[1,2,"d"],[1,3,"c"]]},
+Cref:{title:"참조 Nambu 응답 · 2차원 Doppler",term:"χ̃′(Ω_SA) : 2×2 복소 도함수  [s / rad·Ω]",
+  tag:"new",verdict:"완전한 2×2 복소 도함수를 Nambu 순서 (p, c*)로 반환합니다. 미래의 M_q(Ω_SA) 재료를 공급하지만 B도 D도 구성하지 않습니다. <b>2D Doppler 평균은 여기에만 있습니다</b> — 생산 스캔은 1차원.",
+  n:[["γ̃₁","대각합-0 레졸번트","(ℒ+iω_k)⁻¹_{Tr=0}",0,0,"refn"],
+     ["γ̃′","Nambu 도함수","(p, c*) 순서, 단위 s",0,1,"refn"],
+     ["𝒟̃","텐서 Gauss–Legendre","∬dv_z dv_x , 40×40 · 5σ_v",1.35,0,"refn"],
+     ["σ̃","해석 rms 대조","1.380174 vs 1.380163 MHz",1.35,1,"refn"]],
+  e:[[0,1,"d"],[2,3,"d"],[2,1,"d"]]},
+B:{title:"펌프-only 정상상태 (생산)",term:"(β₁ ; β₂ ; β₃) ; (β₄ ⊕ β₄′) ; β₅ ; β₆",
+  tag:"fix",verdict:"β₄′(rate+Sylvester)은 이제 <b>살아있는 선택지가 아닙니다.</b> 아카이브 점에서 Ω_pump/2π=0.708 GHz가 여기 초미세 분리 361.58 MHz보다 커서 단열 제거 가정이 깨집니다. 그리고 β₆이 신설된 수렴 게이트입니다 — N_F=1은 실패합니다.",
+  n:[["β₁","프레임 변환 U₋","g₂ 대각을 δ → ω_HF 로",0,0],
+     ["β₂","펌프 Hamiltonian","−ΣΔ_e(v)|e⟩⟨e| + ½ΣΩ^pump",1.35,0],
+     ["β₃","산일자 + 열 재장전","γ_t(ρ_th Trρ − ρ), 5/12 · 7/12",0,1],
+     ["β₄","16×16 영공간","ℒ_pump ρ_ss = 0 , Tr = 1",0,2],
+     ["β₄′","rate + Sylvester","가정 붕괴 · 역사적 근사",1.42,2,"dead"],
+     ["β₅","Floquet 블록 (일반 N_F)","연분수 · (ℒ₀+inΩ)ρ_n+𝒞₊ρ₋+𝒞₋ρ₊=0",0,3],
+     ["β₆","N_F 수렴 게이트","|ΔT|≤1e−10+0.01max(|T_N|,|T_{N−1}|)",0,4,"gate"]],
+  e:[[0,2,"d"],[1,2,"d"],[2,3,"d"],[2,4,"c"],[4,3,"c"],[3,5,"d"],[5,6,"d"]]},
+C:{title:"약한장 선형응답",term:"γ₁ ; (γ₂;γ₃ ⊕ γ₃′) ; γ₄ ; γ₆ ; (γ₇ ∥ id) ; γ₈",
+  tag:"warn",verdict:"γ₁이 대각합-0 부분공간에서만 역을 취하고, ω_k=0에서는 정상 부분공간을 <em>투영</em>합니다(형식적 0/0 금지). γ₃′는 ℒ이 결함일 때의 Jordan/등고선 대안 — 단순극 합은 대각화 가능성을 요구합니다. γ₆→γ₈ 직결은 순서로는 잉여, 데이터로는 필수.",
+  n:[["γ₁","대각합-0 레졸번트","δρ_k=−(ℒ+iω_k)⁻¹_{Tr=0}𝒱_kρ_ss",0,0],
+     ["γ₅","비공선 Doppler (1D 생산)","δ_eff=δ+(k_p−k_pcosθ)v_z−k_psinθv_x",1.6,0],
+     ["γ₂","쌍직교 고유기저","⟨l_m|r_m′⟩=δ_mm′ , λ_m=−Γ_m+iω_m",0,1],
+     ["γ₃","단순극 합 (대각화 가능시)","대각합-모드 잔차 A₀ = 0 항등",0,2],
+     ["γ₃′","Jordan · 등고선","고차극 — 결함 ℒ",1.6,2,"alt"],
+     ["γ₄","응답행렬 χ(Ω_SA)","[χ_pp χ_pc ; χ*_cp χ*_cc]",0,3],
+     ["γ₆","속도 평균 ⟨·⟩_v","독립 속도류 = 독립 확산 파워",0.62,4],
+     ["γ₇","Faddeeva · Voigt","Im⟨1/(x₀−kv+iΓ)⟩",1.74,5],
+     ["γ₈","속도평균 χ̄(Ω_SA)","",0.62,6]],
+  e:[[0,2,"d"],[2,3,"d"],[2,4,"c"],[3,5,"d"],[4,5,"c"],[5,6,"d"],[1,6,"d"],[6,7,"d"],[7,8,"d"],[6,8,"d"]]},
+D:{title:"준고전 전파 · 두-이득 규약",term:"δ₀ ; δ₁ ; (δ₂ ∥ id) ; δ₃ ; δ₄ ; δ₅ ; δ₆",
+  tag:"fix",verdict:"<b>여기가 v1에서 틀렸던 곳입니다.</b> 정준 불변량은 𝒢<sub>flux</sub>=|T₁₁|²−|T₂₁|² 이고, 𝒢<sub>power</sub>=G<sub>p</sub>−G<sub>c</sub>는 ω<sub>p</sub>≃ω<sub>c</sub> 덕에 수치적으로 가까울 뿐 정준량이 아닙니다. δ₀(정준 재정규화)도 신설 — K가 이 기저에 의존합니다.",
+  n:[["δ₀","정준 재정규화","M_can = 𝒢⁻¹M_Ω𝒢 , 광자속 정규화",0.45,0],
+     ["δ₁","기하 위상부정합","Δk_geom = 2k_p,z − k_s,z − k_c,z",0.45,1],
+     ["δ₂","Maxwell 전기장 행렬","M_E",1.6,2],
+     ["δ₃","대칭 회전틀","M_cl = Q⁻¹M_E Q",0.45,3],
+     ["δ₄","Cayley–Hamilton","T_cl , s=(a+d)/2 , q=√[(a−d)²/4+bc]",0.45,4],
+     ["δ₅","두-이득 규약","G_p=|T₁₁|² , G_c=(ω_c/ω_p)|T₂₁|²",0.45,5],
+     ["δ₆","두 갭 · 광자속 항등식","𝒢_flux=G_p−(ω_p/ω_c)G_c ≠ 𝒢_power",0.45,6]],
+  e:[[0,1,"d"],[1,2,"d"],[1,3,"d"],[2,3,"d"],[3,4,"d"],[4,5,"d"],[5,6,"d"]]},
+E:{title:"양자 요동 전파",term:"(ε₀;ε₁) ; [ε₂ ∥ (ε₃;(ε₄⊕ε₄′);ε₅;(ε₆⊕ε₆′⊕ε₇))] ; ε₈ ; ε₉",
+  tag:"fix",verdict:"v1의 2분기 수정이 맞았고 이제 <b>3분기</b>입니다. ε₆(좌표무관 φ₁, 정칙·전해석)와 ε₇(Van Loan, 권장 구현)은 계산용, ε₆′(고유기저 trace–discriminant)는 <em>추론 전용</em>입니다 — 결함 드리프트에서 정확도가 전멸하고 W(L)은 멀쩡한데 좌표계가 무너지는 것. ε₃도 게이트가 아니라 <b>채널 분류기</b>로 재해석: K 고유값 부호가 손실형(J_F=+1)/이득형(J_F=−1)을 가릅니다.",
+  n:[["ε₀","Nambu 벡터","Â=(δâ_p, δâ_c†)ᵀ , J=diag(1,−1)",0.42,0],
+     ["ε₁","양자 Langevin","∂_zÂ = M_q(z,Ω)Â + B F̂",0.42,1],
+     ["ε₃","K 채널 분류기","K=−(M_qJ+JM_q†)=BJ_FB†",0.42,2],
+     ["ε₂","전파자","T = 𝒫exp∫M_q dz",1.78,2],
+     ["ε₄","미시 확산행렬 D","일반화 Einstein 관계 — 미구현",0,3,"blocked"],
+     ["ε₄′","독립진공 완성 (테스트용)","B_vac=U|Λ_K|^½ → 평탄한 S₋",1.2,3,"alt"],
+     ["ε₅","미분 Lyapunov","dW/dL = M_qW + WM_q† + D",0.55,4],
+     ["ε₆","좌표무관 닫힌 해","W = L·φ₁(Lℳ)[D] , φ₁ 전해석",0,5],
+     ["ε₆′","고유기저 trace–disc.","μ_±=s_q±q_q — 추론 전용",1.2,5,"alt"],
+     ["ε₇","Van Loan 블록지수","Z=[−M_q D;0 M_q†] , W=F₂₂†F₁₂",2.4,5],
+     ["ε₈","공분산 전파","V_out = T V_in T† + W(L;Ω)",1.2,6],
+     ["ε₈′","분절 누적 (z-의존)","V^(k+1)=T_kV^(k)T_k†+W_k",2.4,6],
+     ["ε₉","4-모드 조립","V_R = C V_Ξ C†",1.2,7]],
+  e:[[0,1,"d"],[1,3,"d"],[1,2,"d"],[2,4,"d"],[2,5,"c"],[4,6,"d"],[5,6,"c"],
+     [6,7,"d"],[6,8,"c"],[6,9,"d"],[7,10,"d"],[9,10,"d"],[8,10,"c"],[3,10,"d"],
+     [10,12,"d"],[10,11,"c"],[11,12,"c"]]},
+X:{title:"이득기준 진단 — 레거시 실패 영역",term:"ξ₀ ; ( ξ₁ ; ξ₂ ; ξ₃  ⊕  ξ_L )   ⟨guard ξ₄⟩",
+  tag:"fix",verdict:"v1이 “이상적 IDS”라고 적었던 (G_p−g_c)²/(G_p+g_c)는 실은 <b>레거시 점수</b>였습니다. 진짜 정준 극한은 S=1/(2G_p−1)이고 𝒢<sub>flux</sub>=1일 때만 성립합니다. 레거시 식은 수동적 점에서도 1 미만을 주므로(0.2, 0.1 → 0.033) 공분산이 아닙니다.",
+  n:[["ξ₀","컨쥬게이트 광자속 계수","g_c^(Φ) = |T₂₁|² = (ω_p/ω_c)G_c",0.6,0,"diagn"],
+     ["ξ₁","정준 이상 IDS","S = 1/(G_p+g_c^(Φ)) = 1/(2G_p−1)",0,1,"diagn"],
+     ["ξ_L","레거시 스캔 점수","clip[0,1](G_p−g_c)²/(G_p+g_c)",1.42,1,"dead"],
+     ["ξ₂","대칭 손실","S(η) = 1−η+ηS_ideal",0,2,"diagn"],
+     ["ξ₃","비대칭 가중 차동","𝒱_w , w=η_pA/(η_cB)",0,3,"diagn"],
+     ["ξ₄","유효성 게이트","𝒢_flux = 1 ?  (매 스캔점에서 가용)",1.42,3,"gate"]],
+  e:[[0,1,"d"],[0,2,"c"],[1,3,"d"],[3,4,"d"],[5,4,"v"]]},
+F:{title:"외부 검출 모델",term:"(φ₁ ∥ φ₂ ∥ φ₃) ; φ₄",
+  tag:"ok",verdict:"규약 몫의 효과가 가장 선명한 모듈이고, 개정본에서 구조는 그대로입니다. 다만 문서가 명시하듯 <b>M_q(Ω)와 D(Ω)만 공급되면 남은 모든 단계는 순수 대수</b>입니다 — 막힌 곳은 여기가 아니라 ε₄입니다.",
+  n:[["φ₁","셀 이후 손실만","V_det=K_ηV_outK_η^T+K_ℓV_vacK_ℓ^T",0,0],
+     ["φ₂","광전류 선형화","δî₋ = δî_p − w(Ω)δî_c",1.18,0],
+     ["φ₃","SQL 정규화","|H_p|²η_p|α_p|² + w²|H_c|²η_c|α_c|²",2.36,0],
+     ["φ₄","최종 관측량","S₋ = [m†V_det m + S_el]/S_SQL",1.18,1]],
+  e:[[0,3,"d"],[1,3,"d"],[2,3,"d"]]}
+};
+
+const CERTS=[
+ ["대수적 일관성","pass","PASS","—"],
+ ["해석 항등식 검증","pass","PASS","1e−12"],
+ ["수치 구현 일관성","pass","PASS","1.6e−14"],
+ ["pump-only 약응답 참조","part","minus만","7.3e−17"],
+ ["2차원 Raman–Doppler","part","참조 한정","7.4e−4 %"],
+ ["절단 수렴 N_F","fail","N_F=1 FAIL","16.8 %"],
+ ["독립 미시 계산","pend","PENDING","—"],
+ ["실험 이득 비교","fail","큰 불일치","—"],
+ ["실험 스퀴징 스펙트럼","pend","PENDING","—"]
+];
+
+/* ---------- spine ---------- */
+const svg=document.getElementById("spine");
+function defs(){
+  const d=el("defs");
+  [["ah","#10243A"],["ahg","#9AA7B5"],["ahv","#9E5C00"],["ahm","#6F8199"],
+   ["ahc","#5B5090"],["aht","#1B7A74"]].forEach(([id,c])=>{
+    const m=el("marker",{id,viewBox:"0 0 10 10",refX:"9",refY:"5",markerWidth:"5.5",
+      markerHeight:"5.5",orient:"auto-start-reverse"});
+    m.appendChild(el("path",{d:"M0,1 L9,5 L0,9 z",fill:c}));d.appendChild(m);});
+  const dm=el("marker",{id:"ahd",viewBox:"0 0 14 10",refX:"13",refY:"5",markerWidth:"8",
+    markerHeight:"7",orient:"auto-start-reverse"});
+  dm.appendChild(el("path",{d:"M0,1 L6,5 L0,9 M6,1 L12,5 L6,9",fill:"none",
+    stroke:"#1B7A74","stroke-width":1.5}));
+  d.appendChild(dm);
+  return d;
+}
+function edge(g,d,cls,mk,lab,lx,ly,lc){
+  g.appendChild(el("path",{d,class:cls,"marker-end":`url(#${mk})`}));
+  if(lab)g.appendChild(txt(lx,ly,lab,"elab"+(lc?" "+lc:""),{"text-anchor":"middle"}));
+}
+function drawSpine(){
+  svg.appendChild(defs());
+
+  // reference lane frame
+  const gl=el("g");
+  gl.appendChild(el("rect",{class:"lane",x:78,y:52,width:206,height:222,rx:4}));
+  gl.appendChild(txt(181,44,"참조 레인 — 생산 경로를 대체하지 않음","elab c",{"text-anchor":"middle"}));
+  svg.appendChild(gl);
+
+  // conventions
+  const gc=el("g",{class:"layer off",id:"L-conv"});
+  const r=el("g",{class:"rail"});
+  r.appendChild(el("rect",{x:8,y:300,width:58,height:250,rx:3}));
+  r.appendChild(txt(37,420,"𝒞","",{"text-anchor":"middle","font-size":"26","font-style":"italic",fill:"#6F8199"}));
+  r.appendChild(txt(37,444,"규약","",{"text-anchor":"middle","font-size":"10",fill:"#6F8199"}));
+  r.appendChild(txt(37,322,"11 edges","",{"text-anchor":"middle","font-size":"8.5",fill:"#9AA7B5","font-family":"JetBrains Mono, monospace"}));
+  r.appendChild(txt(37,538,"6 Δ","",{"text-anchor":"middle","font-size":"8.5",fill:"#9AA7B5","font-family":"JetBrains Mono, monospace"}));
+  gc.appendChild(r);
+  MODS.forEach(m=>{const tx=m.x-m.w/2;
+    edge(gc,`M66,425 C ${(66+tx)/2},425 ${(66+tx)/2},${m.y} ${tx-6},${m.y}`,"e-conv","ahg");});
+  svg.appendChild(gc);
+
+  // data
+  const gd=el("g");
+  edge(gd,"M180,127 L180,181","e-data","ah");
+  edge(gd,"M560,127 L560,181","e-data","ah");
+  edge(gd,"M560,243 C560,288 400,292 400,309","e-data","ah");
+  edge(gd,"M560,243 C560,288 790,292 790,309","e-data","ah");
+  edge(gd,"M400,371 L400,409","e-data","ah");
+  edge(gd,"M790,371 L790,409","e-data","ah");
+  edge(gd,"M400,471 L400,503","e-data","ah");
+  edge(gd,"M790,471 L790,503","e-data","ah");
+  gd.appendChild(txt(596,292,"∥","",{"text-anchor":"middle","font-size":"16",fill:"#5B5090",
+    "font-family":"JetBrains Mono, monospace"}));
+  svg.appendChild(gd);
+
+  // certificate 2-cells
+  const gt=el("g",{class:"layer",id:"L-cert"});
+  edge(gt,"M264,96 L446,96","e-cert","ahd","ν₁  게이지 패리티  8.37e−15",355,86,"c");
+  edge(gt,"M264,212 L446,212","e-cert","ahd","ν₂  응답 잔차  7.32e−17",355,202,"c");
+  gt.appendChild(txt(355,232,"2-cell — 순서 관계를 늘리지 않음","elab c",{"text-anchor":"middle"}));
+  svg.appendChild(gt);
+
+  // structural parallel  δ₄ ⇢ ε₆′
+  const gm=el("g",{class:"layer",id:"L-memo"});
+  edge(gm,"M505,332 C580,314 690,314 684,330","e-memo","ahm","(s,q) 파라미터화 형태만 동일 — 값은 M_q≠M_cl",596,308);
+  svg.appendChild(gm);
+
+  // validation gate  ξ₄ ⇒ ε₃
+  const gv=el("g",{class:"layer",id:"L-valid"});
+  edge(gv,"M505,440 C610,440 620,382 684,356","e-valid","ahv","𝒢_flux ≠ 1  ⇒ 추가 저장고 채널 요구",600,462,"v");
+  svg.appendChild(gv);
+
+  // choice badges
+  const gch=el("g",{class:"layer",id:"L-choice"});
+  [[560,96],[560,212],[790,340],[400,440],[180,212]].forEach(([x,y])=>{
+    const m=MODS.find(k=>k.x===x&&k.y===y);const w=m?m.w:210;
+    gch.appendChild(el("circle",{cx:x+w/2-15,cy:y-MH/2+15,r:10,fill:"#F2EEF8",
+      stroke:"#5B5090","stroke-width":1.2}));
+    gch.appendChild(txt(x+w/2-15,y-MH/2+19,"⊕","",{"text-anchor":"middle","font-size":"11.5",
+      fill:"#5B5090"}));});
+  svg.appendChild(gch);
+
+  MODS.forEach(m=>{
+    const g=el("g",{class:"mod "+(m.cls||""),tabindex:"0",role:"button",
+      "aria-label":m.num+" "+m.name,"data-id":m.id});
+    g.appendChild(el("rect",{class:"body",x:m.x-m.w/2,y:m.y-MH/2,width:m.w,height:MH,rx:3}));
+    g.appendChild(txt(m.x-m.w/2+14,m.y-MH/2+18,m.num,"mnum"));
+    g.appendChild(txt(m.x-m.w/2+14,m.y+2,m.name,"mname"));
+    const t=m.term.length>36?m.term.slice(0,34)+"…":m.term;
+    g.appendChild(txt(m.x-m.w/2+14,m.y+20,t,"mterm"));
+    g.appendChild(txt(m.x+m.w/2-17,m.y+8,m.g,"glyph",{"text-anchor":"end"}));
+    g.addEventListener("click",()=>select(m.id));
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(m.id);}});
+    svg.appendChild(g);});
+  OUTS.forEach(o=>{
+    const g=el("g",{class:"mod out "+(o.cls||"")});
+    g.appendChild(el("rect",{class:"body",x:o.x-o.w/2,y:o.y-22,width:o.w,height:44,rx:3}));
+    g.appendChild(txt(o.x-o.w/2+14,o.y+5,o.name,"mname",{"font-size":"13.5"}));
+    g.appendChild(txt(o.x+o.w/2-14,o.y+6,o.glyph,"glyph",{"text-anchor":"end"}));
+    svg.appendChild(g);});
+}
+
+/* ---------- detail ---------- */
+function mini(d){
+  const NW=196,NH=44,GX=222,GY=78,PAD=14;
+  let mx=0,my=0;d.n.forEach(n=>{mx=Math.max(mx,n[3]);my=Math.max(my,n[4]);});
+  const W=mx*GX+NW+PAD*2,H=my*GY+NH+PAD*2+6;
+  const pos=d.n.map(n=>({x:PAD+n[3]*GX,y:PAD+n[4]*GY}));
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,class:"mini",width:"100%"});
+  s.appendChild(defs());
+  d.e.forEach(([a,b,k])=>{
+    const p=pos[a],q=pos[b];
+    let x1=p.x+NW/2,y1=p.y+NH,x2=q.x+NW/2,y2=q.y;
+    if(Math.abs(p.y-q.y)<1){y1=p.y+NH/2;y2=q.y+NH/2;x1=p.x+(p.x<q.x?NW:0);x2=q.x+(p.x<q.x?0:NW);}
+    const cls=k==="c"?"e-choice":k==="v"?"e-valid":"e-data";
+    const mk=k==="c"?"ahc":k==="v"?"ahv":"ah";
+    const dd=(Math.abs(x1-x2)<2||Math.abs(y1-y2)<2)?`M${x1},${y1} L${x2},${y2-(Math.abs(y1-y2)<2?0:2)}`
+      :`M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2-2}`;
+    s.appendChild(el("path",{d:dd,class:cls,"marker-end":`url(#${mk})`}));});
+  d.n.forEach((n,i)=>{
+    const g=el("g");
+    g.appendChild(el("rect",{class:"n "+(n[5]||""),x:pos[i].x,y:pos[i].y,width:NW,height:NH,rx:2.5}));
+    g.appendChild(txt(pos[i].x+9,pos[i].y+16,n[0],"id"));
+    g.appendChild(txt(pos[i].x+11+n[0].length*7.4,pos[i].y+16,n[1],"lb"));
+    if(n[2])g.appendChild(txt(pos[i].x+9,pos[i].y+33,n[2].length>40?n[2].slice(0,39)+"…":n[2],"eq"));
+    s.appendChild(g);});
+  return s;
+}
+function select(id){
+  svg.querySelectorAll(".mod").forEach(g=>g.classList.toggle("sel",g.dataset.id===id));
+  const d=INT[id],m=MODS.find(x=>x.id===id),p=document.getElementById("detail");
+  p.innerHTML="";
+  const num=document.createElement("span");num.className="pnum";
+  num.textContent=m.num+" · "+m.g;
+  const h=document.createElement("h3");h.textContent=d.title;
+  const t=document.createElement("div");t.className="pterm";t.textContent=d.term;
+  const v=document.createElement("p");v.className="verdict";
+  const lbl={ok:"SP",warn:"ID-WIRE",fix:"수정됨",new:"신설"}[d.tag];
+  v.innerHTML=`<span class="tag ${d.tag}">${lbl}</span>${d.verdict}`;
+  p.append(num,h,t,mini(d),v);
+}
+
+/* ---------- certificate ladder ---------- */
+(function(){
+  const ul=document.getElementById("certlist");
+  CERTS.forEach(([name,st,lab,er])=>{
+    const li=document.createElement("li");
+    li.innerHTML=`<span class="st ${st}">${lab}</span><span>${name}</span><span class="er">${er}</span>`;
+    ul.appendChild(li);});
+})();
+
+/* ---------- layers ---------- */
+const state={conv:false,cert:true,choice:true,valid:true,memo:true};
+function sync(){
+  ["conv","cert","choice","valid","memo"].forEach(k=>
+    document.getElementById("L-"+k).classList.toggle("off",!state[k]));
+  document.getElementById("counter").innerHTML = state.conv
+    ? `노드 <b>57</b> · Δ <b>6</b> · N-형 <b style="color:#A82F2F">존재</b> → SP 불가`
+    : `노드 <b>52</b> · Δ <b>0</b> · 모듈 <b>8</b> · N-형 <b style="color:#1B7A74">없음</b>`;
+}
+document.querySelectorAll(".tog").forEach(b=>{
+  b.addEventListener("click",()=>{const k=b.dataset.l;state[k]=!state[k];
+    b.setAttribute("aria-pressed",String(state[k]));sync();});});
+
+drawSpine();sync();select("E");
+})();
+</script>
+</body>
+</html>

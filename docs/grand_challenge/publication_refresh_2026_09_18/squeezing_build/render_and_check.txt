@@ -1,0 +1,88 @@
+"""Render the maintained report for visual QA; run from repository root.
+
+This is document validation only. It does not recompute scientific arrays.
+The separate validation.json records the completed visual inspection.
+"""
+from pathlib import Path
+import hashlib
+import json
+import re
+import subprocess
+
+import fitz
+from PIL import Image, ImageDraw
+
+ROOT = Path.cwd()
+BASE = ROOT / "docs/squeezing_report"
+ASSETS = ROOT / "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build"
+RENDER = ASSETS / "render_delivery"
+RENDER.mkdir(exist_ok=True)
+pdf = ASSETS / "squeezing_report_v8.pdf"
+with (RENDER / "render.log").open("w", encoding="utf-8") as log:
+    proc = subprocess.run(
+        ["pdftoppm", "-png", "-r", "95", str(pdf), str(RENDER / "page")],
+        stdout=log, stderr=subprocess.STDOUT, check=True,
+    )
+
+doc = fitz.open(pdf)
+pages = sorted(RENDER.glob("page-*.png"))
+assert len(pages) == len(doc), (len(pages), len(doc))
+for first in range(0, len(pages), 4):
+    sheet = Image.new("RGB", (1280, 1870), "#dddddd")
+    draw = ImageDraw.Draw(sheet)
+    for idx, path in enumerate(pages[first:first + 4]):
+        im = Image.open(path).convert("RGB")
+        im.thumbnail((626, 889))
+        x = (idx % 2) * 640 + 7
+        y = (idx // 2) * 935 + 30
+        sheet.paste(im, (x, y))
+        draw.text((x + 6, y - 23), path.name, fill="black")
+    sheet.save(RENDER / f"contact-{first // 4 + 1}.png")
+
+source = (BASE / "squeezing_report_v8.tex").read_text(encoding="utf-8")
+baseline = (BASE / "squeezing_report_v7.tex").read_text(encoding="utf-8-sig")
+manifest = json.loads((ASSETS / "source_manifest.json").read_text(encoding="utf-8"))
+changed = [name for name, digest in manifest["sources"].items()
+           if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != digest]
+assert not changed, changed
+log = (ASSETS / "squeezing_report_v8.log").read_text(encoding="utf-8", errors="replace")
+bad = [line for line in log.splitlines()
+       if any(term in line for term in
+              ["LaTeX Warning:", "LaTeX Font Warning:", "Overfull", "Underfull", "Missing character"])]
+assert not bad, bad
+
+preservation = {}
+for env in ["equation", "align"]:
+    pattern = rf"\\begin\{{{env}\}}(.*?)\\end\{{{env}\}}"
+    old = re.findall(pattern, baseline, re.S)
+    new = re.findall(pattern, source, re.S)
+    assert all(block in new for block in old)
+    preservation[env] = {"baseline": len(old), "final": len(new), "exact_preserved": len(old)}
+pattern = r"\\includegraphics[^\n]*\{([^{}]+)\}"
+figures_old = re.findall(pattern, baseline)
+figures_new = re.findall(pattern, source)
+assert set(figures_old) <= set(figures_new)
+labels_old = set(re.findall(r"\\label\{([^}]+)\}", baseline))
+labels_new = set(re.findall(r"\\label\{([^}]+)\}", source))
+assert labels_old <= labels_new
+stats = {
+    "scope": "Document build, artifact preservation and render checks; no new scientific solve",
+    "pages": len(doc),
+    "rendered_pages": len(pages),
+    "render_dpi": 95,
+    "render_exit_code": proc.returncode,
+    "tex_warning_lines": bad,
+    "input_artifacts_checked": len(manifest["sources"]),
+    "changed_input_artifacts": changed,
+    "equation_preservation": preservation,
+    "baseline_figures": figures_old,
+    "final_figures": figures_new,
+    "baseline_labels_missing": sorted(labels_old - labels_new),
+    "source_sha256": hashlib.sha256((BASE / "squeezing_report_v8.tex").read_bytes()).hexdigest(),
+    "built_pdf_sha256": hashlib.sha256(pdf.read_bytes()).hexdigest(),
+    "visual_review": "pending; inspect every contact sheet and relevant full-size pages",
+}
+(ASSETS / "automated_checks.json").write_text(
+    json.dumps(stats, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+)
+print(json.dumps({"pages": len(doc), "inputs": len(manifest["sources"]), "warnings": bad}))

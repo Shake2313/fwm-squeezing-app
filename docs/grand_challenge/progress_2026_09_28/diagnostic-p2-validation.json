@@ -1,0 +1,218 @@
+{
+  "schema": "gabes-thermal-strata-secondary-validation-v1",
+  "checked_at_utc": "2026-09-28T08:18:23.492256+00:00",
+  "validation_passed": true,
+  "comparison_absolute_tolerance": 1e-12,
+  "input_file_sha256": {
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-s11-s211.json": "a2e51c3b211320a59cc6833f87d646ab617e0f5bdfd4a863b826dd5b3cd13ed3",
+    "docs/grand_challenge/progress_2026_09_28/independent-p2-s11-s211.json": "e3a74e308111a8ada3e8e47370815acb3ac5eb92b528f2f002e8b2021ae4fe4c",
+    "docs/grand_challenge/thermal_campaign_v2/plan.json": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+    "docs/grand_challenge/thermal_campaign_v2/sources.zip": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+    "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_diagnose-4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247.py": "4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247",
+    "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_compare-4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804.py": "4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804",
+    "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_grid-cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06.py": "cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06"
+  },
+  "diagnostic_record_sha256": "e61a2e5349dcd84b6cd7a2efa6b391eb2a3be3fbe51f4d03446bbf50104cf499",
+  "reference_selection": [
+    2,
+    11
+  ],
+  "candidate_selection": [
+    2,
+    211
+  ],
+  "artifact_captured_controllers": [
+    {
+      "name": "thermal_campaign_diagnose.py",
+      "raw_sha256": "4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247",
+      "raw_bytes": 20077,
+      "archive": "controllers/thermal_campaign_diagnose-4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247.py"
+    },
+    {
+      "name": "thermal_campaign_compare.py",
+      "raw_sha256": "4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804",
+      "raw_bytes": 19972,
+      "archive": "controllers/thermal_campaign_compare-4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804.py"
+    },
+    {
+      "name": "thermal_campaign_grid.py",
+      "raw_sha256": "cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06",
+      "raw_bytes": 14748,
+      "archive": "controllers/thermal_campaign_grid-cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06.py"
+    }
+  ],
+  "archived_controller_byte_checks": [
+    {
+      "identity": {
+        "name": "thermal_campaign_diagnose.py",
+        "raw_sha256": "4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247",
+        "raw_bytes": 20077,
+        "archive": "controllers/thermal_campaign_diagnose-4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247.py"
+      },
+      "actual_path": "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_diagnose-4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247.py",
+      "actual_raw_sha256": "4bd0c571215284754375d49e18afed8e316d4ac30ecbc0d84732028aad4a5247",
+      "actual_raw_bytes": 20077,
+      "passed": true
+    },
+    {
+      "identity": {
+        "name": "thermal_campaign_compare.py",
+        "raw_sha256": "4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804",
+        "raw_bytes": 19972,
+        "archive": "controllers/thermal_campaign_compare-4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804.py"
+      },
+      "actual_path": "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_compare-4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804.py",
+      "actual_raw_sha256": "4c8572346381d858bef39d7e8873a68b8822e0b880c99a564b9872b543a1e804",
+      "actual_raw_bytes": 19972,
+      "passed": true
+    },
+    {
+      "identity": {
+        "name": "thermal_campaign_grid.py",
+        "raw_sha256": "cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06",
+        "raw_bytes": 14748,
+        "archive": "controllers/thermal_campaign_grid-cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06.py"
+      },
+      "actual_path": "docs/grand_challenge/thermal_campaign_v2/controllers/thermal_campaign_grid-cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06.py",
+      "actual_raw_sha256": "cb61cadba54c051221b0a55584f0109d3ad2d5493567aa3900417b60564d8c06",
+      "actual_raw_bytes": 14748,
+      "passed": true
+    }
+  ],
+  "comparisons": {
+    "greater": {
+      "directed_error": 0.1990383742346321,
+      "independent_directed_error": 0.1990383742346321,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          1
+        ],
+        "rf_index": 1,
+        "frequency_hz": 1000000.0,
+        "source": null
+      },
+      "face_magnitude_max_absolute_difference": 2.7755575615628914e-17,
+      "face_signed_projection_max_absolute_difference": 1.3877787807814457e-17
+    },
+    "lesser": {
+      "directed_error": 0.14599455904380135,
+      "independent_directed_error": 0.14599455904380135,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          0
+        ],
+        "rf_index": 0,
+        "frequency_hz": 100000.0,
+        "source": null
+      },
+      "face_magnitude_max_absolute_difference": 1.3877787807814457e-17,
+      "face_signed_projection_max_absolute_difference": 2.7755575615628914e-17
+    },
+    "greater_by_source": {
+      "directed_error": 0.29030222807222444,
+      "independent_directed_error": 0.29030222807222444,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          2,
+          0
+        ],
+        "rf_index": 0,
+        "frequency_hz": 100000.0,
+        "source": "jump:decay:1:2->1"
+      },
+      "face_magnitude_max_absolute_difference": 2.7755575615628914e-17,
+      "face_signed_projection_max_absolute_difference": 2.7755575615628914e-17
+    },
+    "lesser_by_source": {
+      "directed_error": 0.3184991954772014,
+      "independent_directed_error": 0.3184991954772014,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          0,
+          2
+        ],
+        "rf_index": 2,
+        "frequency_hz": 4000000.0,
+        "source": "atomic_inflow"
+      },
+      "face_magnitude_max_absolute_difference": 1.3877787807814457e-17,
+      "face_signed_projection_max_absolute_difference": 2.7755575615628914e-17
+    },
+    "poisson_number": {
+      "directed_error": 0.09063314211988502,
+      "independent_directed_error": 0.09063314211988502,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          1
+        ],
+        "rf_index": 1,
+        "frequency_hz": 1000000.0,
+        "source": null
+      },
+      "face_magnitude_max_absolute_difference": 3.469446951953614e-18,
+      "face_signed_projection_max_absolute_difference": 1.3877787807814457e-17
+    },
+    "retarded_response": {
+      "directed_error": 0.3436543320829381,
+      "independent_directed_error": 0.3436543320829381,
+      "directed_error_absolute_difference": 0.0,
+      "same_worst_rf": true,
+      "same_worst_source": true,
+      "worst_location": {
+        "array_index": [
+          2
+        ],
+        "rf_index": 2,
+        "frequency_hz": 4000000.0,
+        "source": null
+      },
+      "face_magnitude_max_absolute_difference": 0.0,
+      "face_signed_projection_max_absolute_difference": 5.551115123125783e-17
+    }
+  },
+  "reconstruction_maxima": {
+    "inlet_face": {
+      "reference_reconstruction_errors": 3.491976375248702e-16,
+      "candidate_reconstruction_errors": 4.658902348676686e-16,
+      "difference_reconstruction_errors": 5.230082636883569e-16
+    },
+    "residence_time_us": {
+      "reference_reconstruction_errors": 3.4638366510223347e-16,
+      "candidate_reconstruction_errors": 4.436079597451329e-16,
+      "difference_reconstruction_errors": 6.475737031718985e-16
+    },
+    "longitudinal_velocity_sigma": {
+      "reference_reconstruction_errors": 3.36533949620119e-16,
+      "candidate_reconstruction_errors": 4.470175930010964e-16,
+      "difference_reconstruction_errors": 5.980838139463291e-16
+    },
+    "transverse_speed_sigma": {
+      "reference_reconstruction_errors": 3.3837877919430186e-16,
+      "candidate_reconstruction_errors": 4.490077296131242e-16,
+      "difference_reconstruction_errors": 4.719967911741037e-16
+    }
+  },
+  "maximum_reconstruction_error": 6.475737031718985e-16,
+  "projection_comparison": "Independent probe reports fractions of the net difference; multiply each fraction by its directed error before comparing with the controller signed normalized projection.",
+  "new_atomic_solves": 0,
+  "new_native_cache_audits": 0,
+  "thermal_ensemble_converged": false,
+  "physical_optical_prediction": false,
+  "scope": "Post-run secondary arithmetic and archive-byte check of the preserved earlier captured p2 diagnostic. It does not rerun native path validation, amend that artifact, or certify thermal/optical physics. The final optimized controller with CacheByteGuard is reserved for the upcoming p3 diagnostic; this artifact is not evidence that the optimized controller ran on native p2 records.",
+  "record_sha256": "2e43b5d226833fe061b3792f13c3f16ab0837967a2a8110d03dfbf8027f33da9"
+}

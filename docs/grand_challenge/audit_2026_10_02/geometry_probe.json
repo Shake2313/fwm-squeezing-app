@@ -1,0 +1,802 @@
+{
+  "schema": "gabes-grand-challenge-geometry-audit-v1",
+  "created_at_utc": "2026-10-02T02:18:35.586375+00:00",
+  "command_from_repository_root": "python -B docs/grand_challenge/audit_2026_10_02/geometry_probe.py",
+  "rerun": "Use --output NEW.json within the same audit directory; existing outputs are exclusive.",
+  "campaign_plan": "docs/grand_challenge/thermal_campaign_v2/plan.json",
+  "campaign_plan_raw_sha256": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+  "campaign_plan_record_sha256": "381a3ef851045003c35222f2d26ab793b876aa94c7b936e790e146872191ee52",
+  "campaign_source_identity": "a95cd29442281ca89733f5aaa38a449d2e7367b458a9a08e4aa789bbfdb7f6e0",
+  "source_bundle_raw_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+  "source_manifest_raw_entries_verified": 108,
+  "probe_raw_sha256": "4bc67364a60b1ad44ea2157fc01c1fce2ecb684cc5fc18bb87b748f4385661fa",
+  "loaded_frozen_sources": [
+    {
+      "module": "gabes",
+      "zip_member": "gabes/__init__.py",
+      "raw_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62"
+    },
+    {
+      "module": "gabes.constants",
+      "zip_member": "gabes/constants.py",
+      "raw_sha256": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589"
+    },
+    {
+      "module": "gabes.core",
+      "zip_member": "gabes/core.py",
+      "raw_sha256": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a"
+    },
+    {
+      "module": "gabes.quantum",
+      "zip_member": "gabes/quantum/__init__.py",
+      "raw_sha256": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316"
+    },
+    {
+      "module": "gabes.quantum.contracts",
+      "zip_member": "gabes/quantum/contracts.py",
+      "raw_sha256": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f"
+    },
+    {
+      "module": "gabes.quantum.diffusion",
+      "zip_member": "gabes/quantum/diffusion.py",
+      "raw_sha256": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b"
+    },
+    {
+      "module": "gabes.quantum.inflow",
+      "zip_member": "gabes/quantum/inflow.py",
+      "raw_sha256": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2"
+    },
+    {
+      "module": "gabes.quantum.periodic",
+      "zip_member": "gabes/quantum/periodic.py",
+      "raw_sha256": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c"
+    },
+    {
+      "module": "gabes.quantum.reservoirs",
+      "zip_member": "gabes/quantum/reservoirs.py",
+      "raw_sha256": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c"
+    },
+    {
+      "module": "gabes.quantum.transport",
+      "zip_member": "gabes/quantum/transport.py",
+      "raw_sha256": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1"
+    }
+  ],
+  "geometry_configuration": {
+    "lower_corner_m": [
+      -0.00017320508075688773,
+      -0.00017320508075688773,
+      -0.00625
+    ],
+    "upper_corner_m": [
+      0.00017320508075688773,
+      0.00017320508075688773,
+      0.00625
+    ],
+    "temperature_K": 373.0,
+    "mass_kg": 1.41e-25
+  },
+  "number_density_m3": 1e+18,
+  "powers": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    8,
+    10,
+    14
+  ],
+  "seeds": [
+    11,
+    211,
+    811
+  ],
+  "tail_residence_cutoff_s": 4e-06,
+  "declared_grid_exact_path_checks": [
+    {
+      "grid": [
+        2,
+        11
+      ],
+      "path_count": 24,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        2,
+        211
+      ],
+      "path_count": 24,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        2,
+        811
+      ],
+      "path_count": 24,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        3,
+        11
+      ],
+      "path_count": 48,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        3,
+        211
+      ],
+      "path_count": 48,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        3,
+        811
+      ],
+      "path_count": 48,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        4,
+        11
+      ],
+      "path_count": 96,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        4,
+        211
+      ],
+      "path_count": 96,
+      "exact_match": true
+    },
+    {
+      "grid": [
+        4,
+        811
+      ],
+      "path_count": 96,
+      "exact_match": true
+    }
+  ],
+  "selected_grid_estimates": [
+    {
+      "power": 2,
+      "seed": 11,
+      "points_per_face": 4,
+      "path_count": 24,
+      "minimum_residence_us": 0.06448008009479556,
+      "maximum_residence_us": 3.456679564556543,
+      "occupancy_over_nV": 0.8302268542914272,
+      "occupation_velocity_second_over_sigma2": [
+        0.9875330969518931,
+        0.9090445461265272,
+        0.6707892081245108
+      ],
+      "tail_path_count": 0,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.0,
+      "tail_occupancy_over_nV": 0.0
+    },
+    {
+      "power": 2,
+      "seed": 211,
+      "points_per_face": 4,
+      "path_count": 24,
+      "minimum_residence_us": 0.02148103552599667,
+      "maximum_residence_us": 2.674431869510707,
+      "occupancy_over_nV": 1.110281597854386,
+      "occupation_velocity_second_over_sigma2": [
+        0.9256526782369504,
+        1.1536186593555613,
+        1.031533739981609
+      ],
+      "tail_path_count": 0,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.0,
+      "tail_occupancy_over_nV": 0.0
+    },
+    {
+      "power": 2,
+      "seed": 811,
+      "points_per_face": 4,
+      "path_count": 24,
+      "minimum_residence_us": 0.03803865311285205,
+      "maximum_residence_us": 2.699117529164067,
+      "occupancy_over_nV": 0.8561468387174797,
+      "occupation_velocity_second_over_sigma2": [
+        1.059816142851702,
+        0.832798992523141,
+        0.6253532499094906
+      ],
+      "tail_path_count": 0,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.0,
+      "tail_occupancy_over_nV": 0.0
+    },
+    {
+      "power": 3,
+      "seed": 11,
+      "points_per_face": 8,
+      "path_count": 48,
+      "minimum_residence_us": 0.06448008009479556,
+      "maximum_residence_us": 3.9923205319787143,
+      "occupancy_over_nV": 0.9153096878936974,
+      "occupation_velocity_second_over_sigma2": [
+        0.9925364015087478,
+        0.9053569729514354,
+        0.6499004111458617
+      ],
+      "tail_path_count": 0,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.0,
+      "tail_occupancy_over_nV": 0.0
+    },
+    {
+      "power": 3,
+      "seed": 211,
+      "points_per_face": 8,
+      "path_count": 48,
+      "minimum_residence_us": 0.02148103552599667,
+      "maximum_residence_us": 2.674431869510707,
+      "occupancy_over_nV": 1.0097537260107718,
+      "occupation_velocity_second_over_sigma2": [
+        1.0791320274956073,
+        1.108214082853037,
+        0.9055245827979428
+      ],
+      "tail_path_count": 0,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.0,
+      "tail_occupancy_over_nV": 0.0
+    },
+    {
+      "power": 3,
+      "seed": 811,
+      "points_per_face": 8,
+      "path_count": 48,
+      "minimum_residence_us": 0.017641884929763194,
+      "maximum_residence_us": 6.010583612679368,
+      "occupancy_over_nV": 0.9448798326289145,
+      "occupation_velocity_second_over_sigma2": [
+        0.9723522832890297,
+        0.7776473640077615,
+        0.5933806178874875
+      ],
+      "tail_path_count": 2,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "tail_arrival_fraction": 0.0316770947040754,
+      "tail_occupancy_over_nV": 0.1692379415931443
+    },
+    {
+      "power": 4,
+      "seed": 11,
+      "points_per_face": 16,
+      "path_count": 96,
+      "minimum_residence_us": 0.007473258562073185,
+      "maximum_residence_us": 6.271164189000856,
+      "occupancy_over_nV": 0.95457118797798,
+      "occupation_velocity_second_over_sigma2": [
+        0.9787679776411002,
+        0.9234882427951382,
+        0.6402529702136321
+      ],
+      "tail_path_count": 2,
+      "tail_path_count_by_face": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "tail_arrival_fraction": 0.015838547352037706,
+      "tail_occupancy_over_nV": 0.07531820272815219
+    },
+    {
+      "power": 4,
+      "seed": 211,
+      "points_per_face": 16,
+      "path_count": 96,
+      "minimum_residence_us": 0.02148103552599667,
+      "maximum_residence_us": 5.003506564661009,
+      "occupancy_over_nV": 1.0260045060294212,
+      "occupation_velocity_second_over_sigma2": [
+        1.0418766264423978,
+        1.0782701289047922,
+        0.7414148236780511
+      ],
+      "tail_path_count": 2,
+      "tail_path_count_by_face": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "tail_arrival_fraction": 0.030822905295924605,
+      "tail_occupancy_over_nV": 0.12599890546715437
+    },
+    {
+      "power": 4,
+      "seed": 811,
+      "points_per_face": 16,
+      "path_count": 96,
+      "minimum_residence_us": 0.017641884929763194,
+      "maximum_residence_us": 6.010583612679368,
+      "occupancy_over_nV": 0.8726571453549264,
+      "occupation_velocity_second_over_sigma2": [
+        0.9151056108159077,
+        0.8801498891258658,
+        0.5756622216167787
+      ],
+      "tail_path_count": 2,
+      "tail_path_count_by_face": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "tail_arrival_fraction": 0.015838547352037706,
+      "tail_occupancy_over_nV": 0.08461897079657214
+    },
+    {
+      "power": 5,
+      "seed": 11,
+      "points_per_face": 32,
+      "path_count": 192,
+      "minimum_residence_us": 0.007473258562073185,
+      "maximum_residence_us": 6.271164189000856,
+      "occupancy_over_nV": 1.0001713682670201,
+      "occupation_velocity_second_over_sigma2": [
+        1.054383743618226,
+        0.9937879130599722,
+        0.8903767979455574
+      ],
+      "tail_path_count": 4,
+      "tail_path_count_by_face": [
+        0,
+        1,
+        0,
+        1,
+        2,
+        0
+      ],
+      "tail_arrival_fraction": 0.0158385473520377,
+      "tail_occupancy_over_nV": 0.07131819798872985
+    },
+    {
+      "power": 5,
+      "seed": 211,
+      "points_per_face": 32,
+      "path_count": 192,
+      "minimum_residence_us": 0.02148103552599667,
+      "maximum_residence_us": 15.25765029552436,
+      "occupancy_over_nV": 1.0799842504015245,
+      "occupation_velocity_second_over_sigma2": [
+        1.0311900625542998,
+        0.9863945229302975,
+        1.009363009912029
+      ],
+      "tail_path_count": 7,
+      "tail_path_count_by_face": [
+        1,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "tail_arrival_fraction": 0.03895572632398116,
+      "tail_occupancy_over_nV": 0.2378491463478387
+    },
+    {
+      "power": 5,
+      "seed": 811,
+      "points_per_face": 32,
+      "path_count": 192,
+      "minimum_residence_us": 0.0027933541141784506,
+      "maximum_residence_us": 23.890513870970278,
+      "occupancy_over_nV": 0.9812634215381906,
+      "occupation_velocity_second_over_sigma2": [
+        1.0313793101162754,
+        1.002517018109226,
+        0.9071296990490971
+      ],
+      "tail_path_count": 4,
+      "tail_path_count_by_face": [
+        0,
+        1,
+        1,
+        0,
+        0,
+        2
+      ],
+      "tail_arrival_fraction": 0.0158385473520377,
+      "tail_occupancy_over_nV": 0.09072170023006156
+    },
+    {
+      "power": 6,
+      "seed": 11,
+      "points_per_face": 64,
+      "path_count": 384,
+      "minimum_residence_us": 0.00043088935972840353,
+      "maximum_residence_us": 6.271164189000856,
+      "occupancy_over_nV": 0.9850912677109719,
+      "occupation_velocity_second_over_sigma2": [
+        1.0330972654976711,
+        1.0111524359079311,
+        1.0080245218785757
+      ],
+      "tail_path_count": 7,
+      "tail_path_count_by_face": [
+        1,
+        1,
+        0,
+        1,
+        3,
+        1
+      ],
+      "tail_arrival_fraction": 0.011985684190047127,
+      "tail_occupancy_over_nV": 0.05024487806369514
+    },
+    {
+      "power": 6,
+      "seed": 211,
+      "points_per_face": 64,
+      "path_count": 384,
+      "minimum_residence_us": 0.006029911473318798,
+      "maximum_residence_us": 15.25765029552436,
+      "occupancy_over_nV": 1.0451126043422865,
+      "occupation_velocity_second_over_sigma2": [
+        1.0078843894780056,
+        0.9917694718692437,
+        1.0236913887482026
+      ],
+      "tail_path_count": 12,
+      "tail_path_count_by_face": [
+        3,
+        2,
+        2,
+        1,
+        2,
+        2
+      ],
+      "tail_arrival_fraction": 0.03125,
+      "tail_occupancy_over_nV": 0.1651883645456269
+    },
+    {
+      "power": 6,
+      "seed": 811,
+      "points_per_face": 64,
+      "path_count": 384,
+      "minimum_residence_us": 0.0027933541141784506,
+      "maximum_residence_us": 23.890513870970278,
+      "occupancy_over_nV": 0.9762068805690031,
+      "occupation_velocity_second_over_sigma2": [
+        1.018539102754825,
+        0.9786604473449138,
+        0.9182144521882057
+      ],
+      "tail_path_count": 6,
+      "tail_path_count_by_face": [
+        0,
+        1,
+        2,
+        1,
+        0,
+        2
+      ],
+      "tail_arrival_fraction": 0.015625000000000007,
+      "tail_occupancy_over_nV": 0.08780187365948178
+    },
+    {
+      "power": 8,
+      "seed": 11,
+      "points_per_face": 256,
+      "path_count": 1536,
+      "minimum_residence_us": 0.00043088935972840353,
+      "maximum_residence_us": 24.92383955872601,
+      "occupancy_over_nV": 0.9930283416681652,
+      "occupation_velocity_second_over_sigma2": [
+        1.0087025392929427,
+        0.9972487896014351,
+        1.0000673408350884
+      ],
+      "tail_path_count": 34,
+      "tail_path_count_by_face": [
+        4,
+        3,
+        6,
+        4,
+        9,
+        8
+      ],
+      "tail_arrival_fraction": 0.01682845656154006,
+      "tail_occupancy_over_nV": 0.08536057749015728
+    },
+    {
+      "power": 8,
+      "seed": 211,
+      "points_per_face": 256,
+      "path_count": 1536,
+      "minimum_residence_us": 0.0005092350906627789,
+      "maximum_residence_us": 15.25765029552436,
+      "occupancy_over_nV": 1.0159283550983476,
+      "occupation_velocity_second_over_sigma2": [
+        1.0045023484682358,
+        1.0048268739752588,
+        1.0060139535771913
+      ],
+      "tail_path_count": 39,
+      "tail_path_count_by_face": [
+        6,
+        4,
+        6,
+        6,
+        9,
+        8
+      ],
+      "tail_arrival_fraction": 0.021644535514028288,
+      "tail_occupancy_over_nV": 0.11141727829523487
+    },
+    {
+      "power": 8,
+      "seed": 811,
+      "points_per_face": 256,
+      "path_count": 1536,
+      "minimum_residence_us": 0.001221998531689589,
+      "maximum_residence_us": 23.890513870970278,
+      "occupancy_over_nV": 1.0029917298509963,
+      "occupation_velocity_second_over_sigma2": [
+        0.9996090742648331,
+        0.992876315244378,
+        0.995684437872892
+      ],
+      "tail_path_count": 32,
+      "tail_path_count_by_face": [
+        3,
+        4,
+        4,
+        3,
+        9,
+        9
+      ],
+      "tail_arrival_fraction": 0.013965502609051841,
+      "tail_occupancy_over_nV": 0.0835396676627998
+    },
+    {
+      "power": 10,
+      "seed": 11,
+      "points_per_face": 1024,
+      "path_count": 6144,
+      "minimum_residence_us": 0.00010648348323282316,
+      "maximum_residence_us": 39.37751966147636,
+      "occupancy_over_nV": 1.001248049787313,
+      "occupation_velocity_second_over_sigma2": [
+        0.9995942062086317,
+        0.999715509836187,
+        1.007111831393573
+      ],
+      "tail_path_count": 140,
+      "tail_path_count_by_face": [
+        16,
+        19,
+        20,
+        18,
+        34,
+        33
+      ],
+      "tail_arrival_fraction": 0.018025802944910938,
+      "tail_occupancy_over_nV": 0.09277442751530135
+    },
+    {
+      "power": 10,
+      "seed": 211,
+      "points_per_face": 1024,
+      "path_count": 6144,
+      "minimum_residence_us": 9.910668789129505e-06,
+      "maximum_residence_us": 70.07508699667527,
+      "occupancy_over_nV": 1.0064296214150763,
+      "occupation_velocity_second_over_sigma2": [
+        1.0012043087280174,
+        0.999034305187454,
+        1.0016578098755435
+      ],
+      "tail_path_count": 143,
+      "tail_path_count_by_face": [
+        19,
+        17,
+        19,
+        21,
+        36,
+        31
+      ],
+      "tail_arrival_fraction": 0.01874821478778417,
+      "tail_occupancy_over_nV": 0.09842821480946606
+    },
+    {
+      "power": 10,
+      "seed": 811,
+      "points_per_face": 1024,
+      "path_count": 6144,
+      "minimum_residence_us": 0.00014786914735027997,
+      "maximum_residence_us": 23.890513870970278,
+      "occupancy_over_nV": 1.0084933703668466,
+      "occupation_velocity_second_over_sigma2": [
+        1.0014215736511471,
+        0.999543022344199,
+        1.010152478278815
+      ],
+      "tail_path_count": 140,
+      "tail_path_count_by_face": [
+        19,
+        18,
+        16,
+        19,
+        36,
+        32
+      ],
+      "tail_arrival_fraction": 0.017791672352037706,
+      "tail_occupancy_over_nV": 0.09979415472887113
+    },
+    {
+      "power": 14,
+      "seed": 11,
+      "points_per_face": 16384,
+      "path_count": 98304,
+      "minimum_residence_us": 6.672679278863956e-06,
+      "maximum_residence_us": 85.69804601855937,
+      "occupancy_over_nV": 0.999711609079151,
+      "occupation_velocity_second_over_sigma2": [
+        0.999843022515113,
+        0.9996462851186267,
+        1.0003724875532893
+      ],
+      "tail_path_count": 2118,
+      "tail_path_count_by_face": [
+        271,
+        270,
+        273,
+        270,
+        522,
+        512
+      ],
+      "tail_arrival_fraction": 0.016745733002348728,
+      "tail_occupancy_over_nV": 0.08952384165474722
+    },
+    {
+      "power": 14,
+      "seed": 211,
+      "points_per_face": 16384,
+      "path_count": 98304,
+      "minimum_residence_us": 9.910668789129505e-06,
+      "maximum_residence_us": 96.86774323707213,
+      "occupancy_over_nV": 1.0000625283333653,
+      "occupation_velocity_second_over_sigma2": [
+        1.0002310521448268,
+        1.000087644083474,
+        0.999962528502143
+      ],
+      "tail_path_count": 2113,
+      "tail_path_count_by_face": [
+        277,
+        270,
+        270,
+        261,
+        521,
+        514
+      ],
+      "tail_arrival_fraction": 0.01665584860666152,
+      "tail_occupancy_over_nV": 0.08936188109015199
+    },
+    {
+      "power": 14,
+      "seed": 811,
+      "points_per_face": 16384,
+      "path_count": 98304,
+      "minimum_residence_us": 1.1257333329609305e-05,
+      "maximum_residence_us": 106.69890364965217,
+      "occupancy_over_nV": 1.0000560758409558,
+      "occupation_velocity_second_over_sigma2": [
+        0.9999142436817527,
+        1.000170456487647,
+        1.0009619116995192
+      ],
+      "tail_path_count": 2134,
+      "tail_path_count_by_face": [
+        276,
+        271,
+        279,
+        266,
+        518,
+        524
+      ],
+      "tail_arrival_fraction": 0.01686947165353652,
+      "tail_occupancy_over_nV": 0.09029289001768509
+    }
+  ],
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "environment_matches_sealed_plan": {
+    "python": true,
+    "numpy": true,
+    "scipy": true,
+    "platform": true
+  },
+  "geometry_seconds": 0.19403740006964654,
+  "total_seconds_before_output_write": 1.3908644000766799,
+  "new_atomic_solves": 0,
+  "atomic_cache_packets_read": 0,
+  "source_extracted": false,
+  "historical_inputs_modified": false,
+  "thermal_ensemble_converged": false,
+  "physical_optical_prediction": false,
+  "scope": "Finite frozen-source Maxwell inflow geometry diagnostics only.",
+  "caveats": [
+    "Arrival fractions and occupancy/nV contributions are numerical geometry estimates, not atomic noise fractions or tail error bounds.",
+    "High-power geometry moments do not certify atomic spectra, the ensemble gate, boundary physics, an optical channel, or experimental predictions.",
+    "Uncomputed declared paths are inspected geometrically only; this does not complete their five-resolution atomic evidence or grid audit.",
+    "The p14 estimates are an inexpensive tail reconnaissance, not a rigorous continuous-measure reference or confidence interval.",
+    "Maximum sampled residence is a runtime warning, not a physical residence cutoff; the thermal measure retains unbounded slow-atom tails.",
+    "Input hashes detect byte changes and bind provenance; they do not authenticate the original scientific assumptions."
+  ],
+  "record_sha256": "1d2cd3ce28fdebf438a71006f89616d2995ab93354b2a6a8706bc6271b3bc1f6"
+}

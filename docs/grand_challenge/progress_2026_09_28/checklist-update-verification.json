@@ -1,0 +1,51 @@
+{
+  "schema": "gabes-checklist-scoped-update-v1",
+  "checked_at_utc": "2026-09-28T11:17:32.872926+00:00",
+  "before_file_sha256": "42ad7e4ab1874ae90a2c31700dcda48f7c23fe2453749125d370d878d222554f",
+  "after_file_sha256": "431cabcb659e8e1c747125f7373db085e3db3937f6a9bae93a1c6690882b9de3",
+  "only_allowed_object_fields_changed": true,
+  "allowed_fields": [
+    "continuation_2026_09_28",
+    "max_relative_errors",
+    "max_relative_errors_scope",
+    "next",
+    "p3_seed11_extension",
+    "scope",
+    "status",
+    "validation"
+  ],
+  "historical_object_fields_preserved": [
+    "derivation",
+    "entry_point",
+    "source_manifest_module",
+    "campaign",
+    "source_bundle",
+    "report",
+    "figure",
+    "reuse_evidence",
+    "verified_new_path",
+    "grid_extension",
+    "p2_grid_extension",
+    "independent_seed211_extension",
+    "finer_campaign_extension",
+    "p2_seed211_extension",
+    "p2_seed811_extension"
+  ],
+  "all_other_checklist_content_preserved": true,
+  "milestone_statuses": [
+    "in_progress",
+    "parked",
+    "blocked_external",
+    "parked"
+  ],
+  "input_report_sha256": {
+    "docs/grand_challenge/thermal_campaign_v2/batch-p3-s11.json": "447e2956cfe1f809accde18cb71917b84b662dda166c77874734f6c894b1ed31",
+    "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+    "docs/grand_challenge/thermal_campaign_v2/comparison-p2-p3-s11.json": "cbf8a4bea9cf1709c918b60d7cca53bb8fb1e6d65d3a7180c1346fafe025c752",
+    "docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds-p3-s11.json": "2df9676e3d80701efd19c4420f70ee7e0f38ebaf9509f5921b6cd1c6f09b82a8",
+    "docs/grand_challenge/progress_2026_09_28/batch-path-union-verification.json": "d8cb12f974cdeb259ed4e84f79ac8b47cbe6e7696afc95a4d7013a69a55af389",
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-s11.json": "5591c0af0285b41ed82325acbbc04929c68c8b82c11fcc98f31913e7a2cec297",
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-validation.json": "b5b58c6e55b7cc24023faf3e1a14e42436dff2074e7cb6cbfc017f039e2b6537"
+  },
+  "record_sha256": "c3ae5beed1a88f89702102487d36e016267d56a44cc75d1059ac85292340a6d0"
+}

@@ -163,7 +163,23 @@ python tests/test_schemes_render.py  # every registered scheme computes + render
 Microscopic FWM 연구: `gabes/quantum/`, `gabes/fwm_quantum/`.
 독립 참조: `analysis/grand_challenge/`. [연구 기록](docs/grand_challenge/research_log.md).
 
-최신: [정확한 고유모드 적분·CF4 경로 가속](docs/grand_challenge/exponential_transport_derivation.md),
+현행 연구 방향·작업 종결·매 턴 총책임자 검토: [총괄 설계](docs/grand_challenge/blueprint.md).
+[2026-10-02 감사](docs/grand_challenge/audit_2026_10_02/README.md): 실제 진전 확인, scoped 소과제 종결,
+실패한 v2 보존·다음 p3/seed811 pilot 제한. 감사 당시 회귀2091통과·3skip. [코드 리뷰](docs/grand_challenge/code_review_2026_10_02/README.md) 후보 회귀2044통과·4skip·실패0; 공식 milestone0/4 유지.
+
+과학 근거: [2026-09-28 점검·p3/seed11 완료](docs/grand_challenge/progress_2026_09_28/README.md).
+P3/seed11의48/48경로 통과, 기존120계산 재검증·새120계산 완료. 누적96고유 경로·480계산.
+4/9격자 원본 공동 감사 통과·5누락. P2→P3 변화3.68–36.17%, 여섯 metric 중 다섯 개가5% 초과.
+고정v2 `[2,3,4]`의 첫 필수 edge 실패. 실패 기록을 보존하고 더 미세한 창을 별도 선언해야 함.
+층별 진단·독립 행렬 검산·그림 대조 완료. 전체 thermal·절대 squeezing 미인증. 해당 실행의 코드 회귀2077통과·3skip·실패0.
+
+직전 완료: [p2 세 독립 seed 검증](docs/grand_challenge/thermal_campaign_p2_seed811_v2.md).
+P2/seed811의24/24경로 통과, 새120계산. Seed11·211·811의72고유 경로·360계산 확보.
+독립 seed 여섯 방향의 metric별 최대값 범위5.70–43.61%, 5% 기준 0/6방향 통과. 선언9격자 중3감사·6누락.
+전체 thermal·절대 squeezing 미인증. [이전 seed211 결과](docs/grand_challenge/thermal_campaign_p2_seed211_v2.md)와 실패 기록 보존.
+[고정 소스 계약](docs/grand_challenge/portable_thermal_campaign.md), [배치·재사용 실행](docs/grand_challenge/thermal_grid_execution.md).
+
+이전: [정확한 고유모드 적분·CF4 경로 가속](docs/grand_challenge/exponential_transport_derivation.md),
 [실제 thermal Rb 경로·재사용 계약](docs/grand_challenge/rb_thermal_ensemble.md).
 선택 경로·실제 thermal pilot6경로의 독립 오차 기준 통과.
 한 격자 진단까지 완료. 전체 thermal ensemble 인증은 후속.
@@ -180,6 +196,20 @@ Microscopic FWM 연구: `gabes/quantum/`, `gabes/fwm_quantum/`.
 [RF 후처리](docs/grand_challenge/parallel_development.md)는 별도 조건부 검증.
 생산 scheme의 실험 검증된 squeezing 출력은 아직 비활성.
 전용 검사: `python -m pytest -q tests/quantum`.
+
+## Scientific documents
+
+Each current publication is self-contained; earlier editions are archives.
+
+| Document | Purpose |
+|---|---|
+| [Squeezing report](docs/squeezing_report/squeezing_report_v8.pdf) | Simulation–experiment agreement, parameter/frontier exploration, uncertainty and applicability |
+| [Analytic reconstruction](docs/FWM%20physics%20and%20analytic%20reconstruction/squeezing_analytic_reconstruction_v3.pdf) | Definitions, derivations, physical assumptions and theoretical precision |
+| [Quotient structure](docs/FWM%20physics%20and%20analytic%20reconstruction/fwm_quotient_structure_v4.html) | Logical dependencies, equivalences, partial orders and the conditions for each claim |
+
+[Publication policy](docs/grand_challenge/publication_policy.md) requires content
+preservation and keeps development/version records in Grand Challenge, including
+after its completion. [Current source and artifact paths](docs/grand_challenge/current_publications.json).
 
 ## Adding a scheme
 

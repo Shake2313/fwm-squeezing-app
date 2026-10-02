@@ -1,4 +1,11 @@
 {
+  "_scientific_publication_policy": {
+    "policy": "docs/grand_challenge/publication_policy.md",
+    "current_manifest": "docs/grand_challenge/current_publications.json",
+    "scope": "Squeezing report: experiment agreement/frontier; analytic reconstruction: theory/precision; quotient structure: logical and order-theoretic dependencies. Each current document is standalone and preserves substantive content. Development logs and version differences belong only in Grand Challenge.",
+    "persists_after_grand_challenge_completion": true,
+    "historical_sync_records": "Earlier source links below document their original review scope; resolve current publications through current_manifest. No scientific milestone is completed by a publication refresh."
+  },
   "_comment": "GABES work registry. Daily-report promotion pass 1 and the FWM/SABES analytic-reconstruction pass 2 are complete. Active work uses explicit problem statements, evidence, dependencies, acceptance criteria, priority, effort, and blocking state; done records remain as execution history.",
   "_daily_report_sync": "Daily reports through 2026-08-07 were reviewed and independently rechecked against current code, tests, and numerical probes. The 2026-08-08 report is outside the promotion window because the pass-1 cutoff was fixed before that report was added.",
   "_last_reviewed_at": "2026-08-21",
@@ -1573,7 +1580,22 @@
     {
       "id": "gabes-grand-challenge-parameter-free-hot-vapor-fwm",
       "blueprint": "docs/grand_challenge/blueprint.md",
-      "blueprint_status": "design_draft_2026-09-09",
+      "blueprint_status": "living_master_design_reviewed_2026-10-02",
+      "research_governance": {
+        "master_design": "docs/grand_challenge/blueprint.md",
+        "audit": "docs/grand_challenge/audit_2026_10_02/README.md",
+        "policy": "같은 blueprint에서 작업 분해·현황·결정 갱신. 매 연구 턴 한 주 질문을 전진시키고 종결 전 총책임자 검토. 작은 검증 범위의 종결과 공식 milestone 분리. 실패 선언의 필수 edge·기존 gate 유지. 반복 확대 전에 판별력·새/reused 계산·중단/전환 기준 기록.",
+        "code_review": "docs/grand_challenge/code_review_2026_10_02/README.md",
+        "latest_code_validation": {
+          "date": "2026-10-02",
+          "scope": "clean commit candidate; unrelated working-tree changes excluded",
+          "command": "python -m pytest -q",
+          "passed": 2044,
+          "skipped": 4,
+          "failed": 0,
+          "evidence": "docs/grand_challenge/code_review_2026_10_02/test_summary.json"
+        }
+      },
       "foundation_evidence": "docs/grand_challenge/foundation_probe.json",
       "title": "GABES Grand Challenge",
       "subtitle": "Hot-vapor FWM의 parameter-free microscopic squeezing theory",
@@ -1587,7 +1609,7 @@
       "agent_brief": "최고 수준의 AI 에이전트가 장시간의 수학적 유도, 독립 구현, 수치 실험과 반례 탐색을 투자할 만한 연구 문제로 다룬다. 단기 UI 개선이나 기존 gain 곡선 재현으로 축소하지 않는다. 각 단계의 유도·반례·실패 원인·재현 명령을 남겨 여러 연구 세션에서 이어갈 수 있게 한다.",
       "resource_policy": "고정 토큰 예산이나 자동 실행 일정은 이 등록에서 설정하지 않는다. 모델 이름, 다른 수학 문제를 풀었다는 전언, 투입 토큰 수는 본 과제의 해결 가능성이나 물리적 정당성의 증거가 아니다. 완료 여부는 아래 검증 관문으로 판단한다.",
       "objective": "실험적으로 독립 측정 가능한 원자·광학 파라미터만을 입력으로 받아, hot ⁸⁵Rb D1 double-Λ FWM의 probe/conjugate gain과 전체 intensity-difference squeezing spectrum S₋(Ω)을 절대값으로 동시에 예측하는 microscopic quantum theory를 구축하라. Phenomenological squeezing efficiency, 임의 excess-noise coefficient, 사후 fitted loss로 결과를 맞추지 않는다.",
-      "problem": "현재 저장소는 finite-seed mean-field 계산과 pump-only/2D Doppler reference를 제공하지만 pumped atomic reservoirs에서 유도한 microscopic diffusion과 실험적으로 검증된 절대 squeezing spectrum은 제공하지 않는다. 비평형 원자 잡음, 공간 전파와 실제 검출을 동일한 정규화·입력·오차 예산으로 닫는 것이 핵심이다.",
+      "problem": "현재 저장소는 finite-seed mean-field, pump-only/2D Doppler reference와 조건부 reduced-model microscopic diffusion·field/readout·선택 transport 검증을 제공한다. 실제 thermal ensemble·nonlocal optical 경로와 독립 입력의 실험 검증된 절대 squeezing spectrum은 미완료. 비평형 원자 잡음, 공간 전파와 실제 검출을 동일한 정규화·입력·오차 예산으로 닫는 것이 핵심이다.",
       "integrated_physics": [
         "Hot-vapor Maxwell velocity distribution과 Doppler broadening",
         "Non-collinear pump/seed/conjugate geometry와 vector phase matching",
@@ -3099,7 +3121,890 @@
         "figure": "docs/grand_challenge/rb_thermal_ensemble_v3.png",
         "finest_jobs_report": "docs/grand_challenge/rb_thermal_finest_jobs_v1.json"
       },
+      "frozen_thermal_campaign_implementation": {
+        "status": "p3_seed11_four_grid_subset_verified_not_converged",
+        "continuation_2026_09_28": {
+          "status": "completed_p3_seed11_batch_grid_comparison_ensemble_and_diagnostics_not_converged",
+          "progress_report": "docs/grand_challenge/progress_2026_09_28/README.md",
+          "batch_log": "docs/grand_challenge/progress_2026_09_28/batch-p3-s11.log",
+          "requested_grid": [
+            3,
+            11
+          ],
+          "requested_paths": 48,
+          "planned_reused_jobs": 120,
+          "planned_new_jobs": 120,
+          "scope": "Frozen v2 p3/seed11 batch and all planned cache-only audits completed. All paths pass; the p2-to-p3 ensemble refinement fails 5%.",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v2/batch-p3-s11.json",
+          "actual_new_jobs": 120,
+          "actual_reused_jobs": 120
+        },
+        "derivation": "docs/grand_challenge/portable_thermal_campaign.md",
+        "entry_point": "python -m analysis.grand_challenge.thermal_campaign",
+        "source_manifest_module": "analysis/grand_challenge/source_provenance.py",
+        "campaign": "docs/grand_challenge/thermal_campaign_v1/plan.json",
+        "source_bundle": "docs/grand_challenge/thermal_campaign_v1/sources.zip",
+        "report": "docs/grand_challenge/thermal_campaign_v1/path-p1-s11-i1.json",
+        "figure": "docs/grand_challenge/thermal_campaign_path_v1.png",
+        "reuse_evidence": "docs/grand_challenge/thermal_campaign_nested_reuse_v1.json",
+        "verified_new_path": {
+          "power": 1,
+          "seed": 11,
+          "path_index": 1,
+          "fresh_native_jobs": 5,
+          "complete_path_evidence": true
+        },
+        "max_relative_errors": {
+          "primary_edges": [
+            5.466651880017867e-06,
+            2.1853663633482463e-07
+          ],
+          "independent_reference": 8.408510490863385e-08,
+          "independent_refinement": 1.8734381504797455e-07
+        },
+        "max_relative_errors_scope": "v2의 p2 세 seed와 p3/seed11, 96고유 경로·8metric 전체. 과거 시점별 하위 기록 보존.",
+        "grid_extension": {
+          "recorded_on": "2026-09-16",
+          "document": "docs/grand_challenge/thermal_campaign_grid_v1.md",
+          "execution_contract": "docs/grand_challenge/thermal_grid_execution.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v1/batch-p1-s11.json",
+          "cache_recheck": "docs/grand_challenge/thermal_campaign_v1/batch-p1-s11-recheck.json",
+          "grid_reports": [
+            "docs/grand_challenge/thermal_campaign_v1/grid-p0-s11.json",
+            "docs/grand_challenge/thermal_campaign_v1/grid-p1-s11.json"
+          ],
+          "comparison_report": "docs/grand_challenge/thermal_campaign_v1/comparison-p0-p1-s11.json",
+          "nested_shared_jobs_bitwise_verified": 30,
+          "nested_sum_max_relative_error": 2.9226953593110465e-16,
+          "figure": "docs/grand_challenge/thermal_campaign_grid_v1.png",
+          "verified_unique_paths": 12,
+          "native_jobs": 60,
+          "new_native_jobs_this_step": 55,
+          "recheck_new_solves": 0,
+          "grid_path_counts": [
+            6,
+            12
+          ],
+          "grid_aggregation_max_relative_errors": [
+            1.998575870600361e-16,
+            2.565689901099256e-16
+          ],
+          "p0_to_p1_relative_changes": {
+            "greater": 0.23768933333898595,
+            "lesser": 0.21344522801277716,
+            "greater_by_source": 0.31089872951636255,
+            "lesser_by_source": 0.30348345218636624,
+            "poisson_number": 0.06033117978318093,
+            "retarded_response": 0.9186098017363729
+          },
+          "refinement_budget": 0.05,
+          "refinement_passed": false,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false,
+          "remaining_declared_unique_jobs": 300,
+          "requires_finer_grid_declaration": true
+        },
+        "scope": "P3/seed11 48/48경로 통과·새120계산. v2 누적96고유 경로·480원자 계산, 4/9격자 native 공동 감사 통과·5누락. 실제 p2→p3/seed11 refinement 실패(6metric 중5개가5% 초과), 기존 p2 독립 seed 여섯 방향0/6통과. 전체 thermal·optical 미인증.",
+        "validation": "python -m pytest -q: 2077 passed / 3 skipped / 0 failed, 1156.52초. 진단 전용45검사·독립 검토 통과. 고정 source108개 유지; 정식 중첩 비교·공동 감사·층별 진단·별도 행렬 검산 일치. 문서 누락 검사는 현행 publication manifest 기준으로 수정. 과거 실패 기록 보존.",
+        "next": "2026-10-02 총괄 감사: 실패한 v2 [2,3,4]는 필수 p2→p3/seed11 edge 실패로 PASS 불가; 나머지960계산 일괄 실행 중단. 같은 blueprint의 WP-THERM-PILOT 카드 적용: p3/seed811의 새120계산 상한으로 독립 scramble·tail 진단, p2→p3/811과 p3/11↔811의 모든6metric·5% gate 판정 후 총책임자 검토. 실패면 quadrature/경계 전략 검토, 후보 통과면 별도 새 window 설계; 자동 p4/p5 확대 금지. 기존 source·gate·실패 보존. 독립 입력 ledger·작은 nonlocal optical 설계는 병행 가능. 실제 thermal·광장·절대 squeezing·holdout 미인증.",
+        "p2_grid_extension": {
+          "recorded_on": "2026-09-17",
+          "document": "docs/grand_challenge/thermal_campaign_grid_v2.md",
+          "execution_contract": "docs/grand_challenge/thermal_grid_execution.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v1/batch-p2-s11.json",
+          "grid_reports": [
+            "docs/grand_challenge/thermal_campaign_v1/grid-p0-s11.json",
+            "docs/grand_challenge/thermal_campaign_v1/grid-p1-s11.json",
+            "docs/grand_challenge/thermal_campaign_v1/grid-p2-s11.json"
+          ],
+          "comparison_report": "docs/grand_challenge/thermal_campaign_v1/comparison-p1-p2-s11.json",
+          "ensemble_report": "docs/grand_challenge/thermal_campaign_v1/ensemble-seed11-p0-p2.json",
+          "ensemble_controller": "tools/thermal_campaign_ensemble.py",
+          "figure": "docs/grand_challenge/thermal_campaign_grid_v2.png",
+          "verified_unique_paths": 24,
+          "native_jobs": 120,
+          "new_native_jobs_this_step": 60,
+          "initial_cache_hits": 60,
+          "batch_wall_seconds": 5200.845141800004,
+          "nested_shared_jobs_bitwise_verified": 60,
+          "nested_path_sources_rebound": 10,
+          "nested_sum_max_relative_error": 3.5153255321197147e-16,
+          "grid_path_counts": [
+            6,
+            12,
+            24
+          ],
+          "grid_aggregation_max_relative_errors": [
+            1.998575870600361e-16,
+            2.565689901099256e-16,
+            3.632234649591694e-16
+          ],
+          "occupancy_over_nV": [
+            0.617675044895484,
+            0.9454339912955723,
+            0.8302268542914272
+          ],
+          "p1_to_p2_relative_changes": {
+            "greater": 0.1157700010876405,
+            "lesser": 0.12555708058749845,
+            "greater_by_source": 0.19416471822413567,
+            "lesser_by_source": 0.2734464952990277,
+            "poisson_number": 0.07425873683305674,
+            "retarded_response": 0.12052349410109446
+          },
+          "refinement_budget": 0.05,
+          "refinement_passed": false,
+          "ensemble_audit_passed": true,
+          "required_grid_count": 9,
+          "audited_grid_count": 3,
+          "missing_grids": [
+            [
+              0,
+              211
+            ],
+            [
+              0,
+              811
+            ],
+            [
+              1,
+              211
+            ],
+            [
+              1,
+              811
+            ],
+            [
+              2,
+              211
+            ],
+            [
+              2,
+              811
+            ]
+          ],
+          "available_refinement_passed": [
+            false,
+            false
+          ],
+          "read_only_audits_new_solves": 0,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false,
+          "remaining_declared_unique_jobs": 240,
+          "requires_finer_grid_declaration": true
+        },
+        "independent_seed211_extension": {
+          "recorded_on": "2026-09-17",
+          "document": "docs/grand_challenge/thermal_campaign_seed211_v1.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v1/batch-p1-s211.json",
+          "grid_reports": [
+            "docs/grand_challenge/thermal_campaign_v1/grid-p0-s211.json",
+            "docs/grand_challenge/thermal_campaign_v1/grid-p1-s211.json"
+          ],
+          "comparison_report": "docs/grand_challenge/thermal_campaign_v1/comparison-p0-p1-s211.json",
+          "ensemble_report": "docs/grand_challenge/thermal_campaign_v1/ensemble-seeds11-211-five-grids.json",
+          "figures": [
+            "docs/grand_challenge/thermal_campaign_seed211_v1.png",
+            "docs/grand_challenge/thermal_campaign_scrambles_v1.png"
+          ],
+          "verified_unique_paths": 12,
+          "new_native_jobs_this_step": 60,
+          "verified_campaign_unique_paths": 36,
+          "verified_campaign_native_jobs": 180,
+          "max_relative_errors": {
+            "primary_edges": [
+              4.930357867153296e-06,
+              1.6884452649330805e-07
+            ],
+            "independent_reference": 4.5369675637912345e-08,
+            "independent_refinement": 9.618605559833191e-08
+          },
+          "batch_wall_seconds": 5200.416878599994,
+          "grid_aggregation_max_relative_errors": [
+            1.747217495961205e-16,
+            2.1363745167572666e-16
+          ],
+          "occupancy_over_nV": [
+            1.3794886414527838,
+            1.3845462923122407
+          ],
+          "nested_shared_jobs_bitwise_verified": 30,
+          "nested_path_sources_rebound": 5,
+          "nested_sum_max_relative_error": 3.247550639282875e-16,
+          "p0_to_p1_relative_changes": {
+            "greater": 0.2578867887797999,
+            "lesser": 0.24135828678831422,
+            "greater_by_source": 0.35886140482691203,
+            "lesser_by_source": 0.34372900953279584,
+            "poisson_number": 0.06070815651878661,
+            "retarded_response": 0.9508572997891367
+          },
+          "directed_independent_scrambles": [
+            {
+              "candidate_grid": [
+                0,
+                11
+              ],
+              "reference_grid": [
+                0,
+                211
+              ],
+              "errors": {
+                "greater": 0.3670381040557195,
+                "lesser": 0.3638635722811561,
+                "greater_by_source": 0.497078534408773,
+                "lesser_by_source": 0.47577210121351476,
+                "poisson_number": 0.09875808038832994,
+                "retarded_response": 0.8859024007875094
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "candidate_grid": [
+                0,
+                211
+              ],
+              "reference_grid": [
+                0,
+                11
+              ],
+              "errors": {
+                "greater": 0.5175010730207195,
+                "lesser": 0.5055516148095163,
+                "greater_by_source": 0.8193259185651934,
+                "lesser_by_source": 0.8311384998102502,
+                "poisson_number": 0.09875808038832994,
+                "retarded_response": 2.2369979390152457
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "candidate_grid": [
+                1,
+                11
+              ],
+              "reference_grid": [
+                1,
+                211
+              ],
+              "errors": {
+                "greater": 0.18822261827448117,
+                "lesser": 0.13187169980762828,
+                "greater_by_source": 0.42668390515805765,
+                "lesser_by_source": 0.4362987510856116,
+                "poisson_number": 0.08343582686760642,
+                "retarded_response": 0.3682262399276455
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "candidate_grid": [
+                1,
+                211
+              ],
+              "reference_grid": [
+                1,
+                11
+              ],
+              "errors": {
+                "greater": 0.22230477424687486,
+                "lesser": 0.14581988579786145,
+                "greater_by_source": 0.3117689495120581,
+                "lesser_by_source": 0.3591097863799337,
+                "poisson_number": 0.08343582686760642,
+                "retarded_response": 0.40793256720960797
+              },
+              "budget": 0.05,
+              "passed": false
+            }
+          ],
+          "required_grid_count": 9,
+          "audited_grid_count": 5,
+          "missing_grids": [
+            [
+              0,
+              811
+            ],
+            [
+              1,
+              811
+            ],
+            [
+              2,
+              211
+            ],
+            [
+              2,
+              811
+            ]
+          ],
+          "remaining_declared_unique_jobs": 180,
+          "read_only_audits_new_solves": 0,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false
+        },
+        "finer_campaign_extension": {
+          "recorded_on": "2026-09-17",
+          "status": "raw_import_and_new_p2_seed11_audit_passed_not_converged",
+          "controller": "tools/thermal_campaign_extend.py",
+          "tests": "tests/quantum/test_thermal_campaign_extend.py",
+          "campaign": "docs/grand_challenge/thermal_campaign_v2/plan.json",
+          "transfer_report": "docs/grand_challenge/thermal_campaign_v2/transfer.json",
+          "grid_report": "docs/grand_challenge/thermal_campaign_v2/grid-p2-s11.json",
+          "powers": [
+            2,
+            3,
+            4
+          ],
+          "seeds": [
+            11,
+            211,
+            811
+          ],
+          "required_unique_paths": 288,
+          "required_native_jobs": 1440,
+          "byte_exact_imported_raw_records": 180,
+          "new_solve_count": 0,
+          "missing_native_jobs": 1260,
+          "source_bundle_byte_identical_to_parent": true,
+          "old_path_grid_pass_labels_imported": false,
+          "recomputed_p2_seed11_grid_passed": true,
+          "recomputed_grid_native_cache_hits": 120,
+          "all_eight_spectra_canonical_bytes_equal": true,
+          "spectra_canonical_sha256": "42739582c12010f480ae9181277d948f9221f262b519bb60c44c4539a664b7e5",
+          "virtual_filesystem_zero_link_count_supported": true,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false
+        },
+        "p2_seed211_extension": {
+          "recorded_on": "2026-09-18",
+          "status": "p2_two_seed_audit_passed_full_campaign_not_converged",
+          "document": "docs/grand_challenge/thermal_campaign_p2_seed211_v2.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v2/batch-p2-s211.json",
+          "grid_report": "docs/grand_challenge/thermal_campaign_v2/grid-p2-s211.json",
+          "cross_comparison_report": "docs/grand_challenge/thermal_campaign_v2/comparison-v1-p1-v2-p2-s211.json",
+          "ensemble_report": "docs/grand_challenge/thermal_campaign_v2/ensemble-p2-seeds11-211.json",
+          "controller": "tools/thermal_campaign_cross_compare.py",
+          "tests": "tests/quantum/test_thermal_campaign_cross_compare.py",
+          "figures": [
+            "docs/grand_challenge/thermal_campaign_p2_seed211_v2.png",
+            "docs/grand_challenge/thermal_campaign_scrambles_p2_v2.png"
+          ],
+          "verified_p2_seed211_paths": 24,
+          "new_native_jobs_this_step": 60,
+          "reused_native_jobs": 60,
+          "batch_wall_seconds": 5406.050176799996,
+          "max_relative_errors": {
+            "primary_edges": [
+              4.930357867153296e-06,
+              1.6884452649330805e-07
+            ],
+            "independent_reference": 4.5369675637912345e-08,
+            "independent_refinement": 9.618605559833191e-08
+          },
+          "new_path_max_relative_errors": {
+            "primary_edges": [
+              4.129467737255323e-06,
+              1.5284587362671058e-07
+            ],
+            "independent_reference": 3.399725002667434e-08,
+            "independent_refinement": 7.838115531878515e-08
+          },
+          "grid_aggregation_max_relative_error": 3.13642596731817e-16,
+          "p1_to_p2_relative_changes": {
+            "greater": 0.10756859795712347,
+            "lesser": 0.09642506681541446,
+            "greater_by_source": 0.1987431949604247,
+            "lesser_by_source": 0.2858242611339556,
+            "poisson_number": 0.04331575965794316,
+            "retarded_response": 0.11179930937106096
+          },
+          "directed_p2_scramble_diagnostics": [
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                11
+              ],
+              "reference_grid": [
+                2,
+                211
+              ],
+              "candidate_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "reference_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "errors": {
+                "greater": 0.16953697483820745,
+                "lesser": 0.12892802610712462,
+                "greater_by_source": 0.28813424443766716,
+                "lesser_by_source": 0.433337078450149,
+                "poisson_number": 0.09063314211988502,
+                "retarded_response": 0.29428075417191907
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                211
+              ],
+              "reference_grid": [
+                2,
+                11
+              ],
+              "candidate_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "reference_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "errors": {
+                "greater": 0.1990383742346321,
+                "lesser": 0.14599455904380135,
+                "greater_by_source": 0.29030222807222444,
+                "lesser_by_source": 0.3184991954772014,
+                "poisson_number": 0.09063314211988502,
+                "retarded_response": 0.3436543320829381
+              },
+              "budget": 0.05,
+              "passed": false
+            }
+          ],
+          "cross_declaration_shared_jobs": 60,
+          "cross_declaration_source_rebindings": 10,
+          "nested_sum_max_relative_error": 4.71479808401653e-16,
+          "provided_v2_grids": [
+            [
+              2,
+              11
+            ],
+            [
+              2,
+              211
+            ]
+          ],
+          "missing_v2_grids": [
+            [
+              2,
+              811
+            ],
+            [
+              3,
+              11
+            ],
+            [
+              3,
+              211
+            ],
+            [
+              3,
+              811
+            ],
+            [
+              4,
+              11
+            ],
+            [
+              4,
+              211
+            ],
+            [
+              4,
+              811
+            ]
+          ],
+          "verified_unique_paths_in_v2": 48,
+          "validated_native_jobs_in_v2": 240,
+          "remaining_declared_unique_jobs": 1200,
+          "read_only_audits_new_solves": 0,
+          "cross_edge_counts_as_v2_declared_refinement": false,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false
+        },
+        "p2_seed811_extension": {
+          "recorded_on": "2026-09-18",
+          "status": "p2_three_seed_audit_passed_full_campaign_not_converged",
+          "document": "docs/grand_challenge/thermal_campaign_p2_seed811_v2.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v2/batch-p2-s811.json",
+          "grid_report": "docs/grand_challenge/thermal_campaign_v2/grid-p2-s811.json",
+          "ensemble_report": "docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds.json",
+          "figure": "docs/grand_challenge/thermal_campaign_scrambles_p2_three_seeds_v2.png",
+          "verified_p2_seed811_paths": 24,
+          "new_native_jobs_this_step": 120,
+          "initial_cache_hits": 0,
+          "batch_wall_seconds": 7905.752185399993,
+          "max_relative_errors": {
+            "primary_edges": [
+              5.34718127819736e-06,
+              2.1345783208391392e-07
+            ],
+            "independent_reference": 6.080018905270514e-08,
+            "independent_refinement": 1.3849951977073797e-07
+          },
+          "grid_aggregation_max_relative_error": 4.528539685580232e-16,
+          "occupancy_over_nV_by_seed": {
+            "11": 0.8302268542914272,
+            "211": 1.110281597854386,
+            "811": 0.8561468387174797
+          },
+          "directed_p2_scramble_diagnostics": [
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                11
+              ],
+              "reference_grid": [
+                2,
+                211
+              ],
+              "candidate_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "reference_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "errors": {
+                "greater": 0.16953697483820745,
+                "lesser": 0.12892802610712462,
+                "greater_by_source": 0.28813424443766716,
+                "lesser_by_source": 0.433337078450149,
+                "poisson_number": 0.09063314211988502,
+                "retarded_response": 0.29428075417191907
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                11
+              ],
+              "reference_grid": [
+                2,
+                811
+              ],
+              "candidate_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "reference_digest": "6c5b70a3aea7db4654845469b3b9502df08652c987a9c55da58d09eee44a3a28",
+              "errors": {
+                "greater": 0.1792266292828981,
+                "lesser": 0.15798536924015447,
+                "greater_by_source": 0.38316473643839527,
+                "lesser_by_source": 0.4076420445309683,
+                "poisson_number": 0.07273966228400276,
+                "retarded_response": 0.2808553319439742
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                211
+              ],
+              "reference_grid": [
+                2,
+                11
+              ],
+              "candidate_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "reference_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "errors": {
+                "greater": 0.1990383742346321,
+                "lesser": 0.14599455904380135,
+                "greater_by_source": 0.29030222807222444,
+                "lesser_by_source": 0.3184991954772014,
+                "poisson_number": 0.09063314211988502,
+                "retarded_response": 0.3436543320829381
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                211
+              ],
+              "reference_grid": [
+                2,
+                811
+              ],
+              "candidate_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "reference_digest": "6c5b70a3aea7db4654845469b3b9502df08652c987a9c55da58d09eee44a3a28",
+              "errors": {
+                "greater": 0.1376674844442163,
+                "lesser": 0.19964448234138854,
+                "greater_by_source": 0.25564178281727973,
+                "lesser_by_source": 0.26957205668292555,
+                "poisson_number": 0.05699654618307558,
+                "retarded_response": 0.2597839991950739
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                811
+              ],
+              "reference_grid": [
+                2,
+                11
+              ],
+              "candidate_digest": "6c5b70a3aea7db4654845469b3b9502df08652c987a9c55da58d09eee44a3a28",
+              "reference_digest": "31c77f3fae02560be5fdb2ddd6cdb133592a128b51d484faa650bd26513e7313",
+              "errors": {
+                "greater": 0.1964838795472243,
+                "lesser": 0.15160311781141017,
+                "greater_by_source": 0.43610952133539754,
+                "lesser_by_source": 0.3647202358616973,
+                "poisson_number": 0.07273966228400276,
+                "retarded_response": 0.3256067548605691
+              },
+              "budget": 0.05,
+              "passed": false
+            },
+            {
+              "kind": "independent_scramble",
+              "candidate_grid": [
+                2,
+                811
+              ],
+              "reference_grid": [
+                2,
+                211
+              ],
+              "candidate_digest": "6c5b70a3aea7db4654845469b3b9502df08652c987a9c55da58d09eee44a3a28",
+              "reference_digest": "33588cc9aaac437e2e3b72724cf1106c99f746d0ee7858f0dc154aefda94c3b0",
+              "errors": {
+                "greater": 0.12855334396686577,
+                "lesser": 0.17365768842561183,
+                "greater_by_source": 0.26797728070294075,
+                "lesser_by_source": 0.22167301671039066,
+                "poisson_number": 0.05699654618307558,
+                "retarded_response": 0.2578411146261727
+              },
+              "budget": 0.05,
+              "passed": false
+            }
+          ],
+          "provided_v2_grids": [
+            [
+              2,
+              11
+            ],
+            [
+              2,
+              211
+            ],
+            [
+              2,
+              811
+            ]
+          ],
+          "missing_v2_grids": [
+            [
+              3,
+              11
+            ],
+            [
+              3,
+              211
+            ],
+            [
+              3,
+              811
+            ],
+            [
+              4,
+              11
+            ],
+            [
+              4,
+              211
+            ],
+            [
+              4,
+              811
+            ]
+          ],
+          "verified_unique_paths_in_v2": 72,
+          "validated_native_jobs_in_v2": 360,
+          "remaining_declared_unique_jobs": 1080,
+          "read_only_audits_new_solves": 0,
+          "validated_v2_refinement_edges": 0,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false
+        },
+        "p3_seed11_extension": {
+          "completed_at": "2026-09-28",
+          "status": "p3_seed11_completed_not_converged",
+          "report": "docs/grand_challenge/progress_2026_09_28/README.md",
+          "batch_report": "docs/grand_challenge/thermal_campaign_v2/batch-p3-s11.json",
+          "grid_report": "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json",
+          "comparison_report": "docs/grand_challenge/thermal_campaign_v2/comparison-p2-p3-s11.json",
+          "ensemble_report": "docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds-p3-s11.json",
+          "diagnostic_report": "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-s11.json",
+          "independent_validation": "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-validation.json",
+          "path_union_verification": "docs/grand_challenge/progress_2026_09_28/batch-path-union-verification.json",
+          "source_identity": "a95cd29442281ca89733f5aaa38a449d2e7367b458a9a08e4aa789bbfdb7f6e0",
+          "source_bundle_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+          "frozen_source_count": 108,
+          "counts": {
+            "p2_unique_paths": 72,
+            "p3_seed11_unique_paths": 48,
+            "shared_p2_p3_seed11_paths": 24,
+            "new_p3_seed11_paths": 24,
+            "union_unique_paths": 96,
+            "union_native_cache_keys": 480,
+            "before_native_cache_keys": 360,
+            "new_native_cache_keys": 120,
+            "batch_reused_jobs": 120,
+            "batch_new_jobs": 120,
+            "remaining_declared_unique_jobs": 960
+          },
+          "batch_wall_seconds": 10730.423149299982,
+          "batch_all_paths_passed": true,
+          "grid_audit_passed": true,
+          "comparison_audit_passed": true,
+          "four_grid_audit_passed": true,
+          "primary_and_reference_budgets_unchanged": true,
+          "global_path_max_relative_errors": {
+            "primary_edges": [
+              5.466651880017867e-06,
+              2.1853663633482463e-07
+            ],
+            "independent_reference": 8.408510490863385e-08,
+            "independent_refinement": 1.8734381504797455e-07
+          },
+          "nested_shared_paths": 24,
+          "nested_shared_native_records": 120,
+          "nested_sum_max_relative_error": 5.29976427515387e-16,
+          "refinement_reference_grid": [
+            2,
+            11
+          ],
+          "refinement_candidate_grid": [
+            3,
+            11
+          ],
+          "refinement_errors": {
+            "greater": 0.10514126290436716,
+            "lesser": 0.07847663994082803,
+            "greater_by_source": 0.13788643758746022,
+            "lesser_by_source": 0.1233094753362945,
+            "poisson_number": 0.03677598791370495,
+            "retarded_response": 0.361694451738032
+          },
+          "refinement_error_scale_convention": "candidate grid, as in convergence_gate",
+          "refinement_budget": 0.05,
+          "refinement_passed": false,
+          "audited_refinement_edges": 1,
+          "passed_refinement_edges": 0,
+          "audited_independent_scramble_directions": 6,
+          "passed_independent_scramble_directions": 0,
+          "coverage": {
+            "required_powers": [
+              2,
+              3,
+              4
+            ],
+            "required_seeds": [
+              11,
+              211,
+              811
+            ],
+            "required_grids": [
+              [
+                2,
+                11
+              ],
+              [
+                2,
+                211
+              ],
+              [
+                2,
+                811
+              ],
+              [
+                3,
+                11
+              ],
+              [
+                3,
+                211
+              ],
+              [
+                3,
+                811
+              ],
+              [
+                4,
+                11
+              ],
+              [
+                4,
+                211
+              ],
+              [
+                4,
+                811
+              ]
+            ],
+            "provided_grids": [
+              [
+                2,
+                11
+              ],
+              [
+                2,
+                211
+              ],
+              [
+                2,
+                811
+              ],
+              [
+                3,
+                11
+              ]
+            ],
+            "missing_grids": [
+              [
+                3,
+                211
+              ],
+              [
+                3,
+                811
+              ],
+              [
+                4,
+                11
+              ],
+              [
+                4,
+                211
+              ],
+              [
+                4,
+                811
+              ]
+            ],
+            "required_grid_count": 9,
+            "provided_grid_count": 4,
+            "complete": false
+          },
+          "complete_declaration_gate_passed": false,
+          "thermal_ensemble_converged": false,
+          "physical_optical_prediction": false,
+          "post_batch_new_atomic_solves": 0,
+          "diagnostic_max_reconstruction_error": 9.009749614186628e-16,
+          "protocol_constraint": "The immutable v2 [2,3,4] window requires the failed p2-to-p3 seed11 edge. Completing missing coverage cannot make that unchanged declaration pass. A separately declared finer window may converge; this failure is not proof that the thermal integral cannot converge."
+        }
+      },
       "gain_hotfix_development_handoff": {
+        "recorded_on": "2026-09-16",
         "laboratory_tpd_followup_20261001": {
           "status": "production_hotfix_implemented_research_open",
           "difficulty": "grand_challenge",
@@ -3110,7 +4015,99 @@
           "conditions": "118 C, pump 380 mW, OPD +1.06 GHz, cell-input seed 3.7 uW; other existing defaults, minus branch",
           "temporary_model": "Fast/Balanced existing correction switch: frozen monotone continuous two-piece affine output calibration, OPD-local smooth blend; original 0.9-GHz Gold coupling fit retained",
           "claim_boundary": "Ten points are fit data. Worst relative residual approximately probe 7.7% and conjugate 7.4%; no statistical confidence interval, held-out validation, physical squeezing, or peak-position correction. The OPD transition width is a numerical design choice, not a confidence/validation interval. No new frontend controls or trust labels. No Grand Challenge milestone completed."
-        }
+        },
+        "status": "documented_followups_open",
+        "source_commit": "08268abd4441d408e73a3cb3df93f66f21896808",
+        "document": "docs/grand_challenge/gain_hotfix_handoff.md",
+        "source_evidence": [
+          "analysis/fwm_gain_hotfix/DEVLOG.md",
+          "analysis/fwm_gain_hotfix/reference_points.json",
+          "analysis/fwm_gain_hotfix/exploration_physics/alternative_results.json",
+          "analysis/fwm_gain_hotfix/exploration_physics/heldout_results.json",
+          "analysis/fwm_gain_hotfix/validation_report.json",
+          "analysis/fwm_gain_hotfix/commit_validation_report.json"
+        ],
+        "claim_boundary": "개발 팁·반례·회귀 계약 인계만 완료. C_mix=0.5594938027은 Gold 대표 gain15.5에 target-fitted된 평균장 계수이며 no-fit 입력·미시적 잡음·실험 검증으로 승격 불가. Grand Challenge와 milestone 상태 유지.",
+        "existing_work_to_reuse": {
+          "implementation": "frozen_thermal_campaign_implementation",
+          "document": "docs/grand_challenge/portable_thermal_campaign.md",
+          "scope": "상대 경로·newline Python identity와 raw hash, 고정 ZIP/worker, synthetic unit-test 증거, 실제 solver work·BLAS 검사는 이미 구현. 다음 단계에서 재사용.",
+          "historical_failure_scope": "핫픽스만 분리한 소스의 quantum provenance 11 failed/25 errors는 해당 실행 기록. 현재 GC가 같은 오류로 막혔다고 분류하지 않음.",
+          "unchanged_next_step": "2026-09-16 인계 당시의 역사적 다음 작업: 같은 고정 thermal 캠페인의 p1/seed11 나머지 11경로 후 전체 격자·scramble 수렴. 현행 실행 지시 아님; 현재 판단은 blueprint와 frozen_thermal_campaign_implementation.next 참조."
+        },
+        "follow_up_checks": [
+          {
+            "id": "GCH-1",
+            "title": "입력·gain 정의·직접 평가와 화면 보간 분리",
+            "status": "ready",
+            "related_items": [
+              "fwm-reference-parameter-provenance"
+            ],
+            "acceptance_criteria": [
+              "Gold 대표 15.5, 보고 범위15–16, raw probe111/8=13.875와 conjugate109/8=13.625를 별도 기록. 대표 범위를 오차막대로 해석하지 않음.",
+              "측정면·detuning 기준/부호·Hz/rad/s·1/e² 반경·입력 provenance/unknown을 보존하고 지정점 직접 평가와 표시 보간 차이를 따로 보고."
+            ]
+          },
+          {
+            "id": "GCH-2",
+            "title": "교정 계수 격리·정규화 한 번 사용·drift/noise 일관성",
+            "status": "ready",
+            "related_items": [
+              "fwm-coupling-normalization-audit",
+              "fwm-gain-only-trust-boundary",
+              "fwm-quantum-langevin-microscopic-core"
+            ],
+            "acceptance_criteria": [
+              "Production Fast/Balanced와 비교할 때 gain_closure_enabled=False를 명시하고 교정 on은 target-fitted 비교로만 표시. 교정 미적용 자체를 no-fit 인증으로 세지 않음.",
+              "CG·ground population·1/12·기존0.74·새 계수의 적용 위치를 ledger로 추적. 물리 variant는 평균장과 reservoir/noise를 함께 재계산.",
+              "x=acosh(sqrt(G))는 이상적 gain-length 진단으로만 사용. Gain 한 점으로 transit·overlap·residual을 동시 식별하지 않음."
+            ]
+          },
+          {
+            "id": "GCH-3",
+            "title": "공간·각도 후보를 실제 응답과 수렴으로 검증",
+            "status": "ready",
+            "related_items": [
+              "fwm-option-a-and-loss-ledger",
+              "fwm-finite-seed-angular-doppler-production"
+            ],
+            "acceptance_criteria": [
+              "Pump waist477/530/583 µm의 Gaussian 후보 추세 반전을 반례로 재평가. 고정 power/peak intensity를 구분하고 국소 원자 상태·수집 모드·공간 수렴을 확인. 기존 기울기 보존만을 정답으로 강제하지 않음.",
+              "Raman RMS1.380 MHz와 transit0.1 MHz를 임의 scalar suppression으로 결합하지 않음. Fixed-lab-beat 2D reference와 theta=0 한계·해상도 수렴을 별도 검증."
+            ]
+          },
+          {
+            "id": "GCH-4",
+            "title": "교정점·문헌 비교·고온 외삽의 실패 보존",
+            "status": "ready",
+            "related_items": [
+              "fwm-coupling-normalization-audit",
+              "fwm-option-a-and-loss-ledger",
+              "sabes-calibration-campaign",
+              "fwm-squeezing-spectrum-heldout-validation"
+            ],
+            "acceptance_criteria": [
+              "계수 재조정 없이 Sim/Liu/McCormick 및 pump·온도·waist·angle·OPD·TPD를 비교. 두 gain·transfer·cap 전후 power·원인 mask·입력 모호성 함께 저장.",
+              "McCormick1.926 vs9 악화와 131→141°C 교정 gain 약320→12368을 실패 사례로 유지. 현재 핫픽스의 numerical trend 검사를 실험 검증으로 승격하지 않음.",
+              "이미 열람한 문헌 조건은 fit에서 제외한 비교 자료로 표시. 새 blind holdout·독립 측정 확보는 기존 calibration/heldout 항목에서 추적하며, 이번 체크는 비교 계약 구현 범위."
+            ]
+          },
+          {
+            "id": "GCH-5",
+            "title": "고정 소스·규약별 회귀·동일 실행 성능 비교",
+            "status": "ready",
+            "related_items": [
+              "fwm-floquet-convergence-gate",
+              "fwm-coupling-normalization-audit"
+            ],
+            "acceptance_criteria": [
+              "실제 전달할 소스와 의존성을 고정해 검증. Parent/worktree C_F² 대 p_F·C_F²처럼 다른 규약은 fixture를 별도 보존하고 미등록/혼합 규약을 거부.",
+              "정확 일치와 portable tolerance 결과를 각각 기록. 핫픽스 rtol1e-7/atol1e-10, dB atol1e-5는 해당 회귀용이며 기존 GC 수렴 기준을 대체하거나 완화하지 않음.",
+              "원본 증거 byte/hash와 이식 가능한 Python source identity를 구분. 기존 frozen campaign을 재사용하고 과거 보고서를 재해시하지 않음.",
+              "예열 후 같은 실행에서 교대 timing, 실제 thread·source 전후 hash·격자·adaptive 채점·cache/새 solve를 기록. 원자 pole/chi 수렴과 최종 관측량 수렴 모두 유지."
+            ]
+          }
+        ]
       }
     }
   ]

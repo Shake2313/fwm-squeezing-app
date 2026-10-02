@@ -1,0 +1,32 @@
+{
+  "schema": "gabes-scientific-publications-v1",
+  "policy": "docs/grand_challenge/publication_policy.md",
+  "publication_date": "2026-09-18",
+  "publications": {
+    "squeezing_report": {
+      "role": "Simulation and experiment agreement, parameter/frontier exploration, uncertainty and validated domain",
+      "source": "docs/squeezing_report/squeezing_report_v8.tex",
+      "artifact": "docs/squeezing_report/squeezing_report_v8.pdf",
+      "version": "v8"
+    },
+    "analytic_reconstruction": {
+      "role": "Self-contained definitions, theory, derivations, approximations and precision",
+      "source": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.tex",
+      "artifact": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.pdf",
+      "version": "v3"
+    },
+    "quotient_structure": {
+      "role": "Self-contained order-theoretic organization of assumptions, dependencies, equivalences and justified claims",
+      "source": "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4_builder.py",
+      "artifact": "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4.html",
+      "version": "v4"
+    }
+  },
+  "requirements": {
+    "standalone_each": true,
+    "preserve_substantive_content": true,
+    "development_records_only_under": "docs/grand_challenge/",
+    "versions_identify_archives_not_required_reading": true,
+    "applies_after_grand_challenge_completion": true
+  }
+}

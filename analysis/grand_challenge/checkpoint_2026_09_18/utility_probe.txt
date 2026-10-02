@@ -1,0 +1,131 @@
+"""Fresh midpoint utility probe. Run from the repository root with:
+python - < analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.txt
+PowerShell: Get-Content -Raw <that path> | python -
+Creates utility_probe.json exclusively; refuses an existing output.
+This text extension avoids adding a Python module to frozen-source inventories.
+"""
+from dataclasses import asdict, replace
+from datetime import datetime, timezone
+from pathlib import Path
+from time import perf_counter
+import hashlib
+import json
+import platform
+import sys
+
+import numpy as np
+import scipy
+from threadpoolctl import threadpool_info
+from analysis.grand_challenge.normalization_audit import conditional_inputs
+from gabes.fwm_quantum.inputs import power_normalized_readout, audit_consumed_inputs
+from gabes.quantum.contracts import AnalysisFrequencyAxis, ParameterEvidence, audit_independent_inputs
+from gabes.quantum.readout import DetectorResponse
+from sabes.calibration import Coefficient, default_calibration
+
+ROOT = Path.cwd().resolve()
+OUTPUT = ROOT / 'analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.json'
+SCRIPT = ROOT / 'analysis/grand_challenge/checkpoint_2026_09_18/utility_probe.txt'
+if OUTPUT.exists():
+    raise FileExistsError(OUTPUT)
+if not (ROOT / 'gabes/quantum/contracts.py').is_file():
+    raise RuntimeError('Run from the GABES repository root')
+
+def imported_repository_sources():
+    result = {}
+    for module in tuple(sys.modules.values()):
+        path = getattr(module, '__file__', None)
+        if path is None:
+            continue
+        path = Path(path).resolve()
+        if path.is_relative_to(ROOT) and path.suffix == '.py':
+            result[path.relative_to(ROOT).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return dict(sorted(result.items()))
+
+start_sources = imported_repository_sources()
+axis = AnalysisFrequencyAxis.from_hz([1e5, 1e6, 4e6])
+rf = AnalysisFrequencyAxis.from_hz([-4e6, -1e6, -1e5, 0, 1e5, 1e6, 4e6])
+p = conditional_inputs()
+rows = []
+for name, inputs, eta in [
+    ('base_eta85', p, .85),
+    ('zero_length', replace(p, length_m=0), .85),
+    ('zero_density', replace(p, number_density_m3=0), .85),
+    ('base_eta1', p, 1.),
+    ('base_eta50', p, .5),
+]:
+    d = DetectorResponse(axis, [eta, eta], np.ones((3, 2)), 1., np.zeros(3),
+                         'independent midterm smoke; synthetic detector')
+    t = perf_counter()
+    r = power_normalized_readout(inputs, rf, d)
+    elapsed = perf_counter() - t
+    rows.append(dict(
+        name=name, seconds=elapsed, inputs=asdict(inputs), eta=eta,
+        probe_gain=r.probe_power_gain, conjugate_gain=r.conjugate_power_gain,
+        Sminus_db=r.spectrum.quantum_db.tolist(),
+        Sminus_ratio=(r.spectrum.quantum_psd_A2_Hz / r.spectrum.sql_psd_A2_Hz).tolist(),
+        channel_pass=all(ch.audit().passed for ch in r.sidebands.channels),
+    ))
+
+ledger = p.consumed_inputs(d, convention='uniform-zeeman-rms')
+evidence = [ParameterEvidence(k, v, u, 'assumed', source_id='synthetic', uncertainty=0,
+                             estimation_method='declared', applicability='smoke')
+            for k, (v, u) in ledger['scalars'].items()]
+e = ParameterEvidence('waist', 1e-3, 'm', 'independent', source_id='beam-profile',
+                      uncertainty=1e-5, estimation_method='Gaussian fit',
+                      dataset_ids=('beam-scan',), applicability='same setup')
+cal = default_calibration()
+counts = {s: sum(c.provenance == s for c in cal) for s in sorted({c.provenance for c in cal})}
+assumed_audit = audit_consumed_inputs(ledger, evidence)
+beam_audit = audit_independent_inputs([e], required_ids=['waist'], target_dataset_ids=['FWM-target'])
+leak_audit = audit_independent_inputs([replace(e, dataset_ids=('FWM-target',))],
+                                    required_ids=['waist'], target_dataset_ids=['FWM-target'])
+by_name = {row['name']: row for row in rows}
+loss_error = float(np.max(np.abs(np.array(by_name['base_eta50']['Sminus_ratio']) -
+                                (.5 + .5 * np.array(by_name['base_eta1']['Sminus_ratio'])))))
+null_error = max(abs(value - 1.) for name in ('zero_length', 'zero_density')
+                 for value in by_name[name]['Sminus_ratio'])
+end_sources = imported_repository_sources()
+stable = all(end_sources.get(key) == value for key, value in start_sources.items())
+checks = dict(
+    all_channels_cp_pass=all(row['channel_pass'] for row in rows),
+    null_sql_max_abs_error=null_error, equal_arm_loss_max_abs_error=loss_error,
+    null_probe_gains_one=all(by_name[n]['probe_gain'] == 1. for n in ('zero_length', 'zero_density')),
+    null_conjugate_gains_zero=all(by_name[n]['conjugate_gain'] == 0. for n in ('zero_length', 'zero_density')),
+    detector_changes_leave_gain_identical=len({by_name[n]['probe_gain'] for n in
+        ('base_eta85', 'base_eta1', 'base_eta50')}) == 1,
+    assumed_input_audit_pass=assumed_audit.passed,
+    independent_beam_fit_pass=beam_audit.passed,
+    target_leak_rejected=not leak_audit.passed,
+    source_stable=stable,
+)
+checks['expected_controls_passed'] = bool(
+    checks['all_channels_cp_pass'] and null_error < 1e-12 and loss_error < 1e-12 and
+    checks['null_probe_gains_one'] and checks['null_conjugate_gains_zero'] and
+    checks['detector_changes_leave_gain_identical'] and not assumed_audit.passed and
+    beam_audit.passed and not leak_audit.passed and stable)
+report = dict(
+    generated_at_utc=datetime.now(timezone.utc).isoformat(),
+    scope='Conditional reduced single-velocity 85Rb D1, uniform weak-field area, Gaussian pump peak, prescribed undepleted pump, bright-seed linearized readout; no thermal ensemble or experimental prediction.',
+    absolute_hot_vapor_prediction=False, experimental_validation=False,
+    convention='uniform-zeeman-rms', detector_analysis_hz=axis.frequency_hz.tolist(),
+    atomic_analysis_hz=rf.frequency_hz.tolist(),
+    detector_current_response='unity for both arms at every sampled RF',
+    detector_balance=1., electronics_difference_psd_A2_Hz=[0., 0., 0.],
+    cases=rows, checks=checks, assumed_inputs=len(evidence),
+    assumed_input_audit=asdict(assumed_audit), independent_beam_fit_audit=asdict(beam_audit),
+    target_leak_audit=asdict(leak_audit),
+    sabes_default_calibration_statuses=counts,
+    sabes_target_fitted_tag_verified=Coefficient('target-fit', .5, provenance='fitted').verified,
+    sabes_calibration_note='Legacy verified status is not the Grand Challenge no-fit independence gate.',
+    environment=dict(python=sys.version, executable=sys.executable, numpy=np.__version__,
+                     scipy=scipy.__version__, platform=platform.platform(), threadpools=threadpool_info()),
+    runtime_note='One in-process call per local case; imports excluded; no repeated timing benchmark, full thermal run, or speedup claim.',
+    script_sha256=hashlib.sha256(SCRIPT.read_bytes()).hexdigest(),
+    calibration_json_sha256=hashlib.sha256((ROOT/'sabes/calibration_sim2025.json').read_bytes()).hexdigest(),
+    imported_repository_source_sha256=end_sources,
+)
+with OUTPUT.open('x', encoding='utf-8') as stream:
+    json.dump(report, stream, ensure_ascii=False, indent=2, allow_nan=False)
+    stream.write('\n')
+print(json.dumps(dict(output=str(OUTPUT), checks=checks, cases=rows,
+                     imported_source_count=len(end_sources)), ensure_ascii=True, indent=2))

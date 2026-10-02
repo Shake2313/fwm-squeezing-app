@@ -1,0 +1,711 @@
+{
+  "created_utc": "2026-09-28T08:05:39.688084+00:00",
+  "scope": "One existing frozen-v2 CampaignCache.get, provider=None; diagnostic profile, no ODE or changed numerical source.",
+  "selection": {
+    "power": 2,
+    "seed": 11,
+    "index": 0,
+    "solver_level": 0
+  },
+  "solver_spec": {
+    "method": "CF4-exact-spectral-microscopic-source-propagation-v1",
+    "resolution": 8192000000.0,
+    "parameters": {
+      "max_step_s": 1.220703125e-10,
+      "order": 4
+    }
+  },
+  "campaign_sha256": "381a3ef851045003c35222f2d26ab793b876aa94c7b936e790e146872191ee52",
+  "source_bundle_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+  "frozen_source_count": 108,
+  "frozen_sources_verified_after": true,
+  "cache_key": "8f3ca7637004d6fbf117e35d56a1f6da6f93bf1a3a82376d22ae17ca94ada22a",
+  "cache_record_sha256": "a8ff2fba33c7a88989f2d5ce4ebe3211bedd6375fdd82e80f65e77ba1da37d60",
+  "cache_raw_bytes": 3281072,
+  "cache_raw_sha256_before": "c7cb06929eae787e29fcff85830269921ae791e44b8beabeff4faf4791e14e0e",
+  "cache_raw_sha256_after": "c7cb06929eae787e29fcff85830269921ae791e44b8beabeff4faf4791e14e0e",
+  "cache_hit": true,
+  "new_ode_calculations": 0,
+  "environment": {
+    "python": "3.14.2",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "executable": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\python.exe"
+  },
+  "timings": {
+    "load_plan_and_require_capsule_seconds": 1.7050451999530196,
+    "select_model_path_spec_seconds": 0.011405199998989701,
+    "cache_constructor_seconds": 1.1899675999884494,
+    "one_profiled_cache_get_wall_seconds": 2.7555445000180043,
+    "additional_final_source_verification_seconds": 1.1923369000433013
+  },
+  "cprofile_total_calls": 776105,
+  "cprofile_primitive_calls": 686243,
+  "cprofile_total_internal_seconds": 2.7520377000000003,
+  "top_cumulative": [
+    {
+      "file": "analysis/grand_challenge/thermal_campaign.py",
+      "line": 214,
+      "function": "get",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0001451,
+      "cumulative_seconds": 2.7521521
+    },
+    {
+      "file": "analysis/grand_challenge/thermal_campaign.py",
+      "line": 197,
+      "function": "_check_sources",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 5.2100000000000006e-05,
+      "cumulative_seconds": 2.4407793
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 188,
+      "function": "require_sources",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 0.0001133,
+      "cumulative_seconds": 2.3911208
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 127,
+      "function": "capture_sources",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 0.0209529,
+      "cumulative_seconds": 2.375909
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.compile>",
+      "primitive_calls": 432,
+      "total_calls": 432,
+      "self_seconds": 1.4679804,
+      "cumulative_seconds": 1.4679804
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 773,
+      "function": "read_bytes",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.0016463,
+      "cumulative_seconds": 0.3588677
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+      "line": 223,
+      "function": "read_sealed",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0005169,
+      "cumulative_seconds": 0.2078123
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'read' of '_io.FileIO' objects>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.20088750000000002,
+      "cumulative_seconds": 0.20088750000000002
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 932,
+      "function": "resolve",
+      "primitive_calls": 218,
+      "total_calls": 218,
+      "self_seconds": 0.001048,
+      "cumulative_seconds": 0.19357580000000002
+    },
+    {
+      "file": "<frozen ntpath>",
+      "line": 661,
+      "function": "realpath",
+      "primitive_calls": 218,
+      "total_calls": 218,
+      "self_seconds": 0.0024569,
+      "cumulative_seconds": 0.18947460000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._getfinalpathname>",
+      "primitive_calls": 436,
+      "total_calls": 436,
+      "self_seconds": 0.1762265,
+      "cumulative_seconds": 0.1762265
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+      "line": 81,
+      "function": "digest",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0002068,
+      "cumulative_seconds": 0.16667980000000002
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+      "line": 76,
+      "function": "canonical",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0010794,
+      "cumulative_seconds": 0.16557570000000002
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 649,
+      "function": "stat",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.0004462,
+      "cumulative_seconds": 0.1436215
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt.stat>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.14274520000000002,
+      "cumulative_seconds": 0.1431753
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 685,
+      "function": "is_file",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.00032740000000000004,
+      "cumulative_seconds": 0.126564
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._path_isfile>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.1260819,
+      "cumulative_seconds": 0.1262366
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+      "line": 59,
+      "function": "encode",
+      "primitive_calls": 1,
+      "total_calls": 86435,
+      "self_seconds": 0.0726748,
+      "cumulative_seconds": 0.11293760000000001
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 763,
+      "function": "open",
+      "primitive_calls": 217,
+      "total_calls": 217,
+      "self_seconds": 0.0005678,
+      "cumulative_seconds": 0.1080156
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _io.open>",
+      "primitive_calls": 217,
+      "total_calls": 217,
+      "self_seconds": 0.10699330000000001,
+      "cumulative_seconds": 0.1074475
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\__init__.py",
+      "line": 185,
+      "function": "dumps",
+      "primitive_calls": 47,
+      "total_calls": 47,
+      "self_seconds": 0.0001238,
+      "cumulative_seconds": 0.0931445
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\encoder.py",
+      "line": 185,
+      "function": "encode",
+      "primitive_calls": 47,
+      "total_calls": 47,
+      "self_seconds": 0.00010360000000000001,
+      "cumulative_seconds": 0.09299690000000001
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\encoder.py",
+      "line": 207,
+      "function": "iterencode",
+      "primitive_calls": 39,
+      "total_calls": 39,
+      "self_seconds": 0.092854,
+      "cumulative_seconds": 0.092854
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_ensemble.py",
+      "line": 70,
+      "function": "digest",
+      "primitive_calls": 4,
+      "total_calls": 4,
+      "self_seconds": 0.0015964000000000002,
+      "cumulative_seconds": 0.0561479
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.sorted>",
+      "primitive_calls": 9,
+      "total_calls": 9,
+      "self_seconds": 0.00011850000000000001,
+      "cumulative_seconds": 0.049620000000000004
+    },
+    {
+      "file": "analysis/grand_challenge/thermal_campaign.py",
+      "line": 35,
+      "function": "source_paths",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 8.900000000000001e-06,
+      "cumulative_seconds": 0.0496064
+    },
+    {
+      "file": "analysis/grand_challenge/thermal_campaign.py",
+      "line": 38,
+      "function": "<genexpr>",
+      "primitive_calls": 218,
+      "total_calls": 218,
+      "self_seconds": 0.0006237,
+      "cumulative_seconds": 0.049501500000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method '__exit__' of '_io._IOBase' objects>",
+      "primitive_calls": 217,
+      "total_calls": 217,
+      "self_seconds": 0.0488265,
+      "cumulative_seconds": 0.0488265
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "primitive_calls": 446870,
+      "total_calls": 446870,
+      "self_seconds": 0.0425687,
+      "cumulative_seconds": 0.042863700000000005
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\glob.py",
+      "line": 474,
+      "function": "select_recursive",
+      "primitive_calls": 220,
+      "total_calls": 220,
+      "self_seconds": 0.00013800000000000002,
+      "cumulative_seconds": 0.0350317
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\glob.py",
+      "line": 530,
+      "function": "scandir",
+      "primitive_calls": 48,
+      "total_calls": 48,
+      "self_seconds": 0.010043400000000001,
+      "cumulative_seconds": 0.0335666
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 43,
+      "function": "_path_name",
+      "primitive_calls": 1080,
+      "total_calls": 1080,
+      "self_seconds": 0.0083132,
+      "cumulative_seconds": 0.032904300000000004
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 85,
+      "function": "source_identity",
+      "primitive_calls": 4,
+      "total_calls": 4,
+      "self_seconds": 0.0016912000000000001,
+      "cumulative_seconds": 0.0318291
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\__init__.py",
+      "line": 304,
+      "function": "loads",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 1.5700000000000002e-05,
+      "cumulative_seconds": 0.0312781
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\decoder.py",
+      "line": 340,
+      "function": "decode",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 1.54e-05,
+      "cumulative_seconds": 0.0312515
+    }
+  ],
+  "top_self": [
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.compile>",
+      "primitive_calls": 432,
+      "total_calls": 432,
+      "self_seconds": 1.4679804,
+      "cumulative_seconds": 1.4679804
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'read' of '_io.FileIO' objects>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.20088750000000002,
+      "cumulative_seconds": 0.20088750000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._getfinalpathname>",
+      "primitive_calls": 436,
+      "total_calls": 436,
+      "self_seconds": 0.1762265,
+      "cumulative_seconds": 0.1762265
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt.stat>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.14274520000000002,
+      "cumulative_seconds": 0.1431753
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt._path_isfile>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.1260819,
+      "cumulative_seconds": 0.1262366
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _io.open>",
+      "primitive_calls": 217,
+      "total_calls": 217,
+      "self_seconds": 0.10699330000000001,
+      "cumulative_seconds": 0.1074475
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\encoder.py",
+      "line": 207,
+      "function": "iterencode",
+      "primitive_calls": 39,
+      "total_calls": 39,
+      "self_seconds": 0.092854,
+      "cumulative_seconds": 0.092854
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_reference_jobs.py",
+      "line": 59,
+      "function": "encode",
+      "primitive_calls": 1,
+      "total_calls": 86435,
+      "self_seconds": 0.0726748,
+      "cumulative_seconds": 0.11293760000000001
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method '__exit__' of '_io._IOBase' objects>",
+      "primitive_calls": 217,
+      "total_calls": 217,
+      "self_seconds": 0.0488265,
+      "cumulative_seconds": 0.0488265
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.isinstance>",
+      "primitive_calls": 446870,
+      "total_calls": 446870,
+      "self_seconds": 0.0425687,
+      "cumulative_seconds": 0.042863700000000005
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\json\\decoder.py",
+      "line": 351,
+      "function": "raw_decode",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0311043,
+      "cumulative_seconds": 0.0312282
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method nt.scandir>",
+      "primitive_calls": 48,
+      "total_calls": 48,
+      "self_seconds": 0.023479,
+      "cumulative_seconds": 0.023479
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 127,
+      "function": "capture_sources",
+      "primitive_calls": 2,
+      "total_calls": 2,
+      "self_seconds": 0.0209529,
+      "cumulative_seconds": 2.375909
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 49,
+      "function": "<genexpr>",
+      "primitive_calls": 38670,
+      "total_calls": 38670,
+      "self_seconds": 0.0122159,
+      "cumulative_seconds": 0.0180324
+    },
+    {
+      "file": "analysis/grand_challenge/rb_thermal_ensemble.py",
+      "line": 42,
+      "function": "encode",
+      "primitive_calls": 6,
+      "total_calls": 458,
+      "self_seconds": 0.011088,
+      "cumulative_seconds": 0.0130468
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\glob.py",
+      "line": 530,
+      "function": "scandir",
+      "primitive_calls": 48,
+      "total_calls": 48,
+      "self_seconds": 0.010043400000000001,
+      "cumulative_seconds": 0.0335666
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'splitlines' of 'bytes' objects>",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.0096649,
+      "cumulative_seconds": 0.0096649
+    },
+    {
+      "file": "analysis/grand_challenge/source_provenance.py",
+      "line": 43,
+      "function": "_path_name",
+      "primitive_calls": 1080,
+      "total_calls": 1080,
+      "self_seconds": 0.0083132,
+      "cumulative_seconds": 0.032904300000000004
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _hashlib.openssl_sha256>",
+      "primitive_calls": 451,
+      "total_calls": 451,
+      "self_seconds": 0.0081369,
+      "cumulative_seconds": 0.0081369
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method builtins.ord>",
+      "primitive_calls": 75180,
+      "total_calls": 75180,
+      "self_seconds": 0.0058165000000000005,
+      "cumulative_seconds": 0.0058165000000000005
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method numpy.asarray>",
+      "primitive_calls": 275,
+      "total_calls": 275,
+      "self_seconds": 0.0057006,
+      "cumulative_seconds": 0.0057006
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'read' of '_io.TextIOWrapper' objects>",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0051009,
+      "cumulative_seconds": 0.0085155
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 157,
+      "function": "with_segments",
+      "primitive_calls": 2135,
+      "total_calls": 2135,
+      "self_seconds": 0.0044454,
+      "cumulative_seconds": 0.011872
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'encode' of 'str' objects>",
+      "primitive_calls": 479,
+      "total_calls": 479,
+      "self_seconds": 0.004428700000000001,
+      "cumulative_seconds": 0.004428700000000001
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 198,
+      "function": "_str_normcase",
+      "primitive_calls": 3392,
+      "total_calls": 3392,
+      "self_seconds": 0.004322,
+      "cumulative_seconds": 0.0117639
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'replace' of 'str' objects>",
+      "primitive_calls": 1746,
+      "total_calls": 1746,
+      "self_seconds": 0.0037174,
+      "cumulative_seconds": 0.0037174
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 135,
+      "function": "__init__",
+      "primitive_calls": 2142,
+      "total_calls": 2142,
+      "self_seconds": 0.0036364,
+      "cumulative_seconds": 0.005648
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 251,
+      "function": "__str__",
+      "primitive_calls": 2789,
+      "total_calls": 2789,
+      "self_seconds": 0.0034741000000000004,
+      "cumulative_seconds": 0.011492700000000002
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<built-in method _codecs.utf_8_decode>",
+      "primitive_calls": 1,
+      "total_calls": 1,
+      "self_seconds": 0.0034039,
+      "cumulative_seconds": 0.0034039
+    },
+    {
+      "file": "~",
+      "line": 0,
+      "function": "<method 'lower' of 'str' objects>",
+      "primitive_calls": 1698,
+      "total_calls": 1698,
+      "self_seconds": 0.0031666000000000003,
+      "cumulative_seconds": 0.0031666000000000003
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy\\lib\\_shape_base_impl.py",
+      "line": 1080,
+      "function": "kron",
+      "primitive_calls": 208,
+      "total_calls": 208,
+      "self_seconds": 0.0027643000000000004,
+      "cumulative_seconds": 0.008879
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\tokenize.py",
+      "line": 358,
+      "function": "detect_encoding",
+      "primitive_calls": 216,
+      "total_calls": 216,
+      "self_seconds": 0.0026198000000000003,
+      "cumulative_seconds": 0.0049881000000000005
+    },
+    {
+      "file": "<frozen ntpath>",
+      "line": 661,
+      "function": "realpath",
+      "primitive_calls": 218,
+      "total_calls": 218,
+      "self_seconds": 0.0024569,
+      "cumulative_seconds": 0.18947460000000002
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\pathlib\\__init__.py",
+      "line": 341,
+      "function": "drive",
+      "primitive_calls": 1522,
+      "total_calls": 1522,
+      "self_seconds": 0.0023947,
+      "cumulative_seconds": 0.008422
+    },
+    {
+      "file": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy\\lib\\_shape_base_impl.py",
+      "line": 515,
+      "function": "expand_dims",
+      "primitive_calls": 832,
+      "total_calls": 832,
+      "self_seconds": 0.0019842,
+      "cumulative_seconds": 0.0051173
+    }
+  ],
+  "limits": [
+    "One path and one primary resolution only; cache read may warm OS/cloud-drive caches.",
+    "Other campaign processes may run concurrently; timing is not a controlled benchmark.",
+    "Profiler adds overhead; cumulative times overlap and must not be summed."
+  ],
+  "controller_options_code_based": [
+    "Frozen get performs _check_sources twice, each rescanning and hashing all 108 source files AND compiling raw and normalized Python text; constructor adds another check. Skipping either compile path changes the current verification implementation.",
+    "External bounded process parallelism can preserve every unchanged cache/provenance check while overlapping independent reads and compile work; benefit unmeasured. Storage contention and active ODE workers can reduce benefit, so schedule only within an explicit worker budget.",
+    "Reconstruct each exact path evidence once per controller run and reuse that immutable verified object for repeated summary operations only if the existing full content/provenance contracts remain checked.",
+    "Changing or memoizing _check_sources inside the frozen implementation changes the campaign source identity; it is not a compatible controller-only speed fix."
+  ],
+  "runner_sha256": "cf11e58bd6b60c55ada74209e4c95b8d4d028ce0e63c909bf1ecb24c2118a815",
+  "measured_interpretation": {
+    "source_checks_seconds": 2.4407793,
+    "source_checks_fraction_of_get": 0.8857702352417289,
+    "compile_calls": 432,
+    "compile_self_seconds": 1.4679804,
+    "compile_fraction_of_get": 0.532736959969403,
+    "source_file_read_calls": 216,
+    "source_read_bytes_cumulative_seconds": 0.3588677,
+    "sealed_cache_read_cumulative_seconds": 0.2078123,
+    "explanation": "Each of two source checks recaptures all 108 Python sources; capture_sources compiles both raw bytes and normalized text per source. Compilation dominates measured self time; source-file IO is additional, not the sole bottleneck.",
+    "unmeasured_linear_illustration_minutes": {
+      "one_48_path_grid_5_reads_each": 11.022178000072017,
+      "one_96_path_grid_5_reads_each": 22.044356000144035
+    },
+    "extrapolation_scope": "Simple multiplication of one profiled cache hit only, not measured grid runtime; excludes evidence arithmetic/setup and may change with record size, concurrency, filesystem caches, and profiling overhead."
+  },
+  "temporary_capsule": {
+    "path": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\.git\\grand-challenge-runs\\cache-profile-boundary-20260928",
+    "cleanup_status": "not_removed_policy_rejection",
+    "reason": "Automatic approval review rejected recursive cleanup command before execution: blocked by policy. No detailed reason returned; no alternative deletion attempted."
+  }
+}

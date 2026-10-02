@@ -1,0 +1,178 @@
+"""Read-only checkpoint probes. Run from repository root with exec(Path(...).read_text()).
+
+New evidence only: no native thermal ODE solve and no experimental validation.
+"""
+import hashlib
+import json
+import platform
+import sys
+import time
+import zipfile
+from pathlib import Path
+
+import numpy as np
+from gabes.quantum.channels import GaussianChannel, compose_channels
+
+ROOT = Path.cwd()
+OUT = ROOT / 'analysis/grand_challenge/checkpoint_2026_09_18'
+BASE = ROOT / 'docs/grand_challenge/thermal_campaign_v2'
+t0 = time.perf_counter()
+evidence_hashes = {}
+
+def digest_bytes(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def canonical_digest(value):
+    return digest_bytes(json.dumps(value, sort_keys=True, separators=(',', ':'),
+        ensure_ascii=False, allow_nan=False).encode('utf-8'))
+
+def read_sealed(path):
+    raw = path.read_bytes()
+    evidence_hashes[path.relative_to(ROOT).as_posix()] = digest_bytes(raw)
+    value = json.loads(raw.decode('utf-8'))
+    expected = value['record_sha256']
+    assert canonical_digest({k: v for k, v in value.items()
+                             if k != 'record_sha256'}) == expected, path
+    return value
+
+def array(value):
+    if isinstance(value, dict) and set(value) == {'real', 'imag'}:
+        return np.asarray(value['real']) + 1j * np.asarray(value['imag'])
+    return np.asarray(value)
+
+plan = read_sealed(BASE / 'plan.json')
+ensemble = read_sealed(BASE / 'ensemble-p2-three-seeds.json')
+archive = BASE / 'sources.zip'
+assert digest_bytes(archive.read_bytes()) == plan['source_bundle_sha256']
+with zipfile.ZipFile(archive) as bundle:
+    assert set(bundle.namelist()) == set(plan['source_paths'])
+    for entry in plan['source_manifest']['files']:
+        assert digest_bytes(bundle.read(entry['path'])) == entry['raw_sha256']
+
+rows = {}
+cache_keys = set()
+path_count = 0
+for seed in (11, 211, 811):
+    grid = read_sealed(BASE / f'grid-p2-s{seed}.json')
+    assert grid['path_evidence_passed'] and grid['grid_passed']
+    assert not grid['thermal_ensemble_converged']
+    assert not grid['physical_optical_prediction']
+    row = rows[seed] = grid['row']
+    path_count += row['path_count']
+    for ledger in row['path_ledgers']:
+        for ref in ledger['cache_records']:
+            record = read_sealed(BASE / 'cache' / (ref['key'] + '.json'))
+            assert record['record_sha256'] == ref['record_sha256']
+            assert record['key'] == ref['key']
+            assert record['source_stable_during_run']
+            cache_keys.add(ref['key'])
+
+metrics = ('greater', 'lesser', 'greater_by_source', 'lesser_by_source',
+           'poisson_number', 'retarded_response')
+comparisons = []
+max_report_difference = 0.0
+for stated in ensemble['pairwise_diagnostics']['independent_scrambles']:
+    aseed = stated['candidate_grid'][1]
+    bseed = stated['reference_grid'][1]
+    aa, bb = rows[aseed], rows[bseed]
+    errors = {}
+    for key in metrics:
+        a = array(aa['candidate']['spectra'][key])
+        b = array(bb['candidate']['spectra'][key])
+        numerator = np.sqrt(np.sum(np.abs(a - b)**2, axis=(-2, -1)))
+        denominator = np.maximum(np.sqrt(np.sum(np.abs(b)**2, axis=(-2, -1))),
+            128 * np.finfo(float).eps * aa['comparison_scales'][key])
+        errors[key] = float(np.max(numerator / denominator))
+        residual = abs(errors[key] - stated['errors'][key])
+        max_report_difference = max(max_report_difference, residual)
+        assert residual < 2e-14
+    passed = all(x <= plan['ensemble_budget'] for x in errors.values())
+    assert passed == stated['passed']
+    comparisons.append({'candidate_seed': aseed, 'reference_seed': bseed,
+                        'errors': errors, 'passed': passed})
+assert len(comparisons) == 6
+
+# Independent closed-form EPR variance after an ideal two-mode squeezer and loss.
+# This is an algebra/normalization test, never an atomic-vapor prediction.
+modes = ('probe', 'conjugate')
+direction = np.array([1., 0., -1., 0.])
+max_epr_error = 0.0
+channel_cases = 0
+cp_minimum = 0.0
+for squeeze in np.linspace(0, 2, 19):
+    ch, sh = np.cosh(squeeze), np.sinh(squeeze)
+    x = np.array([[ch, 0, sh, 0], [0, ch, 0, -sh],
+                  [sh, 0, ch, 0], [0, -sh, 0, ch]])
+    amplifier = GaussianChannel(x, np.zeros((4, 4)), modes, modes,
+                                'checkpoint ideal parametric fixture')
+    for eta in np.linspace(0, 1, 17):
+        loss = GaussianChannel.vacuum_attenuator(modes, [eta, eta], source='fixture')
+        combined = compose_channels(amplifier, loss)
+        audit = combined.audit()
+        assert audit.passed
+        observed = float(direction @ combined.apply_covariance(np.eye(4)/2) @ direction)
+        expected = 1 - eta + eta * np.exp(-2 * squeeze)
+        error = abs(observed - expected)
+        max_epr_error = max(max_epr_error, error)
+        cp_minimum = min(cp_minimum, audit.minimum_cp_eigenvalue)
+        assert error < 5e-13
+        channel_cases += 1
+
+bad = GaussianChannel(np.sqrt(.5)*np.eye(2), .01*np.eye(2), ('p',), ('p',),
+                      'counterexample: missing attenuator vacuum')
+assert not bad.audit().passed
+try:
+    bad.apply_covariance(np.eye(2)/2)
+except ValueError:
+    invalid_noise_rejected = True
+else:
+    raise AssertionError('Unphysical loss channel accepted')
+
+source_hashes = {}
+for module in tuple(sys.modules.values()):
+    name = getattr(module, '__file__', None)
+    if name:
+        path = Path(name).resolve()
+        if path.is_relative_to(ROOT) and path.suffix == '.py':
+            source_hashes[path.relative_to(ROOT).as_posix()] = digest_bytes(path.read_bytes())
+
+result = {
+    'scope': 'Fresh checkpoint: independent matrix comparisons, evidence integrity, analytic Gaussian limits. No new thermal ODE or experiment.',
+    'environment': {'python': sys.version, 'numpy': np.__version__, 'platform': platform.platform()},
+    'gaussian_analytic_sweep': {'cases': channel_cases, 'r_range': [0, 2], 'eta_range': [0, 1],
+        'maximum_absolute_epr_error': max_epr_error, 'minimum_cp_eigenvalue': cp_minimum,
+        'unphysical_missing_vacuum_rejected': invalid_noise_rejected, 'passed': True},
+    'thermal_evidence': {'source_files_in_verified_zip': len(plan['source_paths']),
+        'unique_cache_records_verified': len(cache_keys), 'paths': path_count,
+        'provided_grids': 3, 'required_grids': 9, 'unique_planned_solves': 1440,
+        'actual_solve_workload_fraction': len(cache_keys)/1440,
+        'new_solve_count': 0, 'matrix_comparison_count': 6*len(metrics),
+        'maximum_difference_from_saved_comparisons': max_report_difference,
+        'comparisons': comparisons, 'passed_directions': sum(x['passed'] for x in comparisons),
+        'thermal_ensemble_converged': False, 'physical_optical_prediction': False},
+    'evidence_sha256': evidence_hashes, 'imported_source_sha256': source_hashes,
+    'elapsed_seconds': time.perf_counter()-t0,
+}
+with (OUT / 'checkpoint_probe.json').open('x', encoding='utf-8') as handle:
+    json.dump(result, handle, ensure_ascii=False, indent=2, allow_nan=False)
+    handle.write('\n')
+print(json.dumps({k:v for k,v in result.items() if k not in ('evidence_sha256', 'imported_source_sha256')}, indent=2))
+
+# Exportable diagnostic: each value is the maximum over RF/source, not error bar.
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+data = 100*np.array([[x['errors'][key] for x in comparisons] for key in metrics])
+fig, ax = plt.subplots(figsize=(9, 4.7), layout='constrained')
+im = ax.imshow(data, cmap='YlOrRd', vmin=0, vmax=45, aspect='auto')
+ax.set_xticks(range(6), [f"{x['candidate_seed']}/{x['reference_seed']}" for x in comparisons])
+ax.set_yticks(range(6), ['Greater', 'Lesser', 'Greater by source', 'Lesser by source', 'Poisson number', 'Retarded response'])
+for row in range(6):
+    for col in range(6):
+        ax.text(col, row, f'{data[row,col]:.1f}%', ha='center', va='center',
+                color='white' if data[row,col] > 30 else 'black')
+ax.set_xlabel('Candidate seed / reference seed')
+ax.set_title('Thermal p2: 0/6 directions meet the 5% gate\nFresh independent recalculation from stored complex matrices')
+fig.colorbar(im, ax=ax, label='Maximum relative matrix difference (%)')
+fig.savefig(OUT / 'thermal_checkpoint.png', dpi=170)
+plt.close(fig)

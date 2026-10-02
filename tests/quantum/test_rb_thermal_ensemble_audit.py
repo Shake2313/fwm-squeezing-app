@@ -18,6 +18,7 @@ from analysis.grand_challenge import rb_thermal_ensemble_audit as audit
 from analysis.grand_challenge import rb_thermal_reference_jobs as refs
 from gabes.fwm_quantum.kinetic import CarrierGeometry
 from gabes.quantum.contracts import AnalysisFrequencyAxis
+from _grand_challenge_audit_fixtures import audit_sources, write_json
 
 
 @pytest.fixture(autouse=True)
@@ -34,8 +35,8 @@ def model():
     return audit.r.default_model()
 
 
-@pytest.fixture(scope='module')
-def reference_plan():
+@pytest.fixture
+def reference_plan(audit_sources):
     return refs.prepare_plan()
 
 
@@ -135,6 +136,54 @@ def test_verified_references_use_actual_sealed_record_validation_and_file_hashes
         mean = packet['mean_pulse']
         np.testing.assert_allclose(packet['mean_outer'], mean[:, :, None]*mean[:, None, :].conj(), rtol=1e-15)
         assert np.linalg.norm(packet['retarded_response'].imag) > 0.
+
+
+@pytest.mark.parametrize('damage', ['changed', 'missing'])
+def test_reference_job_rechecks_sources_before_reading_values(
+        reference_plan, audit_sources, tmp_path, monkeypatch, damage):
+    snapshot, jobs = reference_plan
+    source = audit_sources/refs.DRIVER
+    if damage == 'missing':
+        source.unlink()
+    else:
+        source.write_text('# Changed synthetic reference driver\n', encoding='utf-8')
+    monkeypatch.setattr(refs, 'read_sealed',
+        lambda path: pytest.fail('source rejection must precede reading stored values'))
+    with pytest.raises(FileNotFoundError if damage == 'missing' else ValueError):
+        refs.validate_job(tmp_path/'unread.json', jobs[0], snapshot)
+
+
+def test_reference_snapshot_rejects_changed_parent_artifact(reference_plan, audit_sources):
+    snapshot, _ = reference_plan
+    parent = refs.audit.parent_report()
+    parent['synthetic_note'] = 'Changed artifact without changing physical inputs'
+    write_json(refs.audit.PARENT, parent)
+    assert refs.audit.parent_report() == parent
+    with pytest.raises(ValueError, match='source or selected-path parent changed'):
+        refs.require_sources(snapshot)
+
+
+def test_source_change_during_reference_validation_prevents_artifacts(
+        reference_directory, audit_sources, tmp_path, monkeypatch):
+    validate = refs.validate_record
+    calls = 0
+
+    def change_source_after_first_record(record, identity, snapshot):
+        nonlocal calls
+        result = validate(record, identity, snapshot)
+        calls += 1
+        if calls == 1:
+            (audit_sources/refs.DRIVER).write_text(
+                '# Changed during reference validation\n', encoding='utf-8')
+        return result
+
+    monkeypatch.setattr(refs, 'validate_record', change_source_after_first_record)
+    output, plot, cache = tmp_path/'never-written.json', tmp_path/'never-written.png', tmp_path/'cache'
+    with pytest.raises(ValueError, match='source or selected-path parent changed'):
+        audit.main(['--output', str(output), '--plot', str(plot),
+                    '--reference-dir', str(reference_directory), '--cache-dir', str(cache)])
+    assert calls == 1
+    assert not output.exists() and not plot.exists() and not cache.exists()
 
 
 @pytest.mark.parametrize('damage', ['missing', 'unsealed_payload', 'identity', 'source_hash', 'frequency',
@@ -339,21 +388,22 @@ def test_cli_cannot_mix_fixed_segment_counts_and_maximum_time_steps(tmp_path, mo
     assert not list(tmp_path.iterdir())
 
 
-def test_source_change_during_build_prevents_report_and_plot_creation(reference_directory, tmp_path, monkeypatch):
+def test_source_change_during_build_prevents_report_and_plot_creation(
+        reference_directory, audit_sources, tmp_path, monkeypatch):
     hashes = audit.r.consumed_hashes
     calls = 0
+    source = audit_sources/'physics.py'
 
     def changed_at_final_snapshot(extra=()):
         nonlocal calls
         calls += 1
-        result = hashes(extra)
         if calls >= 2:
-            result = {**result, 'simulated_changed_dependency.py': '0'*64}
-        return result
+            source.write_text('# Changed during final source validation\n', encoding='utf-8')
+        return hashes([*extra, source])
 
     monkeypatch.setattr(audit.r, 'consumed_hashes', changed_at_final_snapshot)
     output, plot = tmp_path/'never-written.json', tmp_path/'never-written.png'
-    with pytest.raises(RuntimeError, match='[Ss]ource|changed'):
+    with pytest.raises(ValueError, match='Dependency source changed'):
         audit.main(['--output', str(output), '--plot', str(plot), '--reference-dir', str(reference_directory),
                     '--cache-dir', str(tmp_path/'cache')])
     assert calls >= 2

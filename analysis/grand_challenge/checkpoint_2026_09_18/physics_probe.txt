@@ -1,0 +1,135 @@
+"""Fresh read-only physics checkpoint; run with python physics_probe.txt.
+
+The JSON output is exclusively created and will never overwrite evidence.
+Random GKSL/QRT stress tests validate declared mathematics, not real Rb.
+Boundary history is a frozen zero-velocity sensitivity probe, not a prediction.
+"""
+from dataclasses import asdict
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import platform
+import sys
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT))
+
+import numpy as np
+import scipy
+from scipy.linalg import expm
+from gabes import core
+from gabes.quantum.reservoirs import CollapseChannel, ExplicitReservoirs, audit_generator
+from gabes.quantum.diffusion import stationary_atomic_noise
+from gabes.quantum.contracts import GeneratorFrequencyAxis
+from analysis.grand_challenge.reference.atomic_qrt import qrt_ordered_spectrum
+from analysis.grand_challenge.rb_thermal_ensemble import default_model
+from gabes.fwm_quantum.model import reduced_pump_system
+from gabes.fwm_quantum.normalization import reduced_dipoles
+
+
+def hashes():
+    paths = {Path(__file__).resolve()}
+    for name, module in tuple(sys.modules.items()):
+        if name == "gabes" or name.startswith(("gabes.", "analysis.grand_challenge.")):
+            path = getattr(module, "__file__", None)
+            if path and path.endswith(".py"):
+                paths.add(Path(path).resolve())
+    return {str(p.relative_to(ROOT)).replace("\\", "/"):
+            hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
+
+
+def encode(value):
+    if isinstance(value, np.ndarray):
+        return {"real": value.real.tolist(), "imag": value.imag.tolist()} if np.iscomplexobj(value) else value.tolist()
+    if isinstance(value, (np.integer, np.floating)):
+        return value.item()
+    if isinstance(value, dict):
+        return {key: encode(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [encode(item) for item in value]
+    return value
+
+
+output = Path(__file__).with_name("physics_probe.json")
+if output.exists():
+    raise FileExistsError("Existing checkpoint output is immutable: " + str(output))
+before = hashes()
+rng = np.random.default_rng(20260918)
+rows = []
+with core.blas_single_thread():
+    for n in [2, 3, 4]:
+        for trial in range(10):
+            raw = rng.normal(size=(n, n)) + 1j*rng.normal(size=(n, n))
+            h = (raw + raw.conj().T)/2
+            jumps = tuple(CollapseChannel(str(k),
+                (rng.normal(size=(n, n)) + 1j*rng.normal(size=(n, n)))/np.sqrt(n),
+                "stress-test", "fresh random independent checkpoint fixture") for k in range(4))
+            baths = ExplicitReservoirs(n, jumps)
+            atom = stationary_atomic_noise(h, baths)
+            axis = GeneratorFrequencyAxis([-13., -3., 0., 2., 11.], "checkpoint-random-atom")
+            calculated = atom.spectrum(axis).ordered
+            expected = qrt_ordered_spectrum(atom.generator, atom.stationary_state,
+                atom.operators, axis.omega_rad_s)
+            rows.append({"n": n, "trial": trial,
+                "relative_error": float(np.max(np.linalg.norm(calculated-expected, axis=(1, 2))
+                    / np.linalg.norm(expected, axis=(1, 2)))),
+                "min_state_eigenvalue": float(np.linalg.eigvalsh(atom.stationary_state).min()),
+                "commutator_residual": atom.diagnostics.commutator_relative_residual,
+                "gksl": bool(audit_generator(atom.generator).passed)})
+    model = default_model()
+    inputs = model.inputs
+    dipoles = reduced_dipoles("uniform-zeeman-rms")
+    edge = (model.upper_corner_m-model.lower_corner_m)[0]/2
+    envelope = float(np.exp(-edge**2/inputs.pump_waist_m**2))
+    h, baths = reduced_pump_system(
+        dipoles.pump_rabi_rad_s(inputs.pump_power_W, inputs.pump_waist_m)*envelope,
+        inputs.detunings.one_photon_rad_s, transition_scales=dipoles.transition_scales)
+    gen = baths.generator(h)
+    initial = model.boundary_state
+    history = []
+    for duration in [0., 1e-7, 1e-6, 5e-6]:
+        rho = (expm(gen*duration)@initial.reshape(-1)).reshape(4, 4)
+        history.append({"pre_entry_pump_exposure_us": duration*1e6,
+            "populations": np.diag(rho).real.tolist(),
+            "rho_frobenius_change": float(np.linalg.norm(rho-initial)),
+            "trace_residual": float(abs(np.trace(rho)-1)),
+            "minimum_state_eigenvalue": float(np.linalg.eigvalsh((rho+rho.conj().T)/2).min())})
+
+after = hashes()
+report = {
+    "created_utc": datetime.now(timezone.utc).isoformat(),
+    "environment": {"python": platform.python_version(), "numpy": np.__version__,
+        "scipy": scipy.__version__, "platform": platform.platform()},
+    "source_sha256": before,
+    "source_stable": before == after,
+    "random_inputs": {"seed": 20260918, "levels": [2, 3, 4], "trials_per_dimension": 10,
+        "jumps_per_case": 4, "generator_omega_rad_s": [-13., -3., 0., 2., 11.],
+        "construction": "Hermitianized complex standard-normal Hamiltonian; four independent complex standard-normal jumps divided by sqrt(n)."},
+    "random_gksl_cases": len(rows), "random_QRT_frequencies": 5*len(rows),
+    "all_gksl_passed": all(row["gksl"] for row in rows),
+    "max_QRT_relative_error": max(row["relative_error"] for row in rows),
+    "max_commutator_residual": max(row["commutator_residual"] for row in rows),
+    "minimum_state_eigenvalue": min(row["min_state_eigenvalue"] for row in rows),
+    "case_results": rows,
+    "boundary_probe": {
+        "physical_inputs": asdict(inputs), "position_m": [edge, 0., 0.],
+        "velocity_m_s": [0., 0., 0.], "boundary_state": initial,
+        "hamiltonian_rad_s": h, "jump_operators_s_inverse_sqrt": [c.operator for c in baths.channels],
+        "side_m": 2*edge, "waist_m": inputs.pump_waist_m,
+        "mid_side_intensity_fraction": envelope**2,
+        "side_corner_intensity_fraction": envelope**4,
+        "history": history,
+        "scope": "Frozen zero-velocity reduced atom at side midpoint, boundary-history sensitivity diagnostic; not a thermal ensemble or apparatus validation."},
+    "verdict": {"declared_GKSL_QRT_mathematics_stress_test_passed":
+        bool(all(row["gksl"] for row in rows) and max(row["relative_error"] for row in rows) < 1e-10),
+        "experimental_validation": False,
+        "boundary_history_model_error_bound_proven": False,
+        "scope": "Both numerical spectrum methods share the physical generator/state/operator assumptions. Independent algebra does not validate omitted Zeeman/collision/transport/apparatus physics."}}
+with output.open("x", encoding="utf-8") as handle:
+    json.dump(encode(report), handle, ensure_ascii=False, indent=2, allow_nan=False)
+    handle.write("\n")
+print(json.dumps({key: report[key] for key in ("source_stable", "random_gksl_cases",
+    "random_QRT_frequencies", "all_gksl_passed", "max_QRT_relative_error",
+    "max_commutator_residual", "minimum_state_eigenvalue")}, indent=2))
+print("Created " + str(output))

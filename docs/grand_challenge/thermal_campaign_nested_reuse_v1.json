@@ -1,0 +1,52 @@
+{
+  "schema": "gabes-native-nested-thermal-reuse-v1",
+  "campaign_sha256": "76e8da20c905cde8f64e4f2e7a704e194a58934e193692996c93cd7c6ab16bea",
+  "source_identity": "a95cd29442281ca89733f5aaa38a449d2e7367b458a9a08e4aa789bbfdb7f6e0",
+  "source_bundle_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+  "coarse_selection": [
+    1,
+    11,
+    1
+  ],
+  "fine_selection": [
+    2,
+    11,
+    1
+  ],
+  "solver": {
+    "method": "CF4-exact-spectral-microscopic-source-propagation-v1",
+    "resolution": 8192000000.0,
+    "parameters": {
+      "max_step_s": 1.220703125e-10,
+      "order": 4
+    }
+  },
+  "identical_physical_path": true,
+  "raw_metrics_bitwise_equal": {
+    "greater": true,
+    "lesser": true,
+    "greater_by_source": true,
+    "lesser_by_source": true,
+    "mean_pulse": true,
+    "mean_outer": true,
+    "retarded_response": true,
+    "exit_state": true
+  },
+  "cache_key": "3589702e48f9fcd749e2dd8f6d91f407fd19c4f6af481eb2364d901a7db7f1c5",
+  "original_record_sha256": "0a89a1a96db7adf2f229154589dce5f04a46797fe0473b8b64df6b3fe82456c6",
+  "cache_hits": 2,
+  "new_atomic_solves": 0,
+  "wrong_p2_path_2_rejected": true,
+  "node_rates_s_inverse": [
+    165069641128527.62,
+    82534820564263.81
+  ],
+  "current_packet_digests": [
+    "b9766f740c42022d2d49d02c022f6aa31f68745692d4a50d8c766e9b1db0c6f7",
+    "b9766f740c42022d2d49d02c022f6aa31f68745692d4a50d8c766e9b1db0c6f7"
+  ],
+  "path_evidence_passed": false,
+  "thermal_ensemble_certified": false,
+  "scope": "First primary resolution only; exact unweighted packet reuse with current source/digest/rate rebinding, not a convergence certificate",
+  "record_sha256": "3e84d535bedc8599f6cbefacbe97d324760c8858efcb2d42105ecdef9468bed8"
+}

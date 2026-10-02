@@ -1,0 +1,122 @@
+"""Secondary arithmetic check of frozen packets; no atomic solver imports.
+
+Run from repository root with REFERENCE_GRID CANDIDATE_GRID NEW_OUTPUT.
+This verifies recorded evidence and matrix sums, not the underlying ODE solve.
+"""
+from pathlib import Path
+import hashlib
+import json
+import sys
+import numpy as np
+
+METRICS = ('greater', 'lesser', 'greater_by_source', 'lesser_by_source',
+           'poisson_number', 'retarded_response')
+files = {}
+
+
+def digest(value, *, ensure_ascii=False):
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':'),
+        ensure_ascii=ensure_ascii, allow_nan=False).encode('utf-8')).hexdigest()
+
+
+def sealed(path):
+    path = Path(path)
+    raw = path.read_bytes()
+    value = json.loads(raw.decode('utf-8'))
+    assert digest({k: v for k, v in value.items() if k != 'record_sha256'}) == value['record_sha256']
+    files[str(path)] = hashlib.sha256(raw).hexdigest()
+    return value
+
+
+def array(value):
+    if isinstance(value, dict) and set(value) == {'real', 'imag'}:
+        return np.asarray(value['real']) + 1j*np.asarray(value['imag'])
+    return np.asarray(value)
+
+
+def reconstruct(filename):
+    filename = Path(filename)
+    grid, plan = sealed(filename), sealed(filename.parent/'plan.json')
+    assert grid['grid_passed'] and not grid['physical_optical_prediction']
+    assert grid['campaign_sha256'] == plan['record_sha256']
+    power, seed = grid['selection']
+    declared = next(g for g in plan['grids'] if (g['power'], g['seed']) == (power, seed))
+    row = grid['row']
+    stored = {k: array(row['candidate']['spectra'][k]) for k in METRICS}
+    by_face = {k: np.zeros((6,)+v.shape, complex) for k, v in stored.items()}
+    # Exact uniform phase integral: keep entries with equal integer charge.
+    # Independent of the production charge masks and explicit four-root audit.
+    charges = (1, -1, -1, 1)
+    keep = np.array([[int(a == b) for b in charges] for a in charges])
+    assert len(declared['paths']) == len(row['path_ledgers']) == 6*2**power
+    for node, ledger in zip(declared['paths'], row['path_ledgers']):
+        assert ledger['passed']
+        reference = ledger['cache_records'][2]
+        record = sealed(filename.parent/'cache'/(reference['key']+'.json'))
+        assert record['record_sha256'] == reference['record_sha256']
+        assert record['key'] == reference['key'] == digest(record['identity'], ensure_ascii=True)
+        assert record['identity']['source_identity'] == plan['source_identity']
+        assert record['identity']['path'] == node['physical_path']
+        packet = record['packet']
+        mean = array(packet['mean_pulse'])
+        number = mean[:, :, None] * mean[:, None, :].conj() * keep
+        terms = {k: array(packet[k])*keep for k in METRICS if k != 'poisson_number'}
+        terms['poisson_number'] = number
+        terms['greater'] += number
+        terms['lesser'] += number
+        face = node['index']//2**power
+        for key in METRICS:
+            by_face[key][face] += node['rate_s_inverse']*terms[key]
+    errors = {}
+    for key in METRICS:
+        floor = 128*np.finfo(float).eps*row['comparison_scales'][key]
+        errors[key] = float(np.max(np.linalg.norm(by_face[key].sum(axis=0)-stored[key], axis=(-2,-1)) /
+            np.maximum(np.linalg.norm(stored[key], axis=(-2,-1)), floor)))
+    assert max(errors.values()) <= 1e-10
+    return grid, stored, by_face, errors
+
+
+reference_path, candidate_path, output_path = map(Path, sys.argv[1:])
+assert not output_path.exists()
+reference, ref, ref_faces, ref_errors = reconstruct(reference_path)
+candidate, cand, cand_faces, cand_errors = reconstruct(candidate_path)
+assert reference['campaign_sha256'] == candidate['campaign_sha256']
+assert reference['row']['candidate']['source_names'] == candidate['row']['candidate']['source_names']
+assert reference['row']['candidate']['analysis_axis'] == candidate['row']['candidate']['analysis_axis']
+diagnostics = {}
+for key in METRICS:
+    delta = cand[key]-ref[key]
+    floor = 128*np.finfo(float).eps*candidate['row']['comparison_scales'][key]
+    denominator = np.maximum(np.linalg.norm(ref[key], axis=(-2,-1)), floor)
+    values = np.linalg.norm(delta, axis=(-2,-1))/denominator
+    worst = np.unravel_index(np.argmax(values), values.shape)
+    total = delta[worst]
+    norm_squared = float(np.vdot(total, total).real)
+    contributions = []
+    for face in range(6):
+        difference = (cand_faces[key]-ref_faces[key])[(face,)+worst]
+        contributions.append({'face':face,
+            'relative_norm_at_worst':float(np.linalg.norm(difference)/denominator[worst]),
+            'signed_projection_fraction':float(np.vdot(total,difference).real/norm_squared) if norm_squared else None})
+    if norm_squared:
+        assert abs(sum(v['signed_projection_fraction'] for v in contributions)-1) < 1e-10
+    diagnostics[key] = {'directed_error':float(np.max(values)),
+        'worst_rf_index':int(worst[-1]),
+        'worst_source':reference['row']['candidate']['source_names'][worst[0]] if len(worst)==2 else None,
+        'face_contributions':contributions}
+
+for filename, expected in files.items():
+    assert hashlib.sha256(Path(filename).read_bytes()).hexdigest() == expected
+result = {'schema':'independent-raw-matrix-arithmetic-probe-v1',
+    'reference_selection':reference['selection'], 'candidate_selection':candidate['selection'],
+    'source_code_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+    'inputs_sha256':files, 'reconstruction_errors':[ref_errors,cand_errors],
+    'diagnostics':diagnostics, 'new_atomic_solves':0,
+    'thermal_ensemble_converged':False, 'physical_optical_prediction':False,
+    'scope':'Secondary recorded-packet arithmetic only. No native ODE/path/environment recertification. Signed face projections may cancel and are not independent positive noise fractions.'}
+with output_path.open('x',encoding='utf-8') as handle:
+    json.dump(result,handle,ensure_ascii=False,indent=2,allow_nan=False)
+    handle.write('\n')
+print(json.dumps({'reference':reference['selection'],'candidate':candidate['selection'],
+    'max_reconstruction_error':max(*ref_errors.values(),*cand_errors.values()),
+    'directed_errors':{k:v['directed_error'] for k,v in diagnostics.items()}}))

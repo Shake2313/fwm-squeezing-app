@@ -1,0 +1,30 @@
+"""Compile squeezing_report_v8.tex twice. Run from repository root.
+
+Build logs and intermediate TeX files remain with Grand Challenge editorial QA.
+This does not publish or overwrite the delivered PDF in docs/squeezing_report.
+"""
+from pathlib import Path
+import json
+import subprocess
+
+root = Path.cwd()
+source_dir = root / "docs/squeezing_report"
+output_dir = root / "docs/grand_challenge/publication_refresh_2026_09_18/squeezing_build"
+command = [
+    "xelatex", "-disable-installer", "-interaction=nonstopmode", "-halt-on-error",
+    "-output-directory=" + str(output_dir), "squeezing_report_v8.tex",
+]
+results = []
+for pass_number in [1, 2]:
+    path = output_dir / f"final_compile_pass{pass_number}.txt"
+    with path.open("w", encoding="utf-8") as log:
+        result = subprocess.run(command, cwd=source_dir, stdout=log,
+                                stderr=subprocess.STDOUT, check=True)
+    results.append({"pass": pass_number, "returncode": result.returncode,
+                    "log": path.relative_to(root).as_posix()})
+(output_dir / "build_result.json").write_text(
+    json.dumps({"command": command, "cwd": str(source_dir), "passes": results},
+               ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+)
+print(json.dumps({"passes": results, "pdf": str(output_dir / "squeezing_report_v8.pdf")},
+                 ensure_ascii=True))

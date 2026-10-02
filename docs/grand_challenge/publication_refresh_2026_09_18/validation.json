@@ -1,0 +1,145 @@
+{
+  "scope": "Structural preservation, build/link integrity and archival byte preservation; semantic coverage and rendered-page review are recorded separately.",
+  "all_checks_passed": true,
+  "checks": [
+    {
+      "name": "historical_documents_unchanged",
+      "passed": true,
+      "file_count": 31,
+      "changed": []
+    },
+    {
+      "name": "squeezing_report_source_exists",
+      "passed": true,
+      "path": "docs/squeezing_report/squeezing_report_v8.tex"
+    },
+    {
+      "name": "squeezing_report_artifact_exists",
+      "passed": true,
+      "path": "docs/squeezing_report/squeezing_report_v8.pdf"
+    },
+    {
+      "name": "analytic_reconstruction_source_exists",
+      "passed": true,
+      "path": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.tex"
+    },
+    {
+      "name": "analytic_reconstruction_artifact_exists",
+      "passed": true,
+      "path": "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.pdf"
+    },
+    {
+      "name": "quotient_structure_source_exists",
+      "passed": true,
+      "path": "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4_builder.py"
+    },
+    {
+      "name": "quotient_structure_artifact_exists",
+      "passed": true,
+      "path": "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4.html"
+    },
+    {
+      "name": "analytic_labels_preserved",
+      "passed": true,
+      "previous": 133,
+      "current": 188,
+      "missing": []
+    },
+    {
+      "name": "analytic_labels_unique",
+      "passed": true,
+      "duplicates": []
+    },
+    {
+      "name": "squeezing_scientific_figures_preserved",
+      "passed": true,
+      "previous": [
+        "coupled_maps.pdf",
+        "theory_gain_absorption.pdf",
+        "theory_gold_comparison.pdf",
+        "theory_tolerance.pdf",
+        "tolerance.pdf"
+      ],
+      "missing": []
+    },
+    {
+      "name": "quotient_node_identity_preserved",
+      "passed": true,
+      "previous": 61,
+      "current": 87,
+      "missing": []
+    },
+    {
+      "name": "quotient_relations_preserved",
+      "passed": true,
+      "previous": 98,
+      "current": 142,
+      "missing": []
+    },
+    {
+      "name": "quotient_node_ids_unique",
+      "passed": true
+    },
+    {
+      "name": "quotient_edge_endpoints_exist",
+      "passed": true,
+      "invalid": []
+    },
+    {
+      "name": "quotient_no_network_runtime_dependency",
+      "passed": true,
+      "dependencies": []
+    },
+    {
+      "name": "quotient_internal_links_resolve",
+      "passed": true,
+      "unresolved": []
+    },
+    {
+      "name": "quotient_local_source_and_companion_links_resolve",
+      "passed": true,
+      "local_file_count": 26,
+      "unresolved": []
+    },
+    {
+      "name": "squeezing_report_pdf_text",
+      "passed": true,
+      "pages": 23,
+      "near_empty_pages": [],
+      "unresolved_reference_pages": []
+    },
+    {
+      "name": "analytic_reconstruction_pdf_text",
+      "passed": true,
+      "pages": 53,
+      "near_empty_pages": [],
+      "unresolved_reference_pages": []
+    }
+  ],
+  "artifact_hashes": {
+    "docs/squeezing_report/squeezing_report_v8.tex": {
+      "bytes": 79329,
+      "sha256": "f02fb036db8af03f8ac25a8160c7d57266ce8980e52861ed69e94fe2184d3f41"
+    },
+    "docs/squeezing_report/squeezing_report_v8.pdf": {
+      "bytes": 598899,
+      "sha256": "5eae22130cf5f61b0cecbd3963cb437cd5fc60d70613fe3a998fe50a4e7f3043"
+    },
+    "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.tex": {
+      "bytes": 181477,
+      "sha256": "20b052e8fdbdb10fd3015a4f9725ff9e6171861a36d6b35ff2cd470ea9592527"
+    },
+    "docs/FWM physics and analytic reconstruction/squeezing_analytic_reconstruction_v3.pdf": {
+      "bytes": 385413,
+      "sha256": "20d621c00a0f65b41582aee8aac412a6460a23d142f3c16b8e289834ef52c926"
+    },
+    "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4_builder.py": {
+      "bytes": 108673,
+      "sha256": "cc073ecc330537fcc9992203246af6395bfdcf6f325111739b6d8200e9cd8c67"
+    },
+    "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4.html": {
+      "bytes": 584638,
+      "sha256": "9152f9450dd1bd98c696732b24915c3f520a4cc32f5c9ca311adcaecb50596ec"
+    }
+  }
+}

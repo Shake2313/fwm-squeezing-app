@@ -1,6 +1,166 @@
-# GABES Grand Challenge — 연구·구현 청사진
+# GABES Grand Challenge — 총괄 설계·판정 문서
 
-작성일: 2026-09-09. 상태: 설계 초안. 대상: `gabes-grand-challenge-parameter-free-hot-vapor-fwm`.
+최초 작성: 2026-09-09. 현행 검토: **2026-10-02**. 대상: `gabes-grand-challenge-parameter-free-hot-vapor-fwm`.
+상태: **살아 있는 총괄 설계**. 매 연구 턴 이 파일의 현황·작업 단위·판정을 갱신. 새 master/blueprint 판본을 따로 만들지 않음.
+
+## 현행 목표와 문서 권한
+
+독립 측정 입력 → 같은 원자·reservoir 모델의 평균장/응답/잡음 → 공간 광장 → 검출 →
+절대 probe/conjugate gain과 전체 S₋(Ω) → untouched 조건 검증. 숨은 fitted coupling/loss/noise로 일치시키지 않음.
+원래 네 완료 관문과 no-fit 계약 유지. 연구량·검사 수·경로 수를 해결률로 환산하지 않음.
+
+| 문서 | 소유 정보 | 갱신 방식 |
+|---|---|---|
+| **이 파일** | 목표·구조·작업 분해·의존성·현재 결정·턴 종료 총책임자 검토 | 현행 표와 카드 직접 편집; 종결 단위 보존 |
+| [공식 registry](../checklist.json) | 공식 milestone 상태·완료 기준·구현별 증거 | 실제 증거가 달라진 필드만 수정 |
+| [NEXT_SESSION](NEXT_SESSION.md) | 짧은 실행 인계 | 이 파일의 다음 결정과 동기화 |
+| [연구 일지](research_log.md), 날짜별 감사 | 상세 연혁·결정 근거·실패 | 새 기록 추가; 과거 byte 보존 |
+| [문서 색인](DOCUMENT_MAP.md) | 유도·계약·증거 찾는 경로 | 필요한 주제만 읽기 |
+
+봉인된 실행 기록은 **실제 계산 사실**, registry는 **공식 상태**, 이 문서는 **현재 연구 방향**의 근거.
+충돌하면 날짜·source/model hash·검증 범위를 대조하여 해소. 오래된 문서의 `next`를 현행 지시로 사용하지 않음.
+[2026-10-02 감사](audit_2026_10_02/README.md)는 이번 판정의 고정 근거. 아래 원래 기술 설계의 수식·조건은 보존.
+
+## 총책임자 현황판
+
+과학 증거 기준: **2026-09-28 봉인 자료**. 2026-10-02 감사에서 추가한 것은 관리 판정과 geometry 진단;
+새 원자 계산·thermal 수렴·실험 squeezing 인증 없음.
+
+| 판단 축 | 상태 | 의미 |
+|---|---|---|
+| 공식 GC-1 reduced theorem/model | 진행 중 | local 검증 있음; 실제 thermal/nonlocal 경로 미종결 |
+| 공식 GC-2 독립 입력 절대 예측 | 대기 | GC-1·입력 ledger 선행 |
+| 공식 GC-3 조건 외삽 검증 | 외부 자료 대기 | raw gain/RF/SQL/검출 calibration·untouched 조건 필요 |
+| 공식 GC-4 full atom·physics ablation | 대기 | 검증된 reduced 경로와 잔차 필요 |
+| 공식 완료 | **0/4** | 아래 소과제 종결과 별도 |
+| frozen v2 경로·합산 | 96고유 경로 / 480계산 기록 / 4-of-9격자 감사 | path 정확도·출처/산술 검사 통과 |
+| frozen v2 `[2,3,4]` 수렴 선언 | **필수 edge 실패 확정** | p2→p3/seed11의 5-of-6 metric이 5% 초과; response 36.1694% |
+| 실제 hot-vapor 광장·절대 S₋ | 미인증 | atomic stream 검증을 optical 인증으로 승격 금지 |
+
+감사 결론: **실제 연구 진전 있음. 작은 성과의 종결 표기와 다음 계산의 의사결정 기준이 부족.**
+개별 경로 최대 refinement 5.47×10⁻⁶, independent refinement 1.88×10⁻⁷에 비해 ensemble 변화는 약 8–36%.
+현재 주 병목은 개별 ODE 정밀도보다 ensemble 적분·물리 경계·광장 연결. 새로운 실패가 없으면 ODE 허용오차 추가 축소를 주 공정으로 삼지 않음.
+
+## 근거를 갖고 닫은 작업 단위
+
+`accepted_in_declared_scope`: 지정한 모델·입력·source version의 제출물과 검증을 근거로 이번 감사에서 종결 인정.
+현재 working tree 전체의 재인증이나 실제 장치 정확도 뜻하지 않음. 관련 구현/가정 변경 시 영향받은 단위만 재개.
+`decision_closed`: 반증·실패로 질문을 종결. 성공과 같은 관리상 종결이지만 과학 결과는 실패 유지.
+아래 7개는 선별한 작업 분해이며 전체 과제의 분모·완료율 아님. 기존 23개 implementation record를 23개 완료로 세지 않음.
+
+| ID / 범위 | 종결 판정·근거 | 종결의 한계 |
+|---|---|---|
+| WP-FND / 기초 계약·명시적 reservoir·passive fixture | `accepted_in_declared_scope`; [S0 보고](s0_foundation_report.json)의 `expected_controls_passed=true` | legacy 실패는 반례 유지; 실제 운용 영역의 모든 reservoir 검증 아님 |
+| WP-ATOM / 단일 원자 ordered diffusion·독립 QRT | `accepted_in_declared_scope`; [atomic 보고](s1_atomic_noise_report.json)의 같은 gate | 단일 velocity·static pump·선언한 Markov 모델; 실제 collision 법칙 아님 |
+| WP-FIELD / 조건부 local M/D·지정 전파 | `accepted_in_declared_scope`; [field 보고](s1_field_noise_report.json)의 같은 gate | 선택 transition/sector·균일 면적·지정 pump; 실제 Gaussian collection/depletion 아님 |
+| WP-READOUT / four-sideband·temporal mode·bright SQL | `accepted_in_declared_scope`; [readout 보고](s1_readout_report_v2.json)의 같은 gate | conditional normalization·bright linearization; fluorescence 상계·실험 S₋ 아님 |
+| WP-PATH / 선택 연속 Rb 경로 source·response·가속 | `accepted_in_declared_scope`; [exponential 보고](exponential_transport_report_v1.json)의 `all_declared_controls_passed=true` | 선택 경로의 독립 비교; 실제 thermal ensemble·전체 앱 가속률 아님 |
+| WP-TOY / constant-atom 앙상블 refinement | `accepted_in_declared_scope`; [toy 보고](transport_ensemble_refinement_report_v1.json)의 `expected_controls_passed=true` | H=0·no jumps·고정 readout/drive fixture; 실제 Rb 잡음 적분 아님 |
+| WP-V2-EVAL / `[2,3,4]` 통과 가능성 평가 | `decision_closed: FAIL`; [4격자 공동 감사](thermal_campaign_v2/ensemble-p2-three-seeds-p3-s11.json), [p2→p3](thermal_campaign_v2/comparison-p2-p3-s11.json) | 필수 첫 edge 실패. 미계산 5격자는 미계산 유지; 경로/산술 검사 성공과 분리 |
+
+종결 요건: **명제·고정 범위·산출물·사전 gate·독립 검토·허용/금지 주장·다음 의존성**.
+성공한 소과제에 후속 physics를 계속 덧붙여 영원히 `in_progress`로 만들지 않음. 확장은 새 WP로 연결.
+GC-1은 이들 성과에 더해 thermal/noncollinear 합산과 필요한 수렴·광장 일관성을 요구하므로 계속 진행 중.
+
+## 열린 작업과 의존성
+
+`S0–S6`는 최초 공정 단계, `GC-1–4`는 공식 성과 관문, `WP-*`는 종결 가능한 작업 단위.
+과거 보고서의 `S1 transport` 명칭은 당시 식별자로 보존; 새로운 단계 판정에 그대로 사용하지 않음.
+
+| ID / 담당 역할 | 닫을 질문·산출물 | 완료 또는 반증 기준 | 의존성·현재 상태 |
+|---|---|---|---|
+| WP-THERM / solver + 독립 검증 | 선언한 reduced Rb stream의 ensemble 적분 | 모든 RF/source·6metric·최종 세 power의 두 refinement edge·최종 두 power의 directed scramble, 기존 5% gate | WP-PATH; 미수렴. 아래 pilot만 다음 주 공정 |
+| WP-BOUNDARY / 원자 모델 + 독립 검증 | 고정 collection Q에서 pre-entry pump history 영향 | [history 계획](progress_2026_09_28/boundary_history_plan.md)의 복원 control·paired 상태/총 상관·독립 reference; 미수렴이면 `INCONCLUSIVE` | 설계 완료; 계산 미실행. 먼저 대표 경로 진단 가능; ensemble 인증은 각 history의 수렴 필요 |
+| WP-OPTICAL / 광장·전파 + 독립 검증 | moving-atom retarded kernel을 nonlocal Maxwell에 연결 | 작은 fixed fixture의 독립 직접 적분·no-atom/passive limit·±Ω 물리 mode CP/uncertainty·에너지/잡음 ledger | WP-PATH로 작은 benchmark 설계 가능; 실제 thermal optical 인증은 WP-THERM/BOUNDARY 필요 |
+| WP-INPUT / 실험 입력·평가 | 필수 입력·독립성·불확도·누락자료 목록 | 모든 소비 입력에 측정/assumed/target_fitted/unknown·단위·공분산·담당/획득 경로; 누락도 명시 | GC-2의 선행. 자료 획득과 별도로 ledger 자체는 닫을 수 있음 |
+| WP-PREDICT / 통합·검출 | 동일 입력/평균장으로 gain+PSD+S₋ bundle | GC-2 acceptance 전체·독립 입력 gate·수치/입력 불확도; conditional은 별도 표시 | GC-1·WP-INPUT; 대기 |
+| WP-HOLDOUT / 실험 평가 + 검토 | 새 operating conditions의 no-refit 검증 | split/metrics freeze 후 전체 조건 gain/RF 평가; 이미 본 조건은 development으로 기록 | GC-2·raw 자료; 외부 의존. acquisition 명세는 지금 병행 가능 |
+| WP-FULL / 물리 모델 + 검토 | full atom·collision·mode·depletion의 필요성 | GC-4 add-one/leave-one-out·interaction·새 holdout 잔차 | 검증된 reduced 경로; 대기 |
+
+주 공정은 한 개. WP-INPUT의 짧은 inventory와 WP-OPTICAL의 작은 설계 검토는 독립 병행 가능.
+새 framework·성능 최적화·발행 개정은 위 질문을 해결하거나 검증을 가능하게 할 때 수행.
+총괄 위험: **적분 미수렴 / 가상 boundary의 잘못된 reset / atomic→optical 연결 부재 / 독립 입력·holdout 자료 지연**.
+자료 소유자·실제 셀 정보가 알려지지 않은 항목은 `unknown`으로 기록; 가정으로 채워 인증하지 않음.
+
+## 현재 결정과 다음 한 턴 카드
+
+**D-2026-10-02-A:** 기존 v2를 PASS로 만들기 위한 나머지 **960계산 일괄 실행 중단**.
+이미 실패한 필수 edge는 다른 격자를 채워도 바뀌지 않음. 기존 증거·5% gate 보존.
+남은 격자는 개별 진단 목적 또는 적법한 새 선언의 재사용 가치를 적은 경우에만 실행.
+`[3,4,5]`는 가능한 새 선언 후보. 아직 선언·검증하지 않음; power 증가는 자동 해결책 아님.
+
+**D-2026-10-02-B:** 다음 주 작업은 **WP-THERM-PILOT: p3/seed811의 독립 scramble·tail 진단**.
+선택 근거: 원자 계산 없는 [frozen-source geometry probe](audit_2026_10_02/geometry_probe.json).
+이미 계산한 p3/11의 최대 체류 약3.99 μs에 비해 p3/811에는 ≥4 μs 경로2개·최대 약6.01 μs.
+이는 관측될 경로의 기하 차이; 잡음 tail의 크기·참 오차 상계 아님. 장시간 경로 비용도 pilot에서 확인.
+
+| 카드 항목 | 사전 선언 |
+|---|---|
+| 단일 질문 | 한 단계 refinement와 독립 seed에서 차이가 줄어 새 적분 창의 검증에 투자할 근거가 생기는가? |
+| 변경 축 | p2/811→p3/811의 quadrature만 변경; source/model/RF/normalization/기존 gate 고정 |
+| 실행 | [실행 계약](thermal_grid_execution.md)의 preflight에서 frozen identity·별도 출력·120reused+120new 요청 확인. 48경로 각5해상도; 새120계산 상한. 실제 시간/memory 할당 선언; 역사 p3/11 wall10,730초는 참고값, 더 긴 seed811 비용 미측정 |
+| 완료 제출물 | 별도 출력 이름의 batch/grid, p2→p3/811, p3/11↔811 양방향 비교, 전 RF/source 층별 진단·시간/실패 기록 |
+| path gate | primary 두 refinement <10⁻³; reference 자체 <2×10⁻⁶; primary-reference <5×10⁻⁶. 기존 native 감사 유지 |
+| 판정 | ensemble/diagnosis의 candidate-SI-floor 결과를 카드의 판정 기준으로 고정. 모든 6metric의 edge 및 두 directed scramble이 ≤5%면 `PROCEED_TO_DESIGN` 후보. 하나라도 >5%면 `PIVOT_REVIEW`. path 미완료/실패면 `INCONCLUSIVE`. 단독 comparison의 coarse-floor 결과는 별도 보존 |
+| 다음 분기 | 후보 통과도 thermal 인증 아님: seed211·최종 두 edge/두 power 검사 미완료. 별도 새 선언·비용 예측 후 다음 cohort 선정. 실패면 face/velocity/residence·복소 상쇄를 근거로 stratification/importance quadrature 또는 boundary pilot 비교 |
+| 중단 | 새120계산에서 결론 기록 후 자동 p4/p5 확장 금지. 더 긴 경로가 추가 refinement를 요구하면 별도 카드로 원인·비용 갱신; 실패를 gate 완화로 통과시키지 않음 |
+
+여기 5%는 기존 수치 진단선이며 전체 물리 정확도나 통계적 confidence bound 아님.
+최대오차 하나만 줄어든 것을 성공으로 고르지 않음. 합계·source별·복소 response·Poisson을 모두 보존.
+새 integrator/표본 가중치/물리 history를 채택하면 모델 또는 수치 contract identity를 바꾸고 독립 limit·재사용 조건부터 검증.
+이번 감사는 위 pilot을 실행하지 않음. 연구 재개 시 같은 카드에서 착수·실제 비용·판정 갱신.
+
+## 매 턴 운영 계약
+
+한 턴의 기본 산출물은 **한 질문에 대한 검증된 명제·반례·구현 결과·진단 결론**.
+Frontier 유도나 장시간 batch는 여러 턴에 걸쳐도 됨. 미완료를 성공으로 바꾸지 말고 완료한 검토 단계·증거·남은 조건을 기록.
+턴 수·토큰 수 강제 예산 없음. 실행 전 새/reused 계산·시간 추정·memory·어떤 결정이 달라지는지를 카드에 기록.
+측정되지 않은 누적 token 비용·추정 가속률은 수치로 만들지 않음. 오래 걸려도 검증된 질문이 전진하면 정당한 연구.
+
+1. 시작: 이 현황판·현재 카드·NEXT_SESSION·관련 registry만 읽고, 필요한 유도/증거로 확장.
+2. 실행: 주 WP 한 개 선정. 가정·판정·출력·계산 상한을 결과 보기 전에 고정. 독립 작업은 병렬 분담.
+3. 검증: 유도/구현자가 사용한 동일 함수로만 결과를 재확인하지 않음. code 변경은 전체 `python -m pytest -q`; 문서 변경은 링크·registry·원본 보존 검사.
+4. 종결 전: **총책임자 역할의 검토 필수**. 가능하면 구현자와 다른 reviewer/표현 사용. AI 검토 역할은 외부 연구자의 실험 검증을 대체하지 않음.
+5. 이 파일의 현재 카드·현황·아래 최신 검토 갱신. 상세 판단은 날짜별 일지에 추가. NEXT_SESSION/registry의 현재 필드 동기화.
+
+**반복 방지 규칙**
+
+- 같은 질문에서 연속 두 턴 동안 새 판별 증거·닫힌 의존성·새 반례가 없으면 다음 턴은 전략 검토. 세 번째 같은 확대 실행 전에 접근 또는 범위 변경 이유 명시.
+- 실패한 고정 선언은 실패로 종결. 새 window는 새 질문·선언·증거로 관리. 성공 기준 사후 선택·PSD clipping·density 재정규화 금지.
+- PASS한 native 검사·full suite·그림 검증 반복은 관련 코드/입력 변경, 새 실패, 미해결 우려 또는 발행 요구가 있을 때. 필요한 새 path/provenance 검사는 유지.
+- 긴 로그·전체 cache matrix를 매번 문맥에 적재하지 않음. source 확인 overhead 최적화는 실제 profile과 변조 거부 능력 유지가 조건.
+- 보고서·그림·새 version 수는 연구 진전 지표 아님. 발행은 기존 [정책](publication_policy.md)에 따라 의미 있는 과학 결과를 반영.
+- 외부 자료 의존은 자료 이름·필요 조건·획득 담당/경로·재개 조건으로 기록. 이론/수치에서 가능한 독립 작업 계속.
+
+## 최신 총책임자 검토 — 2026-10-02 코드 발행 검토
+
+| 검토 질문 | 이번 판정 |
+|---|---|
+| 무엇이 실제로 달라졌나? | 기록 저장 중단·소비 cache 변경·보관 controller 최초 바이트·보고/요청의 A→B→A 읽기 문제 수정. [코드 리뷰](code_review_2026_10_02/README.md) |
+| 새 증거 vs 재사용? | 독립 코드 검토·변조/중단 회귀·깨끗한 커밋 후보 전체 검사. 역사 증거 byte 보존; 새 thermal pilot·역사 결과 native 재인증 없음 |
+| PASS/FAIL/INCONCLUSIVE? | 현행 코드 회귀 `PASS`: 2044 passed / 4 skipped / 0 failed. 기존 v2 통과 가능성 `FAIL`; thermal/optical/실험 미인증 유지 |
+| 주 경로가 전진했나? | 실행/출처 기록의 신뢰성 보강. 원자·ensemble 적분과 물리 인증 자체는 전진하지 않음 |
+| 계속 투자할 근거? | 기존 병목은 ensemble; p3/811의 독립 tail 범위가 다음 과학 판별 질문으로 유지됨 |
+| 이번에 하지 않을 확대? | 새 atomic pilot·고정 source ZIP 개정·기존960계산 일괄 충족·자동 p4/p5·무관한 앱/물리 변경 |
+| 다음 단일 질문? | p3/811 pilot 결과가 새 적분 window 설계를 지지하는가, quadrature/경계 전략 전환을 요구하는가? |
+| 검증·남은 제한? | 전체 2044 passed, 4 skipped in 1026.29s (0:17:06); 과학 문서 원본 보존 검사 PASS. 역사 capsule의 구형 writer는 봉인 유지; 저장 중단 복구는 별도 명시적 결정. [검증 기록](code_review_2026_10_02/verification.json) |
+
+이전 관리 검토는 [10월2일 감사](audit_2026_10_02/README.md)와 연구 일지에 보존.
+후속 턴은 이 표를 최신 판단으로 교체. 종결 WP·원래 완료 기준·유도·봉인 반례 보존.
+
+## 최초 기술 설계와 보존된 가정
+
+아래는 2026-09-09 청사진과 09-11까지 추가된 기술 설명의 원문. 원래 수식·근사·실패 사례·최초 공정 유지.
+`현재/후속/최초`는 그 당시 기준. 현행 착수 순서와 상태는 위 현황판·카드 적용.
+
+과학 문서 반영은 [문서 역할·보존·발행 원칙](publication_policy.md)을 따른다.
+Squeezing report는 실험 대조·frontier, analytic reconstruction은 이론·정밀도,
+quotient structure는 순서론적·논리적 의존관계를 담당한다. 각 최신 문서는 단독 완결,
+의미 있는 내용은 보존하며 개발/판본 변경 기록은 Grand Challenge에만 둔다.
+이 원칙은 Grand Challenge 완료 이후에도 유지한다. [현행 문서](current_publications.json).
+
+개발 인계(2026-09-16): [Fast/Balanced gain 핫픽스의 반례·재현·검증 체크](gain_hotfix_handoff.md).
+단일점 fitted C_mix는 no-fit 입력으로 사용 불가. 후속 검사 GCH-1–5와 기존 작업 연결은 checklist에 기록.
 
 **중심 설계: 독립 측정 입력과 명시한 원자·reservoir 모델을 받아, 평균장과 주파수별 quantum channel을 함께 만드는 계산 체계를 구축한다.** 각 결과에는 유도 근거, 수치 오차, 적용 범위와 실험 검증 범위가 따라붙는다. 먼저 작은 물리 모델에서 입력부터 검출 spectrum까지 전 경로를 닫고, 같은 인터페이스를 유지하면서 실제 hot-vapor physics를 추가한다.
 
@@ -288,7 +448,7 @@ RF/mode/velocity batching과 z streaming을 사용하고 필요한 출력 block�
 
 각 `run_id`의 manifest에는 code revision과 dirty-source hashes, environment/dependency versions, input/data hashes, model variant, numerics, convergence/gate reports, time/memory, prediction arrays와 permitted claims를 저장한다. 결과를 덮어쓰지 않는다. 대화 기록을 유일한 연구 노트로 삼지 않는다.
 
-**15. 바로 다음 착수 단위**
+**15. 설계 당시 최초 착수 단위 — 2026-09-09**
 
 | 순서 | 구체적 산출물 | 기존 checklist 연결 |
 |---|---|---|

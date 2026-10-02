@@ -1,0 +1,81 @@
+"""Plot six residence-time attributions from an already sealed diagnostic.
+
+Usage: python render_strata.txt DIAGNOSTIC_JSON NEW_PNG
+No atomic solver or new certification. Each panel uses its own worst RF/source.
+"""
+from pathlib import Path
+import hashlib
+import json
+import sys
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+
+source, output = map(Path, sys.argv[1:])
+raw = source.read_bytes()
+report = json.loads(raw.decode('utf-8'))
+payload = {k:v for k,v in report.items() if k != 'record_sha256'}
+assert hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',', ':'),
+    ensure_ascii=False,allow_nan=False).encode('utf-8')).hexdigest() == report['record_sha256']
+assert report['audit_passed'] and report['new_solve_count'] == 0
+assert report['physical_optical_prediction'] is False
+diagnostic = report['directed_diagnostic']
+part = diagnostic['partitions']['residence_time_us']
+assert part['thresholds'] == [.25,.5,1.,2.,4.]
+intervals = ['[0, 0.25)', '[0.25, 0.5)', '[0.5, 1)', '[1, 2)', '[2, 4)', '[4, inf)']
+labels = [label+'\n'+str(len(group['reference_indices']))+'/'+str(len(group['candidate_indices']))
+    for label,group in zip(intervals,part['groups'])]
+metrics = [('greater','Greater'),('lesser','Lesser'),
+    ('greater_by_source','Greater by source'),('lesser_by_source','Lesser by source'),
+    ('poisson_number','Poisson number'),('retarded_response','Retarded response')]
+plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,
+                    'axes.spines.right':False})
+fig, axes = plt.subplots(3,2,figsize=(13,10.8),layout='constrained')
+plotted = {}
+for axis,(metric,title) in zip(axes.flat,metrics):
+    info = part['metrics'][metric]
+    at_worst = {item['group_index']:item for item in info['groups_at_worst']}
+    values = np.array([at_worst[index]['signed_projection']*100 for index in range(6)])
+    assert abs(values.sum()-100*info['worst_relative_error']) < 1e-9
+    location = info['worst_location']
+    scope = f"{location['frequency_hz']/1e6:g} MHz"
+    if location['source']:
+        scope += ' | '+location['source']
+    axis.bar(np.arange(6),values,color=['#bd573a' if value>=0 else '#377992' for value in values])
+    axis.axhline(0,color='#646b72',lw=.8)
+    axis.set_xticks(np.arange(6),labels,fontsize=8)
+    axis.set_ylabel('Signed contribution (percentage points)')
+    axis.set_title(f"{title}: net change {100*info['worst_relative_error']:.2f}%\n{scope}",
+                   loc='left',fontsize=11,pad=10)
+    axis.grid(axis='y',alpha=.18)
+    axis.set_axisbelow(True)
+    for i,value in enumerate(values):
+        axis.annotate(f'{value:+.1f}',(i,value),xytext=(0,4 if value>=0 else -5),
+                      textcoords='offset points',ha='center',
+                      va='bottom' if value>=0 else 'top',fontsize=8)
+    lower,upper=axis.get_ylim()
+    axis.set_ylim(lower-.12*(upper-lower),upper+.12*(upper-lower))
+    plotted[metric]={'location':location,'signed_percentage_points':values.tolist(),
+                     'net_relative_change':info['worst_relative_error']}
+reference,candidate=diagnostic['reference_grid'],diagnostic['candidate_grid']
+fig.suptitle(f"Residence-time contributions: p{reference[0]}/seed{reference[1]} to p{candidate[0]}/seed{candidate[1]}",
+             fontsize=16,fontweight='bold')
+fig.supxlabel('Residence time (us); tick counts = reference/candidate paths\n'
+    'Bars sum to the net change in each panel. Negative bars cancel part of the difference.\n'
+    'Different RF/source maxima per panel; conditional quadrature diagnostic, not a true-error bound or squeezing prediction.',
+    fontsize=10)
+if source.read_bytes() != raw:
+    raise ValueError('Diagnostic changed during rendering')
+with output.open('xb') as handle:
+    fig.savefig(handle,format='png',dpi=160)
+plt.close(fig)
+summary={'diagnostic_file_sha256':hashlib.sha256(raw).hexdigest(),
+         'diagnostic_record_sha256':report['record_sha256'],
+         'renderer_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+         'figure_sha256':hashlib.sha256(output.read_bytes()).hexdigest(),
+         'plotted':plotted,'new_atomic_solves':0,'physical_optical_prediction':False}
+with output.with_suffix('.json').open('x',encoding='utf-8') as handle:
+    json.dump(summary,handle,indent=2,ensure_ascii=False,allow_nan=False)
+    handle.write('\n')
+print(output)

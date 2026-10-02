@@ -1,0 +1,344 @@
+{
+  "generated_at_utc": "2026-09-18T06:28:12.023056+00:00",
+  "scope": "Conditional reduced single-velocity 85Rb D1, uniform weak-field area, Gaussian pump peak, prescribed undepleted pump, bright-seed linearized readout; no thermal ensemble or experimental prediction.",
+  "absolute_hot_vapor_prediction": false,
+  "experimental_validation": false,
+  "convention": "uniform-zeeman-rms",
+  "detector_analysis_hz": [
+    100000.0,
+    1000000.0,
+    4000000.0
+  ],
+  "atomic_analysis_hz": [
+    -4000000.0,
+    -1000000.0,
+    -100000.0,
+    0.0,
+    100000.0,
+    1000000.0,
+    4000000.0
+  ],
+  "detector_current_response": "unity for both arms at every sampled RF",
+  "detector_balance": 1.0,
+  "electronics_difference_psd_A2_Hz": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "cases": [
+    {
+      "name": "base_eta85",
+      "seconds": 0.012507500010542572,
+      "inputs": {
+        "pump_power_W": 0.6,
+        "pump_waist_m": 0.00053,
+        "number_density_m3": 1e+18,
+        "uniform_area_m2": 1.2e-07,
+        "length_m": 0.0125,
+        "seed_power_W": 8e-06,
+        "one_photon_rad_s": 5654866776.461628,
+        "two_photon_rad_s": -50265482.45743669,
+        "transit_rate_s_inverse": 628318.5307179586,
+        "phase_mismatch_rad_m": 0.0,
+        "seed_phase_rad": 0.0
+      },
+      "eta": 0.85,
+      "probe_gain": 1.1106558665725086,
+      "conjugate_gain": 0.11356221274499645,
+      "Sminus_db": [
+        -0.7304162020872802,
+        -0.7302943383338258,
+        -0.7284360651676278
+      ],
+      "Sminus_ratio": [
+        0.8451978425278949,
+        0.8452215592525809,
+        0.8455832927500971
+      ],
+      "channel_pass": true
+    },
+    {
+      "name": "zero_length",
+      "seconds": 0.00966879999032244,
+      "inputs": {
+        "pump_power_W": 0.6,
+        "pump_waist_m": 0.00053,
+        "number_density_m3": 1e+18,
+        "uniform_area_m2": 1.2e-07,
+        "length_m": 0.0,
+        "seed_power_W": 8e-06,
+        "one_photon_rad_s": 5654866776.461628,
+        "two_photon_rad_s": -50265482.45743669,
+        "transit_rate_s_inverse": 628318.5307179586,
+        "phase_mismatch_rad_m": 0.0,
+        "seed_phase_rad": 0.0
+      },
+      "eta": 0.85,
+      "probe_gain": 1.0,
+      "conjugate_gain": 0.0,
+      "Sminus_db": [
+        -4.821637332766436e-16,
+        -4.821637332766436e-16,
+        -4.821637332766436e-16
+      ],
+      "Sminus_ratio": [
+        0.9999999999999999,
+        0.9999999999999999,
+        0.9999999999999999
+      ],
+      "channel_pass": true
+    },
+    {
+      "name": "zero_density",
+      "seconds": 0.009395000000949949,
+      "inputs": {
+        "pump_power_W": 0.6,
+        "pump_waist_m": 0.00053,
+        "number_density_m3": 0.0,
+        "uniform_area_m2": 1.2e-07,
+        "length_m": 0.0125,
+        "seed_power_W": 8e-06,
+        "one_photon_rad_s": 5654866776.461628,
+        "two_photon_rad_s": -50265482.45743669,
+        "transit_rate_s_inverse": 628318.5307179586,
+        "phase_mismatch_rad_m": 0.0,
+        "seed_phase_rad": 0.0
+      },
+      "eta": 0.85,
+      "probe_gain": 1.0,
+      "conjugate_gain": 0.0,
+      "Sminus_db": [
+        -4.821637332766436e-16,
+        -4.821637332766436e-16,
+        -4.821637332766436e-16
+      ],
+      "Sminus_ratio": [
+        0.9999999999999999,
+        0.9999999999999999,
+        0.9999999999999999
+      ],
+      "channel_pass": true
+    },
+    {
+      "name": "base_eta1",
+      "seconds": 0.011602199985645711,
+      "inputs": {
+        "pump_power_W": 0.6,
+        "pump_waist_m": 0.00053,
+        "number_density_m3": 1e+18,
+        "uniform_area_m2": 1.2e-07,
+        "length_m": 0.0125,
+        "seed_power_W": 8e-06,
+        "one_photon_rad_s": 5654866776.461628,
+        "two_photon_rad_s": -50265482.45743669,
+        "transit_rate_s_inverse": 628318.5307179586,
+        "phase_mismatch_rad_m": 0.0,
+        "seed_phase_rad": 0.0
+      },
+      "eta": 1.0,
+      "probe_gain": 1.1106558665725086,
+      "conjugate_gain": 0.11356221274499645,
+      "Sminus_db": [
+        -0.8731051005803858,
+        -0.872956943230915,
+        -0.8706978359922948
+      ],
+      "Sminus_ratio": [
+        0.8178798147386993,
+        0.8179077167677419,
+        0.8183332855883495
+      ],
+      "channel_pass": true
+    },
+    {
+      "name": "base_eta50",
+      "seconds": 0.010786700004246086,
+      "inputs": {
+        "pump_power_W": 0.6,
+        "pump_waist_m": 0.00053,
+        "number_density_m3": 1e+18,
+        "uniform_area_m2": 1.2e-07,
+        "length_m": 0.0125,
+        "seed_power_W": 8e-06,
+        "one_photon_rad_s": 5654866776.461628,
+        "two_photon_rad_s": -50265482.45743669,
+        "transit_rate_s_inverse": 628318.5307179586,
+        "phase_mismatch_rad_m": 0.0,
+        "seed_phase_rad": 0.0
+      },
+      "eta": 0.5,
+      "probe_gain": 1.1106558665725086,
+      "conjugate_gain": 0.11356221274499645,
+      "Sminus_db": [
+        -0.4146482828582038,
+        -0.4145816249628107,
+        -0.4135650686279365
+      ],
+      "Sminus_ratio": [
+        0.9089399073693494,
+        0.9089538583838707,
+        0.9091666427941744
+      ],
+      "channel_pass": true
+    }
+  ],
+  "checks": {
+    "all_channels_cp_pass": true,
+    "null_sql_max_abs_error": 1.1102230246251565e-16,
+    "equal_arm_loss_max_abs_error": 3.3306690738754696e-16,
+    "null_probe_gains_one": true,
+    "null_conjugate_gains_zero": true,
+    "detector_changes_leave_gain_identical": true,
+    "assumed_input_audit_pass": false,
+    "independent_beam_fit_pass": true,
+    "target_leak_rejected": true,
+    "source_stable": true,
+    "expected_controls_passed": true
+  },
+  "assumed_inputs": 38,
+  "assumed_input_audit": {
+    "passed": false,
+    "reasons": [
+      "pump_power_W: assumed",
+      "pump_waist_m: assumed",
+      "number_density_m3: assumed",
+      "uniform_area_m2: assumed",
+      "length_m: assumed",
+      "seed_power_W: assumed",
+      "one_photon_rad_s: assumed",
+      "two_photon_rad_s: assumed",
+      "transit_rate_s_inverse: assumed",
+      "phase_mismatch_rad_m: assumed",
+      "seed_phase_rad: assumed",
+      "natural_decay: assumed",
+      "D1_centroid: assumed",
+      "ground_hyperfine_splitting: assumed",
+      "excited_hyperfine_splitting: assumed",
+      "reset_F2_population: assumed",
+      "reset_F3_population: assumed",
+      "detector_balance: assumed",
+      "probe_transmission: assumed",
+      "conjugate_transmission: assumed",
+      "rf_0: assumed",
+      "probe_response_real_0: assumed",
+      "probe_response_imag_0: assumed",
+      "conjugate_response_real_0: assumed",
+      "conjugate_response_imag_0: assumed",
+      "electronics_psd_0: assumed",
+      "rf_1: assumed",
+      "probe_response_real_1: assumed",
+      "probe_response_imag_1: assumed",
+      "conjugate_response_real_1: assumed",
+      "conjugate_response_imag_1: assumed",
+      "electronics_psd_1: assumed",
+      "rf_2: assumed",
+      "probe_response_real_2: assumed",
+      "probe_response_imag_2: assumed",
+      "conjugate_response_real_2: assumed",
+      "conjugate_response_imag_2: assumed",
+      "electronics_psd_2: assumed"
+    ],
+    "scope": "consumed scalar values and declared evidence only"
+  },
+  "independent_beam_fit_audit": {
+    "passed": true,
+    "reasons": [],
+    "scope": "declared input evidence only"
+  },
+  "target_leak_audit": {
+    "passed": false,
+    "reasons": [
+      "waist: target dataset used to estimate input"
+    ],
+    "scope": "declared input evidence only"
+  },
+  "sabes_default_calibration_statuses": {
+    "datasheet": 7,
+    "fitted": 13,
+    "lab": 10,
+    "nominal": 47,
+    "paper": 8
+  },
+  "sabes_target_fitted_tag_verified": true,
+  "sabes_calibration_note": "Legacy verified status is not the Grand Challenge no-fit independence gate.",
+  "environment": {
+    "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+    "executable": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\python.exe",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "threadpools": [
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 16,
+        "prefix": "libscipy_openblas",
+        "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-9e3e5a4229c1ca39f10dc82bba9e2b2b.dll",
+        "version": "0.3.30",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      },
+      {
+        "user_api": "blas",
+        "internal_api": "openblas",
+        "num_threads": 16,
+        "prefix": "libscipy_openblas",
+        "filepath": "C:\\Users\\박수인\\AppData\\Local\\Programs\\Python\\Python314\\Lib\\site-packages\\scipy.libs\\libscipy_openblas-64eda39e79589aedb16f58e5547eb599.dll",
+        "version": "0.3.30",
+        "threading_layer": "pthreads",
+        "architecture": "SkylakeX"
+      }
+    ]
+  },
+  "runtime_note": "One in-process call per local case; imports excluded; no repeated timing benchmark, full thermal run, or speedup claim.",
+  "script_sha256": "95d5282ab30a2db9e88e05eb67cbc064c300774d3a64cd535b3f6f10325586d1",
+  "calibration_json_sha256": "b71267e1763c8fb58561163670fa3c8f2af7168b587772662189787e94045c90",
+  "imported_repository_source_sha256": {
+    "analysis/grand_challenge/normalization_audit.py": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+    "analysis/grand_challenge/reference/direct_readout.py": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+    "analysis/grand_challenge/reference/uncoupled_d1.py": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/adaptive_scan.py": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/doppler.py": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+    "gabes/fwm_gain_closure.py": "78b71ca03e1491c81948a2b1e8920ff0bf98419b7d1a24b269c236ebe46586fa",
+    "gabes/fwm_quantum/__init__.py": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+    "gabes/fwm_quantum/field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "gabes/fwm_quantum/inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "gabes/fwm_quantum/model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "gabes/fwm_quantum/normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "gabes/fwm_quantum/readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/kernels.py": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/observables.py": "0b708458aefb55abbb76ab4d7e62e8288e8aa322c40161e0f1b733067612c8e8",
+    "gabes/pole_doppler.py": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+    "gabes/probe_saturation.py": "399a4955eda9fb0334960f70a05762d2443ccd5db672e967ea65fa65425016dd",
+    "gabes/quantum/__init__.py": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "gabes/quantum/contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "gabes/quantum/diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "gabes/quantum/readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "gabes/quantum/traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "gabes/report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/schemes/__init__.py": "5ae65927cd9a59322fbb3c715d96dd1337121ffd17f3efc5a211bb96b5de264f",
+    "gabes/schemes/absorption.py": "f368a878dac8e815c236b23cc524e5e1880d7e3ccfac2cff2365de426ab0f356",
+    "gabes/schemes/base.py": "b407ba0d9e34170b79664ace3027babbbb18948def0abe7f78a6562727de1079",
+    "gabes/schemes/fwm.py": "cf2663b121aa893f9f86096061cb9061e3b8f8c01d08baf72f07c5af2c5c6cc3",
+    "gabes/schemes/magneto.py": "3ff0032e5f80003d651dfe27e0f5fa158d1e66549c8ea5661fd0f3e9e87e0f0e",
+    "gabes/schemes/rydberg.py": "8e658687771478839f4951a712c2aa4edc4e1337074841a32515b654397ba877",
+    "gabes/schemes/sas.py": "4553de411497d5ab8966237bef63fce165d3ab5763b71c708aae3ba7deca9c42",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "gabes/zeeman.py": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2",
+    "sabes/__init__.py": "7315f9f9501be926ad8c9307206486b57d72075bca65967043d0b7429ee91117",
+    "sabes/beamstate.py": "63af9b161ec8ed08fc801bb1c1af6e845d6ba62eecd255d951316b3b3d80ca28",
+    "sabes/calibration.py": "3d9574a57b6db4f484b672fbbee7804c9990b3eb9d124bb3fae212e87e744bf1"
+  }
+}

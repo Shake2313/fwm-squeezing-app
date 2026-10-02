@@ -1,0 +1,20 @@
+{
+  "command": "python -m pytest -q",
+  "environment_overrides": {
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "passed": 2077,
+  "skipped": 3,
+  "failed": 0,
+  "elapsed_seconds": 1156.52,
+  "log_sha256": "d0cfb3d484c65cc32741517003f4d5cd30b3582f901b2f40cf4062551248c0cf",
+  "owned_code_sha256": {
+    "tools/thermal_campaign_diagnose.py": "2d60df9db65726f194d1fb3c4e1822a32929216d97d8c5600718444c058c7b08",
+    "tests/quantum/test_thermal_campaign_diagnose.py": "8ad2f11017e58e66d7771db074d12f3b3f8a5f011d470433e1f35e5077744c64",
+    "tests/test_docs_consistency.py": "64d891f5cb7a5d7f39893237163d45dcc89a8af9bc16e3f3424d31fa59b3a795",
+    "docs/grand_challenge/plot_thermal_grid.py": "b9d6277c450b427f82290e3e00d03674dc260978cad81c2175f73c09957ea7a6"
+  },
+  "scope": "Final code after byte-guard change. Concurrent frozen thermal calculations; elapsed time is not a speed benchmark."
+}

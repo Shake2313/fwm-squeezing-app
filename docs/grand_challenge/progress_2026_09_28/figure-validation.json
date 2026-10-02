@@ -1,0 +1,99 @@
+{
+  "schema": "gabes-thermal-figure-validation-v1",
+  "checked_at_utc": "2026-09-28T11:15:03.015655+00:00",
+  "validation_passed": true,
+  "input_file_sha256": {
+    "docs/grand_challenge/thermal_campaign_v2/grid-p2-s11.json": "1b0d6d3848d9f70249cf4776096db0392b297992bdfa42609c07e97dd2079412",
+    "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+    "docs/grand_challenge/thermal_campaign_v2/comparison-p2-p3-s11.json": "cbf8a4bea9cf1709c918b60d7cca53bb8fb1e6d65d3a7180c1346fafe025c752",
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-s11.json": "5591c0af0285b41ed82325acbbc04929c68c8b82c11fcc98f31913e7a2cec297",
+    "docs/grand_challenge/progress_2026_09_28/independent-p2-p3-s11.json": "299125783b53cd2c253db3f31dd351c6d3efdf224fe9a707823e7f97dfca2611",
+    "docs/grand_challenge/progress_2026_09_28/p2-p3-s11.png": "28c917211042b24a904634ca6ff0b260a7b40b2c82756987d5bdd2b7c9f3f287",
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-residence.png": "747dfb70b5e4966aa8056a57769c20e753d6337d60e856633be7f2aa196ab07b",
+    "docs/grand_challenge/progress_2026_09_28/diagnostic-p2-p3-residence.json": "1f682fcec982ca92a8a3d16516f811ac1f2e25237894e268dbcb18dc35764c9b",
+    "docs/grand_challenge/progress_2026_09_28/render_strata.txt": "f27c2f9dabb435423c1c2e75be304d34519c25961736186d9edd900cc5833b1f",
+    "docs/grand_challenge/plot_thermal_grid.py": "b9d6277c450b427f82290e3e00d03674dc260978cad81c2175f73c09957ea7a6"
+  },
+  "main_figure_checks": {
+    "greater": {
+      "plotted_by_rf": [
+        0.08360187793639609,
+        0.10514126290436716,
+        0.06481710273242984
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 0.0,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 0.0
+      }
+    },
+    "lesser": {
+      "plotted_by_rf": [
+        0.07843214340686139,
+        0.07847663994082803,
+        0.05364121240827244
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 0.0,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 0.0
+      }
+    },
+    "greater_by_source": {
+      "plotted_by_rf": [
+        0.10685320176115534,
+        0.12985818930222282,
+        0.13788643758746022
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 0.0,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 0.0
+      }
+    },
+    "lesser_by_source": {
+      "plotted_by_rf": [
+        0.10656272040740729,
+        0.1051647376473895,
+        0.1233094753362945
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 0.0,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 0.0
+      }
+    },
+    "poisson_number": {
+      "plotted_by_rf": [
+        0.036775987913704955,
+        0.02984657337784111,
+        0.02744729152878113
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 6.938893903907228e-18,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 6.938893903907228e-18
+      }
+    },
+    "retarded_response": {
+      "plotted_by_rf": [
+        0.361694451738032,
+        0.36156978433348863,
+        0.35992761740067625
+      ],
+      "max_absolute_differences": {
+        "native_diagnostic_all_rf": 0.0,
+        "formal_refinement_maximum": 0.0,
+        "independent_probe_maximum": 0.0
+      }
+    }
+  },
+  "residence_sidecar_binding_passed": true,
+  "maximum_allowed_absolute_difference": 1e-12,
+  "main_figure_metadata_origin": "Plotter emits numerical summary to stdout; frequency_comparison recomputed here without rendering or modifying either PNG.",
+  "scope": "Arithmetic and byte-binding check of the two existing figures; both PNGs separately visually reviewed. No new native audit, atomic solve or physical certification.",
+  "new_atomic_solves": 0,
+  "thermal_ensemble_converged": false,
+  "physical_optical_prediction": false,
+  "record_sha256": "9887effea636f59b0a2aeaa740e517e33f31deee957032beb55b5942bbf75365"
+}

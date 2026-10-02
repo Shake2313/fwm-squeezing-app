@@ -831,3 +831,283 @@ v1/v2 실패 report 보존. 새 ensemble 수렴 주장으로 소급 변경 금�
 
 공유 README·checklist 갱신. 정리 MD 한국어 caveman 적용.
 합동 전체검사1487통과/기존삭제문서1실패 결과 유지.
+
+
+## 2026-09-14 — 고정 소스 캠페인·새 p1 경로
+
+에이전트 간 지시·검토 영어. 사용자 보고·정리 MD 한국어 caveman 유지.
+체크포인트의 source hash 실패 해결: unit test를 임시 source/report와 명시적 synthetic packet으로 분리.
+실제 parent/reference 검증 함수·변조 거부 검사 유지. 과거 report/hash/성공 플래그 수정 없음.
+
+새 source manifest: 상대 경로 + Python universal-newline 동일성. 원시 byte hash도 별도 보존.
+소스 108개 ZIP 고정 후 별도 interpreter·worker에서 새 계산. 과거 선택 경로 보고서 의존 제거.
+Primary/reference의 실제 numerical settings·work·BLAS thread를 cache hit/miss 양쪽에서 검사.
+Axis 직렬화·직접 cache 호출의 실행 경계 문제는 독립 검토 후 수정·회귀 검사.
+
+`thermal_campaign_v1/path-p1-s11-i1.json`: **PASS**. 새 p1/seed11/path1, tau=1.6770730041835807us.
+CF4 N=13739/27478/54955, adjoint 2 tolerance. 5개 모두 새 계산, workers4·실제 BLAS1.
+Primary edge 최대1.2788961e-6/5.3467865e-8 <1e-3.
+Finest 독립 비교 최대2.6857186e-8 <5e-6. Independent 자체 refinement 최대5.5499931e-8 <2e-6.
+8metric·RF·source별 기준 불변. 전체 앙상블·Maxwell·실험 squeezing 인증으로 확대 금지.
+
+실제 p1/path1 → p2/path1의 첫 CF4 packet: 8metric bitwise 동일, rate 절반, 2cache hit·0새solve.
+Face 내부 Sobol offset 유지; 전역 index 단순 두 배는 잘못된 매핑. 다른 p2/path2 재사용 거부 확인.
+[정리·원본 링크·재현](portable_thermal_campaign.md). Figure 직접 검수 완료.
+
+`python -m pytest -q`: 1652passed / 3symlink-skip / 기존 삭제 FWM_physics.tex 1failed, 281.50s.
+최종 중첩 매핑 검사 포함 변경 부위: 225passed / 3skip, 32.01s.
+pytest의 임시 checkout 중복 수집 제외. 다른 작업의 소스·삭제·스테이징 유지.
+다음: 같은 고정 캠페인 p1/seed11의 나머지11경로, 최대55새계산. 이후 전체격자·scramble 수렴.
+
+## 2026-09-16 — Fast/Balanced gain 핫픽스 개발 팁 인계
+
+[인계 문서](gain_hotfix_handoff.md)에 핫픽스 `08268ab`의 반례·재현·검증 계약 정리.
+체크리스트 `gain_hotfix_development_handoff`에 후속 GCH-1–5와 기존 담당 항목 연결.
+Grand Challenge·milestone 상태 유지. 이번 변경은 개발 기록; 새 물리 계산·인증 없음.
+
+- Gold 대표 gain15.5, raw probe111/8, conjugate109/8 및 직접 평가/화면 보간 분리.
+- Fitted C_mix=0.5594938027은 no-fit 입력으로 승격 불가. 비교 시 correction off 명시.
+- Gaussian 후보의 waist 추세 반전, McCormick1.926 vs9 악화, 고온 gain 폭증을 후속 반례로 보존.
+- CG/population/잔여 계수 한 번 사용, χ·transfer·cap 전후 power 분리, drift/noise 일관성 확인.
+- Parent/dirty worktree의 흡수 규약별 fixture, portable tolerance·정확 일치의 별도 기록,
+  고정 소스·실제 커밋 검사·동일 실행 timing 계약 전달.
+- 기존 portable thermal campaign의 newline/raw hash·고정 ZIP·synthetic unit test 구현 재사용.
+  핫픽스 분리 실행에서 발생했던 과거 provenance 오류를 현재 GC 미해결 상태로 중복 등록하지 않음.
+
+후속: 입력 규약 → 결합/정규화 → 공간/각도 반례 → 적용 영역 → 재현/성능 검사.
+기존 thermal 캠페인의 남은 경로·ensemble 수렴 순서는 유지.
+
+문서 검증: JSON 구조·기존 항목 보존·후속 5개 ID/담당 항목·근거 링크·스테이징 보존 확인.
+독립 검토 후 최종 계수 비교의 근거 링크를 `alternative_results.json`으로 정정.
+현재 공유 작업트리 `python -m pytest -q`: **1705 passed, 3 skipped, 1 failed**, 278.11s.
+유일 실패는 기존 삭제된 `FWM_physics.tex`를 읽는 문서 검사. 이번 변경은 문서 4개.
+
+## 2026-09-16 — 고정 p1 전체 경로·두 격자 합산 완료
+
+[결과·원본·그림](thermal_campaign_grid_v1.md), [실행·재사용 계약](thermal_grid_execution.md).
+동일 source ZIP 108개·모델·오차 기준 유지. P1/seed11 **12/12 경로 통과**.
+새 native solve 55개 + 기존 5개. Workers4·실제 BLAS1, 배치3142.304초.
+초기 plan·ZIP·첫 경로 보고서 byte 보존. 과거 다른 소스의 p0 보고서 재인증 없음.
+
+전체 최대 오차: primary2edge 2.3432344e-6 / 9.4625991e-8 <1e-3.
+Finest CF4 vs adjoint 2.9056474e-8 <5e-6. Adjoint 자체6.3306150e-8 <2e-6.
+8metric·RF·source별 오차 및 전체 체류시간 유지. Fitted gain/noise 계수 미도입.
+
+배치 runner: 경로별 pool 반복 대신 전체 grid 공용 pool, 불변 cache 재개.
+독립 검토 후 미제출 작업 취소·기존 보고서 cache 참조·제어 파일 hash/content race 보완.
+진행 중 계산은 최초 제어 파일 그대로 완료. 최초/보강 제어 파일 각각 hash별 보존.
+보강 버전 재검사: 60hit·0새solve, 기존12보고서 보존, 모두 통과.
+
+P0·p1 전체 합산, 30/60 cache hit·0miss. 네 위상 직접 가중합 최대오차
+1.9985759e-16 / 2.5656899e-16. Number/source/복소 response 보존; density 재정규화 없음.
+공통6경로×5해상도의 raw8metric bitwise 동일. 5경로 source/digest 재결합.
+S_p1 = 0.5*S_p0 + 신규경로 기여: 최대상대잔차2.9226954e-16. 새 solve0회.
+반복 solve 생략의 수학적 근거를 주석·한국어 MD에 명시.
+
+**실제 열적 수렴은 미달.** P0→p1 변화: greater23.7689%, lesser21.3445%,
+source별31.0899%/30.3483%, Poisson6.0331%, response91.8610%. 모두5% 초과.
+Occupancy/nV 0.617675→0.945434여도 spectrum 수렴 아님.
+전체 gate는 3격자·3scramble 자료도 미충족. Optical prediction=false 유지.
+현재 p0→p1 실패 때문에 p0·p1·p2만 채우는 것으로 마지막 두 refinement 통과 불가.
+다음 p2/seed11 신규12경로60계산·독립seed211/811, 이후 더 미세한 격자 별도 선언.
+기존 plan·실패 보고서 불변. 현재 선언 내 미수행 고유 계산300개.
+
+병렬 에이전트: 합산/중첩 비교 구현, 배치 검토. 지시·검토 영어, 사용자 MD 한국어 caveman.
+새 검사93개 통과. 최종 `python -m pytest -q`: **1816passed / 3skipped / 1failed**, 422.09초.
+유일 실패는 기존 삭제 `FWM_physics.tex`; skip은 Windows symlink 권한. 다른 작업 상태 유지.
+
+
+## 2026-09-17 — 고정 p2·세 격자 감사 완료
+
+[결과·원본·RF별 그림](thermal_campaign_grid_v2.md), [실행 계약·후속 개선 후보](thermal_grid_execution.md).
+같은 고정 소스 108개·모델·오차 기준 유지. P2/seed11 **24/24 경로 통과**.
+새 native solve60개 + 기존60개 재사용. Workers4·실제 BLAS1, 배치5200.845초.
+기존 plan·ZIP·보고서·cache79파일 byte 보존. 다른 캠페인 실패 결과 재인증 없음.
+
+전체 최대 오차: primary2edge 5.4666519e-6 / 2.1853664e-7 <1e-3.
+Finest CF4 vs adjoint3.6110637e-8 <5e-6. Adjoint 자체8.1742239e-8 <2e-6.
+체류시간0.064480–3.456680us, RF0.1/1/4MHz. 경로·density 재정규화·fitted noise 없음.
+P2 독립 네 위상 가중합 최대3.6322346e-16. P0·p1·p2 전체 합산 확보.
+공통12경로×5해상도=60계산의 raw8metric bitwise 동일. Source/digest10경로 재결합.
+S_p2 = 0.5*S_p1 + 신규경로 기여: 최대상대잔차3.5153255e-16. 비교 새 solve0회.
+
+**열적 수렴 미달 유지.** P1→p2 변화: greater11.5770%, lesser12.5557%,
+source별19.4165%/27.3446%, Poisson7.4259%, response12.0523%. 모두5% 초과.
+RF별 변화도 기준 초과. 참 적분 오차 상계·누락 physics의 확정 근거로 해석하지 않음.
+Occupancy/nV 0.945434→0.830227. 기대 occupancy에 맞춘 보정 없음.
+
+새 tools/thermal_campaign_ensemble.py: 명시한 보고서의 실제 cache·경로 gate·합산 재검증.
+필수 powers/seeds 불변, 누락·중복·변조 거부. 현재3/9격자 audit 통과, 다른6격자 누락.
+전체 gate는 독립seed 부족으로false; 별도 실제refinement2개도 모두실패. Optical=false.
+제어3파일 원시byte·실제import 수치모듈62개 출처 기록. 새solve0회.
+Audit SHA: 3e83c70b420dc41dad949ce14768a8b5d076371ec01fca5e82708a9da422c0a9.
+
+남은 선언 요청240개는 seed211/811. P3만으로는 p1→p2 실패를 마지막 두edge에서 제외할 수 없음.
+기존 선언·실패 보존 후 더 미세한 두edge 별도 검증. P4에서도 통과 보장은 없음.
+병렬 검토: 기존 pump frame·adjoint demodulation·공통 계산 재사용 확인.
+후속 후보는 경로별 refinement 사다리와 상수 대수 사전 계산. 구현·가속률 실측 전.
+
+병렬 에이전트 감사 구현·독립 검토. 새37검사 통과, subprocess가 실제 cache 검증까지
+도달했는지 오류 문구 조건 보강 후37재통과. 전체1853passed/3skipped/1failed,486.90초.
+유일실패는 기존 삭제 FWM_physics.tex, skip은 Windows symlink 권한. 다른 작업 상태 유지.
+사용자 MD 한국어 caveman, AI 간 지시·검토 영어.
+
+
+## 2026-09-17 — 독립 seed211·고정 격자 확장 완료
+
+[결과·원본·그림](thermal_campaign_seed211_v1.md), [재사용 계약](thermal_grid_execution.md).
+같은 source108개·모델·오차 기준. Seed211 12/12경로·새60native계산 통과, 5200.417초.
+Primary2edge 최대 4.9303579e-06/1.6884453e-07;
+독립해법 4.5369676e-08, 독립refinement 9.6186056e-08. 모든기준통과.
+P0/p1 직접가중합 최대 2.1363745e-16. 중첩30계산 재사용, 분할합 상대잔차 3.2475506e-16.
+
+열적미수렴 유지. P0→p1 변화6.07–95.09%, p1 양방향독립seed 차이8.34–43.63%.
+Occupancy1.379489→1.384546여도 spectrum 수렴 아님. 재정규화·fitted noise 미도입.
+공동감사5/9격자통과·4누락, 실제refinement3개·scramble4개 모두5%초과. Optical=false.
+
+새v2: powers2/3/4·기존3seeds·1440고유요청. 같은ZIP·180원본계산 byte 이전, 새solve0회.
+두fresh capsule·원본/native검증·독점공개. 이전판정 복사없음.
+새p2/seed11의24경로·120cache 재감사 통과, 이전8spectrum canonical byte 동일.
+남은1260요청. 다음p2의seed211잔여60·seed811120, 이후p3/p4 refinement.
+
+실제DriveFS st_nlink0으로초기이전거부; 새대상공개전중단. 가상FS0지원·다중링크거부유지.
+6회귀검사통과. 확장전용37검사 포함; 실제native180이전은 synthetic검사와별도확인.
+전체 `python -m pytest -q`: **1890 passed / 3 skipped / 1 failed**, 858.11초.
+유일실패는기존삭제FWM_physics.tex, skip은Windows symlink권한3건.
+병렬구현·독립검토, AI간영어·사용자MD한국어caveman 유지.
+
+
+## 2026-09-18 — p2 독립 seed211·선언 간 감사 완료
+
+[결과·원본·그림](thermal_campaign_p2_seed211_v2.md), [실행 계약](thermal_grid_execution.md).
+같은 소스108개·모델·예산. P2/seed211 24/24경로 통과, 새60native계산·기존60계산 재사용.
+배치5406.050초. Primary2edge 4.9303579e-06/1.6884453e-07,
+독립해법 4.5369676e-08, adjoint refinement 9.6186056e-08. 모든경로기준통과.
+네 위상 직접 합산 최대3.136426e-16. Density·occupancy 보정 없음.
+
+P1→p2 변화4.33–28.58%, p2 양방향 seed차이9.06–43.33%. 참 적분 오차 상계 아님.
+새 선언 공동 감사2/9격자·7누락. V2 내부에서 검증된 refinement 아직없음, 전체 thermal·optical false.
+다음p2/seed811120계산, 이후p3 360·p4 720. 전체1440중240확보·1200미수행.
+
+새 cross compare: 부모·자식 각각 자기 capsule·marker에서검증, 실제 양쪽cache 별도읽기.
+공통60계산 raw8metric동일, source/digest 10경로재결합·도착률절반.
+분할합잔차4.7147981e-16. 추가solve0회. 수학적동일성 주석·원본계보·마지막byte검사 유지.
+과거절대경로는기록용. 이동 후에도동일hash로검증. 실패감사는기록보존·종료코드실패.
+
+전용52검사통과·병렬독립검토. 실제native감사로성공한child capsule검증확인.
+전체 `python -m pytest -q`: **1942 passed / 3 skipped / 1 failed, 1079.41초**.
+유일실패는기존삭제FWM_physics.tex, skip3건Windows symlink권한. 다른작업·스테이징보존.
+사용자MD한국어caveman·AI간영어 유지.
+
+
+## 2026-09-18 — p2 세 독립 seed 완료
+
+[결과·원본·그림](thermal_campaign_p2_seed811_v2.md). Seed811 24/24경로·새120계산 통과.
+독립 합산 잔차 4.528539686e-16. 세 p2 격자 원본 공동 감사 통과, 새 solve0회.
+독립 seed 여섯 방향 0/6통과, metric 최대값 범위5.70–43.61%.
+3/9격자·6누락, 검증된 v2 refinement0개. 전체 thermal·optical false.
+V2 72고유 경로·360계산 확보. 다음 p3/seed11 새120계산; p3 전체360·p4 전체720계산 남음.
+수치 source·모델·허용오차·도착률 불변. 기존 증거·실패 판정 보존.
+병렬 그림 배치 수정·독립 행렬 산술 대조 완료.
+전체 `python -m pytest -q`: **1942 passed / 3 skipped / 1 failed, 946.00초**. 기존 문서 누락1실패·Windows symlink skip3건.
+
+
+## 2026-09-28 — p3/seed11 완료·수렴 실패의 층별 진단
+
+[결과·원본·그림](progress_2026_09_28/README.md), [실행 계약](thermal_grid_execution.md).
+같은 고정 소스108개·물리 입력·환경·오차 기준 유지.
+[P3/seed11 배치](thermal_campaign_v2/batch-p3-s11.json) **48/48경로 통과**,
+기존120계산 재사용·새120계산, 10,730.423초. 새 물리 계수·재정규화 도입 없음.
+[경로 기록 집계](progress_2026_09_28/batch-path-union-verification.json):
+96고유 경로·480계산 확보, 선언 잔여960계산. 공유24경로의 다섯 기록·수치 gate 일치,
+20경로 source/target digest 재결합 확인. 기록 집계를 새 native 감사로 세지 않음.
+
+96경로·8metric 최대오차: primary 두 edge5.46665188×10⁻⁶ / 2.18536636×10⁻⁷,
+독립 비교8.40851049×10⁻⁸, 독립 refinement1.87343815×10⁻⁷. 기존 경로 기준 모두 통과.
+최대값 모두 mean_outer; 독립 비교·refinement 최악은 새 p3/seed11/index14.
+[격자 직접 합산](thermal_campaign_v2/grid-p3-s11.json) 최대잔차3.69606571×10⁻¹⁶.
+[중첩 비교](thermal_campaign_v2/comparison-p2-p3-s11.json)는 공통24경로·120원시 계산 동일성 확인,
+`S_p3 = 0.5*S_p2 + 신규 경로 합` 최대잔차5.299764275×10⁻¹⁶. 감사 새 solve0회.
+
+**열적 refinement 실패 유지.** P2→p3 변화: greater10.514126%, lesser7.847664%,
+source별13.788644%/12.330948%, Poisson3.677599%, response36.169445%.
+Poisson만5% 이하; 전체 edge 실패. 경로 수치 통과·재사용 산술 통과와 다른 판정.
+[4격자 공동 감사](thermal_campaign_v2/ensemble-p2-three-seeds-p3-s11.json) 통과,
+4/9격자·5누락. 누락은 p3/seed211·811, p4/seed11·211·811.
+평가한 refinement1개 중0통과, p2 독립 seed 여섯 방향0/6통과. 전체 thermal·optical false.
+
+[층별 진단](progress_2026_09_28/diagnostic-p2-p3-s11.json)과
+[독립 산술·byte 검산](progress_2026_09_28/diagnostic-p2-p3-validation.json) 일치.
+네 고정 분할의 모든 RF/source·signed 상쇄·복소 행렬 유지. 복원 최대잔차9.009749614×10⁻¹⁶.
+Response0.1MHz 변화36.1694% 중 체류시간2–4μs 기여+19.9332%p,
+1–2μs 기여+11.6899%p. Source별 lesser는 짧은 경로 기여도 큼.
+긴 경로만 실패 원인으로 확정하지 않음. 다른 분할 사이 합산·물리적 noise 비율 해석 금지.
+두 격자에4μs 이상 표본이 없다는 사실도 물리적 tail 부재를 뜻하지 않음.
+
+진단의 최초 native 검증 유지; 마지막 중복 검증만 검증된 원시 byte 대조로 대체.
+경로당 native 읽기12→7회. Source·입력·실행/보존 제어 파일 최종 검사 유지, 실제 가속률 미측정.
+기존 p2 진단·제어 파일 보존. 최종 개선판은 새 p2→p3 진단에서 실제 실행·독립 검산 완료.
+전용45검사·독립 코드 검토 통과. 삭제된 FWM_physics.tex의 문서검사 참조는 현행 manifest로 교정.
+최종 전체 회귀 **2077 passed / 3 skipped / 0 failed, 1156.52초**.
+[검증 요약·코드 hash](progress_2026_09_28/test_summary.json). 과거 실패 기록은 그대로 유지.
+
+고정 v2 `[2,3,4]`의 필수 p2→p3/seed11 edge가 실패했으므로,
+현재 누락 격자만 채워 전체 gate 통과 불가. 다음은 남은 p3 독립 seed 감사와
+더 미세한 별도 창(예: `[3,4,5]`) 설계·선언. 기존 선언·raw 결과·실패 판정 보존.
+새 창도 두 연속 refinement·독립 scramble의 실제 통과 필요; 더 미세하다고 통과 보장 없음.
+경계 이력 설계는 물리 검증 전. 전체 thermal·nonlocal Maxwell·독립 입력 절대 squeezing·
+실험 holdout 미완료. 공식 milestone **0/4** 유지.
+
+
+## 2026-10-02 — 총괄 감사·소과제 종결·턴 종료 총책임자 검토
+
+[감사 근거](audit_2026_10_02/README.md), [동일 총괄 설계](blueprint.md).
+성과/반복 연혁·수치/물리 경로·governance 세 독립 검토. 실제 연구 진전 있음;
+작은 성과의 종결 관리와 다음 계산의 결정 기준 부족. 과거 token 총량 복원 불가.
+
+기존6개 보고의 명시한 gate·조건을 근거로 scoped WP 종결 인정.
+공식 milestone0/4·no-fit·기존 acceptance 그대로. 과거 보고 새 native 재인증 아님.
+Frozen v2 [2,3,4]는 필수 p2→p3/11 실패로 PASS 불가; 해당 결정 FAIL로 종결.
+미계산5격자는 미계산 유지. 남은960계산 일괄 실행·자동 p4/p5 확대 금지.
+
+새 [geometry probe](audit_2026_10_02/geometry_probe.json): sealed source108개·plan·환경·9grid 경로 일치 확인.
+원자 solve0·atomic cache read0. P3/811에 ≥4μs 경로2개, 최대6.01058μs;
+완료p3/11에는0개. Geometry tail은 잡음 기여·참 적분 오차 상계 아님.
+
+다음 주 WP-THERM-PILOT: p3/811 새120계산 상한·기존120재검증/재결합.
+전RF/source·6metric, p2→p3/811·p3/11↔811 양방향 비교.
+Candidate-SI-floor ensemble/diagnosis 기준 유지; standalone coarse-floor 결과 별도 보존.
+통과→새 window 설계의 부분 근거, 실패→quadrature/경계 전략 검토, 미완료→INCONCLUSIVE.
+이번 턴 다음 atomic pilot·새 window 선언 실행 없음.
+
+같은 blueprint에서 현황·WP·현재 카드·최신 PI 검토 편집.
+매 연구 턴 한 주 질문 전진 후 총책임자 시야의 증거·판정·critical-path·다음 투자 검토 필수.
+두 턴 연속 판별 증거/의존성 종결/반례 없으면 세 번째 확대 전 전략 검토.
+독립 입력 ledger·작은 nonlocal optical 설계는 병행 가능.
+
+현재 전체 회귀: python -m pytest -q → **2091 passed / 3 skipped / 0 failed, 803.24초**.
+[회귀 결과](audit_2026_10_02/test_summary.json), [원본·링크·registry 보존](audit_2026_10_02/verification.json).
+원래 blueprint 기술 본문 byte·연구 일지 prefix·변경 허용 필드 밖 registry·선택 증거·기존 Python 소스 보존.
+main 유지; 사용자 기존 변경 commit/stash/reset 없음.
+
+
+## 2026-10-02 — Grand Challenge code review and scoped publication
+
+Independent review fixed interrupted final JSON publication, consumed-cache
+mutation/seal mismatch, controller first-capture binding, and sealed report/
+request A→B→A substitution. Exact captured bytes now drive sealed parsing;
+native cache validation retains its original API and is bound to those bytes.
+Extension destination-race mock narrowed to the extension publication function.
+
+Clean candidate: python -m pytest -q -> **2044 passed / 4 skipped / 0 failed**;
+1029.24 s wall. Unrelated dirty physics/app changes excluded.
+Publication preservation validator PASS; dependencies and raw evidence retain
+their declared bytes across Windows checkout. Historical regression records
+remain dated. [Review/results](code_review_2026_10_02/README.md).
+
+PI decision: code integrity strengthened; no atomic pilot or new scientific
+certification. Official milestones0/4 and failed frozen v2 gate retained.
+Same blueprint/current p3/811 card and handoff updated. Old ZIP writers remain
+frozen; legacy interruption recovery needs an explicit scoped decision.
+User authorized scoped commit/push on main; unrelated staged entries preserved
+through a separate candidate index. No branch creation or source migration.

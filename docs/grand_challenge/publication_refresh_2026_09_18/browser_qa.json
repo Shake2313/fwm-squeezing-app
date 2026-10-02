@@ -1,0 +1,23 @@
+{
+  "artifact": "docs/FWM physics and analytic reconstruction/fwm_quotient_structure_v4.html",
+  "sha256": "9152f9450dd1bd98c696732b24915c3f520a4cc32f5c9ca311adcaecb50596ec",
+  "environment": "Codex in-app Browser; localhost bound to127.0.0.1; default viewport",
+  "completed": [
+    "overview renders12groups/87nodes/142relations",
+    "L order group navigation",
+    "q-quotient detail and equation/conditions",
+    "detail to full-document anchor",
+    "T transport group navigation",
+    "t-convergence detail",
+    "evidence display toggle",
+    "Q microscopic group navigation in final frozen build",
+    "screenshots visually inspected:overview,quotient detail,static document,thermal detail"
+  ],
+  "observed_javascript_errors": [],
+  "not_exercised": [
+    "native print dialog",
+    "download button",
+    "alternate/mobile viewport"
+  ],
+  "offline_basis": "All87records/formulas/conditions and both view scripts/styles embedded. Static node records exist without JavaScript; external references optional. Structural network-dependency check recorded separately."
+}
