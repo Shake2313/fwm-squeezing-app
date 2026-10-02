@@ -2853,7 +2853,8 @@ def compute_spectrum(D_GHz, *,
     gain_closure = fwm_gain_closure.provenance(
         enabled=gain_closure_enabled,
         eligible=closure_fidelity in (FIDELITY_FAST, FIDELITY_BALANCED),
-        w_pump=w_pump, w_probe=w_probe, w_conjugate=w_conj)
+        w_pump=w_pump, w_probe=w_probe, w_conjugate=w_conj,
+        D_GHz=D_GHz, branch=branch)
     cross_coupling_scale = gain_closure["coupling_multiplier"]
     eta = (qe * (1.0 - loss_frac) if detection_efficiency is None
            else float(detection_efficiency))
@@ -2915,6 +2916,17 @@ def compute_spectrum(D_GHz, *,
     probe_axis_GHz = probe_scan_axis_GHz(
         D_GHz, coarse_points, fine_points, window_mhz, scan_min, scan_max,
         branches=(branch,))
+    if gain_closure["output_calibration"]["applied"] and probe_axis_GHz.size > 1:
+        # A 2.75-MHz display grid can miss the affine knee by ~25%. Include the
+        # 1-MHz calibration detunings within the requested scan, without moving
+        # its bounds or changing the UI. Already-fine/direct grids stay intact.
+        if np.max(np.diff(probe_axis_GHz)) > 0.001 + 1e-12:
+            gain_nodes = float(D_GHz) - np.arange(3030, 3040, dtype=float) / 1000.0
+            gain_nodes = gain_nodes[(gain_nodes >= probe_axis_GHz[0])
+                                    & (gain_nodes <= probe_axis_GHz[-1])]
+            gain_nodes = [node for node in gain_nodes if not np.any(
+                np.isclose(probe_axis_GHz, node, rtol=0.0, atol=1e-12))]
+            probe_axis_GHz = np.sort(np.r_[probe_axis_GHz, gain_nodes])
     k_pump_vac, k_probe_vac, k_conj_vac = seeded_option_a_wavenumbers(
         D_GHz, probe_axis_GHz)
     omega_probe = constants.C_LIGHT * k_probe_vac
@@ -2986,8 +2998,10 @@ def compute_spectrum(D_GHz, *,
         score_scatter = 0.0
         score_profile = np.ascontiguousarray(_gaussian_overlap_profile(
             ULTRA_PROPAGATION_SEGMENTS, L, w_pump, w_probe, pump_probe_angle_deg))
-        if phase_detail == PHASE_ULTRA and excess_noise_model is not False:
-            score_cfg = ({} if excess_noise_model in (None, True)
+        lab_gain_active = gain_closure["output_calibration"]["applied"]
+        score_noise_enabled = lab_gain_active or excess_noise_model is not False
+        if phase_detail == PHASE_ULTRA and score_noise_enabled:
+            score_cfg = ({} if lab_gain_active or excess_noise_model in (None, True)
                          else dict(excess_noise_model))
             score_kappa = score_cfg.get(
                 "pump_scatter_kappa", HARDENED_PUMP_SCATTER_KAPPA)
@@ -3044,12 +3058,20 @@ def compute_spectrum(D_GHz, *,
                 G_c_rows = canonical_rows["conjugate_power_gain"]
             G_s_rows, G_c_rows = observables.pump_depletion_saturation(
                 G_s_rows, G_c_rows, P_pump, P_probe)
-            if phase_detail == PHASE_ULTRA and excess_noise_model is not False:
+            G_s_rows, G_c_rows = fwm_gain_closure.apply_power_gain(
+                G_s_rows, G_c_rows, calibration=gain_closure["output_calibration"],
+                P_pump=P_pump, P_seed=P_probe)
+            # In the new calibration context the atomic sampling must not depend
+            # on external detector efficiency. Keep a fixed steering readout;
+            # the actual noise readout below still uses the requested eta.
+            score_eta = 1.0 if lab_gain_active else eta
+            if phase_detail == PHASE_ULTRA and score_noise_enabled:
                 noise = observables.balanced_twin_beam_noise(
-                    G_s_rows, G_c_rows, eta, eta, reference_weight="dc",
+                    G_s_rows, G_c_rows, score_eta, score_eta, reference_weight="dc",
                     seed_excess_noise=score_scatter)
                 return G_s_rows, 10.0 * np.log10(np.maximum(noise, 1e-30))
-            return G_s_rows, observables.gain_referred_noise_dB(G_s_rows, G_c_rows, eta)
+            return G_s_rows, observables.gain_referred_noise_dB(
+                G_s_rows, G_c_rows, score_eta)
 
         def guard_rows(rows, order):
             return chi_matrix_table(
@@ -3220,6 +3242,14 @@ def compute_spectrum(D_GHz, *,
     # cap.  This preserves an energy ledger but is not a self-consistent depleted
     # three-field solve and therefore does not validate the absolute gain.
     G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
+    # Temporary laboratory gain fit: 7.7%/7.4% worst in-sample residual, no
+    # statistical confidence interval or held-out accuracy established. The
+    # transfer/canonical audits above retain the uncalibrated mean-field values;
+    # the algebraic noise readout below uses the displayed gains consistently.
+    # See fwm-tpd-gain-physical-replacement and analysis/fwm_gain_hotfix/DEVLOG.md.
+    G_s, G_c = fwm_gain_closure.apply_power_gain(
+        G_s, G_c, calibration=gain_closure["output_calibration"],
+        P_pump=P_pump, P_seed=P_probe)
     hardened_noise = None
     pump_scatter_kappa_used = HARDENED_PUMP_SCATTER_KAPPA
     if phase_detail == PHASE_ULTRA:
@@ -3457,8 +3487,10 @@ TPD_LIMIT_MHZ = 500.0
 # model and measure but solves every displayed probe detuning for both pole
 # tiers: its 0.4 MHz resonance windows are finer than the display resolution the
 # adaptive refinement was validated at. Fast/Balanced additionally apply the
-# optional semi-empirical cross-coupling closure before propagation; Ultra never
-# does. See analysis/fwm_lite/DEVLOG.md and analysis/fwm_gain_hotfix/DEVLOG.md.
+# optional semi-empirical cross-coupling closure before propagation and a local
+# laboratory power-gain fit after it; Ultra never applies either calibration.
+# Active lab displays include up to ten additional 1-MHz gain nodes. See
+# analysis/fwm_lite/DEVLOG.md and analysis/fwm_gain_hotfix/DEVLOG.md.
 # Labels estimate the reference (deployment) environment the earlier labels used.
 FIDELITY_FAST = "Fast  (~1 s)"
 FIDELITY_BALANCED = "Balanced  (~2 s)"
@@ -3540,7 +3572,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-gain-proportional-noise-v12"
+    cache_version = "fwm-tpd-affine-gain-v13"
     defaults_version = "fwm-ui-simplification-v1"
     cache_observables = True
     supports_headless_observables = True

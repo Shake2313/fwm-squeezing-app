@@ -245,3 +245,81 @@ SHA-256로 연결된 이 폴더의 기록은 `.gitattributes`의 `-text`로 원�
 최종 분리 실행: **1,438 passed, 1 skipped, 11 failed, 25 errors**, 215.38 s.
 핫픽스 **34개 검사 모두 통과**. 남은 36건은 모두 위 기존 quantum source-hash 검사/설정 오류.
 다른 미커밋 연구 수정 없이 커밋하므로 해당 기존 오류는 별도 후속으로 유지.
+
+
+## 9. 2026-10-01 — TPD Gain 출력 핫픽스와 Grand Challenge 인계
+
+사용자 지정 조건으로 Fast/Balanced 보정 확대: OPD +1.06 GHz,
+118 °C, Pump 380 mW, 셀 입사 Seed 3.7 µW. 기타 기존 기본 조건.
+기존 Gold C_mix·0.74 residual 유지. 기본 설정·UI 조절기·표시 용어 변경 없음.
+
+연속 두 구간 affine를 최종 Probe/Conjugate Gain에 적용.
+전체 열 점의 최대 상대잔차 최소화. 직접 계산 및 실제 표시에서
+최대 오차 약 **Probe 7.7%, Conjugate 7.4%**.
+단일 affine의 약 21.3%보다 개선. 보정 자체는 점별 배율 아님.
+표시 격자에 측정 구간 열 점 추가하여 2.75-MHz 보간의 약25% 오차 차단.
+활성 보정 구간의 adaptive 채점에서 eta/noise 의존성 제거.
+
+**7.7%/7.4%는 적합 잔차. 통계적 신뢰 구간 아님.**
+반복·holdout 없으므로 신뢰 구간은 unknown. 다른 조건·피크·폭 정확도 미검증.
+OPD 전이 폭 ±0.16 GHz는 연속성과 Gold 기준점 보존을 위한 구현 선택이며
+측정된 confidence/tolerance 범위 아님. 원자 transfer·microscopic noise 교정 아님.
+이 한계는 코드 주석과 내부 output_calibration ledger에도 보존.
+
+체크리스트 `fwm-tpd-gain-physical-replacement` 등록:
+난이도 **grand_challenge**, 연구 상태 ready. 입력 정의·수치 수렴·누락 물리·
+실측 peak·반복/독립 데이터·보정 제거 관문 포함. 다른 OPD 및 보정 OFF의
+Fast 검출 설정 의존성은 `fwm-fast-detector-independent-sampling`에서 별도 추적.
+기존 Grand Challenge milestone 완료 선언 없음.
+
+상세 조건·식·측정면·오차·개선 순서·재현 증거 통합:
+[tpd_affine_20261001/README_ko.md](tpd_affine_20261001/README_ko.md).
+원래 진단 및 기존 핫픽스 증거는 삭제·재해시·재교정 없음.
+
+관련 검사 **74 passed**, 22.72 s. Gold·Ultra·OFF 회귀 포함.
+전체 pytest 결과와 동일 소스 확인은 아래 후속 검증에 기록.
+
+
+### 2026-10-01 후속 검증 완료
+
+- 전체 `python -m pytest -q`: **2,091 passed, 3 skipped**, 827.54 s. 실패 없음.
+- 관련 검사: **74 passed**, 22.72 s.
+- Production Python 65파일의 SHA-256가 전체 실행 전후 동일.
+- Gold·Ultra·보정 OFF의 동일 환경 숫자 배열 정확히 동일.
+- 명목 표시 411점에서 열 측정점 최대 상대잔차:
+  Fast Probe7.7030% / Conjugate7.3592%, Balanced7.7018% / 7.3580%.
+- 검출효율 변경 시 표시 격자·Gain 정확히 동일. 새 활성 보정의 noise 채점 독립성 회귀도 통과.
+- 기존 증거53파일 및 DEVLOG 원문 prefix byte 보존 확인.
+
+[전체 결과](tpd_affine_20261001/pytest_summary.json),
+[전체 로그](tpd_affine_20261001/pytest_full.log),
+[환경](tpd_affine_20261001/environment.json),
+[고정 소스](tpd_affine_20261001/source_sha256_after.json).
+
+
+## 10. 2026-10-02 — 이번 핫픽스만 커밋하는 검증
+
+현재 main의 다른 staged/unstaged 연구 변경을 제외하고 별도 index·소스 사본으로 검증.
+FWM의 기존 ChiPoleRows 연구 추가, 다른 scheme·정규화·GC 연구 변경은 포함하지 않음.
+체크리스트는 이번 두 과제와 직접 필요한 기존 reference/finite-seed 의존 과제만 추가.
+진단 증거는 사용자 통합 경로 fwm_gain_hotfix/tpd_gain_diagnostic_20261001에 byte 그대로 보존.
+생성 pytest cache4파일은 배포하지 않음. 원래 manifest는 유지하며 누락된 cache만 명시적으로 기록.
+
+원래 shared-worktree와 parent의 absorption/noise 규약 차이를 별도
+[before_parent.json](tpd_affine_20261001/before_parent.json)에 보존.
+계수·기존 기준·허용오차 조정 없음. 두 규약의 Gain 적합 오차 동일.
+분리 소스의 Gold·Ultra·OFF bypass, eta 독립성 및 화면 열 점 적합 검사도 통과.
+Git의 CRLF/LF 변환은 분리 기록: 실제 검사 소스와 커밋 blob의 hash를 각각 저장.
+
+- 관련 검사 **71 passed**, 32.80 s. 이번 신규 핫픽스 검사14개 포함.
+- 분리한 전체 `python -m pytest -q`: **1,556 passed, 1 skipped, 11 failed, 25 errors**, 233.34 s.
+- 남은36건 모두 `ValueError: parent source changed: rerun the primary/reference audit`.
+- 수정 전 main 5b29c4f6의 동일36노드 재실행: **11 failed, 25 errors**, 7.98 s.
+  실패 노드 집합 정확히 동일. 새 핫픽스 실패로 분류하지 않음.
+- 기존 **2,091 passed** 결과는 별도 미커밋 연구가 있는 공유 작업트리의 검증.
+  이번 분리 커밋의 전체 검사 통과 결과로 인용하지 않음.
+
+[분리 검증 요약](tpd_affine_20261001/commit_validation_20261002.json),
+[분리 Gain 검증](tpd_affine_20261001/commit_readout_validation_20261002.json),
+[전체 로그](tpd_affine_20261001/commit_pytest_full_20261002.log),
+[수정 전 동일 실패 비교](tpd_affine_20261001/commit_parent_failure_comparison_20261002.json).

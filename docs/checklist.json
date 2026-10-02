@@ -1451,6 +1451,106 @@
         "A general session save and restore or project file format.",
         "Server-side storage of user uploads."
       ]
+    },
+    {
+      "id": "fwm-tpd-gain-physical-replacement",
+      "area": "gabes/schemes/fwm.py + gabes/fwm_gain_closure.py + finite-seed spatial/velocity propagation",
+      "title": "Replace the laboratory TPD gain hotfix with a validated physical gain model",
+      "problem": "At 118 C, 380 mW, OPD +1.06 GHz and cell-input seed 3.7 uW, the previous corrected gain rises only 6.35 to 11.27 while the measured pump-on/pump-off ratios rise 13.43 to 118.65. A single affine minimax fit still leaves about 21.3% relative error. The temporary two-piece affine fits ten points within about 7.7%/7.4%, but cannot identify missing physics, measured transmission, drift, peak position or accuracy at other conditions.",
+      "priority": "P1",
+      "effort": "research",
+      "difficulty": "grand_challenge",
+      "status": "ready",
+      "parent_grand_challenge": "gabes-grand-challenge-parameter-free-hot-vapor-fwm",
+      "source_documents": [
+        "analysis/fwm_gain_hotfix/DEVLOG.md",
+        "analysis/fwm_gain_hotfix/tpd_affine_20261001/README_ko.md",
+        "analysis/fwm_gain_hotfix/tpd_affine_20261001/fit.json",
+        "analysis/fwm_gain_hotfix/tpd_gain_diagnostic_20261001/REPORT_ko.md"
+      ],
+      "related_items": [
+        "fwm-reference-parameter-provenance",
+        "fwm-coupling-normalization-audit",
+        "fwm-gain-only-trust-boundary",
+        "fwm-finite-seed-angular-doppler-production",
+        "fwm-option-a-and-loss-ledger",
+        "sabes-calibration-campaign",
+        "fwm-fast-detector-independent-sampling"
+      ],
+      "implementation_scope": "Mathematical derivation, independent numerical references and fit/holdout protocol can start now. Laboratory validation remains an external gate tracked by sabes-calibration-campaign; this ready state does not assert that independent measurements already exist.",
+      "acceptance_criteria": [
+        "Preserve measurement-plane distinctions and the exact ten optical power ratios, including the 3.8-uW pump-off denominators. Use common 3.7-uW cell-input seed in the solver. Establish signed EOM-to-TPD conventions independently; the suspected literature Gold sign mismatch is not a confirmed code bug.",
+        "Reproduce both arms at direct and frontend evaluation points; separately converge Floquet order, velocity/angular quadrature, response interpolation, spatial propagation and the final readout. Keep detector efficiency, loss, noise and display choices out of the atomic gain sampling.",
+        "Test full Zeeman/polarization participation, non-collinear finite-seed Doppler averaging, independently measured Raman/transit rates, radial mode projection and segmentwise pump/seed-state recomputation with self-consistent depletion. Compare physical variants using common inputs and preserved historical failures; do not merely refit another residual coefficient.",
+        "Assess curve amplitude, shape, both-arm ratios and peak location together. Existing nominal simulated peak EOM about 3.022 GHz remains outside the ten-point measurement window after a monotone output map; do not fabricate a corrected peak at 3.030 GHz without data and physical evidence.",
+        "Freeze calibration data before collecting new repeated/randomized or interleaved TPD sweeps and held-out OPD, temperature, pump, seed, waist and angle conditions. Obtain pump-off transmission versus detuning and independent power/detuning/temperature calibration through sabes-calibration-campaign. Estimate drift and uncertainty with measured repeat data; training residuals and the +/-0.16-GHz blending width are not confidence intervals.",
+        "Retain the Gold anchor, Ultra and correction-off regression contracts. Compare all calibration layers on/off, record cap/floor and out-of-domain behavior, and remove the affine coefficients and artificial OPD blending after a principled reduced model passes independent validation.",
+        "Keep mean-field gain calibration separate from canonical transfer and microscopic covariance. No-fit Grand Challenge completion requires no target-fitted participation/affine/residual substitute; physical squeezing requires the separate reservoir/covariance/detection gates."
+      ]
+    },
+    {
+      "id": "fwm-fast-detector-independent-sampling",
+      "area": "gabes/schemes/fwm.py::_pole_scan_response and score_readout",
+      "title": "Make Fast gain sampling independent of detector and noise settings across its full domain",
+      "problem": "The existing adaptive refinement uses a detector-dependent algebraic-noise score. Earlier diagnostics found a 51.6% gain discrepancy outside the laboratory fit window when eta changed. The October hotfix fixes steering only where its output calibration is active; correction-off and other OPD contexts retain the previous behavior to preserve their frozen baselines.",
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "source_documents": [
+        "analysis/fwm_gain_hotfix/tpd_gain_diagnostic_20261001/additional_checks.json",
+        "analysis/fwm_gain_hotfix/tpd_affine_20261001/README_ko.md"
+      ],
+      "acceptance_criteria": [
+        "Define an adaptive atomic/gain error criterion independent of eta, detector loss, noise settings and display/readout choices; apply it consistently to every eligible Fast context, with both empirical calibrations on/off.",
+        "Compare dense Balanced/Ultra responses and final gains near narrow peaks, affine knees, interpolation boundaries and pump caps. A Floquet-order PASS alone is insufficient to certify adaptive response interpolation.",
+        "Keep frozen historical evidence, document changes to old detector-dependent sampling, and introduce independent implementation/convergence fixtures before updating production regression expectations."
+      ]
+    },
+    {
+      "id": "fwm-reference-parameter-provenance",
+      "area": "references/fwm_squeezing_paper_parameters.csv + analysis/squeezing + sabes/calibration.py",
+      "title": "Make squeezing reference parameters measurement- and source-specific",
+      "problem": "The v7 primary-source comparison found mixed measurement classes, inconsistent loss conventions, rounded outputs combined with nominal gain, and a mismatched Wu output pair in the curated CSV. Treating every filled number as a same-condition measured input would make calibration and tolerance comparisons circular or incorrect.",
+      "source_documents": [
+        "docs/squeezing_report/squeezing_report_v7.tex",
+        "docs/squeezing_report/squeezing_report_history.md",
+        "references/fwm_squeezing_paper_parameters.csv"
+      ],
+      "priority": "P1",
+      "effort": "medium",
+      "status": "ready",
+      "acceptance_criteria": [
+        "Each extracted value has paper/version, DOI or source URL, page/figure/table, unit, optical or electrical measurement plane, experimental mode, operating-condition group, uncertainty/rounding and measured/inferred/assumed status; missing fields remain explicit unknown.",
+        "Reconcile the specific v7 history corrections with primary sources before changing CSV values: gold radius and total loss, nominal 15-16 versus rounded power ratios, direct versus slope IDS, Wu outputs from different seed inputs, Vogl blue branch and gain range, McCormick2007 length conflict, Liu pump/bandwidth scan, and Jain/Monsa arithmetic discrepancies.",
+        "Provide typed comparison rows for single-seed direct IDS, dual seeding, homodyne quadrature and fiber outputs. A midpoint of a reported gain range is not a measured gain and detector QE alone is not total efficiency.",
+        "Gold mean-output-only fit and gain-only fit retain separate fit targets/excluded observables. All corrections preserve a source-linked change record and do not silently replace the original observations.",
+        "This task curates evidence and validates the import schema; missing raw experimental data remain owned by the calibration campaign rather than being synthesized from a paper figure or fitted result."
+      ]
+    },
+    {
+      "id": "fwm-finite-seed-angular-doppler-production",
+      "area": "gabes/doppler.py + gabes/kernels.py + gabes/schemes/fwm.py + tests/test_fwm_angular_doppler.py",
+      "title": "Connect two-dimensional Raman Doppler averaging to finite-seed FWM",
+      "problem": "The completed angular-Doppler task supplies a separate pump-only weak-response reference; production finite-seed scans and the v7 conditional angle tolerances remain one-dimensional. The gold geometry has about 1.38 MHz transverse Raman RMS width that this production average omits.",
+      "source_documents": [
+        "docs/squeezing_report/squeezing_report_v7.tex",
+        "docs/squeezing_report/v7_science/refinement.json"
+      ],
+      "priority": "P1",
+      "effort": "large",
+      "status": "ready",
+      "depends_on": [
+        "fwm-angular-doppler-reference",
+        "fwm-pump-state-linear-response-reference",
+        "fwm-floquet-convergence-gate"
+      ],
+      "acceptance_criteria": [
+        "Add an explicit bounded/opt-in finite-seed (v_z,v_x) path for the supported minus branch, retaining lab beat, atomic detunings and RF analysis frequency separately. Do not claim the unsupported plus branch is fixed by adding quadrature.",
+        "Recover the corrected one-dimensional limit at theta=0 and the pump-only two-dimensional reference as seed amplitude vanishes. Check the nonzero longitudinal frequency-difference residual rather than forcing exact Doppler cancellation.",
+        "Recover the gold Raman RMS 1.38017 MHz and document that it is a velocity-distribution scale, not gain FWHM or RF squeezing bandwidth. Validate the observable, not just the analytic RMS.",
+        "Report adjacent Floquet-order, both velocity-axis refinement, cutoff, runtime and memory results separately. Use predeclared reference tolerances for gains and feature positions; any accelerated quadrature must match independent reference points before promotion.",
+        "Recompute angle-TPD-temperature and waist/transport sensitivity with fixed versus retuned controls, keeping numerical changes and experimental validity distinct. Do not fit a scalar dephasing rate to hide omitted transverse motion."
+      ]
     }
   ],
   "_ultra_performance_review": {
@@ -2998,6 +3098,19 @@
         "report": "docs/grand_challenge/rb_thermal_ensemble_report_v3.json",
         "figure": "docs/grand_challenge/rb_thermal_ensemble_v3.png",
         "finest_jobs_report": "docs/grand_challenge/rb_thermal_finest_jobs_v1.json"
+      },
+      "gain_hotfix_development_handoff": {
+        "laboratory_tpd_followup_20261001": {
+          "status": "production_hotfix_implemented_research_open",
+          "difficulty": "grand_challenge",
+          "replacement_item": "fwm-tpd-gain-physical-replacement",
+          "numerical_followup_item": "fwm-fast-detector-independent-sampling",
+          "development_record": "analysis/fwm_gain_hotfix/tpd_affine_20261001/README_ko.md",
+          "integrated_log": "analysis/fwm_gain_hotfix/DEVLOG.md",
+          "conditions": "118 C, pump 380 mW, OPD +1.06 GHz, cell-input seed 3.7 uW; other existing defaults, minus branch",
+          "temporary_model": "Fast/Balanced existing correction switch: frozen monotone continuous two-piece affine output calibration, OPD-local smooth blend; original 0.9-GHz Gold coupling fit retained",
+          "claim_boundary": "Ten points are fit data. Worst relative residual approximately probe 7.7% and conjugate 7.4%; no statistical confidence interval, held-out validation, physical squeezing, or peak-position correction. The OPD transition width is a numerical design choice, not a confidence/validation interval. No new frontend controls or trust labels. No Grand Challenge milestone completed."
+        }
       }
     }
   ]

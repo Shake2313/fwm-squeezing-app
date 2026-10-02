@@ -1,0 +1,6 @@
+!comparison.png
+!pytest_full.log
+!pytest_targeted.log
+numba_cache/
+mpl_cache/
+commit_workspace.json

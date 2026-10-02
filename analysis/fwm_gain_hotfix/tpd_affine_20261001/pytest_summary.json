@@ -1,0 +1,11 @@
+{
+  "command": "python -m pytest -q",
+  "passed": 2091,
+  "skipped": 3,
+  "seconds": 827.54,
+  "failed": 0,
+  "targeted_passed": 74,
+  "targeted_seconds": 22.72,
+  "production_sources_unchanged": true,
+  "production_source_count": 65
+}

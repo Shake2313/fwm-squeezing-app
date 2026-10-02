@@ -1,0 +1,9 @@
+{
+  "python": "3.14.2",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "numpy": "2.4.1",
+  "scipy": "1.17.0",
+  "numba": "0.65.1",
+  "openblas_num_threads": "1 (explicit in capture/fit/validation/pytest commands)",
+  "production_sources_frozen": 65
+}
