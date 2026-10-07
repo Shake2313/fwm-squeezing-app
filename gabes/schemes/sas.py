@@ -47,6 +47,8 @@ from .base import ParamSpec, Scheme
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
 PROBE_PASSIVITY_INTERIOR = 1e-8         # avoid an artificial exact-zero fixed point
 PROBE_REFERENCE_RB_D2_ISOTOPES = frozenset(("Rb85", "Rb87"))
+RB_COMPOSITION_NATURAL = "Natural"
+RB_COMPOSITION_CUSTOM = "Custom"
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
 GENERIC = "Generic (Γ units)"
 PARAFFIN_REFERENCE_T1_S = 25.1e-3   # 87Rb population T1 at 300 K (Bandi et al.)
@@ -89,6 +91,40 @@ def _probe_power_mw(params):
     return float(params.get("probe_power_uw", 0.0)) * 1e-3
 
 
+def _isotope_composition(params):
+    """Resolve elemental-density shares without moving the Rb frequency origin.
+
+    Natural Rb keeps its historical weights. Custom Rb assigns complementary
+    shares of the same total elemental vapor density; zero-share isotopes are
+    skipped entirely. The mixture always uses the Rb85 centroid, including the
+    enriched endpoints, so changing composition cannot translate the spectrum.
+    """
+    species_key = params["species"]
+    if species_key != "Rb (natural)":
+        components = species.SPECIES[species_key]
+        reference = components[0][0]
+        fraction = (1.0 if reference is species.RB85 else
+                    0.0 if reference is species.RB87 else None)
+        return components, reference, "Pure", fraction, True
+    composition = params.get("rb_composition", RB_COMPOSITION_NATURAL)
+    if composition not in (RB_COMPOSITION_NATURAL, RB_COMPOSITION_CUSTOM):
+        raise ValueError("Rb isotope composition must be Natural or Custom.")
+    fraction = species.RB85.abundance
+    if composition == RB_COMPOSITION_CUSTOM:
+        fraction = float(params.get("rb85_fraction", species.RB85.abundance))
+        if not np.isfinite(fraction) or not 0.0 <= fraction <= 1.0:
+            raise ValueError("Rb85 fraction must be finite and between 0 and 1.")
+    components = [(iso, weight) for iso, weight in
+                  ((species.RB85, fraction), (species.RB87, 1.0 - fraction))
+                  if weight > 0.0]
+    # Keep the natural abundance literal to preserve the legacy spectrum bit
+    # for bit (1 - .7217 differs from the stored .2783 by roundoff).
+    if composition == RB_COMPOSITION_NATURAL:
+        components = species.SPECIES[species_key]
+    reference_matched = fraction in (0.0, species.RB85.abundance, 1.0)
+    return components, species.RB85, composition, fraction, reference_matched
+
+
 def _probe_validation_tier(species_key, line):
     """Provenance tier for the AutoOD-style finite-probe approximation."""
     components = species.SPECIES.get(species_key, ())
@@ -103,6 +139,7 @@ def _probe_reference_matched(raw, params):
     """Whether the displayed result keeps every AutoOD regression condition."""
     return (
         raw.get("probe_validation_tier") == "reference_scope"
+        and bool(raw.get("composition_reference_matched", True))
         and float(params.get("pump_power_mw", 0.0)) == 0.0
         and float(raw.get("buffer_gamma", 0.0)) == 0.0
         and bool(raw.get("doppler_temp_tied", True))
@@ -151,7 +188,7 @@ def _probe_scope_text(raw, params):
     else:
         value = "Rb D2 extrapolation"
         help_text = (
-            "Pump, buffer gas, split temperatures, or line-strength scaling is "
+            "Custom isotope ratio, pump, buffer gas, split temperatures, or line-strength scaling is "
             "outside the regression-matched conditions.")
         if pump_on:
             detail = (
@@ -164,6 +201,10 @@ def _probe_scope_text(raw, params):
                 "Buffer broadening, a released Doppler temperature, or a calibrated "
                 "line-strength factor extrapolates the finite-probe correction "
                 "beyond the supplied AutoOD reference.")
+        if not raw.get("composition_reference_matched", True):
+            detail = (
+                "The selected custom isotope ratio is outside the existing natural-"
+                "abundance and pure-isotope regression anchors. " + detail)
     if raw.get("probe_passivity_limited", False):
         detail += (
             " The frozen-pump residual became non-passive and was reduced "
@@ -176,7 +217,7 @@ class SASScheme(Scheme):
     name = "sas"
     cluster = "A — Absorption"
     title = "Absorption spectroscopy (OD / SAS)"
-    cache_version = "7"            # species/line-general finite-probe metadata
+    cache_version = "8"            # configurable Rb composition + stable centroid
     defaults_version = "5"         # µW probe control + expanded visibility
     supports_headless_observables = True
     caption = ("Absorption with a counter-propagating pump and optional finite-power "
@@ -205,6 +246,21 @@ class SASScheme(Scheme):
             ParamSpec("species", "Atom / isotope", "Atomic", "Rb (natural)",
                       choices=tuple(species.SPECIES_ORDER),
                       help="Natural Rb overlays ⁸⁵Rb+⁸⁷Rb by abundance."),
+            ParamSpec("rb_composition", "Rb isotope composition", "Atomic",
+                      RB_COMPOSITION_NATURAL,
+                      choices=(RB_COMPOSITION_NATURAL, RB_COMPOSITION_CUSTOM),
+                      visible_if={"species": "Rb (natural)"},
+                      help="Natural uses 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb. Custom "
+                           "sets their complementary shares of the same total Rb "
+                           "vapor density. Pure isotope choices remain available above."),
+            ParamSpec("rb85_fraction", "⁸⁵Rb fraction", "Atomic",
+                      species.RB85.abundance, 0.0, 1.0, 0.0001,
+                      visible_if={"species": "Rb (natural)",
+                                  "rb_composition": RB_COMPOSITION_CUSTOM},
+                      format="%.4f",
+                      help="⁸⁵Rb share of total Rb density; ⁸⁷Rb uses 1 minus "
+                           "this fraction. 0.7217 is natural abundance. Mixture "
+                           "frequencies always refer to the ⁸⁵Rb centroid."),
             ParamSpec("line", "Transition line", "Atomic", "D1",
                       choices=("D1", "D2"),
                       help="D1 (nP₁/₂) or D2 (nP₃/₂). Sets the excited hyperfine "
@@ -364,7 +420,8 @@ class SASScheme(Scheme):
     # ---- realistic multilevel OD/SAS model ----
     def _compute_species(self, params):
         line = params["line"]
-        comps = species.SPECIES[params["species"]]
+        comps, iso_ref, composition, rb85_fraction, composition_matched = (
+            _isotope_composition(params))
         T_density, T_doppler, tied = _temperatures(params)
         gt = 2 * np.pi * params["transit_khz"] * 1e3
         power, waist = params["pump_power_mw"], params["waist_mm"]
@@ -384,7 +441,6 @@ class SASScheme(Scheme):
         paraffin_memory = paraffin_coated and power > 0.0
         buffer_gamma = constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
 
-        iso_ref = max(comps, key=lambda c: c[1])[0]
         nu_ref = iso_ref.line(line)[1]
 
         built, omega_all = [], []
@@ -505,12 +561,17 @@ class SASScheme(Scheme):
         # Each component's own k converts its A_t into a susceptibility; the
         # single k reported here only turns that susceptibility into a phase, so
         # the reference isotope's value is enough (isotope shifts are ~1e-7 of k).
-        k_ref = float(next(b["man"].k_vec for b in built if b["iso"] is iso_ref))
+        k_ref = float(2 * np.pi * nu_ref / constants.C_LIGHT)
         return dict(mode="species", scan=scan, alpha_unit=alpha,
                     chi_real_unit=chi_real, k_vec=k_ref,
                     dopp_fwhm=dopp_fwhm, buffer_gamma=buffer_gamma,
                     gamma_eff_max=gamma_max, markers=markers,
                     species=params["species"], line=line,
+                    rb_composition=composition, rb85_fraction=rb85_fraction,
+                    isotope_fractions={iso.name: float(weight)
+                                       for iso, weight in comps},
+                    frequency_reference=iso_ref.name,
+                    composition_reference_matched=composition_matched,
                     density_temp_c=T_density - 273.15,
                     doppler_temp_c=T_doppler - 273.15,
                     doppler_temp_tied=tied,
@@ -781,6 +842,12 @@ class SASScheme(Scheme):
             title = (f"{raw['species']} {raw['line']} — {regime}:  "
                      f"{_temperature_title(raw, params)}, "
                      f"L = {params['cell_mm']:.0f} mm")
+            if raw.get("rb_composition") == RB_COMPOSITION_CUSTOM:
+                fraction = float(raw["rb85_fraction"])
+                title = (f"Rb {raw['line']} — {fraction * 100:.2f}% Rb85 / "
+                         f"{(1.0 - fraction) * 100:.2f}% Rb87 — {regime}:  "
+                         f"{_temperature_title(raw, params)}, "
+                         f"L = {params['cell_mm']:.0f} mm")
             xlabel = "Relative frequency  [GHz]  (ref: line centroid)"
             marker_x = [gx for gx, _lbl in raw["markers"]]
             fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
@@ -834,6 +901,13 @@ class SASScheme(Scheme):
         metrics.extend(_dispersion_metrics(chi_real, raw.get("k_vec"), L))
         metrics.extend(_probe_saturation_metrics(raw, params, L))
         metrics.extend(_temperature_metrics(raw))
+        if raw.get("rb_composition") == RB_COMPOSITION_CUSTOM:
+            fraction = float(raw["rb85_fraction"])
+            metrics.append(dict(
+                label="Rb isotope composition",
+                value=f"{fraction * 100:.2f}% ⁸⁵Rb / {(1.0 - fraction) * 100:.2f}% ⁸⁷Rb",
+                help="Shares of total elemental Rb vapor density; the frequency "
+                     "axis uses the ⁸⁵Rb line centroid for every mixture."))
         if params.get("ne_pressure_torr", 0.0) != 0.0:
             metrics.append(dict(
                 label="Buffer Gas Broadening", value=f"{buffer_mhz:.1f} MHz"))

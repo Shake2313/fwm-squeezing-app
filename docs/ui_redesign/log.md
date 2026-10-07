@@ -2,6 +2,31 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-07 · AutoOD 기반 OD 비교·조정 개선
+
+- AutoOD 기능 대조: 임의 Rb 혼합비, 큰 X 배율 자동 보정, Y 배율·이동,
+  갱신 지연. 기존 GABES의 상대/절대 투과율 구분·잡음 보정 유지.
+- 업로드 즉시 X span 자동 프레이밍. Base X scale + 고정 0.1–3 미세 배율.
+  비균일 샘플도 transform_x와 같은 양끝 중점 사용. 초 단위 CSV 지원.
+- 조정 위젯 form 적용: 드래그 중 서버 갱신 없음; Apply 한 번만 그림 갱신.
+  CSV·내보내기 fragment 분리. 원본 그림 복제해 반복 적용 시 곡선 누적 방지.
+- Fit alignment: 고정 이론 곡선에 X affine 정렬·상대 Y gain/offset 추정.
+  절대 투과율 Y 변환 차단. 주파수 교정·물리 파라미터 추정과 구분.
+- Natural/Custom Rb 조성·고정 ⁸⁵Rb 주파수 원점. 기존 기본·순수 메뉴 유지.
+- 독립 리뷰: 0 배율 후 Fit 예외 발견·수정; 입력/변환 유효성 검사 추가.
+  합성 초 단위·300배 신호·역방향·비균일 축·절대 교정·출력 일치 회귀 추가.
+- 무관한 잡음·램프·사인 신호 성공 오판 수정: 최종 uncapped normalized RMSE
+  ≤0.35·상관 ≥0.85 필요. 최적화 중 robust loss와 최종 성공 판정 분리.
+- 관련 회귀 99통과·1skip; 다른 화면 회귀 89통과. 별도 리뷰 추가 지적 없음.
+- 실제 브라우저: 초 단위 업로드 자동 프레이밍, 드래그 중 이미지 무변경,
+  Apply 후 갱신, 합성 OD 정렬 RMSE 0.00126·100% 겹침 확인.
+  Custom 0.35 입력 → ⁸⁵Rb/⁸⁷Rb 35/65% 표시·계산 확인.
+- 최종 전체 `python -m pytest -q --durations=10`: 2204통과·4skip·실패0,
+  981.17초. 실행 프로세스의 `OPENBLAS_NUM_THREADS=1`만 지정.
+  검증 로그·화면: `.playwright-cli/od_final_pytest.txt`,
+  `.playwright-cli/od_alignment_verified.png`.
+
+
 ## 2026-09-23 · 세로 데스크톱 대응 (P3 후속)
 **한 일** (`decisions.md` D10, CSS만)
 - P0–P3 네 커밋 `origin/main` 푸시 (`2998dc1..808c5a5`, 사용자 승인). 푸시 전 `git fetch`로 원격 선행 없음 확인.

@@ -96,7 +96,7 @@ under `archive/` for historical reference only.
 
 ### Experimental CSV comparison (OD / SAS)
 
-Open **Experimental CSV comparison** above the OD/SAS plot and upload a CSV.
+Enable **Overlay data** on the OD/SAS plot and upload a CSV.
 Column A is always detuning and column B is always the detector signal; later
 columns and non-numeric oscilloscope metadata rows are ignored. Raw A/B values
 are treated as arbitrary units. GABES merges repeated detuning samples, removes
@@ -106,11 +106,33 @@ maps the robust signal floor/ceiling to **relative normalized transmission**
 requires measured dark/reference levels or an explicit detector gain and
 offset. Sweep reversals are counted before sorting, and the original forward
 and reverse branches are retained; the compatibility overlay still merges
-equal detunings and warns that this loses hysteresis information. Use x scale,
-x shift, and the sweep-direction control to align the corrected trace with the
-simulated frequency axis. The graph opens on **Transmission**; use desktop arrow
-buttons or a mobile left/right swipe to switch to **Optical density**. These
-display-only controls do not rerun the Bloch-equation solve.
+equal detunings and warns that this loses hysteresis information.
+
+Uploads are automatically framed into the theoretical X range, including
+seconds-axis scope data with very different numeric spans. **Base X scale**
+holds the coarse correction, while **X fine scale ×** keeps a stable 0.1–3 range.
+Adjust scale, shift, sweep direction, and relative-signal Y scale/offset, then
+click **Apply alignment**: dragging controls sends no intermediate redraws.
+**Bring into view** restores automatic framing; **Use raw axis** restores the
+original axis. Framing alone does not establish a frequency calibration.
+
+**Fit alignment** matches the imported transmission to the current theoretical
+curve with bounded X scale/shift and, for relative data, positive detector
+gain/offset. It preserves the chosen sweep direction and reports overlap and
+RMSE. Absolute dark/reference or gain/offset calibration is preserved; visual
+Y transforms and inversion are disabled in that mode. Temperature, cell length,
+and isotope composition remain fixed: this is affine spectrum alignment, not
+physical parameter estimation. Inspect the match before interpreting it.
+
+Choose **Rb isotope composition → Custom** to set the ⁸⁵Rb fraction from 0 to 1;
+the ⁸⁷Rb fraction is complementary. Natural composition stays at 72.17/27.83%.
+Mixtures use a fixed ⁸⁵Rb frequency centroid even when the dominant isotope
+changes. The existing pure-isotope menu retains its own isotope centroid.
+
+The graph opens on **Transmission**; tabs also expose **Optical density** and
+weak-probe **Dispersion**. CSV comparison is on Transmission. Comparison and
+export controls rerun only their plot section, reuse the cached theory, and
+export the same aligned data shown on the graph with correction provenance.
 
 ### Rydberg finite-IF electrometry and cell heating
 

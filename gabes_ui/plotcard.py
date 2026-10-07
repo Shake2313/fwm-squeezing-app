@@ -8,6 +8,7 @@ diagnostics and heavy extra views behind the More pills
 The matplotlib lock lives here because this module owns every figure the app
 builds; `streamlit_app.py` borrows it for the one call it makes itself.
 """
+import copy
 import hashlib
 import importlib
 import inspect
@@ -15,12 +16,14 @@ from html import escape
 from threading import RLock
 
 import matplotlib.pyplot as plt
+import numpy as np
 import streamlit as st
 
 import gabes as _gabes
 import gabes.experimental_csv as _experimental_csv
 from gabes import schemes
 from gabes.core import blas_single_thread
+from gabes.experimental_alignment import AxisAlignment, frame_alignment, fit_trace_alignment
 from gabes.plot_style import PALETTE, apply_gabes_plot_style
 from gabes_ui import export as ui_export
 from gabes_ui.controls import render_param, skey
@@ -122,15 +125,17 @@ def _render_experimental_comparison(view, scheme_name, panel):
     axis = fig.axes[axis_index]
     xlim = tuple(float(v) for v in axis.get_xlim())
     ylim = tuple(float(v) for v in axis.get_ylim())
+    # Relative extrema data span 0–1 even when the theory's absorption is weak.
+    # Include that range so the automatic correction cannot hide the CSV floor.
+    ylim = (min(ylim[0], -0.05), max(ylim[1], 1.05))
     x_unit = descriptor.get("x_unit", "plot unit")
     raw_x_unit = descriptor.get("raw_x_unit", "Arb. unit")
     raw_y_unit = descriptor.get("raw_y_unit", "Arb. unit")
 
     with panel:
         panel.caption(
-            "Column A = detuning, column B = detector signal. Later columns and "
-            "non-numeric oscilloscope metadata rows are ignored. GABES processes "
-            "up to 10 MiB or 500,000 rows."
+            "CSV A = X (time/frequency), B = detector signal. Metadata and "
+            "later columns are ignored."
         )
         uploader_options = {}
         if "max_upload_size" in inspect.signature(panel.file_uploader).parameters:
@@ -211,26 +216,19 @@ def _render_experimental_comparison(view, scheme_name, panel):
         fingerprint = hashlib.sha256(csv_bytes).hexdigest()
         fingerprint_key = skey(scheme_name, "_csv_fingerprint")
         scale_key = skey(scheme_name, "_csv_x_scale")
+        multiplier_key = skey(scheme_name, "_csv_x_multiplier")
         shift_key = skey(scheme_name, "_csv_x_shift")
         reverse_key = skey(scheme_name, "_csv_reverse")
         invert_key = skey(scheme_name, "_csv_invert")
+        signal_scale_key = skey(scheme_name, "_csv_y_scale")
+        signal_offset_key = skey(scheme_name, "_csv_y_offset")
+        fit_key = skey(scheme_name, "_csv_alignment_fit")
         alignment_identity = (
             fingerprint,
             axis_index,
             str(x_unit),
             str(raw_x_unit),
         )
-        if st.session_state.get(fingerprint_key) != alignment_identity:
-            st.session_state[fingerprint_key] = alignment_identity
-            st.session_state[scale_key] = 1.0
-            st.session_state[shift_key] = 0.0
-            st.session_state[reverse_key] = False
-            st.session_state[invert_key] = False
-        st.session_state.setdefault(scale_key, 1.0)
-        st.session_state.setdefault(shift_key, 0.0)
-        st.session_state.setdefault(reverse_key, False)
-        st.session_state.setdefault(invert_key, False)
-
         try:
             trace = _cached_experimental_csv(
                 csv_bytes,
@@ -246,14 +244,31 @@ def _render_experimental_comparison(view, scheme_name, panel):
             return
 
         detuning = trace.detuning
-        n_detuning = len(detuning)
-        pivot = float(
-            (detuning[(n_detuning - 1) // 2] + detuning[n_detuning // 2]) / 2.0
-        )
-        raw_span = float(detuning[-1] - detuning[0])
         plot_span = float(xlim[1] - xlim[0])
-        framed_scale = min(max(0.90 * plot_span / raw_span, 1e-9), 1e9)
-        framed_shift = 0.5 * (xlim[0] + xlim[1]) - pivot
+        try:
+            framed = frame_alignment(detuning, xlim)
+        except ValueError as exc:
+            panel.error(str(exc))
+            return
+        framed_scale, framed_shift = framed.scale, framed.shift
+
+        def set_alignment(alignment, *, invert=False):
+            st.session_state[scale_key] = float(alignment.scale)
+            st.session_state[multiplier_key] = 1.0
+            st.session_state[shift_key] = float(alignment.shift)
+            st.session_state[reverse_key] = bool(alignment.reverse)
+            st.session_state[invert_key] = bool(invert)
+            st.session_state[signal_scale_key] = float(alignment.signal_scale)
+            st.session_state[signal_offset_key] = float(alignment.signal_offset)
+            st.session_state.pop(fit_key, None)
+
+        if st.session_state.get(fingerprint_key) != alignment_identity:
+            st.session_state[fingerprint_key] = alignment_identity
+            set_alignment(framed)
+        if trace.is_absolute_transmission:
+            st.session_state[invert_key] = False
+            st.session_state[signal_scale_key] = 1.0
+            st.session_state[signal_offset_key] = 0.0
 
         action_cols = panel.columns(2)
         if action_cols[0].button(
@@ -263,66 +278,129 @@ def _render_experimental_comparison(view, scheme_name, panel):
             help="Map the imported span into the current theoretical plot; "
                  "this does not fit spectral features.",
         ):
-            st.session_state[scale_key] = float(framed_scale)
-            st.session_state[shift_key] = float(framed_shift)
+            try:
+                reframed = AxisAlignment(
+                    scale=framed.scale, shift=framed.shift,
+                    reverse=st.session_state[reverse_key],
+                    signal_scale=st.session_state[signal_scale_key],
+                    signal_offset=st.session_state[signal_offset_key],
+                )
+                set_alignment(reframed, invert=st.session_state[invert_key])
+            except ValueError as exc:
+                panel.error(str(exc))
         if action_cols[1].button(
-            "Reset alignment",
+            "Use raw axis",
             key=skey(scheme_name, "_csv_reset"),
             use_container_width=True,
         ):
-            st.session_state[scale_key] = 1.0
-            st.session_state[shift_key] = 0.0
-            st.session_state[reverse_key] = False
-            st.session_state[invert_key] = False
+            try:
+                raw_axis = AxisAlignment(
+                    signal_scale=st.session_state[signal_scale_key],
+                    signal_offset=st.session_state[signal_offset_key],
+                )
+                set_alignment(raw_axis, invert=st.session_state[invert_key])
+            except ValueError as exc:
+                panel.error(str(exc))
+        # The first curve is the scheme's transmission; later lines are markers.
+        theory = axis.lines[0] if axis.lines else None
+        fit_context_key = skey(scheme_name, "_csv_fit_context")
+        fit_context = (
+            fingerprint, auto_correct, calibration_mode,
+            dark_signal, reference_signal, gain, offset,
+            None if theory is None else hashlib.sha256(
+                np.asarray([theory.get_xdata(), theory.get_ydata()]).tobytes()
+            ).hexdigest(),
+        )
+        if st.session_state.get(fit_context_key) != fit_context:
+            st.session_state.pop(fit_key, None)
+            st.session_state[fit_context_key] = fit_context
+        if panel.button(
+            "Fit alignment", key=skey(scheme_name, "_csv_fit"),
+            use_container_width=True, disabled=theory is None,
+            help="Align X scale/shift to the current theoretical transmission. "
+                 "For relative data, also fit detector gain/offset. Physical "
+                 "parameters are held fixed; choose sweep direction first.",
+        ):
+            try:
+                initial = AxisAlignment(
+                    scale=st.session_state[scale_key] * st.session_state[multiplier_key],
+                    shift=st.session_state[shift_key],
+                    reverse=st.session_state[reverse_key],
+                    signal_scale=st.session_state[signal_scale_key],
+                    signal_offset=st.session_state[signal_offset_key],
+                )
+                result = fit_trace_alignment(
+                    trace, np.asarray(theory.get_xdata()), np.asarray(theory.get_ydata()),
+                    initial=initial, invert=st.session_state[invert_key],
+                )
+                if result.success:
+                    set_alignment(result.alignment, invert=st.session_state[invert_key])
+                st.session_state[fit_key] = result
+            except ValueError as exc:
+                panel.error(str(exc))
 
-        align_cols = panel.columns(2)
-        scale_now = max(abs(float(st.session_state.get(scale_key, 1.0))), 1e-9)
-        scale_step = max(scale_now * 0.01, 1e-6)
-        scale_pivot = min(framed_scale, scale_now)
-        scale_min = max(scale_pivot / 1000.0, 1e-9)
-        scale_max = min(max(framed_scale, scale_now) * 1000.0, 1e9)
-        x_scale = align_cols[0].slider(
-            f"X scale  [{x_unit}/{raw_x_unit}]",
-            scale_min,
-            scale_max,
-            step=float(scale_step),
-            key=scale_key,
-            help="Scale around the imported trace centre.",
+        panel.caption(
+            "X span is framed automatically; this is not a frequency calibration. "
+            "Set controls, then Apply alignment to redraw once."
         )
-        shift_now = float(st.session_state.get(shift_key, 0.0))
-        shift_step = max(abs(plot_span) / 1000.0, 1e-6)
-        shift_margin = 2.0 * max(abs(plot_span), 1e-9)
-        shift_min = min(xlim[0] - shift_margin, shift_now)
-        shift_max = max(xlim[1] + shift_margin, shift_now)
-        x_shift = align_cols[1].slider(
-            f"X shift  [{x_unit}]",
-            shift_min,
-            shift_max,
-            step=float(shift_step),
-            key=shift_key,
-            help="Shift the imported trace along the plotted x axis.",
-        )
-        option_cols = panel.columns(2)
-        reverse = option_cols[0].checkbox(
-            "Reverse sweep",
-            key=reverse_key,
-            help="Reverse the sign of the imported detuning sweep around its centre.",
-        )
-        if trace.is_absolute_transmission:
-            # Detector polarity is already part of the signed gain or the
-            # dark/reference ordering. A second visual inversion would destroy
-            # the declared absolute meaning.
-            st.session_state[invert_key] = False
-        invert = option_cols[1].checkbox(
-            "Invert transmission",
-            key=invert_key,
-            disabled=trace.is_absolute_transmission,
-            help=(
-                "Use when detector voltage polarity is opposite to relative "
-                "transmission. Absolute calibration takes polarity from its "
-                "signed gain and cannot be inverted again."
-            ),
-        )
+        # Forms keep slider drags in the browser and send one update on Apply.
+        with panel.form(skey(scheme_name, "_csv_alignment_form")):
+            base_scale = st.number_input(
+                f"Base X scale  [{x_unit}/{raw_x_unit}]", min_value=0.0,
+                key=scale_key, format="%.6g",
+                step=float(st.session_state[scale_key] * 0.01),
+                help="Automatic coarse scale; scientific notation is accepted.",
+            )
+            multiplier = st.slider(
+                "X fine scale ×", 0.1, 3.0, step=0.005, key=multiplier_key,
+                help="Stable relative range around the base scale.",
+            )
+            shift_now = float(st.session_state[shift_key])
+            shift_margin = 2.0 * abs(plot_span)
+            x_shift = st.slider(
+                f"X shift  [{x_unit}]",
+                min(xlim[0] - shift_margin, shift_now),
+                max(xlim[1] + shift_margin, shift_now),
+                step=abs(plot_span) / 1000.0, key=shift_key,
+            )
+            reverse = st.checkbox("Reverse sweep", key=reverse_key)
+            invert = st.checkbox(
+                "Invert transmission", key=invert_key,
+                disabled=trace.is_absolute_transmission,
+                help="Absolute detector polarity is defined by the calibration gain.",
+            )
+            signal_scale = st.number_input(
+                "Y scale ×", min_value=0.0, step=0.01, key=signal_scale_key,
+                disabled=trace.is_absolute_transmission,
+            )
+            signal_offset = st.number_input(
+                "Y offset", step=0.01, key=signal_offset_key,
+                disabled=trace.is_absolute_transmission,
+            )
+            applied = st.form_submit_button("Apply alignment", use_container_width=True)
+        if applied:
+            st.session_state.pop(fit_key, None)
+        x_scale = float(base_scale) * float(multiplier)
+        try:
+            alignment = AxisAlignment(
+                scale=x_scale, shift=float(x_shift), reverse=bool(reverse),
+                signal_scale=float(signal_scale), signal_offset=float(signal_offset),
+            )
+            aligned_x = alignment.transform_x(trace.detuning)
+            aligned_y = alignment.transform_y(trace.transmission, invert=bool(invert))
+        except ValueError as exc:
+            panel.error(str(exc))
+            return
+        fit_result = st.session_state.get(fit_key)
+        if fit_result is not None:
+            if fit_result.success:
+                panel.caption(
+                    f"Alignment RMSE {fit_result.rmse:.4g} · "
+                    f"overlap {fit_result.overlap_fraction:.0%}. "
+                    "Temperature and isotope composition were held fixed."
+                )
+            else:
+                panel.warning(fit_result.message)
 
         import_diag = trace.import_diagnostics
         correction_diag = trace.correction_diagnostics
@@ -375,10 +453,6 @@ def _render_experimental_comparison(view, scheme_name, panel):
         for warning in warnings or ():
             panel.warning(str(warning))
 
-        aligned_x = trace.transformed_detuning(
-            scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
-        )
-        aligned_y = 1.0 - trace.transmission if invert else trace.transmission
         in_view = ((aligned_x >= xlim[0]) & (aligned_x <= xlim[1])).any()
         if not in_view:
             panel.warning(
@@ -388,11 +462,13 @@ def _render_experimental_comparison(view, scheme_name, panel):
 
         raw_overlay = None
         if auto_correct and show_raw:
-            raw_x = trace.transformed_detuning(
-                scale=float(x_scale), shift=float(x_shift), reverse=bool(reverse)
-            )
+            raw_x = aligned_x
             raw_y = trace.calibrate_signal(trace.raw_signal)
-            raw_y = 1.0 - raw_y if invert else raw_y
+            try:
+                raw_y = alignment.transform_y(raw_y, invert=bool(invert))
+            except ValueError as exc:
+                panel.error(str(exc))
+                return
             raw_overlay = (raw_x, raw_y)
 
         overlay_label = (
@@ -444,6 +520,19 @@ def _render_experimental_comparison(view, scheme_name, panel):
                 "shift": float(x_shift),
                 "reverse": bool(reverse),
                 "invert": bool(invert),
+                "base_scale": float(base_scale),
+                "manual_multiplier": float(multiplier),
+                "signal_scale": float(signal_scale),
+                "signal_offset": float(signal_offset),
+            },
+            "alignment_fit": None if fit_result is None else {
+                "success": bool(fit_result.success),
+                "rmse": float(fit_result.rmse),
+                "initial_rmse": float(fit_result.initial_rmse),
+                "overlap_fraction": float(fit_result.overlap_fraction),
+                "points_used": int(fit_result.points_used),
+                "message": str(fit_result.message),
+                "physical_parameters_fitted": False,
             },
             "show_raw": bool(show_raw),
             "in_view": bool(in_view),
@@ -453,7 +542,7 @@ def _render_experimental_comparison(view, scheme_name, panel):
                 "detuning": ui_export.to_json_primitive(aligned_x),
                 "transmission": ui_export.to_json_primitive(aligned_y),
                 "detuning_unit": str(x_unit),
-                "transmission_unit": str(raw_y_unit),
+                "transmission_unit": "1",
                 "transmission_label": str(trace.transmission_label),
             },
             "overlay_statistics": {
@@ -554,6 +643,49 @@ def render_plot_card(view, scheme, spec_by_name):
         if other is not page_fig:
             _close_fig(other)
     return comparison_payload, plot_payloads, export_box
+
+
+def _render_plot_and_export(view, scheme, spec_by_name, raw, params,
+                            cache_version, readout_cache_version):
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name)
+    if export_box is not None:
+        ui_export.render_export(
+            export_box, scheme=scheme, raw=raw, params=params, view=view,
+            plot_payloads=plots, comparison_payload=comparison,
+            cache_version=cache_version, readout_cache_version=readout_cache_version,
+        )
+
+
+@st.fragment
+def _render_comparison_fragment(view, scheme, spec_by_name, raw, params,
+                                 cache_version, readout_cache_version):
+    # Fragment reruns reuse their input objects. Clone only the plot figures so
+    # every rerun starts with clean theory, without accumulated CSV lines/titles.
+    with PLOT_LOCK:
+        local_view = dict(view)
+        local_view.update(copy.deepcopy({
+            "figure": view.get("figure"),
+            "figure_views": view.get("figure_views", []),
+        }))
+        _render_plot_and_export(
+            local_view, scheme, spec_by_name, raw, params,
+            cache_version, readout_cache_version,
+        )
+        # Closed figures retain their data and can still seed the next clone.
+        for figure in [view.get("figure"), *(
+                item.get("figure") for item in view.get("figure_views", []))]:
+            if figure is not None:
+                _close_fig(figure)
+
+
+def render_plot_section(view, scheme, spec_by_name, raw, params,
+                        cache_version, readout_cache_version):
+    """Keep CSV and export reruns local; physics controls retain full reruns."""
+    renderer = (_render_comparison_fragment
+                if view.get("comparison") and not view.get("figure_controls")
+                else _render_plot_and_export)
+    renderer(view, scheme, spec_by_name, raw, params,
+             cache_version, readout_cache_version)
 
 
 def render_more(view, scheme, params, cache_version):

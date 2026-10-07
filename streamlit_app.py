@@ -21,12 +21,11 @@ from pathlib import Path
 from gabes import schemes
 from gabes.core import blas_single_thread
 
-from gabes_ui import export as ui_export
 from gabes_ui import plotcard
 from gabes_ui import theme as ui_theme
 from gabes_ui.controls import current_params, param_visible, render_rail, skey
 from gabes_ui.guide import guide_button
-from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_card
+from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_section
 from gabes_ui.readout import (
     metrics_table_markdown,
     partition_readout,
@@ -246,19 +245,8 @@ if metrics:
                 st.markdown(metrics_table_markdown(metrics))
 
 spec_by_name = {sp.name: sp for sp in specs}
-comparison_payload, plot_payloads, export_box = render_plot_card(view, scheme, spec_by_name)
+render_plot_section(
+    view, scheme, spec_by_name, raw, params, cache_version, READOUT_CACHE_VERSION,
+)
 
 render_more(view, scheme, params, cache_version)
-
-if export_box is not None:
-    ui_export.render_export(
-        export_box,
-        scheme=scheme,
-        raw=raw,
-        params=params,
-        view=view,
-        plot_payloads=plot_payloads,
-        comparison_payload=comparison_payload,
-        cache_version=cache_version,
-        readout_cache_version=READOUT_CACHE_VERSION,
-    )
