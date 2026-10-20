@@ -1,0 +1,41 @@
+{
+  "schema": "gabes-production-readout-gc-impact-comparison-v1",
+  "passed": true,
+  "baseline_loaded_fwm_sha256": "51fda379178c0e945b06dd8e7a739dc97aef47f840c91da252ec72182c5fa48c",
+  "current_loaded_fwm_sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+  "entrypoint_import_count": 21,
+  "fwm_dependency_nodes_compared": 34,
+  "unchanged_numerical_source_count": 94,
+  "sealed_artifacts_preserved": true,
+  "changed_numerical_sources": [],
+  "changed_sealed_artifacts": [],
+  "changed_gc_fwm_dependencies": [],
+  "historical_validator_behavior_unchanged": true,
+  "fwm_runtime_constants_unchanged": true,
+  "representative_reports": {
+    "foundation_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "atomic_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "field_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "readout_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    }
+  },
+  "scope": "Production diagnostic integration parity only; no microscopic D inferred, no thermal convergence or experimental/optical certification; official milestones remain 0/4.",
+  "comparison_correction": "⟦AI⟧ Corrects false live-int versus saved-JSON-string dictionary-key comparison in final_gc_impact_comparison.json. The byte-bound final capture and its four numerical reports are unchanged; saved final/baseline constant values compare exactly.",
+  "capture_path": "docs/grand_challenge/noise_readout_2026_10_15/final_gc_impact.json",
+  "supersedes_comparison": "docs/grand_challenge/noise_readout_2026_10_15/final_gc_impact_comparison.json"
+}

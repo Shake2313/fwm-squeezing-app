@@ -161,8 +161,7 @@ def _params(settings=None, detection=None, **overrides):
 def test_detection_knobs_never_touch_the_solve_key():
     """Tier C: lenses, defocus and iris must not trigger a Bloch solve.
 
-    The iris does change `loss_pct`, which IS a solve knob -- but only when it
-    actually clips. Wide open, moving it is free.
+    External transmission and QE belong only to the readout, including clipping.
     """
     base = bridge.solve_key(_params())
     for detection in (DetectionSettings(probe_lens_focal_mm=400.0),
@@ -226,8 +225,10 @@ def test_solve_key_holds_only_recompute_knobs():
     recompute = set(fwm.FWMScheme().recompute_keys())
     assert keys <= recompute | {"mode"} | set(bridge.SOLVE_AUDIT_KEYS)
     assert "tpd" not in keys
-    for essential in ("opd", "temp_c", "pump_mw", "pump_waist_um", "qe_pct"):
+    for essential in ("opd", "temp_c", "pump_mw", "pump_waist_um"):
         assert essential in keys
+    for readout in ("qe_pct", "after_cell_eff_pct", "loss_pct"):
+        assert readout not in keys
 
 
 def test_cached_solve_key_preserves_eom_audit_metadata():

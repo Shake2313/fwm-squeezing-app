@@ -19,6 +19,8 @@ from dataclasses import dataclass
 import numpy as np
 
 from .. import (adaptive_scan, atoms, beam, constants, doppler, fwm_gain_closure,
+               fwm_measured_gain,
+               gain_reference,
                hyperfine, kernels, observables, pole_doppler, species)
 from ..constants import K_VEC, OMEGA_HF, OMEGA_EXCITED_HF, rabi_freq
 from ..core import (
@@ -34,6 +36,10 @@ from ..core import (
     trace_zero_liouvillian_response,
 )
 from ..lineshape import fwhm_interp
+from ..passive_readout import passive_l1_from_spectrum
+from ..jasperse import seed_noise_components
+from ..fwm_efficiency import dressed_cell_transmission
+from ..dressed_cell_absorption import selected_dressed_cell_absorption
 from .base import ExtraView, ParamSpec, Preset, Scheme
 
 # =========================================================
@@ -2418,6 +2424,61 @@ def _pole_scan_response(systems, *, orders, delta_axis, probe_axis_GHz, Delta,
     return high, low, estimator
 
 
+class ChiPoleRows:
+    """Maxwell sums of :func:`chi_matrix_table` rows in pole–residue form."""
+
+    def __init__(self, probe_seed, conj_seed, references, guard_max_relative=None):
+        self._rows = (probe_seed, conj_seed)
+        self._references = references
+        self.guard_max_relative = guard_max_relative
+
+    def mean(self, nodes, weights):
+        """``(chi_ss, chi_cs, chi_sc, chi_cc)`` equal to ``table[:, j] @ weights``
+        for Δ_eff samples ``nodes`` [rad/s], without a Δ_eff table."""
+        nodes = np.ascontiguousarray(nodes, dtype=float)
+        weights = np.ascontiguousarray(weights, dtype=float)
+        probe = self._rows[0].discrete_mean(nodes, weights) / self._references[0]
+        conj = self._rows[1].discrete_mean(nodes, weights) / self._references[1]
+        return probe[:, 0], probe[:, 1], conj[:, 0], conj[:, 1]
+
+
+def chi_pole_rows(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, branch, atom=ATOM, n_f=1,
+                  guard_delta_eff=None):
+    """Pole–residue form of :func:`chi_matrix_table` for velocity sums.
+
+    One eigendecomposition per probe detuning replaces one Floquet solve per
+    (probe detuning, Δ_eff) sample; :meth:`ChiPoleRows.mean` then evaluates any
+    set of Δ_eff nodes exactly.  With ``guard_delta_eff`` every row is compared
+    with the table solve at that single Δ_eff.  Returns ``None`` when the real
+    finite-Floquet identities fail or a row misses ``POLE_GUARD_RTOL``; callers
+    then use the table.
+    """
+    n_f = int(n_f)
+    delta_axis = np.ascontiguousarray(delta_axis, dtype=float)
+    systems = _seeded_pole_systems(Op_A, Op_B, Os_ref, Oc_ref, branch, atom, (n_f,))
+    if systems is None:
+        return None
+    keys = ((1, n_f), (2, n_f))
+    probe_seed, conj_seed = pole_doppler.residues_many(
+        [(systems[key][0], delta_axis) for key in keys])
+    rows = ChiPoleRows(probe_seed, conj_seed, tuple(systems[key][1] for key in keys))
+    if guard_delta_eff is not None:
+        node = np.array([float(guard_delta_eff)])
+        worst = 0.0
+        for value, table in zip(
+                rows.mean(node, np.ones(1)),
+                chi_matrix_table(Op_A, Op_B, Os_ref, Oc_ref, delta_axis, node, branch,
+                                 atom=atom, n_f=n_f)):
+            reference = table[:, 0]
+            relative = np.abs(value - reference) / np.maximum(
+                np.abs(reference), np.finfo(float).tiny)
+            worst = max(worst, float(np.max(np.where(np.isfinite(relative), relative, np.inf))))
+        if not worst <= POLE_GUARD_RTOL:
+            return None
+        rows.guard_max_relative = worst
+    return rows
+
+
 # =========================================================
 # Probe-detuning axis
 # =========================================================
@@ -2456,23 +2517,34 @@ def two_photon_detuning_from_probe_scan(probe_GHz, Delta_GHz, branch):
     return 2 * np.pi * delta_Hz
 
 
-def _optical_k_from_offset(offset_rad_s):
-    return (constants.OMEGA_D1 + np.asarray(offset_rad_s, dtype=float)) / constants.C_LIGHT
+def _optical_k_from_offset(offset_rad_s, *, legacy_centroid=False):
+    # Scan offsets are relative to F=2 -> F'=3, whereas OMEGA_D1 is the
+    # fine-structure centroid. The hyperfine degeneracies are 5:7 on both
+    # manifolds: Eg(F=2)=-7*HF/12 and Ee(F'=3)=+5*excited_HF/12.
+    origin = (0.0 if legacy_centroid else
+              (7.0 * OMEGA_HF + 5.0 * OMEGA_EXCITED_HF) / 12.0)
+    return (constants.OMEGA_D1 + origin
+            + np.asarray(offset_rad_s, dtype=float)) / constants.C_LIGHT
 
 
-def seeded_option_a_wavenumbers(D_GHz, probe_axis_GHz):
-    """Bare frequency-specific pump, probe, and conjugate wave numbers."""
+def seeded_option_a_wavenumbers(D_GHz, probe_axis_GHz, *, legacy_centroid=False):
+    """Bare wave numbers; scan offsets use the 85Rb F=2 -> F'=3 origin.
+
+    ``legacy_centroid=True`` reproduces historical numerical fixtures only.
+    It never changes the detuning in the atomic Hamiltonian.
+    """
     pump_offset = 2 * np.pi * float(D_GHz) * 1e9
     seed_offset = 2 * np.pi * np.asarray(probe_axis_GHz, dtype=float) * 1e9
     conj_offset = 2.0 * pump_offset - seed_offset
-    k_pump = _optical_k_from_offset(pump_offset)
-    k_seed = _optical_k_from_offset(seed_offset)
-    k_conj = _optical_k_from_offset(conj_offset)
+    k_pump = _optical_k_from_offset(pump_offset, legacy_centroid=legacy_centroid)
+    k_seed = _optical_k_from_offset(seed_offset, legacy_centroid=legacy_centroid)
+    k_conj = _optical_k_from_offset(conj_offset, legacy_centroid=legacy_centroid)
     return k_pump, k_seed, k_conj
 
 
 def seeded_phase_mismatch_z(D_GHz, probe_axis_GHz,
-                            angle_deg=SEEDED_PHASE_ANGLE_DEG):
+                            angle_deg=SEEDED_PHASE_ANGLE_DEG, *,
+                            legacy_centroid=False):
     """Option-A vacuum/geometric mismatch ``2k_p-(k_s+k_c)cos(theta)``.
 
     Susceptibility, including its real dispersive part, stays in the diagonal
@@ -2480,7 +2552,7 @@ def seeded_phase_mismatch_z(D_GHz, probe_axis_GHz,
     """
     theta = math.radians(float(angle_deg))
     k_pump, k_seed, k_conj = seeded_option_a_wavenumbers(
-        D_GHz, probe_axis_GHz)
+        D_GHz, probe_axis_GHz, legacy_centroid=legacy_centroid)
     return 2.0 * k_pump - (k_seed + k_conj) * math.cos(theta)
 
 
@@ -2800,7 +2872,11 @@ def compute_spectrum(D_GHz, *,
                      phase_detail=PHASE_LEGACY,
                      pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
                      model_fidelity=None,
-                     gain_closure_enabled=True,
+                     gain_closure_enabled=False,
+                     legacy_gain_calibration_fixture=False,
+                     legacy_mean_field_fixture=False,
+                     measured_gain_calibration=False,
+                     seed_input_assumption="",
                      excess_noise_model=None,
                      floquet_order=SEEDED_FLOQUET_ORDER,
                      enforce_floquet_convergence=True,
@@ -2821,9 +2897,16 @@ def compute_spectrum(D_GHz, *,
     the Maxwell drift; distributed loss vacuum and atomic diffusion are not
     supplied.  EOM residual carrier/sideband powers are carried as explicit input
     provenance but remain unapplied until a measured coupling model exists.
-    Explicit Fast/Balanced tiers default to the temporary off-diagonal coupling
-    closure. Ultra and untiered API calls retain the original propagation.
-    ``gain_closure_enabled=False`` reproduces the pre-hotfix tier physics.
+    Current calls leave the retired empirical gain closure disabled; only an
+    explicit historical fixture can activate it. A separate, optional measured
+    pump-off-reference interpolation is returned under ``measured_gain_reference``. It
+    never changes atomic gains, propagation, adaptive sampling, or noise NF.
+    ``legacy_mean_field_fixture=True`` additionally restores the old optical
+    carrier origin and unity floor on absorbed probe gains for frozen fixtures.
+    Normal calls preserve absorption and use the transition-referenced carrier.
+    Input seed power and small-signal gains refer to the atomic medium
+    boundaries; entrance/exit windows and detector optics are not in that map.
+    An enabled laboratory output fit instead displays empirical output ratios.
     """
     branch = _single_branch(branch, branches)
     floquet_order = int(floquet_order)
@@ -2851,10 +2934,15 @@ def compute_spectrum(D_GHz, *,
     # propagator or the response backend (which can fall back to the grid).
     closure_fidelity = _FIDELITY_LEGACY.get(model_fidelity, model_fidelity)
     gain_closure = fwm_gain_closure.provenance(
-        enabled=gain_closure_enabled,
+        enabled=bool(gain_closure_enabled and legacy_gain_calibration_fixture),
         eligible=closure_fidelity in (FIDELITY_FAST, FIDELITY_BALANCED),
         w_pump=w_pump, w_probe=w_probe, w_conjugate=w_conj,
         D_GHz=D_GHz, branch=branch)
+    gain_closure["historical_fixture_requested"] = bool(legacy_gain_calibration_fixture)
+    gain_closure["retired_switch_requested"] = bool(gain_closure_enabled)
+    gain_closure["runtime_policy"] = (
+        "historical calibration fixture only" if legacy_gain_calibration_fixture
+        else "retired: calibration data rejected by user; no empirical correction")
     cross_coupling_scale = gain_closure["coupling_multiplier"]
     eta = (qe * (1.0 - loss_frac) if detection_efficiency is None
            else float(detection_efficiency))
@@ -2928,7 +3016,7 @@ def compute_spectrum(D_GHz, *,
                 np.isclose(probe_axis_GHz, node, rtol=0.0, atol=1e-12))]
             probe_axis_GHz = np.sort(np.r_[probe_axis_GHz, gain_nodes])
     k_pump_vac, k_probe_vac, k_conj_vac = seeded_option_a_wavenumbers(
-        D_GHz, probe_axis_GHz)
+        D_GHz, probe_axis_GHz, legacy_centroid=legacy_mean_field_fixture)
     omega_probe = constants.C_LIGHT * k_probe_vac
     omega_conj = constants.C_LIGHT * k_conj_vac
     area_probe = float(observables.gaussian_mode_area(w_probe))
@@ -3024,7 +3112,8 @@ def compute_spectrum(D_GHz, *,
                 k_probe_rows = k_probe_vac[rows]
                 k_conj_rows = k_conj_vac[rows]
                 delta_k_rows = seeded_phase_mismatch_z(
-                    D_GHz, probe_axis_GHz[rows], angle_deg=pump_probe_angle_deg)
+                    D_GHz, probe_axis_GHz[rows], angle_deg=pump_probe_angle_deg,
+                    legacy_centroid=legacy_mean_field_fixture)
             if phase_detail == PHASE_ULTRA:
                 if kernels.available():
                     # Same closed-form steps and pump budget, compiled (steering only).
@@ -3057,14 +3146,18 @@ def compute_spectrum(D_GHz, *,
                 G_s_rows = canonical_rows["probe_power_gain"]
                 G_c_rows = canonical_rows["conjugate_power_gain"]
             G_s_rows, G_c_rows = observables.pump_depletion_saturation(
-                G_s_rows, G_c_rows, P_pump, P_probe)
+                G_s_rows, G_c_rows, P_pump, P_probe,
+                legacy_probe_floor=legacy_mean_field_fixture)
             G_s_rows, G_c_rows = fwm_gain_closure.apply_power_gain(
                 G_s_rows, G_c_rows, calibration=gain_closure["output_calibration"],
-                P_pump=P_pump, P_seed=P_probe)
+                P_pump=P_pump, P_seed=P_probe,
+                legacy_probe_floor=legacy_mean_field_fixture)
             # In the new calibration context the atomic sampling must not depend
             # on external detector efficiency. Keep a fixed steering readout;
             # the actual noise readout below still uses the requested eta.
-            score_eta = 1.0 if lab_gain_active else eta
+            score_eta = ((1.0 if lab_gain_active else eta)
+                         if legacy_gain_calibration_fixture or legacy_mean_field_fixture
+                         else 1.0)
             if phase_detail == PHASE_ULTRA and score_noise_enabled:
                 noise = observables.balanced_twin_beam_noise(
                     G_s_rows, G_c_rows, score_eta, score_eta, reference_weight="dc",
@@ -3125,7 +3218,8 @@ def compute_spectrum(D_GHz, *,
     zeeman_correction = 1.0
     if phase_detail != PHASE_LEGACY:
         delta_k_z_vacuum = seeded_phase_mismatch_z(
-            D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg)
+            D_GHz, probe_axis_GHz, angle_deg=pump_probe_angle_deg,
+            legacy_centroid=legacy_mean_field_fixture)
         delta_k_z = delta_k_z_vacuum
         # Option A: frequency-specific bare k in the Maxwell matrix and vacuum /
         # geometric mismatch only. Re(chi) remains in the diagonal response.
@@ -3241,7 +3335,9 @@ def compute_spectrum(D_GHz, *,
     # it overshoots the energy the pump can supply, so apply a post-hoc Manley-Rowe
     # cap.  This preserves an energy ledger but is not a self-consistent depleted
     # three-field solve and therefore does not validate the absolute gain.
-    G_s, G_c = observables.pump_depletion_saturation(G_s, G_c, P_pump, P_probe)
+    G_s, G_c = observables.pump_depletion_saturation(
+        G_s, G_c, P_pump, P_probe,
+        legacy_probe_floor=legacy_mean_field_fixture)
     # Temporary laboratory gain fit: 7.7%/7.4% worst in-sample residual, no
     # statistical confidence interval or held-out accuracy established. The
     # transfer/canonical audits above retain the uncalibrated mean-field values;
@@ -3249,7 +3345,8 @@ def compute_spectrum(D_GHz, *,
     # See fwm-tpd-gain-physical-replacement and analysis/fwm_gain_hotfix/DEVLOG.md.
     G_s, G_c = fwm_gain_closure.apply_power_gain(
         G_s, G_c, calibration=gain_closure["output_calibration"],
-        P_pump=P_pump, P_seed=P_probe)
+        P_pump=P_pump, P_seed=P_probe,
+        legacy_probe_floor=legacy_mean_field_fixture)
     hardened_noise = None
     pump_scatter_kappa_used = HARDENED_PUMP_SCATTER_KAPPA
     if phase_detail == PHASE_ULTRA:
@@ -3337,7 +3434,18 @@ def compute_spectrum(D_GHz, *,
             "off-diagonal coupling includes one Sim2025 representative-gain fit; "
             "held-out comparison is mixed (McCormick2008 about 4.7x low)",)
 
-    return {
+    if legacy_mean_field_fixture:
+        claim_gate["badges"] += ("HISTORICAL_MEAN_FIELD_FIXTURE",)
+        claim_gate["reasons"] += (
+            "historical carrier origin and absorbed-probe unity floor requested",)
+
+    cell_drift = observables._gain_matrix_from_chi(
+        chi_ss_avg, chi_sc_avg, chi_cs_avg, chi_cc_avg,
+        k_probe_prop, k_conj_prop, N_atoms, constants.DIPOLE_D1,
+        coupling_ls, delta_k_z=delta_k_z)
+    cell_transmission = dressed_cell_transmission(cell_drift, L)
+    spectrum = {
+        "dressed_cell_transmission": cell_transmission,
         "D_GHz": D_GHz,
         "probe_axis_GHz": probe_axis_GHz,
         "G_s": G_s,
@@ -3366,6 +3474,24 @@ def compute_spectrum(D_GHz, *,
         "canonical_mode_area_conjugate_m2": area_conj,
         "omega_probe_rad_s": omega_probe,
         "omega_conjugate_rad_s": omega_conj,
+        "legacy_mean_field_fixture": bool(legacy_mean_field_fixture),
+        "optical_carrier_origin": (
+            "historical fine-structure centroid" if legacy_mean_field_fixture
+            else "85Rb D1 F=2 -> F'=3"),
+        "gain_reference": dict(
+            gain_reference.pump_off_referenced_gains(
+                G_s_smallsignal, G_c_smallsignal),
+            source_gain_keys=("G_s_smallsignal", "G_c_smallsignal")),
+        "input_seed_power_W": float(P_probe),
+        "input_pump_power_W": float(P_pump),
+        "temperature_K": float(T),
+        "velocity_cutoff_sigma": float(velocity_cutoff),
+        "input_seed_plane": "atomic medium entrance, after entrance window",
+        "output_gain_plane": (
+            "empirical pump-on/pump-off output ratio; physical plane unresolved"
+            if gain_closure["output_calibration"]["applied"] else
+            "atomic medium exit, before exit window"),
+        "smallsignal_output_gain_plane": "atomic medium exit, before exit window",
         "displayed_gains_posthoc_saturated": True,
         "pump_depletion_cap": 1.0 + 0.5 * P_pump / max(P_probe, 1e-30),
         "phase_detail": phase_detail,
@@ -3436,6 +3562,15 @@ def compute_spectrum(D_GHz, *,
         "raman_center_plus_GHz": branch_center_GHz(D_GHz, +1),
         "hardened_noise": hardened_noise,
     }
+    # This separate readout uses the canonical photon-flux map before the
+    # post-hoc power cap/output fit. Any susceptibility coupling closure is
+    # already included in that map. The legacy gain diagnostic above is retained
+    # verbatim for callers and historical numerical fixtures.
+    spectrum.update(passive_l1_from_spectrum(spectrum))
+    spectrum["measured_gain_reference"] = _measured_gain_reference_readout(
+        spectrum, enabled=measured_gain_calibration,
+        seed_input_assumption=seed_input_assumption)
+    return spectrum
 
 
 def operating_point(spectrum, delta_mhz, branch=-1):
@@ -3469,6 +3604,12 @@ def operating_point(spectrum, delta_mhz, branch=-1):
     if spectrum.get("delta_k_z_vacuum") is not None:
         out["delta_k_z_vacuum"] = float(np.interp(
             probe_GHz, x, spectrum["delta_k_z_vacuum"]))
+    measured = spectrum.get("measured_gain_reference", {})
+    if measured.get("requested"):
+        out["measured_gain_reference"] = _measured_gain_reference_readout(
+            spectrum, enabled=True,
+            seed_input_assumption=measured.get("seed_input_assumption", ""),
+            selected_delta_mhz=delta_mhz, requested_branch=branch)["selected_point"]
     return out
 
 
@@ -3486,10 +3627,10 @@ TPD_LIMIT_MHZ = 500.0
 # responses between them.  The two-branch full probe-scan view uses the same
 # model and measure but solves every displayed probe detuning for both pole
 # tiers: its 0.4 MHz resonance windows are finer than the display resolution the
-# adaptive refinement was validated at. Fast/Balanced additionally apply the
-# optional semi-empirical cross-coupling closure before propagation and a local
-# laboratory power-gain fit after it; Ultra never applies either calibration.
-# Active lab displays include up to ten additional 1-MHz gain nodes. See
+# adaptive refinement was validated at. Retired cross-coupling and local gain
+# calibrations are available only through the explicit historical fixture;
+# current tiers use neither calibration. Historical lab fixtures include up to
+# ten additional 1-MHz gain nodes. See
 # analysis/fwm_lite/DEVLOG.md and analysis/fwm_gain_hotfix/DEVLOG.md.
 # Labels estimate the reference (deployment) environment the earlier labels used.
 FIDELITY_FAST = "Fast  (~1 s)"
@@ -3535,8 +3676,92 @@ def normalize_fidelity(value):
     return _FIDELITY_LEGACY.get(value, FIDELITY_FAST)
 
 
+def _measured_gain_context(raw, seed_input_assumption=""):
+    """Use solved physical metadata, not fitted/capped gain, to gate a profile."""
+    return {
+        "D_GHz": raw.get("D_GHz"), "T": raw.get("temperature_K"),
+        "P_pump": raw.get("input_pump_power_W"),
+        "P_probe": raw.get("input_seed_power_W"),
+        "w_pump": raw.get("w_pump_m"), "w_probe": raw.get("w_probe_m"),
+        "L": raw.get("cell_length_m"),
+        "pump_probe_angle_deg": raw.get("pump_probe_angle_deg"),
+        "branch": raw.get("branch"),
+        "seed_input_assumption": seed_input_assumption,
+        "legacy_mean_field_fixture": raw.get("legacy_mean_field_fixture", False),
+        "legacy_gain_calibration_fixture": raw.get("gain_closure", {}).get(
+            "historical_fixture_requested", False),
+    }
+
+
+def _measured_gain_rf_roundoff(eom_mhz):
+    """Normalize only machine roundoff at the two measured RF endpoints."""
+    eom = np.asarray(eom_mhz, dtype=float)
+    for boundary in fwm_measured_gain.EOM_SUPPORT_MHZ:
+        eom = np.where(np.abs(eom-boundary) <= 16*np.spacing(boundary),
+                       boundary, eom)
+    return eom
+
+
+def _measured_gain_reference_readout(raw, *, enabled=False,
+                                      seed_input_assumption="",
+                                      selected_delta_mhz=None,
+                                      requested_branch=None):
+    """Separate measured detector-reference ratios from the atomic transfer.
+
+    The scalar operating point is evaluated directly at its RF frequency;
+    neither cached display-grid interpolation nor atomic gains set this reference.
+    All out-of-support or unmatched-context values remain unavailable.
+    """
+    context = _measured_gain_context(raw, seed_input_assumption)
+    if requested_branch is not None:
+        context["branch"] = requested_branch
+    result = fwm_measured_gain.context_eligibility(context, enabled=enabled)
+    result["seed_input_assumption"] = seed_input_assumption
+    result["context"] = context
+    center = raw.get("raman_center_minus_GHz")
+    if center is None:
+        center = branch_center_GHz(raw.get("D_GHz", np.nan), -1)
+    delta = (np.asarray(raw["probe_axis_GHz"], dtype=float)-center)*1e3
+    eom = _measured_gain_rf_roundoff(
+        fwm_measured_gain.eom_mhz_from_internal_delta(delta))
+    curve = fwm_measured_gain.reference_curve(eom)
+    active = bool(result["applied"])
+    within = np.asarray(curve["within_support"], dtype=bool)
+    result.update(eom_MHz=eom, internal_delta_mhz=delta, within_support=within)
+    for key in ("measured_gain_probe", "measured_gain_conjugate"):
+        result[key] = (np.asarray(curve[key], dtype=float) if active
+                       else np.full(eom.shape, np.nan))
+    result["context_applied"] = active
+    result["applied"] = bool(active and np.any(within))
+    if active and not np.any(within):
+        result["status"] = "OUTSIDE_RF_SUPPORT"
+    if selected_delta_mhz is not None:
+        selected_eom = float(_measured_gain_rf_roundoff(
+            fwm_measured_gain.eom_mhz_from_internal_delta(selected_delta_mhz)))
+        selected = fwm_measured_gain.reference_curve(selected_eom)
+        inside = bool(selected["within_support"])
+        available = bool(active and inside)
+        point = {
+            "eom_MHz": selected_eom,
+            "internal_delta_mhz": float(selected_delta_mhz),
+            "available": available, "within_support": inside,
+            "status": (result["status"] if not active else
+                       str(selected["status"]) if inside else "OUTSIDE_RF_SUPPORT"),
+        }
+        for key in ("measured_gain_probe", "measured_gain_conjugate"):
+            point[key] = float(selected[key]) if available else float("nan")
+        result["selected_point"] = point
+    return result
+
+
 def _detection_efficiency_from_params(params):
     """Return η while preserving legacy loss/QE overrides from SABES and APIs."""
+    if "after_cell_eff_pct" in params:
+        after = float(params["after_cell_eff_pct"]) / 100.0
+        qe = float(params.get("qe_pct", QE_DETECTOR * 100.0)) / 100.0
+        if not (0.0 <= after <= 1.0 and 0.0 <= qe <= 1.0):
+            raise ValueError("after-cell transmission and detector QE must be in [0,100]%")
+        return after * qe
     loss_pct = float(params.get("loss_pct", SEEDED_POST_CELL_LOSS_PCT))
     qe_pct = float(params.get("qe_pct", QE_DETECTOR * 100.0))
     legacy_eta = (qe_pct / 100.0) * (1.0 - loss_pct / 100.0)
@@ -3563,17 +3788,117 @@ def _seeded_excess_noise(G_s, params):
 
 
 def _seeded_noise_caption(params):
-    if (params.get("excess_noise_mode") or NOISE_CONSTANT) == NOISE_GAIN_PROPORTIONAL:
-        return f"a = {float(params.get('excess_noise_slope', 0.0)):.4f}"
-    return f"N = {float(params.get('excess_noise', 0.0)):.2f}"
+    return f"seed RIN a = {float(params.get('seed_classical_rin_scaled', 0.0))*1e-14:.3g} /Hz"
+
+
+def _seeded_passive_l1_readout(raw, params):
+    """Evaluate readout-only inputs without mutating the cached atomic solve."""
+    power = raw.get("input_seed_power_W", float(params.get("probe_uw", 8.0))*1e-6)
+    omega = raw.get("omega_probe_rad_s")
+    if omega is None:
+        _, k, _ = seeded_option_a_wavenumbers(
+            raw.get("D_GHz", params.get("opd", 0.9)), raw["probe_axis_GHz"])
+        omega = constants.C_LIGHT * k
+    seed = seed_noise_components(
+        power, omega,
+        classical_rin_per_Hz=float(params.get("seed_classical_rin_scaled", 0.0))*1e-14)
+    eta = (_detection_efficiency_from_params(params)
+           if any(key in params for key in ("after_cell_eff_pct", "qe_pct", "loss_pct", "detection_eff_pct"))
+           else float(raw.get("eta", SEEDED_DETECTION_EFFICIENCY_PCT / 100.0)))
+    result = passive_l1_from_spectrum(
+        dict(raw, eta=eta), seed_fano=seed["seed_fano"])
+    result["seed_noise"] = seed
+    result["eta_after_cell_QE"] = eta
+    # Compatibility alias only; the retired constant/gain-linear laws are not
+    # applied. All current classical seed noise enters through Var(N0).
+    result["passive_l1_with_excess_noise_dB"] = result["NF_dB"]
+    return result
+
+
+def _seeded_sidebar_readouts(raw, params, readout, probe_GHz, absorption=None):
+    """Display calculated quantities without adding them to solver inputs."""
+    axis = np.asarray(raw["probe_axis_GHz"])
+    shot = float(np.interp(probe_GHz, axis, readout["seed_noise"]["shot_rin_per_Hz"]))
+    entries = {"seed_shot_noise_b": {
+        "value": shot * 1e14,
+        "status": "Calculated one-sided shot RIN at the seed input; not an adjustable floor."}}
+    eta_ext = readout["eta_after_cell_QE"]
+    for arm in ("probe", "conjugate"):
+        value = None
+        status = "Absorption/emission separation has not been calculated."
+        if absorption is not None:
+            transmission = absorption.get(arm, {}).get("in_cell_absorption_transmission")
+            if transmission is not None and np.isfinite(transmission):
+                value = 100.0 * float(transmission) * eta_ext
+                status = "Calculated absorption transmission × after-cell transmission × detector QE."
+        entries[f"eta_{arm}_pct"] = {"value": value, "status": status}
+    return entries
+
+
+def _seeded_absorption_readout(raw, probe_GHz):
+    """Selected-point ordered absorption; no efficiency is inferred from gain."""
+    required = ("temperature_K", "input_pump_power_W", "input_seed_power_W",
+                "w_pump_m", "w_probe_m", "cell_length_m", "effective_line_strength")
+    if any(key not in raw for key in required):
+        return {"status": "UNAVAILABLE_LEGACY_ATOMIC_INPUTS",
+                "reason": "The saved spectrum lacks the physical atomic inputs."}
+    delta_mhz = (probe_GHz - branch_center_GHz(raw["D_GHz"], -1))*1e3
+    try:
+        return selected_dressed_cell_absorption(
+            D_GHz=raw["D_GHz"], T=raw["temperature_K"],
+            P_pump=raw["input_pump_power_W"], P_probe=raw["input_seed_power_W"],
+            w_pump=raw["w_pump_m"], w_probe=raw["w_probe_m"], delta_mhz=delta_mhz,
+            L=raw["cell_length_m"], weak_line_strength=raw["effective_line_strength"],
+            transit_rate=raw.get("transit_reset_rate_rad_s", constants.GAMMA_GG),
+            velocity_cutoff=raw.get("velocity_cutoff_sigma", 4.0),
+            branch=raw.get("branch", -1))
+    except (ValueError, NotImplementedError, np.linalg.LinAlgError) as error:
+        return {"status": "UNAVAILABLE_ABSORPTION_VALIDATION", "reason": str(error)}
+
+
+def _passive_l1_selected(readout, raw, probe_GHz):
+    """Read a point only within a contiguous valid part of the sampled curve."""
+    x = np.asarray(raw["probe_axis_GHz"], dtype=float)
+    idx = int(np.searchsorted(x, probe_GHz))
+    if idx >= x.size:
+        brackets = (x.size - 1,)
+    elif idx == 0 or np.isclose(x[idx], probe_GHz, rtol=0.0, atol=1e-12):
+        brackets = (idx,)
+    else:
+        brackets = (idx - 1, idx)
+    valid = np.asarray(readout["passive_completion_valid"], dtype=bool)
+    noise = np.asarray(readout["passive_l1_noise_dB"], dtype=float)
+    completion_valid = bool(np.all(valid[list(brackets)]))
+    in_scan = bool(x[0] - 1e-12 <= probe_GHz <= x[-1] + 1e-12)
+    available = bool(completion_valid and in_scan
+                     and np.all(np.isfinite(noise[list(brackets)])))
+    statuses = np.asarray(readout["passive_l1_status"])
+    status = (str(statuses[brackets[0]]) if len(brackets) == 1 or available
+              else "L1_UNAVAILABLE_BETWEEN_INVALID_POINTS")
+    if not in_scan:
+        status = "L1_OUTSIDE_SAMPLED_SCAN"
+    point = {"passive_completion_valid": completion_valid,
+             "passive_l1_available": available,
+             "passive_l1_status": status}
+    point["NF"] = (float(np.interp(probe_GHz, x, readout["NF"]))
+                   if available else float("nan"))
+    point["NF_dB"] = (float(10 * np.log10(point["NF"]))
+                      if available and point["NF"] > 0 else float("nan"))
+    for key in ("passive_l1_noise_dB", "passive_l1_with_excess_noise_dB"):
+        point[key] = point["NF_dB"]
+    for key in ("passive_l1_G_s", "passive_l1_G_c", "passive_l1_D", "passive_l1_T"):
+        point[key] = float(np.interp(probe_GHz, x, readout[key]))
+    point["passive_completion_min_eig"] = float(np.min(
+        np.asarray(readout["passive_completion_min_eig"])[list(brackets)]))
+    return point
 
 
 class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-tpd-affine-gain-v13"
-    defaults_version = "fwm-ui-simplification-v1"
+    cache_version = "fwm-separate-measured-reference-v17"
+    defaults_version = "fwm-separate-measured-reference-v3"
     cache_observables = True
     supports_headless_observables = True
     # Dev note: Gain diagnostic is the original 85Rb double-Lambda seeded-gain
@@ -3662,56 +3987,41 @@ class FWMScheme(Scheme):
                       SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "°",
                       visible_if=seeded,
                       help="Crossing angle used in the longitudinal phase mismatch."),
-            ParamSpec("detection_eff_pct", "Detection efficiency η",
-                      "Detection & scaling", SEEDED_DETECTION_EFFICIENCY_PCT,
-                      0.0, 100.0, 0.1, "%", visible_if=seeded,
-                      help="Total efficiency after the cell, including optical and "
-                           "detector loss."),
-            ParamSpec("excess_noise_mode", "Excess noise model", "Detection & scaling",
-                      NOISE_CONSTANT, choices=(NOISE_CONSTANT, NOISE_GAIN_PROPORTIONAL),
-                      choice_labels=NOISE_MODE_LABELS, control="segmented",
-                      recompute=False, visible_if=seeded,
-                      help="Choose a constant source noise N or N = a·max(G_s−1, 0). "
-                           "G_s is the displayed seed power gain. Each model adds "
-                           "ηN in linear SQL units; switching preserves both controls."),
-            ParamSpec("excess_noise", "Excess Noise N", "Detection & scaling",
-                      0.0, 0.0, 5.0, 0.01, recompute=False,
-                      visible_if={"mode": MODE_SEEDED,
-                                  "excess_noise_mode": (NOISE_CONSTANT, None)},
-                      help="Source excess noise in linear SQL units, generated along "
-                           "the FWM beam path and spatially inseparable from it. "
-                           "Adds ηN to the detected noise: "
-                           "S ≈ (1−η) + η[1/(2G−1) + N]. "
-                           "N = 0 preserves the baseline; S > 1 is above SQL (0 dB)."),
-            ParamSpec("excess_noise_slope", "Noise slope a", "Detection & scaling",
-                      0.0, 0.0, 1.0, 0.0001, recompute=False, format="%.4f",
-                      visible_if={"mode": MODE_SEEDED,
-                                  "excess_noise_mode": NOISE_GAIN_PROPORTIONAL},
-                      help="Dimensionless slope in N = a·max(G_s−1, 0). "
-                           "The subtraction makes N = 0 at unity gain; clipping "
-                           "prevents negative noise in absorbing regions. "
-                           "This replaces the constant N and can raise noise at high gain. "
-                           "a = 0 preserves the baseline."),
+            ParamSpec("measured_gain_calibration", "Measured pump-off-reference gains",
+                      "Detection & scaling", False, control="checkbox", recompute=False,
+                      visible_if=seeded,
+                      help="Show a separate measured-data interpolation at the matching 2026-10-13 lab preset. "
+                           "Agreement at the 23 measured nodes is by construction, not independent validation. "
+                           "Atomic gains and NF are unchanged; this is not a squeezing calibration."),
+            ParamSpec("seed_input_assumption", "Measured-reference seed input assumption",
+                      "Detection & scaling", "", hidden=True, recompute=False,
+                      visible_if=seeded),
+            ParamSpec("seed_classical_rin_scaled", "Seed classical noise a", "Detection & scaling",
+                      0.0, 0.0, 1000.0, 0.1, "10⁻¹⁴ Hz⁻¹", recompute=False,
+                      visible_if=seeded, format="%.3f",
+                      help="One-sided classical relative-intensity-noise PSD at the seed input. "
+                           "a and the calculated shot RIN b give input Fano factor 1+a/b; "
+                           "a is not an additive gain-proportional noise coefficient."),
+            ParamSpec("seed_shot_noise_b", "Seed shot noise b", "Detection & scaling",
+                      None, 0.0, 10000.0, 0.0001, "10⁻¹⁴ Hz⁻¹", control="derived_slider",
+                      recompute=False, visible_if=seeded, format="%.4f",
+                      help="Calculated one-sided shot RIN b=2ℏω_seed/P_seed. "
+                           "An integrated variance additionally requires measurement bandwidth."),
+            ParamSpec("after_cell_eff_pct", "After-cell optical efficiency η_after cell",
+                      "Detection & scaling", 100.0-SEEDED_POST_CELL_LOSS_PCT,
+                      0.0, 100.0, 0.1, "%", recompute=False, visible_if=seeded,
+                      help="Measured optical power transmission after the cell; excludes cell loss and detector QE."),
+            ParamSpec("qe_pct", "Detector quantum efficiency η_QE", "Detection & scaling",
+                      QE_DETECTOR*100.0, 0.0, 100.0, 0.1, "%", recompute=False, visible_if=seeded),
+            ParamSpec("eta_probe_pct", "Total Probe Efficiency η_probe", "Detection & scaling",
+                      None, 0.0, 100.0, 0.01, "%", control="derived_slider", recompute=False,
+                      visible_if=seeded, help="Calculated pumped-cell absorption transmission × after-cell transmission × QE. Stimulated emission is retained separately. Cell loss is already included in NF propagation."),
+            ParamSpec("eta_conjugate_pct", "Total Conjugate Efficiency η_conjugate", "Detection & scaling",
+                      None, 0.0, 100.0, 0.01, "%", control="derived_slider", recompute=False,
+                      visible_if=seeded, help="Calculated pumped-cell absorption transmission × after-cell transmission × QE. Positive absorption is separated from stimulated emission with the same reduced Lindblad model."),
             ParamSpec("loss_pct", "Loss after cell", "Detection & scaling",
                       SEEDED_POST_CELL_LOSS_PCT,
-                      0.0, 50.0, 0.5, "%", visible_if=seeded, hidden=True),
-            ParamSpec("qe_pct", "Detector quantum efficiency",
-                      "Detection & scaling", QE_DETECTOR * 100.0,
-                      50.0, 100.0, 0.01, "%", visible_if=seeded, advanced=True,
-                      advanced_group="Detector", hidden=True,
-                      help="Photodiode QE. With the post-cell loss knob it forms "
-                           "eta = QE·(1−loss) in the gain-referred diagnostic. The "
-                           "92% default is a historical model input, not a validation "
-                           "of physical squeezing or a measured device calibration."),
-            ParamSpec("gain_closure_enabled", "Semi-empirical gain correction",
-                      "Detection & scaling", True, control="checkbox",
-                      advanced=True, advanced_group="Gain estimate",
-                      visible_if={"mode": MODE_SEEDED,
-                                  "resolution": (FIDELITY_FAST, FIDELITY_BALANCED)},
-                      help="One Sim 2025 reference-gain calibration of the "
-                           "effective nonlinear coupling. "
-                           "Absolute accuracy away from that point is unknown. "
-                           "Switch off to compare the original mean-field gain."),
+                      0.0, 50.0, 0.5, "%", visible_if=seeded, hidden=True, recompute=False),
             ParamSpec("line_strength", "Inherited residual factor",
                       "Detection & scaling", SEEDED_REFERENCE_RESIDUAL,
                       0.2, 5.0, 0.01, "×",
@@ -3860,7 +4170,25 @@ class FWMScheme(Scheme):
         ]
 
     def presets(self):
-        return []
+        context = fwm_measured_gain.nominal_context()
+        values = self._squeezing_defaults()
+        values.update(
+            opd=context["D_GHz"], temp_c=context["T"]-273.15,
+            pump_mw=context["P_pump"]*1e3, probe_uw=context["P_probe"]*1e6,
+            cell_mm=context["L"]*1e3, pump_waist_um=context["w_pump"]*1e6,
+            probe_waist_um=context["w_probe"]*1e6,
+            seeded_angle_deg=context["pump_probe_angle_deg"],
+            tpd=float(fwm_measured_gain.internal_delta_mhz_from_eom(3034.0)),
+            after_cell_eff_pct=97.09, loss_pct=2.91,
+            qe_pct=(0.58*1239.8/795)*100.0,
+            seed_input_assumption=fwm_measured_gain.SEED_INPUT_ASSUMPTION,
+        )
+        return [Preset(
+            "2026-10-13 lab reference (conditional)", values,
+            help="113 °C, nominal blue OPD ≈1 GHz, pump 294.804 mW. Seed power is an "
+                 "external pre-window incident proxy P_off/(0.8046×0.9709), assumed "
+                 "as atomic input; it is not independently measured vapor input. "
+                 "Enable measured-reference gains separately.")]
 
     def recommended_defaults(self, params):
         return {
@@ -3871,10 +4199,9 @@ class FWMScheme(Scheme):
     def _squeezing_defaults(self):
         return dict(mode=MODE_SEEDED, opd=0.9, tpd=-8.0, temp_c=121.0,
                     cell_mm=12.5, pump_mw=600.0, probe_uw=8.0,
-                    detection_eff_pct=SEEDED_DETECTION_EFFICIENCY_PCT,
-                    excess_noise_mode=NOISE_CONSTANT,
-                    excess_noise=0.0,
-                    excess_noise_slope=0.0,
+                    after_cell_eff_pct=100.0-SEEDED_POST_CELL_LOSS_PCT,
+                    seed_classical_rin_scaled=0.0,
+                    measured_gain_calibration=False, seed_input_assumption="",
                     loss_pct=SEEDED_POST_CELL_LOSS_PCT,
                     transit_rate_khz=100.0,
                     eom_residual_carrier_uw=0.0,
@@ -3963,24 +4290,26 @@ class FWMScheme(Scheme):
     def info(self):
         return (
             "**Seeded FWM.** Computes mean-field seed and conjugate gain for the "
-            "⁸⁵Rb D1 double-Λ system. Fast/Balanced default to a semi-empirical "
-            "nonlinear-coupling correction calibrated to the Sim 2025 representative "
-            "probe gain 15.5. Advanced → Gain estimate switches it off for comparison. "
-            "Ultra retains the uncalibrated model. The Squeezing indicator is derived from those "
-            "gains; without atomic Langevin covariance it shows trends, not a "
-            "physical squeezing spectrum. A pump-energy cap prevents unbounded "
+            "⁸⁵Rb D1 double-Λ system. The retired semi-empirical coupling and output "
+            "gain corrections are disabled. Linear noise figure NF is "
+            "Var(N_probe−N_conjugate)/mean(N_probe+N_conjugate); "
+            "Squeezing Degree [dB] is 10 log₁₀(NF). The readout uses the canonical "
+            "transfer before the pump-energy cap. It assumes a static annihilation-only "
+            "vacuum completion and a bright seed. Points without this completion are "
+            "unavailable. Without atomic Langevin covariance it is not a physical "
+            "squeezing spectrum or a general lower bound for correlated atomic noise. "
+            "Balanced directly samples the scan; Fast's L1 interpolation error "
+            "has not been independently certified. "
+            "Historical caches without a transfer map retain their legacy algebraic "
+            "gain approximation. A pump-energy cap prevents unbounded "
             "small-signal gain but is not a depleted three-field solve. Numerical "
             "checks and solver provenance are listed under Model diagnostics. "
-            "Excess Noise N adds a spatially inseparable source-noise contribution "
-            "in linear SQL units before detection loss: S = S₀ + ηN, where S₀ is "
-            "the N = 0 indicator. For ideal twin-beam gain G this reduces to "
-            "S ≈ (1−η) + η[1/(2G−1) + N]; 10 log₁₀(S) > 0 dB is above SQL.\n\n"
-            "**Excess noise model.** Constant Noise N uses the same N across the scan. "
-            "Gain proportional Noise a uses N = a·max(G_s−1, 0) at each detuning, "
-            "with the displayed seed power gain G_s. The zero floor prevents "
-            "negative noise where G_s < 1. These are alternative phenomenological "
-            "models, with ηN added to the existing indicator; no microscopic "
-            "noise covariance is inferred.\n\n"
+            "**Seed noise.** a is one-sided classical RIN [Hz⁻¹]; b=2ℏω_seed/P_seed "
+            "is the calculated shot RIN, so the input Fano factor is 1+a/b. "
+            "These are per-Hz PSDs; integrated noise needs the effective bandwidth. "
+            "The former constant N and gain-linear a models are removed. "
+            "Cell absorption, after-cell optical transmission and detector QE are "
+            "reported separately. Cell loss already in propagation is never applied twice.\n\n"
             "**Biphoton.** The Reduced model calculates a Doppler-averaged waveform "
             "and vector phase matching. Absolute widths remain approximate and the "
             "pair-rate scale is anchored to a literature reference. The Reference "
@@ -4030,9 +4359,12 @@ class FWMScheme(Scheme):
             L=params["cell_mm"] * 1e-3,
             w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
             w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
-            qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
-            loss_frac=params["loss_pct"] / 100.0,
-            detection_efficiency=_detection_efficiency_from_params(params),
+            qe=(params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0
+                if params.get("legacy_gain_calibration_fixture", False) else 1.0),
+            loss_frac=(params.get("loss_pct", SEEDED_POST_CELL_LOSS_PCT) / 100.0
+                       if params.get("legacy_gain_calibration_fixture", False) else 0.0),
+            detection_efficiency=(_detection_efficiency_from_params(params)
+                                  if params.get("legacy_gain_calibration_fixture", False) else 1.0),
             coarse_points=res["coarse_points"], fine_points=0,
             scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
             velocity_step=res["velocity_step"],
@@ -4040,7 +4372,9 @@ class FWMScheme(Scheme):
             phase_detail=res["phase_detail"],
             pump_probe_angle_deg=params.get("seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
             model_fidelity=fidelity,
-            gain_closure_enabled=params.get("gain_closure_enabled", True),
+            gain_closure_enabled=params.get("gain_closure_enabled", False),
+            legacy_gain_calibration_fixture=params.get("legacy_gain_calibration_fixture", False),
+            legacy_mean_field_fixture=params.get("legacy_mean_field_fixture", False),
             floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
             enforce_floquet_convergence=True,
             response_method=res.get("response_method", RESPONSE_GRID),
@@ -4073,26 +4407,45 @@ class FWMScheme(Scheme):
 
     def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
-        noise_mode = params.get("excess_noise_mode") or NOISE_CONSTANT
-        excess_noise = _seeded_excess_noise(raw["G_s"], params)
-        noise_db = observables.add_source_excess_noise_dB(
-            raw["gain_referred_noise_dB"], raw["eta"], excess_noise)
-        # Readout-only knobs must not mutate the cached mean-field spectrum.
-        readout = dict(raw, gain_referred_noise_dB=noise_db, S_dB=noise_db)
-        op = operating_point(readout, tpd, branch=-1)
-        if noise_mode == NOISE_GAIN_PROPORTIONAL:
-            # Evaluate the selected point from its displayed gain, rather than
-            # interpolating log(noise) after applying the gain-dependent term.
-            baseline_op = operating_point(raw, tpd, branch=-1)
-            op_excess_noise = float(_seeded_excess_noise(baseline_op["G_s"], params))
-            op_noise_db = float(observables.add_source_excess_noise_dB(
-                baseline_op["gain_referred_noise_dB"], raw["eta"], op_excess_noise))
-            op.update(gain_referred_noise_dB=op_noise_db, S_dB=op_noise_db)
-        else:
-            op_excess_noise = float(excess_noise)
+        noise_db = np.asarray(raw["gain_referred_noise_dB"])
+        op = operating_point(raw, tpd, branch=-1)
+        measured_reference = _measured_gain_reference_readout(
+            raw, enabled=params.get("measured_gain_calibration", False),
+            seed_input_assumption=params.get("seed_input_assumption", ""),
+            selected_delta_mhz=tpd)
+        passive_readout = None
+        passive_op = None
+        selected_noise_db = op["gain_referred_noise_dB"]
+        noise_label = "Squeezing Degree [dB]"
+        noise_help = (
+            "10 log10(NF), where NF=Var(N_probe-N_conjugate)/mean(N_probe+N_conjugate). "
+            "Legacy data without a canonical map retain only their gain approximation.")
+        noise_delta = "legacy data; physical squeezing unavailable"
+        sidebar_readouts = {}
+        cell_absorption = None
+        if "T_canonical_small_signal" in raw:
+            passive_readout = _seeded_passive_l1_readout(raw, params)
+            passive_op = _passive_l1_selected(
+                passive_readout, raw, op["probe_GHz"])
+            noise_db = passive_readout["NF_dB"]
+            selected_noise_db = passive_op["NF_dB"]
+            noise_help = (
+                "10 log10(NF), with seed classical RIN a and calculated shot RIN b. "
+                "The input Fano factor is 1+a/b. Cell propagation is already included; "
+                "only after-cell optical transmission and detector QE act downstream. "
+                "Conditional annihilation-only vacuum completion, not microscopic RF noise.")
+            noise_delta = (
+                "conditional passive completion; physical squeezing unavailable"
+                if passive_op["passive_l1_available"] else
+                "passive completion unavailable; physical squeezing unavailable")
+            cell_absorption = _seeded_absorption_readout(raw, op["probe_GHz"])
+            sidebar_readouts = _seeded_sidebar_readouts(
+                raw, params, passive_readout, op["probe_GHz"], cell_absorption)
         d_axis = (raw["probe_axis_GHz"] - raw["raman_center_minus_GHz"]) * 1e3
         claim_gate = raw.get("claim_gate", {})
         floquet_convergence = raw.get("floquet_convergence", {})
+        if measured_reference["requested"]:
+            noise_delta += "; measured gain interpolation does not recalibrate squeezing"
 
         fig = None
         if include_figures:
@@ -4105,48 +4458,91 @@ class FWMScheme(Scheme):
             axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axG.axhline(1.0, color="black", lw=0.6)
             axG.scatter([tpd], [op["G_s"]], color="crimson", zorder=5)
-            axG.set_ylabel("Seed gain G_s")
+            axG.set_ylabel("Atomic probe gain G_s" if measured_reference["requested"]
+                           else "Seed gain G_s")
             axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
-                          f"T = {params['temp_c']:.0f} C,  eta = {raw['eta']:.3f},  "
+                          f"T = {params['temp_c']:.0f} C,  eta_ext = {_detection_efficiency_from_params(params):.3f},  "
                           f"{_seeded_noise_caption(params)}")
             if np.nanmax(raw["G_s"]) > 50:
                 axG.set_yscale("log")
             noise_axis, plot_noise = d_axis, noise_db
-            if noise_mode == NOISE_GAIN_PROPORTIONAL:
+            if passive_readout is not None:
                 # Include the exact selected point so marker, curve and metric
-                # share the same N=a*max(G_s-1,0), including between grid points.
+                # share log10 of the selected linearly interpolated NF.
                 idx = int(np.searchsorted(d_axis, tpd))
                 if idx == d_axis.size or not np.isclose(d_axis[idx], tpd, rtol=0.0, atol=1e-9):
                     noise_axis = np.insert(d_axis, idx, tpd)
-                    plot_noise = np.insert(noise_db, idx, op["gain_referred_noise_dB"])
+                    plot_noise = np.insert(noise_db, idx, selected_noise_db)
             axS.plot(noise_axis, plot_noise, color="#2ca02c", lw=1.8)
             axS.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axS.axhline(0.0, color="black", lw=0.6)
-            axS.scatter([tpd], [op["gain_referred_noise_dB"]],
+            axS.scatter([tpd], [selected_noise_db],
                         color="crimson", zorder=5)
-            axS.set_ylabel("Squeezing indicator [dB]")
+            axS.set_ylabel("Squeezing Degree [dB]")
             axS.set_xlabel(
                 "Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
             axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
             fig.tight_layout()
 
         metrics = [
-            dict(label="Squeezing indicator",
-                 value=f"{op['gain_referred_noise_dB']:.2f} dB",
-                 delta="physical squeezing unavailable",
-                 help="Mean-field gain estimate plus the detected excess noise ηN. "
-                      "SQL is 0 dB; positive values are above SQL. "
-                      "Atomic Langevin covariance is not included.", tier="hero"),
+            dict(label=noise_label,
+                 value=(f"{selected_noise_db:.2f} dB" if np.isfinite(selected_noise_db)
+                        else "unavailable"),
+                 delta=noise_delta, help=noise_help, tier="hero"),
             dict(label="Seed gain G_s", value=f"{op['G_s']:.2f}",
                  delta=("semi-empirical estimate" if raw.get(
                      "gain_closure", {}).get("applied") else None),
-                 help="Probe output power / input seed power at the selected detuning. "
-                      "The Fast/Balanced correction uses one representative Gold gain; "
-                      "accuracy at other operating points is unknown.",
+                 help="Probe power at the atomic-medium exit / seed power at its entrance. "
+                      "The retired empirical gain correction is disabled in current runs.",
                  tier="hero"),
             dict(label="Conjugate gain G_c", value=f"{op['G_c']:.2f}",
                  help="Generated conjugate power gain at the selected detuning."),
         ]
+        measured_rows = ""
+        if measured_reference["requested"]:
+            point = measured_reference["selected_point"]
+            profile = measured_reference["profile"]
+            if point["available"]:
+                metrics[1] = dict(
+                    label="Probe gain, pump-off reference",
+                    value=f"{point['measured_gain_probe']:.2f}", tier="hero",
+                    delta="conditional measured-data interpolation",
+                    help="Interpolated pump-on probe output / measured pump-off seed detector output. "
+                         "Distinct from the atomic input/output gain and from NF.")
+                metrics[2] = dict(
+                    label="Conjugate gain, pump-off reference",
+                    value=f"{point['measured_gain_conjugate']:.2f}",
+                    help="Interpolated conjugate output / the same pump-off seed detector output.")
+            else:
+                metrics.append(dict(label="Measured gain reference", value="unavailable",
+                                    delta=point["status"], kind="status"))
+            metrics.extend([
+                dict(label="Atomic probe gain G_s", value=f"{op['G_s']:.2f}",
+                     help="Unchanged mean-field power gain at the atomic-medium boundaries."),
+                dict(label="Atomic conjugate gain G_c", value=f"{op['G_c']:.2f}",
+                     help="Unchanged mean-field conjugate power gain at the atomic-medium boundaries."),
+            ])
+            probe_text = f"{point['measured_gain_probe']:.6g}" if point["available"] else "unavailable"
+            conjugate_text = f"{point['measured_gain_conjugate']:.6g}" if point["available"] else "unavailable"
+            measured_rows = (
+                f"| Measured-reference status | {point['status']} |\n"
+                f"| Measured-reference EOM frequency | {point['eom_MHz']:.6f} MHz |\n"
+                f"| Probe gain, pump-off reference | {probe_text} |\n"
+                f"| Conjugate gain, pump-off reference | {conjugate_text} |\n"
+                f"| Gain denominator plane | {profile['reference_plane']} |\n"
+                f"| Reference seed detector level | {profile['reference_seed_voltage_mV']:.6g} mV |\n"
+                f"| Reference method | {profile['method']} |\n"
+                "| Measured-node agreement | By construction; not independent validation |\n"
+                f"| Predictive-fit development record | {profile['development_status']} |\n"
+                f"| Independent validation | {profile['independent_validation']} |\n"
+                f"| Seed proxy assumption | {measured_reference['seed_input_assumption'] or 'not adopted'} |\n"
+                f"| Reference input-seed proxy | {profile['input_seed_proxy_W']*1e6:.6g} µW, "
+                "external pre-window estimate assumed as atomic input; vapor input not independently measured |\n"
+                f"| Atomic probe / conjugate gain | {op['G_s']:.6g} / {op['G_c']:.6g} |\n"
+                "| NF scope | Gain-reference interpolation does not modify canonical transfer, noise NF, or detector power propagation |\n"
+            )
+            if measured_reference["reasons"]:
+                measured_rows += "| Reference context mismatch | " + "; ".join(measured_reference["reasons"]) + " |\n"
         cap = raw.get("pump_depletion_cap", float("inf"))
         small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
         depletion_limited = small_signal > 1.1 * cap
@@ -4184,18 +4580,39 @@ class FWMScheme(Scheme):
             "temperature or raise the seed power to return to the linear regime.\n"
             if depletion_limited else ""
         )
-        noise_rows = (
-            f"| Excess noise model | {NOISE_MODE_LABELS[noise_mode]} |\n"
-        )
-        if noise_mode == NOISE_GAIN_PROPORTIONAL:
+        noise_rows = ""
+        if passive_readout is not None:
+            seed = passive_readout["seed_noise"]
+            axis = raw["probe_axis_GHz"]
+            at_point = lambda value: float(np.interp(op["probe_GHz"], axis, value))
             noise_rows += (
-                f"| Noise slope a | {float(params.get('excess_noise_slope', 0.0)):.4f} |\n"
-                "| Source noise law | N = a·max(G_s−1, 0) |\n"
+                f"| NF | {passive_op['NF']:.6g} |\n"
+                f"| Squeezing Degree [dB] = 10 log10(NF) | {selected_noise_db:.6g} |\n"
+                f"| Seed classical RIN a | {at_point(seed['classical_rin_per_Hz']):.6g} Hz⁻¹ |\n"
+                f"| Seed shot RIN b = 2ℏω/P | {at_point(seed['shot_rin_per_Hz']):.6g} Hz⁻¹ |\n"
+                f"| Input seed Fano factor = 1+a/b | {at_point(seed['seed_fano']):.6g} |\n"
+                "| Noise convention | One-sided PSD per Hz; integrated variance requires effective bandwidth |\n"
+                "| Transfer gain basis | Canonical photon flux before pump cap; no current empirical correction |\n"
+                "| Cell losses in NF | Already in propagation; total efficiencies are not applied a second time |\n"
             )
-        noise_rows += (
-            f"| Excess Noise N (linear SQL units) | {op_excess_noise:.6g} |\n"
-            f"| Detected excess noise ηN (linear SQL units) | {raw['eta'] * op_excess_noise:.6g} |\n"
-        )
+            cell = raw.get("dressed_cell_transmission", {})
+            for arm in ("probe", "conjugate"):
+                transmission = cell.get(f"in_cell_{arm}_transmission")
+                if transmission is not None:
+                    noise_rows += f"| Pumped-cell {arm} net transmission (mixing off) | {at_point(transmission):.6g} |\n"
+                if arm in cell_absorption:
+                    rates = cell_absorption[arm]
+                    noise_rows += (
+                        f"| Cell {arm} absorption coefficient | {rates['alpha_abs_per_m']:.6g} m⁻¹ |\n"
+                        f"| Cell {arm} stimulated-emission coefficient | {rates['alpha_em_per_m']:.6g} m⁻¹ |\n"
+                        f"| Cell {arm} absorption transmission η_in cell | {rates['in_cell_absorption_transmission']:.6g} |\n"
+                        f"| Total {arm} efficiency | {sidebar_readouts[f'eta_{arm}_pct']['value']/100:.6g} |\n")
+            if cell_absorption.get("reason"):
+                noise_rows += f"| Cell absorption status | {cell_absorption['reason']} |\n"
+            elif "probe" in cell_absorption:
+                noise_rows += (
+                    "| Efficiency scope | Uniform pump/input-seed state; absorption only; generated/depleted fields not fed back |\n"
+                    "| Absorption vs net response | Emission/gain is separate; these total efficiencies do not replace the NF channel |\n")
         operating_table = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| ⁸⁵Rb density | {raw['N_atoms']:.3e} /m³ |\n"
@@ -4204,8 +4621,9 @@ class FWMScheme(Scheme):
             f"| Ω_pump / 2π | {raw['Op_A_2pi_GHz']:.3f} GHz |\n"
             f"| Ω_seed / 2π | {raw['Os_2pi_MHz']:.3f} MHz |\n"
             f"| (−) Raman line (probe axis) | {raw['raman_center_minus_GHz']:.3f} GHz |\n"
-            f"| Detection efficiency η | {raw['eta']:.4f} |\n"
+            f"| After-cell transmission × QE | {_detection_efficiency_from_params(params):.4f} |\n"
             f"{noise_rows}"
+            f"{measured_rows}"
             f"| Operating probe detuning | {op['probe_GHz']:.4f} GHz |\n"
             f"| Cell length | {raw.get('cell_length_m', L_CELL)*1e3:.1f} mm |\n"
             f"| Pump waist | {raw.get('w_pump_m', W_PUMP)*1e6:.0f} µm |\n"
@@ -4279,9 +4697,27 @@ class FWMScheme(Scheme):
             f"| Small-signal peak G_s (pre-saturation) | {small_signal:.3e} |\n"
             + closure_rows + phase_rows
         )
+        if passive_readout is not None:
+            valid = np.asarray(passive_readout["passive_completion_valid"], dtype=bool)
+            diagnostics_table += (
+                f"| Passive L1 selected status | {passive_op['passive_l1_status']} |\n"
+                f"| L1 sampling scope | {passive_readout['passive_l1_sampling_status']} |\n"
+                f"| Passive completion feasible samples | {np.count_nonzero(valid)} / {valid.size} |\n"
+                f"| L1 source photon-flux G_s / G_c | {passive_op['passive_l1_G_s']:.6g} / {passive_op['passive_l1_G_c']:.6g} |\n"
+                f"| L1 source D / T | {passive_op['passive_l1_D']:.6g} / {passive_op['passive_l1_T']:.6g} |\n"
+                f"| Passive completion minimum eigenvalue | {passive_op['passive_completion_min_eig']:.3e} |\n"
+                "| L1 scope | Static annihilation-only vacuum completion; no RF spectrum or bound for correlated phase-sensitive atomic noise |\n"
+                "| Legacy gain diagnostic | Retained raw gain_referred_noise_dB / S_dB; not used for current L1 curve |\n"
+            )
         return {
             "metrics": metrics,
             "figure": fig,
+            "passive_l1_readout": passive_readout,
+            "passive_l1_operating_point": passive_op,
+            "jasperse_readout": passive_readout,
+            "dressed_cell_absorption": cell_absorption,
+            "sidebar_readouts": sidebar_readouts,
+            "measured_gain_reference": measured_reference,
             "tables": [
                 {"title": "Operating point", "markdown": operating_table},
                 {"title": "Model diagnostics", "markdown": diagnostics_table},
@@ -4403,7 +4839,8 @@ class FWMScheme(Scheme):
 
         if predictive:
             g2_help = ("Peak signal-idler cross-correlation from the computed "
-                       "waveform |ψ|² and physical accidentals (not forced).")
+                       "delay density and accidental rate density; independent "
+                       "of coincidence gate width (not forced).")
             rate_help = ("Reference-anchored pair rate after pump, coupling, density, "
                          "and phase-matching scaling.")
             source_fwhm_help = (
@@ -4443,7 +4880,8 @@ class FWMScheme(Scheme):
                  value=f"{stats['g2_peak']:.2f}", help=g2_help,
                  tier="hero"),
             dict(label="CAR", value=f"{stats['CAR']:.1f}",
-                 help="True coincidence divided by accidental coincidence."),
+                 help="Captured true coincidences divided by accidentals in the "
+                      "symmetric gate [-W/2, W/2] about zero delay."),
             dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
                  help=rate_help, tier="hero"),
             dict(label="Intrinsic biphoton width",
@@ -4500,7 +4938,10 @@ class FWMScheme(Scheme):
             f"| Quantity | Value |\n|---|---|\n"
             f"| Signal singles | {stats['singles_signal_cps']:.2f} cps |\n"
             f"| Idler singles | {stats['singles_idler_cps']:.2f} cps |\n"
-            f"| True coincidence | {stats['coincidence_cps']:.3f} cps |\n"
+            f"| All-time true coincidence | {stats['all_time_coincidence_cps']:.3f} cps |\n"
+            f"| Gate-captured true coincidence | {stats['coincidence_cps']:.3f} cps |\n"
+            f"| Coincidence gate | symmetric [-W/2, W/2], W = {params['coincidence_window_ns']:.3f} ns |\n"
+            f"| Gate capture fraction | {stats['gate_capture_fraction']:.6f} |\n"
             f"| Accidental coincidence | {stats['accidental_cps']:.3e} cps |\n"
             f"| Raw accidental before reference calibration | {stats['raw_accidental_cps']:.3e} cps |\n"
             f"| Added unmodelled accidental/background | {stats['added_accidental_cps']:.3e} cps |\n"
@@ -4511,7 +4952,9 @@ class FWMScheme(Scheme):
             f"| Intrinsic biphoton width | {source_width_table} |\n"
             f"| Detected biphoton width | {detected_width_table} |\n"
             f"| Net timing-difference response FWHM | {params['timing_jitter_ns']:.3f} ns |\n"
-            f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n\n"
+            f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n"
+            f"| Filter model | Scalar throughput; no temporal reshaping |\n"
+            f"| Delay density normalization | Finite source-delay axis; full Gaussian timing tails |\n\n"
             f"{raw['notes']}"
         )
         validation_table = self._reference_validation_table(raw, params, stats)
@@ -4539,6 +4982,8 @@ class FWMScheme(Scheme):
                 return "by construction"
             if kind == "predicted":
                 return "predicted (approx)"
+            if kind == "setting":
+                return "setting only"
             return "PASS" if ok else "CHECK"
 
         def row(name, calc, ref, ok, note="", kind="physical"):
@@ -4547,11 +4992,17 @@ class FWMScheme(Scheme):
         rows = []
         if topo.name == TOPOLOGY_RB87_TELECOM:
             pump_mw = max(params["pump_biphoton_uw"] * 1e-3, 1e-30)
-            rate_per_mw = stats["pair_rate_cps"] / pump_mw
+            rate_per_mw = raw["pair_rate_cps"] / pump_mw
             rows.append(row(
-                "Pair rate / pump", f"{rate_per_mw:.0f} cps/mW",
+                "Source pair rate / pump", f"{rate_per_mw:.0f} cps/mW",
                 "38000 cps/mW", abs(rate_per_mw / 38000.0 - 1.0) < 0.15,
-                "anchored: pair rate is scaled from this reference number", kind="calibrated"))
+                "anchored source rate before filter and detection losses", kind="calibrated"))
+            rows.append(row(
+                "Filter-passed pair rate / pump",
+                f"{stats['pair_rate_cps'] / pump_mw:.0f} cps/mW",
+                "no independent filter-matched reference", False,
+                "source anchor times the scalar filter-transmission estimate",
+                kind="predicted"))
             rows.append(row(
                 "g2 peak", f"{stats['g2_peak']:.2f} (raw {stats['raw_g2_peak']:.1f})",
                 "44(3)", abs(stats["g2_peak"] - 44.0) <= 3.0,
@@ -4582,7 +5033,8 @@ class FWMScheme(Scheme):
             rows.append(row(
                 "Bandwidth setting", f"{params['filter_bandwidth_mhz']:.0f} MHz",
                 "about 300 MHz", abs(params["filter_bandwidth_mhz"] - 300.0) <= 40.0,
-                "user filter-bandwidth setting check"))
+                "input setting, not a calculated source-bandwidth validation",
+                kind="setting"))
         elif topo.name == TOPOLOGY_CS_BTW:
             other_channel = CS_CHANNEL_795 if params.get("cs_channel") == CS_CHANNEL_917 else CS_CHANNEL_917
             other_params = dict(params)
@@ -4662,14 +5114,19 @@ class FWMScheme(Scheme):
                     "zeeman_participation_penalty", 1.0),
                 w_pump=params.get("pump_waist_um", W_PUMP * 1e6) * 1e-6,
                 w_probe=params.get("probe_waist_um", W_PROBE * 1e6) * 1e-6,
-                qe=params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0,
-                detection_efficiency=_detection_efficiency_from_params(params),
+                qe=(params.get("qe_pct", QE_DETECTOR * 100.0) / 100.0
+                    if params.get("legacy_gain_calibration_fixture", False) else 1.0),
+                detection_efficiency=(_detection_efficiency_from_params(params)
+                                      if params.get("legacy_gain_calibration_fixture", False) else 1.0),
                 floquet_order=params.get("floquet_order", SEEDED_FLOQUET_ORDER),
                 phase_detail=fidelity_settings["phase_detail"],
                 pump_probe_angle_deg=params.get(
                     "seeded_angle_deg", SEEDED_PHASE_ANGLE_DEG),
                 model_fidelity=fidelity,
-                gain_closure_enabled=params.get("gain_closure_enabled", True),
+                gain_closure_enabled=params.get("gain_closure_enabled", False),
+                legacy_gain_calibration_fixture=params.get("legacy_gain_calibration_fixture", False),
+                legacy_mean_field_fixture=params.get(
+                    "legacy_mean_field_fixture", False),
                 velocity_step=fidelity_settings["velocity_step"],
                 velocity_cutoff=fidelity_settings.get("velocity_cutoff", 3.0),
                 # Dense 0.4 MHz windows can hold ~2 MHz gain structure that an
@@ -4707,40 +5164,106 @@ class FWMScheme(Scheme):
                 "minus": dict(color="#1f77b4", label="minus Raman branch"),
                 "plus": dict(color="#ff7f0e", label="plus Raman branch"),
             }
+            has_passive_readout = any(
+                "T_canonical_small_signal" in full[key] for key in styles)
+            measured_readouts = {}
             for key, style in styles.items():
                 spec = full[key]
+                if params.get("measured_gain_calibration", False):
+                    measured_readouts[key] = _measured_gain_reference_readout(
+                        spec, enabled=True,
+                        seed_input_assumption=params.get("seed_input_assumption", ""))
                 aG.plot(spec["probe_axis_GHz"], spec["G_s"], lw=1.4, **style)
-                noise_db = spec["gain_referred_noise_dB"]
-                excess_noise = _seeded_excess_noise(spec["G_s"], params)
-                if np.any(np.asarray(excess_noise) != 0.0):
-                    noise_db = observables.add_source_excess_noise_dB(
-                        noise_db, spec["eta"], excess_noise)
+                if "T_canonical_small_signal" in spec:
+                    noise_db = _seeded_passive_l1_readout(spec, params)[
+                        "passive_l1_with_excess_noise_dB"]
+                else:
+                    noise_db = spec["gain_referred_noise_dB"]
                 aS.plot(spec["probe_axis_GHz"], noise_db, lw=1.4, **style)
             aG.axhline(1.0, color="black", lw=0.6)
-            aG.set_ylabel("Seed gain G_s")
+            aG.set_ylabel("Atomic probe gain G_s" if measured_readouts else "Seed gain G_s")
             stored_detail = full["minus"].get("model_fidelity", "unknown")
             title = f"Solver detail: {FIDELITY_LABELS.get(stored_detail, stored_detail)}"
-            if ((params.get("excess_noise_mode") or NOISE_CONSTANT) == NOISE_GAIN_PROPORTIONAL
-                    or float(params.get("excess_noise", 0.0)) != 0.0):
-                title += f",  {_seeded_noise_caption(params)}"
+            title += f",  {_seeded_noise_caption(params)}"
             aG.set_title(title)
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
-            aS.set_ylabel("Squeezing indicator [dB]")
+            aS.set_ylabel("Squeezing Degree [dB]")
             aS.set_xlabel("Probe detuning from F=2 -> F'=3 [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)
             aG.legend(fontsize=9)
             aS.legend(fontsize=9)
             figF.tight_layout()
+            # Reference ratios have another denominator and are never drawn as
+            # the atomic gain curve in this view. Keep their separate provenance.
+            figF._gabes_measured_gain_reference = measured_readouts
             return figF
+
+        def _compute_measured_comparison(params):
+            observations = fwm_measured_gain.observations()
+            profile = fwm_measured_gain.profile()
+            lower, upper = profile["eom_support_MHz"]
+            frequency = np.linspace(lower, upper, 441)
+            raw_context = {
+                "D_GHz": params.get("opd"),
+                "temperature_K": params.get("temp_c", np.nan)+273.15,
+                "input_pump_power_W": params.get("pump_mw", np.nan)*1e-3,
+                "input_seed_power_W": params.get("probe_uw", np.nan)*1e-6,
+                "w_pump_m": params.get("pump_waist_um", np.nan)*1e-6,
+                "w_probe_m": params.get("probe_waist_um", np.nan)*1e-6,
+                "cell_length_m": params.get("cell_mm", np.nan)*1e-3,
+                "pump_probe_angle_deg": params.get("seeded_angle_deg"),
+                "branch": DEFAULT_BRANCH,
+                "legacy_mean_field_fixture": params.get("legacy_mean_field_fixture", False),
+                "gain_closure": {"historical_fixture_requested": params.get(
+                    "legacy_gain_calibration_fixture", False)},
+            }
+            gate = fwm_measured_gain.context_eligibility(
+                _measured_gain_context(raw_context, params.get("seed_input_assumption", "")),
+                enabled=params.get("measured_gain_calibration", False))
+            return {"observations": observations,
+                    "curve": fwm_measured_gain.reference_curve(frequency),
+                    "profile": profile, "current_context": gate}
+
+        def _render_measured_comparison(data, params=None):
+            import matplotlib.pyplot as plt
+            figure, axis = plt.subplots(figsize=(8.5, 4.8))
+            measurements, curve = data["observations"], data["curve"]
+            for arm, color, marker in (("probe", "#1f77b4", "o"),
+                                       ("conjugate", "#ff7f0e", "s")):
+                axis.scatter(measurements["eom_MHz"], measurements[f"{arm}_ratio"],
+                             color=color, marker=marker, s=28,
+                             label=f"{arm.capitalize()} measurements")
+                axis.plot(curve["eom_MHz"], curve[f"measured_gain_{arm}"],
+                          color=color, lw=1.6, label=f"{arm.capitalize()} interpolation")
+            axis.set_xlim(*data["profile"]["eom_support_MHz"])
+            axis.set_yscale("log")
+            axis.ticklabel_format(axis="x", useOffset=False)
+            axis.set_xlabel("EOM frequency [MHz]")
+            axis.set_ylabel("Pump-on output / pump-off seed detector reference")
+            axis.set_title("2026-10-13 measured gain reference\n"
+                           "Node agreement by construction; no independent prediction validation")
+            axis.grid(alpha=0.3)
+            axis.legend(fontsize=9, ncol=2)
+            figure.tight_layout()
+            figure._gabes_measured_gain_reference = data
+            return figure
 
         return [ExtraView(
             key="Full probe scan (−8 to 12 GHz, slow)",
             description="Runs both Raman branches using the selected geometry and "
                         "solver detail.",
             compute=_compute_full, render=_render_full,
+            render_with_params=True,
+        ), ExtraView(
+            key="2026-10-13 measured gain comparison",
+            description="23 measured pump-off detector-reference ratios and their log-PCHIP interpolation, "
+                        "3022–3044 MHz only. Reference apparatus: 113 °C, nominal blue OPD ≈1 GHz, "
+                        "pump 294.804 mW. Node agreement is by construction; no atomic gain or NF calibration.",
+            compute=_compute_measured_comparison, render=_render_measured_comparison,
+            param_keys=("measured_gain_calibration", "seed_input_assumption"),
             render_with_params=True,
         )]
 
@@ -4755,7 +5278,11 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
                    phase_detail=PHASE_BALANCED,
                    pump_probe_angle_deg=SEEDED_PHASE_ANGLE_DEG,
                    model_fidelity=None,
-                   gain_closure_enabled=True,
+                   gain_closure_enabled=False,
+                   legacy_gain_calibration_fixture=False,
+                    legacy_mean_field_fixture=False,
+                   measured_gain_calibration=False,
+                   seed_input_assumption="",
                    velocity_step=4.0, velocity_cutoff=3.0,
                    response_method=RESPONSE_GRID,
                    scan_tolerance_dB=SCAN_TOLERANCE_DB,
@@ -4791,6 +5318,10 @@ def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,
         pump_probe_angle_deg=pump_probe_angle_deg,
         model_fidelity=model_fidelity,
         gain_closure_enabled=gain_closure_enabled,
+        legacy_gain_calibration_fixture=legacy_gain_calibration_fixture,
+        legacy_mean_field_fixture=legacy_mean_field_fixture,
+        measured_gain_calibration=measured_gain_calibration,
+        seed_input_assumption=seed_input_assumption,
         transit_rate=transit_rate,
         eom_residual_carrier_power=eom_residual_carrier_power,
         eom_other_sidebands_power=eom_other_sidebands_power,

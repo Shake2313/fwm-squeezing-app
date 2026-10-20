@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -79,17 +80,17 @@ _tz = getattr(np, "trapezoid", getattr(np, "trapz", None))
 
 
 def test_hyperfine_autood_absolute_scale():
-    """Full-D1 peak OD reproduces the lab-validated AutoOD value (≈0.318) at
+    """Full-D1 peak OD follows the corrected thermal normalization (about 0.545) at
     50 °C / 12.5 mm — pins the ported CG/density absolute scale."""
     od = ODScheme()
     raw = od.compute(_params(od, model="85Rb D1 hyperfine", temp_c=50, cell_mm=12.5))
     OD = observables.optical_density(raw["alpha"], raw["L"])
-    assert 0.30 <= np.nanmax(OD) <= 0.33
+    assert 0.53 <= np.nanmax(OD) <= 0.56
 
 
 def test_hyperfine_group_strength_ratio():
-    """Integrated absorption of the F=3 vs F=2 ground group = Σp_F·C_F² ratio
-    = 49/25 ≈ 1.96 (validated relative line strengths), shape-independent."""
+    """Integrated absorption of the F=3 vs F=2 ground group = ΣC_F² ratio
+    = 7/5 = 1.4 (thermal ground-manifold populations), shape-independent."""
     od = ODScheme()
     raw = od.compute(_params(od, model="85Rb D1 hyperfine", temp_c=60, cell_mm=12.5))
     xg = raw["scan"] / (2 * np.pi) / 1e9                     # GHz
@@ -97,7 +98,7 @@ def test_hyperfine_group_strength_ratio():
     mid = 2.4                                                # between the two groups
     g3 = _tz(a[xg < mid], xg[xg < mid])                      # F=3 lines (0.70, 1.07)
     g2 = _tz(a[xg >= mid], xg[xg >= mid])                    # F=2 lines (3.74, 4.10)
-    assert abs((g3 / g2) / (49.0 / 25.0) - 1.0) < 0.03
+    assert abs((g3 / g2) / (7.0 / 5.0) - 1.0) < 0.03
 
 
 def test_hyperfine_self_broadening_monotone():
@@ -171,6 +172,78 @@ def test_lambda_beam_angle_mismatch_broadens_warm_eit():
     assert raw1["two_photon_k_ratio"] > 0.009
     assert T1[ic1] < 0.5 * T0[ic0]
     assert window_fwhm(x1, T1, ic1) > 5.0 * window_fwhm(x0, T0, ic0)
+
+
+@pytest.mark.parametrize("mode", ["eit", "at", "cpt"])
+@pytest.mark.parametrize("compiled", [False, True])
+def test_lambda_cold_spectrum_is_independent_of_beam_angle(mode, compiled, monkeypatch):
+    from gabes import kernels
+
+    if compiled and not kernels.available():
+        pytest.skip("Numba kernel unavailable")
+    monkeypatch.setattr(kernels, "NUMBA_AVAILABLE", compiled)
+    sc = schemes.get(mode)
+    params = _params(sc, doppler="off", coupling_detuning_mhz=2.7)
+    straight = sc.compute(dict(params, beam_angle_mrad=0.0))
+    angled = sc.compute(dict(params, beam_angle_mrad=10.0))
+    assert np.array_equal(straight["scan"], angled["scan"])
+    np.testing.assert_allclose(
+        straight["chi_bar"], angled["chi_bar"], rtol=1e-12, atol=1e-14)
+
+
+@pytest.mark.parametrize("doppler_on", [False, True])
+@pytest.mark.parametrize("compiled", [False, True])
+def test_lambda_angle_response_matches_explicit_stationary_hamiltonians(
+        doppler_on, compiled, monkeypatch):
+    """Separate probe scan and velocity shifts in an independent complex solve.
+
+    This verifies the retained one-dimensional velocity model, not the missing
+    transverse Maxwell average or an absolute alignment-tolerance prediction.
+    """
+    from gabes import atoms, core, doppler, kernels
+    from gabes.schemes.absorption import PROBE_RABI
+
+    if compiled and not kernels.available():
+        pytest.skip("Numba kernel unavailable")
+    monkeypatch.setattr(kernels, "NUMBA_AVAILABLE", compiled)
+    sc = schemes.get("eit")
+    params = _params(
+        sc, doppler="on" if doppler_on else "off", beam_angle_mrad=10.0,
+        coupling_detuning_mhz=2.7)
+    detunings = 2 * np.pi * 1e6 * np.array([-11.0, -0.7, 0.0, 2.7, 8.0])
+    monkeypatch.setattr(sc, "_scan", lambda *args, **kwargs: detunings)
+    raw = sc.compute(params)
+    gamma = raw["gamma"]
+    probe = PROBE_RABI * gamma
+    atom = atoms.lambda3(
+        gamma=gamma, gamma_gg=raw["buffer_ground_relax_khz"] * 2 * np.pi * 1e3)
+    if doppler_on:
+        # Natural Rb's scalar medium uses abundance-weighted mass.
+        from gabes.schemes.absorption import _medium_from_params
+        medium = _medium_from_params(params)
+        v, weights = doppler.velocity_grid(
+            raw["T"], mass=medium["mass"], dv=2.0, cutoff_sigma=4.0)
+    else:
+        v, weights = np.zeros(1), np.ones(1)
+    shifts = raw["k_vec"] * v
+    expected = []
+    trace = np.eye(3).ravel()
+    rhs = np.zeros((v.size, 9), dtype=complex)
+    rhs[:, 0] = 1.0
+    for scan in detunings:
+        matrices = []
+        for kv in shifts:
+            H = np.zeros((3, 3), dtype=complex)
+            H[1, 1] = raw["Dc"] - scan + raw["two_photon_k_ratio"] * kv
+            H[2, 2] = -scan + kv
+            H[0, 2] = H[2, 0] = probe / 2
+            H[1, 2] = H[2, 1] = raw["coupling_rabi_mhz"] * 2 * np.pi * 1e6 / 2
+            matrices.append(core.build_liouvillian(H, atom))
+        matrices = np.asarray(matrices)
+        matrices[:, 0, :] = trace
+        rho = np.linalg.solve(matrices, rhs[..., None])[..., 0].reshape(-1, 3, 3)
+        expected.append(np.dot(weights, rho[:, 2, 0]) / probe)
+    np.testing.assert_allclose(raw["chi_bar"], expected, rtol=1e-10, atol=1e-16)
 
 
 def test_eit_transparency():

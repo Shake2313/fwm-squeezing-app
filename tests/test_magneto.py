@@ -302,6 +302,40 @@ def test_normalization_convention_and_absolute_scale_status_are_reported():
             == "external validation required")
 
 
+def test_nmor_plane_rotation_requires_linear_input():
+    sc = schemes.get("magneto")
+    p = _fast_defaults(sc)
+    p.update(signal_type="NMOR rotation", scan_points=21)
+    for angle, expected in ((0.0, "linear-input approximation"),
+                            (15.0, "unsupported for elliptical input"),
+                            (44.9, "unsupported for elliptical input"),
+                            (45.0, "undefined for circular input")):
+        p["qwp_deg"] = angle
+        raw = sc.compute(p)
+        view = sc.headless_observables(raw, p)
+        metrics = {metric["label"]: metric for metric in view["metrics"]}
+        assert metrics["Rotation readout status"]["value"] == expected
+        rotation_labels = {"Rotation at B=0", "Slope dtheta/dB", "Peak |rotation|"}
+        if angle == 0.0:
+            assert rotation_labels <= metrics.keys()
+            assert metrics["Slope dtheta/dB"]["tier"] == "hero"
+        else:
+            assert not rotation_labels.intersection(metrics)
+            assert metrics["Rotation readout status"]["tier"] == "hero"
+            assert "not a polarization-plane rotation" in view["tables"][0]["markdown"]
+
+
+def test_circular_nmor_figure_labels_birefringence_as_diagnostic():
+    sc = schemes.get("magneto")
+    p = _fast_defaults(sc)
+    p.update(signal_type="NMOR rotation", qwp_deg=45.0, scan_points=21)
+    view = sc.observables(sc.compute(p), p)
+    assert view["figure"].axes[0].get_ylabel() == (
+        "Circular-birefringence diagnostic  [mrad]")
+    import matplotlib.pyplot as plt
+    plt.close(view["figure"])
+
+
 def test_paraffin_linear_qwp_gives_zero_field_dip():
     sc = schemes.get("magneto")
     p = _fast_defaults(sc)

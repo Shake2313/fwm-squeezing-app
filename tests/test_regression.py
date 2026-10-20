@@ -45,6 +45,8 @@ def _spectrum(cfg):
         coarse_points=121, fine_points=0,
         scan_min=center - WINDOW_GHZ, scan_max=center + WINDOW_GHZ,
         velocity_step=5.0, velocity_cutoff=3.0, branch=-1,
+        # This sealed artifact predates the absorption-floor/carrier correction.
+        legacy_mean_field_fixture=True,
     )
 
 
@@ -215,7 +217,7 @@ def test_fwm_defaults_match_sim_preset():
     defaults = scheme.defaults()
     sim = scheme.recommended_defaults(defaults)[fwm.MODE_SEEDED]
     for key in ("opd", "tpd", "temp_c", "pump_mw", "probe_uw", "loss_pct",
-                "detection_eff_pct",
+                "after_cell_eff_pct", "qe_pct", "seed_classical_rin_scaled",
                 "line_strength", "mode_overlap_penalty", "polarization_penalty",
                 "zeeman_participation_penalty"):
         assert defaults[key] == sim[key]

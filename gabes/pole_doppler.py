@@ -27,6 +27,8 @@ The eigenproblem is delegated to LAPACK through NumPy on a small thread pool;
 the Schur complements, residues and pole sums run in compiled kernels when Numba
 is available and in NumPy otherwise.  :func:`residues_many` pools the
 eigenproblems of several systems, so small scan batches still run in parallel.
+:class:`ShiftInvertSystem` expands about a regular detuning instead of
+eliminating the S-null block, for systems where that block alone is singular.
 :func:`floquet_real_form` builds the real system for a finite-Floquet steady
 state whose couplings are adjoint partners.
 """
@@ -237,6 +239,102 @@ def residues_many(requests):
         lam, V = eig_of[index]
         out.append(PoleResidues(lam, system._residues(np.ascontiguousarray(V), g, weff), c0))
     return out
+
+
+def _pooled_rows(fn, rows):
+    """``fn(slice)`` over row chunks on the shared pool (LAPACK releases the GIL)."""
+    chunk = max(_MIN_EIG_CHUNK, math.ceil(rows / _POOL_WORKERS))
+    parts = [slice(i, min(i + chunk, rows)) for i in range(0, rows, chunk)]
+    if len(parts) <= 1 or _POOL_WORKERS == 1:
+        return [fn(part) for part in parts]
+    return list(_pool().map(fn, parts))
+
+
+class ShiftInvertSystem:
+    """Pole–residue factory for ``(A00 + t*A01 - D*S) x = rhs`` about a regular ``D0``.
+
+    :class:`AffineShiftSystem` eliminates the coordinates ``D`` does not touch and
+    so needs that block to be invertible.  It is singular when those coordinates
+    have no relaxation of their own, e.g. Zeeman populations coupled only through
+    the optical coherences.  With ``A0 = A00 + t*A01 - D0*S``,
+    ``U = A0^-1 S[:, R]``, ``K = U[R]`` and ``x0 = A0^-1 rhs``::
+
+        x(D) = x0 + eps * U (I - eps*K)^-1 x0[R],     eps = D - D0,
+
+    so an eigenpair ``K V = V diag(mu)`` gives poles ``lam = D0 + 1/mu`` with
+    ``res = -(W U V) * (V^-1 x0[R]) / mu**2`` and
+    ``c0 = W x0 - sum_k (W U V) * (V^-1 x0[R]) / mu``.  Only ``A0`` must be
+    regular.  ``A00``, ``A01``, ``S`` and ``rhs`` must be real; readouts may be
+    complex.  Linear algebra runs in LAPACK on the shared thread pool.
+    """
+
+    def __init__(self, A00, A01, S, rhs, readouts):
+        A00 = np.asarray(A00)
+        A01 = np.asarray(A01)
+        S = np.asarray(S)
+        rhs = np.asarray(rhs)
+        for name, arr in (("A00", A00), ("A01", A01), ("S", S), ("rhs", rhs)):
+            if np.iscomplexobj(arr):
+                raise TypeError(f"{name} must be real")
+        readouts = np.atleast_2d(np.asarray(readouts, dtype=np.complex128))
+        n = A00.shape[0]
+        if A00.shape != (n, n) or A01.shape != (n, n) or S.shape != (n, n):
+            raise ValueError("A00, A01 and S must be square with equal size")
+        if rhs.shape != (n,) or readouts.shape[1] != n:
+            raise ValueError("rhs/readout length must match the system size")
+        R = np.flatnonzero(np.any(S != 0.0, axis=0))
+        if R.size == 0:
+            raise ValueError("S has no support; the response does not depend on D")
+        self.size = n
+        self.R = R
+        self.A00 = np.ascontiguousarray(A00, dtype=np.float64)
+        self.A01 = np.ascontiguousarray(A01, dtype=np.float64)
+        self.S = np.ascontiguousarray(S, dtype=np.float64)
+        self.block = np.ascontiguousarray(np.column_stack((S[:, R], rhs)), dtype=np.float64)
+        self.W = readouts
+
+    def residues(self, t, D0, pole_limit=math.inf):
+        """Pole–residue rows for the scan parameters ``t``, expanded about ``D0``.
+
+        Eigenvalues ``mu`` at rounding level, or with a pole farther than
+        ``pole_limit`` from ``D0``, are dropped: such a mode adds only a term
+        linear in ``D - D0`` that a bounded response cannot carry.
+        """
+        t = np.ascontiguousarray(np.atleast_1d(t), dtype=np.float64)
+        r, D0 = self.R.size, float(D0)
+        n_ro = self.W.shape[0]
+        if t.size == 0:
+            return PoleResidues(np.empty((0, r)), np.empty((0, n_ro, r)), np.empty((0, n_ro)))
+        sol = self._solve(t, D0, self.block)
+        U, x0 = sol[:, :, :r], sol[:, :, r]
+        mu, V = _eig_stacks([np.ascontiguousarray(U[:, self.R, :])])[0]
+        a = np.einsum("on,bnr->bor", self.W, U) @ V
+        b = np.linalg.solve(V, x0[:, self.R, None].astype(np.complex128))[:, :, 0]
+        regular = ((np.abs(mu) > 1e-13 * np.max(np.abs(mu), axis=1, keepdims=True))
+                   & (np.abs(mu) * float(pole_limit) > 1.0))
+        inv_mu = np.where(regular, 1.0 / np.where(regular, mu, 1.0), 0.0)
+        ab = a * b[:, None, :]
+        res = -ab * inv_mu[:, None, :] ** 2
+        c0 = x0 @ self.W.T - np.sum(ab * inv_mu[:, None, :], axis=2)
+        lam = np.where(regular, D0 + inv_mu, D0 + 1e30j)     # dropped modes carry no residue
+        return PoleResidues(lam, res, c0)
+
+    def direct(self, t, D):
+        """Readouts ``W x`` of a direct solve at one detuning ``D`` (for guards)."""
+        t = np.ascontiguousarray(np.atleast_1d(t), dtype=np.float64)
+        if t.size == 0:
+            return np.empty((0, self.W.shape[0]), dtype=np.complex128)
+        return self._solve(t, D, self.block[:, -1:])[:, :, 0] @ self.W.T
+
+    def _solve(self, t, D, block):
+        """``(A00 + t*A01 - D*S)^-1 block`` for every row, pooled over threads."""
+        base = self.A00 - float(D) * self.S
+
+        def solve(part):
+            A = base[None] + t[part, None, None] * self.A01[None]
+            return np.linalg.solve(A, np.broadcast_to(block, (A.shape[0],) + block.shape))
+
+        return np.concatenate(_pooled_rows(solve, t.size))
 
 
 def floquet_real_form(L, L_t, Cp, S, n_f, omega, omega_t, n_levels, readouts):

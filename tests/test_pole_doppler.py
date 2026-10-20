@@ -224,3 +224,89 @@ def test_affine_shift_system_validates_its_inputs():
         pole_doppler.AffineShiftSystem(eye + 0j, eye, eye, np.ones(3), np.ones((1, 3)))
     with pytest.raises(ValueError):
         pole_doppler.AffineShiftSystem(eye, eye, np.zeros((3, 3)), np.ones(3), np.ones((1, 3)))
+    with pytest.raises(TypeError):
+        pole_doppler.ShiftInvertSystem(eye + 0j, eye, eye, np.ones(3), np.ones((1, 3)))
+    with pytest.raises(ValueError):
+        pole_doppler.ShiftInvertSystem(eye, eye, np.zeros((3, 3)), np.ones(3), np.ones((1, 3)))
+
+
+def _damped_shift_system(rng, n, r):
+    """Real (A00 + t*A01 - D*S) x = rhs; D rotates r/2 damped coherence pairs."""
+    A00 = 0.3 * rng.normal(size=(n, n)) - 2.0 * np.eye(n)
+    A01 = 0.1 * rng.normal(size=(n, n))
+    S = np.zeros((n, n))
+    for k in range(0, r, 2):
+        S[k, k + 1], S[k + 1, k] = -1.0, 1.0
+    rhs = rng.normal(size=n)
+    W = rng.normal(size=(2, n)) + 1j * rng.normal(size=(2, n))
+    return A00, A01, S, rhs, W
+
+
+def _direct(A00, A01, S, rhs, W, t, D):
+    return np.array([W @ np.linalg.solve(A00 + ti * A01 - D * S, rhs) for ti in t])
+
+
+def test_shift_invert_system_matches_direct_solves_and_the_schur_form():
+    A00, A01, S, rhs, W = _damped_shift_system(np.random.default_rng(7), n=10, r=4)
+    t = np.array([-0.5, 0.0, 0.8])
+    shift = pole_doppler.ShiftInvertSystem(A00, A01, S, rhs, W).residues(t, 0.45)
+    schur = pole_doppler.AffineShiftSystem(A00, A01, S, rhs, W).residues(t)
+    for D in (-1.3, 0.2, 2.7):
+        direct = _direct(A00, A01, S, rhs, W, t, D)
+        np.testing.assert_allclose(shift.value_at(D), direct, rtol=1e-9)
+        np.testing.assert_allclose(schur.value_at(D), direct, rtol=1e-9)
+    np.testing.assert_allclose(shift.gaussian_mean(0.3, 1.1),
+                               schur.gaussian_mean(0.3, 1.1), rtol=1e-9)
+
+
+def _open_lambda(delta=0.7, omega=0.8, gamma=1.0):
+    """Λ atom whose ground populations relax only through the optical coherences.
+
+    Both ground levels decay-feed from |e> and are pumped by the same field, with no
+    ground relaxation: the Doppler-free block (populations and the ground coherence)
+    is singular, yet the steady state is unique and bounded in the detuning.
+    """
+    from gabes import core
+
+    n = 3
+    H = np.zeros((n, n), dtype=complex)
+    H[1, 1] = delta
+    H[0, 2] = H[2, 0] = H[1, 2] = H[2, 1] = omega / 2
+    L = core.comm_super(H)
+    eye = np.eye(n)
+    for ground in (0, 1):
+        C = np.zeros((n, n), dtype=complex)
+        C[ground, 2] = np.sqrt(0.5 * gamma)
+        CdC = C.conj().T @ C
+        L = L + np.kron(C, C.conj()) - 0.5 * np.kron(CdC, eye) - 0.5 * np.kron(eye, CdC.T)
+    projector_e = np.diag([0.0, 0.0, 1.0]).astype(complex)
+    projector_g2 = np.diag([0.0, 1.0, 0.0]).astype(complex)
+    U = core.hermitian_basis(n)
+    Uh = U.conj().T
+    A00 = (Uh @ L @ U).real
+    A01 = (Uh @ core.comm_super(projector_g2) @ U).real
+    S = (Uh @ core.comm_super(projector_e) @ U).real
+    for A in (A00, A01, S):
+        A[0] = 0.0
+    A00[0, :n] = 1.0
+    rhs = np.zeros(n * n)
+    rhs[0] = 1.0
+    W = U[[2 * n + 0, 2 * n + 1]]                 # rho_(e,g1), rho_(e,g2)
+    return A00, A01, S, rhs, W
+
+
+def test_shift_invert_system_needs_no_regular_doppler_free_block():
+    A00, A01, S, rhs, W = _open_lambda()
+    N = np.flatnonzero(~np.any(S != 0.0, axis=0))
+    assert np.linalg.matrix_rank(A00[np.ix_(N, N)]) < N.size
+    t = np.array([0.0, 0.5])
+    poles = pole_doppler.ShiftInvertSystem(A00, A01, S, rhs, W).residues(t, 0.3)
+    for D in (-3.0, -0.4, 0.0, 1.1, 5.0):
+        np.testing.assert_allclose(poles.value_at(D), _direct(A00, A01, S, rhs, W, t, D),
+                                   rtol=1e-9, atol=1e-12)
+    nodes = np.linspace(-6.0, 6.0, 241)
+    weights = np.exp(-0.5 * (nodes / 2.0) ** 2)
+    weights /= weights.sum()
+    expected = sum(w * _direct(A00, A01, S, rhs, W, t, D) for D, w in zip(nodes, weights))
+    np.testing.assert_allclose(poles.discrete_mean(nodes, weights), expected,
+                               rtol=1e-8, atol=1e-12)

@@ -1,0 +1,12 @@
+{
+  "origin": "source_evidence",
+  "command": "python -m pytest -q",
+  "started_utc": "2026-10-15T04:30:58.585351+00:00",
+  "completed_utc": "2026-10-15T04:45:00.524698+00:00",
+  "exit_code": 0,
+  "seconds": 841.6803906999994,
+  "source_files": 252,
+  "changed_source_paths_during_run": [],
+  "source_frozen": true,
+  "log": "full_pytest.log"
+}

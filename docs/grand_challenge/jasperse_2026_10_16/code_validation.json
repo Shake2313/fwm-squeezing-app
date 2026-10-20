@@ -1,0 +1,47 @@
+{
+  "schema": "gabes-jasperse-code-validation-v1",
+  "origin": "source_evidence",
+  "date": "2026-10-16",
+  "command": "python -m pytest -q",
+  "passed": 2392,
+  "skipped": 4,
+  "warnings": 4,
+  "failed": 0,
+  "seconds": 868.0,
+  "full_regression": {
+    "passed": 2392,
+    "skipped": 4,
+    "warnings": 4,
+    "failed": 0,
+    "seconds": 868.0,
+    "receipt": "release_full_pytest_receipt.json",
+    "log": "release_full_pytest.log",
+    "python_source_files": 263,
+    "source_frozen": true
+  },
+  "first_attempt": {
+    "receipt": "full_pytest_receipt.json",
+    "passed": 2384,
+    "failed": 8,
+    "skipped": 4,
+    "cause": "Stale UI/detector contract expectations; only tests/test_fwm_generic.py and one metric label in tests/test_fwm_floquet.py changed before release run. Production Python unchanged."
+  },
+  "targeted_after_review": {
+    "zero_detector_and_reference_tests": 38,
+    "migrated_generic_file": 36,
+    "floquet_label_and_gate": 1
+  },
+  "gc_impact": "release_gc_impact_comparison.json",
+  "ui_validation": "ui_validation.json",
+  "post_validation_integrity": "post_validation_integrity.json",
+  "dependency_validation": "dependency_validation.json",
+  "scientific_scope": "Reduced local finite-seed absorption/emission plus conditional static NF; not full microscopic field covariance, spatial/depletion/Zeeman/RF or experimental squeezing certification. Official milestones0/4.",
+  "closure_document_checks": {
+    "docs_consistency_tests_passed": 4,
+    "seconds": 0.18,
+    "json_ledger_master_links_verified": true,
+    "official_milestones_completed": 0,
+    "next_turn_new_gain_data_reminder_recorded": true,
+    "sealed_artifacts_after_closure_preserved": 37
+  }
+}

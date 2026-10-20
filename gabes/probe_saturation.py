@@ -1,6 +1,6 @@
 """Finite-power Gaussian-probe saturation helpers for alkali D-line OD/SAS.
 
-The numerical model follows ``references/AutoOD-NatRbD2``:
+The numerical model follows ``references/AutoOD-Rb``:
 
 * ``I0 = 2 P / (pi w^2)`` for a Gaussian 1/e^2 intensity waist;
 * each hyperfine transition has a resonant two-level saturation parameter;
@@ -12,8 +12,8 @@ The numerical model follows ``references/AutoOD-NatRbD2``:
 
 The Gaussian intensity and propagation layer is species independent.  The
 OD/SAS scheme supplies each line's optical frequency, natural/effective width,
-and transition-resolved weak-probe profiles.  Rb D2 lies inside the supplied
-calculator's isotope-composition scope; D1 and Cs reuse the same closed-two-level
+and transition-resolved weak-probe profiles.  Rb D2 has pinned software-reference
+regression anchors; D1 and Cs reuse the same closed-two-level
 construction only as explicitly labelled generalized estimates.  The scheme
 also documents the separate approximation used when a counter-propagating pump
 is present.

@@ -1,0 +1,22 @@
+{
+  "schema": "gabes-gc-ast-scope-review-v2",
+  "origin": "AI verification",
+  "prepatch_fwm_sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+  "current_fwm_sha256": "b03b7e0debf7748c6fe25f56c3a21af743398a4e5def3f1ad612d4d303b54562",
+  "raw_changed_nodes": [
+    "atoms",
+    "constants",
+    "hyperfine"
+  ],
+  "bound_changed_nodes": [],
+  "off_path_carrier_function": "_optical_k_from_offset",
+  "adversarial_static_controls": {
+    "gc_pump_hamiltonian_sign_inversion_detected": true,
+    "gc_import_relative_level_change_detected": true,
+    "gc_import_alias_change_detected": true,
+    "unrelated_grouped_alias_does_not_change_gc_binding": true,
+    "off_path_optical_carrier_doubling_is_outside_gc_closure": true
+  },
+  "all_controls_passed": true,
+  "scope": "Static dependency classification with effective Hamiltonian/carrier expression mutations. No mutated model is executed; final native numerical payload comparison remains required."
+}

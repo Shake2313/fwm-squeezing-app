@@ -1,0 +1,1448 @@
+{
+  "provenance": {
+    "marker": "⟦AI⟧",
+    "origin": "AI independent recheck",
+    "adoption_status": "Root synthesis pending; only explicitly implemented NMOR gate is code-complete",
+    "source_scope": "Direct user asked reconciliation, one independent reinspection and efficient urgent patches; recommendations are AI-added and are not new human restrictions."
+  },
+  "reviewed_on": "2026-10-19",
+  "cutoff_exclusive": "2026-08-07",
+  "schemes": [
+    3,
+    4
+  ],
+  "report_count": 23,
+  "reports": [
+    "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+    "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md",
+    "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+  ],
+  "report_sha256": {
+    "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md": "5dee9c9a1099f813546a94d984ecf1e325cbf9f1564ae2ff57c16c8db5364bd8",
+    "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md": "4fbfc196cac4e61eeabc012fdb49e6f1f8abf5412e282729743f11d83b4a0f6f",
+    "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md": "54c43ab8d9e842cdfcdf6fcd18bca4a9fa37c679b9e5602d4d6d012fbb5af62e",
+    "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md": "7134e03733f4aa2d1e2b4cd11f6e0df57008ccc034cb643b0b521748d9f4bbd3",
+    "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md": "82c63120e4bd6a9f703abe608d899982f3c131843552ebf562a9cd65c3cb9616",
+    "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md": "80458b79166b0cdfc835c7fd7e44ddd459c68fbb1a277b95fc28fbb45ef4a071",
+    "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md": "99f3ee68e23f8982ad9b84377c5b8eb10febe7ea92c0867aa650af00250a72fb",
+    "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md": "65ea175e929061815c61a68fcbf51ab1604b198608f55c2b15d299b5046f420c",
+    "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md": "d5fd1104be54353876ca270d4f8108d368d9b57fd70ccb2b5ef74a6595b3ab2a",
+    "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md": "ffa1c7151a543a9bd76523d3c1f14444954afeb742bba8ecdc5868bd98c21fdb",
+    "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md": "a52b2bf4147c469146db065a14dbc4fe9ba066b79fcd0a6522b9ff3291b58b08",
+    "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md": "f7c94c9c3549b671c9b553cd407760e51997eae73a599b261a78fa10b00df201",
+    "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md": "240f916df8fea35ac60177d93ae8610368c5f24936e93185f83d5cae87a856d4",
+    "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md": "5714c48d187ac9305a3527523d5308939ed464fba59957703ddbc8a0bf7cde56",
+    "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md": "d58b72eb8d95c7b5c5b9bd5b75b46a15f5d2eeec5ecbc462ac6f8fe8030cdd77",
+    "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md": "3f4245de93386aa701f08dc721844955458286babc6d9fcad4cd7fa95fc8b214",
+    "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md": "6ef661d746ca6f02c73f13d17ec8820d8b5db797906160939631ca36d261e3e7",
+    "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md": "a22440236ab40f041e8d85468b461263b5da3cf73a6d72865a50d017b3c98592",
+    "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md": "ad7fd1c5e030919eb71f7f5db66299579678f6034163bbdb37596cc2ac90d651",
+    "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md": "5ba54105382b3ad932848d83de96a0b029b7876200d863cb4fb40ed6dc7b3cb6",
+    "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md": "6758443f13d27fcb900e00c10dfb1ab0a2c20673e62f0f791f24cb4c98072060",
+    "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md": "e321592d9fa5004c33f8798e777cf7a67af26b5d5014c9f79dc09316cd32daa5",
+    "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md": "5d8dbab26da2e8451c8de7ef834abcab31136bcff3bd9929d1a079e4e9d27a5f"
+  },
+  "evidence_file": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4_probes.json",
+  "repro_script": "docs/daily_report/reconciliation_2026-10-19/verify_schemes_3_4.py",
+  "findings": [
+    {
+      "id": "r3-opacity",
+      "title": "Expose participating opacity and qualify predicted sweeps",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "gabes/schemes/rydberg.py still stores ls=0.001 rather than a named calibrated opacity input.",
+        "Independent same-state remap: ls=0.0005/0.001/0.002 gives 11.781990/6.082387/3.238776 nV/cm/sqrt(Hz); see schemes_3_4_probes.json."
+      ],
+      "existing_ids": [
+        "rydberg-effective-opacity-and-sweep-trust"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Name and expose the effective opacity participation with bounds, source/status and uncertainty; keep atomic line-strength semantics separate.",
+        "Default 0.001 preserves current arrays/readouts within rtol=1e-12.",
+        "Temperature/power optima remain conditional PREDICTED scenarios; include opacity uncertainty and distinguish stationary versus velocity-resolved calibration domains."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "r3-readout",
+      "title": "Add readout-specific resolution, edge and detector visibility diagnostics",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted_with_correction",
+      "current_evidence": [
+        "80 C gives T(0)=1.798922847e-6 while EIT linewidth 0.31 MHz remains a hero.",
+        "AT peak/optimum selection is sampled; detector reference power is recomputed from signal power at each detuning.",
+        "Unresolved static AT splitting does not itself invalidate a finite-IF heterodyne response; low transmission alone is not a calibrated experimental SNR test."
+      ],
+      "existing_ids": [
+        "rydberg-readout-validity-guardrails"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Report contrast, detected power, samples/FWHM, half-height crossings, edge clearance, readout domain and local refinement status.",
+        "Gate each numeric hero on the requirements of that observable; unavailable AT splitting does not by itself suppress valid conditional finite-IF sensitivity.",
+        "When detector noise/calibration is absent, state experimental visibility not assessed rather than inventing an absolute minimum transmission.",
+        "Use one fixed reference arm or one explicit balance detuning; keep the old pointwise balanced envelope only as labelled diagnostic.",
+        "Store RF state, polarization, units, ARC version and reproducible regeneration fixture."
+      ],
+      "status": "needs_decision",
+      "dependencies": [],
+      "decision_required": [
+        "Declare detector-calibrated visibility and default unknown-visibility presentation policy.",
+        "Declare scan-edge and local-refinement hero criteria."
+      ]
+    },
+    {
+      "id": "r3-cache-correctness",
+      "title": "Close stale extra-view key mismatch; preserve unfinished cache work separately",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": [
+        "gabes_ui/plotcard.py filters extra parameters using recompute keys union ExtraView.param_keys; Rydberg declares cell_mm for probe view and live IF/RF/detector/atom-number dependencies for heating view.",
+        "Independent altered-input fixture: IF=200 kHz; QE/path=0.2; cell=20 mm; altered dipole/angular/reference/noise/participation inputs. Both views return exactly equal numeric/string fields for full and actual filtered parameter dictionaries.",
+        "measurement_enbw_hz, microwave-frequency metadata and SAM controls do not enter returned heating/probe-view fields; their omission is not stale-output evidence.",
+        "Existing tests/test_rydberg_eit.py pins key lists and detector/IF phasor reuse. No current 3.5x filtered/direct discrepancy."
+      ],
+      "existing_ids": [
+        "rydberg-extra-view-dependency-correctness"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Retain explicit view dependency keys and current filtered/full parity evidence.",
+        "Transfer the remaining original four-layer cache and no-atomic-recompute acceptance to rydberg-layered-sweep-cache before marking the original correctness scope done."
+      ],
+      "status": "done",
+      "dependencies": [],
+      "registry_action": {
+        "type": "split_scope",
+        "original_id": "rydberg-extra-view-dependency-correctness",
+        "close_scope": "Dependency-key/full-input correctness only",
+        "transfer_unfinished_acceptance_to": "rydberg-layered-sweep-cache"
+      }
+    },
+    {
+      "id": "r3-layered-cache",
+      "title": "Separate atomic spectrum, finite-IF, optical propagation and detector caches",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "The phasor LRU exists, but direct detector-only heating reevaluation still calls self.compute 20 times.",
+        "The probe sweep direct invocation computes 16 spectra; actual app key omits detector-only knobs, so it should not invalidate for them.",
+        "Temperature sweep parses formatted slope/discriminator strings and calls _transmission again after _readout."
+      ],
+      "existing_ids": [
+        "rydberg-extra-view-dependency-correctness"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Atomic spectrum depends on drive/temperature/dephasing inputs, IF changes invalidate only finite-IF response, cell/opacity invalidate propagation, detector/RF conversion/SAM changes invalidate only consumed readout fields.",
+        "After cache warmup, heating detector-only reevaluation performs zero static/finite-IF atomic solves and matches uncached full results.",
+        "Bound memory and protect cached mutable arrays; expose numeric sweep fields directly instead of parsing display strings."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "rydberg-layered-sweep-cache",
+      "effort": "medium"
+    },
+    {
+      "id": "r3-quick-performance",
+      "title": "Use affine finite-IF assembly and scalar-equivalent detector vectorization",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Current _superheterodyne_atomic_phasors still builds one Liouvillian per scan value in a Python list; independent default fixture affine broadcast is array_equal with max abs error 0.",
+        "Current _superheterodyne_readout creates detector/noise/sensitivity objects per each of up to 801 points."
+      ],
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Compare all assembled matrices and final phasors against direct construction over default, detuned, temperature and IF fixtures.",
+        "Vectorized PSN/RIN/electronics/ASD outputs match scalar helper under declared machine-roundoff tolerance, including missing reference and correlated RIN.",
+        "Benchmark end-to-end cold/cache-hit readout separately; assembly-loop speedup alone is not full-scheme speedup."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "rydberg-finite-if-assembly-and-detector-vectorization",
+      "effort": "medium"
+    },
+    {
+      "id": "r3-rho-reuse",
+      "title": "Do not claim free reuse of a density matrix the current pipeline does not retain",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "rejected_as_immediate_patch",
+      "current_evidence": [
+        "The static affine kernel contracts to chi_bar; compute does not retain full scan rho0.",
+        "The finite-IF helper supports supplied steady_state, but a benchmark excluding construction of that supplied state cannot establish total end-to-end savings.",
+        "Optional within-lifetime state reuse remains a profiling candidate inside layered-cache work; no independent immediate correctness item."
+      ],
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "Only promote when a real already-computed same-Liouvillian density matrix is available and total time/memory including its production improves."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    },
+    {
+      "id": "r3-calibration-data",
+      "title": "Keep held-out data and measured receiver transfer as external dependencies",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "analysis/rydberg_cell_heating/example_config.json still contains PENDING EIT/RF/temperature inputs and assumed detector settings.",
+        "Current helpers provide explicit temperature/SAM/dipole/noise units but internal invariants and fitted 1.6 MHz anchor are not held-out validation."
+      ],
+      "existing_ids": [
+        "rydberg-experimental-validation-dataset",
+        "rydberg-readout-transfer-function-validation"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Acquire hashed, unit-labelled spectra/RF/PSD/temperature and gain/phase transfer metadata with named data owner.",
+        "Predeclare calibration/holdout partition and tolerances; validate transmission, contrast, linewidth and field ASD jointly.",
+        "Keep outputs conditional wherever measurements are absent or fail."
+      ],
+      "status": "blocked_external",
+      "dependencies": [],
+      "blocked_on": [
+        "Measured EIT/RF/PSD/temperature data and complex receiver transfer with provenance."
+      ]
+    },
+    {
+      "id": "r3-spatial-polarization",
+      "title": "Retain conditional Zeeman and spatial RF extensions",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted_parked_or_external",
+      "current_evidence": [
+        "Current Rydberg atom is four-level and RF angular factor is scalar; no full Zeeman or spatial RF map.",
+        "A Doppler-on speed patch cannot validate the shared effective opacity; off/on remain distinct calibration/optimization domains."
+      ],
+      "existing_ids": [
+        "rydberg-zeeman-polarization-reference-mode",
+        "rydberg-rf-field-map-import"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Activate Zeeman reference only for a named state/polarization/B geometry and validation dataset.",
+        "RF map import requires hashed external geometry/map, uncertainty, mesh convergence and scalar uniform-map reduction.",
+        "Do not silently replace these with internal 3-D EM or unrestricted line-asymmetry knobs."
+      ],
+      "status": "parked",
+      "dependencies": [],
+      "activation_trigger": "Named validation dataset, geometry/state/polarization inputs and justified runtime budget."
+    },
+    {
+      "id": "r3-doppler-port",
+      "title": "Preserve discrete Maxwell measure when accelerating Rydberg Doppler-on",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "_scan_chi uses current discrete velocity quadrature; default mode is off.",
+        "pole_doppler offers both discrete_mean and continuous gaussian_mean; replacing the measure is a numerical/model contract change."
+      ],
+      "existing_ids": [
+        "rydberg-doppler-on-pole-residue"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "Keep 2 m/s, 4 sigma nodes/weights, coherent phasor averaging and per-row direct guard.",
+        "Doppler-off results stay bitwise unchanged; continuous untruncated mean needs separate convergence/calibration evidence."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "r3-provenance-guide",
+      "title": "Synchronize Rydberg input evidence, user guide and stale static-only docstring",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "tests/test_rydberg_eit.py docstring still says the public UI is static-only despite finite-IF sensitivity.",
+        "User guide and old rydberg.png describe the former static presentation; example base_params combines literature apparatus values with ideal/assumed detector and temperature inputs.",
+        "RF_DIPOLE_STRETCHED_EA0 already names state, polarization, units and ARC3.10.2 in source; missing executable fixture is a reproducibility gap, not absence of any provenance."
+      ],
+      "existing_ids": [
+        "rydberg-effective-opacity-and-sweep-trust",
+        "rydberg-readout-validity-guardrails"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Record source/status per input, preserving REFERENCE versus ASSUMED distinction without elevating an entire block.",
+        "Update guide/figure/docstring for finite-IF, detector budget, temperature, opacity and conditional validity; regenerated figures carry source/config/model metadata."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "rydberg-input-evidence-and-guide-sync",
+      "effort": "small"
+    },
+    {
+      "id": "r3-csv-acquisition",
+      "title": "Preserve or disclose acquisition-order reversals in Rydberg trace import",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "rydberg_experimental_csv sorts and median-merges x duplicates before returning provenance; TraceProvenance has no reversal or branch fields.",
+        "Synthetic -1,0,1,0,-1 sweep becomes x=[-1,0,1], signal=[5,4.5,3], with no assumptions/warning; branch information is lost.",
+        "The completed experimental-csv-calibration-and-sweep-direction item concerns OD/SAS, so its done status does not close this Rydberg gap."
+      ],
+      "existing_ids": [
+        "rydberg-experimental-analysis-report",
+        "experimental-csv-calibration-and-sweep-direction"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Count reversals and forward/reverse samples before sorting in EIT/RF sweeps.",
+        "Retain acquisition branches or explicitly report median merge and hysteresis information loss with provenance.",
+        "Keep PSD frequency sorting semantics distinct from hysteretic parameter scans."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "rydberg-csv-acquisition-order-provenance",
+      "effort": "medium"
+    },
+    {
+      "id": "r3-csv-duplicate",
+      "title": "Do not reintroduce already-completed duplicate-median vectorization",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": [
+        "rydberg_experimental_csv now calls shared _csv_numeric.sort_and_median_duplicates, which uses lexsort and vectorized median indexing; the old per-unique-x Python loop no longer exists."
+      ],
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "Retain duplicate-median parity; no new optimization item."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "r4-closed-physics",
+      "title": "Keep lifetime/elastic separation and light-state normalization closed",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": [
+        "magneto.compute uses natural GAMMA_D1 emission and buffer_gamma/2 as elastic optical dephasing; buffer transit and ground pure dephasing are separate arguments.",
+        "Conditional light-state trace/occupation and local density once are implemented; focused tests cover lifetime/TOC, rate swap, positivity and 1/81 occupation.",
+        "The remaining paraffin double-use and collisional label semantics are narrower new scopes, not evidence that every original correction was absent."
+      ],
+      "existing_ids": [
+        "magneto-dynamics-semantics",
+        "magneto-light-region-normalization"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Preserve existing done histories and invariant tests; add narrower followups without reopening unrelated completed normalization work."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "r4-convergence-zero",
+      "title": "Finish physical-zero, B-grid and reference applicability trust",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Hero readout uses b_ut command-zero index although Hamiltonian uses b_physical_ut.",
+        "Independent offset0.25uT fixture: command-zero T=.7873603043 versus physical-zero .7877886629.",
+        "NMOR 121-point three-point slope -252.147 versus 801-point five-point -321.958 mrad/uT; default five-point alone is still -285.285 (11.4% low).",
+        "Fresh verify_hanle_eit_eia.py prints 0.950/2.305mG vs 0.12/0.20mG and nevertheless says same sub-mG order; buffer3.349mG is labelled reaching2.4mG."
+      ],
+      "existing_ids": [
+        "magneto-observable-convergence-and-trust"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Use interpolated physical-zero reference for heroes; separately name command zero, and with physical zero outside scan show unavailable rather than boundary extrapolation.",
+        "Use converged local odd fit or nested derivative refinement; expose nonconvergence rather than claiming existing 5-point stencil is sufficient.",
+        "Show closed-pair/open-hyperfine/repump model scope and reference line/transition applicability.",
+        "Separate sign/trend PASS from absolute-width CHECK/FAIL with explicit tolerances; preserve reference values, not model-fit labels."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "r4-paraffin-rates",
+      "title": "Separate paraffin exchange from additional in-beam dephasing",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "transit_relax_khz is both gamma_out and light-region gamma_gg; the two-region exchange generator already removes light coherence at gamma_out.",
+        "Independent exchange-only diagnostic changes max chi_probe by35.0421%; it was not applied to production defaults."
+      ],
+      "existing_ids": [
+        "magneto-dynamics-semantics",
+        "paraffin-coated-cell-extensions"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Represent bright/dark exchange and additional in-beam pure dephasing as independent explicitly named quantities.",
+        "Do not silently delete a channel or tune defaults to recover an EIT label; record measured versus assumed defaults.",
+        "Verify exchange-only and added-dephasing zero limits, trace/Hermiticity/positivity, occupation and Doppler parity; reassess affected presets."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "magneto-paraffin-exchange-dephasing-semantics",
+      "effort": "medium"
+    },
+    {
+      "id": "r4-collisional-name",
+      "title": "Match collisional depolarization UI to implemented ground pure dephasing",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "UI label is Collisional depolarization and help claims spin destruction; zeeman_manifold uses ground projectors preserving all ground populations.",
+        "Existing test explicitly verifies zero effect on every population column and gamma_gg loss of off-diagonal coherence."
+      ],
+      "existing_ids": [
+        "magneto-dynamics-semantics"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Rename/document current control as ground pure dephasing while preserving its API alias and numerical behavior.",
+        "If true orientation/alignment destruction is desired, use a separate sourced CP isotropic channel with population-moment tests."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "magneto-ground-dephasing-label-semantics",
+      "effort": "small"
+    },
+    {
+      "id": "r4-nmor-gate",
+      "title": "Suppress unsupported elliptical/circular plane-rotation claims",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "implemented",
+      "current_evidence": [
+        "Current susceptibility scalar assumes linear input; circular light has no plane orientation.",
+        "Patch derives polarization domain from circular drive weights in raw solve inputs: linear retains heroes, elliptical is unsupported, circular angle undefined.",
+        "Diagnostic plot is retained with explicit circular-birefringence label. Atomic response arrays are unchanged."
+      ],
+      "existing_ids": [
+        "magneto-observable-convergence-and-trust"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Linear-input NMOR hero behavior remains.",
+        "QWP15,44.9,45deg do not expose numeric plane-angle/slope/peak heroes and report correct status.",
+        "Circular figure labels scalar as diagnostic."
+      ],
+      "status": "done",
+      "dependencies": [],
+      "proposed_id": "magneto-nmor-polarization-validity",
+      "effort": "small",
+      "patch": [
+        "gabes/schemes/magneto.py",
+        "tests/test_magneto.py"
+      ],
+      "tests": {
+        "command": "python -m pytest -q tests/test_magneto.py tests/test_magneto_doppler.py tests/test_headless_observables.py tests/test_schemes_render.py",
+        "result": "59 passed in 44.26 s"
+      }
+    },
+    {
+      "id": "r4-stokes",
+      "title": "Keep general ellipse orientation/Jones-Stokes as separate optional extension",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted_parked_or_external",
+      "current_evidence": [
+        "Current scheme has no propagated Jones/Stokes output, detector analyser or ellipse orientation. The implemented gate prevents scalar misinterpretation without inventing this model."
+      ],
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Declare weak/thin or self-consistent propagation domain; use known Jones/Stokes fixtures and analyse circular undefined-angle limit before exposing non-linear-input angle."
+      ],
+      "status": "parked",
+      "dependencies": [],
+      "activation_trigger": "Defined polarimetric receiver, propagation approximation and validation fixtures.",
+      "proposed_id": "magneto-jones-stokes-reference",
+      "effort": "medium"
+    },
+    {
+      "id": "r4-preset-truth",
+      "title": "Expand exact-Doppler preset review to EIT and Buffer LCA labels",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Independent current built-ins report crossover for both EIT dip and Buffer LCA, with zero Doppler fallback rows.",
+        "EIA peak and Buffer Hanle preserve expected sign; a blanket failure of all schemes is false."
+      ],
+      "existing_ids": [
+        "magneto-eit-dip-preset-exact-doppler"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Relabel or explicitly flag current crossover regimes; preserve stable identifiers if needed.",
+        "Any retuning uses declared transition/field/relaxation evidence and follows paraffin rate semantics; do not change a rate just to force expected sign."
+      ],
+      "status": "needs_decision",
+      "dependencies": [
+        "magneto-paraffin-exchange-dephasing-semantics"
+      ],
+      "decision_required": [
+        "Choose truthful relabel/status now versus evidence-backed new preset after rate model clarification."
+      ]
+    },
+    {
+      "id": "r4-stale-velocity",
+      "title": "Retire obsolete dense velocity default recommendations",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": [
+        "Current default Doppler path is exact untruncated Maxwell pole average with per-B-row guard; all five independently checked presets had fallback0.",
+        "Current dedicated tests compare exact/forced-fallback/off paths; old9/321/641 velocity-grid default aliasing is superseded.",
+        "The old dense kernel contraction and real-basis affine suggestions already apply in the main exact path; rare fallback/off work can be profiled separately."
+      ],
+      "existing_ids": [
+        "pole-residue-doppler-reuse",
+        "magneto-observable-convergence-and-trust"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "Preserve exact averaging and guards; retain B-grid convergence work.",
+        "Do not restore a 641-class default or duplicate old optimization work without a measured remaining fallback bottleneck."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "r4-lazy-stack",
+      "title": "Build dense B stacks only for off/fallback rows",
+      "source_reports": [
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "compute still eagerly allocates L0_all and Ld_all before deciding exact versus off; normal exact path consumes C_xy/C_z/Cd_xy.",
+        "Fallback solve closes over those arrays; each121-point8-level complex stack is7.5625MiB,15.125MiB combined."
+      ],
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Assemble only requested rows inside off/fallback solve with identical broadcast arithmetic.",
+        "Compare normal exact, forced fallback, and off paths; record peak memory and end-to-end time."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "magneto-lazy-fallback-b-stack",
+      "effort": "small"
+    },
+    {
+      "id": "r4-stale-artifacts",
+      "title": "Regenerate or explicitly retire stale Hanle system-study artifacts",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Saved resonant_hanle_squeezing_reference.md contains T=.9962 and slope.002533/uT at B=-.04uT.",
+        "Independent current default compute_hanle(0) at same B gives T=.6425600522 and slope.0679216371/uT; full exact-Doppler source changed beyond historical coarse-grid probes.",
+        "Saved report lacks generation commit/dirty/source/config/model hashes; guide Hanle image predates normalization and exact averaging."
+      ],
+      "existing_ids": [
+        "app-result-export-and-provenance"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Regenerate affected outputs using an explicit configuration or visibly retire them as historical.",
+        "Emit timestamp, commit/dirty, model/cache version and source/config/input hashes; retain anchor-versus-prediction and absent measured-data statuses.",
+        "Verify saved arrays match fresh computation and avoid claiming absolute sensitivity validation from conditional zero-noise system studies."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "magneto-generated-reference-provenance",
+      "effort": "medium"
+    },
+    {
+      "id": "r4-guide-cleanup",
+      "title": "Update Magneto guide and remove ignored velocity-class controls",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "User guide still describes B-scan times velocity-grid cost and old guide image; current schema removed velocity_classes.",
+        "tests/example/config still pass ignored velocity_classes, making it appear a convergence control.",
+        "Hanle operating scan already reuses raw for readout-only cell length (analysis/...reference.py:908 onward); recommending that as new work is stale."
+      ],
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "Remove obsolete caller/config knob with compatibility note if needed.",
+        "Refresh model scope/runtime method descriptions and sourced figure metadata, without promoting internal tests to held-out experimental validation.",
+        "Keep and test already-implemented cell-length raw-reuse parity instead of adding a second cache."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "magneto-guide-and-obsolete-grid-cleanup",
+      "effort": "small"
+    },
+    {
+      "id": "shared-small-cache",
+      "title": "Profile BLAS controller reuse and immutable angular-momentum cache",
+      "source_reports": [
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "core.blas_single_thread constructs threadpool_limits each call; angular_momentum_matrices allocates for repeated F while zeeman_manifold and Hermitian basis already cache.",
+        "Published report microbenchmark speedups are environment/load dependent and are not correctness urgency."
+      ],
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "For BLAS reuse verify late-loaded libraries, nested contexts, concurrent callers and restoration before use; benchmark complete calls.",
+        "For angular matrices use immutable cached data or defensive copies and mutation regression; never cache mutable arrays unprotected."
+      ],
+      "status": "ready",
+      "dependencies": [],
+      "proposed_id": "shared-blas-and-angular-cache-profile",
+      "effort": "medium"
+    },
+    {
+      "id": "shared-physical-extensions",
+      "title": "Keep sourced collision and geometry/VCC/open-manifold dependencies distinct",
+      "source_reports": [
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Ne broadening remains fixed scalar with no pressure shift; closed hyperfine pair omits other ground manifold/repump.",
+        "Geometry, diffusion, spin destruction and coated transport are not determined by pressure alone; full VCC couples classes and invalidates separable-average assumptions."
+      ],
+      "existing_ids": [
+        "collisional-coefficient-provenance-and-pressure-shift",
+        "geometry-aware-buffer-relaxation-budget",
+        "full-velocity-changing-collision-kernel",
+        "paraffin-coated-cell-extensions"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Keep collision coefficient/pressure-shift existing P1 source/applicability/uncertainty task.",
+        "Geometry-derived relaxation stays needs_decision until geometry/wall/data selected; full VCC/coated transport stay parked with named dataset/runtime trigger.",
+        "Keep cheap open-pair scope labels in current P1 trust item; only activate full open-hyperfine manifold for a named validation spectrum and runtime budget."
+      ],
+      "status": "needs_decision",
+      "dependencies": [],
+      "decision_required": [
+        "Select initial geometry/wall boundary and source/uncertainty policy."
+      ]
+    },
+    {
+      "id": "shared-export",
+      "title": "Keep result export coverage and round-trip checks within existing app item",
+      "source_reports": [
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "accepted",
+      "current_evidence": [
+        "Shared app export exists and the registry already records in_progress; report requests for raw complex arrays, units, lazy extra views and round-trip are acceptance elaborations, not a duplicate new exporter."
+      ],
+      "existing_ids": [
+        "app-result-export-and-provenance"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Use common typed named results and verify complex arrays/units/overlays/extra-view provenance round-trip; coordinate with root app/FWM review."
+      ],
+      "status": "in_progress",
+      "dependencies": []
+    },
+    {
+      "id": "rejected-doublet-visibility",
+      "title": "Reject blanket unresolved-doublet or low-transmission invalidation",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md"
+      ],
+      "verdict": "rejected_overbroad_inference",
+      "current_evidence": [
+        "AT spectral splitting resolution and linear finite-IF field response have different existence conditions; weak_signal_response_from_liouvillian solves the latter independently.",
+        "Transmission1.8e-6 is numerically finite and only calibrated noise/power establishes experimental visibility; internal arrays alone do not prove invisibility."
+      ],
+      "existing_ids": [
+        "rydberg-readout-validity-guardrails"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Replace blanket claims with observable-specific numerical gates, conditional predictions and measured-SNR/unknown-visibility status."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    },
+    {
+      "id": "rejected-cost-free-heavy",
+      "title": "Reject negligible-cost full physics and unjustified retuning",
+      "source_reports": [
+        "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md",
+        "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+        "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md"
+      ],
+      "verdict": "rejected_scope_or_cost_claim",
+      "current_evidence": [
+        "Full Zeeman/open-hyperfine, VCC/spatial transport and internal3-D RF models enlarge states/classes/space; source inputs and validation datasets are missing.",
+        "Report wording that a broader model or retuned defaults is immediately justified by one label/optimum mismatch exceeds current evidence."
+      ],
+      "existing_ids": [
+        "rydberg-zeeman-polarization-reference-mode",
+        "rydberg-rf-field-map-import",
+        "full-velocity-changing-collision-kernel",
+        "paraffin-coated-cell-extensions"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Keep narrow gated reference tasks and declared activation conditions; no unrestricted empirical/asymmetry knobs or default retune to target values."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    }
+  ],
+  "coverage_map": {
+    "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "shared-export",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "shared-export",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "shared-small-cache",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "shared-small-cache",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md": [
+      "r3-opacity",
+      "r3-readout",
+      "r3-cache-correctness",
+      "r3-layered-cache",
+      "r3-quick-performance",
+      "r3-rho-reuse",
+      "r3-calibration-data",
+      "r3-spatial-polarization",
+      "r3-doppler-port",
+      "r3-provenance-guide",
+      "r3-csv-acquisition",
+      "r3-csv-duplicate",
+      "shared-small-cache",
+      "shared-export",
+      "rejected-doublet-visibility",
+      "rejected-cost-free-heavy"
+    ],
+    "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md": [
+      "r4-closed-physics",
+      "r4-convergence-zero",
+      "r4-paraffin-rates",
+      "r4-collisional-name",
+      "r4-nmor-gate",
+      "r4-stokes",
+      "r4-preset-truth",
+      "r4-stale-velocity",
+      "r4-lazy-stack",
+      "r4-stale-artifacts",
+      "r4-guide-cleanup",
+      "shared-small-cache",
+      "shared-physical-extensions",
+      "shared-export",
+      "rejected-cost-free-heavy"
+    ]
+  },
+  "scope_notes": [
+    "Existing dirty files and main branch preserved. No checklist edits in this subtask.",
+    "Full pytest delegated to root; focused suite59 passed.",
+    "All recurring recommendations grouped; implementation invariants, numerical convergence and held-out experimental validation remain distinct.",
+    "Steady-state reuse excluded as standalone free optimization; original-cache done scope requires explicit transfer of unfinished layer acceptance."
+  ],
+  "external_reference_checks": [
+    {
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25089479/",
+      "supports": "Author abstract identifies87Rb5S1/2F2→5P3/2F3, outside current D1 Fe1/2 model; use only qualitative applicability label.",
+      "note": "Optica direct page was bot-gated."
+    },
+    {
+      "url": "https://arc-alkali-rydberg-calculator.readthedocs.io/en/latest/generated/arc.alkali_atom_functions.AlkaliAtom.getDipoleMatrixElement.html",
+      "supports": "Executable state/polarization API documentation; current code3.10.2 numerical fixture not independently regenerated in this pass."
+    }
+  ]
+}

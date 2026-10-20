@@ -1,0 +1,80 @@
+{
+  "record": "FWM-NOISE-2026-10-15-PRODUCTION",
+  "origin": "source_evidence",
+  "seed_fano_4_05_status": "handoff assumption; not independently measured here",
+  "operating_point_human_confirmed": {
+    "opd": "blue +1 GHz from85Rb F2-Fprime3",
+    "branch": -1,
+    "cell": "pure85Rb, possible~0.1%87Rb contamination"
+  },
+  "eta_scope": "handoff total value used conditionally; downstream/cell split unresolved",
+  "points": 401,
+  "invalid_passive_points": 41,
+  "invalid_lab_interval_mhz": [
+    -44.99999999999993,
+    -32.999999999999915
+  ],
+  "minimum_completion_eigenvalue": -0.22671189292654187,
+  "peak_lab_tpd_mhz": -23.699999999999832,
+  "peak_displayed_gain": 236.26161562743448,
+  "baseline_sha256": "e6adff1479c1a6b4ed58943809e3be77a2944b7df170c0ec46e00f231eea0324",
+  "physical_squeezing_dB": null,
+  "rows": [
+    {
+      "lab_tpd_mhz": -36.00000000000003,
+      "D_canonical": -0.4176768955096662,
+      "legacy_dB": -4.187504274029459,
+      "formal_l1_F1_dB": -0.7996704144967366,
+      "formal_l1_F4_05_dB": 1.2618337959390633,
+      "completion_valid": false,
+      "display_l1_F1_dB": null
+    },
+    {
+      "lab_tpd_mhz": -24.00000000000002,
+      "D_canonical": -6.473911012028992,
+      "legacy_dB": -4.403328832069507,
+      "formal_l1_F1_dB": -3.5029002928133437,
+      "formal_l1_F4_05_dB": -1.9854826063887794,
+      "completion_valid": true,
+      "display_l1_F1_dB": -3.5029002928133437
+    },
+    {
+      "lab_tpd_mhz": -10.800000000000143,
+      "D_canonical": 0.00027427837957816337,
+      "legacy_dB": -5.188664572115411,
+      "formal_l1_F1_dB": -5.179462693146406,
+      "formal_l1_F4_05_dB": -5.179462675255266,
+      "completion_valid": true,
+      "display_l1_F1_dB": -5.179462693146406
+    },
+    {
+      "lab_tpd_mhz": -0.0,
+      "D_canonical": 0.7466300554271008,
+      "legacy_dB": -5.03299487854047,
+      "formal_l1_F1_dB": -5.084315129547367,
+      "formal_l1_F4_05_dB": -4.6365626032859,
+      "completion_valid": true,
+      "display_l1_F1_dB": -5.084315129547367
+    },
+    {
+      "lab_tpd_mhz": 20.10000000000023,
+      "D_canonical": 0.9603993566233064,
+      "legacy_dB": -3.5654117097715115,
+      "formal_l1_F1_dB": -3.6019954942701156,
+      "formal_l1_F4_05_dB": -0.6811563701801558,
+      "completion_valid": true,
+      "display_l1_F1_dB": -3.6019954942701156
+    },
+    {
+      "lab_tpd_mhz": 39.89999999999982,
+      "D_canonical": 0.984931309386213,
+      "legacy_dB": -1.0983538207555958,
+      "formal_l1_F1_dB": -1.1112784687925121,
+      "formal_l1_F4_05_dB": 3.461960198689253,
+      "completion_valid": true,
+      "display_l1_F1_dB": -1.1112784687925121
+    }
+  ],
+  "eta_handoff_value_unchanged": 0.7068170330192308,
+  "eta_value_source": "AI handoff; not independently re-confirmed in this chat"
+}

@@ -1,0 +1,75 @@
+{
+  "origin": "exact_byte_relocated_source_evidence",
+  "command": "python -m pytest -q",
+  "execution_cwd": "C:\\Temp\\gv20261020-9d7b\\repo",
+  "started_utc": "2026-10-19T18:43:44.445824+00:00",
+  "completed_utc": "2026-10-19T19:45:38.841638+00:00",
+  "elapsed_seconds": 3714.3909999999996,
+  "exit_code": 1,
+  "original_head": "39be4aeadcc970c543493f217e537b90aa53258e",
+  "original_branch": "main",
+  "original_dirty": true,
+  "python": "C:\\Python312\\python.exe",
+  "copy_receipt": "C:\\Temp\\gv20261020-9d7b\\evidence\\copy_receipt.json",
+  "file_manifest": "C:\\Temp\\gv20261020-9d7b\\evidence\\file_manifest.json",
+  "source_manifest": "C:\\Temp\\gv20261020-9d7b\\evidence\\source_manifest.json",
+  "exact_byte_manifest_sha256": "a1ac51b76cd2011acd9f3e833d2451209402cba4ebd5b1aa6b35151f3cf20a0f",
+  "collection_parity": {
+    "origin": "exact_byte_relocated_validation_collection",
+    "started_utc": "2026-10-19T18:37:34.937441+00:00",
+    "elapsed_seconds": 41.875,
+    "exit_code": 0,
+    "original_count": 2460,
+    "mirror_count": 2460,
+    "ordered_nodeids_identical": true,
+    "missing_nodeids": [],
+    "extra_nodeids": [],
+    "original_source_changes": [],
+    "python": "C:\\Python312\\python.exe",
+    "imported_module_paths": {
+      "gabes": "C:\\Temp\\gv20261020-9d7b\\repo\\gabes\\__init__.py",
+      "gabes.schemes.fwm": "C:\\Temp\\gv20261020-9d7b\\repo\\gabes\\schemes\\fwm.py",
+      "analysis.grand_challenge.thermal_campaign": "C:\\Temp\\gv20261020-9d7b\\repo\\analysis\\grand_challenge\\thermal_campaign.py",
+      "tools.thermal_campaign_extend": "C:\\Temp\\gv20261020-9d7b\\repo\\tools\\thermal_campaign_extend.py"
+    },
+    "mirror": "C:\\Temp\\gv20261020-9d7b\\repo",
+    "log": "C:\\Temp\\gv20261020-9d7b\\evidence\\mirror_collection.txt"
+  },
+  "source_before": {
+    "original": {
+      "changed_paths": [],
+      "new_core_paths": [],
+      "missing_core_paths": []
+    },
+    "mirror": {
+      "changed_paths": [],
+      "new_core_paths": [],
+      "missing_core_paths": []
+    }
+  },
+  "source_after": {
+    "original": {
+      "changed_paths": [],
+      "new_core_paths": [],
+      "missing_core_paths": []
+    },
+    "mirror": {
+      "changed_paths": [],
+      "new_core_paths": [],
+      "missing_core_paths": []
+    }
+  },
+  "critical_data_files": 67,
+  "original_data_before_mismatches": [],
+  "mirror_data_before_mismatches": [],
+  "original_data_after_mismatches": [],
+  "mirror_data_after_mismatches": [],
+  "source_files": 407,
+  "source_frozen": true,
+  "critical_data_frozen": true,
+  "blas_threads": 1,
+  "numba_threads": 1,
+  "relocation_scope": "Same interpreter/libraries; raw-byte copied live working tree, no symlinks/junctions to source; plain .git scratch only; no branch/worktree created. Receipt records original Git provenance independently.",
+  "cache_and_temp_root": "C:\\Temp\\gv20261020-9d7b",
+  "log": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\daily_report\\reconciliation_2026-10-19\\full_pytest_relocated.log"
+}

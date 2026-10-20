@@ -1,0 +1,88 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+.......sss.............................................................. [ 32%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 52%]
+.......................................................F................ [ 55%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+........................................................................ [ 64%]
+........................................................................ [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 84%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+............                                                             [100%]
+================================== FAILURES ===================================
+_______________ test_preregistration_does_not_touch_future_grid _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F4D2C0C2C0>
+tmp_path = WindowsPath('C:/Temp/gv20261020-9d7b/pfull/test_preregistration_does_not_0')
+
+    def test_preregistration_does_not_touch_future_grid(monkeypatch, tmp_path):
+        helper = shadow.load_helper()
+        original_read = helper.ByteLedger.read
+        reads = []
+        def checked_read(self, path, **kwargs):
+            reads.append(Path(path).absolute())
+            assert Path(path).absolute() != shadow.FUTURE_GRID.absolute()
+            return original_read(self, path, **kwargs)
+        monkeypatch.setattr(helper.ByteLedger, "read", checked_read)
+        captured = {}
+        monkeypatch.setattr(helper, "write_exclusive", lambda path, value: captured.update(value))
+        monkeypatch.setattr(shadow, "load_helper", lambda: helper)
+>       protocol = shadow.preregister(tmp_path/"not-written.json")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_variance_reduction_pilot_shadow.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\variance_reduction_pilot_shadow.py:103: in preregister
+    pins = input_pins(baseline)
+           ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+baseline = {'analysis_environment': {'numpy': '2.4.1', 'python': '3.14.2'}, 'analytic_controls': {'density_double_count_negative_...zero': 16.0822883943797, ...}, 'archived_hyperfine_frequency_rad_s': 19074069457.25325, 'champion_selected': None, ...}
+
+    def input_pins(baseline):
+        names = (CAMPAIGN/"plan.json", CAMPAIGN/"sources.zip", CAMPAIGN/"grid-p3-s11.json")
+        result = {}
+        for path in names:
+            row = baseline["input_byte_ledger"].get(str(path.resolve(strict=True)))
+            if row is None:
+>               raise ValueError("Frozen review does not bind reference input")
+E               ValueError: Frozen review does not bind reference input
+
+analysis\grand_challenge\variance_reduction_pilot_shadow.py:94: ValueError
+============================== warnings summary ===============================
+tests/test_fwm_measured_gain_integration.py::test_strict_json_exports_current_reference_profile_status_domain_and_raw_arrays
+tests/test_fwm_passive_l1_integration.py::test_result_export_separates_current_a_b_nf_from_cached_coherent_reference
+tests/test_fwm_passive_l1_reference.py::test_strict_result_bundle_keeps_current_fano_and_invalid_point_evidence
+tests/test_jasperse_integration.py::test_strict_json_preserves_absorption_emission_and_current_noise_units
+tests/test_ui_derived_controls.py::test_export_preserves_display_values_and_unavailable_status
+  C:\Temp\gv20261020-9d7b\repo\gabes_ui\export.py:197: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid
+1 failed, 2456 passed, 3 skipped, 5 warnings in 3682.97s (1:01:22)

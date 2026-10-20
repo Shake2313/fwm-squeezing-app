@@ -1,0 +1,65 @@
+{
+  "origin": "AI conditional QRT Doppler reference",
+  "delta_internal_MHz": 23.7,
+  "sigma_velocity_m_s": 194.45096582410972,
+  "velocity_cutoff_sigma": 4,
+  "quadrature_measure": "truncated Maxwell normalized to one; same cutoff as production, not tail-converged",
+  "dressed_resonance_breakpoints_m_s": [
+    -635.9078030185963
+  ],
+  "rows": [
+    {
+      "relative_tolerance": 0.005,
+      "rates": [
+        126.97682655705307,
+        102.10174590664367,
+        24.875080650371757,
+        15.375923294500106,
+        19.19358575926917,
+        -3.817662464770628
+      ],
+      "reported_scaled_error": 0.0006650890973805256,
+      "evaluations_this_quadrature": 180,
+      "success": true,
+      "message": "Target precision reached.",
+      "cumulative_distinct_velocity_solves": 181,
+      "cumulative_seconds": 5.699207500001648,
+      "absorption_only_transmissions": [
+        0.20449529073335976,
+        0.8251426147848512
+      ]
+    },
+    {
+      "relative_tolerance": 0.001,
+      "rates": [
+        126.97682655161474,
+        102.1017458991179,
+        24.87508065246122,
+        15.375923293259142,
+        19.19358575837194,
+        -3.817662465114422
+      ],
+      "reported_scaled_error": 6.358410548453278e-05,
+      "evaluations_this_quadrature": 210,
+      "success": true,
+      "message": "Target precision reached.",
+      "cumulative_distinct_velocity_solves": 211,
+      "cumulative_seconds": 6.650291099998867,
+      "absorption_only_transmissions": [
+        0.2044952907472612,
+        0.8251426147976508
+      ]
+    }
+  ],
+  "response_order_2_fallbacks": [],
+  "maximum_kubo_relative_residual": 4.0808580044365134e-12,
+  "local_rate_order": [
+    "probe:absorption",
+    "probe:emission",
+    "probe:net",
+    "conjugate:absorption",
+    "conjugate:emission",
+    "conjugate:net"
+  ],
+  "runtime_seconds": 6.650299300003098
+}

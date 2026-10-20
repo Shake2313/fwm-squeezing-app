@@ -1,0 +1,482 @@
+{
+  "origin": "AI independent ordered QRT derivation/pilot",
+  "marker": "⟦AI⟧",
+  "date": "2026-10-16",
+  "new_atomic_velocity_classes": 3,
+  "settings": {
+    "T_K": 386.15,
+    "pump_W": 0.2948,
+    "pump_waist_m": 0.00053,
+    "seed_W": 3.918e-06,
+    "seed_waist_m": 0.00033,
+    "one_photon_detuning_GHz": 1.0,
+    "internal_delta_MHz": 23.7,
+    "conjugate_carrier_input": "vacuum; pump+probe prescribed local state"
+  },
+  "explicit_dissipator_relative_parity": 1.4412732636322982e-16,
+  "rows": [
+    {
+      "seed_power_ratio": 0.0,
+      "mean_population": [
+        0.15845885486492237,
+        0.8193361685935546,
+        0.0064252495870120415,
+        0.01577972695451116
+      ],
+      "RDRdagger_reference": [
+        {
+          "greater": 9.886207336653726e-12,
+          "lesser": 3.061683556607513e-12
+        },
+        {
+          "greater": 3.1699904824337763e-13,
+          "lesser": 1.329197319047202e-12
+        }
+      ],
+      "direct_connected_QRT": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.88620733664912e-12,
+              "emission_seconds": 3.0616835566183015e-12,
+              "chi_per_rabi_real_s": -1.2455800641289938e-10,
+              "chi_per_rabi_imag_s": -1.7061309450077046e-12
+            },
+            {
+              "absorption_seconds": 3.1699904824165335e-13,
+              "emission_seconds": 1.3291973190479277e-12,
+              "chi_per_rabi_real_s": -1.6065327764702646e-11,
+              "chi_per_rabi_imag_s": 2.5304956770156864e-13
+            }
+          ],
+          "seconds": 0.0014663000183645636,
+          "mean_order": 3,
+          "response_order": 2,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.88620733664912e-12,
+              "emission_seconds": 3.0616835566183015e-12,
+              "chi_per_rabi_real_s": -1.2455800641289938e-10,
+              "chi_per_rabi_imag_s": -1.7061309450077046e-12
+            },
+            {
+              "absorption_seconds": 3.1699904824165335e-13,
+              "emission_seconds": 1.3291973190479277e-12,
+              "chi_per_rabi_real_s": -1.6065327764702646e-11,
+              "chi_per_rabi_imag_s": 2.5304956770156864e-13
+            }
+          ],
+          "seconds": 0.0013663000136148185,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.88620733664912e-12,
+              "emission_seconds": 3.0616835566183015e-12,
+              "chi_per_rabi_real_s": -1.2455800641289938e-10,
+              "chi_per_rabi_imag_s": -1.7061309450077046e-12
+            },
+            {
+              "absorption_seconds": 3.1699904824165335e-13,
+              "emission_seconds": 1.3291973190479277e-12,
+              "chi_per_rabi_real_s": -1.6065327764702646e-11,
+              "chi_per_rabi_imag_s": 2.5304956770156864e-13
+            }
+          ],
+          "seconds": 0.0014710999967064708,
+          "mean_order": 3,
+          "response_order": 4,
+          "source_covariance_harmonics": 6
+        }
+      ],
+      "conditional_legacy_weak_normalization_rates": [
+        {
+          "alpha_abs_m_inverse": 22.35810742123277,
+          "alpha_em_m_inverse": 6.924136579144004,
+          "alpha_net_m_inverse": 15.433970842088765,
+          "absorption_channel_T_12p5mm": 0.7561796167221518
+        },
+        {
+          "alpha_abs_m_inverse": 0.7169192138344991,
+          "alpha_em_m_inverse": 3.006088195811657,
+          "alpha_net_m_inverse": -2.2891689819771583,
+          "absorption_channel_T_12p5mm": 0.9910785443013576
+        }
+      ]
+    },
+    {
+      "seed_power_ratio": 1e-06,
+      "mean_population": [
+        0.15845885517756453,
+        0.8193361682656388,
+        0.00642524958760522,
+        0.01577972696919167
+      ],
+      "RDRdagger_reference": [
+        {
+          "greater": 9.886221320276651e-12,
+          "lesser": 3.061697555003385e-12
+        },
+        {
+          "greater": 3.1700095461344266e-13,
+          "lesser": 1.329199223157603e-12
+        }
+      ],
+      "direct_connected_QRT": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.886221320294738e-12,
+              "emission_seconds": 3.0616975549777172e-12,
+              "chi_per_rabi_real_s": -1.2455800609152795e-10,
+              "chi_per_rabi_imag_s": -1.7061309413292552e-12
+            },
+            {
+              "absorption_seconds": 3.170009546179015e-13,
+              "emission_seconds": 1.3291992231553234e-12,
+              "chi_per_rabi_real_s": -1.606532771470706e-11,
+              "chi_per_rabi_imag_s": 2.530495671343555e-13
+            }
+          ],
+          "seconds": 0.0013799000007566065,
+          "mean_order": 3,
+          "response_order": 2,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.886221320294738e-12,
+              "emission_seconds": 3.0616975549777172e-12,
+              "chi_per_rabi_real_s": -1.2455800609152795e-10,
+              "chi_per_rabi_imag_s": -1.7061309413292552e-12
+            },
+            {
+              "absorption_seconds": 3.170009546179015e-13,
+              "emission_seconds": 1.3291992231553234e-12,
+              "chi_per_rabi_real_s": -1.606532771470706e-11,
+              "chi_per_rabi_imag_s": 2.530495671343555e-13
+            }
+          ],
+          "seconds": 0.0013102999946568161,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 9.886221320294738e-12,
+              "emission_seconds": 3.0616975549777172e-12,
+              "chi_per_rabi_real_s": -1.2455800609152795e-10,
+              "chi_per_rabi_imag_s": -1.7061309413292552e-12
+            },
+            {
+              "absorption_seconds": 3.170009546179015e-13,
+              "emission_seconds": 1.3291992231553234e-12,
+              "chi_per_rabi_real_s": -1.606532771470706e-11,
+              "chi_per_rabi_imag_s": 2.530495671343555e-13
+            }
+          ],
+          "seconds": 0.0013998000067658722,
+          "mean_order": 3,
+          "response_order": 4,
+          "source_covariance_harmonics": 6
+        }
+      ],
+      "conditional_legacy_weak_normalization_rates": [
+        {
+          "alpha_abs_m_inverse": 22.358139045883178,
+          "alpha_em_m_inverse": 6.924168237070333,
+          "alpha_net_m_inverse": 15.433970808812845,
+          "absorption_channel_T_12p5mm": 0.7561793177982606
+        },
+        {
+          "alpha_abs_m_inverse": 0.7169235252599393,
+          "alpha_em_m_inverse": 3.0060925021059024,
+          "alpha_net_m_inverse": -2.2891689768459633,
+          "absorption_channel_T_12p5mm": 0.9910784908893434
+        }
+      ]
+    },
+    {
+      "seed_power_ratio": 1.0,
+      "mean_population": [
+        0.158771163894378,
+        0.8190086028139432,
+        0.0064258423105228255,
+        0.01579439098115571
+      ],
+      "RDRdagger_reference": [
+        {
+          "greater": 2.3861940299349152e-11,
+          "lesser": 1.7052165025602424e-11
+        },
+        {
+          "greater": 2.222198575253022e-12,
+          "lesser": 3.2321408585013912e-12
+        }
+      ],
+      "direct_connected_QRT": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 2.3861940285114498e-11,
+              "emission_seconds": 1.705216503108683e-11,
+              "chi_per_rabi_real_s": -1.2423716858871762e-10,
+              "chi_per_rabi_imag_s": -1.7024438135069164e-12
+            },
+            {
+              "absorption_seconds": 2.2221985762701632e-12,
+              "emission_seconds": 3.2321408568091986e-12,
+              "chi_per_rabi_real_s": -1.601541178767119e-11,
+              "chi_per_rabi_imag_s": 2.524855701347589e-13
+            }
+          ],
+          "seconds": 0.0014813999878242612,
+          "mean_order": 3,
+          "response_order": 2,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 2.3861940299333794e-11,
+              "emission_seconds": 1.7052165025626273e-11,
+              "chi_per_rabi_real_s": -1.2423716858878274e-10,
+              "chi_per_rabi_imag_s": -1.7024438184268797e-12
+            },
+            {
+              "absorption_seconds": 2.2221985752489474e-12,
+              "emission_seconds": 3.2321408585033235e-12,
+              "chi_per_rabi_real_s": -1.601541178767927e-11,
+              "chi_per_rabi_imag_s": 2.5248557081359387e-13
+            }
+          ],
+          "seconds": 0.0013614000054076314,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 2.386194029933379e-11,
+              "emission_seconds": 1.705216502562628e-11,
+              "chi_per_rabi_real_s": -1.2423716858878274e-10,
+              "chi_per_rabi_imag_s": -1.7024438184268777e-12
+            },
+            {
+              "absorption_seconds": 2.2221985752489474e-12,
+              "emission_seconds": 3.2321408585033235e-12,
+              "chi_per_rabi_real_s": -1.601541178767927e-11,
+              "chi_per_rabi_imag_s": 2.5248557081359387e-13
+            }
+          ],
+          "seconds": 0.001428999996278435,
+          "mean_order": 3,
+          "response_order": 4,
+          "source_covariance_harmonics": 6
+        }
+      ],
+      "conditional_legacy_weak_normalization_rates": [
+        {
+          "alpha_abs_m_inverse": 53.96486299794498,
+          "alpha_em_m_inverse": 38.564246573526226,
+          "alpha_net_m_inverse": 15.40061642441875,
+          "absorption_channel_T_12p5mm": 0.5093800976022875
+        },
+        {
+          "alpha_abs_m_inverse": 5.025683403115917,
+          "alpha_em_m_inverse": 7.309750285162181,
+          "alpha_net_m_inverse": -2.2840668820462637,
+          "absorption_channel_T_12p5mm": 0.9391115196653472
+        }
+      ]
+    }
+  ],
+  "two_level_analytic_cases": 9,
+  "two_level_analytic_maximum_relative_error": 2.2036091518412657e-15,
+  "production_finite_state_gauge_phase_count": 64,
+  "production_finite_state_gauge_maximum_norm_error": 1.3035084783202304e-14,
+  "velocity_order_controls": [
+    {
+      "velocity_m_s": -200.0,
+      "results": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 5.867311705146291e-11,
+              "emission_seconds": 4.527747478445105e-11,
+              "chi_per_rabi_real_s": -1.7302477670422384e-10,
+              "chi_per_rabi_imag_s": -3.348910566752966e-12
+            },
+            {
+              "absorption_seconds": 6.558211161042148e-12,
+              "emission_seconds": 8.617346645462751e-12,
+              "chi_per_rabi_real_s": -2.3982514289601663e-11,
+              "chi_per_rabi_imag_s": 5.147838711051507e-13
+            }
+          ],
+          "seconds": 0.0014050000172574073,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 5.867311705146326e-11,
+              "emission_seconds": 4.5277474784451196e-11,
+              "chi_per_rabi_real_s": -1.7302477670422433e-10,
+              "chi_per_rabi_imag_s": -3.348910566753017e-12
+            },
+            {
+              "absorption_seconds": 6.558211161042149e-12,
+              "emission_seconds": 8.617346645462751e-12,
+              "chi_per_rabi_real_s": -2.3982514289601666e-11,
+              "chi_per_rabi_imag_s": 5.147838711051505e-13
+            }
+          ],
+          "seconds": 0.0015426999889314175,
+          "mean_order": 4,
+          "response_order": 4,
+          "source_covariance_harmonics": 8
+        }
+      ],
+      "mean_response_order_3_vs_4_relative_error": 5.947644141945337e-15
+    },
+    {
+      "velocity_m_s": 0.0,
+      "results": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 2.3861940299333794e-11,
+              "emission_seconds": 1.7052165025626273e-11,
+              "chi_per_rabi_real_s": -1.2423716858878274e-10,
+              "chi_per_rabi_imag_s": -1.7024438184268797e-12
+            },
+            {
+              "absorption_seconds": 2.2221985752489474e-12,
+              "emission_seconds": 3.2321408585033235e-12,
+              "chi_per_rabi_real_s": -1.601541178767927e-11,
+              "chi_per_rabi_imag_s": 2.5248557081359387e-13
+            }
+          ],
+          "seconds": 0.0018928999779745936,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 2.386194029933379e-11,
+              "emission_seconds": 1.705216502562628e-11,
+              "chi_per_rabi_real_s": -1.2423716858878274e-10,
+              "chi_per_rabi_imag_s": -1.7024438184268777e-12
+            },
+            {
+              "absorption_seconds": 2.2221985752489474e-12,
+              "emission_seconds": 3.2321408585033235e-12,
+              "chi_per_rabi_real_s": -1.601541178767927e-11,
+              "chi_per_rabi_imag_s": 2.5248557081359387e-13
+            }
+          ],
+          "seconds": 0.0015243000234477222,
+          "mean_order": 4,
+          "response_order": 4,
+          "source_covariance_harmonics": 8
+        }
+      ],
+      "mean_response_order_3_vs_4_relative_error": 3.7897525187322567e-16
+    },
+    {
+      "velocity_m_s": 200.0,
+      "results": [
+        {
+          "arms": [
+            {
+              "absorption_seconds": 1.1550580396884976e-11,
+              "emission_seconds": 7.19215334476925e-12,
+              "chi_per_rabi_real_s": -9.761976327064824e-11,
+              "chi_per_rabi_imag_s": -1.089606763028932e-12
+            },
+            {
+              "absorption_seconds": 8.037546550942426e-13,
+              "emission_seconds": 1.4222471663562632e-12,
+              "chi_per_rabi_real_s": -1.174410094598346e-11,
+              "chi_per_rabi_imag_s": 1.5462312781550514e-13
+            }
+          ],
+          "seconds": 0.0013058000185992569,
+          "mean_order": 3,
+          "response_order": 3,
+          "source_covariance_harmonics": 6
+        },
+        {
+          "arms": [
+            {
+              "absorption_seconds": 1.1550580396884976e-11,
+              "emission_seconds": 7.19215334476925e-12,
+              "chi_per_rabi_real_s": -9.761976327064824e-11,
+              "chi_per_rabi_imag_s": -1.089606763028932e-12
+            },
+            {
+              "absorption_seconds": 8.037546550942426e-13,
+              "emission_seconds": 1.4222471663562632e-12,
+              "chi_per_rabi_real_s": -1.174410094598346e-11,
+              "chi_per_rabi_imag_s": 1.5462312781550514e-13
+            }
+          ],
+          "seconds": 0.0014884999836795032,
+          "mean_order": 4,
+          "response_order": 4,
+          "source_covariance_harmonics": 8
+        }
+      ],
+      "mean_response_order_3_vs_4_relative_error": 0.0
+    }
+  ],
+  "scope": "read-only local atomic conditional spectra; no ensemble propagation or fit",
+  "finite_secant_control": {
+    "chi_ss_real": -1.2439749877232202e-10,
+    "chi_ss_imag": -1.7042863640392936e-12,
+    "chi_cc_real": -1.6061613259352372e-11,
+    "chi_cc_imag": 2.5300539379258664e-13,
+    "scope": "finite independent probe-only/conjugate-only extraction; not one common-state Jacobian"
+  },
+  "field_normalization": {
+    "prefactor": "n*omega*d^2*line_strength/(24*epsilon0*hbar*c)",
+    "line_strength": 0.74,
+    "macroscopic_average": 0.08333333333333333,
+    "origin": "inherited production weak-field normalization; not a new absolute reduction certification",
+    "prefactor_per_m_per_second": [
+      2261545470359.4087,
+      2261581597203.9775
+    ]
+  },
+  "adversarial_review": {
+    "source": "independent reviewer plus implementation-agent response",
+    "initial_issue": "connected-path Kubo residual algebraic identity from same two ordered source projections",
+    "resolution_reported": "third independent commutator source from rho harmonics added; targeted tests repassed",
+    "implementation_agent_reported_controls": {
+      "full_engine_velocity_evaluations": 210,
+      "relative_difference_about": 2e-13,
+      "quadrature_tolerance_change": [
+        0.005,
+        0.001
+      ],
+      "rate_relative_change_less_than": 1e-10
+    },
+    "scope_remaining": "homogeneous prescribed finite input, absorption and emission separate; not replacement full microscopic NF"
+  },
+  "evidence_code_sha256": "1640a64d4be0711bee26c1b2a8e8ab7dcc8d470e5dd6ac65f515d87f6903941e"
+}

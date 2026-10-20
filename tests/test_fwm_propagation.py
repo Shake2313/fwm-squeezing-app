@@ -270,10 +270,13 @@ def test_option_a_wavenumbers_and_mismatch_are_bare_vacuum_values():
     probe = np.array([-2.15, -2.14, -2.13])
     angle = 0.32
     k_pump, k_probe, k_conj = fwm.seeded_option_a_wavenumbers(detuning, probe)
+    # The scan origin is F=2 -> F'=3, while OMEGA_D1 is the centroid.
+    carrier = constants.OMEGA_D1 + (
+        7 * constants.OMEGA_HF + 5 * constants.OMEGA_EXCITED_HF) / 12
     expected_probe = (
-        constants.OMEGA_D1 + 2 * np.pi * probe * 1e9) / constants.C_LIGHT
+        carrier + 2 * np.pi * probe * 1e9) / constants.C_LIGHT
     expected_conj = (
-        constants.OMEGA_D1 + 2 * np.pi * (2 * detuning - probe) * 1e9
+        carrier + 2 * np.pi * (2 * detuning - probe) * 1e9
     ) / constants.C_LIGHT
     expected_mismatch = (
         2 * k_pump - (expected_probe + expected_conj)

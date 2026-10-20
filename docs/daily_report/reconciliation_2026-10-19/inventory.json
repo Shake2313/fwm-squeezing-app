@@ -1,0 +1,231 @@
+{
+  "origin": "ai_source_inventory",
+  "reviewed_on": "2026-10-19",
+  "timezone": "Asia/Seoul",
+  "previous_report_cutoff": "2026-08-07",
+  "previous_second_pass_completed_at": "2026-08-09",
+  "latest_available_report": "2026-10-18",
+  "report_count": 55,
+  "reports": [
+    {
+      "path": "docs/daily_report/2026-08-08_scheme-4_hanle-eia-nmor.md",
+      "sha256": "5dee9c9a1099f813546a94d984ecf1e325cbf9f1564ae2ff57c16c8db5364bd8"
+    },
+    {
+      "path": "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+      "sha256": "e04463bfd7cec88c1a83d80e71594e889dccf811ddc8403b8cc84901a9c4dae8"
+    },
+    {
+      "path": "docs/daily_report/2026-08-12_scheme-3_rydberg-eit.md",
+      "sha256": "4fbfc196cac4e61eeabc012fdb49e6f1f8abf5412e282729743f11d83b4a0f6f"
+    },
+    {
+      "path": "docs/daily_report/2026-08-13_scheme-4_hanle-eia-nmor.md",
+      "sha256": "54c43ab8d9e842cdfcdf6fcd18bca4a9fa37c679b9e5602d4d6d012fbb5af62e"
+    },
+    {
+      "path": "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+      "sha256": "60e9d59a2c06ea1515d16d256e195e7995f7f00838ce3b8c488a12be322529da"
+    },
+    {
+      "path": "docs/daily_report/2026-08-22_scheme-3_rydberg-eit.md",
+      "sha256": "7134e03733f4aa2d1e2b4cd11f6e0df57008ccc034cb643b0b521748d9f4bbd3"
+    },
+    {
+      "path": "docs/daily_report/2026-08-23_scheme-4_hanle-eia-nmor.md",
+      "sha256": "82c63120e4bd6a9f703abe608d899982f3c131843552ebf562a9cd65c3cb9616"
+    },
+    {
+      "path": "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+      "sha256": "0908fda20fcc6e50546e2599d9039cab722d5482e1d89fc6154780ea6668a185"
+    },
+    {
+      "path": "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+      "sha256": "f5003e2d40ea3a8900b785cf710c5928e8e466960a3e112b487a4796568068f3"
+    },
+    {
+      "path": "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+      "sha256": "15a91fbf0ded7bec1d39571f527b0a3e73b75dcca30625fea14271c9d1df00c6"
+    },
+    {
+      "path": "docs/daily_report/2026-08-27_scheme-3_rydberg-eit.md",
+      "sha256": "80458b79166b0cdfc835c7fd7e44ddd459c68fbb1a277b95fc28fbb45ef4a071"
+    },
+    {
+      "path": "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+      "sha256": "11baab8552ef669a45efce1f2a1d7564aa889a6d377f608955ef273b69092a0e"
+    },
+    {
+      "path": "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+      "sha256": "885de439bee1c2f662d00542113c3731947099e483ed2a0fb84ed71f24c5e9f3"
+    },
+    {
+      "path": "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+      "sha256": "bff95138c89743e979315ba0ef131051d079a32586ed9722260975e3017b96d4"
+    },
+    {
+      "path": "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+      "sha256": "500621641fb8799d98acfdc238d905998a3d861d822347e52b0746dd360b503b"
+    },
+    {
+      "path": "docs/daily_report/2026-09-02_scheme-3_rydberg-eit.md",
+      "sha256": "99f3ee68e23f8982ad9b84377c5b8eb10febe7ea92c0867aa650af00250a72fb"
+    },
+    {
+      "path": "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+      "sha256": "fb799c22aab475c3ebb56fd7dfe70303c6f8960241577fa8a36c703a5f969f94"
+    },
+    {
+      "path": "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+      "sha256": "fb82f807ec4623e88120b2edf1f60e295bd2d5cbc43c3ae4b874af64a50b60be"
+    },
+    {
+      "path": "docs/daily_report/2026-09-07_scheme-3_rydberg-eit.md",
+      "sha256": "65ea175e929061815c61a68fcbf51ab1604b198608f55c2b15d299b5046f420c"
+    },
+    {
+      "path": "docs/daily_report/2026-09-08_scheme-4_hanle-eia-nmor.md",
+      "sha256": "d5fd1104be54353876ca270d4f8108d368d9b57fd70ccb2b5ef74a6595b3ab2a"
+    },
+    {
+      "path": "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+      "sha256": "845c462011b99b96f1082181497c42662e5a97d6232aa8960151ec35febb8696"
+    },
+    {
+      "path": "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+      "sha256": "f471c2b18011628ae70e64ba0188cf6ef0bcdfc71dfdd26207384c65cf6d5bce"
+    },
+    {
+      "path": "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+      "sha256": "705d603f67f2eb64a6b7c0ddbd1eeec843ef23b68ebb5b7203c20fc7c3593a14"
+    },
+    {
+      "path": "docs/daily_report/2026-09-12_scheme-3_rydberg-eit.md",
+      "sha256": "ffa1c7151a543a9bd76523d3c1f14444954afeb742bba8ecdc5868bd98c21fdb"
+    },
+    {
+      "path": "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+      "sha256": "9c370f7fb5f8e15016447dd0e71c42deae719615a67970e0cbcb97e214b69983"
+    },
+    {
+      "path": "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+      "sha256": "be33b923cd18c2f3ae4ec9c931cd94435ed8c134a4bf485db823ac3d523a4412"
+    },
+    {
+      "path": "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+      "sha256": "7258625a266c7898500056df60315263c5143f13d6d030886b36f5b49b7da12d"
+    },
+    {
+      "path": "docs/daily_report/2026-09-17_scheme-3_rydberg-eit.md",
+      "sha256": "a52b2bf4147c469146db065a14dbc4fe9ba066b79fcd0a6522b9ff3291b58b08"
+    },
+    {
+      "path": "docs/daily_report/2026-09-18_scheme-4_hanle-eia-nmor.md",
+      "sha256": "f7c94c9c3549b671c9b553cd407760e51997eae73a599b261a78fa10b00df201"
+    },
+    {
+      "path": "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+      "sha256": "4ee6ac9b74ca30ced1e23406e9a98306abcbdde5ae08843b097b0a7bd61ce457"
+    },
+    {
+      "path": "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+      "sha256": "5e68b25b3cc688f2795ec93575dc11a8e2ab710e4bfcda44485e391d894437b3"
+    },
+    {
+      "path": "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+      "sha256": "1ee5a41d422895cd08f5946b8b5c0bb2965a67cb5dd69f0f5f39a9161ded9365"
+    },
+    {
+      "path": "docs/daily_report/2026-09-22_scheme-3_rydberg-eit.md",
+      "sha256": "240f916df8fea35ac60177d93ae8610368c5f24936e93185f83d5cae87a856d4"
+    },
+    {
+      "path": "docs/daily_report/2026-09-23_scheme-4_hanle-eia-nmor.md",
+      "sha256": "5714c48d187ac9305a3527523d5308939ed464fba59957703ddbc8a0bf7cde56"
+    },
+    {
+      "path": "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+      "sha256": "f661d03027f305f0284e05bbe963ca5d39e8dc402776c58e75e2259e65929147"
+    },
+    {
+      "path": "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+      "sha256": "880d40b8c9aff02f5e4c6f28c8d83e171d6b49f6f5b98bb554d713be80c91b07"
+    },
+    {
+      "path": "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+      "sha256": "35e5a6d82dd2aa10660e39fb2b887630e3d45285d5bd4ac0f2eb18fe051917f9"
+    },
+    {
+      "path": "docs/daily_report/2026-09-27_scheme-3_rydberg-eit.md",
+      "sha256": "d58b72eb8d95c7b5c5b9bd5b75b46a15f5d2eeec5ecbc462ac6f8fe8030cdd77"
+    },
+    {
+      "path": "docs/daily_report/2026-09-28_scheme-4_hanle-eia-nmor.md",
+      "sha256": "3f4245de93386aa701f08dc721844955458286babc6d9fcad4cd7fa95fc8b214"
+    },
+    {
+      "path": "docs/daily_report/2026-10-03_scheme-4_hanle-eia-nmor.md",
+      "sha256": "6ef661d746ca6f02c73f13d17ec8820d8b5db797906160939631ca36d261e3e7"
+    },
+    {
+      "path": "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+      "sha256": "145d5f2404cc689b3faef5d866fdb582ab809e86e8adcb0dd78754a1feb5ec42"
+    },
+    {
+      "path": "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+      "sha256": "76fe7975d53e7292a97cf7ca29df640b3c82c9b1cb8e29b0ab3cdfbb77b4677a"
+    },
+    {
+      "path": "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+      "sha256": "700c8a5f52bb9a85f0a5091066e712b6efe102e8b0850a04ae491d0c413e0829"
+    },
+    {
+      "path": "docs/daily_report/2026-10-07_scheme-3_rydberg-eit.md",
+      "sha256": "a22440236ab40f041e8d85468b461263b5da3cf73a6d72865a50d017b3c98592"
+    },
+    {
+      "path": "docs/daily_report/2026-10-08_scheme-4_hanle-eia-nmor.md",
+      "sha256": "ad7fd1c5e030919eb71f7f5db66299579678f6034163bbdb37596cc2ac90d651"
+    },
+    {
+      "path": "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+      "sha256": "4954f79b4b676490d618f153aa4f26b06b995bef2bb73a73bc5c652cfcee72bf"
+    },
+    {
+      "path": "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+      "sha256": "c9350854add67f1b65d08440d582864aa0c5a3a659e93155749a162f625bba2c"
+    },
+    {
+      "path": "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+      "sha256": "e626074a25d1ce306472209ab14281cc3e25d6410e785e6a0b86cb5cbfb36f77"
+    },
+    {
+      "path": "docs/daily_report/2026-10-12_scheme-3_rydberg-eit.md",
+      "sha256": "5ba54105382b3ad932848d83de96a0b029b7876200d863cb4fb40ed6dc7b3cb6"
+    },
+    {
+      "path": "docs/daily_report/2026-10-13_scheme-4_hanle-eia-nmor.md",
+      "sha256": "6758443f13d27fcb900e00c10dfb1ab0a2c20673e62f0f791f24cb4c98072060"
+    },
+    {
+      "path": "docs/daily_report/2026-10-14_scheme-5_fwm.md",
+      "sha256": "e96bf971ab5e9594a116ad43e63efb354c1a67a7a96be970211b77e497639cd2"
+    },
+    {
+      "path": "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+      "sha256": "2dcff927a85760326be61c5634f4ad7a376ddb989f335e8a565c4f8f4df9869e"
+    },
+    {
+      "path": "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md",
+      "sha256": "45f6a7010e77f0a14958d79f7e67fbca25087011b00b145697ecc2cee983e055"
+    },
+    {
+      "path": "docs/daily_report/2026-10-17_scheme-3_rydberg-eit.md",
+      "sha256": "e321592d9fa5004c33f8798e777cf7a67af26b5d5014c9f79dc09316cd32daa5"
+    },
+    {
+      "path": "docs/daily_report/2026-10-18_scheme-4_hanle-eia-nmor.md",
+      "sha256": "5d8dbab26da2e8451c8de7ef834abcab31136bcff3bd9929d1a079e4e9d27a5f"
+    }
+  ]
+}

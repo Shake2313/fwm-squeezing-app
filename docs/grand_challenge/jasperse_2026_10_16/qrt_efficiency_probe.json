@@ -1,0 +1,255 @@
+{
+  "origin": "AI independent research diagnostic",
+  "temperature_K": 386.15,
+  "pump_W": 0.2948,
+  "seed_W": 3.91798707534069e-06,
+  "delta_internal_MHz": 23.7,
+  "velocity_m_s": 0.0,
+  "reservoir_reconstruction": {
+    "dissipator_relative_error": 1.4412732636322982e-16,
+    "ground_dephasing_s_inverse": 11218.99200484083,
+    "optical_dephasing_s_inverse": 2916782.4715778083,
+    "positive_construction_margin_s_inverse": 2913977.723576598
+  },
+  "stationary": {
+    "rates": [
+      {
+        "alpha_abs_per_m": 22.35810742124337,
+        "alpha_em_per_m": 6.924136579119664,
+        "alpha_net_per_m": 15.433970842088762,
+        "kubo_relative_residual": 1.5629449794788761e-12,
+        "absorption_only_transmission_L12p5mm": 0.7561796167220516
+      },
+      {
+        "alpha_abs_per_m": 0.7169192138384057,
+        "alpha_em_per_m": 3.006088195810042,
+        "alpha_net_per_m": -2.289168981966118,
+        "kubo_relative_residual": 1.8358398860348874e-12,
+        "absorption_only_transmission_L12p5mm": 0.9910785443013092
+      }
+    ],
+    "audit": {
+      "maximum_commutator_relative_residual": 2.6386816921563258e-14,
+      "noise_greater_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 2.4315380187231564e-13,
+        "minimum_eigenvalue": 1.231558419849182e-07,
+        "minimum_relative_eigenvalue": 1.9946821848522647e-07
+      },
+      "noise_lesser_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 2.328666066055002e-13,
+        "minimum_eigenvalue": 6.574636995918437e-09,
+        "minimum_relative_eigenvalue": 1.944991397858837e-09
+      },
+      "passed": true
+    },
+    "maxwell_chi_relative_error": 3.5672075151572226e-14
+  },
+  "periodic": [
+    {
+      "seed_amplitude_scale": 0.0,
+      "mean_order": 3,
+      "rates": [
+        {
+          "alpha_abs_per_m": 22.358107421243268,
+          "alpha_em_per_m": 6.9241365791196285,
+          "alpha_net_per_m": 15.433970842088696,
+          "kubo_relative_residual": 1.5628655292460916e-12,
+          "absorption_only_transmission_L12p5mm": 0.7561796167220527
+        },
+        {
+          "alpha_abs_per_m": 0.7169192138384041,
+          "alpha_em_per_m": 3.006088195810039,
+          "alpha_net_per_m": -2.289168981977154,
+          "kubo_relative_residual": 1.8359876159685848e-12,
+          "absorption_only_transmission_L12p5mm": 0.9910785443013093
+        }
+      ],
+      "audit": {
+        "maximum_commutator_relative_residual": 2.6304043866024903e-14,
+        "noise_greater_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.3970246692605018e-13,
+          "minimum_eigenvalue": 6.574637048922371e-09,
+          "minimum_relative_eigenvalue": 9.72640983662158e-10
+        },
+        "noise_lesser_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.397028642471419e-13,
+          "minimum_eigenvalue": 6.574636961318835e-09,
+          "minimum_relative_eigenvalue": 9.726409707022352e-10
+        },
+        "passed": true
+      },
+      "atomic_diagnostics": {
+        "phase_samples": 96,
+        "period_map_spectral_radius": 0.9992702353447416,
+        "decay_gap_s_inverse": 2198877.2435419676,
+        "maximum_state_equation_relative_residual": 7.46177593258198e-18,
+        "maximum_state_trace_error": 2.220459691966879e-16,
+        "maximum_state_hermiticity_error": 1.822536326122334e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0015299013158407027,
+        "maximum_dynamic_einstein_relative_residual": 4.9005912188149414e-17,
+        "maximum_dynamic_commutator_relative_residual": 2.6509556474755295e-17,
+        "phase_diffusion": {
+          "passed": true,
+          "minimum_eigenvalue": -4.0076196690826735e-10,
+          "minimum_relative_eigenvalue": -1.123088952914546e-16,
+          "maximum_hermiticity_relative_error": 3.225722134049329e-14
+        },
+        "phase_ordered_covariance": {
+          "passed": true,
+          "minimum_eigenvalue": 0.0015299013158407474,
+          "minimum_relative_eigenvalue": 0.0010284996083314653,
+          "maximum_hermiticity_relative_error": 2.4854420321320337e-14
+        },
+        "scope": "sampled periodic state and exact jump functional; harmonic truncation requires convergence",
+        "passed": true
+      },
+      "drift_real_diagonal": [
+        -7.716985421044348,
+        1.144584490988577,
+        -7.716985421079311,
+        1.1445844909830527
+      ],
+      "stationary_response_relative_error": 2.6866806402721953e-15
+    },
+    {
+      "seed_amplitude_scale": 1.0,
+      "mean_order": 3,
+      "rates": [
+        {
+          "alpha_abs_per_m": 53.964758792791194,
+          "alpha_em_per_m": 38.56414225843728,
+          "alpha_net_per_m": 15.400616534433233,
+          "kubo_relative_residual": 1.4698089524954116e-12,
+          "absorption_only_transmission_L12p5mm": 0.5093807611031121
+        },
+        {
+          "alpha_abs_per_m": 5.025669198149325,
+          "alpha_em_per_m": 7.309736096985283,
+          "alpha_net_per_m": -2.284066898823446,
+          "kubo_relative_residual": 1.7116581545913578e-12,
+          "absorption_only_transmission_L12p5mm": 0.9391116864159591
+        }
+      ],
+      "audit": {
+        "maximum_commutator_relative_residual": 5.776511224060403e-14,
+        "noise_greater_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.7007364253494994e-13,
+          "minimum_eigenvalue": 8.022264571614099e-06,
+          "minimum_relative_eigenvalue": 4.53426230728131e-07
+        },
+        "noise_lesser_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.7007213244876017e-13,
+          "minimum_eigenvalue": 8.02226457234759e-06,
+          "minimum_relative_eigenvalue": 4.5342623076958866e-07
+        },
+        "passed": true
+      },
+      "atomic_diagnostics": {
+        "phase_samples": 96,
+        "period_map_spectral_radius": 0.999270184197015,
+        "decay_gap_s_inverse": 2199031.414666277,
+        "maximum_state_equation_relative_residual": 1.012638641263993e-15,
+        "maximum_state_trace_error": 2.2204509011036916e-16,
+        "maximum_state_hermiticity_error": 4.2756347323954535e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0015302867513795001,
+        "maximum_dynamic_einstein_relative_residual": 1.7178946693866077e-15,
+        "maximum_dynamic_commutator_relative_residual": 2.5275022322366764e-15,
+        "phase_diffusion": {
+          "passed": true,
+          "minimum_eigenvalue": -5.370107079765548e-09,
+          "minimum_relative_eigenvalue": -3.143930847397852e-16,
+          "maximum_hermiticity_relative_error": 6.874202524853038e-14
+        },
+        "phase_ordered_covariance": {
+          "passed": true,
+          "minimum_eigenvalue": 0.0015302867513794633,
+          "minimum_relative_eigenvalue": 0.0010288448965768934,
+          "maximum_hermiticity_relative_error": 5.683416379536924e-14
+        },
+        "scope": "sampled periodic state and exact jump functional; harmonic truncation requires convergence",
+        "passed": true
+      },
+      "drift_real_diagonal": [
+        -7.7003082672166165,
+        1.142033449411723,
+        -7.7003082671358065,
+        1.1420334494241273
+      ]
+    },
+    {
+      "seed_amplitude_scale": 1.0,
+      "mean_order": 4,
+      "rates": [
+        {
+          "alpha_abs_per_m": 53.964758792789674,
+          "alpha_em_per_m": 38.564142258436085,
+          "alpha_net_per_m": 15.40061653443199,
+          "kubo_relative_residual": 1.4528237912599507e-12,
+          "absorption_only_transmission_L12p5mm": 0.5093807611031218
+        },
+        {
+          "alpha_abs_per_m": 5.025669198149218,
+          "alpha_em_per_m": 7.309736096985131,
+          "alpha_net_per_m": -2.2840668988232977,
+          "kubo_relative_residual": 1.725874382609225e-12,
+          "absorption_only_transmission_L12p5mm": 0.9391116864159603
+        }
+      ],
+      "audit": {
+        "maximum_commutator_relative_residual": 5.778260029007345e-14,
+        "noise_greater_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.700703726970376e-13,
+          "minimum_eigenvalue": 8.022264572965208e-06,
+          "minimum_relative_eigenvalue": 4.534262308045081e-07
+        },
+        "noise_lesser_by_reservoir": {
+          "passed": true,
+          "maximum_hermiticity_relative_residual": 1.7007070675557048e-13,
+          "minimum_eigenvalue": 8.02226457197533e-06,
+          "minimum_relative_eigenvalue": 4.5342623074855927e-07
+        },
+        "passed": true
+      },
+      "atomic_diagnostics": {
+        "phase_samples": 96,
+        "period_map_spectral_radius": 0.999270184197015,
+        "decay_gap_s_inverse": 2199031.414666277,
+        "maximum_state_equation_relative_residual": 1.9927878612819558e-17,
+        "maximum_state_trace_error": 2.220450972010012e-16,
+        "maximum_state_hermiticity_error": 4.275622915876757e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0015302867513794132,
+        "maximum_dynamic_einstein_relative_residual": 1.5902751441420118e-16,
+        "maximum_dynamic_commutator_relative_residual": 6.448264477828041e-17,
+        "phase_diffusion": {
+          "passed": true,
+          "minimum_eigenvalue": -5.216583136907009e-09,
+          "minimum_relative_eigenvalue": -3.2194258709361174e-16,
+          "maximum_hermiticity_relative_error": 6.874202648625667e-14
+        },
+        "phase_ordered_covariance": {
+          "passed": true,
+          "minimum_eigenvalue": 0.0015302867513794607,
+          "minimum_relative_eigenvalue": 0.0010288448965768916,
+          "maximum_hermiticity_relative_error": 5.6834158401662854e-14
+        },
+        "scope": "sampled periodic state and exact jump functional; harmonic truncation requires convergence",
+        "passed": true
+      },
+      "drift_real_diagonal": [
+        -7.700308267215995,
+        1.1420334494116489,
+        -7.700308267135172,
+        1.142033449424079
+      ]
+    }
+  ],
+  "runtime_seconds": 0.21248829999240115,
+  "scope": "conditional production four-level Lindblad; full pump dressing; local prescribed probe-only carrier; no propagation, Doppler average or microscopic Zeeman claim; no fit"
+}

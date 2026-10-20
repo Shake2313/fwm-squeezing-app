@@ -1,0 +1,27 @@
+{
+  "origin": "ai_source_verification",
+  "marker": "⟦AI⟧",
+  "declarations": [
+    {
+      "record": "fit.json",
+      "declared_spec_snapshot": "fit_spec_chebyshev_declared.md",
+      "sha256": "34b3bc740238ce03210ae74da246f64a782d4c946cb01fb964b30b5639adb65c",
+      "matches_record": true,
+      "reconstruction": "exact current append-only declaration prefix with its original single final LF"
+    },
+    {
+      "record": "spline_fit.json",
+      "declared_spec_snapshot": "fit_spec_spline_declared.md",
+      "sha256": "2d8a7b70a37ba16311d2d790fb08b744cbfee36e7cef4c094e4c3835e12b6589",
+      "matches_record": true,
+      "reconstruction": "exact current append-only declaration prefix with its original single final LF"
+    },
+    {
+      "record": "interpolation_record.json",
+      "declared_spec_snapshot": "fit_spec.md",
+      "sha256": "6e7a6acd4f127c3622bf0928fcd073c7f754204878b92a192c63469183735c0d",
+      "matches_record": true
+    }
+  ],
+  "historical_records_modified": false
+}

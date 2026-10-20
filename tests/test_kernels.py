@@ -69,7 +69,7 @@ _MAG_BASE = dict(
     wall_coherence_ms=3.0, transit_relax_khz=80.0, dark_return_khz=1.0,
     buffer_ground_relax_khz=3.0, collisional_depol_khz=0.5,
     residual_transverse_b_ut=0.05, transverse_field_angle_deg=0.0,
-    line_strength=1.0, doppler="on", velocity_classes=9, scan_points=61)
+    line_strength=1.0, doppler="off", scan_points=61)   # Doppler on is pole–residue
 
 _MAG_CASES = {
     "paraffin Fe1": dict(_MAG_BASE),
@@ -97,6 +97,49 @@ def test_magneto_kernel_matches_reference(name):
         scale = max(np.abs(ref[key]).max(), 1e-300)
         worst = np.abs(fast[key] - ref[key]).max() / scale
         assert worst < 1e-9, f"{name}/{key}: rel diff {worst:.3e}"
+
+
+@pytest.mark.parametrize("cell", ("two-region", "buffer"))
+def test_magneto_velocity_grid_kernels_match_numpy(cell):
+    # The (B x velocity) kernels still serve Doppler-off scans and the pole
+    # guard's grid fallback; check them on several velocity classes directly.
+    from gabes import core, zeeman
+
+    gamma = 2 * np.pi * 5.746e6
+    transit = 0.0 if cell == "two-region" else 2 * np.pi * 3e3
+    light = zeeman.zeeman_manifold(2, 1, gamma=gamma, gamma_gg=2 * np.pi * 80e3,
+                                   transit_rate=transit)
+    scheme = MagnetoScheme()
+    b = np.array([-2e-7, 0.0, 3e-7])
+    no_drive = {+1: 0.0, -1: 0.0}
+    C_z = core.comm_super(scheme._hamiltonian(light, (0.0, 0.0, 1.0), 0.5, -1 / 6, 0.0,
+                                              no_drive))
+    L_light = (core.build_liouvillian(scheme._hamiltonian(
+        light, (5e-8, 0.0, 0.0), 0.5, -1 / 6, 2 * np.pi * 2e6, {+1: 1.0, -1: 1.0}), light)[None]
+        + b[:, None, None] * C_z[None])
+    deff = 2 * np.pi * np.linspace(-400e6, 400e6, 7)
+
+    def run(numba_on):
+        original = kernels.NUMBA_AVAILABLE
+        kernels.NUMBA_AVAILABLE = numba_on
+        try:
+            if cell == "buffer":
+                return MagnetoScheme._steady_state_buffer(
+                    L_light, deff, light.S_v, light.n_levels)
+            dark = zeeman.zeeman_manifold(2, 1, gamma=gamma, gamma_gg=2 * np.pi * 333.0,
+                                          transit_rate=0.0)
+            L_dark = (core.build_liouvillian(scheme._hamiltonian(
+                dark, (5e-8, 0.0, 0.0), 0.5, -1 / 6, 0.0, no_drive), dark)[None]
+                + b[:, None, None] * C_z[None])
+            return MagnetoScheme._steady_state_two_region(
+                L_light, L_dark, deff, light.S_v, light.n_levels,
+                2 * np.pi * 80e3, 2 * np.pi * 1e3)[0]
+        finally:
+            kernels.NUMBA_AVAILABLE = original
+
+    fast, ref = run(True), run(False)
+    assert fast.shape == (b.size, deff.size, light.n_levels, light.n_levels)
+    assert np.abs(fast - ref).max() / np.abs(ref).max() < 1e-9
 
 
 # --- Λ / Rydberg (P3): affine-scan kernel must match the NumPy loop ----------

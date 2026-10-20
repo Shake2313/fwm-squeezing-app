@@ -1,0 +1,51 @@
+{
+  "record": "FWM-OPERATING-F2-2026-10-14-COMPLETE",
+  "origin": "source_evidence_with_ai_recommendation",
+  "status": "supported_in_declared_finite_scope",
+  "source": "analysis/squeezing/operating_point_rb87_f2_20261014/README.md",
+  "params": {
+    "mode": "Gain diagnostic",
+    "opd": -1.1,
+    "tpd": 22.0,
+    "temp_c": 117.0,
+    "cell_mm": 12.5,
+    "pump_mw": 300.0,
+    "probe_uw": 8.0,
+    "detection_eff_pct": 78.1,
+    "excess_noise_mode": "constant",
+    "excess_noise": 0.0,
+    "excess_noise_slope": 0.0,
+    "loss_pct": 5.5,
+    "transit_rate_khz": 100.0,
+    "eom_residual_carrier_uw": 0.0,
+    "eom_other_sidebands_uw": 0.0,
+    "pump_waist_um": 530.0,
+    "probe_waist_um": 330.0,
+    "qe_pct": 92.0,
+    "line_strength": 0.74,
+    "mode_overlap_penalty": 1.0,
+    "polarization_penalty": 1.0,
+    "zeeman_participation_penalty": 1.0,
+    "resolution": "Balanced  (~2 s)",
+    "floquet_order": 3,
+    "seeded_angle_deg": 0.32,
+    "gain_closure_enabled": false
+  },
+  "nominal_noise_dB": {
+    "a0": -5.59397061376392,
+    "a01": -5.226666728014284,
+    "a02": -4.8880196132683125
+  },
+  "gain_s": 4.116647884734132,
+  "probe_offset_mhz": -12.343786749999808,
+  "worst_noise_dB": {
+    "a0": -5.4515194050564215,
+    "a01": -5.12397508539404,
+    "a02": -4.79411657915307
+  },
+  "minimum_gain_s": 3.5613154581294184,
+  "stored_spectrum_calls": 2718,
+  "selected_apparatus_spectra": 81,
+  "physical_squeezing_certified": false,
+  "recommendation": "⟦AI⟧ Select the default-seed Fprime2 plateau for its tested gain and slope-noise margins."
+}

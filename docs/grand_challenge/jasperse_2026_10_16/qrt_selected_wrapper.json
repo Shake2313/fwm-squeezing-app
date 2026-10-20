@@ -1,0 +1,64 @@
+{
+  "probe": {
+    "alpha_abs_per_m": 126.97682655160467,
+    "alpha_em_per_m": 102.10174589913784,
+    "alpha_net_per_m": 24.875080652466806,
+    "in_cell_absorption_transmission": 0.2044952907472869,
+    "net_diagonal_transmission": 0.7327589331821193,
+    "absorption_quadrature_absolute_error_per_m": 0.0034313009153589904,
+    "absorption_quadrature_relative_error": 2.7023048287984067e-05
+  },
+  "conjugate": {
+    "alpha_abs_per_m": 15.375923293257554,
+    "alpha_em_per_m": 19.193585758371658,
+    "alpha_net_per_m": -3.817662465114104,
+    "in_cell_absorption_transmission": 0.8251426147976672,
+    "net_diagonal_transmission": 1.0488777476426636,
+    "absorption_quadrature_absolute_error_per_m": 0.0003195526804100956,
+    "absorption_quadrature_relative_error": 2.078266614078529e-05
+  },
+  "status": "CONDITIONAL_REDUCED_LINDBLAD_ABSORPTION",
+  "method": "connected periodic QRT plus adaptive normalized truncated Maxwell quadrature",
+  "velocity_cutoff_sigma": 4.0,
+  "maxwell_tail_convergence_claimed": false,
+  "velocity_classes_solved": 212,
+  "local_qrts_solved": 214,
+  "dressed_resonance_breakpoints_m_s": [
+    -635.9078030185963
+  ],
+  "quadrature_reported_scaled_error": 6.358410548136365e-05,
+  "quadrature_evaluations": 210,
+  "quadrature_success": true,
+  "relative_tolerance": 0.005,
+  "mean_order": 3,
+  "response_order": 3,
+  "floquet_control_orders": [
+    [
+      3,
+      3
+    ],
+    [
+      4,
+      4
+    ]
+  ],
+  "floquet_controls": [
+    {
+      "velocity_m_s": -635.9078030185963,
+      "maximum_relative_rate_difference": 1.7111349088792015e-14
+    },
+    {
+      "velocity_m_s": 0.0,
+      "maximum_relative_rate_difference": 5.26671666216837e-16
+    }
+  ],
+  "maximum_floquet_relative_rate_difference": 1.7111349088792015e-14,
+  "maximum_local_kubo_relative_residual": 3.1862195291160123e-15,
+  "runtime_seconds": 0.791218200000003,
+  "cell_length_m": 0.0125,
+  "delta_internal_MHz": 23.7,
+  "source_planes": "prescribed vapor-entry pump/seed; zero coherent conjugate; atomic medium before windows",
+  "scope": "absorption-only loss coefficient for the declared pump-dressed four-level Lindblad; finite input seed and uniform pump prescribed locally; no mean-field path, angular Doppler, Zeeman, physical squeezing or empirical fit claim",
+  "emission_retained_separately": true,
+  "already_in_atomic_transfer_do_not_reapply": true
+}

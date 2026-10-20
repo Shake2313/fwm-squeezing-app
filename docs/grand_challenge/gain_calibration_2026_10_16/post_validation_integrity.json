@@ -1,0 +1,23 @@
+{
+  "origin": "source_evidence",
+  "marker": "⟦AI⟧",
+  "source_files": 281,
+  "source_frozen_during_full_run": true,
+  "source_identity_scope": "SHA256 plain file bytes, before and after full run; current plain/mmap equality checked after byte-identical cache refresh.",
+  "changed_source_paths_after_run": [],
+  "plain_mmap_mismatches_remaining": [],
+  "post_full_cache_refresh": "post_full_cache_consistency.json",
+  "related_test_rerun": "post_full_cache_related_test.json",
+  "gc_source_matches_full_regression": true,
+  "sealed_artifact_count": 37,
+  "changed_sealed_artifacts": [],
+  "original_workbook_sha256": "2653fe73abca75550b2b8665da8c8fff16f5c28f155e029f1e6da155a9409ed0",
+  "original_workbook_unchanged": true,
+  "failed_fit_records_unchanged": {
+    "fit.json": "535cea48a8c977f2507cd47d7840c5daf771dbb8697d51a731a9125e10dd63c3",
+    "spline_fit.json": "cc86c9a900584edad9d3750591861ab242ef99513e56fa1fcbbf0139a6859506"
+  },
+  "production_reference_record_matches_pin": true,
+  "interpolation_runner_matches_record": true,
+  "official_milestones_changed": false
+}

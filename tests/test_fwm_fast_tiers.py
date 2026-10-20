@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from gabes import kernels
+from gabes import doppler, kernels
 from gabes.schemes import fwm
 
 SMALL = dict(T=394.15, P_pump=0.6, P_probe=8e-6, line_strength=0.74,
@@ -60,6 +60,32 @@ def test_pole_request_falls_back_to_the_grid_when_identities_fail(monkeypatch):
     spec = _small(fwm.RESPONSE_POLE_ADAPTIVE, fwm.PHASE_BALANCED)
     assert spec["response_estimator"]["method"] == fwm.RESPONSE_GRID
     assert "fallback_reason" in spec["response_estimator"]
+
+
+@pytest.mark.parametrize("n_f", (1, 2))
+def test_chi_pole_rows_reproduce_the_table_velocity_sum(n_f):
+    T, D, branch = 394.15, 0.9, -1
+    atom = fwm.collisional_atom(T)
+    Op, Os = fwm.rabi_freq(0.6, fwm.W_PUMP), fwm.rabi_freq(8e-6, fwm.W_PROBE)
+    delta = 2 * np.pi * np.linspace(-0.4e9, 0.4e9, 5)
+    v, w = doppler.velocity_grid(T, dv=40.0, cutoff_sigma=3.0)
+    nodes = 2 * np.pi * D * 1e9 - fwm.K_VEC * v
+    axis = np.unique(nodes)
+    rows = fwm.chi_pole_rows(Op, Op, Os, Os, delta, branch, atom=atom, n_f=n_f,
+                             guard_delta_eff=float(np.median(axis)))
+    assert rows is not None and rows.guard_max_relative <= fwm.POLE_GUARD_RTOL
+    tables = fwm.chi_matrix_table(Op, Op, Os, Os, delta, axis, branch, atom=atom, n_f=n_f)
+    idx = np.searchsorted(axis, nodes)
+    for got, table in zip(rows.mean(nodes, w), tables):
+        np.testing.assert_allclose(got, table[:, idx] @ w, rtol=1e-8)
+
+
+def test_chi_pole_rows_decline_when_the_guard_fails(monkeypatch):
+    monkeypatch.setattr(fwm, "POLE_GUARD_RTOL", -1.0)
+    Op, Os = fwm.rabi_freq(0.6, fwm.W_PUMP), fwm.rabi_freq(8e-6, fwm.W_PROBE)
+    rows = fwm.chi_pole_rows(Op, Op, Os, Os, np.zeros(2), -1,
+                             atom=fwm.collisional_atom(394.15), guard_delta_eff=0.0)
+    assert rows is None
 
 
 def test_unknown_response_method_is_rejected():
@@ -189,10 +215,61 @@ def test_compiled_scorer_matches_the_python_segmented_gain(P_pump, P_seed):
         np.ascontiguousarray(M), fwm.L_CELL / 64, np.ascontiguousarray(profile),
         P_pump, P_seed, 1.3, core._EXP_ARG_CLAMP)
     assert center < probe.max()
-    # Rows past the Manley-Rowe budget feed the pump debit back into the next
-    # step's coupling, which amplifies ~1e-16 round-off to ~1e-10.
+    # This arbitrary complex drift reaches gains ~3e46 and amplifies floating
+    # round-off through the pump-feedback recurrence. At current-carrier row4,
+    # independent 60/90-digit mpmath.expm gives Gc=13474.918625597882:
+    # NumPy/compiled relative errors are 2.54e-8/1.20e-9. Preserve stress coverage
+    # with that measured numerical allowance; this is not a physics tolerance.
+    # Evidence: docs/grand_challenge/mean_gain_2026_10_15/scorer_numerical_check.json
     np.testing.assert_allclose(got_s, G_s, rtol=1e-8)
-    np.testing.assert_allclose(got_c, G_c, rtol=1e-8, atol=1e-300)
+    np.testing.assert_allclose(got_c, G_c, rtol=1e-7, atol=1e-300)
+
+
+@pytest.mark.parametrize("P_pump, P_seed", ((0.6, 8e-6), (0.05, 2e-4), (1.2, 1e-6)))
+def test_compiled_scorer_matches_bounded_canonical_pair_drift(P_pump, P_seed):
+    """Current carrier, canonical pair coupling and passive arm attenuation."""
+    if not kernels.available():
+        pytest.skip("compiled path unavailable")
+    from gabes import constants, core, hyperfine, observables
+    count = 41
+    center = fwm.branch_center_GHz(0.9, -1)
+    probe = np.linspace(center - 0.3, center + 0.3, count)
+    _, k_probe, k_conj = fwm.seeded_option_a_wavenumbers(0.9, probe)
+    mismatch = fwm.seeded_phase_mismatch_z(0.9, probe)
+    density = hyperfine.number_density(394.15)
+    length = fwm.L_CELL
+    area_ratio = 1.3
+    q_ratio = np.sqrt(area_ratio * k_probe / k_conj)
+    pair_coupling = (np.linspace(0.01, 8.0, count) / length
+                     * np.exp(1j * np.linspace(-1.0, 1.0, count)))
+    probe_alpha = np.linspace(0.0, 2.0, count) / length
+    conj_alpha = np.linspace(2.0, 0.0, count) / length
+    prefactor = (-2.0 * density * constants.DIPOLE_D1**2 * 0.1
+                 / (constants.EPS_0 * constants.HBAR))
+    chi_ss = 1j * probe_alpha / k_probe / prefactor
+    chi_cc = 1j * conj_alpha / k_conj / prefactor
+    chi_sc = 2.0 * pair_coupling * q_ratio / (1j * k_probe) / prefactor
+    chi_cs = np.conj(-2.0 * pair_coupling.conj() / q_ratio / (1j * k_conj)) / prefactor
+    profile = fwm._gaussian_overlap_profile(
+        64, length, fwm.W_PUMP, fwm.W_PROBE, 0.32)
+    expected_s, expected_c, _, _ = fwm._ultra_segmented_gain(
+        chi_ss, chi_sc, chi_cs, chi_cc, k_probe, k_conj, length,
+        density, 0.1, mismatch, np.ones(64), profile, P_pump, P_seed,
+        conjugate_power_ratio=area_ratio)
+    matrix = observables._gain_matrix_from_chi(
+        chi_ss, chi_sc, chi_cs, chi_cc, k_probe, k_conj, density,
+        constants.DIPOLE_D1, 0.1, delta_k_z=mismatch)
+    actual_s, actual_c = kernels.segmented_depletion_gain(
+        np.ascontiguousarray(matrix), length / 64,
+        np.ascontiguousarray(profile), P_pump, P_seed, area_ratio,
+        core._EXP_ARG_CLAMP)
+    np.testing.assert_allclose(actual_s, expected_s, rtol=1e-12)
+    np.testing.assert_allclose(actual_c, expected_c, rtol=1e-12, atol=1e-300)
+    # This declared fixture reaches substantial depletion while staying within
+    # its final power budget; this is not a theorem about the approximate solver.
+    used_fraction = ((np.maximum(expected_s - 1.0, 0.0)
+                      + area_ratio * expected_c) * P_seed / P_pump)
+    assert 0.5 < np.max(used_fraction) <= 1.0
 
 
 @pytest.mark.parametrize("T, D", ((394.15, 0.9), (408.15, -2.2), (423.15, 2.5), (333.15, 0.3)))

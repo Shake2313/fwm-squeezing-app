@@ -1,0 +1,31 @@
+{
+  "origin": "source_evidence",
+  "points": 401,
+  "baseline_loaded_sha256": "51fda379178c0e945b06dd8e7a739dc97aef47f840c91da252ec72182c5fa48c",
+  "current_loaded_sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+  "all_legacy_arrays_bitwise_equal": true,
+  "arrays": {
+    "probe_axis_GHz": true,
+    "G_s": true,
+    "G_c": true,
+    "gain_referred_noise_dB": true,
+    "S_dB": true,
+    "G_s_smallsignal": true,
+    "G_c_smallsignal": true,
+    "T_field_small_signal": true,
+    "Q_photon_flux": true,
+    "T_canonical_small_signal": true,
+    "conjugate_photon_flux_gain_smallsignal": true,
+    "photon_flux_gap_smallsignal": true,
+    "commutator_defect_smallsignal": true,
+    "commutator_defect_max_smallsignal": true,
+    "omega_probe_rad_s": true,
+    "omega_conjugate_rad_s": true,
+    "k_probe_propagation_per_m": true,
+    "k_conjugate_propagation_per_m": true,
+    "delta_k_z": true,
+    "delta_k_z_vacuum": true
+  },
+  "physical_squeezing_dB_before": null,
+  "physical_squeezing_dB_after": null
+}

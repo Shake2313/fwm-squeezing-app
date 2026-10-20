@@ -1,0 +1,55 @@
+{
+  "schema": "gabes-mean-gain-gc-impact-comparison-v1",
+  "passed": true,
+  "baseline_loaded_fwm_sha256": "bba9038231826c0bb8ba2b502b492f3be822866b72f6bf4121398ae7f29937f7",
+  "current_loaded_fwm_sha256": "4bb3121128ab9760211bd7e2ee971c4a3db64ec6d563a48849acb0b5cc8bab04",
+  "entrypoint_import_count": 21,
+  "fwm_dependency_nodes_compared": 34,
+  "unchanged_numerical_source_count": 94,
+  "sealed_artifacts_preserved": true,
+  "changed_numerical_sources": [],
+  "changed_sealed_artifacts": [],
+  "changed_gc_fwm_dependencies": [],
+  "changed_gc_observables_dependencies": [],
+  "changed_raw_grouped_import_fwm_ast": [
+    "atoms",
+    "constants",
+    "hyperfine"
+  ],
+  "changed_raw_grouped_import_observables_ast": [],
+  "ast_comparison_scope": "Complete dependency AST with imports normalized per binding; raw grouped-import changes are retained separately. No body/constants normalization or whitelist.",
+  "changed_relevant_numerical_sources": [],
+  "historical_validator_behavior_unchanged": true,
+  "fwm_runtime_constants_unchanged": true,
+  "representative_reports": {
+    "foundation_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "atomic_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "field_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "readout_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    }
+  },
+  "scope": "⟦AI⟧ Daily-review off-path changes: paired same-runtime native numerical payloads and complete bound dependency ASTs, historical validators, runtime constants and 37 sealed artifacts. No thermal/optical/experiment promotion.",
+  "review_date": "2026-10-19",
+  "runtime_reconciliation": {
+    "origin": "ai_verification",
+    "note": "⟦AI⟧ Archived evidence used Python3.14.2/NumPy2.4.1; available runtimes use Python3.12/NumPy2.2. Cross-runtime AST serialization and floating-point payload hashes differ. The unchanged SHA-pinned historical snapshots and current source are compared in the same Python3.12.14/NumPy2.2 runtime; original evidence remains untouched.",
+    "baseline": "gc_same_runtime_baseline.json",
+    "current": "gc_impact_matched_runtime.json"
+  },
+  "origin": "ai_recheck_of_source_evidence"
+}

@@ -1,0 +1,4747 @@
+{
+  "source": "D:\\20261013_TPD_vs_Gain 및 스퀴징 특성 추정.xlsx",
+  "sha256": "2653fe73abca75550b2b8665da8c8fff16f5c28f155e029f1e6da155a9409ed0",
+  "sheets": [
+    {
+      "name": "Sheet1",
+      "state": "visible",
+      "xml": "xl/worksheets/sheet1.xml",
+      "dimension": {
+        "ref": "A1:K36"
+      },
+      "rows": [
+        [
+          {
+            "cell": "A1",
+            "value": "초기 Seed [mV]",
+            "formula": null
+          },
+          {
+            "cell": "B1",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "C1",
+            "value": "시드 파워 환산 [uW]",
+            "formula": null
+          },
+          {
+            "cell": "D1",
+            "value": 3.063457330415755,
+            "formula": "B1*20/228.5"
+          },
+          {
+            "cell": "E1",
+            "value": "in-cell efficiency, seed (10/06)",
+            "formula": null
+          },
+          {
+            "cell": "F1",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "G1",
+            "value": "Detector QE",
+            "formula": null
+          },
+          {
+            "cell": "H1",
+            "value": 0.9045081761006288,
+            "formula": "0.58*1239.8/795"
+          }
+        ],
+        [
+          {
+            "cell": "A2",
+            "value": "펌프 파워 [mW]",
+            "formula": null
+          },
+          {
+            "cell": "B2",
+            "value": 294.804,
+            "formula": "76*3.879"
+          },
+          {
+            "cell": "C2",
+            "value": "One Photon Detuning [GHz]",
+            "formula": null
+          },
+          {
+            "cell": "D2",
+            "value": "~1.0",
+            "formula": null
+          },
+          {
+            "cell": "E2",
+            "value": "after-cell efficiency (10/06)",
+            "formula": null
+          },
+          {
+            "cell": "F2",
+            "value": 0.9709,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A4",
+            "value": "EOM 주파수 [MHz]",
+            "formula": null
+          },
+          {
+            "cell": "B4",
+            "value": "TPD [MHz]",
+            "formula": null
+          },
+          {
+            "cell": "C4",
+            "value": "P_probe [mV]",
+            "formula": null
+          },
+          {
+            "cell": "D4",
+            "value": "P_conj [mV]",
+            "formula": null
+          },
+          {
+            "cell": "E4",
+            "value": "Optical Power [uW]",
+            "formula": null
+          },
+          {
+            "cell": "F4",
+            "value": "G_probe",
+            "formula": null
+          },
+          {
+            "cell": "G4",
+            "value": "G_conj",
+            "formula": null
+          },
+          {
+            "cell": "H4",
+            "value": "FWM Noise [dBm]",
+            "formula": null
+          },
+          {
+            "cell": "I4",
+            "value": "SQL [dBm]",
+            "formula": null
+          },
+          {
+            "cell": "J4",
+            "value": "Squeezing Factor",
+            "formula": null
+          },
+          {
+            "cell": "K4",
+            "value": "Squeezing Degree [dB]",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A5",
+            "value": 3044.0,
+            "formula": null
+          },
+          {
+            "cell": "B5",
+            "value": 8.0,
+            "formula": "A5-3036"
+          },
+          {
+            "cell": "C5",
+            "value": 162.0,
+            "formula": null
+          },
+          {
+            "cell": "D5",
+            "value": 130.0,
+            "formula": null
+          },
+          {
+            "cell": "E5",
+            "value": 25.557986870897157,
+            "formula": "(C5+D5)*20/228.5"
+          },
+          {
+            "cell": "F5",
+            "value": 4.628571428571429,
+            "formula": "C5/$B$1"
+          },
+          {
+            "cell": "G5",
+            "value": 3.7142857142857144,
+            "formula": "D5/$B$1"
+          },
+          {
+            "cell": "H5",
+            "value": -82.0,
+            "formula": null
+          },
+          {
+            "cell": "I5",
+            "value": -81.02632862545224,
+            "formula": "$I$11+10*LOG10(E5/$E$11)"
+          },
+          {
+            "cell": "J5",
+            "value": -0.9991509391588818,
+            "formula": "LOG10((F5-G5)^2/(F5+G5))"
+          },
+          {
+            "cell": "K5",
+            "value": -0.973671374547763,
+            "formula": "H5-I5"
+          }
+        ],
+        [
+          {
+            "cell": "A6",
+            "value": 3043.0,
+            "formula": null
+          },
+          {
+            "cell": "B6",
+            "value": 7.0,
+            "formula": "A6-3036"
+          },
+          {
+            "cell": "C6",
+            "value": 191.0,
+            "formula": null
+          },
+          {
+            "cell": "D6",
+            "value": 150.0,
+            "formula": null
+          },
+          {
+            "cell": "E6",
+            "value": 29.846827133479213,
+            "formula": "(C6+D6)*20/228.5"
+          },
+          {
+            "cell": "F6",
+            "value": 5.457142857142857,
+            "formula": "C6/$B$1"
+          },
+          {
+            "cell": "G6",
+            "value": 4.285714285714286,
+            "formula": null
+          },
+          {
+            "cell": "H6",
+            "value": -82.0,
+            "formula": null
+          },
+          {
+            "cell": "I6",
+            "value": -80.35261335001144,
+            "formula": "$I$11+10*LOG10(E6/$E$11)"
+          },
+          {
+            "cell": "J6",
+            "value": -0.8512547099033022,
+            "formula": "LOG10((F6-G6)^2/(F6+G6))"
+          },
+          {
+            "cell": "K6",
+            "value": -1.6473866499885617,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A7",
+            "value": 3042.0,
+            "formula": null
+          },
+          {
+            "cell": "B7",
+            "value": 6.0,
+            "formula": null
+          },
+          {
+            "cell": "C7",
+            "value": 220.0,
+            "formula": null
+          },
+          {
+            "cell": "D7",
+            "value": 190.0,
+            "formula": null
+          },
+          {
+            "cell": "E7",
+            "value": 35.88621444201313,
+            "formula": null
+          },
+          {
+            "cell": "F7",
+            "value": 6.285714285714286,
+            "formula": null
+          },
+          {
+            "cell": "G7",
+            "value": 5.428571428571429,
+            "formula": null
+          },
+          {
+            "cell": "H7",
+            "value": -80.5,
+            "formula": null
+          },
+          {
+            "cell": "I7",
+            "value": -79.55231857273907,
+            "formula": "$I$11+10*LOG10(E7/$E$11)"
+          },
+          {
+            "cell": "J7",
+            "value": -1.2026093916306866,
+            "formula": null
+          },
+          {
+            "cell": "K7",
+            "value": -0.9476814272609317,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A8",
+            "value": 3041.0,
+            "formula": null
+          },
+          {
+            "cell": "B8",
+            "value": 5.0,
+            "formula": null
+          },
+          {
+            "cell": "C8",
+            "value": 273.0,
+            "formula": null
+          },
+          {
+            "cell": "D8",
+            "value": 242.0,
+            "formula": null
+          },
+          {
+            "cell": "E8",
+            "value": 45.076586433260395,
+            "formula": null
+          },
+          {
+            "cell": "F8",
+            "value": 7.8,
+            "formula": null
+          },
+          {
+            "cell": "G8",
+            "value": 6.914285714285715,
+            "formula": null
+          },
+          {
+            "cell": "H8",
+            "value": -80.5,
+            "formula": null
+          },
+          {
+            "cell": "I8",
+            "value": -78.56208484952451,
+            "formula": null
+          },
+          {
+            "cell": "J8",
+            "value": -1.2731518857229218,
+            "formula": null
+          },
+          {
+            "cell": "K8",
+            "value": -1.9379151504754901,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A9",
+            "value": 3040.0,
+            "formula": null
+          },
+          {
+            "cell": "B9",
+            "value": 4.0,
+            "formula": null
+          },
+          {
+            "cell": "C9",
+            "value": 341.0,
+            "formula": null
+          },
+          {
+            "cell": "D9",
+            "value": 311.0,
+            "formula": null
+          },
+          {
+            "cell": "E9",
+            "value": 57.06783369803063,
+            "formula": null
+          },
+          {
+            "cell": "F9",
+            "value": 9.742857142857142,
+            "formula": null
+          },
+          {
+            "cell": "G9",
+            "value": 8.885714285714286,
+            "formula": null
+          },
+          {
+            "cell": "H9",
+            "value": -80.0,
+            "formula": null
+          },
+          {
+            "cell": "I9",
+            "value": -77.53768118261722,
+            "formula": "$I$11+10*LOG10(E9/$E$11)"
+          },
+          {
+            "cell": "J9",
+            "value": -1.4040731306428722,
+            "formula": null
+          },
+          {
+            "cell": "K9",
+            "value": -2.46231881738278,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A10",
+            "value": 3039.0,
+            "formula": null
+          },
+          {
+            "cell": "B10",
+            "value": 3.0,
+            "formula": null
+          },
+          {
+            "cell": "C10",
+            "value": 415.0,
+            "formula": null
+          },
+          {
+            "cell": "D10",
+            "value": 397.0,
+            "formula": null
+          },
+          {
+            "cell": "E10",
+            "value": 71.07221006564552,
+            "formula": null
+          },
+          {
+            "cell": "F10",
+            "value": 11.857142857142858,
+            "formula": null
+          },
+          {
+            "cell": "G10",
+            "value": 11.342857142857143,
+            "formula": null
+          },
+          {
+            "cell": "H10",
+            "value": -80.0,
+            "formula": null
+          },
+          {
+            "cell": "I10",
+            "value": -76.58459684752467,
+            "formula": "$I$11+10*LOG10(E10/$E$11)"
+          },
+          {
+            "cell": "J10",
+            "value": -1.943079063384839,
+            "formula": null
+          },
+          {
+            "cell": "K10",
+            "value": -3.415403152475335,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A11",
+            "value": 3038.0,
+            "formula": null
+          },
+          {
+            "cell": "B11",
+            "value": 2.0,
+            "formula": null
+          },
+          {
+            "cell": "C11",
+            "value": 477.0,
+            "formula": null
+          },
+          {
+            "cell": "D11",
+            "value": 452.0,
+            "formula": null
+          },
+          {
+            "cell": "E11",
+            "value": 81.3129102844639,
+            "formula": null
+          },
+          {
+            "cell": "F11",
+            "value": 13.628571428571428,
+            "formula": null
+          },
+          {
+            "cell": "G11",
+            "value": 12.914285714285715,
+            "formula": null
+          },
+          {
+            "cell": "H11",
+            "value": -79.0,
+            "formula": null
+          },
+          {
+            "cell": "I11",
+            "value": -76.0,
+            "formula": null
+          },
+          {
+            "cell": "J11",
+            "value": -1.7162037409998432,
+            "formula": null
+          },
+          {
+            "cell": "K11",
+            "value": -3.0,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A12",
+            "value": 3037.0,
+            "formula": null
+          },
+          {
+            "cell": "B12",
+            "value": 1.0,
+            "formula": null
+          },
+          {
+            "cell": "C12",
+            "value": 573.0,
+            "formula": null
+          },
+          {
+            "cell": "D12",
+            "value": 551.0,
+            "formula": null
+          },
+          {
+            "cell": "E12",
+            "value": 98.38074398249454,
+            "formula": null
+          },
+          {
+            "cell": "F12",
+            "value": 16.37142857142857,
+            "formula": null
+          },
+          {
+            "cell": "G12",
+            "value": 15.742857142857142,
+            "formula": null
+          },
+          {
+            "cell": "H12",
+            "value": -76.5,
+            "formula": null
+          },
+          {
+            "cell": "I12",
+            "value": -75.17249402760599,
+            "formula": "$I$11+10*LOG10(E12/$E$11)"
+          },
+          {
+            "cell": "J12",
+            "value": -1.909988993938906,
+            "formula": null
+          },
+          {
+            "cell": "K12",
+            "value": -1.3275059723940075,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A13",
+            "value": 3036.0,
+            "formula": null
+          },
+          {
+            "cell": "B13",
+            "value": 0.0,
+            "formula": null
+          },
+          {
+            "cell": "C13",
+            "value": 674.0,
+            "formula": null
+          },
+          {
+            "cell": "D13",
+            "value": 656.0,
+            "formula": null
+          },
+          {
+            "cell": "E13",
+            "value": 116.41137855579869,
+            "formula": null
+          },
+          {
+            "cell": "F13",
+            "value": 19.257142857142856,
+            "formula": null
+          },
+          {
+            "cell": "G13",
+            "value": 18.742857142857144,
+            "formula": null
+          },
+          {
+            "cell": "H13",
+            "value": -76.0,
+            "formula": null
+          },
+          {
+            "cell": "I13",
+            "value": -74.44164073026556,
+            "formula": "$I$11+10*LOG10(E13/$E$11)"
+          },
+          {
+            "cell": "J13",
+            "value": -2.1573746751107525,
+            "formula": null
+          },
+          {
+            "cell": "K13",
+            "value": -1.5583592697344386,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A14",
+            "value": 3035.0,
+            "formula": null
+          },
+          {
+            "cell": "B14",
+            "value": -1.0,
+            "formula": null
+          },
+          {
+            "cell": "C14",
+            "value": 776.0,
+            "formula": null
+          },
+          {
+            "cell": "D14",
+            "value": 772.0,
+            "formula": null
+          },
+          {
+            "cell": "E14",
+            "value": 135.49234135667396,
+            "formula": null
+          },
+          {
+            "cell": "F14",
+            "value": 22.17142857142857,
+            "formula": null
+          },
+          {
+            "cell": "G14",
+            "value": 22.057142857142857,
+            "formula": null
+          },
+          {
+            "cell": "H14",
+            "value": -73.5,
+            "formula": null
+          },
+          {
+            "cell": "I14",
+            "value": -73.78244757646767,
+            "formula": "$I$11+10*LOG10(E14/$E$11)"
+          },
+          {
+            "cell": "J14",
+            "value": -3.5297190180412277,
+            "formula": null
+          },
+          {
+            "cell": "K14",
+            "value": 0.2824475764676748,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A15",
+            "value": 3034.0,
+            "formula": null
+          },
+          {
+            "cell": "B15",
+            "value": -2.0,
+            "formula": null
+          },
+          {
+            "cell": "C15",
+            "value": 870.0,
+            "formula": null
+          },
+          {
+            "cell": "D15",
+            "value": 850.0,
+            "formula": null
+          },
+          {
+            "cell": "E15",
+            "value": 150.54704595185996,
+            "formula": null
+          },
+          {
+            "cell": "F15",
+            "value": 24.857142857142858,
+            "formula": null
+          },
+          {
+            "cell": "G15",
+            "value": 24.285714285714285,
+            "formula": null
+          },
+          {
+            "cell": "H15",
+            "value": -71.0,
+            "formula": null
+          },
+          {
+            "cell": "I15",
+            "value": -73.32487267086093,
+            "formula": null
+          },
+          {
+            "cell": "J15",
+            "value": -2.1775364999298596,
+            "formula": null
+          },
+          {
+            "cell": "K15",
+            "value": 2.324872670860927,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A16",
+            "value": 3033.0,
+            "formula": null
+          },
+          {
+            "cell": "B16",
+            "value": -3.0,
+            "formula": null
+          },
+          {
+            "cell": "C16",
+            "value": 870.0,
+            "formula": null
+          },
+          {
+            "cell": "D16",
+            "value": 890.0,
+            "formula": null
+          },
+          {
+            "cell": "E16",
+            "value": 154.04814004376368,
+            "formula": null
+          },
+          {
+            "cell": "F16",
+            "value": 24.857142857142858,
+            "formula": null
+          },
+          {
+            "cell": "G16",
+            "value": 25.428571428571427,
+            "formula": null
+          },
+          {
+            "cell": "H16",
+            "value": -69.0,
+            "formula": null
+          },
+          {
+            "cell": "I16",
+            "value": -73.22503046179492,
+            "formula": null
+          },
+          {
+            "cell": "J16",
+            "value": -2.187520720836466,
+            "formula": null
+          },
+          {
+            "cell": "K16",
+            "value": 4.2250304617949155,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A17",
+            "value": 3032.0,
+            "formula": null
+          },
+          {
+            "cell": "B17",
+            "value": -4.0,
+            "formula": null
+          },
+          {
+            "cell": "C17",
+            "value": 820.0,
+            "formula": null
+          },
+          {
+            "cell": "D17",
+            "value": 860.0,
+            "formula": null
+          },
+          {
+            "cell": "E17",
+            "value": 147.04595185995623,
+            "formula": null
+          },
+          {
+            "cell": "F17",
+            "value": 23.428571428571427,
+            "formula": null
+          },
+          {
+            "cell": "G17",
+            "value": 24.571428571428573,
+            "formula": null
+          },
+          {
+            "cell": "H17",
+            "value": -68.0,
+            "formula": null
+          },
+          {
+            "cell": "I17",
+            "value": -73.4270643226778,
+            "formula": null
+          },
+          {
+            "cell": "J17",
+            "value": -1.5652573434202115,
+            "formula": null
+          },
+          {
+            "cell": "K17",
+            "value": 5.4270643226777935,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A18",
+            "value": 3031.0,
+            "formula": null
+          },
+          {
+            "cell": "B18",
+            "value": -5.0,
+            "formula": null
+          },
+          {
+            "cell": "C18",
+            "value": 690.0,
+            "formula": null
+          },
+          {
+            "cell": "D18",
+            "value": 760.0,
+            "formula": null
+          },
+          {
+            "cell": "E18",
+            "value": 126.91466083150985,
+            "formula": null
+          },
+          {
+            "cell": "F18",
+            "value": 19.714285714285715,
+            "formula": null
+          },
+          {
+            "cell": "G18",
+            "value": 21.714285714285715,
+            "formula": null
+          },
+          {
+            "cell": "H18",
+            "value": -67.5,
+            "formula": null
+          },
+          {
+            "cell": "I18",
+            "value": -74.06647711758667,
+            "formula": null
+          },
+          {
+            "cell": "J18",
+            "value": -1.0152399665567369,
+            "formula": null
+          },
+          {
+            "cell": "K18",
+            "value": 6.566477117586672,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A19",
+            "value": 3030.0,
+            "formula": null
+          },
+          {
+            "cell": "B19",
+            "value": -6.0,
+            "formula": null
+          },
+          {
+            "cell": "C19",
+            "value": 510.0,
+            "formula": null
+          },
+          {
+            "cell": "D19",
+            "value": 590.0,
+            "formula": null
+          },
+          {
+            "cell": "E19",
+            "value": 96.2800875273523,
+            "formula": null
+          },
+          {
+            "cell": "F19",
+            "value": 14.571428571428571,
+            "formula": null
+          },
+          {
+            "cell": "G19",
+            "value": 16.857142857142858,
+            "formula": null
+          },
+          {
+            "cell": "H19",
+            "value": -67.5,
+            "formula": null
+          },
+          {
+            "cell": "I19",
+            "value": -75.26623028835417,
+            "formula": null
+          },
+          {
+            "cell": "J19",
+            "value": -0.7792807555246133,
+            "formula": null
+          },
+          {
+            "cell": "K19",
+            "value": 7.766230288354166,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A20",
+            "value": 3029.0,
+            "formula": null
+          },
+          {
+            "cell": "B20",
+            "value": -7.0,
+            "formula": null
+          },
+          {
+            "cell": "C20",
+            "value": 320.0,
+            "formula": null
+          },
+          {
+            "cell": "D20",
+            "value": 400.0,
+            "formula": null
+          },
+          {
+            "cell": "E20",
+            "value": 63.01969365426696,
+            "formula": null
+          },
+          {
+            "cell": "F20",
+            "value": 9.142857142857142,
+            "formula": null
+          },
+          {
+            "cell": "G20",
+            "value": 11.428571428571429,
+            "formula": null
+          },
+          {
+            "cell": "H20",
+            "value": -67.0,
+            "formula": null
+          },
+          {
+            "cell": "I20",
+            "value": -77.10683217562374,
+            "formula": null
+          },
+          {
+            "cell": "J20",
+            "value": -0.5952205667976567,
+            "formula": null
+          },
+          {
+            "cell": "K20",
+            "value": 10.106832175623737,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A21",
+            "value": 3028.0,
+            "formula": null
+          },
+          {
+            "cell": "B21",
+            "value": -8.0,
+            "formula": null
+          },
+          {
+            "cell": "C21",
+            "value": 160.0,
+            "formula": null
+          },
+          {
+            "cell": "D21",
+            "value": 220.0,
+            "formula": null
+          },
+          {
+            "cell": "E21",
+            "value": 33.26039387308534,
+            "formula": null
+          },
+          {
+            "cell": "F21",
+            "value": 4.571428571428571,
+            "formula": null
+          },
+          {
+            "cell": "G21",
+            "value": 6.285714285714286,
+            "formula": null
+          },
+          {
+            "cell": "H21",
+            "value": -69.0,
+            "formula": null
+          },
+          {
+            "cell": "I21",
+            "value": -79.88232117376832,
+            "formula": null
+          },
+          {
+            "cell": "J21",
+            "value": -0.5675491401997984,
+            "formula": null
+          },
+          {
+            "cell": "K21",
+            "value": 10.882321173768318,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A22",
+            "value": 3027.0,
+            "formula": null
+          },
+          {
+            "cell": "B22",
+            "value": -9.0,
+            "formula": null
+          },
+          {
+            "cell": "C22",
+            "value": 60.0,
+            "formula": null
+          },
+          {
+            "cell": "D22",
+            "value": 100.0,
+            "formula": null
+          },
+          {
+            "cell": "E22",
+            "value": 14.00437636761488,
+            "formula": null
+          },
+          {
+            "cell": "F22",
+            "value": 1.7142857142857142,
+            "formula": null
+          },
+          {
+            "cell": "G22",
+            "value": 2.857142857142857,
+            "formula": null
+          },
+          {
+            "cell": "H22",
+            "value": -72.0,
+            "formula": null
+          },
+          {
+            "cell": "I22",
+            "value": -83.63895731337718,
+            "formula": null
+          },
+          {
+            "cell": "J22",
+            "value": -0.5440680443502754,
+            "formula": null
+          },
+          {
+            "cell": "K22",
+            "value": 11.638957313377176,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A23",
+            "value": 3026.0,
+            "formula": null
+          },
+          {
+            "cell": "B23",
+            "value": -10.0,
+            "formula": null
+          },
+          {
+            "cell": "C23",
+            "value": 20.5,
+            "formula": null
+          },
+          {
+            "cell": "D23",
+            "value": 46.0,
+            "formula": null
+          },
+          {
+            "cell": "E23",
+            "value": 5.820568927789934,
+            "formula": null
+          },
+          {
+            "cell": "F23",
+            "value": 0.5857142857142857,
+            "formula": null
+          },
+          {
+            "cell": "G23",
+            "value": 1.3142857142857143,
+            "formula": null
+          },
+          {
+            "cell": "H23",
+            "value": -77.0,
+            "formula": null
+          },
+          {
+            "cell": "I23",
+            "value": -87.45194068690537,
+            "formula": null
+          },
+          {
+            "cell": "J23",
+            "value": -0.55380932878547,
+            "formula": null
+          },
+          {
+            "cell": "K23",
+            "value": 10.451940686905374,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A24",
+            "value": 3025.0,
+            "formula": null
+          },
+          {
+            "cell": "B24",
+            "value": -11.0,
+            "formula": null
+          },
+          {
+            "cell": "C24",
+            "value": 4.6,
+            "formula": null
+          },
+          {
+            "cell": "D24",
+            "value": 18.0,
+            "formula": null
+          },
+          {
+            "cell": "E24",
+            "value": 1.9781181619256019,
+            "formula": null
+          },
+          {
+            "cell": "F24",
+            "value": 0.13142857142857142,
+            "formula": null
+          },
+          {
+            "cell": "G24",
+            "value": 0.5142857142857142,
+            "formula": null
+          },
+          {
+            "cell": "H24",
+            "value": "-",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A25",
+            "value": 3024.0,
+            "formula": null
+          },
+          {
+            "cell": "B25",
+            "value": -12.0,
+            "formula": null
+          },
+          {
+            "cell": "C25",
+            "value": 1.91,
+            "formula": null
+          },
+          {
+            "cell": "D25",
+            "value": 11.2,
+            "formula": null
+          },
+          {
+            "cell": "E25",
+            "value": 1.147483588621444,
+            "formula": null
+          },
+          {
+            "cell": "F25",
+            "value": 0.05457142857142857,
+            "formula": null
+          },
+          {
+            "cell": "G25",
+            "value": 0.32,
+            "formula": null
+          },
+          {
+            "cell": "H25",
+            "value": "-",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A26",
+            "value": 3023.0,
+            "formula": null
+          },
+          {
+            "cell": "B26",
+            "value": -13.0,
+            "formula": null
+          },
+          {
+            "cell": "C26",
+            "value": 1.17,
+            "formula": null
+          },
+          {
+            "cell": "D26",
+            "value": 8.2,
+            "formula": null
+          },
+          {
+            "cell": "E26",
+            "value": 0.8201312910284463,
+            "formula": null
+          },
+          {
+            "cell": "F26",
+            "value": 0.033428571428571426,
+            "formula": null
+          },
+          {
+            "cell": "G26",
+            "value": 0.23428571428571426,
+            "formula": null
+          },
+          {
+            "cell": "H26",
+            "value": "-",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A27",
+            "value": 3022.0,
+            "formula": null
+          },
+          {
+            "cell": "B27",
+            "value": -14.0,
+            "formula": null
+          },
+          {
+            "cell": "C27",
+            "value": 0.86,
+            "formula": null
+          },
+          {
+            "cell": "D27",
+            "value": 6.5,
+            "formula": null
+          },
+          {
+            "cell": "E27",
+            "value": 0.6442013129102845,
+            "formula": null
+          },
+          {
+            "cell": "F27",
+            "value": 0.02457142857142857,
+            "formula": null
+          },
+          {
+            "cell": "G27",
+            "value": 0.18571428571428572,
+            "formula": null
+          },
+          {
+            "cell": "H27",
+            "value": "-",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A30",
+            "value": "측정 방법",
+            "formula": null
+          },
+          {
+            "cell": "B30",
+            "value": "EOM 3.038 GHz에서 SQL과 FWM 차이 실측(3 dB 스퀴징), Shot Noise가 Optical Power와 비례하는 특성 이용해 나머지 Squeezing Degree 추산",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "B31",
+            "value": "프로브, 컨저게이트 파워와 FWM Noise(SA에서 노이즈 파워 가장 낮은 곳 읽음)는 실측값. 시드 펌프 파워 OPD 등도 실측값. 나머지 환산 이용함.",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A34",
+            "value": "특이사항",
+            "formula": null
+          },
+          {
+            "cell": "B34",
+            "value": "시드 빔 파워가 드리프트가 꽤나 있음. Fiber EOM 인풋 편광 정의 문제인 것 같은데, 직전에 있는 HWP를 돌려서 잘 개선해야 할 듯.",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "B35",
+            "value": "노이즈 플럭추에이션.. 노이즈 자체의 흔들림에 의한 불확도 +-0.5 dB 정도 있음.",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "B36",
+            "value": "저번주 측정과의 차이점: OPD를 좀 옮겼음. 그랬더니 유의미하게 스퀴징 정도가 달라졌는데(지난주에는 스퀴징 0이었음), 이는 단순히 스퀴징이 ",
+            "formula": null
+          }
+        ]
+      ]
+    },
+    {
+      "name": "Sheet2",
+      "state": "visible",
+      "xml": "xl/worksheets/sheet2.xml",
+      "dimension": {
+        "ref": "A1:Y34"
+      },
+      "rows": [
+        [
+          {
+            "cell": "A1",
+            "value": "2026.10.15. 스퀴징 데이터 분석 (2회차)",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A2",
+            "value": "EOM f [MHz]",
+            "formula": null
+          },
+          {
+            "cell": "B2",
+            "value": 3044.0,
+            "formula": null
+          },
+          {
+            "cell": "C2",
+            "value": 3043.0,
+            "formula": null
+          },
+          {
+            "cell": "D2",
+            "value": 3042.0,
+            "formula": null
+          },
+          {
+            "cell": "E2",
+            "value": 3041.0,
+            "formula": null
+          },
+          {
+            "cell": "F2",
+            "value": 3040.0,
+            "formula": null
+          },
+          {
+            "cell": "G2",
+            "value": 3039.0,
+            "formula": null
+          },
+          {
+            "cell": "H2",
+            "value": 3038.0,
+            "formula": null
+          },
+          {
+            "cell": "I2",
+            "value": 3037.0,
+            "formula": null
+          },
+          {
+            "cell": "J2",
+            "value": 3036.0,
+            "formula": null
+          },
+          {
+            "cell": "K2",
+            "value": 3035.0,
+            "formula": null
+          },
+          {
+            "cell": "L2",
+            "value": 3034.0,
+            "formula": null
+          },
+          {
+            "cell": "M2",
+            "value": 3033.0,
+            "formula": null
+          },
+          {
+            "cell": "N2",
+            "value": 3032.0,
+            "formula": null
+          },
+          {
+            "cell": "O2",
+            "value": 3031.0,
+            "formula": null
+          },
+          {
+            "cell": "P2",
+            "value": 3030.0,
+            "formula": null
+          },
+          {
+            "cell": "Q2",
+            "value": 3029.0,
+            "formula": null
+          },
+          {
+            "cell": "R2",
+            "value": 3028.0,
+            "formula": null
+          },
+          {
+            "cell": "S2",
+            "value": 3027.0,
+            "formula": null
+          },
+          {
+            "cell": "T2",
+            "value": 3026.0,
+            "formula": null
+          },
+          {
+            "cell": "U2",
+            "value": 3025.0,
+            "formula": null
+          },
+          {
+            "cell": "V2",
+            "value": 3024.0,
+            "formula": null
+          },
+          {
+            "cell": "W2",
+            "value": 3023.0,
+            "formula": null
+          },
+          {
+            "cell": "X2",
+            "value": 3022.0,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A3",
+            "value": "TPD [MHz]",
+            "formula": null
+          },
+          {
+            "cell": "B3",
+            "value": 8.0,
+            "formula": null
+          },
+          {
+            "cell": "C3",
+            "value": 7.0,
+            "formula": null
+          },
+          {
+            "cell": "D3",
+            "value": 6.0,
+            "formula": null
+          },
+          {
+            "cell": "E3",
+            "value": 5.0,
+            "formula": null
+          },
+          {
+            "cell": "F3",
+            "value": 4.0,
+            "formula": null
+          },
+          {
+            "cell": "G3",
+            "value": 3.0,
+            "formula": null
+          },
+          {
+            "cell": "H3",
+            "value": 2.0,
+            "formula": null
+          },
+          {
+            "cell": "I3",
+            "value": 1.0,
+            "formula": null
+          },
+          {
+            "cell": "J3",
+            "value": 0.0,
+            "formula": null
+          },
+          {
+            "cell": "K3",
+            "value": -1.0,
+            "formula": null
+          },
+          {
+            "cell": "L3",
+            "value": -2.0,
+            "formula": null
+          },
+          {
+            "cell": "M3",
+            "value": -3.0,
+            "formula": null
+          },
+          {
+            "cell": "N3",
+            "value": -4.0,
+            "formula": null
+          },
+          {
+            "cell": "O3",
+            "value": -5.0,
+            "formula": null
+          },
+          {
+            "cell": "P3",
+            "value": -6.0,
+            "formula": null
+          },
+          {
+            "cell": "Q3",
+            "value": -7.0,
+            "formula": null
+          },
+          {
+            "cell": "R3",
+            "value": -8.0,
+            "formula": null
+          },
+          {
+            "cell": "S3",
+            "value": -9.0,
+            "formula": null
+          },
+          {
+            "cell": "T3",
+            "value": -10.0,
+            "formula": null
+          },
+          {
+            "cell": "U3",
+            "value": -11.0,
+            "formula": null
+          },
+          {
+            "cell": "V3",
+            "value": -12.0,
+            "formula": null
+          },
+          {
+            "cell": "W3",
+            "value": -13.0,
+            "formula": null
+          },
+          {
+            "cell": "X3",
+            "value": -14.0,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A4",
+            "value": "P_probe",
+            "formula": null
+          },
+          {
+            "cell": "B4",
+            "value": 162.0,
+            "formula": null
+          },
+          {
+            "cell": "C4",
+            "value": 191.0,
+            "formula": null
+          },
+          {
+            "cell": "D4",
+            "value": 220.0,
+            "formula": null
+          },
+          {
+            "cell": "E4",
+            "value": 273.0,
+            "formula": null
+          },
+          {
+            "cell": "F4",
+            "value": 341.0,
+            "formula": null
+          },
+          {
+            "cell": "G4",
+            "value": 415.0,
+            "formula": null
+          },
+          {
+            "cell": "H4",
+            "value": 477.0,
+            "formula": null
+          },
+          {
+            "cell": "I4",
+            "value": 573.0,
+            "formula": null
+          },
+          {
+            "cell": "J4",
+            "value": 674.0,
+            "formula": null
+          },
+          {
+            "cell": "K4",
+            "value": 776.0,
+            "formula": null
+          },
+          {
+            "cell": "L4",
+            "value": 870.0,
+            "formula": null
+          },
+          {
+            "cell": "M4",
+            "value": 870.0,
+            "formula": null
+          },
+          {
+            "cell": "N4",
+            "value": 820.0,
+            "formula": null
+          },
+          {
+            "cell": "O4",
+            "value": 690.0,
+            "formula": null
+          },
+          {
+            "cell": "P4",
+            "value": 510.0,
+            "formula": null
+          },
+          {
+            "cell": "Q4",
+            "value": 320.0,
+            "formula": null
+          },
+          {
+            "cell": "R4",
+            "value": 160.0,
+            "formula": null
+          },
+          {
+            "cell": "S4",
+            "value": 60.0,
+            "formula": null
+          },
+          {
+            "cell": "T4",
+            "value": 20.5,
+            "formula": null
+          },
+          {
+            "cell": "U4",
+            "value": 4.6,
+            "formula": null
+          },
+          {
+            "cell": "V4",
+            "value": 1.91,
+            "formula": null
+          },
+          {
+            "cell": "W4",
+            "value": 1.17,
+            "formula": null
+          },
+          {
+            "cell": "X4",
+            "value": 0.86,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A5",
+            "value": "P_conj",
+            "formula": null
+          },
+          {
+            "cell": "B5",
+            "value": 130.0,
+            "formula": null
+          },
+          {
+            "cell": "C5",
+            "value": 150.0,
+            "formula": null
+          },
+          {
+            "cell": "D5",
+            "value": 190.0,
+            "formula": null
+          },
+          {
+            "cell": "E5",
+            "value": 242.0,
+            "formula": null
+          },
+          {
+            "cell": "F5",
+            "value": 311.0,
+            "formula": null
+          },
+          {
+            "cell": "G5",
+            "value": 397.0,
+            "formula": null
+          },
+          {
+            "cell": "H5",
+            "value": 452.0,
+            "formula": null
+          },
+          {
+            "cell": "I5",
+            "value": 551.0,
+            "formula": null
+          },
+          {
+            "cell": "J5",
+            "value": 656.0,
+            "formula": null
+          },
+          {
+            "cell": "K5",
+            "value": 772.0,
+            "formula": null
+          },
+          {
+            "cell": "L5",
+            "value": 850.0,
+            "formula": null
+          },
+          {
+            "cell": "M5",
+            "value": 890.0,
+            "formula": null
+          },
+          {
+            "cell": "N5",
+            "value": 860.0,
+            "formula": null
+          },
+          {
+            "cell": "O5",
+            "value": 760.0,
+            "formula": null
+          },
+          {
+            "cell": "P5",
+            "value": 590.0,
+            "formula": null
+          },
+          {
+            "cell": "Q5",
+            "value": 400.0,
+            "formula": null
+          },
+          {
+            "cell": "R5",
+            "value": 220.0,
+            "formula": null
+          },
+          {
+            "cell": "S5",
+            "value": 100.0,
+            "formula": null
+          },
+          {
+            "cell": "T5",
+            "value": 46.0,
+            "formula": null
+          },
+          {
+            "cell": "U5",
+            "value": 18.0,
+            "formula": null
+          },
+          {
+            "cell": "V5",
+            "value": 11.2,
+            "formula": null
+          },
+          {
+            "cell": "W5",
+            "value": 8.2,
+            "formula": null
+          },
+          {
+            "cell": "X5",
+            "value": 6.5,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A6",
+            "value": "P_seed",
+            "formula": null
+          },
+          {
+            "cell": "B6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "C6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "D6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "E6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "F6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "G6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "H6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "I6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "J6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "K6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "L6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "M6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "N6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "O6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "P6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "Q6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "R6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "S6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "T6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "U6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "V6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "W6",
+            "value": 35.0,
+            "formula": null
+          },
+          {
+            "cell": "X6",
+            "value": 35.0,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A7",
+            "value": "\\eta_seed",
+            "formula": null
+          },
+          {
+            "cell": "B7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "C7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "D7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "E7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "F7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "G7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "H7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "I7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "J7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "K7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "L7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "M7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "N7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "O7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "P7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "Q7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "R7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "S7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "T7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "U7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "V7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "W7",
+            "value": 0.8046,
+            "formula": null
+          },
+          {
+            "cell": "X7",
+            "value": 0.8046,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A8",
+            "value": "\\eta_Opt",
+            "formula": null
+          },
+          {
+            "cell": "B8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "C8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "D8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "E8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "F8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "G8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "H8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "I8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "J8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "K8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "L8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "M8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "N8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "O8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "P8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "Q8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "R8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "S8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "T8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "U8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "V8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "W8",
+            "value": 0.9709,
+            "formula": null
+          },
+          {
+            "cell": "X8",
+            "value": 0.9709,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A9",
+            "value": "\\eta_QE",
+            "formula": null
+          },
+          {
+            "cell": "B9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "C9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "D9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "E9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "F9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "G9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "H9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "I9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "J9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "K9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "L9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "M9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "N9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "O9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "P9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "Q9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "R9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "S9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "T9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "U9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "V9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "W9",
+            "value": 0.9047,
+            "formula": null
+          },
+          {
+            "cell": "X9",
+            "value": 0.9047,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A10",
+            "value": "S",
+            "formula": null
+          },
+          {
+            "cell": "B10",
+            "value": 1.3485572501405272,
+            "formula": null
+          },
+          {
+            "cell": "C10",
+            "value": 1.3844130724519075,
+            "formula": null
+          },
+          {
+            "cell": "D10",
+            "value": 1.5175365637998786,
+            "formula": null
+          },
+          {
+            "cell": "E10",
+            "value": 1.6220289379246502,
+            "formula": null
+          },
+          {
+            "cell": "F10",
+            "value": 1.737357789308319,
+            "formula": null
+          },
+          {
+            "cell": "G10",
+            "value": 1.8717021180446753,
+            "formula": null
+          },
+          {
+            "cell": "H10",
+            "value": 1.9178036856865865,
+            "formula": null
+          },
+          {
+            "cell": "I10",
+            "value": 2.0138951641961227,
+            "formula": null
+          },
+          {
+            "cell": "J10",
+            "value": 2.100284664749351,
+            "formula": null
+          },
+          {
+            "cell": "K10",
+            "value": 2.193511485726934,
+            "formula": null
+          },
+          {
+            "cell": "L10",
+            "value": 2.218458387840686,
+            "formula": null
+          },
+          {
+            "cell": "M10",
+            "value": 2.2866591257061017,
+            "formula": null
+          },
+          {
+            "cell": "N10",
+            "value": 2.297111256463201,
+            "formula": null
+          },
+          {
+            "cell": "O10",
+            "value": 2.2910325488969505,
+            "formula": null
+          },
+          {
+            "cell": "P10",
+            "value": 2.2212723178520752,
+            "formula": null
+          },
+          {
+            "cell": "Q10",
+            "value": 2.1105838456350714,
+            "formula": null
+          },
+          {
+            "cell": "R10",
+            "value": 1.9072911122897103,
+            "formula": null
+          },
+          {
+            "cell": "S10",
+            "value": 1.678113514235158,
+            "formula": null
+          },
+          {
+            "cell": "T10",
+            "value": 1.500555326836804,
+            "formula": null
+          },
+          {
+            "cell": "U10",
+            "value": 1.351464022501872,
+            "formula": null
+          },
+          {
+            "cell": "V10",
+            "value": 1e-05,
+            "formula": null
+          },
+          {
+            "cell": "W10",
+            "value": 1e-05,
+            "formula": null
+          },
+          {
+            "cell": "X10",
+            "value": 1e-05,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A11",
+            "value": "T",
+            "formula": null
+          },
+          {
+            "cell": "B11",
+            "value": 0.8573924467396654,
+            "formula": null
+          },
+          {
+            "cell": "C11",
+            "value": 0.9702529036540385,
+            "formula": null
+          },
+          {
+            "cell": "D11",
+            "value": 0.8582678201989676,
+            "formula": null
+          },
+          {
+            "cell": "E11",
+            "value": 0.8828618719263401,
+            "formula": null
+          },
+          {
+            "cell": "F11",
+            "value": 0.8891799037748888,
+            "formula": null
+          },
+          {
+            "cell": "G11",
+            "value": 0.8208715619787731,
+            "formula": null
+          },
+          {
+            "cell": "H11",
+            "value": 0.8780211666393036,
+            "formula": null
+          },
+          {
+            "cell": "I11",
+            "value": 0.874779858874959,
+            "formula": null
+          },
+          {
+            "cell": "J11",
+            "value": 0.8675703339139201,
+            "formula": null
+          },
+          {
+            "cell": "K11",
+            "value": 0.8185042148295213,
+            "formula": null
+          },
+          {
+            "cell": "L11",
+            "value": 0.8966286502528493,
+            "formula": null
+          },
+          {
+            "cell": "M11",
+            "value": 0.7419344240124536,
+            "formula": null
+          },
+          {
+            "cell": "N11",
+            "value": 0.6621170488394973,
+            "formula": null
+          },
+          {
+            "cell": "O11",
+            "value": 0.5260027277180521,
+            "formula": null
+          },
+          {
+            "cell": "P11",
+            "value": 0.4167924682457242,
+            "formula": null
+          },
+          {
+            "cell": "Q11",
+            "value": 0.29454906524621793,
+            "formula": null
+          },
+          {
+            "cell": "R11",
+            "value": 0.19902315437151769,
+            "formula": null
+          },
+          {
+            "cell": "S11",
+            "value": 0.09797602071601111,
+            "formula": null
+          },
+          {
+            "cell": "T11",
+            "value": 0.03666129311597635,
+            "formula": null
+          },
+          {
+            "cell": "U11",
+            "value": 0.006559443929201957,
+            "formula": null
+          },
+          {
+            "cell": "V11",
+            "value": 0.04390813586205086,
+            "formula": null
+          },
+          {
+            "cell": "W11",
+            "value": 0.0268966385633287,
+            "formula": null
+          },
+          {
+            "cell": "X11",
+            "value": 0.019770163450549074,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A12",
+            "value": "\\xi",
+            "formula": null
+          },
+          {
+            "cell": "B12",
+            "value": 1.3491057053381714,
+            "formula": "SQRT(B10^2+(LN(B11)/4)^2)"
+          },
+          {
+            "cell": "C12",
+            "value": 1.384433657519912,
+            "formula": "SQRT(C10^2+(LN(C11)/4)^2)"
+          },
+          {
+            "cell": "D12",
+            "value": 1.5180175259392934,
+            "formula": null
+          },
+          {
+            "cell": "E12",
+            "value": 1.6223279532947907,
+            "formula": null
+          },
+          {
+            "cell": "F12",
+            "value": 1.7376059185341342,
+            "formula": null
+          },
+          {
+            "cell": "G12",
+            "value": 1.8723525203515006,
+            "formula": null
+          },
+          {
+            "cell": "H12",
+            "value": 1.9180794044226046,
+            "formula": null
+          },
+          {
+            "cell": "I12",
+            "value": 2.0141728701385047,
+            "formula": null
+          },
+          {
+            "cell": "J12",
+            "value": 2.100584910212665,
+            "formula": null
+          },
+          {
+            "cell": "K12",
+            "value": 2.1940828519270887,
+            "formula": null
+          },
+          {
+            "cell": "L12",
+            "value": 2.218626090226533,
+            "formula": null
+          },
+          {
+            "cell": "M12",
+            "value": 2.287876447601261,
+            "formula": null
+          },
+          {
+            "cell": "N12",
+            "value": 2.2994228072428777,
+            "formula": null
+          },
+          {
+            "cell": "O12",
+            "value": 2.296655486867219,
+            "formula": null
+          },
+          {
+            "cell": "P12",
+            "value": 2.2320216227702256,
+            "formula": null
+          },
+          {
+            "cell": "Q12",
+            "value": 2.132590380208955,
+            "formula": null
+          },
+          {
+            "cell": "R12",
+            "value": 1.9495227749795854,
+            "formula": null
+          },
+          {
+            "cell": "S12",
+            "value": 1.7757660238042021,
+            "formula": null
+          },
+          {
+            "cell": "T12",
+            "value": 1.713120688081926,
+            "formula": null
+          },
+          {
+            "cell": "U12",
+            "value": 1.8454758096446782,
+            "formula": null
+          },
+          {
+            "cell": "V12",
+            "value": 0.7814139122935337,
+            "formula": null
+          },
+          {
+            "cell": "W12",
+            "value": 0.903938490218715,
+            "formula": null
+          },
+          {
+            "cell": "X12",
+            "value": 0.9808953436081933,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A13",
+            "value": "\\alpha_1",
+            "formula": null
+          },
+          {
+            "cell": "B13",
+            "value": 1.9298067304608346,
+            "formula": "B11^(1/4)*(COSH(B12)+LN(B11)/(4*B12)*SINH(B12))"
+          },
+          {
+            "cell": "C13",
+            "value": 2.0954320023864548,
+            "formula": "C11^(1/4)*(COSH(C12)+LN(C11)/(4*C12)*SINH(C12))"
+          },
+          {
+            "cell": "D13",
+            "value": 2.2488940107647437,
+            "formula": null
+          },
+          {
+            "cell": "E13",
+            "value": 2.5051731725718334,
+            "formula": null
+          },
+          {
+            "cell": "F13",
+            "value": 2.799858493754343,
+            "formula": null
+          },
+          {
+            "cell": "G13",
+            "value": 3.088748581091887,
+            "formula": null
+          },
+          {
+            "cell": "H13",
+            "value": 3.311448733743279,
+            "formula": null
+          },
+          {
+            "cell": "I13",
+            "value": 3.629420553825385,
+            "formula": null
+          },
+          {
+            "cell": "J13",
+            "value": 3.9363184766434567,
+            "formula": null
+          },
+          {
+            "cell": "K13",
+            "value": 4.2236594000117975,
+            "formula": null
+          },
+          {
+            "cell": "L13",
+            "value": 4.472194144109286,
+            "formula": null
+          },
+          {
+            "cell": "M13",
+            "value": 4.472188667810615,
+            "formula": null
+          },
+          {
+            "cell": "N13",
+            "value": 4.3417676892826185,
+            "formula": null
+          },
+          {
+            "cell": "O13",
+            "value": 3.982744547325288,
+            "formula": null
+          },
+          {
+            "cell": "P13",
+            "value": 3.424093231092626,
+            "formula": null
+          },
+          {
+            "cell": "Q13",
+            "value": 2.7122706035854818,
+            "formula": null
+          },
+          {
+            "cell": "R13",
+            "value": 1.9178661102185572,
+            "formula": null
+          },
+          {
+            "cell": "S13",
+            "value": 1.174447251701416,
+            "formula": null
+          },
+          {
+            "cell": "T13",
+            "value": 0.6864897651728654,
+            "formula": null
+          },
+          {
+            "cell": "U13",
+            "value": 0.3251886351506889,
+            "formula": null
+          },
+          {
+            "cell": "V13",
+            "value": 0.20954268269256002,
+            "formula": null
+          },
+          {
+            "cell": "W13",
+            "value": 0.16400194684436803,
+            "formula": null
+          },
+          {
+            "cell": "X13",
+            "value": 0.1406064132776774,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A14",
+            "value": "\\alpha_2",
+            "formula": null
+          },
+          {
+            "cell": "B14",
+            "value": 1.7287310907154525,
+            "formula": "B11^(1/4)*B10/B12*SINH(B12)"
+          },
+          {
+            "cell": "C14",
+            "value": 1.8569490974914873,
+            "formula": "C11^(1/4)*C10/C12*SINH(C12)"
+          },
+          {
+            "cell": "D14",
+            "value": 2.0899230734123124,
+            "formula": null
+          },
+          {
+            "cell": "E14",
+            "value": 2.358645936744022,
+            "formula": null
+          },
+          {
+            "cell": "F14",
+            "value": 2.6738182069154885,
+            "formula": null
+          },
+          {
+            "cell": "G14",
+            "value": 3.020988752551911,
+            "formula": null
+          },
+          {
+            "cell": "H14",
+            "value": 3.223458425840717,
+            "formula": null
+          },
+          {
+            "cell": "I14",
+            "value": 3.558993924650608,
+            "formula": null
+          },
+          {
+            "cell": "J14",
+            "value": 3.883313418638351,
+            "formula": null
+          },
+          {
+            "cell": "K14",
+            "value": 4.212704027939715,
+            "formula": null
+          },
+          {
+            "cell": "L14",
+            "value": 4.420381642374901,
+            "formula": null
+          },
+          {
+            "cell": "M14",
+            "value": 4.52320813613102,
+            "formula": null
+          },
+          {
+            "cell": "N14",
+            "value": 4.446321787819705,
+            "formula": null
+          },
+          {
+            "cell": "O14",
+            "value": 4.179843986664294,
+            "formula": null
+          },
+          {
+            "cell": "P14",
+            "value": 3.6827973606400954,
+            "formula": null
+          },
+          {
+            "cell": "Q14",
+            "value": 3.032368680018641,
+            "formula": null
+          },
+          {
+            "cell": "R14",
+            "value": 2.2488570523512847,
+            "formula": null
+          },
+          {
+            "cell": "S14",
+            "value": 1.5161876852173732,
+            "formula": null
+          },
+          {
+            "cell": "T14",
+            "value": 1.028328429215731,
+            "formula": null
+          },
+          {
+            "cell": "U14",
+            "value": 0.6432658843690137,
+            "formula": null
+          },
+          {
+            "cell": "V14",
+            "value": 5.057865652044209e-06,
+            "formula": null
+          },
+          {
+            "cell": "W14",
+            "value": 4.624197676515841e-06,
+            "formula": null
+          },
+          {
+            "cell": "X14",
+            "value": 4.380658917364076e-06,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A15",
+            "value": "측정값 \\alpha_1^2",
+            "formula": null
+          },
+          {
+            "cell": "B15",
+            "value": 3.7241485714285716,
+            "formula": "B7*B4/B6"
+          },
+          {
+            "cell": "C15",
+            "value": 4.390817142857142,
+            "formula": "C7*C4/C6"
+          },
+          {
+            "cell": "D15",
+            "value": 5.057485714285714,
+            "formula": null
+          },
+          {
+            "cell": "E15",
+            "value": 6.27588,
+            "formula": null
+          },
+          {
+            "cell": "F15",
+            "value": 7.839102857142858,
+            "formula": null
+          },
+          {
+            "cell": "G15",
+            "value": 9.540257142857143,
+            "formula": null
+          },
+          {
+            "cell": "H15",
+            "value": 10.96554857142857,
+            "formula": null
+          },
+          {
+            "cell": "I15",
+            "value": 13.172451428571428,
+            "formula": null
+          },
+          {
+            "cell": "J15",
+            "value": 15.494297142857143,
+            "formula": null
+          },
+          {
+            "cell": "K15",
+            "value": 17.839131428571427,
+            "formula": null
+          },
+          {
+            "cell": "L15",
+            "value": 20.00005714285714,
+            "formula": null
+          },
+          {
+            "cell": "M15",
+            "value": 20.00005714285714,
+            "formula": null
+          },
+          {
+            "cell": "N15",
+            "value": 18.85062857142857,
+            "formula": null
+          },
+          {
+            "cell": "O15",
+            "value": 15.862114285714284,
+            "formula": null
+          },
+          {
+            "cell": "P15",
+            "value": 11.72417142857143,
+            "formula": null
+          },
+          {
+            "cell": "Q15",
+            "value": 7.356342857142857,
+            "formula": null
+          },
+          {
+            "cell": "R15",
+            "value": 3.6781714285714284,
+            "formula": null
+          },
+          {
+            "cell": "S15",
+            "value": 1.3793142857142857,
+            "formula": null
+          },
+          {
+            "cell": "T15",
+            "value": 0.47126571428571423,
+            "formula": null
+          },
+          {
+            "cell": "U15",
+            "value": 0.10574742857142856,
+            "formula": null
+          },
+          {
+            "cell": "V15",
+            "value": 0.04390817142857143,
+            "formula": null
+          },
+          {
+            "cell": "W15",
+            "value": 0.02689662857142857,
+            "formula": null
+          },
+          {
+            "cell": "X15",
+            "value": 0.019770171428571428,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A16",
+            "value": "측정값 \\alpha_2^2",
+            "formula": null
+          },
+          {
+            "cell": "B16",
+            "value": 2.988514285714286,
+            "formula": "B7*B5/B6"
+          },
+          {
+            "cell": "C16",
+            "value": 3.4482857142857144,
+            "formula": "C7*C5/C6"
+          },
+          {
+            "cell": "D16",
+            "value": 4.367828571428571,
+            "formula": null
+          },
+          {
+            "cell": "E16",
+            "value": 5.563234285714286,
+            "formula": null
+          },
+          {
+            "cell": "F16",
+            "value": 7.149445714285714,
+            "formula": null
+          },
+          {
+            "cell": "G16",
+            "value": 9.126462857142856,
+            "formula": null
+          },
+          {
+            "cell": "H16",
+            "value": 10.390834285714286,
+            "formula": null
+          },
+          {
+            "cell": "I16",
+            "value": 12.666702857142857,
+            "formula": null
+          },
+          {
+            "cell": "J16",
+            "value": 15.080502857142855,
+            "formula": null
+          },
+          {
+            "cell": "K16",
+            "value": 17.747177142857144,
+            "formula": null
+          },
+          {
+            "cell": "L16",
+            "value": 19.540285714285712,
+            "formula": null
+          },
+          {
+            "cell": "M16",
+            "value": 20.45982857142857,
+            "formula": null
+          },
+          {
+            "cell": "N16",
+            "value": 19.77017142857143,
+            "formula": null
+          },
+          {
+            "cell": "O16",
+            "value": 17.471314285714286,
+            "formula": null
+          },
+          {
+            "cell": "P16",
+            "value": 13.563257142857143,
+            "formula": null
+          },
+          {
+            "cell": "Q16",
+            "value": 9.19542857142857,
+            "formula": null
+          },
+          {
+            "cell": "R16",
+            "value": 5.057485714285714,
+            "formula": null
+          },
+          {
+            "cell": "S16",
+            "value": 2.2988571428571425,
+            "formula": null
+          },
+          {
+            "cell": "T16",
+            "value": 1.0574742857142858,
+            "formula": null
+          },
+          {
+            "cell": "U16",
+            "value": 0.41379428571428567,
+            "formula": null
+          },
+          {
+            "cell": "V16",
+            "value": 0.257472,
+            "formula": null
+          },
+          {
+            "cell": "W16",
+            "value": 0.18850628571428568,
+            "formula": null
+          },
+          {
+            "cell": "X16",
+            "value": 0.14942571428571427,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A17",
+            "value": "두 Gain의 상대제곱오차",
+            "formula": null
+          },
+          {
+            "cell": "B17",
+            "value": 3.215257856232662e-12,
+            "formula": "(B13^2/B15-1)^2+(B14^2/B16-1)^2"
+          },
+          {
+            "cell": "C17",
+            "value": 7.287852844107234e-11,
+            "formula": "(C13^2/C15-1)^2+(C14^2/C16-1)^2"
+          },
+          {
+            "cell": "D17",
+            "value": 1.8978679491723661e-10,
+            "formula": null
+          },
+          {
+            "cell": "E17",
+            "value": 2.2089261642410537e-11,
+            "formula": null
+          },
+          {
+            "cell": "F17",
+            "value": 5.724710961221008e-10,
+            "formula": null
+          },
+          {
+            "cell": "G17",
+            "value": 2.3137578162101328e-10,
+            "formula": null
+          },
+          {
+            "cell": "H17",
+            "value": 3.8136362237420033e-10,
+            "formula": null
+          },
+          {
+            "cell": "I17",
+            "value": 7.758985785688474e-10,
+            "formula": null
+          },
+          {
+            "cell": "J17",
+            "value": 1.0241562893317176e-09,
+            "formula": null
+          },
+          {
+            "cell": "K17",
+            "value": 3.773602118115016e-10,
+            "formula": null
+          },
+          {
+            "cell": "L17",
+            "value": 1.2228171697482399e-09,
+            "formula": null
+          },
+          {
+            "cell": "M17",
+            "value": 8.440478950731342e-10,
+            "formula": null
+          },
+          {
+            "cell": "N17",
+            "value": 6.818919639115769e-10,
+            "formula": null
+          },
+          {
+            "cell": "O17",
+            "value": 2.3417778443799076e-10,
+            "formula": null
+          },
+          {
+            "cell": "P17",
+            "value": 7.992497631011035e-10,
+            "formula": null
+          },
+          {
+            "cell": "Q17",
+            "value": 4.2471869395053873e-10,
+            "formula": null
+          },
+          {
+            "cell": "R17",
+            "value": 7.496289049784946e-10,
+            "formula": null
+          },
+          {
+            "cell": "S17",
+            "value": 2.7078842735525454e-10,
+            "formula": null
+          },
+          {
+            "cell": "T17",
+            "value": 2.2703255287530698e-10,
+            "formula": null
+          },
+          {
+            "cell": "U17",
+            "value": 6.745051667716014e-11,
+            "formula": null
+          },
+          {
+            "cell": "V17",
+            "value": 0.999999999801939,
+            "formula": null
+          },
+          {
+            "cell": "W17",
+            "value": 0.9999999997732683,
+            "formula": null
+          },
+          {
+            "cell": "X17",
+            "value": 0.9999999997433103,
+            "formula": null
+          },
+          {
+            "cell": "Y17",
+            "value": 3.000000008487701,
+            "formula": "SUM(C17:X17)"
+          }
+        ],
+        [
+          {
+            "cell": "A18",
+            "value": "Jasperse Eq. (16) NF",
+            "formula": null
+          },
+          {
+            "cell": "B18",
+            "value": 0.2254942432302421,
+            "formula": "_xlfn.LET(_xlpm.s,B10,\n _xlpm.t,B11,\n _xlpm.eta,B8*B9,\n _xlpm.xi,SQRT(_xlpm.s^2+(LN(_xlpm.t)/4)^2),\n _xlpm.chi,ATANH(LN(_xlpm.t)/(4*_xlpm.xi)),\n 1-_xlpm.eta*2*_xlpm.s*SINH(_xlpm.xi)^2/(_xlpm.xi*COSH(2*_xlpm.xi+_xlpm.chi))\n +_xlpm.eta*SQRT(_xlpm.t)*_xlpm.s*LN(_xlpm.t)^2*SINH(_xlpm.xi)^4/(2*_xlpm.xi^3*COSH(2*_xlpm.xi+_xlpm.chi))\n)"
+          },
+          {
+            "cell": "C18",
+            "value": 0.22755962258696147,
+            "formula": "_xlfn.LET(_xlpm.s,C10,\n _xlpm.t,C11,\n _xlpm.eta,C8*C9,\n _xlpm.xi,SQRT(_xlpm.s^2+(LN(_xlpm.t)/4)^2),\n _xlpm.chi,ATANH(LN(_xlpm.t)/(4*_xlpm.xi)),\n 1-_xlpm.eta*2*_xlpm.s*SINH(_xlpm.xi)^2/(_xlpm.xi*COSH(2*_xlpm.xi+_xlpm.chi))\n +_xlpm.eta*SQRT(_xlpm.t)*_xlpm.s*LN(_xlpm.t)^2*SINH(_xlpm.xi)^4/(2*_xlpm.xi^3*COSH(2*_xlpm.xi+_xlpm.chi))\n)"
+          },
+          {
+            "cell": "D18",
+            "value": 0.19492339626067984,
+            "formula": null
+          },
+          {
+            "cell": "E18",
+            "value": 0.18127585286259273,
+            "formula": null
+          },
+          {
+            "cell": "F18",
+            "value": 0.16890249545600028,
+            "formula": null
+          },
+          {
+            "cell": "G18",
+            "value": 0.1629020538811259,
+            "formula": null
+          },
+          {
+            "cell": "H18",
+            "value": 0.15549182480269652,
+            "formula": null
+          },
+          {
+            "cell": "I18",
+            "value": 0.1508703422813266,
+            "formula": null
+          },
+          {
+            "cell": "J18",
+            "value": 0.1484785585176201,
+            "formula": null
+          },
+          {
+            "cell": "K18",
+            "value": 0.1563116209976842,
+            "formula": null
+          },
+          {
+            "cell": "L18",
+            "value": 0.14212103066924367,
+            "formula": null
+          },
+          {
+            "cell": "M18",
+            "value": 0.1890881394856957,
+            "formula": null
+          },
+          {
+            "cell": "N18",
+            "value": 0.2439223748327711,
+            "formula": null
+          },
+          {
+            "cell": "O18",
+            "value": 0.3954779005552079,
+            "formula": null
+          },
+          {
+            "cell": "P18",
+            "value": 0.553708249279703,
+            "formula": null
+          },
+          {
+            "cell": "Q18",
+            "value": 0.7765175579102126,
+            "formula": null
+          },
+          {
+            "cell": "R18",
+            "value": 0.9041606720750791,
+            "formula": null
+          },
+          {
+            "cell": "S18",
+            "value": 1.1112459153808845,
+            "formula": null
+          },
+          {
+            "cell": "T18",
+            "value": 1.344212015045928,
+            "formula": null
+          },
+          {
+            "cell": "U18",
+            "value": 1.603340711848286,
+            "formula": null
+          },
+          {
+            "cell": "V18",
+            "value": 0.9999999996159965,
+            "formula": null
+          },
+          {
+            "cell": "W18",
+            "value": 0.999999999579462,
+            "formula": null
+          },
+          {
+            "cell": "X18",
+            "value": 0.9999999995541855,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A19",
+            "value": "Squeezing (dB)",
+            "formula": null
+          },
+          {
+            "cell": "B19",
+            "value": -6.468645409933504,
+            "formula": "10*LOG10(B18)"
+          },
+          {
+            "cell": "C19",
+            "value": -6.429047951913813,
+            "formula": "10*LOG10(C18)"
+          },
+          {
+            "cell": "D19",
+            "value": -7.1013603026620675,
+            "formula": null
+          },
+          {
+            "cell": "E19",
+            "value": -7.4166004293684304,
+            "formula": null
+          },
+          {
+            "cell": "F19",
+            "value": -7.723639338821312,
+            "formula": null
+          },
+          {
+            "cell": "G19",
+            "value": -7.880734400400707,
+            "formula": null
+          },
+          {
+            "cell": "H19",
+            "value": -8.082924396687222,
+            "formula": null
+          },
+          {
+            "cell": "I19",
+            "value": -8.213961243692747,
+            "formula": null
+          },
+          {
+            "cell": "J19",
+            "value": -8.283362573892365,
+            "formula": null
+          },
+          {
+            "cell": "K19",
+            "value": -8.060087331288845,
+            "formula": null
+          },
+          {
+            "cell": "L19",
+            "value": -8.473416516446987,
+            "formula": null
+          },
+          {
+            "cell": "M19",
+            "value": -7.233357113318922,
+            "formula": null
+          },
+          {
+            "cell": "N19",
+            "value": -6.127483603229513,
+            "formula": null
+          },
+          {
+            "cell": "O19",
+            "value": -4.028777800173334,
+            "formula": null
+          },
+          {
+            "cell": "P19",
+            "value": -2.56719006215415,
+            "formula": null
+          },
+          {
+            "cell": "Q19",
+            "value": -1.0984871995176495,
+            "formula": null
+          },
+          {
+            "cell": "R19",
+            "value": -0.4375438722898773,
+            "formula": null
+          },
+          {
+            "cell": "S19",
+            "value": 0.45810177640089883,
+            "formula": null
+          },
+          {
+            "cell": "T19",
+            "value": 1.2846777296092606,
+            "formula": null
+          },
+          {
+            "cell": "U19",
+            "value": 2.050258202659917,
+            "formula": null
+          },
+          {
+            "cell": "V19",
+            "value": -1.6677059923225242e-09,
+            "formula": null
+          },
+          {
+            "cell": "W19",
+            "value": -1.8263735407506296e-09,
+            "formula": null
+          },
+          {
+            "cell": "X19",
+            "value": -1.9361477579532745e-09,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A20",
+            "value": "Intrinsic Gain",
+            "formula": null
+          },
+          {
+            "cell": "B20",
+            "value": 4.226064465758378,
+            "formula": "COSH(B10)^2"
+          },
+          {
+            "cell": "C20",
+            "value": 4.500661870165947,
+            "formula": "COSH(C10)^2"
+          },
+          {
+            "cell": "D20",
+            "value": 5.712642557025251,
+            "formula": null
+          },
+          {
+            "cell": "E20",
+            "value": 6.919137555844827,
+            "formula": null
+          },
+          {
+            "cell": "F20",
+            "value": 8.579903572768242,
+            "formula": null
+          },
+          {
+            "cell": "G20",
+            "value": 11.06630481214257,
+            "formula": null
+          },
+          {
+            "cell": "H20",
+            "value": 12.085785433413129,
+            "formula": null
+          },
+          {
+            "cell": "I20",
+            "value": 14.538636001937126,
+            "formula": null
+          },
+          {
+            "cell": "J20",
+            "value": 17.18482384698682,
+            "formula": null
+          },
+          {
+            "cell": "K20",
+            "value": 20.603286211071254,
+            "formula": null
+          },
+          {
+            "cell": "L20",
+            "value": 21.631449102312015,
+            "formula": null
+          },
+          {
+            "cell": "M20",
+            "value": 24.718830787441615,
+            "formula": null
+          },
+          {
+            "cell": "N20",
+            "value": 25.230328385186855,
+            "formula": null
+          },
+          {
+            "cell": "O20",
+            "value": 24.931553195686863,
+            "formula": null
+          },
+          {
+            "cell": "P20",
+            "value": 21.750675919152453,
+            "formula": null
+          },
+          {
+            "cell": "Q20",
+            "value": 17.531913571532495,
+            "formula": null
+          },
+          {
+            "cell": "R20",
+            "value": 11.844962493012899,
+            "formula": null
+          },
+          {
+            "cell": "S20",
+            "value": 7.678910324362019,
+            "formula": null
+          },
+          {
+            "cell": "T20",
+            "value": 5.5393972985729825,
+            "formula": null
+          },
+          {
+            "cell": "U20",
+            "value": 4.247593279098012,
+            "formula": null
+          },
+          {
+            "cell": "V20",
+            "value": 1.0000000001,
+            "formula": null
+          },
+          {
+            "cell": "W20",
+            "value": 1.0000000001,
+            "formula": null
+          },
+          {
+            "cell": "X20",
+            "value": 1.0000000001,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A22",
+            "value": "노이즈 계수 a 추산 및 현실성 비교",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A23",
+            "value": "Squeezing Degree 실측 기반 추산값 [dB]",
+            "formula": null
+          },
+          {
+            "cell": "B23",
+            "value": -0.973671374547763,
+            "formula": null
+          },
+          {
+            "cell": "C23",
+            "value": -1.6473866499885617,
+            "formula": null
+          },
+          {
+            "cell": "D23",
+            "value": -0.9476814272609317,
+            "formula": null
+          },
+          {
+            "cell": "E23",
+            "value": -1.9379151504754901,
+            "formula": null
+          },
+          {
+            "cell": "F23",
+            "value": -2.46231881738278,
+            "formula": null
+          },
+          {
+            "cell": "G23",
+            "value": -3.415403152475335,
+            "formula": null
+          },
+          {
+            "cell": "H23",
+            "value": -3.0,
+            "formula": null
+          },
+          {
+            "cell": "I23",
+            "value": -1.3275059723940075,
+            "formula": null
+          },
+          {
+            "cell": "J23",
+            "value": -1.5583592697344386,
+            "formula": null
+          },
+          {
+            "cell": "K23",
+            "value": 0.2824475764676748,
+            "formula": null
+          },
+          {
+            "cell": "L23",
+            "value": 2.324872670860927,
+            "formula": null
+          },
+          {
+            "cell": "M23",
+            "value": 4.2250304617949155,
+            "formula": null
+          },
+          {
+            "cell": "N23",
+            "value": 5.4270643226777935,
+            "formula": null
+          },
+          {
+            "cell": "O23",
+            "value": 6.566477117586672,
+            "formula": null
+          },
+          {
+            "cell": "P23",
+            "value": 7.766230288354166,
+            "formula": null
+          },
+          {
+            "cell": "Q23",
+            "value": 10.106832175623737,
+            "formula": null
+          },
+          {
+            "cell": "R23",
+            "value": 10.882321173768318,
+            "formula": null
+          },
+          {
+            "cell": "S23",
+            "value": 11.638957313377176,
+            "formula": null
+          },
+          {
+            "cell": "T23",
+            "value": 10.451940686905374,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A24",
+            "value": "F_{experiment}",
+            "formula": null
+          },
+          {
+            "cell": "B24",
+            "value": 0.7991583886549318,
+            "formula": "IF(B23=\"\",\"\",10^(B23/10))"
+          },
+          {
+            "cell": "C24",
+            "value": 0.6843233122792958,
+            "formula": "IF(C23=\"\",\"\",10^(C23/10))"
+          },
+          {
+            "cell": "D24",
+            "value": 0.8039552160926635,
+            "formula": null
+          },
+          {
+            "cell": "E24",
+            "value": 0.6400420166951296,
+            "formula": null
+          },
+          {
+            "cell": "F24",
+            "value": 0.5672416586567474,
+            "formula": null
+          },
+          {
+            "cell": "G24",
+            "value": 0.4554699032564027,
+            "formula": null
+          },
+          {
+            "cell": "H24",
+            "value": 0.5011872336272722,
+            "formula": null
+          },
+          {
+            "cell": "I24",
+            "value": 0.7366300013578729,
+            "formula": null
+          },
+          {
+            "cell": "J24",
+            "value": 0.698496240601504,
+            "formula": null
+          },
+          {
+            "cell": "K24",
+            "value": 1.0671973978851146,
+            "formula": null
+          },
+          {
+            "cell": "L24",
+            "value": 1.707997643195595,
+            "formula": null
+          },
+          {
+            "cell": "M24",
+            "value": 2.6454712502257705,
+            "formula": null
+          },
+          {
+            "cell": "N24",
+            "value": 3.4890438870363103,
+            "formula": null
+          },
+          {
+            "cell": "O24",
+            "value": 4.535735404778377,
+            "formula": null
+          },
+          {
+            "cell": "P24",
+            "value": 5.978923942662401,
+            "formula": null
+          },
+          {
+            "cell": "Q24",
+            "value": 10.24904069526192,
+            "formula": null
+          },
+          {
+            "cell": "R24",
+            "value": 12.252708948414115,
+            "formula": null
+          },
+          {
+            "cell": "S24",
+            "value": 14.584640592952528,
+            "formula": null
+          },
+          {
+            "cell": "T24",
+            "value": 11.096705715170797,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A25",
+            "value": "Excess noise \\Delta F",
+            "formula": null
+          },
+          {
+            "cell": "B25",
+            "value": 0.5736641454246898,
+            "formula": "IF(B24=\"\",\"\",B24-B18)"
+          },
+          {
+            "cell": "C25",
+            "value": 0.4567636896923343,
+            "formula": null
+          },
+          {
+            "cell": "D25",
+            "value": 0.6090318198319837,
+            "formula": null
+          },
+          {
+            "cell": "E25",
+            "value": 0.4587661638325369,
+            "formula": null
+          },
+          {
+            "cell": "F25",
+            "value": 0.3983391632007471,
+            "formula": null
+          },
+          {
+            "cell": "G25",
+            "value": 0.2925678493752768,
+            "formula": null
+          },
+          {
+            "cell": "H25",
+            "value": 0.3456954088245757,
+            "formula": null
+          },
+          {
+            "cell": "I25",
+            "value": 0.5857596590765464,
+            "formula": null
+          },
+          {
+            "cell": "J25",
+            "value": 0.5500176820838838,
+            "formula": null
+          },
+          {
+            "cell": "K25",
+            "value": 0.9108857768874303,
+            "formula": null
+          },
+          {
+            "cell": "L25",
+            "value": 1.5658766125263512,
+            "formula": null
+          },
+          {
+            "cell": "M25",
+            "value": 2.4563831107400746,
+            "formula": null
+          },
+          {
+            "cell": "N25",
+            "value": 3.2451215122035393,
+            "formula": null
+          },
+          {
+            "cell": "O25",
+            "value": 4.140257504223169,
+            "formula": null
+          },
+          {
+            "cell": "P25",
+            "value": 5.425215693382698,
+            "formula": null
+          },
+          {
+            "cell": "Q25",
+            "value": 9.472523137351708,
+            "formula": null
+          },
+          {
+            "cell": "R25",
+            "value": 11.348548276339036,
+            "formula": null
+          },
+          {
+            "cell": "S25",
+            "value": 13.473394677571644,
+            "formula": null
+          },
+          {
+            "cell": "T25",
+            "value": 9.75249370012487,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A26",
+            "value": "G-1",
+            "formula": null
+          },
+          {
+            "cell": "B26",
+            "value": 3.2260644657583777,
+            "formula": "B20-1"
+          },
+          {
+            "cell": "C26",
+            "value": 3.5006618701659473,
+            "formula": null
+          },
+          {
+            "cell": "D26",
+            "value": 4.712642557025251,
+            "formula": null
+          },
+          {
+            "cell": "E26",
+            "value": 5.919137555844827,
+            "formula": null
+          },
+          {
+            "cell": "F26",
+            "value": 7.579903572768242,
+            "formula": null
+          },
+          {
+            "cell": "G26",
+            "value": 10.06630481214257,
+            "formula": null
+          },
+          {
+            "cell": "H26",
+            "value": 11.085785433413129,
+            "formula": null
+          },
+          {
+            "cell": "I26",
+            "value": 13.538636001937126,
+            "formula": null
+          },
+          {
+            "cell": "J26",
+            "value": 16.18482384698682,
+            "formula": null
+          },
+          {
+            "cell": "K26",
+            "value": 19.603286211071254,
+            "formula": null
+          },
+          {
+            "cell": "L26",
+            "value": 20.631449102312015,
+            "formula": null
+          },
+          {
+            "cell": "M26",
+            "value": 23.718830787441615,
+            "formula": null
+          },
+          {
+            "cell": "N26",
+            "value": 24.230328385186855,
+            "formula": null
+          },
+          {
+            "cell": "O26",
+            "value": 23.931553195686863,
+            "formula": null
+          },
+          {
+            "cell": "P26",
+            "value": 20.750675919152453,
+            "formula": null
+          },
+          {
+            "cell": "Q26",
+            "value": 16.531913571532495,
+            "formula": null
+          },
+          {
+            "cell": "R26",
+            "value": 10.844962493012899,
+            "formula": null
+          },
+          {
+            "cell": "S26",
+            "value": 6.678910324362019,
+            "formula": null
+          },
+          {
+            "cell": "T26",
+            "value": 4.5393972985729825,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A27",
+            "value": "개별 노이즈 계수 a_i",
+            "formula": null
+          },
+          {
+            "cell": "B27",
+            "value": 0.1778216621253518,
+            "formula": "IF(OR(B25=\"\",B26<0.000001),\"\",B25/B26)"
+          },
+          {
+            "cell": "C27",
+            "value": 0.1304792369651747,
+            "formula": "IF(OR(C25=\"\",C26<0.000001),\"\",C25/C26)"
+          },
+          {
+            "cell": "D27",
+            "value": 0.1292336120260352,
+            "formula": null
+          },
+          {
+            "cell": "E27",
+            "value": 0.07750557568636501,
+            "formula": null
+          },
+          {
+            "cell": "F27",
+            "value": 0.052552009319990656,
+            "formula": null
+          },
+          {
+            "cell": "G27",
+            "value": 0.029064076126759465,
+            "formula": null
+          },
+          {
+            "cell": "H27",
+            "value": 0.03118366406250584,
+            "formula": null
+          },
+          {
+            "cell": "I27",
+            "value": 0.04326578090974121,
+            "formula": null
+          },
+          {
+            "cell": "J27",
+            "value": 0.033983544540479034,
+            "formula": null
+          },
+          {
+            "cell": "K27",
+            "value": 0.046465973463826374,
+            "formula": null
+          },
+          {
+            "cell": "L27",
+            "value": 0.07589755837125735,
+            "formula": null
+          },
+          {
+            "cell": "M27",
+            "value": 0.10356257155983647,
+            "formula": null
+          },
+          {
+            "cell": "N27",
+            "value": 0.13392808634766318,
+            "formula": null
+          },
+          {
+            "cell": "O27",
+            "value": 0.17300412849799315,
+            "formula": null
+          },
+          {
+            "cell": "P27",
+            "value": 0.26144766148920157,
+            "formula": null
+          },
+          {
+            "cell": "Q27",
+            "value": 0.5729840708617745,
+            "formula": null
+          },
+          {
+            "cell": "R27",
+            "value": 1.0464349953861605,
+            "formula": null
+          },
+          {
+            "cell": "S27",
+            "value": 2.0173043240940123,
+            "formula": null
+          },
+          {
+            "cell": "T27",
+            "value": 2.1484115750764294,
+            "formula": null
+          },
+          {
+            "cell": "V27",
+            "value": "전체 측정점에 대한 회귀계수 \\hat{a}",
+            "formula": null
+          },
+          {
+            "cell": "W27",
+            "value": 0.20074052193063469,
+            "formula": "SUMPRODUCT(B25:T25,B26:T26)/SUMSQ(B26:T26)"
+          }
+        ],
+        [
+          {
+            "cell": "A28",
+            "value": "피팅한 F_{experiment}",
+            "formula": null
+          },
+          {
+            "cell": "B28",
+            "value": 0.6476018646414261,
+            "formula": "B17+$W$27*B26"
+          },
+          {
+            "cell": "C28",
+            "value": 0.7027246909926624,
+            "formula": null
+          },
+          {
+            "cell": "D28",
+            "value": 0.9460183267595563,
+            "formula": null
+          },
+          {
+            "cell": "E28",
+            "value": 1.1882107623616012,
+            "formula": null
+          },
+          {
+            "cell": "F28",
+            "value": 1.5215937999538507,
+            "formula": null
+          },
+          {
+            "cell": "G28",
+            "value": 2.020715282133735,
+            "formula": null
+          },
+          {
+            "cell": "H28",
+            "value": 2.2253663542957427,
+            "formula": null
+          },
+          {
+            "cell": "I28",
+            "value": 2.7177528580336383,
+            "formula": null
+          },
+          {
+            "cell": "J28",
+            "value": 3.248949987423673,
+            "formula": null
+          },
+          {
+            "cell": "K28",
+            "value": 3.935173905943418,
+            "formula": null
+          },
+          {
+            "cell": "L28",
+            "value": 4.141567862206256,
+            "formula": null
+          },
+          {
+            "cell": "M28",
+            "value": 4.761330472699484,
+            "formula": null
+          },
+          {
+            "cell": "N28",
+            "value": 4.864008767274973,
+            "formula": null
+          },
+          {
+            "cell": "O28",
+            "value": 4.804032479347107,
+            "formula": null
+          },
+          {
+            "cell": "P28",
+            "value": 4.165501515223365,
+            "formula": null
+          },
+          {
+            "cell": "Q28",
+            "value": 3.3186249592862946,
+            "formula": null
+          },
+          {
+            "cell": "R28",
+            "value": 2.1770234319151953,
+            "formula": null
+          },
+          {
+            "cell": "S28",
+            "value": 1.3407279447111249,
+            "formula": null
+          },
+          {
+            "cell": "T28",
+            "value": 0.9112409831930861,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A29",
+            "value": "피팅한 스퀴징 [dB]",
+            "formula": null
+          },
+          {
+            "cell": "B29",
+            "value": -1.8869190945183827,
+            "formula": "10*LOG10(B28)"
+          },
+          {
+            "cell": "C29",
+            "value": -1.5321478678798564,
+            "formula": "10*LOG10(C28)"
+          },
+          {
+            "cell": "D29",
+            "value": -0.2410045013789963,
+            "formula": null
+          },
+          {
+            "cell": "E29",
+            "value": 0.7489348173288142,
+            "formula": null
+          },
+          {
+            "cell": "F29",
+            "value": 1.822987299749659,
+            "formula": null
+          },
+          {
+            "cell": "G29",
+            "value": 3.0550512593043417,
+            "formula": null
+          },
+          {
+            "cell": "H29",
+            "value": 3.474015175874403,
+            "formula": null
+          },
+          {
+            "cell": "I29",
+            "value": 4.342099611263185,
+            "formula": null
+          },
+          {
+            "cell": "J29",
+            "value": 5.117430261024164,
+            "formula": null
+          },
+          {
+            "cell": "K29",
+            "value": 5.949639297631175,
+            "formula": null
+          },
+          {
+            "cell": "L29",
+            "value": 6.171647819427399,
+            "formula": null
+          },
+          {
+            "cell": "M29",
+            "value": 6.777283258746182,
+            "formula": null
+          },
+          {
+            "cell": "N29",
+            "value": 6.869943490721848,
+            "formula": null
+          },
+          {
+            "cell": "O29",
+            "value": 6.8160593494101445,
+            "formula": null
+          },
+          {
+            "cell": "P29",
+            "value": 6.196672967828988,
+            "formula": null
+          },
+          {
+            "cell": "Q29",
+            "value": 5.209581751818479,
+            "formula": null
+          },
+          {
+            "cell": "R29",
+            "value": 3.3786310349984676,
+            "formula": null
+          },
+          {
+            "cell": "S29",
+            "value": 1.2734066144786795,
+            "formula": null
+          },
+          {
+            "cell": "T29",
+            "value": -0.40366756033487594,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A30",
+            "value": "Noise slope a",
+            "formula": null
+          },
+          {
+            "cell": "B30",
+            "value": -0.011354900288860456,
+            "formula": "SLOPE(B25:X25,B26:X26)"
+          },
+          {
+            "cell": "C30",
+            "value": "Noise Intercept b",
+            "formula": null
+          },
+          {
+            "cell": "D30",
+            "value": 3.6246890309458455,
+            "formula": "INTERCEPT(B25:X25,B26:X26)"
+          }
+        ],
+        [
+          {
+            "cell": "A32",
+            "value": "Seed noise 전달계수 K 가정한 모델",
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A33",
+            "value": "Seed noise 전달계수 K",
+            "formula": null
+          },
+          {
+            "cell": "B33",
+            "value": 0.07081383598828853,
+            "formula": "B8*B9*(B13^2-B14^2)^2/(B13^2+B14^2)"
+          },
+          {
+            "cell": "C33",
+            "value": 0.09955092164348506,
+            "formula": "C8*C9*(C13^2-C14^2)^2/(C13^2+C14^2)"
+          },
+          {
+            "cell": "D33",
+            "value": 0.04433655414910696,
+            "formula": null
+          },
+          {
+            "cell": "E33",
+            "value": 0.03768355142359869,
+            "formula": null
+          },
+          {
+            "cell": "F33",
+            "value": 0.027893154980486872,
+            "formula": null
+          },
+          {
+            "cell": "G33",
+            "value": 0.008064923822158909,
+            "formula": null
+          },
+          {
+            "cell": "H33",
+            "value": 0.013598782657369581,
+            "formula": null
+          },
+          {
+            "cell": "I33",
+            "value": 0.008712468230306119,
+            "formula": null
+          },
+          {
+            "cell": "J33",
+            "value": 0.004935415958046454,
+            "formula": null
+          },
+          {
+            "cell": "K33",
+            "value": 0.00021084466593640093,
+            "formula": null
+          },
+          {
+            "cell": "L33",
+            "value": 0.004715887853340058,
+            "formula": null
+          },
+          {
+            "cell": "M33",
+            "value": 0.004572639605304354,
+            "formula": null
+          },
+          {
+            "cell": "N33",
+            "value": 0.019201260656628555,
+            "formula": null
+          },
+          {
+            "cell": "O33",
+            "value": 0.06820664975494181,
+            "formula": null
+          },
+          {
+            "cell": "P33",
+            "value": 0.11741963020864468,
+            "formula": null
+          },
+          {
+            "cell": "Q33",
+            "value": 0.17944397687236782,
+            "formula": null
+          },
+          {
+            "cell": "R33",
+            "value": 0.19125351766332965,
+            "formula": null
+          },
+          {
+            "cell": "S33",
+            "value": 0.2019071835167277,
+            "formula": null
+          },
+          {
+            "cell": "T33",
+            "value": 0.197436538368367,
+            "formula": null
+          }
+        ],
+        [
+          {
+            "cell": "A34",
+            "value": "추정 F_seed-1",
+            "formula": null
+          },
+          {
+            "cell": "B34",
+            "value": 8.10101779431303,
+            "formula": "IF(B33>0.000001,B25/B33,\"\")"
+          },
+          {
+            "cell": "C34",
+            "value": 4.588241697330648,
+            "formula": "IF(C33>0.000001,C25/C33,\"\")"
+          },
+          {
+            "cell": "D34",
+            "value": 13.736561884889987,
+            "formula": null
+          },
+          {
+            "cell": "E34",
+            "value": 12.174175376295407,
+            "formula": null
+          },
+          {
+            "cell": "F34",
+            "value": 14.280893053489716,
+            "formula": null
+          },
+          {
+            "cell": "G34",
+            "value": 36.27657939823652,
+            "formula": null
+          },
+          {
+            "cell": "H34",
+            "value": 25.421055511702967,
+            "formula": null
+          },
+          {
+            "cell": "I34",
+            "value": 67.23234376212643,
+            "formula": null
+          },
+          {
+            "cell": "J34",
+            "value": 111.44302461217329,
+            "formula": null
+          },
+          {
+            "cell": "K34",
+            "value": 4320.174631129579,
+            "formula": "IF(K33>0.000001,K25/K33,\"\")"
+          },
+          {
+            "cell": "L34",
+            "value": 332.0428011063302,
+            "formula": null
+          },
+          {
+            "cell": "M34",
+            "value": 537.1914961088603,
+            "formula": null
+          },
+          {
+            "cell": "N34",
+            "value": 169.00564865168246,
+            "formula": null
+          },
+          {
+            "cell": "O34",
+            "value": 60.70166939878458,
+            "formula": null
+          },
+          {
+            "cell": "P34",
+            "value": 46.203651670019326,
+            "formula": null
+          },
+          {
+            "cell": "Q34",
+            "value": 52.78819218373197,
+            "formula": null
+          },
+          {
+            "cell": "R34",
+            "value": 59.33772311741888,
+            "formula": null
+          },
+          {
+            "cell": "S34",
+            "value": 66.73063554697842,
+            "formula": null
+          },
+          {
+            "cell": "T34",
+            "value": 49.395586960348574,
+            "formula": null
+          }
+        ]
+      ]
+    }
+  ]
+}

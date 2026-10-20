@@ -1,0 +1,9 @@
+{
+  "origin": "observed_tool_result",
+  "command": "python -m pytest -q tests/test_fwm_fast_tiers.py",
+  "passed": 29,
+  "failed": 0,
+  "seconds": 5.73,
+  "reason": "One test source had a divergent memory-mapped filesystem cache after full run; identical-byte replacement resolved it.",
+  "source_bytes_modified": false
+}

@@ -9,8 +9,8 @@ the probe then samples those prepared populations:
     probe atom-frame detuning = Δ − k·v        (Δ = laser − line centre, the scan)
 
   * **Pump off (P = 0) → OD.** The probe sees the linear, Doppler-broadened
-    multi-line absorption — exactly the validated 85Rb D1 hyperfine spectrum
-    (AutoOD calibration) at pump = 0, generalised to any isotope/line.
+    multi-line absorption — the thermally normalized 85Rb D1 hyperfine spectrum
+    (sublevel populations counted once) at pump = 0, generalised to any isotope/line.
   * **Pump on → SAS.** Velocity-selective hole burning + hyperfine optical
     pumping give Doppler-free Lamb dips and (enhanced / inverted) crossovers.
 
@@ -21,13 +21,13 @@ manifold (CG-branched decay + transit-time relaxation). The absorption is
 
     α(δ) = Σ_components Σ_(Fg→Fe)  A_(Fg,Fe) · ĝ_(Fg,Fe)(δ)
 
-  A_t = ∫α_t dδ = ls·π·k·p_Fg·C_F²·|d|²·N/(ε₀ℏ)/(2(2I+1))   (AutoOD absolute area)
+  A_t = ∫α_t dδ = ls·π·k·C_F²·|d|²·N/(ε₀ℏ)/(2(2I+1))   (AutoOD absolute area)
   ĝ_t(δ) = Σ_v f(v)·[(ρ_Fg − ρ_Fe)(Δ+k·v)/p_Fg]·L̂((δ − k·v) − ω_t)   (unit area at P=0)
 
 ρ comes from one OBE steady state per velocity class; the pump Hamiltonian is
 scan-independent (the scan enters only via Δ_eff = Δ + k·v), so it is solved once
 on a fine Δ_eff grid and interpolated. At P=0 the bracket is 1, ĝ_t is a unit
-Voigt, and α reduces to the validated OD spectrum (∫α_t = A_t).
+Voigt, and α reduces to the thermally normalized OD spectrum (∫α_t = A_t).
 
 A generic Γ-unit hole-burning toy (one ground + one/two excited states) remains
 as an internal backwards-compatibility/validation path, but is not UI-exposed.
@@ -222,7 +222,7 @@ class SASScheme(Scheme):
     supports_headless_observables = True
     caption = ("Absorption with a counter-propagating pump and optional finite-power "
                "probe saturation for the built-in alkali D lines. Pump off → "
-               "linear Doppler-broadened OD (validated 85Rb D1 hyperfine scale); "
+               "linear Doppler-broadened OD (thermal 85Rb D1 hyperfine scale); "
                "pump on → Doppler-free saturated-absorption Lamb dips and crossovers "
                "with hyperfine optical pumping. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb.")
 
@@ -265,7 +265,7 @@ class SASScheme(Scheme):
                       choices=("D1", "D2"),
                       help="D1 (nP₁/₂) or D2 (nP₃/₂). Sets the excited hyperfine "
                       "manifold and line-specific probe saturation scale. The supplied "
-                      "AutoOD reference directly covers Rb D2; other built-in lines "
+                      "AutoOD regression anchors cover Rb D2; other built-in lines "
                       "use a clearly labelled closed-two-level generalization."),
             ParamSpec("temp_c", "Cell temperature", "Cell & beams", 40.0, 20.0, 200.0,
                       1.0, "°C",
@@ -323,7 +323,7 @@ class SASScheme(Scheme):
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", advanced=True, recompute=False,
                       help="Effective |d|² calibration knob. =1.0 reproduces the "
-                      "AutoOD-validated 85Rb D1 absolute scale at pump = 0."),
+                      "Thermal 85Rb D1 sublevel normalization at pump = 0."),
             ParamSpec("transitions", "Generic: transitions", "Atomic", "single line",
                       choices=("single line", "two lines (crossover)"), advanced=True,
                       hidden=True, help="Internal legacy Generic mode only."),
@@ -356,7 +356,7 @@ class SASScheme(Scheme):
             "resonant velocity class.\n\n"
             "- **Pump off (P = 0):** linear Doppler-broadened absorption (OD). For "
             "85Rb D1 the absolute scale reproduces the lab AutoOD calculator "
-            "(`references/AutoOD/`) to <0.1 %.\n"
+            "(`archive/AutoOD/`) to <0.1 %.\n"
             "- **Pump on:** Doppler-free Lamb dips + crossovers; CG-branched decay "
             "pumps population into the other ground hyperfine state, enhancing / "
             "inverting the crossovers (the dominant feature of real alkali SAS).\n\n"
@@ -812,7 +812,7 @@ class SASScheme(Scheme):
                         raw["probe_intensity_log_grid"],
                         alpha_table * params["line_strength"],
                         alpha, L))
-                # AutoOD-NatRbD2 defines nonlinear collected transmission only.
+                # AutoOD-Rb defines nonlinear collected transmission only.
                 # There is no unique phase index after radial/path variation.
                 chi_real = None
             return self._obs_species(

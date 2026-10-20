@@ -28,10 +28,12 @@ def _safe_token(value, fallback="item"):
 def to_json_primitive(value):
     if value is None:
         return None
-    if isinstance(value, (str, bool, int, float)):
+    if isinstance(value, float):
+        return value if np.isfinite(value) else None
+    if isinstance(value, (str, bool, int)):
         return value
     if isinstance(value, (np.integer, np.floating, np.bool_)):
-        return value.item()
+        return to_json_primitive(value.item())
     if isinstance(value, (bytes, bytearray)):
         return value.hex()
     if isinstance(value, datetime):
@@ -39,8 +41,8 @@ def to_json_primitive(value):
     if isinstance(value, complex):
         return {
             "__complex__": True,
-            "real": float(np.real(value)),
-            "imag": float(np.imag(value)),
+            "real": to_json_primitive(float(np.real(value))),
+            "imag": to_json_primitive(float(np.imag(value))),
         }
     if isinstance(value, np.ndarray):
         if np.iscomplexobj(value):
@@ -207,6 +209,13 @@ def build_export_payload(*, scheme, raw, params, view, plot_payloads,
         "raw": to_json_primitive(raw),
         "view": {
             "metrics": to_json_primitive(view.get("metrics", [])),
+            "sidebar_readouts": to_json_primitive(view.get("sidebar_readouts", {})),
+            "jasperse_readout": to_json_primitive(view.get("jasperse_readout")),
+            "measured_gain_reference": to_json_primitive(view.get("measured_gain_reference")),
+            "dressed_cell_absorption": to_json_primitive(view.get("dressed_cell_absorption")),
+            "passive_l1_readout": to_json_primitive(view.get("passive_l1_readout")),
+            "passive_l1_operating_point": to_json_primitive(
+                view.get("passive_l1_operating_point")),
             "hero_count": view.get("hero_count", None),
             "tables": to_json_primitive(view.get("tables", [])),
             "figure_views": [
@@ -229,7 +238,8 @@ def render_export(container, *, scheme, raw, params, view, plot_payloads,
             plot_payloads=plot_payloads, comparison_payload=comparison_payload,
             cache_version=cache_version, readout_cache_version=readout_cache_version,
         )
-        return json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+        return json.dumps(payload, indent=2, ensure_ascii=False,
+                          allow_nan=False).encode("utf-8")
 
     timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
     scheme_token = _safe_token(scheme.name or "gabes", "gabes")

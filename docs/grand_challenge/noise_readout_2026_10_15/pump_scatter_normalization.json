@@ -1,0 +1,12 @@
+{
+  "origin": "source_evidence",
+  "active_ground_population_factors": {
+    "3": 1.0,
+    "2": 1.0
+  },
+  "active_scatter": 0.00960141657370437,
+  "active_od": 0.1009415887758387,
+  "extra_ground_population_scatter": 0.004204278635320824,
+  "extra_ground_population_od": 0.04295216417276116,
+  "review_note": "The handoff0.0042 is reproduced by the legacy additional ground-population factor; current pre-existing absorption normalization uses1 for each ground manifold. Not a patch regression; passive L1 excludes both phenomenological terms."
+}

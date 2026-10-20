@@ -248,7 +248,9 @@ def reduced_dipole_sq(gamma_nat, lam, Jg, Je):
 def line_integrated_alpha(iso, line, N):
     """
     Per-transition integrated weak-probe absorption ∫α dδ [rad·s⁻¹·m⁻¹] at line
-    strength 1 (AutoOD normalisation): ∫α_t = π·k·p_F·C_F²·|d|²·N/(ε₀ℏ)/(2(2I+1)).
+    strength 1: ∫α_t = π·k·C_F²·|d|²·N/(ε₀ℏ)/(2(2I+1)).
+    C_F² already sums magnetic sublevels. Their thermal population is
+    p_F/(2F+1) = 1/[2(2I+1)]; multiplying by p_F again double-counts it.
     Returns a dict keyed by (Fg, Fe). Density N already carries the species weight.
     """
     Je, nu0, gamma_mhz, _, _ = iso.line(line)
@@ -257,15 +259,13 @@ def line_integrated_alpha(iso, line, N):
     k = 2 * np.pi / lam
     gamma_nat = gamma_mhz * MHZ
     d2 = reduced_dipole_sq(gamma_nat, lam, Jg, Je)
-    deg = {F: 2 * F + 1 for F in f_values(I, Jg)}
-    ptot = sum(deg.values())
     K = np.pi * k * d2 * N / (constants.HBAR * constants.EPS_0) / (2 * (2 * I + 1))
     out = {}
     for Fg in f_values(I, Jg):
         for Fe in f_values(I, Je):
             S = cf2(Fg, Fe, I, Jg, Je)
             if S > 1e-12:
-                out[(Fg, Fe)] = K * (deg[Fg] / ptot) * S
+                out[(Fg, Fe)] = K * S
     return out
 
 
@@ -362,14 +362,10 @@ def build_manifold(iso, line, transit_rate=0.0):
     deg = np.array([2 * F + 1 for F in Fg], dtype=float)
     p_ground = deg / deg.sum()
 
-    # Relative hyperfine strengths.  The Wigner-6j gives |⟨Fe‖d‖Fg⟩|² ∝
-    # line_strength; the *observable* relative strength of a lumped Fg↔Fe line
-    # (absorption per ground atom and the spontaneous-emission branching) carries
-    # an extra ground-degeneracy factor (2Fg+1):
-    #     T(Fg,Fe) = (2Fg+1)·line_strength,   Σ_Fg T = 2Fe+1,  Σ_Fe T = 2Fg+1.
-    # T reproduces the AutoOD-validated ⁸⁵Rb D1 factors (T = 9·hyperfine.CF2) and
-    # the 49/25 F=3/F=2 manifold absorption ratio. Used for line weight, decay
-    # branching and (√T) the relative pump Rabi — one consistent quantity.
+    # S is the absorption strength per atom in a ground manifold (row sum 1).
+    # T=(2Fg+1)*S sums initial sublevels and sets decay branching after column
+    # normalization. Keep the inherited sqrt(T/T_max) effective pump-Rabi
+    # prescription; it is not an individual Zeeman-transition matrix element.
     S = np.array([[line_strength(fg, fe, I, Jg, Je) for fe in Fe] for fg in Fg])
     T = deg[:, None] * S
     T_max = T.max()
@@ -399,7 +395,6 @@ def build_manifold(iso, line, transit_rate=0.0):
 
     # Transition table (every allowed Fg→Fe).
     g_idx, e_idx, omega, S_abs, rabi_rel, H_couplings = [], [], [], [], [], []
-    norm = float((T * p_ground[:, None]).sum())      # Σ T·p → 1 (per-atom strength)
     for ig, fg in enumerate(Fg):
         for ie, fe in enumerate(Fe):
             if T[ig, ie] <= 0:
@@ -407,7 +402,7 @@ def build_manifold(iso, line, transit_rate=0.0):
             g_idx.append(ig)
             e_idx.append(ng + ie)
             omega.append(e_excited[ie] - e_ground[ig])
-            S_abs.append(T[ig, ie] / norm)
+            S_abs.append(S[ig, ie])
             rr = math.sqrt(T[ig, ie] / T_max)
             rabi_rel.append(rr)
             H_couplings.append((ig, ng + ie, rr))

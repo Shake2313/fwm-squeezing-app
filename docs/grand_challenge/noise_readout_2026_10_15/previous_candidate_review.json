@@ -1,0 +1,26 @@
+{
+  "origin": "source_evidence_with_ai_review",
+  "prior_record": "FWM-OPERATING-F2-2026-10-14-COMPLETE",
+  "legacy_gain_noise_dB": -5.59397061376392,
+  "legacy_prior_nominal_dB": -5.59397061376392,
+  "legacy_noise_exact_parity": true,
+  "displayed_gain_s": 4.116647884734132,
+  "l1_nominal_only": {
+    "1.0": {
+      "completion_valid": true,
+      "status": "PASSIVE_LOWER_BOUND_ONLY",
+      "minimum_eigenvalue": 0.02213064519973254,
+      "display": "-5.32 dB",
+      "l1_dB": -5.316624035109569
+    },
+    "4.05": {
+      "completion_valid": true,
+      "status": "PASSIVE_LOWER_BOUND_ONLY",
+      "minimum_eigenvalue": 0.02213064519973254,
+      "display": "-4.55 dB",
+      "l1_dB": -4.550702567491262
+    }
+  },
+  "review_note": "⟦AI⟧ Historical81-setting gain/legacy-indicator scope preserved. Its old noise certificate does not certify the new L1 estimator; nominal reevaluation only, no new robustness-grid or experimental claim.",
+  "eta": 0.781
+}

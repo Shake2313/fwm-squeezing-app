@@ -1,0 +1,19 @@
+{
+  "record": "FWM-MEAN-GAIN-2026-10-15-CODE",
+  "origin": "source_evidence",
+  "command": "python -m pytest -q",
+  "passed": 2313,
+  "skipped": 4,
+  "failed": 0,
+  "seconds": 836.73,
+  "receipt_elapsed_seconds": 841.6803906999994,
+  "summary": "2313 passed, 4 skipped, 2 warnings in 836.73s (0:13:56)",
+  "source_frozen": true,
+  "source_files_compared": 252,
+  "full_receipt": "docs/grand_challenge/mean_gain_2026_10_15/full_pytest_receipt.json",
+  "targeted_final_passed": 129,
+  "gc_impact_passed": true,
+  "no_fitting_performed": true,
+  "sealed_artifacts_rechecked_after_full_suite": 37,
+  "scope": "Absorbed-probe floor, optical carrier origin, explicit power-reference planes; absolute experimental gain remains unresolved."
+}

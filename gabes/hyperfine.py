@@ -1,9 +1,10 @@
 """
 85Rb D1 hyperfine structure for the realistic multi-line OD spectrum.
 
-The data and absolute scaling here are validated against the lab AutoOD
-calculator (references/AutoOD/rb_od_calculator_optimized_final.py), which
-reproduces *measured* 85Rb D1 vapor-cell transmission. Ported pieces:
+The atomic data were ported from the lab AutoOD calculator. Absorption
+normalization was corrected on 6 September 2026 to count each thermal
+magnetic-sublevel population once; software agreement is not experimental
+validation. Ported pieces:
 
   * the four D1 hyperfine transitions  Fg ∈ {2,3} → Fe ∈ {2,3}  with their
     line-center detunings (referenced to the 87Rb F=2→F'=2 marker — the

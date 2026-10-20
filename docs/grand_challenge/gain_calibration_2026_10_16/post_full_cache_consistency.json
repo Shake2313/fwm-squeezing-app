@@ -1,0 +1,18 @@
+{
+  "origin": "source_evidence",
+  "marker": "⟦AI⟧",
+  "scope": "Post-full-regression filesystem cache consistency; source SHA bytes unchanged.",
+  "records": [
+    {
+      "path": "tests/test_fwm_fast_tiers.py",
+      "unchanged_plain_source_sha256": "2e72ff63f6c1489bfbd8aeb23c0fa333f38261a6c9694a8f698a7da9794d9a47",
+      "prior_mapped_sha256": "9c3aa2b44b7ec2b3e2b0943a827093432eeb82045a270a7b2154a6876c7b131d",
+      "current_mapped_sha256": "2e72ff63f6c1489bfbd8aeb23c0fa333f38261a6c9694a8f698a7da9794d9a47",
+      "byte_identical_atomic_replacement": true
+    }
+  ],
+  "full_run_before_after_plain_source_hashes_unchanged": true,
+  "related_test_rerun_required": [
+    "tests/test_fwm_fast_tiers.py"
+  ]
+}

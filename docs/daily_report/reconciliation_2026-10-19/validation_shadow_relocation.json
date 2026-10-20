@@ -1,0 +1,37 @@
+{
+  "origin": "ai_diagnosis_with_exact_hash_evidence",
+  "root": "C:\\Temp\\gv20261020-9d7b\\repo",
+  "review_sha256": "0e66edcc63a72c943348178f3bb8788ba3f24604bb9826f87718209ad7716de3",
+  "files": [
+    {
+      "relative": "docs/grand_challenge/thermal_campaign_v2/plan.json",
+      "current_absolute": "C:\\Temp\\gv20261020-9d7b\\repo\\docs\\grand_challenge\\thermal_campaign_v2\\plan.json",
+      "matching_historical_keys": [
+        "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\plan.json"
+      ],
+      "unique_historical_match": true,
+      "copied_bytes_match_historical_sha": true
+    },
+    {
+      "relative": "docs/grand_challenge/thermal_campaign_v2/sources.zip",
+      "current_absolute": "C:\\Temp\\gv20261020-9d7b\\repo\\docs\\grand_challenge\\thermal_campaign_v2\\sources.zip",
+      "matching_historical_keys": [
+        "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\sources.zip"
+      ],
+      "unique_historical_match": true,
+      "copied_bytes_match_historical_sha": true
+    },
+    {
+      "relative": "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json",
+      "current_absolute": "C:\\Temp\\gv20261020-9d7b\\repo\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json",
+      "matching_historical_keys": [
+        "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\grand_challenge\\thermal_campaign_v2\\grid-p3-s11.json"
+      ],
+      "unique_historical_match": true,
+      "copied_bytes_match_historical_sha": true
+    }
+  ],
+  "finding": "Frozen review input ledger uses original absolute paths as dictionary keys. Copied data are exact bytes but current C-root keys differ. No data or source mutation performed.",
+  "marker": "⟦AI⟧",
+  "evidence_origin": "relocation_dependency_diagnosis"
+}

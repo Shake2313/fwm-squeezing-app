@@ -1,4 +1,4 @@
-"""Laboratory gain acceptance and empirical/physical boundary regressions."""
+"""Archived laboratory-fit method; never an active experimental validation."""
 import json
 from pathlib import Path
 
@@ -18,7 +18,8 @@ DELTA_MHZ = (fwm.constants.NU_HF / 1e9 - EOM) * 1000.
 
 def _params(tier, **overrides):
     params = dict(fwm.FWMScheme().defaults(), resolution=tier, temp_c=118.,
-                  pump_mw=380., opd=1.06, probe_uw=3.7)
+                  pump_mw=380., opd=1.06, probe_uw=3.7,
+                  gain_closure_enabled=True, legacy_gain_calibration_fixture=True)
     params.update(overrides)
     return params
 
@@ -29,6 +30,7 @@ def _direct(tier, **overrides):
                   transit_rate=2*np.pi*100e3, branch=-1, line_strength=0.74,
                   floquet_order=3, phase_detail=fwm.PHASE_ULTRA,
                   detection_efficiency=0.8694,
+                  gain_closure_enabled=True, legacy_gain_calibration_fixture=True,
                   model_fidelity=tier, response_method=fwm.RESPONSE_POLE,
                   velocity_step=1., velocity_cutoff=4., coarse_points=10,
                   fine_points=0, scan_min=1.06-EOM[0], scan_max=1.06-EOM[-1])
@@ -42,7 +44,7 @@ def laboratory(request):
     return tier, _direct(tier), fwm.FWMScheme().compute(_params(tier))
 
 
-def test_all_ten_measured_gains_match_in_direct_and_frontend_paths(laboratory):
+def test_archived_ten_point_fit_reproduces_its_direct_and_fixture_paths(laboratory):
     _, direct, displayed = laboratory
     for raw in (direct, displayed):
         values = [fwm.operating_point(raw, delta) for delta in DELTA_MHZ]
@@ -60,12 +62,17 @@ def test_all_ten_measured_gains_match_in_direct_and_frontend_paths(laboratory):
         assert not raw["claim_gate"]["quantitative_gain_supported"]
 
 
-def test_detector_efficiency_changes_noise_but_not_fast_atomic_sampling(laboratory):
+def test_detector_efficiency_changes_current_nf_not_atomic_sampling(laboratory):
     tier, _, displayed = laboratory
-    other = fwm.FWMScheme().compute(_params(tier, detection_eff_pct=50.))
+    scheme = fwm.FWMScheme()
+    params = _params(tier)
+    changed_params = _params(tier, after_cell_eff_pct=50.0, qe_pct=100.0)
+    other = scheme.compute(changed_params)
     for key in ("probe_axis_GHz", "G_s", "G_c", "G_s_smallsignal", "G_c_smallsignal"):
         np.testing.assert_array_equal(displayed[key], other[key])
-    assert not np.array_equal(displayed["S_dB"], other["S_dB"])
+    before = scheme.headless_observables(displayed, params)["jasperse_readout"]
+    after = scheme.headless_observables(other, changed_params)["jasperse_readout"]
+    assert not np.allclose(before["NF"], after["NF"], equal_nan=True)
 
 
 def test_noise_configuration_does_not_steer_calibrated_fast_gain():
@@ -82,14 +89,19 @@ def test_output_fit_preserves_canonical_transfer_and_switch_off_baseline(laborat
     baseline_name = ("before_parent.json" if snapshot_directory().name == "before_parent"
                      else "before.json")
     before = json.loads((RECORD / baseline_name).read_text(encoding="utf-8"))
+    # Sealed snapshots use the old carrier origin and absorbed-probe floor.
+    historical = _direct(tier, legacy_mean_field_fixture=True)
     previous = before["cases"]["exact_" + tier.split()[0]]
     for key in ("G_s_smallsignal", "G_c_smallsignal"):
-        np.testing.assert_allclose(direct[key], previous[key], rtol=1e-7, atol=1e-10)
-    bypass = _direct(tier, gain_closure_enabled=False)
+        np.testing.assert_allclose(historical[key], previous[key], rtol=1e-7, atol=1e-10)
+    bypass = _direct(tier, gain_closure_enabled=False, legacy_mean_field_fixture=True)
     previous = before["cases"]["off_" + tier.split()[0]]
     for key in ("G_s", "G_c", "S_dB"):
         np.testing.assert_allclose(bypass[key], previous[key], rtol=1e-7, atol=1e-10)
     assert not bypass["gain_closure"]["output_calibration"]["applied"]
+    assert direct["gain_reference"]["source_gain_keys"] == (
+        "G_s_smallsignal", "G_c_smallsignal")
+    assert "empirical" in direct["output_gain_plane"]
 
 
 @pytest.mark.parametrize("opd,branch,enabled,eligible", (

@@ -728,6 +728,12 @@ def _markdown_table(header, rows):
     return head + rule + body
 
 
+def _noise_db_text(value, digits=2):
+    """Format available NF-derived dB without converting unavailable to zero."""
+    return (f"{value:+.{digits}f} dB"
+            if value is not None and np.isfinite(value) else "unavailable")
+
+
 def _budget_table(chain):
     rows = []
     for path, name, power_w, waist_m in chain.budget_rows():
@@ -868,7 +874,8 @@ def render(host=None):
 
     # ---- Tier B: the solve ----
     raw = _cached_solve(bridge.solve_key(params), fwm.FWMScheme().cache_version)
-    result = replace(result, raw=raw)
+    result = replace(result, raw=raw,
+                     observables=bridge.noise_observables(raw, params))
     readout = detection_model.readout(
         result.geometry, result.chain, result.gains, settings, detection,
         calibration)
@@ -880,12 +887,16 @@ def render(host=None):
         {"label": "Validation level",
          "value": gate.get("level", "MEAN_FIELD_DIAGNOSTIC"),
          "help": "Quantitative gain and physical squeezing claims are blocked."},
-        {"label": "Gain-referred diagnostic",
-         "value": f"{result.gain_referred_noise_db:+.2f} dB",
-         "help": "Algebraic diagnostic at the selected two-photon detuning; the "
-                 "microscopic atomic noise covariance is unavailable."},
+        {"label": "Squeezing Degree [dB]",
+         "value": _noise_db_text(result.gain_referred_noise_db),
+         "help": "10·log10(NF) at the selected two-photon detuning. Conditional "
+                 "passive completion; microscopic atomic covariance is unavailable."},
+        {"label": "NF",
+         "value": (f"{result.noise_factor:.6g}" if result.noise_factor is not None
+                   else "unavailable"),
+         "help": "Var(N_probe−N_conjugate) / mean(N_probe+N_conjugate)."},
         {"label": "RIN-loaded diagnostic",
-         "value": f"{result.eom_rin_loaded_noise_db:+.2f} dB",
+         "value": _noise_db_text(result.eom_rin_loaded_noise_db),
          "help": "Gain-only estimate after unpaired-mode shot noise and the "
                  "specified EOM RIN. This is not a squeezing prediction."},
         {"label": "Algebraic detection floor",
@@ -949,10 +960,10 @@ def render(host=None):
     with tabs[4]:
         geom = result.geometry
         eom_penalty = result.eom_rin_penalty_db
-        eom_loaded_text = f"{result.eom_rin_loaded_noise_db:+.3g} dB"
+        eom_loaded_text = _noise_db_text(result.eom_rin_loaded_noise_db, digits=3)
         if eom_penalty is not None:
             eom_loaded_text += f" ({eom_penalty:+.3g} dB penalty)"
-        else:
+        elif result.eom_rin_loaded_noise_db is not None and result.gain_referred_noise_db is not None:
             eom_shift = (result.eom_rin_loaded_noise_db
                          - result.gain_referred_noise_db)
             eom_loaded_text += (
@@ -979,13 +990,15 @@ def render(host=None):
             ("Classical EOM RIN excess",
              f"{readout.eom_noise.classical_rin_excess_sql:.3g} × SQL"),
             ("Shot-noise-only diagnostic",
-             f"{result.eom_shot_noise_only_db:+.2f} dB"),
+             _noise_db_text(result.eom_shot_noise_only_db)),
             ("RIN-loaded diagnostic",
              eom_loaded_text),
             ("Total power on the detector",
              f"{readout.total_power_w * 1e6:.1f} µW"),
             ("Margin above electronic noise",
-             f"{readout.margin_above_electronic_db(result.gain_referred_noise_db):.1f} dB"),
+             (_noise_db_text(readout.margin_above_electronic_db(
+                 result.gain_referred_noise_db), digits=1)
+              if result.gain_referred_noise_db is not None else "unavailable")),
         ]
         for arm in readout.arms:
             arm_geometry = next(item for item in geom.arms

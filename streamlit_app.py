@@ -23,7 +23,9 @@ from gabes.core import blas_single_thread
 
 from gabes_ui import plotcard
 from gabes_ui import theme as ui_theme
-from gabes_ui.controls import current_params, param_visible, render_rail, skey
+from gabes_ui.controls import (
+    current_params, param_visible, render_derived_params, render_rail, skey,
+)
 from gabes_ui.guide import guide_button
 from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_section
 from gabes_ui.readout import (
@@ -62,7 +64,7 @@ st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
 
 
-READOUT_CACHE_VERSION = "hero-ribbon-v3-single-hero"
+READOUT_CACHE_VERSION = "hero-ribbon-v4-daily-review-20261019"
 
 
 def _inject_css():
@@ -152,10 +154,14 @@ defaults_version = getattr(scheme, "defaults_version", "1")
 defaults_key = skey(scheme.name, "_defaults_version")
 if st.session_state.get(defaults_key) != defaults_version:
     for sp in specs:
+        if sp.control == "derived_slider":
+            continue
         st.session_state[skey(scheme.name, sp.name)] = sp.default
     st.session_state[defaults_key] = defaults_version
 else:
     for sp in specs:
+        if sp.control == "derived_slider":
+            continue
         key = skey(scheme.name, sp.name)
         # Preserve hidden controls through widget cleanup and send their saved
         # values to the browser when they become visible again.
@@ -209,7 +215,9 @@ with about:
 # ----------------------------------------------------------------------
 # Control rail
 # ----------------------------------------------------------------------
-params = render_rail(st.sidebar, scheme, specs, skip=(regime_spec,))
+derived_slots = {}
+params = render_rail(
+    st.sidebar, scheme, specs, skip=(regime_spec,), derived_slots=derived_slots)
 
 
 # ----------------------------------------------------------------------
@@ -228,6 +236,8 @@ if getattr(scheme, "cache_observables", False):
 else:
     with PLOT_LOCK:
         view = scheme.observables(raw, params)
+
+render_derived_params(derived_slots, view.get("sidebar_readouts", {}))
 
 
 # ----------------------------------------------------------------------

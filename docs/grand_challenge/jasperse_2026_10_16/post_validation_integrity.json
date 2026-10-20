@@ -1,0 +1,9 @@
+{
+  "origin": "source_evidence",
+  "python_sources": 263,
+  "changed_since_release_suite": [],
+  "sealed_artifacts": 37,
+  "changed_sealed_artifacts": [],
+  "gc_and_full_fwm_source_sha256": "bba9038231826c0bb8ba2b502b492f3be822866b72f6bf4121398ae7f29937f7",
+  "passed": true
+}

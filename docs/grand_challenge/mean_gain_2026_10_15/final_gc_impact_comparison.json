@@ -1,0 +1,49 @@
+{
+  "schema": "gabes-mean-gain-gc-impact-comparison-v1",
+  "passed": true,
+  "baseline_loaded_fwm_sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+  "current_loaded_fwm_sha256": "b03b7e0debf7748c6fe25f56c3a21af743398a4e5def3f1ad612d4d303b54562",
+  "entrypoint_import_count": 21,
+  "fwm_dependency_nodes_compared": 34,
+  "unchanged_numerical_source_count": 93,
+  "sealed_artifacts_preserved": true,
+  "changed_numerical_sources": [
+    "gabes/observables.py"
+  ],
+  "changed_sealed_artifacts": [],
+  "changed_gc_fwm_dependencies": [],
+  "changed_gc_observables_dependencies": [],
+  "changed_raw_grouped_import_fwm_ast": [
+    "atoms",
+    "constants",
+    "hyperfine"
+  ],
+  "changed_raw_grouped_import_observables_ast": [],
+  "ast_comparison_scope": "Complete dependency AST with imports normalized per binding; raw grouped-import changes are retained separately. No body/constants normalization or whitelist.",
+  "changed_relevant_numerical_sources": [],
+  "historical_validator_behavior_unchanged": true,
+  "fwm_runtime_constants_unchanged": true,
+  "representative_reports": {
+    "foundation_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "atomic_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "field_noise_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    },
+    "readout_audit": {
+      "exact_numerical_payload_parity": true,
+      "baseline_controls_passed": true,
+      "current_controls_passed": true
+    }
+  },
+  "scope": "Mean-field patch GC integration parity only; no microscopic D inferred, no thermal convergence or experimental/optical certification; official milestones remain 0/4."
+}

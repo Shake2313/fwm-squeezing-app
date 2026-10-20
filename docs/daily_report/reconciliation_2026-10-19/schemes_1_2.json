@@ -1,0 +1,1390 @@
+{
+  "origin": "ai_independent_recheck",
+  "marker": "⟦AI⟧",
+  "review_date": "2026-10-19",
+  "scope": "schemes1/2; after2026-08-07 through2026-10-19 local report files",
+  "review_passes": 1,
+  "source_report_count": 23,
+  "reports": [
+    "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+    "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+    "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+    "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+    "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+    "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+    "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+    "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+    "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+    "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+    "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+    "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+    "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+  ],
+  "findings": [
+    {
+      "id": "collision-contract",
+      "title": "⟦AI⟧ 충돌 계수·pressure shift·pump/probe homogeneous 폭 계약",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_existing",
+      "current_evidence": "gabes/species.py:210-212 ignores iso and returns BETA_SELF*N. sas.py:456 adds self+Ne width to probe, while pump Hamiltonian/manifold retains natural decay + transit. constants.py:79 has fixed Ne broadening; pressure shift absent. Scalar Lambda Raman dephasing is not a sourced pressure law.",
+      "existing_ids": [
+        "collisional-coefficient-provenance-and-pressure-shift"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "종·선·기체별 출처/단위/부호/불확도/유효범위, unsupported 상태.",
+        "pressure shift와 elastic optical dephasing 분리; OD/SAS pump/probe 공통 폭 계약.",
+        "buffer=0 기준 보존, 교정된 Cs/D2는 자체 근거로 검증."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "pump-rabi-provenance",
+      "title": "⟦AI⟧ 종·선·편광별 pump Rabi 규약과 잘못 표기된 비율 정정",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_existing_corrected",
+      "current_evidence": "species.py:272-282 still uses constants.I_SAT for every line. probe_saturation.closed_two_level_saturation_intensity uses line wavelength/linewidth; this closed-two-level value alone does not establish the correct open/mF-averaged pump Rabi. Oct05 explicitly corrects Sep25 ratio direction: current/helper=0.431..0.610, not reciprocal.",
+      "existing_ids": [
+        "species-line-rabi-and-saturation-provenance"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "dipole/linewidth/편광/intensity/Hz↔rad 단위 계약 및 독립 two-level limit.",
+        "Sep25 reciprocal ratio 오류를 재채택하지 않음; thermal 흡수 정규화와 pump Rabi 검증 분리.",
+        "pump-off 기준 보존; pumped 교정은 자체 reference 비교."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "lambda-cold-angle",
+      "title": "⟦AI⟧ Lambda Doppler-off에서 beam angle이 스펙트럼을 바꾸는 결함",
+      "source_reports": [
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "implemented",
+      "current_evidence": "Before patch, max|chi10mrad-chi0|/max|chi0| = 0.029420381963511447. absorption.py now passes optical-only scan_shift separately from atom.S_v residual Raman velocity shift. Compiled and NumPy fallback both fixed; cache_version advanced to physical-units-v4-independent-scan-shift.",
+      "existing_ids": [
+        "lambda-spectrum-validity"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "EIT/AT/CPT 모두 Doppler off의 0↔10mrad chi rtol1e-12, atol1e-14.",
+        "독립 explicit H11=Dc-s+r*kv, H22=-s+kv complex trace-one solve와 warm/cold parity."
+      ],
+      "status": "done",
+      "dependencies": [],
+      "patch": [
+        "gabes/schemes/absorption.py",
+        "tests/test_absorption.py"
+      ],
+      "tests": {
+        "command": "python -m pytest -q tests/test_absorption.py tests/test_kernels.py",
+        "result": "40 passed in 27.56s",
+        "new_parameterized_cases": 10
+      },
+      "scope": "cold-limit/operator 분리만 완료. 이 기존 item 전체 완료 아님; 2-D geometry·k mismatch·readout는 아래 open."
+    },
+    {
+      "id": "lambda-grid-and-visibility",
+      "title": "⟦AI⟧ EIT/CPT linewidth·group index 수렴 및 visibility gate",
+      "source_reports": [
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_existing",
+      "current_evidence": "LambdaScheme._scan remains uniform 601; window_fwhm uses sampled crossings; _metrics still emits numeric width/group index without sample/edge/experimental-visibility gates. Cold operator patch intentionally preserves the grid and readout.",
+      "existing_ids": [
+        "lambda-spectrum-validity"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "중심집중 601 또는 bounded refinement; high-resolution reference와 FWHM/ng 2% 이내.",
+        "보간 half-height, ≥8 samples/FWHM, 각 crossing에서 scan edge까지 ≥1FWHM.",
+        "transmission·group delay 함께 출력, noise/contrast threshold 없으면 visibility not assessed.",
+        "기본 warm-JIT walltime 기존 대비 ≤20% 증가."
+      ],
+      "status": "ready",
+      "dependencies": [
+        "lambda-cold-angle"
+      ]
+    },
+    {
+      "id": "lambda-joint-geometry",
+      "title": "⟦AI⟧ 실제 probe-coupling Δk와 2-D 공동 Maxwell 상관",
+      "source_reports": [
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_existing_expanded",
+      "current_evidence": "_two_photon_k_ratio passes identical medium[k_vec] to both beams, losing co-propagating frequency difference. atoms.lambda3 puts residual Raman and optical Doppler on the same v, not independent vz/vx. Cold patch removes spurious stationary-angle dependence but does not correct this warm geometry. Sept21 onward flags this separate problem; common doppler.noncollinear reference exists.",
+      "existing_ids": [
+        "lambda-spectrum-validity"
+      ],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "선택 transition의 signed kp-kc 및 thermal Gaussian analytic RMS 검증.",
+        "2-D joint quadrature의 grid/cutoff 수렴과 직접 Hamiltonian reference.",
+        "2-D는 opt-in reference부터; 정량 alignment tolerance 주장 제한."
+      ],
+      "status": "ready",
+      "dependencies": [
+        "lambda-cold-angle"
+      ],
+      "effort": "research"
+    },
+    {
+      "id": "lambda-model-semantics",
+      "title": "⟦AI⟧ Lambda scalar medium·ground-coherence dephasing·slow-light 의미 명시",
+      "source_reports": [
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept",
+      "current_evidence": "absorption.py _medium_from_params selects dominant isotope line constants and abundance-weighted scalar density, not a hyperfine mixture. buffer_ground_relax_khz label/help says buffer collision although atoms.lambda3 applies generic ground-coherence decay. Module docstring still claims Gamma-unit controls; actual schema MHz/kHz. User Guide line606 calls dispersion slow-light signature without finite-pulse/low-transmission boundary.",
+      "existing_ids": [
+        "lambda-spectrum-validity"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "ground-coherence dephasing 의미·anchor Rabi·natural-Rb effective medium 명시.",
+        "MHz/kHz 문서 일치; local group index와 usable pulse delay·SNR·distortion 구분.",
+        "현재 기본값/모델/샘플링 상태 manifest 포함 EIT/AT/CPT 예제."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "od-log-convention",
+      "title": "⟦AI⟧ Decadic absorbance와 natural optical depth의 이름·export 구분",
+      "source_reports": [
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept",
+      "current_evidence": "observables.optical_density returns alpha*L/ln(10). sas.py:860,870,972,984 still labels Optical density; precise -log10 definition exists internally but optical-depth alpha*L is not separately named/exported. This is semantic factor-ln10 risk, not an absorption/T physics error.",
+      "existing_ids": [],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "A10=-log10(T), tau=-ln(T)=alpha L 명시, 기존 compatibility 의미 유지.",
+        "UI/export 양쪽에 convention와 단위 기록; tau=ln(10)*A10 independent fixture."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "od-normalization-provenance",
+      "title": "⟦AI⟧ 열적 정규화의 독립 근거·versioned reference와 software-vs-experiment 경계",
+      "source_reports": [
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept",
+      "current_evidence": "Current species.line_integrated_alpha uses CF2/[2(2I+1)] without second pF. tests/test_sas.py:91..109 checks lifetime oscillator sums and degeneracy ratios for all 6 isotope/line combinations, ratio7/5 retained. External AutoOD-Rb source/baseline lies under ignored references/*. sas.py:358-359 still says lab AutoOD calculator <0.1%; guide lines409,563,922 repeat it. Internal ODScheme closure is not independent experimental validation.",
+      "existing_ids": [],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "현 열적 정규화/7:5 유지, source/hash/단위/비교조건 versioned fixture 보존.",
+        "internal closure, software reference, held-out measured validation을 명확히 분리.",
+        "About/Guide의 lab validation 오독 문구 교정; clean checkout에서 근거 재현."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "od-tighten-internal-anchor",
+      "title": "⟦AI⟧ AutoOD 내부 closure test의 허용오차를 명시된 0.1%에 맞춤",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_reframed",
+      "current_evidence": "tests/test_sas.py:260-271 still asserts area and peak <0.01, while sas.info states <0.1%. Tighten only internal numerical closure, not claim external experimental validation.",
+      "existing_ids": [
+        "species-line-rabi-and-saturation-provenance",
+        "od-sas-dispersive-susceptibility"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "동일 보정정규화 SAS↔ODScheme area/peak closure ≤1e-3.",
+        "테스트 이름/docstring은 내부 software closure 의미로 기록."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "od-cache-revision",
+      "title": "⟦AI⟧ SAS cache version7을 현 정규화 후 갱신하라는 과거 제안",
+      "source_reports": [
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": "sas.py:220 now cache_version=\"8\" (configurable Rb composition + stable centroid). Reports mentioning version7 are stale. Do not create redundant version bump absent a new compute semantic change.",
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "현 cache8와 normalization/source provenance 함께 기록."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "od-isotope-ledger",
+      "title": "⟦AI⟧ 이미 구현된 custom Rb isotope fraction과 새 원소 결정을 분리",
+      "source_reports": [
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_partial_already_fixed",
+      "current_evidence": "sas._isotope_composition and tests/test_od_isotope_ratio.py implement Custom normalized Rb85 fraction, fixed mixture reference centroid, endpoints, exact natural reproduction. Existing checklist still calls whole species menu fixed and needs_decision. Na/K data remain absent.",
+      "existing_ids": [
+        "od-sas-isotope-fraction-and-element-coverage"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Rb fraction 구현 부분 done과 tests/source 기록.",
+        "Na/K 신규 원소는 별도 needs_decision; hyperfine/dipole/vapor/saturation/collision 근거 전 노출 금지."
+      ],
+      "status": "needs_decision",
+      "dependencies": [],
+      "decision_required": [
+        "추가 alkali 원소 및 대상 실험 수요 선택"
+      ]
+    },
+    {
+      "id": "guide-and-reproducible-examples",
+      "title": "⟦AI⟧ OD/SAS·Lambda Guide/그림/실행 예제 동기화",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept",
+      "current_evidence": "Guide:573 says 0mW and natural-Rb-D2-only finite probe, whereas schema exposes 0..100uW for built-in Rb/Cs D1/D2 with tiers. Custom isotope and Fit alignment workflows absent. OD/SAS/EIT/AT static assets predate current defaults/normalization; EIT title old Ωc6MHz,γgg10kHz vs current17.238MHz,57.46kHz. No standalone examples directory. Timing table ~0.6s has no current environment manifest.",
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "현재 controls/units/model tier/weak finite probe scope/CSV calibration·sweep·alignment 반영.",
+        "그림에 입력/commit/source hash/cache/grid/status 기록; CPT 포함.",
+        "실행 가능한 bounded headless script/config/CSV 제공; 당시 성능 조건 명시."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "coated-export-provenance",
+      "title": "⟦AI⟧ 코팅 셀 figure/export의 population-only·T1 참조 표기",
+      "source_reports": [
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept",
+      "current_evidence": "sas.py raw has paraffin_coated/paraffin_t1_s and info explains T1 reference, but _obs_species figure title and derived readout do not consume either field. Saved figure can lose coated model provenance.",
+      "existing_ids": [
+        "od-sas-paraffin-population-memory",
+        "paraffin-coated-cell-extensions"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "figure/export에 coated, population-only, T1 reference와 cycle-rate 가정 기록.",
+        "기본 off/pump-off invariance 유지; cell-specific validation 전 semi-quantitative 유지."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "sas-local-convergence-export",
+      "title": "⟦AI⟧ 정량 lock·linewidth export의 고정창 수렴 상태 보존",
+      "source_reports": [
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_existing_extension",
+      "current_evidence": "subdoppler_feature correctly demotes unresolved default and tests/test_sas.py holds fixed-window refinement. Reports correctly distinguish this status gate from default-grid convergence. Current 1401 default remains resolution-limited; do not reopen completed core readout as absent.",
+      "existing_ids": [
+        "sas-subdoppler-readout-trust"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "기존 hero gate 유지; 정량 export에 feature window/grid/refinement comparison 기록.",
+        "bounded local refinement 또는 4001점 등 실제 수렴값 확보 후 numeric lock/linewidth 사용."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "sas-performance",
+      "title": "⟦AI⟧ OD/SAS dense velocity arithmetic와 exact scalar/finite-probe 재사용",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_existing",
+      "current_evidence": "_component_response builds scan×velocity arrays and repeatedly interpolates levels. sas.py:1070 helper always computes prepared_population*profile even scalar1; lines690..700 repeat thermal matvec for pump-off finite probe. Both micro-optimizations structurally valid; no code changed this pass.",
+      "existing_ids": [
+        "sas-od-dense-velocity-arithmetic"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "먼저 scalar1 direct matvec와 thermal_alpha=transition_alpha exact guard.",
+        "fused loop는 1m/s·4σ measure, Γ/8 pump table, np.interp boundary·velocity/transition summation 보존.",
+        "흡수/분산/코팅/finite-probe Numba on/off parity·시간·peak memory 검증; 3× 목표 실측 전 단정 금지."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "finite-probe-readout-performance",
+      "title": "⟦AI⟧ Legendre node cache·per-frequency inversion loop의 작은 성능 후보",
+      "source_reports": [
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_bounded_candidate",
+      "current_evidence": "probe_saturation.py:195 calls leggauss(radial_order) each readout; frequency inversion uses Python np.interp loop at236. Runtime benefit must be measured in finite-probe workload; not a physical correction.",
+      "existing_ids": [
+        "sas-od-dense-velocity-arithmetic"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "order-key readonly nodes/weights, 같은 inversion/interp semantics.",
+        "전파 T/effective alpha parity와 실제 readout 성능 개선 확인."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "lambda-performance",
+      "title": "⟦AI⟧ Lambda pole port·sparse affine update·BLAS controller 재사용",
+      "source_reports": [
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_existing_restrict",
+      "current_evidence": "Lambda still executes affine scan/velocity LU. core.blas_single_thread repeatedly discovers threadpools; kernels._affine_scan_chi_real rewrites dense coefficients. Reports claim ~1.8× pole and ~1.19× controller candidate; these historical timings are not new validation.",
+      "existing_ids": [
+        "lambda-pole-residue-doppler"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "P1 operator/geometry semantics 뒤 finite discrete Maxwell measure·per-row guard 보존.",
+        "continuous Gaussian 도입은 measure 변경으로 따로 기록.",
+        "BLAS controller는 nested context/thread/process safety 검증; sparse update는 independent parity/benchmark."
+      ],
+      "status": "ready",
+      "dependencies": [
+        "lambda-spectrum-validity"
+      ]
+    },
+    {
+      "id": "completed-low-cost-work",
+      "title": "⟦AI⟧ 이미 완료된 pump-off solve skip·CSV median·line-strength cache·running median",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": "sas._component_response branches pump_off and skips pump solve; _csv_numeric.sort_and_median_duplicates vectorizes duplicates; Lambda line_strength recompute=False and live readout test exist; lineshape.subdoppler_feature uses sliding_window_view. Zero-profile FFT shortcut and headless/real-basis paths exist. Re-registering them as missing would duplicate work.",
+      "existing_ids": [
+        "experimental-csv-calibration-and-sweep-direction",
+        "sas-subdoppler-readout-trust"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "기존 회귀 유지."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "completed-core-features",
+      "title": "⟦AI⟧ 이미 완료된 OD 분산·분리온도·코팅·CSV 의미 보존",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "already_fixed",
+      "current_evidence": "Current raw/observables plus tests implement complex-profile dispersion, density/Doppler temperature toggle, population reservoir, relative/absolute calibration and acquisition-order sweep branches. These are not absent features.",
+      "existing_ids": [
+        "od-sas-dispersive-susceptibility",
+        "od-sas-independent-doppler-and-density-temperature",
+        "od-sas-paraffin-population-memory",
+        "experimental-csv-calibration-and-sweep-direction"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "현재 제한 범위 유지; figure/export/guide 누락은 별도 findings에서 처리."
+      ],
+      "status": "done",
+      "dependencies": []
+    },
+    {
+      "id": "csv-branch-view",
+      "title": "⟦AI⟧ 보존된 CSV forward/reverse branch를 비교 UI에서 선택·overlay",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md"
+      ],
+      "verdict": "accept_optional",
+      "current_evidence": "experimental_csv preserves branches; merged comparison warns about hysteresis but full per-direction selection is not a scientific requirement for current basic overlay. Current Fit alignment is affine alignment, not physical parameter fitting.",
+      "existing_ids": [
+        "experimental-csv-calibration-and-sweep-direction"
+      ],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "branch selector/overlay 필요시 acquisition order/sample count 보존; heavy solve0."
+      ],
+      "status": "parked",
+      "dependencies": [],
+      "activation_trigger": "bidirectional hysteresis 비교를 실제 사용 workflow로 선택"
+    },
+    {
+      "id": "heavy-models",
+      "title": "⟦AI⟧ VCC·hyperfine/Zeeman·coated transport·segmented pump·physical spectrum fit",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_existing_keep_scoped",
+      "current_evidence": "Compact F-state/3-level and uniform-pump models omit these dynamics. Existing fitting/segmentation acceptance has identifiability, holdout and convergence conditions. Affine Fit alignment does not complete physical parameter inference. Coating population memory cannot be copied to Lambda coherence.",
+      "existing_ids": [
+        "full-velocity-changing-collision-kernel",
+        "lambda-hyperfine-resolved-manifold",
+        "paraffin-coated-cell-extensions",
+        "od-sas-weak-probe-magneto-optical-reference-mode",
+        "od-sas-experimental-spectrum-fitting",
+        "od-sas-segmented-cell-propagation"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "기존 ready fitting/segmentation 수용기준 유지.",
+        "parked model은 선택 transition/kernel/geometry·calibration/holdout·runtime budget 확보 후 opt-in."
+      ],
+      "status": "parked",
+      "dependencies": [],
+      "activation_trigger": "각 기존 item의 대상/측정자료/예산 조건 충족"
+    },
+    {
+      "id": "reject-unvalidated-free-knobs",
+      "title": "⟦AI⟧ 검증 없는 low-order 편광·Zeeman/Dicke·코팅 proxy 즉시 도입",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "reject",
+      "current_evidence": "These suggestions add unidentified fit freedom without fixing omitted dynamics. Reports themselves preserve prior rejection/parked policy; no new data or physical derivation establishes a changed basis.",
+      "existing_ids": [
+        "full-velocity-changing-collision-kernel",
+        "paraffin-coated-cell-extensions"
+      ],
+      "priority": "P2",
+      "acceptance_criteria": [
+        "기각 유지; 독립적으로 식별 가능한 근거가 생기면 별도 제안."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    },
+    {
+      "id": "reject-naive-optimizations",
+      "title": "⟦AI⟧ 느려진 naive interpolation vectorization·단순 affine hoist 강제",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "reject",
+      "current_evidence": "Aug26 Lambda prototype was0.985× (slower) despite parity; later reports do not establish consistent gain for simple hoist. Coated/population all-level gathered interpolation increases memory/time. Sparse kernel update remains separately benchmarkable; claim universal speedup is unsupported.",
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "현 기각 후보를 무조건 구현하지 않음; 새 end-to-end profiling 근거가 있을 때만 재평가."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    },
+    {
+      "id": "park-tiny-caches-multirhs",
+      "title": "⟦AI⟧ 추가 immutable atom/angular cache·coated multi-RHS",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "park",
+      "current_evidence": "species.build_manifold already bounded LRU; medium/atom construction is <1% default EIT cost in reports. Coated multi-RHS could share an operator but trace injection/conditioning need verification and overall gain is small. No urgency.",
+      "existing_ids": [],
+      "priority": "P3",
+      "acceptance_criteria": [
+        "대표 workload 병목 증거·readonly 반환·conditioning/trace invariant·end-to-end gain 확보."
+      ],
+      "status": "parked",
+      "dependencies": [],
+      "activation_trigger": "반복 batch 또는 cold scan에서 해당 단계가 실제 병목으로 실측됨"
+    },
+    {
+      "id": "reject-old-baseline-restoration",
+      "title": "⟦AI⟧ 오래된 49/25·raw hash·실험검증 표현을 correctness oracle로 복원",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md"
+      ],
+      "verdict": "reject",
+      "current_evidence": "Historical49/25 double-counts ground population; current independent lifetime/degeneracy tests require7/5. Byte-exact reference SHA hash is platform-sensitive; numerical and analytic tolerance gates are needed. In-repo AutoOD closure does not validate external measurement.",
+      "existing_ids": [],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "수학/단위/출처가 독립인 numeric anchors와 uncertainty-aware held-out checks 유지."
+      ],
+      "status": "rejected",
+      "dependencies": []
+    },
+    {
+      "id": "suite-reproducibility",
+      "title": "⟦AI⟧ 자동 리뷰의 공통 test 수집·문서·Windows capsule 실패 정리",
+      "source_reports": [
+        "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+        "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+        "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+        "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+        "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md"
+      ],
+      "verdict": "accept_cross_scheme",
+      "current_evidence": "Old ignored reference sympy collection failures partly addressed by pytest.ini --ignore=archive/AutoOD. Current stale ReferenceOD path is being patched by root (references/AutoOD -> archive/AutoOD). Oct Lambda reports record Windows nested-capsule FileNotFoundError and utcnow deprecation, not Lambda physics failures. Root full-suite result owns final classification.",
+      "existing_ids": [],
+      "priority": "P1",
+      "acceptance_criteria": [
+        "현재 전체 수트로 재확인; 과거 실패 횟수를 새 physics defect처럼 중복 등록하지 않음.",
+        "고정 portable fixture 경로·선택 dependency 수집 경계; 실제 남은 capsule 실패만 별도 추적."
+      ],
+      "status": "in_progress",
+      "dependencies": []
+    }
+  ],
+  "report_coverage": [
+    {
+      "report": "docs/daily_report/2026-08-10_scheme-1_od-sas.md",
+      "sha256": "e04463bfd7cec88c1a83d80e71594e889dccf811ddc8403b8cc84901a9c4dae8",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-tighten-internal-anchor",
+        "guide-and-reproducible-examples",
+        "sas-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "csv-branch-view",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-08-21_scheme-2_lambda-coherence.md",
+      "sha256": "60e9d59a2c06ea1515d16d256e195e7995f7f00838ce3b8c488a12be322529da",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-08-25_scheme-1_od-sas.md",
+      "sha256": "f5003e2d40ea3a8900b785cf710c5928e8e466960a3e112b487a4796568068f3",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-tighten-internal-anchor",
+        "guide-and-reproducible-examples",
+        "sas-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "csv-branch-view",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-08-26_scheme-2_lambda-coherence.md",
+      "sha256": "15a91fbf0ded7bec1d39571f527b0a3e73b75dcca30625fea14271c9d1df00c6",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-08-30_scheme-1_od-sas.md",
+      "sha256": "885de439bee1c2f662d00542113c3731947099e483ed2a0fb84ed71f24c5e9f3",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-tighten-internal-anchor",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "csv-branch-view",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-08-31_scheme-2_lambda-coherence.md",
+      "sha256": "bff95138c89743e979315ba0ef131051d079a32586ed9722260975e3017b96d4",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-01_scheme-2_lambda-coherence.md",
+      "sha256": "500621641fb8799d98acfdc238d905998a3d861d822347e52b0746dd360b503b",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-05_scheme-1_od-sas.md",
+      "sha256": "fb799c22aab475c3ebb56fd7dfe70303c6f8960241577fa8a36c703a5f969f94",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-tighten-internal-anchor",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-06_scheme-2_lambda-coherence.md",
+      "sha256": "fb82f807ec4623e88120b2edf1f60e295bd2d5cbc43c3ae4b874af64a50b60be",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-10_scheme-1_od-sas.md",
+      "sha256": "f471c2b18011628ae70e64ba0188cf6ef0bcdfc71dfdd26207384c65cf6d5bce",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-11_scheme-2_lambda-coherence.md",
+      "sha256": "705d603f67f2eb64a6b7c0ddbd1eeec843ef23b68ebb5b7203c20fc7c3593a14",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-15_scheme-1_od-sas.md",
+      "sha256": "be33b923cd18c2f3ae4ec9c931cd94435ed8c134a4bf485db823ac3d523a4412",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-16_scheme-2_lambda-coherence.md",
+      "sha256": "7258625a266c7898500056df60315263c5143f13d6d030886b36f5b49b7da12d",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-20_scheme-1_od-sas.md",
+      "sha256": "5e68b25b3cc688f2795ec93575dc11a8e2ab710e4bfcda44485e391d894437b3",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-21_scheme-2_lambda-coherence.md",
+      "sha256": "1ee5a41d422895cd08f5946b8b5c0bb2965a67cb5dd69f0f5f39a9161ded9365",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-25_scheme-1_od-sas.md",
+      "sha256": "880d40b8c9aff02f5e4c6f28c8d83e171d6b49f6f5b98bb554d713be80c91b07",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-09-26_scheme-2_lambda-coherence.md",
+      "sha256": "35e5a6d82dd2aa10660e39fb2b887630e3d45285d5bd4ac0f2eb18fe051917f9",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-05_scheme-1_od-sas.md",
+      "sha256": "76fe7975d53e7292a97cf7ca29df640b3c82c9b1cb8e29b0ab3cdfbb77b4677a",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-06_scheme-2_lambda-coherence.md",
+      "sha256": "700c8a5f52bb9a85f0a5091066e712b6efe102e8b0850a04ae491d0c413e0829",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-10_scheme-1_od-sas.md",
+      "sha256": "c9350854add67f1b65d08440d582864aa0c5a3a659e93155749a162f625bba2c",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "od-isotope-ledger",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-11_scheme-2_lambda-coherence.md",
+      "sha256": "e626074a25d1ce306472209ab14281cc3e25d6410e785e6a0b86cb5cbfb36f77",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-15_scheme-1_od-sas.md",
+      "sha256": "2dcff927a85760326be61c5634f4ad7a376ddb989f335e8a565c4f8f4df9869e",
+      "finding_ids": [
+        "collision-contract",
+        "pump-rabi-provenance",
+        "od-log-convention",
+        "od-normalization-provenance",
+        "od-tighten-internal-anchor",
+        "od-cache-revision",
+        "od-isotope-ledger",
+        "guide-and-reproducible-examples",
+        "coated-export-provenance",
+        "sas-local-convergence-export",
+        "sas-performance",
+        "finite-probe-readout-performance",
+        "completed-low-cost-work",
+        "completed-core-features",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "reject-old-baseline-restoration",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    },
+    {
+      "report": "docs/daily_report/2026-10-16_scheme-2_lambda-coherence.md",
+      "sha256": "45f6a7010e77f0a14958d79f7e67fbca25087011b00b145697ecc2cee983e055",
+      "finding_ids": [
+        "collision-contract",
+        "lambda-cold-angle",
+        "lambda-grid-and-visibility",
+        "lambda-joint-geometry",
+        "lambda-model-semantics",
+        "guide-and-reproducible-examples",
+        "lambda-performance",
+        "completed-low-cost-work",
+        "heavy-models",
+        "reject-unvalidated-free-knobs",
+        "reject-naive-optimizations",
+        "park-tiny-caches-multirhs",
+        "suite-reproducibility"
+      ],
+      "coverage_note": "⟦AI⟧ 모든 문제·개선·최적화·문서·시험·최종권고를 위 중복통합 finding으로 취합. 모델 설명·숫자 snapshot·칭찬·registry/issue 조회는 새 실행항목 아님."
+    }
+  ],
+  "validation": {
+    "focused_tests": "40 passed in27.56s; tests/test_absorption.py tests/test_kernels.py",
+    "full_suite": "root agent owns required full python -m pytest -q",
+    "baseline_policy": "Existing dirty changes preserved; no branch/commit/checklist edit by this reviewer. Historical numerical claims independently tested only where explicitly stated; structural recheck otherwise."
+  }
+}

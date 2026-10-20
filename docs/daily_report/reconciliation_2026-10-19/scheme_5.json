@@ -1,0 +1,1196 @@
+{
+  "schema_version": "daily-review-reconciliation-v1",
+  "scheme": 5,
+  "review_date": "2026-10-19",
+  "cutoff_inclusive": "2026-08-07",
+  "provenance": {
+    "marker": "⟦AI⟧",
+    "origin": "ai_independent_recheck",
+    "adoption_status": "recommendations_for_root_registry_merge; bounded_gate_patch_authorized_by_root",
+    "historical_report_authorship": "automation/reviewer text; individual human authorship unverified",
+    "review_scope": "One current-source recheck per distinct feedback family; historical numerical evidence retained without claiming current re-execution."
+  },
+  "reports": [
+    "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+    "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+    "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+    "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+    "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+    "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+    "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+    "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+    "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+  ],
+  "findings": [
+    {
+      "id": "FWM-01",
+      "title": "⟦AI⟧ Biphoton observable provenance must remain separate",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "gabes/schemes/fwm.py:_biphoton_observables now uses Reduced model/reference-anchored status, not an undifferentiated predictive validation badge. GenericFWMSolver still has anchored rates, approximate coherent waveforms and reference phase offsets.",
+        "Current patch separates gate rates, histogram g2 and finite-domain/Gaussian/scalar-filter assumptions; full per-output evidence/convergence typing remains open."
+      ],
+      "existing_ids": [
+        "biphoton-source-trust-boundary"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Expose waveform numerical convergence, reference-anchored source rate, scalar filter/detection and measurement/holdout statuses per output; jitter reuse/reference phase matching cannot earn independent validation."
+      ],
+      "status": "partially_completed",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-02",
+      "title": "⟦AI⟧ Coincidence gate and histogram g2 were physically conflated",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accepted_and_patched",
+      "evidence": [
+        "Prepatch observables.biphoton_stats used pair_rate*eta_s*eta_i independent of W; accidentals alone scaled with W.",
+        "Patch integrates normalized piecewise-linear source density against the full Gaussian timing kernel over symmetric [-W/2,W/2]. Negative timing tails are retained. All-time coincidence has an explicit key.",
+        "Histogram g2 is now delay-density based and W-independent. Reference-added accidental density is fixed before integration, so target g2 no longer masks gate dependence.",
+        "Source waveform/anchored rate unchanged. Existing scalar filter supplies throughput only; no unsupported spectral reshaping assumed. Finite supplied source-delay support is explicit."
+      ],
+      "existing_ids": [
+        "biphoton-source-trust-boundary"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Exact partial-cell gates; W=0 captured true count=0; wide gates recover all-time rate; Gaussian capture agrees with independent quad; efficiencies/background/rate planes separate; histogram/reference background independent of W."
+      ],
+      "status": "completed_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-03",
+      "title": "⟦AI⟧ Scalar bandwidth throughput is not a spectral filter model",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "observables.biphoton_stats retains min(1,BW_filter/BW_source). Gate patch names this scalar throughput/no temporal reshaping.",
+        "An FFT alone is not enough: physically specified complex amplitude transfer, frequency/delay grids, normalization and per-arm rates are required. Historical O(N log N) assertions omit these contracts."
+      ],
+      "existing_ids": [
+        "biphoton-source-trust-boundary",
+        "biphoton-heldout-validation-dataset"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Opt-in documented per-arm transfer; spectral-to-temporal normalization/edge convergence; all-pass limit; filtered joint/single rate consistency; measured or explicitly assumed filter parameters."
+      ],
+      "status": "ready_subscope",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-04",
+      "title": "⟦AI⟧ Anchored brightness and waveform-norm relative rate",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_with_scope_correction",
+      "evidence": [
+        "GenericFWMSolver pair-rate law remains topology.pair_rate_cps_per_mw * pump * sqrt(coupling scale) * phase match * sqrt(density ratio); length/OD not a derived absolute spontaneous rate.",
+        "Normalized waveform shape alone cannot identify absolute rate; coherent amplitude norm on a fixed domain may serve only a separately named relative diagnostic."
+      ],
+      "existing_ids": [
+        "biphoton-source-trust-boundary",
+        "biphoton-heldout-validation-dataset"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Retain anchored absolute-rate label; any norm-derived relative brightness uses fixed reference/domain and separate convergence; validate rate/OD/length only with source-specific holdout."
+      ],
+      "status": "blocked_external_for_absolute_validation",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-05",
+      "title": "⟦AI⟧ Literature table mixed raw/filter rates and validated a configured bandwidth",
+      "source_reports": [
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accepted_and_patched",
+      "evidence": [
+        "Before current pass, _reference_validation_table used filtered stats pair_rate/pump against raw 38000 cps/mW and compared user filter setting300MHz to its own reference for PASS.",
+        "Root agent owns same-pass table patch and independent tests/test_biphoton_reference_table.py. Gate patch does not modify that method."
+      ],
+      "existing_ids": [
+        "biphoton-source-trust-boundary"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Raw source anchor versus filter-passed rate separate; configured bandwidth never earns a computed-source validation PASS; numerical source bandwidth has its own approximate provenance."
+      ],
+      "status": "completed_by_root_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-06",
+      "title": "⟦AI⟧ Legacy coincidence test calls noncanonical production gain nonclassical",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "tests/test_coincidence.py:test_fwm_spectrum_nonclassical_in_gain_region still applies ideal coincidence_stats to production G_s/G_c and asserts R>1/g2>2.",
+        "README already says that helper is an ideal comparison. Regression passes algebraic construction, not a channel/covariance validation."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary",
+        "biphoton-source-trust-boundary"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Keep independent ideal TMSV fixture; type production gain helper as hypothetical/conditional and test missing physical covariance yields no independent nonclassicality evidence."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-07",
+      "title": "⟦AI⟧ Seeded gain-only/noise trust boundary after L1/Jasperse work",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "partly_already_fixed",
+      "evidence": [
+        "docs/grand_challenge/noise_readout_2026_10_15 and jasperse_2026_10_16 close conditional static L1, input F, passive vacuum completion and ordered absorption survival.",
+        "Physical squeezing remains None; static L1/Jasperse is not microscopic RF covariance. Old gain-only production deficiency is stale, while legacy aliases and current user-guide surfaces remain."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-passive-l1-readout",
+        "fwm-jasperse-nf-seed-noise-efficiencies"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Preserve scoped L1/Jasperse closure and unavailable nonpassive cases; legacy S_dB stays typed compatibility only; do not call conditional NF a physical RF spectrum."
+      ],
+      "status": "partially_completed",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-08",
+      "title": "⟦AI⟧ Unequal-loss balanced covariance needs physical input",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_reject_cheap_synthesis",
+      "evidence": [
+        "Current conditional L1 propagation/after-cell loss is independently checked, but does not supply arbitrary two-arm frequency-dependent microscopic covariance.",
+        "Reports suggesting an exact covariance correction with only O(Nscan) gain algebra omit covariance/model dependencies. Existing full-covariance checklist must remain open."
+      ],
+      "existing_ids": [
+        "fwm-balanced-readout-covariance-correction"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Use independently supplied covariance/complex cross PSD and declared weight/delay/SQL; propagate unequal loss with vacuum consistently; unsupported regimes unavailable."
+      ],
+      "status": "ready_dependent",
+      "dependencies": [
+        "fwm-quantum-langevin-microscopic-core"
+      ]
+    },
+    {
+      "id": "FWM-09",
+      "title": "⟦AI⟧ Option-A/loss ledger and self-consistent depletion",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_partial_done",
+      "evidence": [
+        "Option-A bare wavevector/diagonal refractive drift, passive absorption floor and carrier centroids have existing verified corrections.",
+        "Current 64-segment overlap/pump budget does not recompute atom/pump/seed state self-consistently along z; a final energy cap is not nonlinear three-field propagation."
+      ],
+      "existing_ids": [
+        "fwm-option-a-and-loss-ledger",
+        "fwm-mean-gain-plane-carrier-corrections"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Retain one-use loss and source/propagation/readout planes; separately converge segments and self-consistent atom/field iterations; preserve energy and passive limits; no claim negligible added atomic cost."
+      ],
+      "status": "partially_completed",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-10",
+      "title": "⟦AI⟧ Normalization/residual/input provenance",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_partial_done",
+      "evidence": [
+        "Current rho trace already carries ground population; 1/[2(2I+1)] one-use normalization and factorized 0.74 residual exist. Reintroducing external p_F would be wrong.",
+        "Independent uncertainty/identifiability for inherited residual, Raman/transit, polarization/mode participation, vapor-entry seed and arm throughputs remains open. New23-point measured-reference scope is distinct."
+      ],
+      "existing_ids": [
+        "fwm-coupling-normalization-audit",
+        "fwm-reference-parameter-provenance",
+        "fwm-line-strength-factorization"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Separate measured/derived/assumed/fitted values, units, plane, uncertainty, source and one-use factors; do not infer atomic A0 from total window-including transmission."
+      ],
+      "status": "partially_completed",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-11",
+      "title": "⟦AI⟧ Production Fast detector-dependent source sampling is already fixed",
+      "source_reports": [
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "already_fixed",
+      "evidence": [
+        "Current score_eta =1 outside explicit legacy_mean_field_fixture/legacy_gain_calibration_fixture. FWMScheme.compute also passes neutral detector settings for current production.",
+        "New real Fast sweeps at OPD0.9/1.4GHz and eta0/0.5/1 produce bit-identical gain arrays, small-signal gains, field/canonical transfers and adaptive nodes: tests/test_fwm_fast_source_independence.py,3tests PASS.",
+        "Historical fixture-specific eta dependence is preserved intentionally; sampled-reference gain checkbox does not alter atomic solve. Old51.6% and3.55% reports concern retired calibration/model sources."
+      ],
+      "existing_ids": [
+        "fwm-fast-detector-independent-sampling"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Current production source sampling detector independent across active contexts; explicitly retain historical fixture reproduction. New-L1 interpolation accuracy is separate FWM-13, not a reason to reopen the detector-layer defect."
+      ],
+      "status": "completed_before_current_pass_regression_added",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-12",
+      "title": "⟦AI⟧ Production detector/noise knobs no longer invalidate atomic cache",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "already_fixed",
+      "evidence": [
+        "Current schema after_cell_eff_pct/qe_pct/loss_pct/seed_classical_rin_scaled/measured_gain_calibration have recompute=False.",
+        "Current compute passes detector-neutral values; _seeded_observables remaps readout. New regression asserts exclusions; focused65/68case suite passes.",
+        "Historical145000x/6400x/9019x timing ratios are machine-and-path specific, not current promised application acceleration."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-passive-l1-readout"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Preserve atomic-cache independence and current readout recalculation; benchmark current end-to-end latency before any speed claim."
+      ],
+      "status": "completed_before_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-13",
+      "title": "⟦AI⟧ Fast displayed-axis and adjacent-order error certificate remains narrower than full scan",
+      "source_reports": [
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_followup",
+      "evidence": [
+        "_pole_scan_response reports exact audit only at solved probe detunings; displayed points are interpolated. Current score uses G_s/gain-referred legacy steering, not new passive-L1 NF or full high/low-order response error.",
+        "tests/test_fwm_fast_tiers.py:test_adaptive_scan_needs_fewer_rows_and_stays_on_the_exact_curve permits legacy S_dB max0.2dB, while declared nominal score tolerance0.05dB is not an end-to-end L1 certificate.",
+        "Historical corrected-model3.551%/0.17755dB failure is not established for current rollback model. Stride8 alone is not a universal proof."
+      ],
+      "existing_ids": [
+        "fwm-fast-detector-independent-sampling",
+        "fwm-floquet-convergence-gate",
+        "fwm-gain-only-trust-boundary"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Add separate followup without reopening completed exact Floquet kernel: current dense Balanced versus Fast full displayed axis, both gain arms/complex response/adjacent-order differences and L1 NF near narrow/passive boundaries; distinguish node audit from interpolation."
+      ],
+      "status": "ready_new_subscope",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-14",
+      "title": "⟦AI⟧ 4sigma Maxwell cutoff and scanner measure decisions",
+      "source_reports": [
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "Current Fast/Balanced discrete pole measure reproduces truncated-grid reference; gaussian_mean untruncated Maxwell is available as a distinct measure.",
+        "Changing to continuous/full Maxwell or6–8sigma changes model/numerics and baseline; it is not an exact speed patch."
+      ],
+      "existing_ids": [
+        "fwm-ultra-maxwell-cutoff-scope",
+        "squeezing-scanner-converged-velocity-measure"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Declare cutoff/domain; compare observables and rare resonance tails across node/cutoff refinements before policy/default changes; retain historical snapshots."
+      ],
+      "status": "needs_decision",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-15",
+      "title": "⟦AI⟧ Old constant-N/gain-proportional noise widget failures are stale",
+      "source_reports": [
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "reject_stale",
+      "evidence": [
+        "Current Jasperse UI retired constant N and gain-proportional production controls in favor of classical seed RIN a, calculated shot RIN b and read-only efficiencies.",
+        "Historical failing test test_hidden_noise_sliders_retain_values_across_streamlit_reruns is absent from current tests/test_fwm_excess_noise.py. Prior Scrub fallback assumption does not establish current regression."
+      ],
+      "existing_ids": [
+        "fwm-jasperse-nf-seed-noise-efficiencies"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "No duplicate fix for deleted widget contract; keep present RIN/cache/UI boundary tests."
+      ],
+      "status": "rejected_as_current_defect",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-16",
+      "title": "⟦AI⟧ Hidden ten-point/tier-specific empirical gain correction was retired",
+      "source_reports": [
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "reject_stale_current_code_claim",
+      "evidence": [
+        "Current production disables empirical coupling/output gain fits after direct2026-10-16 rollback. Explicit historical fixtures preserve old two-layer/tier policy.",
+        "New23-point log-PCHIP reference is defaultOFF, limited3022..3044MHz and separate from atomic G/M/NF; measured interpolation has provenance/UI/GC checks.",
+        "Old request to expose current10-point blend as active is obsolete. README/Guide still containing old active-calibration descriptions needs separate correction under FWM-23."
+      ],
+      "existing_ids": [
+        "fwm-tpd-gain-physical-replacement",
+        "fwm-jasperse-nf-seed-noise-efficiencies",
+        "fwm-measured-gain-reference-20261013"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Preserve invalid old fits as history; current source reports no fitted physical correction; sampled measured-reference domain/eligibility/provenance explicit."
+      ],
+      "status": "completed_before_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-17",
+      "title": "⟦AI⟧ Absolute gain/peak physics remains unresolved",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "10/15 fixes close absorption floor/carrier-plane defects, not measured atomic gain. 10/16 measured-reference interpolation does not alter raw atomic peak.",
+        "Latest memory lists absolute no-fit gain, vapor-entry seed/A0 and finite-seed ensemble differences as open; official GC0/4."
+      ],
+      "existing_ids": [
+        "fwm-tpd-gain-physical-replacement",
+        "fwm-reference-parameter-provenance"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Compare both arms/peak/shape with independently bound input planes and common physical models; preserve failed global fits and new interpolation as development evidence only."
+      ],
+      "status": "in_progress",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-18",
+      "title": "⟦AI⟧ Finite-seed 2D angular Doppler production",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "Pump-only2D reference and Raman RMS1.38017MHz are completed; production finite-seed source remains1D. Adding quadrature is real additional physics/solve cost.",
+        "Plus-branch gauge limitation is not repaired merely by adding vx quadrature."
+      ],
+      "existing_ids": [
+        "fwm-finite-seed-angular-doppler-production",
+        "fwm-angular-doppler-reference",
+        "fwm-pump-state-linear-response-reference"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Bounded opt-in minus-branch finite-seed2D; zero-angle and weak-seed reference limits; independent both-axis/cutoff/order/feature convergence; preserve lab beat/RF frames."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-19",
+      "title": "⟦AI⟧ Microscopic Langevin/RF/full thermal propagation remains separate research",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_reject_blanket_deferral",
+      "evidence": [
+        "gabes/quantum and gabes/fwm_quantum implement nontrivial reservoir/QRT/field/readout/path machinery; it is false that no microscopic code exists anywhere.",
+        "Completed local/path gates and static production L1 are not thermal/nonlocal/full-atom/experimental certification. memory2026-10-16 keeps WP-THERM/BOUNDARY/OPTICAL/INPUT/PREDICT/HOLDOUT/FULL open.",
+        "Historical recommendation to wait for final laboratory holdout before all microscopic research would block already-authorized internal derivation/tests; data is needed for experimental validation, not every implementation."
+      ],
+      "existing_ids": [
+        "fwm-quantum-langevin-microscopic-core",
+        "fwm-rf-squeezing-spectrum-and-bandwidth"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Keep typed source/covariance/RF/SQL and thermal/optical gates; TPD width is not RF bandwidth; no active default promotion or new expensive batch from this reconciliation."
+      ],
+      "status": "existing_research_dependency",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-20",
+      "title": "⟦AI⟧ Full Zeeman reference",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "Current reduced four-level production has no full Zeeman Floquet reference; current registry parks fwm-zeeman-resolved-reference-mode.",
+        "Dimensional scaling alone is not an actual measured runtime forecast; dense24-level/Floquet/velocity cost cannot be called negligible."
+      ],
+      "existing_ids": [
+        "fwm-zeeman-resolved-reference-mode"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Activate bounded sparse/reference route for identified polarization/B-dependent question, with reduced limits and independent data/model scope."
+      ],
+      "status": "parked",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-21",
+      "title": "⟦AI⟧ Independent biphoton and squeezing validation datasets",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "Current measured23-node interpolation is calibrated development evidence; no untouched multi-condition experiment validation.",
+        "Both original external-data checklist items remain blocked_external. No source-code-only patch can supply raw histograms, PSD/SQL, independent throughputs or uncertainty."
+      ],
+      "existing_ids": [
+        "biphoton-heldout-validation-dataset",
+        "fwm-squeezing-spectrum-heldout-validation"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Predeclare fit/holdout observables and thresholds; preserve raw acquisition/geometry/filter/detector metadata; use independent repeated/untouched conditions. Biphoton dataset retains registryP2, squeezing retainsP1."
+      ],
+      "status": "blocked_external",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-22",
+      "title": "⟦AI⟧ Coupled tolerance and robust regions",
+      "source_reports": [
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "Single-variable conditional gain intervals cannot form a physical independent tolerance box; current joint-tolerance task already distinguishes fixed/retuned controls and full-noise dependencies."
+      ],
+      "existing_ids": [
+        "fwm-joint-tolerance-and-robust-operating-region"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Connected regions/common noise budget/domain, boundaries/censoring and retuning continuity; physical claims require validated covariance/detection inputs."
+      ],
+      "status": "ready_dependent",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-23",
+      "title": "⟦AI⟧ Guide/README figures, names, solver scope and retired gain/noise text",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing_expand",
+      "evidence": [
+        "docs/Userguide/GABES_User_Guide_v2.html still says NF3 whole-scan/NF2 audit and no seed excess noise, and carries historical FWM figure/caption and~1–14s timing.",
+        "README501+ still describes optional hotfix and reference15.5/Ultra physics policy despite current rollback, alongside correct newer L1 paragraphs.",
+        "Update current static L1/Jasperse/classical-RIN explanation, Fast exact-node scope, historical snapshot figure label and measured-reference separation without changing public prose to internal provenance markers."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-tpd-gain-physical-replacement"
+      ],
+      "priority": "P1",
+      "acceptance": [
+        "Current frontend/Guide/README agree on active model/readout, source/detected planes and scope. Regenerate or explicitly label historical figure; report warm/cold/JIT conditions, not universal speed."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-24",
+      "title": "⟦AI⟧ Delta-temperature scanner is a historical diagnostic and has stale physics-facing names",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "analysis/squeezing/scan_squeezing_delta_T.py still declares Maximise intensity-difference squeezing, QE0.9047 and external p_F comments, best_squeezing/S_dB; table/pole n_f default1 and3sigma measure differ from current production.",
+        "chi_pole_rows speed reuse is already integrated; do not overwrite historical calculations by silently changing this script's physics."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary",
+        "squeezing-scanner-converged-velocity-measure",
+        "pole-residue-doppler-reuse"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Label historical compatibility model; add diagnostic primary schema/name while retaining S_dB alias; correct assumptions/units; separate any new current-production scanner with explicit NF/order/measure/OptionA contracts."
+      ],
+      "status": "ready_subscope",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-25",
+      "title": "⟦AI⟧ Low-pump conclusion overstates conditional ideal-law result",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_existing",
+      "evidence": [
+        "analysis/squeezing/low_pump_power/generated/low_pump_power.md:186 still says lower area/output does not lower squeezing, despite accurate conditional ideal-law claim gate at top.",
+        "README correctly calls measured-gain ideal-law conditional; main conclusion should carry same scope."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Constrain conclusion to measured-gain/ideal-law fixed-intensity diagnostic; do not promise apparatus squeezing invariance."
+      ],
+      "status": "ready",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-26",
+      "title": "⟦AI⟧ Pole-row and full-scan source reuse is already implemented",
+      "source_reports": [
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "already_fixed",
+      "evidence": [
+        "chi_pole_rows and scanner mean reuse exist; tests/test_fwm_fast_tiers.py checks row/grid parity and guard fallback.",
+        "Full-scan extra view now dispatches exact pole on Fast/Balanced, with tests pinning tier/measure mapping. Existing pole-residue-doppler-reuse statusdone.",
+        "Historical149x/221.8x timing is a scoped recorded benchmark, not a new whole-app speed guarantee or reason for another patch."
+      ],
+      "existing_ids": [
+        "pole-residue-doppler-reuse",
+        "fwm-fast-balanced-pole-residue-tiers"
+      ],
+      "priority": "P3",
+      "acceptance": [
+        "Preserve guarded same-node/measure/branch parity; no blanket cache of mutable public arrays/rounded float keys. Optional broader atomic/propagation cache requires a measured bottleneck."
+      ],
+      "status": "completed_before_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-27",
+      "title": "⟦AI⟧ Biphoton opposite-channel cache and lazy phase map already exist",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md"
+      ],
+      "verdict": "already_fixed",
+      "evidence": [
+        "Current _biphoton_source_raw/_cached_biphoton_source raw-result cache excludes detector keys; Cs comparison uses it.2D phase map remains figure-only and phase_detail navigate-only.",
+        "Existing fwm-batch-cache-and-map-separation statusdone and generic cache/phase tests cover behavior."
+      ],
+      "existing_ids": [
+        "fwm-batch-cache-and-map-separation"
+      ],
+      "priority": "P3",
+      "acceptance": [
+        "Keep bounded scalar source keys and source/readout separation; do not add another duplicate cache."
+      ],
+      "status": "completed_before_current_pass",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-28",
+      "title": "⟦AI⟧ One-dimensional biphoton angle trace vectorization",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_low_priority",
+      "evidence": [
+        "_biphoton_observables still calls phase_mismatch_vector in181-angle Python loop; phase_mismatch_vector_grid exists.",
+        "Report5x–12x ratios apply to a sub-millisecond trace; total solve/runtime gain is small and unmeasured."
+      ],
+      "existing_ids": [
+        "fwm-batch-cache-and-map-separation"
+      ],
+      "priority": "P3",
+      "acceptance": [
+        "Optional reuse vector-grid with pointwise delta_k/phase-weight parity and actual full-render benchmark; no promise whole-app multi-fold speedup."
+      ],
+      "status": "ready_optional_subscope",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-29",
+      "title": "⟦AI⟧ Historical test discovery/Scrub failures retired; current nested capsule path reproduced by root",
+      "source_reports": [
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "mixed_stale_failures_rejected_current_capsule_failure_patched_by_root",
+      "evidence": [
+        "pytest.ini excludes retired archive/AutoOD; prior missing optional SymPy in references/AutoOD relates to old layout.10/16 full frozen receipt2435passed/4skipped.",
+        "Retired noise-slider failure no longer names a current test. Root independently reproduced current nested Windows capsule FileNotFoundError and patched scratch-root handling; full validation is running against stable sources.",
+        "Root current full validation owns the actual remaining failure report; source-provenance rejection while files change is intentional validation, not itself a capsule bug."
+      ],
+      "existing_ids": [],
+      "priority": "P2",
+      "acceptance": [
+        "Current stable nested-capsule reproduction and existing regression pass after root scratch-root patch; historical optional-SymPy/Scrub failures do not create duplicate current tasks."
+      ],
+      "status": "root_patch_pending_full_validation",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-30",
+      "title": "⟦AI⟧ Thermal/excess-noise diagnostic report has no cheap schema/regeneration smoke",
+      "source_reports": [
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_small_new_subscope",
+      "evidence": [
+        "docs/fwm_thermal_excess_noise_report/scripts/generate_analysis.py and data/analysis_summary.json exist; rg in tests/tools found no named fwm_thermal_excess report check.",
+        "Extensive quantum thermal-campaign tests are a separate artifact and do not automatically cover this historical phenomenological report."
+      ],
+      "existing_ids": [
+        "fwm-gain-only-trust-boundary"
+      ],
+      "priority": "P2",
+      "acceptance": [
+        "Small deterministic/schema check preserves claim gates, finite values, hashes/input provenance and model version; avoid full expensive regeneration in routine suite."
+      ],
+      "status": "ready_subscope",
+      "dependencies": []
+    },
+    {
+      "id": "FWM-31",
+      "title": "⟦AI⟧ Atomic-response versus propagation cache partition is optional after retired hotfix",
+      "source_reports": [
+        "docs/daily_report/2026-08-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-08-29_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-14_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-19_scheme-5_fwm.md",
+        "docs/daily_report/2026-09-24_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-04_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-09_scheme-5_fwm.md",
+        "docs/daily_report/2026-10-14_scheme-5_fwm.md"
+      ],
+      "verdict": "accept_only_measured_bottleneck",
+      "evidence": [
+        "Heavy source/readout cache partition is already implemented. The remaining proposed cache between susceptibility and propagation may help geometry sweeps but repeated current empirical-checkbox eigensolves are obsolete.",
+        "Root task does not authorize default Maxwell measure changes, stride-only accuracy claims or broad mutable ndarray memoization as pure performance fixes."
+      ],
+      "existing_ids": [
+        "fwm-batch-cache-and-map-separation",
+        "pole-residue-doppler-reuse"
+      ],
+      "priority": "P3",
+      "acceptance": [
+        "Benchmark an active current repeated-use path, preserve complete source key/model/frame and guard invalidation, and verify array/observable parity before adding another cache layer."
+      ],
+      "status": "optional_not_urgent",
+      "dependencies": []
+    }
+  ],
+  "coverage": {
+    "docs/daily_report/2026-08-24_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-12",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-23",
+      "FWM-24",
+      "FWM-25",
+      "FWM-27",
+      "FWM-28",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-08-29_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-12",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-23",
+      "FWM-24",
+      "FWM-25",
+      "FWM-27",
+      "FWM-28",
+      "FWM-30",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-09-09_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-12",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-25",
+      "FWM-27",
+      "FWM-28",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-09-14_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-27",
+      "FWM-28",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-09-19_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-15",
+      "FWM-16",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-28",
+      "FWM-29",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-09-24_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-15",
+      "FWM-16",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-28",
+      "FWM-29",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-10-04_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-15",
+      "FWM-16",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-28",
+      "FWM-29",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-10-09_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-15",
+      "FWM-16",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-28",
+      "FWM-29",
+      "FWM-31"
+    ],
+    "docs/daily_report/2026-10-14_scheme-5_fwm.md": [
+      "FWM-01",
+      "FWM-02",
+      "FWM-03",
+      "FWM-04",
+      "FWM-05",
+      "FWM-06",
+      "FWM-07",
+      "FWM-08",
+      "FWM-09",
+      "FWM-10",
+      "FWM-11",
+      "FWM-12",
+      "FWM-13",
+      "FWM-14",
+      "FWM-15",
+      "FWM-16",
+      "FWM-17",
+      "FWM-18",
+      "FWM-19",
+      "FWM-20",
+      "FWM-21",
+      "FWM-22",
+      "FWM-23",
+      "FWM-24",
+      "FWM-26",
+      "FWM-28",
+      "FWM-29",
+      "FWM-31"
+    ]
+  },
+  "focused_tests": [
+    {
+      "command": "python -m pytest -q tests/test_fwm_generic.py -k 'gate or histogram or detector_background or jitter or reference_g2'",
+      "result": "10 passed,31 deselected",
+      "seconds": 9.15
+    },
+    {
+      "command": "python -m pytest -q tests/test_fwm_generic.py tests/test_coincidence.py tests/test_schemes_render.py",
+      "result": "65 passed",
+      "seconds": 42.04
+    },
+    {
+      "command": "python -m pytest -q tests/test_fwm_fast_source_independence.py tests/test_fwm_generic.py tests/test_coincidence.py tests/test_schemes_render.py",
+      "result": "68 passed",
+      "seconds": 46.88
+    }
+  ],
+  "performance": {
+    "origin": "⟦AI⟧ local warmed measurement",
+    "source_delay_nodes": 481,
+    "nodes_fixed_in_app": true,
+    "readout_median_ms": 20.0021,
+    "repetitions": 11,
+    "gate_CDF_complexity": "O(Ntau)",
+    "detected_density_complexity": "O(Ntau^2), bounded chunks",
+    "max_target_gaussian_work_array_elements": 65536,
+    "scope": "481-point causal source + Gaussian timing readout on this machine; no whole-app speed guarantee"
+  },
+  "changes": [
+    "gabes/observables.py:_biphoton_delay_density and biphoton_stats",
+    "gabes/schemes/fwm.py:_biphoton_observables table/help only; root separately owns _reference_validation_table",
+    "tests/test_fwm_generic.py:gate/histogram/rate-plane regressions",
+    "tests/test_fwm_fast_source_independence.py:new current-source eta/cache regressions"
+  ],
+  "closure_review": "⟦AI⟧ Gate/count/histogram defect independently confirmed and patched; other current high-value items consolidated, stale calibration/widget/cache deficiencies rejected. Source and tests frozen after68passing focused checks. Root owns full repository/GC source-stable validation and registry/master-memory integration. GC official0/4 and scientific certificates unchanged."
+}

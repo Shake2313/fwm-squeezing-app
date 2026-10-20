@@ -11,7 +11,7 @@ import re
 
 import numpy as np
 
-from .. import constants, core, kernels, observables, species, zeeman
+from .. import constants, core, kernels, observables, pole_doppler, species, zeeman
 from ..lineshape import halfwidth_from_center, lorentz_fwhm
 from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
@@ -42,6 +42,15 @@ LIGHT_STATE_NORMALIZATION = "trace-one conditional light-region state"
 DENSITY_CONVENTION = "local vapor density N, applied once"
 ABSOLUTE_SCALE_STATUS = "external validation required"
 
+DOPPLER_OFF = "off: v = 0 class only"
+DOPPLER_EXACT = "exact untruncated Maxwell average (pole–residue)"
+# A pole-form B row is kept only if it reproduces the direct v = 0 solve to this
+# relative accuracy; other rows are averaged on FALLBACK velocity grids.
+POLE_GUARD_RTOL = 1e-6
+POLE_LIMIT_SIGMAS = 1e4          # poles farther than this from the bulk are rounding modes
+FALLBACK_SIGMAS = 6.0
+FALLBACK_QUADRATURE_ERROR = 1e-6
+
 
 def _transition_label(Fg, Fe):
     """Human-readable 87Rb D1 transition label for the Atomic dropdown."""
@@ -69,39 +78,20 @@ def _hyperfine_gf(I, J, F, gJ):
     return electronic + nuclear
 
 
-def _thermal_velocity_grid(T, mass, n_classes, cutoff_sigma=3.0):
-    """Small Maxwell-Boltzmann quadrature grid for interactive Doppler averaging."""
-    n_classes = int(max(1, n_classes))
-    if n_classes <= 1:
-        return np.array([0.0]), np.array([1.0])
+def _maxwell_fallback_grid(T, mass, k_vec, gamma_hwhm):
+    """Uniform Maxwell velocity grid for B rows the pole form cannot certify.
+
+    The optical response of one velocity class is analytic within the homogeneous
+    half-width ``gamma_hwhm`` [rad/s] of the real Δ_eff axis, so the trapezoid
+    error is ~exp(-2π·γ/h) for a detuning step h; h is chosen for
+    FALLBACK_QUADRATURE_ERROR and the grid spans ±FALLBACK_SIGMAS.
+    """
     sigma_v = math.sqrt(constants.KB * T / mass)
-    v = np.linspace(-cutoff_sigma * sigma_v, cutoff_sigma * sigma_v, n_classes)
+    step = 2 * math.pi * gamma_hwhm / math.log(1.0 / FALLBACK_QUADRATURE_ERROR) / k_vec
+    half = math.ceil(FALLBACK_SIGMAS * sigma_v / step) * step
+    v = np.arange(-half, half + 0.5 * step, step)
     wt = np.exp(-0.5 * (v / sigma_v) ** 2)
-    wt /= wt.sum()
-    return v, wt
-
-
-def _doppler_dilution(T, mass, k_vec, gamma, detuning, v, wt):
-    """Match a coarse velocity quadrature to a fine-grid scalar Voigt average."""
-    if v.size <= 1:
-        return 1.0
-    hwhm = gamma / 2.0
-
-    def profile(delta):
-        return hwhm * hwhm / (delta * delta + hwhm * hwhm)
-
-    coarse = float(np.sum(wt * profile(detuning - k_vec * v)))
-    if coarse <= 0:
-        return 1.0
-
-    sigma_v = math.sqrt(constants.KB * T / mass)
-    dv = max(0.5, hwhm / k_vec / 4.0)
-    n_fine = int(np.clip(8 * sigma_v / dv, 801, 4001))
-    vf = np.linspace(-4 * sigma_v, 4 * sigma_v, n_fine)
-    wf = np.exp(-0.5 * (vf / sigma_v) ** 2)
-    wf /= wf.sum()
-    exact = float(np.sum(wf * profile(detuning - k_vec * vf)))
-    return exact / coarse if exact > 0 else 1.0
+    return v, wt / wt.sum()
 
 
 def _transition_strength(Fg, Fe):
@@ -131,7 +121,7 @@ def _qwp_drive_weights(theta_deg):
 class MagnetoScheme(Scheme):
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "polarized-two-region-v5"
+    cache_version = "polarized-two-region-v6-exact-doppler"
     defaults_version = "polarized-two-region-v4"
     supports_headless_observables = True
 
@@ -294,10 +284,10 @@ class MagnetoScheme(Scheme):
                       advanced_group="Calibration"),
             ParamSpec("doppler", "Doppler averaging", "Numerics", "on",
                       choices=("on", "off"), advanced=True,
-                      help="Coarse Maxwell-Boltzmann average for the light region.",
+                      help="On: exact Maxwell-Boltzmann average of the light-region "
+                           "optical Doppler shift (pole–residue form, no velocity "
+                           "grid). Off: the v = 0 class only.",
                       advanced_group="Numerics"),
-            ParamSpec("velocity_classes", "Velocity classes", "Numerics", 9,
-                      1, 41, 2, "", advanced=True, advanced_group="Numerics"),
             ParamSpec("scan_points", "B scan points", "Numerics", 121,
                       51, 401, 10, "", advanced=True, advanced_group="Numerics"),
         ]
@@ -463,8 +453,11 @@ class MagnetoScheme(Scheme):
         chi_probe = np.zeros(b_ut.size, dtype=complex)
         chi_p = np.zeros(b_ut.size, dtype=complex)
         chi_m = np.zeros(b_ut.size, dtype=complex)
-        velocity_count = 1
-        doppler_scale = 1.0
+        doppler_on = params["doppler"] == "on"
+        sigma_v = math.sqrt(constants.KB * T / RB87.mass)
+        doppler = dict(method=DOPPLER_EXACT if doppler_on else DOPPLER_OFF,
+                       guard_max_relative=None, fallback_rows=0, fallback_classes=0,
+                       min_pole_distance_mhz=None)
         if cell_type == CELL_PARAFFIN:
             exchange_rate = gamma_in + gamma_out
             light_region_occupation = (gamma_in / exchange_rate
@@ -473,51 +466,71 @@ class MagnetoScheme(Scheme):
             light_region_occupation = 1.0
         light_state_trace = 1.0
         if valid and Om > 0:
-            if params["doppler"] == "on":
-                v, wt = _thermal_velocity_grid(T, RB87.mass, params["velocity_classes"])
-                doppler_scale = _doppler_dilution(T, RB87.mass, K_D1_RB87,
-                                                  gamma_homogeneous, dL, v, wt)
-            else:
-                v, wt = np.array([0.0]), np.array([1.0])
-            velocity_count = int(v.size)
-            deff = dL - K_D1_RB87 * v
-
             # H₀(bz) = H_xy + bz·H_z is affine in the longitudinal field, and
             # comm_super is linear, so L0(bz) = C_xy + bz·C_z. Build the constant
             # pieces once (no per-B-point kron) and form the whole B-scan stack of
-            # Liouvillians by a scalar broadcast, then solve the (B × velocity)
-            # batch in one call. Bit-for-bit the same matrices as the old loop.
+            # Liouvillians by a scalar broadcast. Bit-for-bit the same matrices as
+            # the old loop.
             H_xy = self._hamiltonian(atom, (b_x, b_y, 0.0), gFg, gFe, Om, drive)
             H_z = self._hamiltonian(atom, (0.0, 0.0, 1.0), gFg, gFe, 0.0,
                                     {+1: 0.0, -1: 0.0})
             C_xy = core.build_liouvillian(H_xy, atom)
             C_z = core.comm_super(H_z)                       # drive-free → reusable
             L0_all = C_xy[None, :, :] + b_z[:, None, None] * C_z[None, :, :]
-
+            Cd_xy = Ld_all = None
             if cell_type == CELL_PARAFFIN:
                 Hd_xy = self._hamiltonian(atom_dark, (b_x, b_y, 0.0), gFg, gFe,
                                           0.0, {+1: 0.0, -1: 0.0})
                 Cd_xy = core.build_liouvillian(Hd_xy, atom_dark)
                 Ld_all = Cd_xy[None, :, :] + b_z[:, None, None] * C_z[None, :, :]
-                rho, occupation = self._steady_state_two_region(
-                    L0_all, Ld_all, deff, atom.S_v, atom.n_levels,
-                    gamma_out, gamma_in)
-                light_region_occupation = float(np.mean(occupation))
-                light_state_trace = float(np.mean(np.trace(
-                    rho, axis1=-2, axis2=-1).real))
-            else:
-                rho = self._steady_state_buffer(
-                    L0_all, deff, atom.S_v, atom.n_levels)
 
-            cp, cm, cprobe = self._coherences(atom, rho, Om, drive)   # (nB, nv)
-            chi_p = (cp * wt[None, :]).sum(axis=1)
-            chi_m = (cm * wt[None, :]).sum(axis=1)
-            chi_probe = (cprobe * wt[None, :]).sum(axis=1)
+            def solve(rows, deff):
+                """(conditional light-region ρ, occupation) of B rows at detunings deff."""
+                if cell_type == CELL_PARAFFIN:
+                    return self._steady_state_two_region(
+                        L0_all[rows], Ld_all[rows], deff, atom.S_v, atom.n_levels,
+                        gamma_out, gamma_in)
+                return self._steady_state_buffer(
+                    L0_all[rows], deff, atom.S_v, atom.n_levels), None
+
+            if doppler_on:
+                def grid_average(rows):
+                    v, wt = _maxwell_fallback_grid(
+                        T, RB87.mass, K_D1_RB87, 0.5 * gamma_homogeneous)
+                    out_p = np.empty(rows.size, dtype=complex)
+                    out_m = np.empty(rows.size, dtype=complex)
+                    for part in np.array_split(np.arange(rows.size), -(-rows.size // 8)):
+                        rho_v, _ = solve(rows[part], dL - K_D1_RB87 * v)
+                        cp_v, cm_v, _ = self._coherences(atom, rho_v, Om, drive)
+                        out_p[part] = cp_v @ wt
+                        out_m[part] = cm_v @ wt
+                    return out_p, out_m, int(v.size)
+
+                chi_p, chi_m, occupation_mean = self._exact_doppler_average(
+                    atom, C_xy, C_z, Cd_xy, b_z, gamma_out, gamma_in, Om,
+                    center=dL, sigma=K_D1_RB87 * sigma_v,
+                    grid_average=grid_average, ledger=doppler)
+                if Cd_xy is not None:
+                    light_region_occupation = occupation_mean
+                chi_probe = (np.conj(drive.get(+1, 0.0)) * chi_p
+                             + np.conj(drive.get(-1, 0.0)) * chi_m)
+            else:
+                # The v = 0 class only: the same kernel call and sums as before.
+                rho, occupation = solve(slice(None), np.array([dL]))
+                if occupation is not None:
+                    light_region_occupation = float(np.mean(occupation))
+                    light_state_trace = float(np.mean(np.trace(
+                        rho, axis1=-2, axis2=-1).real))
+                cp, cm, cprobe = self._coherences(atom, rho, Om, drive)   # (nB, 1)
+                wt = np.ones(1)
+                chi_p = (cp * wt[None, :]).sum(axis=1)
+                chi_m = (cm * wt[None, :]).sum(axis=1)
+                chi_probe = (cprobe * wt[None, :]).sum(axis=1)
 
         return dict(
             line=LINE, isotope="87Rb", cell_type=cell_type, b_ut=b_ut,
             b_physical_ut=b_physical_ut, b_offset_ut=b_offset_ut,
-            chi_probe=chi_probe, chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N * doppler_scale,
+            chi_probe=chi_probe, chi_p=chi_p, chi_m=chi_m, N=N, N_eff=N,
             T=T, valid=valid, Fg=Fg, Fe=Fe, gFg=gFg, gFe=gFe,
             gamma=gamma_homogeneous, gamma_natural=GAMMA_D1,
             buffer_gamma=buffer_gamma, gamma_elastic=gamma_elastic,
@@ -525,7 +538,12 @@ class MagnetoScheme(Scheme):
             gamma_out=gamma_out, gamma_in=gamma_in, gamma_wall=gamma_wall,
             k_vec=K_D1_RB87, dipole=_transition_dipole(Fg, Fe) if valid else 0.0,
             strength=strength, omega_rabi=Om, isat=D1_ISAT_MW_CM2,
-            velocity_count=velocity_count, doppler_scale=doppler_scale,
+            doppler_scale=1.0, doppler_method=doppler["method"],
+            doppler_sigma_mhz=K_D1_RB87 * sigma_v / (2 * np.pi) / 1e6,
+            doppler_guard_max_relative=doppler["guard_max_relative"],
+            doppler_fallback_rows=doppler["fallback_rows"],
+            doppler_fallback_classes=doppler["fallback_classes"],
+            doppler_min_pole_distance_mhz=doppler["min_pole_distance_mhz"],
             qwp_deg=params["qwp_deg"], b_perp_ut=b_perp * 1e6,
             light_region_occupation=light_region_occupation,
             light_state_trace=light_state_trace,
@@ -642,6 +660,93 @@ class MagnetoScheme(Scheme):
         return rho
 
     @staticmethod
+    def _exact_doppler_average(atom, C_xy, C_z, Cd_xy, b_z, gamma_out, gamma_in, Om,
+                               center, sigma, grid_average, ledger):
+        """Untruncated Maxwell average of the light-region σ± coherences per B row.
+
+        Only the light region carries the optical Doppler shift, so with the trace
+        row inserted every B row is ``(A00 + b_z·A01 − Δ_eff·S) x = e₀`` in the real
+        Hermitian-generator basis, and each coherence is an exact rational function
+        of Δ_eff (`pole_doppler.ShiftInvertSystem`).  Its average over
+        Δ_eff ~ Normal(center, sigma²) is closed form (Faddeeva): no velocity grid,
+        no cutoff.  Light and dark Liouvillians conserve their own traces, so the
+        two-region light occupation does not depend on Δ_eff and dividing by it
+        keeps the trace-one conditional state of the grid path.
+
+        A row is kept if its pole form reproduces a direct solve of the v = 0 class
+        to POLE_GUARD_RTOL and has no undamped pole inside the Maxwell bulk; other
+        rows are replaced by ``grid_average(rows)``.  Returns (chi_p, chi_m, mean
+        light occupation) and records the guard in ``ledger``.
+        """
+        n = atom.n_levels
+        M = n * n
+        U = core.hermitian_basis(n)
+        Uh = U.conj().T
+
+        def real(X):
+            return np.ascontiguousarray((Uh @ X @ U).real)
+
+        size = M if Cd_xy is None else 2 * M
+        A00 = np.zeros((size, size))
+        A01 = np.zeros((size, size))
+        S = np.zeros((size, size))
+        A00[:M, :M] = real(C_xy)
+        A01[:M, :M] = real(C_z)
+        S[:M, :M] = real(atom.S_v)
+        if Cd_xy is not None:
+            eye = np.eye(M)
+            A00[:M, :M] -= gamma_out * eye
+            A00[:M, M:] = gamma_in * eye
+            A00[M:, :M] = gamma_out * eye
+            A00[M:, M:] = real(Cd_xy) - gamma_in * eye
+            A01[M:, M:] = A01[:M, :M]
+        for A in (A00, A01, S):
+            A[0] = 0.0
+        A00[0, :n] = 1.0                 # trace row: populations are the first n coordinates
+        if Cd_xy is not None:
+            A00[0, M:M + n] = 1.0
+        rhs = np.zeros(size)
+        rhs[0] = 1.0
+        readouts = np.zeros((3, size), dtype=complex)
+        for row, q in ((0, +1), (1, -1)):
+            for gi, ei, cg in atom.couplings[q]:
+                readouts[row, :M] += cg * U[ei * n + gi]
+        readouts[2, :n] = 1.0                       # light-region occupation
+
+        # Expand about the v = +σ class, not by Schur elimination: with no transverse
+        # field the paraffin Zeeman populations relax only through the optical
+        # coherences, so the Doppler-free block alone is singular.
+        b_z = np.ascontiguousarray(b_z, dtype=float)
+        system = pole_doppler.ShiftInvertSystem(A00, A01, S, rhs, readouts)
+        with core.blas_single_thread():
+            poles = system.residues(b_z, center - sigma, pole_limit=POLE_LIMIT_SIGMAS * sigma)
+            at_rest = system.direct(b_z, center)
+        occupation = at_rest[:, 2].real
+        norm = Om if Cd_xy is None else Om * occupation[:, None]
+        mean = poles.gaussian_mean(center, sigma)[:, :2] / norm
+        rest = poles.value_at(center)[:, :2] / norm
+        direct = at_rest[:, :2] / norm
+        scale = max(float(np.max(np.abs(direct))), np.finfo(float).tiny)
+        relative = np.max(np.abs(rest - direct), axis=1) / scale
+        relative = np.where(np.isfinite(relative), relative, np.inf)
+        # An undamped pole inside the Maxwell bulk would mean a velocity class
+        # without a unique steady state; distant real poles only add smooth terms.
+        in_bulk = np.abs(poles.lam.real - center) <= FALLBACK_SIGMAS * sigma
+        damping = np.min(np.where(in_bulk, np.abs(poles.lam.imag), np.inf), axis=1)
+        failed = ((relative > POLE_GUARD_RTOL) | ~(damping > 1e-9 * sigma)
+                  | ~np.all(np.isfinite(mean), axis=1))
+        ledger["guard_max_relative"] = float(np.max(relative))
+        ledger["min_pole_distance_mhz"] = float(np.min(damping) / (2 * np.pi * 1e6))
+
+        chi_p, chi_m = mean[:, 0].copy(), mean[:, 1].copy()
+        rows = np.flatnonzero(failed)
+        if rows.size:
+            chi_p[rows], chi_m[rows], classes = grid_average(rows)
+            ledger["fallback_rows"] = int(rows.size)
+            ledger["fallback_classes"] = classes
+        return chi_p, chi_m, float(np.mean(occupation))
+
+    @staticmethod
     def _coherences(atom, rho, Om, drive):
         # rho leading dims are arbitrary ((nv,) or (nB, nv)); reduce the last two
         # (Hilbert) axes via the polarization-resolved dipole couplings.
@@ -711,6 +816,14 @@ class MagnetoScheme(Scheme):
         fig = None
         if params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR:
             slope = np.gradient(rotation, x)[ic]
+            drive = _qwp_drive_weights(raw["qwp_deg"])
+            circular_powers = [abs(drive[q]) ** 2 for q in (+1, -1)]
+            linear_input = math.isclose(*circular_powers, rel_tol=0.0, abs_tol=1e-12)
+            circular_input = min(circular_powers) <= 1e-12
+            rotation_scope = (
+                "linear-input approximation" if linear_input else
+                "undefined for circular input" if circular_input else
+                "unsupported for elliptical input")
             metrics = [
                 dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
                 dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/µT",
@@ -725,6 +838,18 @@ class MagnetoScheme(Scheme):
             ]
             note = ("NMOR readout: zero crossing near B=0; slope is the magnetometer "
                     "signal. Absolute rotation and slope remain externally unvalidated.")
+            if not linear_input:
+                # Re(chi_+ - chi_-) is a plane-angle approximation for linear
+                # input. Elliptical input needs a Jones/Stokes readout, and a
+                # circular input has no polarization-plane angle at all.
+                metrics = [metric for metric in metrics
+                           if metric["label"] == "Absolute rotation/slope status"]
+                note = ("The plotted circular-birefringence diagnostic is not a "
+                        "polarization-plane rotation for this input. Elliptical "
+                        "input requires Jones/Stokes propagation; circular input "
+                        "has no defined polarization-plane angle.")
+            metrics.append(dict(label="Rotation readout status", value=rotation_scope,
+                                kind="status", **({} if linear_input else {"tier": "hero"})))
             if include_figures:
                 import matplotlib.pyplot as plt
 
@@ -732,7 +857,8 @@ class MagnetoScheme(Scheme):
                 ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
                 ax.axhline(0, color="black", lw=0.6)
                 ax.axvline(0, color="gray", ls=":", lw=0.8)
-                ax.set_ylabel("Polarization rotation  [mrad]")
+                ax.set_ylabel("Polarization rotation  [mrad]" if linear_input else
+                              "Circular-birefringence diagnostic  [mrad]")
                 ax.set_xlabel("Magnetic field B  [µT]")
                 ax.set_title(title)
                 fig.tight_layout()
@@ -800,8 +926,13 @@ class MagnetoScheme(Scheme):
             ("Light-region occupation",
              f"{raw['light_region_occupation']:.9f} (diagnostic only)"),
             ("Density convention", raw["density_convention"]),
-            ("Doppler OD scale", f"{raw['doppler_scale']:.3e}"),
-            ("Doppler classes", f"{raw['velocity_count']}"),
+            ("Doppler average", raw.get("doppler_method", DOPPLER_OFF)),
+            ("Maxwell Doppler width σ_D / 2π",
+             f"{raw.get('doppler_sigma_mhz', float('nan')):.2f} MHz"),
+            ("Pole guard (max relative)",
+             "n/a" if raw.get("doppler_guard_max_relative") is None
+             else f"{raw['doppler_guard_max_relative']:.1e}"),
+            ("Grid-fallback B rows", f"{raw.get('doppler_fallback_rows', 0)}"),
             ("Two-region γ_out / 2π", f"{raw['gamma_out']/(2*np.pi)/1e3:.3f} kHz"),
             ("Two-region γ_in / 2π", f"{raw['gamma_in']/(2*np.pi)/1e3:.3f} kHz"),
             ("Wall γ / 2π", f"{raw['gamma_wall']/(2*np.pi):.3f} Hz"),

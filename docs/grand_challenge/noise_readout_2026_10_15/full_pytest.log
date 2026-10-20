@@ -1,0 +1,189 @@
+........................................................................ [  3%]
+........................................................................ [  6%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+........................................................................ [ 22%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+........................................................................ [ 31%]
+.......sss.............................................................. [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+.......................................................F.FF............. [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+........................................................................ [ 63%]
+...................................s.................................... [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+.....................................................                    [100%]
+================================== FAILURES ===================================
+______ test_destination_race_is_exclusive_and_preserves_external_target _______
+
+campaign = (WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-366/test_destination_race_is_exclu0/parent'), Windo...d9327733423f712863da91342a6ca9b583e040e557a762e2', '2524938021872aa48ec142c899765cb0e2b260a27eb72742cfd1e45d8d7840ff'])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002506882F310>
+
+    def test_destination_race_is_exclusive_and_preserves_external_target(campaign, monkeypatch):
+        parent, target, _, _ = campaign
+        original = e.publish
+        def race(stage, destination):
+            Path(destination).mkdir()
+            (Path(destination)/'owner.txt').write_bytes(b'concurrent owner')
+            return original(stage, destination)
+        monkeypatch.setattr(e, 'publish', race)
+        with pytest.raises(FileExistsError):
+>           e.execute(parent, target, (2, 3, 4))
+
+tests\quantum\test_thermal_campaign_extend.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools\thermal_campaign_extend.py:388: in execute
+    verified = verify_in_fresh_capsule(stage, control, raw)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\quantum\test_thermal_campaign_extend.py:81: in local_verifier
+    result = e.verify_stage(stage, expected_controller_sha256=control['raw_sha256'],
+tools\thermal_campaign_extend.py:220: in verify_stage
+    old_cache = c.CampaignCache(parent/'cache', old)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\thermal_campaign.py:218: in __init__
+    self._check_sources()
+analysis\grand_challenge\thermal_campaign.py:223: in _check_sources
+    return provenance.require_sources(self.root, self.plan['source_manifest'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('G:/�� ����̺�/Coding/GABES - Generic Atomic Bloch Equation Solver')
+manifest = {'files': [{'encoding': 'utf-8', 'normalized_bytes': 13566, 'normalized_sha256': '75d987a0594e5876beb193b36c0b99ce1ec7...'gabes.python-source-manifest.v1', 'source_sha256': 'e843122ccae7da3efe73cefe9f1fada02f5d2bc20ab21e1d4c5f12c338cb9b38'}
+
+    def require_sources(root, manifest) -> dict:
+        """Reject source changes and return the current raw snapshot for audit.
+    
+        Only the same explicit paths are recaptured. Relocation and Python universal
+        newlines may change raw audit fields, but not the verified source identity.
+        The supplied manifest is never mutated or relabelled.
+        """
+        expected = source_identity(manifest)
+        current = capture_sources(root, [entry['path'] for entry in manifest['files']])
+        if current['source_sha256'] != expected:
+            changed = [old['path'] for old, new in zip(manifest['files'], current['files'])
+                       if any(old[key] != new[key] for key in _IDENTITY_KEYS)]
+>           raise ValueError('Python source changed: ' + ', '.join(changed))
+E           ValueError: Python source changed: gabes/passive_readout.py, gabes/schemes/fwm.py
+
+analysis\grand_challenge\source_provenance.py:200: ValueError
+_ test_empty_campaign_extension_passes_both_real_capsules_without_any_native_solve _
+
+campaign = (WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-366/test_empty_campaign_extension_0/parent'), Windo..._s_inverse': 165069641128527.62}, ...], 'power': 1, ...}, ...], 'historical_numerical_results_reused': False, ...}, [])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025073778830>
+
+    def test_empty_campaign_extension_passes_both_real_capsules_without_any_native_solve(campaign, monkeypatch):
+        parent, target, old, _ = campaign
+        for path in (parent/'cache').glob('*.json'):
+            path.unlink()
+        before = hashes(parent)
+        monkeypatch.setattr(e, 'ROOT', target.parent)
+        e.launch(parent, target, (2, 3, 4))
+>       new = c.load_plan(target)
+              ^^^^^^^^^^^^^^^^^^^
+
+tests\quantum\test_thermal_campaign_extend.py:368: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+analysis\grand_challenge\thermal_campaign.py:142: in load_plan
+    provenance.require_sources(root, plan['source_manifest'])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('G:/�� ����̺�/Coding/GABES - Generic Atomic Bloch Equation Solver')
+manifest = {'files': [{'encoding': 'utf-8', 'normalized_bytes': 13566, 'normalized_sha256': '75d987a0594e5876beb193b36c0b99ce1ec7...'gabes.python-source-manifest.v1', 'source_sha256': 'e843122ccae7da3efe73cefe9f1fada02f5d2bc20ab21e1d4c5f12c338cb9b38'}
+
+    def require_sources(root, manifest) -> dict:
+        """Reject source changes and return the current raw snapshot for audit.
+    
+        Only the same explicit paths are recaptured. Relocation and Python universal
+        newlines may change raw audit fields, but not the verified source identity.
+        The supplied manifest is never mutated or relabelled.
+        """
+        expected = source_identity(manifest)
+        current = capture_sources(root, [entry['path'] for entry in manifest['files']])
+        if current['source_sha256'] != expected:
+            changed = [old['path'] for old, new in zip(manifest['files'], current['files'])
+                       if any(old[key] != new[key] for key in _IDENTITY_KEYS)]
+>           raise ValueError('Python source changed: ' + ', '.join(changed))
+E           ValueError: Python source changed: gabes/passive_readout.py, gabes/schemes/fwm.py
+
+analysis\grand_challenge\source_provenance.py:200: ValueError
+---------------------------- Captured stdout call -----------------------------
+{"target": "C:\\Users\\\ubc15\uc218\uc778\\AppData\\Local\\Temp\\pytest-of-\ubc15\uc218\uc778\\pytest-366\\test_empty_campaign_extension_0\\extension", "imported_raw_record_count": 0, "new_solve_count": 0, "thermal_ensemble_converged": false}
+
+_________ test_verification_must_use_target_marker_not_parent_marker __________
+
+campaign = (WindowsPath('C:/Users/�ڼ���/AppData/Local/Temp/pytest-of-�ڼ���/pytest-366/test_verification_must_use_tar0/parent'), Windo..._s_inverse': 165069641128527.62}, ...], 'power': 1, ...}, ...], 'historical_numerical_results_reused': False, ...}, [])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025073CB4980>
+capfd = <_pytest.capture.CaptureFixture object at 0x0000025073C6D480>
+
+    def test_verification_must_use_target_marker_not_parent_marker(campaign, monkeypatch, capfd):
+        parent, target, old, _ = campaign
+        for path in (parent/'cache').glob('*.json'):
+            path.unlink()
+        original_extract = c.extract_bundle
+        def wrong_marker(directory, folder):
+            original_extract(directory, folder)
+            (Path(folder)/'.campaign-source-identity').write_text(old['record_sha256'], encoding='utf-8')
+        monkeypatch.setattr(c, 'extract_bundle', wrong_marker)
+        # Restore the real second-process verifier; the first-process capsule guard
+        # is explicitly stubbed by the fixture, but the fresh verifier is untouched.
+        verifier = e.verify_stage.__globals__['subprocess']
+        assert verifier is subprocess
+        def fresh(stage, control, raw):
+            with pytest.MonkeyPatch.context() as patch:
+                patch.setattr(e, 'ROOT', target.parent)
+                # Reuse the original function captured before fixture patching.
+                return REAL_VERIFY(stage, control, raw)
+        monkeypatch.setattr(e, 'verify_in_fresh_capsule', fresh)
+        with pytest.raises(subprocess.CalledProcessError):
+>           e.execute(parent, target, (2, 3, 4))
+
+tests\quantum\test_thermal_campaign_extend.py:398: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools\thermal_campaign_extend.py:332: in execute
+    old = c.load_plan(parent)
+          ^^^^^^^^^^^^^^^^^^^
+analysis\grand_challenge\thermal_campaign.py:142: in load_plan
+    provenance.require_sources(root, plan['source_manifest'])
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('G:/�� ����̺�/Coding/GABES - Generic Atomic Bloch Equation Solver')
+manifest = {'files': [{'encoding': 'utf-8', 'normalized_bytes': 13566, 'normalized_sha256': '75d987a0594e5876beb193b36c0b99ce1ec7...'gabes.python-source-manifest.v1', 'source_sha256': 'e843122ccae7da3efe73cefe9f1fada02f5d2bc20ab21e1d4c5f12c338cb9b38'}
+
+    def require_sources(root, manifest) -> dict:
+        """Reject source changes and return the current raw snapshot for audit.
+    
+        Only the same explicit paths are recaptured. Relocation and Python universal
+        newlines may change raw audit fields, but not the verified source identity.
+        The supplied manifest is never mutated or relabelled.
+        """
+        expected = source_identity(manifest)
+        current = capture_sources(root, [entry['path'] for entry in manifest['files']])
+        if current['source_sha256'] != expected:
+            changed = [old['path'] for old, new in zip(manifest['files'], current['files'])
+                       if any(old[key] != new[key] for key in _IDENTITY_KEYS)]
+>           raise ValueError('Python source changed: ' + ', '.join(changed))
+E           ValueError: Python source changed: gabes/passive_readout.py, gabes/schemes/fwm.py
+
+analysis\grand_challenge\source_provenance.py:200: ValueError
+=========================== short test summary info ===========================
+FAILED tests/quantum/test_thermal_campaign_extend.py::test_destination_race_is_exclusive_and_preserves_external_target
+FAILED tests/quantum/test_thermal_campaign_extend.py::test_empty_campaign_extension_passes_both_real_capsules_without_any_native_solve
+FAILED tests/quantum/test_thermal_campaign_extend.py::test_verification_must_use_target_marker_not_parent_marker
+3 failed, 2278 passed, 4 skipped in 821.07s (0:13:41)

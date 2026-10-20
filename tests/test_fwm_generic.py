@@ -140,6 +140,87 @@ def test_detector_background_and_window_reduce_car():
     assert noisy["g2_peak"] < base["g2_peak"]
 
 
+def test_symmetric_gate_integrates_piecewise_linear_source_at_subgrid_edges():
+    # Uniform causal source on [0, 10] ns: a full-width W gate captures W/20.
+    tau = np.linspace(0.0, 10.0, 21)
+    wave = np.ones_like(tau)
+    for width in (0.0, 0.01, 0.37, 1.0, 20.0, 100.0):
+        stats = observables.biphoton_stats(
+            tau, wave, 1_000.0, signal_eff=0.2, idler_eff=0.3,
+            coincidence_window_ns=width)
+        expected = min(width / 20.0, 1.0)
+        assert stats["gate_capture_fraction"] == pytest.approx(expected, abs=1e-14)
+        assert stats["all_time_coincidence_cps"] == pytest.approx(60.0)
+        assert stats["coincidence_cps"] == pytest.approx(60.0 * expected)
+        assert stats["gate_captured_coincidence_cps"] == stats["coincidence_cps"]
+
+
+def test_jitter_gate_keeps_negative_delay_tails_and_matches_independent_integral():
+    from scipy.integrate import quad
+    from scipy.special import ndtr
+
+    # Exactly linear source density, normalized on [0, 2] ns. Gaussian jitter
+    # spreads probability to both sides; normalizing the positive plot loses it.
+    tau = np.linspace(0.0, 2.0, 41)
+    wave = np.sqrt(2.0 - tau)
+    sigma = 0.55 / 2.354820045
+    width = 0.7
+    stats = observables.biphoton_stats(
+        tau, wave, 1_000.0, coincidence_window_ns=width, timing_jitter_ns=0.55)
+    expected = quad(lambda t: (2.0 - t) / 2.0 * (
+        ndtr((width / 2.0 - t) / sigma)
+        - ndtr((-width / 2.0 - t) / sigma)), 0.0, 2.0,
+        epsabs=1e-12, epsrel=1e-12)[0]
+    assert stats["gate_capture_fraction"] == pytest.approx(expected, abs=2e-13)
+    # Density at tau=0 independently integrates the full source/kernel, not a
+    # cropped, renormalized positive-delay response.
+    expected_zero_density = quad(
+        lambda t: (2.0-t)/2.0 * np.exp(-0.5*(t/sigma)**2)
+        / (sigma*np.sqrt(2*np.pi)), 0.0, 2.0, epsabs=1e-12)[0]
+    assert stats["detected_delay_density_per_ns"][0] == pytest.approx(
+        expected_zero_density, abs=2e-13)
+    huge = observables.biphoton_stats(
+        tau, wave, 1_000.0, coincidence_window_ns=100.0, timing_jitter_ns=0.55)
+    assert huge["gate_capture_fraction"] == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize("target", [None, 44.0])
+def test_histogram_g2_and_reference_background_do_not_change_with_gate(target):
+    tau = np.linspace(0.0, 10.0, 401)
+    wave = np.exp(-tau / 0.8)
+    samples = [observables.biphoton_stats(
+        tau, wave, 1_000.0, coincidence_window_ns=width,
+        timing_jitter_ns=0.55, target_g2_peak=target)
+        for width in (1e-6, 0.01, 0.1, 1.0, 100.0)]
+    for sample in samples:
+        np.testing.assert_array_equal(sample["g2_SI_tau"], samples[0]["g2_SI_tau"])
+        assert sample["g2_peak"] == samples[0]["g2_peak"]
+        # Gate CAR is an average of g2-1 over the gate, not the peak itself.
+        assert sample["CAR"] <= sample["g2_peak"] - 1.0 + 0.05
+    assert samples[0]["coincidence_cps"] < samples[1]["coincidence_cps"]
+    assert samples[1]["coincidence_cps"] < samples[-1]["coincidence_cps"]
+    assert samples[0]["coincidence_cps"] < 1e-4
+    # The added calibration background is a fixed density, so its gate count
+    # scales with W rather than being refitted at every window width.
+    assert samples[1]["added_accidental_cps"] == pytest.approx(
+        samples[3]["added_accidental_cps"] * 0.01)
+
+
+def test_gate_rates_keep_scalar_filter_efficiencies_and_dark_counts_separate():
+    tau = np.linspace(0.0, 10.0, 101)
+    wave = np.ones_like(tau)
+    stats = observables.biphoton_stats(
+        tau, wave, 1_000.0, signal_eff=0.2, idler_eff=0.3,
+        dark_signal_cps=10.0, dark_idler_cps=20.0,
+        coincidence_window_ns=1.0,
+        filter_bandwidth_mhz=100.0, source_bandwidth_mhz=200.0)
+    assert stats["pair_rate_cps"] == pytest.approx(500.0)
+    assert stats["all_time_coincidence_cps"] == pytest.approx(30.0)
+    assert stats["coincidence_cps"] == pytest.approx(1.5)
+    assert stats["raw_accidental_cps"] == pytest.approx(110.0 * 170.0 * 1e-9)
+    assert "no temporal reshaping" in stats["filter_model"]
+
+
 def test_timing_jitter_broadens_waveform():
     tau = np.linspace(0.0, 10.0, 401)
     wave = np.exp(-tau / 0.8)
@@ -367,14 +448,22 @@ def test_fwm_ui_uses_short_labels_without_changing_stored_values():
     assert specs["probe_uw"].label == "Seed power"
     assert specs["opd"].label == "One-photon detuning Δ"
     assert specs["tpd"].label == "Two-photon detuning δ"
-    assert specs["detection_eff_pct"].label == "Detection efficiency η"
+    assert specs["after_cell_eff_pct"].label == "After-cell optical efficiency η_after cell"
+    assert specs["qe_pct"].label == "Detector quantum efficiency η_QE"
+    assert "detection_eff_pct" not in specs
+    for name in ("after_cell_eff_pct", "qe_pct", "seed_classical_rin_scaled"):
+        assert not specs[name].hidden and specs[name].recompute is False
+    for name in ("seed_shot_noise_b", "eta_probe_pct", "eta_conjugate_pct"):
+        assert specs[name].control == "derived_slider"
+        assert name not in scheme.defaults()
+        assert name not in scheme.recompute_keys()
     assert specs["phase_detail"].choice_labels == {
         "Balanced": "1D", "Fine": "1D + 2D"
     }
 
     hidden = {
         "eom_residual_carrier_uw", "eom_other_sidebands_uw",
-        "loss_pct", "qe_pct", "line_strength", "mode_overlap_penalty",
+        "loss_pct", "line_strength", "mode_overlap_penalty",
         "polarization_penalty", "zeeman_participation_penalty",
         "floquet_order", "phase_detail",
     }
@@ -590,7 +679,9 @@ def test_fwm_default_buttons_are_squeezing_and_contextual_biphoton():
 def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
     scheme = fwm.FWMScheme()
     info = scheme.info()
-    assert "Squeezing indicator" in info
+    assert "Linear noise figure NF" in info
+    assert "Squeezing Degree [dB]" in info
+    assert "calculated shot RIN" in info
     assert "not a physical squeezing spectrum" in info
     assert "Reduced model" in info
     assert "pair-rate scale is anchored" in info
@@ -727,7 +818,9 @@ def test_beam_geometry_knobs_default_to_the_legacy_constants():
     assert params["pump_waist_um"] == fwm.W_PUMP * 1e6
     assert params["probe_waist_um"] == fwm.W_PROBE * 1e6
     assert params["qe_pct"] == fwm.QE_DETECTOR * 100.0
-    assert params["detection_eff_pct"] == pytest.approx(
+    assert params["after_cell_eff_pct"] == pytest.approx(
+        100.0-fwm.SEEDED_POST_CELL_LOSS_PCT)
+    assert params["after_cell_eff_pct"]*params["qe_pct"]/100.0 == pytest.approx(
         fwm.SEEDED_DETECTION_EFFICIENCY_PCT)
 
     raw = scheme.compute(params)
@@ -737,7 +830,8 @@ def test_beam_geometry_knobs_default_to_the_legacy_constants():
         params["opd"], T=params["temp_c"] + 273.15,
         P_pump=params["pump_mw"] * 1e-3, P_probe=params["probe_uw"] * 1e-6,
         line_strength=params["line_strength"],
-        L=params["cell_mm"] * 1e-3, loss_frac=params["loss_pct"] / 100.0,
+        L=params["cell_mm"] * 1e-3, qe=1.0, loss_frac=0.0,
+        detection_efficiency=1.0,
         coarse_points=res["coarse_points"], fine_points=0,
         scan_min=center - fwm.WINDOW_GHZ, scan_max=center + fwm.WINDOW_GHZ,
         velocity_step=res["velocity_step"],
@@ -756,7 +850,10 @@ def test_beam_geometry_knobs_default_to_the_legacy_constants():
             f"{key} drifted when the geometry became a knob"
     assert raw["w_pump_m"] == fwm.W_PUMP
     assert raw["w_probe_m"] == fwm.W_PROBE
-    assert raw["qe"] == fwm.QE_DETECTOR
+    assert raw["qe"] == 1.0
+    current = scheme.headless_observables(raw, params)["jasperse_readout"]
+    assert current["eta_after_cell_QE"] == pytest.approx(
+        params["after_cell_eff_pct"]*params["qe_pct"]/1e4)
 
 
 def test_beam_geometry_knobs_route_to_both_spectrum_paths():
@@ -770,9 +867,9 @@ def test_beam_geometry_knobs_route_to_both_spectrum_paths():
     kwargs = solve.call_args.kwargs
     assert kwargs["w_pump"] == pytest.approx(800e-6)
     assert kwargs["w_probe"] == pytest.approx(450e-6)
-    assert kwargs["qe"] == pytest.approx(0.9045)
-    assert kwargs["detection_efficiency"] == pytest.approx(
-        0.9045 * (1.0 - params["loss_pct"] / 100.0))
+    assert kwargs["qe"] == 1.0
+    assert kwargs["loss_frac"] == 0.0
+    assert kwargs["detection_efficiency"] == 1.0
 
     full_view = scheme.extra_views()[0]
     with patch.object(fwm, "full_spectrum", return_value=marker) as full:
@@ -780,24 +877,36 @@ def test_beam_geometry_knobs_route_to_both_spectrum_paths():
     kwargs = full.call_args.kwargs
     assert kwargs["w_pump"] == pytest.approx(800e-6)
     assert kwargs["w_probe"] == pytest.approx(450e-6)
-    assert kwargs["qe"] == pytest.approx(0.9045)
-    assert kwargs["detection_efficiency"] == pytest.approx(
-        0.9045 * (1.0 - params["loss_pct"] / 100.0))
+    assert kwargs["qe"] == 1.0
+    assert kwargs["detection_efficiency"] == 1.0
 
 
-def test_detection_efficiency_routes_to_focused_and_full_spectrum():
+def test_detection_efficiency_routes_to_readout_without_changing_either_atomic_path():
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
-    params["detection_eff_pct"] = 50.0
+    params.update(after_cell_eff_pct=50.0, qe_pct=80.0,
+                  detection_eff_pct=10.0)  # retired saved value is inert
     marker = {"marker": True}
 
     with patch.object(fwm, "compute_spectrum", return_value=marker) as solve:
         assert scheme.compute(params) is marker
-    assert solve.call_args.kwargs["detection_efficiency"] == pytest.approx(0.5)
+    assert solve.call_args.kwargs["detection_efficiency"] == 1.0
 
     with patch.object(fwm, "full_spectrum", return_value=marker) as full:
         assert scheme.extra_views()[0].compute(params) is marker
-    assert full.call_args.kwargs["detection_efficiency"] == pytest.approx(0.5)
+    assert full.call_args.kwargs["detection_efficiency"] == 1.0
+    # For an ideal G=4 photon-flux amplifier, source NF=1/(2G−1).
+    # Both controls act only in the downstream thinning relation.
+    amplifier = np.array([[2.0, np.sqrt(3.0)], [np.sqrt(3.0), 2.0]], complex)
+    center = fwm.branch_center_GHz(params["opd"], -1)
+    raw = {"D_GHz": params["opd"], "probe_axis_GHz": center+np.array([-0.001, 0.001]),
+           "T_canonical_small_signal": np.tile(amplifier, (2, 1, 1)), "eta": 1.0,
+           "input_seed_power_W": params["probe_uw"]*1e-6}
+    readout = fwm._seeded_passive_l1_readout(raw, params)
+    expected_eta = 0.5*0.8
+    assert readout["eta_after_cell_QE"] == pytest.approx(expected_eta)
+    np.testing.assert_allclose(readout["NF"], 1.0-expected_eta+expected_eta/7.0,
+                               rtol=1e-12, atol=1e-12)
 
 
 def test_full_scan_plot_uses_display_solver_detail():
@@ -811,24 +920,43 @@ def test_full_scan_plot_uses_display_solver_detail():
     }
     full = {"D_GHz": 0.9, "minus": spectrum, "plus": dict(spectrum)}
     fig = fwm.FWMScheme().extra_views()[0].render(full)
-    assert fig.axes[0].get_title() == "Solver detail: Fast"
+    assert fig.axes[0].get_title().startswith("Solver detail: Fast")
+    assert "seed RIN a = 0 /Hz" in fig.axes[0].get_title()
+    assert fig.axes[1].get_ylabel() == "Squeezing Degree [dB]"
     assert "internal propagation token" not in fig.axes[0].get_title()
 
     import matplotlib.pyplot as plt
     plt.close(fig)
 
 
-def test_qe_knob_sets_detection_eta_and_the_squeezing_floor():
-    """eta = QE·(1−loss) is the hard ceiling 10·log10(1−eta) on any readout."""
+def test_qe_knob_sets_current_nf_and_its_conditional_symmetric_loss_floor():
+    """Passive static NF uses external η exactly once; raw source stays neutral."""
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
-    params.update(qe_pct=90.45, loss_pct=5.5, resolution=fwm.FIDELITY_FAST)
+    params.update(qe_pct=90.45, after_cell_eff_pct=94.5, resolution=fwm.FIDELITY_FAST)
     raw = scheme.compute(params)
     eta = 0.9045 * (1.0 - 0.055)
-    assert raw["qe"] == pytest.approx(0.9045)
-    assert raw["eta"] == pytest.approx(eta)
+    assert raw["qe"] == 1.0
+    assert raw["eta"] == 1.0
+    view = scheme.headless_observables(raw, params)
+    current = view["jasperse_readout"]
+    assert current["eta_after_cell_QE"] == pytest.approx(eta)
+    # Independent canonical photon statistics, coherent seed and vacuum
+    # conjugate. Capped display gains do not enter this source variance.
+    matrix = raw["T_canonical_small_signal"]
+    gs = np.abs(matrix[:, 0, 0])**2
+    gc = np.abs(matrix[:, 1, 0])**2
+    q = matrix[:, 0, 0].conj()*matrix[:, 0, 1] - matrix[:, 1, 0].conj()*matrix[:, 1, 1]
+    source_nf = (gs-gc+2*np.abs(q)**2)/(gs+gc)
+    expected_nf = 1.0-eta+eta*source_nf
+    valid = np.isfinite(current["NF"])
+    assert np.any(valid)
+    np.testing.assert_allclose(current["NF"][valid], expected_nf[valid],
+                               rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(current["NF_dB"][valid], 10*np.log10(expected_nf[valid]),
+                               rtol=1e-12, atol=1e-12)
     floor_dB = 10.0 * np.log10(1.0 - eta)
-    assert np.nanmin(np.asarray(raw["S_dB"])) >= floor_dB - 1e-9
+    assert np.nanmin(np.asarray(current["NF_dB"])) >= floor_dB - 1e-9
 
 
 def test_pump_waist_moves_the_gain():
@@ -871,7 +999,7 @@ if __name__ == "__main__":
     test_cs_btw_short_window_render_no_shape_error()
     test_beam_geometry_knobs_default_to_the_legacy_constants()
     test_beam_geometry_knobs_route_to_both_spectrum_paths()
-    test_qe_knob_sets_detection_eta_and_the_squeezing_floor()
+    test_qe_knob_sets_current_nf_and_its_conditional_symmetric_loss_floor()
     test_pump_waist_moves_the_gain()
     test_responsivity_tracks_quantum_efficiency()
     print("Generic SFWM / biphoton checks OK.")

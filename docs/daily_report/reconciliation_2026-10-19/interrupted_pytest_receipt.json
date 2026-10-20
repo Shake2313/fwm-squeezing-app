@@ -1,0 +1,15 @@
+{
+  "origin": "source_evidence",
+  "marker": "⟦AI⟧",
+  "status": "interrupted_without_completion_receipt",
+  "recorded_utc": "2026-10-19T18:33:54.905632+00:00",
+  "log": "interrupted_pytest.log",
+  "controller_pid": 25332,
+  "pytest_pid": 1468,
+  "processes_present_at_resume": false,
+  "completed_summary_present": false,
+  "failed_test": "tests/test_fwm_measured_gain_integration.py::test_actual_streamlit_preset_checkbox_and_context_readout",
+  "isolated_cause": "AppTest default_timeout=3 seconds exceeded; same complete test passes at30 seconds (first run4.665 seconds).",
+  "correction": "Test-only explicit default_timeout=30; full run will restart on final sources.",
+  "scope": "Incomplete run is not a passing validation receipt."
+}

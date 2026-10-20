@@ -57,8 +57,8 @@ def test_reference_geometry_reproduces_the_gabes_default_diagnostic():
     scheme = fwm.FWMScheme()
     defaults = scheme.defaults()
     reference = scheme.compute(defaults)
-    reference_db = float(np.asarray(reference["gain_referred_noise_dB"])[
-        bridge._operating_index(reference, defaults)])
+    reference_db = scheme.headless_observables(
+        reference, defaults)["passive_l1_operating_point"]["NF_dB"]
 
     result = bridge.run(**_reference_overrides())
     for key in ("opd", "tpd", "temp_c", "cell_mm", "pump_mw", "probe_uw"):
@@ -103,7 +103,7 @@ def test_crossing_angle_comes_from_millimetres_at_the_mirrors():
 
 
 def test_geometry_is_computable_without_the_solve():
-    """loss_pct is a solve *input*, so it cannot depend on the solve."""
+    """External optical loss is available before the atomic solve/readout."""
     result = bridge.run(solve=False)
     assert result.raw is None and result.readout is None
     assert result.params["loss_pct"] > 0.0

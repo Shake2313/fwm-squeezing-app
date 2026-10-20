@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-8.4.2, pluggy-1.6.0 -- C:\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation Solver
+configfile: pytest.ini
+plugins: anyio-4.12.1
+collecting ... collected 1 item
+
+tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid PASSED [100%]
+
+============================== 1 passed in 2.76s ==============================

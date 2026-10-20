@@ -1,4 +1,4 @@
-"""Gain-closure acceptance, trust boundaries, and pre-hotfix numerical fixtures."""
+"""Retired gain-fit method fixtures and the uncalibrated runtime boundary."""
 import json
 from pathlib import Path
 
@@ -58,13 +58,14 @@ def gold_outputs():
     for tier in (fwm.FIDELITY_FAST, fwm.FIDELITY_BALANCED):
         for enabled in (False, True):
             params = dict(scheme.defaults(), resolution=tier,
-                          gain_closure_enabled=enabled)
+                          gain_closure_enabled=enabled,
+                          legacy_gain_calibration_fixture=True)
             outputs[tier, enabled] = scheme.compute(params)
     return outputs
 
 
 @pytest.mark.parametrize("tier", (fwm.FIDELITY_FAST, fwm.FIDELITY_BALANCED))
-def test_gold_gain_estimate_and_physical_squeezing_boundary(gold_outputs, tier):
+def test_historical_gold_fit_and_physical_squeezing_boundary(gold_outputs, tier):
     raw = gold_outputs[tier, True]
     reference = gold_outputs[tier, False]
     gain = fwm.operating_point(raw, -8.0)["G_s"]
@@ -94,15 +95,22 @@ def test_gold_gain_estimate_and_physical_squeezing_boundary(gold_outputs, tier):
 @pytest.mark.parametrize("tier,name", (
     (fwm.FIDELITY_FAST, "fast_default"),
     (fwm.FIDELITY_BALANCED, "balanced_default")))
-def test_switch_off_reproduces_saved_pre_hotfix_arrays(gold_outputs, before, tier, name):
+def test_switch_off_reproduces_saved_pre_hotfix_arrays(before, tier, name):
+    scheme = fwm.FWMScheme()
+    raw = scheme.compute(dict(scheme.defaults(), resolution=tier,
+                              gain_closure_enabled=False,
+                              legacy_mean_field_fixture=True,
+                              legacy_gain_calibration_fixture=True))
     with np.load(before / f"{name}.npz") as expected:
-        _assert_portable_snapshot(gold_outputs[tier, False], expected)
+        _assert_portable_snapshot(raw, expected)
 
 
 @pytest.mark.parametrize("name", ("ultra_default", "ultra_detuned"))
 def test_ultra_matches_all_saved_pre_hotfix_arrays(before, name):
     manifest = json.loads((before / "capture.json").read_text(encoding="utf-8"))
-    params = dict(manifest["cases"][name]["params"], gain_closure_enabled=True)
+    params = dict(manifest["cases"][name]["params"], gain_closure_enabled=True,
+                  legacy_mean_field_fixture=True,
+                  legacy_gain_calibration_fixture=True)
     raw = fwm.FWMScheme().compute(params)
     assert raw["gain_closure"]["applied"] is False
     assert raw["gain_closure"]["coupling_multiplier"] == 1.0
@@ -131,33 +139,38 @@ def test_untiered_and_ultra_api_ignore_calibration_switch(fidelity):
 
 
 @pytest.mark.parametrize("fidelity", ("Fast  (~4 s)", "Balanced  (~12 s)"))
-def test_saved_fast_tier_aliases_keep_correction(fidelity):
-    raw = _tiny_spectrum(model_fidelity=fidelity, gain_closure_enabled=True)
+def test_saved_fast_tier_aliases_keep_explicit_historical_method(fidelity):
+    raw = _tiny_spectrum(model_fidelity=fidelity, gain_closure_enabled=True,
+                         legacy_gain_calibration_fixture=True)
     assert raw["gain_closure"]["applied"] is True
 
 
-def test_source_gain_independent_of_detection_efficiency(gold_outputs):
+def test_source_gain_and_cached_noise_are_neutral_to_current_detector_controls():
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), resolution=fwm.FIDELITY_BALANCED,
-                  gain_closure_enabled=True, detection_eff_pct=40.0)
-    changed = scheme.compute(params)
-    reference = gold_outputs[fwm.FIDELITY_BALANCED, True]
-    assert changed["eta"] != reference["eta"]
+    params = dict(scheme.defaults(), resolution=fwm.FIDELITY_FAST)
+    reference = scheme.compute(params)
+    changed_params = dict(params, after_cell_eff_pct=40.0, qe_pct=100.0)
+    changed = scheme.compute(changed_params)
+    assert changed["eta"] == reference["eta"] == 1.0
     for key in ("G_s", "G_c", "G_s_smallsignal", "G_c_smallsignal"):
         np.testing.assert_array_equal(changed[key], reference[key])
-    assert not np.array_equal(changed["S_dB"], reference["S_dB"])
+    np.testing.assert_array_equal(changed["S_dB"], reference["S_dB"])
+    before = scheme.headless_observables(reference, params)["jasperse_readout"]
+    after = scheme.headless_observables(changed, changed_params)["jasperse_readout"]
+    assert not np.allclose(before["NF"], after["NF"], equal_nan=True)
 
 
 @pytest.mark.parametrize("enabled", (False, True))
 @pytest.mark.parametrize("tier", (
     fwm.FIDELITY_FAST, fwm.FIDELITY_BALANCED, fwm.FIDELITY_ULTRA))
-def test_full_scan_routes_closure_choice(monkeypatch, enabled, tier):
+def test_full_scan_routes_explicit_historical_closure_choice(monkeypatch, enabled, tier):
     captured = {}
     monkeypatch.setattr(fwm, "full_spectrum",
                         lambda *args, **kwargs: captured.update(kwargs) or {"ok": True})
     scheme = fwm.FWMScheme()
     result = scheme.extra_views()[0].compute(dict(
-        scheme.defaults(), resolution=tier, gain_closure_enabled=enabled))
+        scheme.defaults(), resolution=tier, gain_closure_enabled=enabled,
+        legacy_gain_calibration_fixture=True))
     assert result == {"ok": True}
     assert captured["gain_closure_enabled"] is enabled
     assert captured["model_fidelity"] == tier
@@ -172,14 +185,30 @@ def test_untiered_full_scan_keeps_both_branches_uncalibrated(monkeypatch):
     assert all(call["model_fidelity"] is None for call in calls)
 
 
-def test_switch_changes_compute_cache_and_old_params_enable_hotfix(gold_outputs):
+def test_retired_switch_is_absent_and_cannot_reactivate_runtime_fit(monkeypatch):
     scheme = fwm.FWMScheme()
-    assert scheme.defaults()["gain_closure_enabled"] is True
-    assert "gain_closure_enabled" in scheme.recompute_keys()
+    assert "gain_closure_enabled" not in scheme.defaults()
+    assert "gain_closure_enabled" not in scheme.recompute_keys()
     params = dict(scheme.defaults(), resolution=fwm.FIDELITY_FAST)
-    params.pop("gain_closure_enabled")
-    raw = scheme.compute(params)
-    np.testing.assert_array_equal(raw["G_s"], gold_outputs[fwm.FIDELITY_FAST, True]["G_s"])
+    calls = []
+    monkeypatch.setattr(fwm, "compute_spectrum", lambda *a, **kw:
+                        calls.append(kw) or {"captured": True})
+    scheme.compute(params)
+    scheme.compute(dict(params, gain_closure_enabled=True))
+    assert not calls[0]["legacy_gain_calibration_fixture"]
+    assert not calls[1]["legacy_gain_calibration_fixture"]
+    assert calls[0].pop("gain_closure_enabled") is False
+    calls[1].pop("gain_closure_enabled")
+    assert calls[0] == calls[1]
+
+
+@pytest.mark.parametrize("tier", (fwm.FIDELITY_FAST, fwm.FIDELITY_BALANCED))
+def test_direct_stale_switch_is_ignored_without_historical_fixture(tier):
+    baseline = _tiny_spectrum(model_fidelity=tier, gain_closure_enabled=False)
+    stale = _tiny_spectrum(model_fidelity=tier, gain_closure_enabled=True)
+    for key in ("G_s", "G_c", "T_canonical_small_signal"):
+        np.testing.assert_array_equal(stale[key], baseline[key])
+    assert not stale["gain_closure"]["applied"]
 
 
 def test_runtime_calibration_id_resolves_to_frozen_source(gold_outputs):

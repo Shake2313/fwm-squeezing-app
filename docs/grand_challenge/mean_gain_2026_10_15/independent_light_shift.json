@@ -1,0 +1,204 @@
+{
+  "provenance": "⟦AI⟧ Independent local-atom reference, not a measured/full-atom gain model.",
+  "inputs": {
+    "pump_power_W": 0.2948,
+    "pump_waist_m": 0.00053,
+    "temperature_K": 386.15,
+    "pump_Rabi_over_2pi_MHz": 495.9589745062573,
+    "delta_axis_MHz": [
+      -10.0,
+      0.0,
+      2.2,
+      23.7,
+      52.269382386541935,
+      70.0
+    ],
+    "delta_eff_axis_MHz": [
+      750.0,
+      1000.0,
+      1250.0
+    ],
+    "branch": -1,
+    "transit_rate_rad_s": 628318.5307179586
+  },
+  "stark_controls": [
+    {
+      "velocity_mps": -400.0,
+      "delta_eff_MHz": 1503.1579356009017,
+      "second_order_ground_shifts_MHz": [
+        65.24494251237896,
+        30.316638836771645
+      ],
+      "second_order_differential_shift_MHz": 34.92830367560731,
+      "exact_ground_energy_shifts_MHz": [
+        61.279726772007905,
+        30.31652147194222
+      ],
+      "exact_dressed_Raman_delta_MHz": 30.963205300065564,
+      "dissipative_Raman_pole_delta_MHz": 30.962994467755788,
+      "dissipative_Raman_HWHM_MHz": 0.2422439916095129
+    },
+    {
+      "velocity_mps": -200.0,
+      "delta_eff_MHz": 1251.578967800451,
+      "second_order_ground_shifts_MHz": [
+        77.80948835160562,
+        32.02137516558862
+      ],
+      "second_order_differential_shift_MHz": 45.788113186017,
+      "exact_ground_energy_shifts_MHz": [
+        71.70860178962363,
+        32.00931714993451
+      ],
+      "exact_dressed_Raman_delta_MHz": 39.699284639689324,
+      "dissipative_Raman_pole_delta_MHz": 39.69895209620496,
+      "dissipative_Raman_HWHM_MHz": 0.2869815345758077
+    },
+    {
+      "velocity_mps": 0.0,
+      "delta_eff_MHz": 1000.0000000000001,
+      "second_order_ground_shifts_MHz": [
+        96.4414705531845,
+        33.92962628481044
+      ],
+      "second_order_differential_shift_MHz": 62.51184426837406,
+      "exact_ground_energy_shifts_MHz": [
+        86.17106468490209,
+        33.90112766702829
+      ],
+      "exact_dressed_Raman_delta_MHz": 52.26993701787401,
+      "dissipative_Raman_pole_delta_MHz": 52.26938238654011,
+      "dissipative_Raman_HWHM_MHz": 0.35750688450967677
+    },
+    {
+      "velocity_mps": 200.0,
+      "delta_eff_MHz": 748.4210321995492,
+      "second_order_ground_shifts_MHz": [
+        127.0283009529623,
+        36.080230402656696
+      ],
+      "second_order_differential_shift_MHz": 90.9480705503056,
+      "exact_ground_energy_shifts_MHz": [
+        107.30143829967601,
+        36.02898541049125
+      ],
+      "exact_dressed_Raman_delta_MHz": 71.27245288918499,
+      "dissipative_Raman_pole_delta_MHz": 71.27146944824896,
+      "dissipative_Raman_HWHM_MHz": 0.4760798748359268
+    },
+    {
+      "velocity_mps": 400.0,
+      "delta_eff_MHz": 496.8420643990984,
+      "second_order_ground_shifts_MHz": [
+        186.97357761293742,
+        38.52260444311432
+      ],
+      "second_order_differential_shift_MHz": 148.4509731698231,
+      "exact_ground_energy_shifts_MHz": [
+        140.17354522136714,
+        38.43964088335895
+      ],
+      "exact_dressed_Raman_delta_MHz": 101.73390433800843,
+      "dissipative_Raman_pole_delta_MHz": 101.73207479543886,
+      "dissipative_Raman_HWHM_MHz": 0.6883441860338724
+    }
+  ],
+  "manual_L_relative_error_vs_production": 8.217486362761921e-17,
+  "pump_state_max_error_vs_production": 9.109240028577666e-15,
+  "manual_response_max_normalized_residual": 1.6994353348352167e-14,
+  "response_relative_error_vs_production_reference": 3.094463775350648e-14,
+  "finite_seed_comparisons": [
+    {
+      "reference_seed_power_uW": 3.9179870753406902,
+      "relative_Frobenius_error": 0.8119856536125141,
+      "max_absolute_error_seconds": 1.642760013276119e-08,
+      "per_detuning_relative_Frobenius_error": [
+        0.00010019706698323226,
+        0.00022833957153243893,
+        0.00026952508032309557,
+        0.001969495022784526,
+        0.8654262940841226,
+        0.4956605950367148
+      ]
+    },
+    {
+      "reference_seed_power_uW": 0.1,
+      "relative_Frobenius_error": 0.15493434896407327,
+      "max_absolute_error_seconds": 3.267834358962242e-09,
+      "per_detuning_relative_Frobenius_error": [
+        2.5577515611256013e-06,
+        5.829615331479315e-06,
+        6.8813955441037325e-06,
+        5.039129606069505e-05,
+        0.17048302461363177,
+        0.02527071622758085
+      ]
+    },
+    {
+      "reference_seed_power_uW": 0.01,
+      "relative_Frobenius_error": 0.018433939177973754,
+      "max_absolute_error_seconds": 3.890962664648612e-10,
+      "per_detuning_relative_Frobenius_error": [
+        2.5577607499809474e-07,
+        5.829653841427464e-07,
+        6.881448044893333e-07,
+        5.039420932016026e-06,
+        0.02029638869896703,
+        0.0025879581967851507
+      ]
+    },
+    {
+      "reference_seed_power_uW": 0.001,
+      "relative_Frobenius_error": 0.0018790951757769504,
+      "max_absolute_error_seconds": 3.966599934634932e-11,
+      "per_detuning_relative_Frobenius_error": [
+        2.557761447909402e-08,
+        5.829657511404645e-08,
+        6.881453975659654e-08,
+        5.039449987162236e-07,
+        0.0020690671116589516,
+        0.00025942086799444266
+      ]
+    },
+    {
+      "reference_seed_power_uW": 0.0001,
+      "relative_Frobenius_error": 0.00018827418811955107,
+      "max_absolute_error_seconds": 3.974325712892749e-12,
+      "per_detuning_relative_Frobenius_error": [
+        2.5577579231260056e-09,
+        5.829658178014749e-09,
+        6.881464503352201e-09,
+        5.039452018084469e-08,
+        0.00020730944304283726,
+        2.594835390878982e-05
+      ]
+    }
+  ],
+  "signed_zeeman_pump_control": {
+    "scope": "Illustrative exact 24-level Hamiltonian, linear q=0 pump, B=0, v=0; no dissipator or probe polarization/gain solve.",
+    "adoption_status": "diagnostic_only_not_adopted",
+    "origin": "analysis/grand_challenge/reference/uncoupled_d1.py",
+    "rows": [
+      {
+        "m": -2,
+        "same_m_dressed_Raman_delta_MHz": 37.32996917430563
+      },
+      {
+        "m": -1,
+        "same_m_dressed_Raman_delta_MHz": 42.493351009175974
+      },
+      {
+        "m": 0,
+        "same_m_dressed_Raman_delta_MHz": 44.20192375400266
+      },
+      {
+        "m": 1,
+        "same_m_dressed_Raman_delta_MHz": 42.49335100917307
+      },
+      {
+        "m": 2,
+        "same_m_dressed_Raman_delta_MHz": 37.3299691743011
+      }
+    ]
+  }
+}

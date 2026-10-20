@@ -8,6 +8,7 @@ Session state holds one entry per knob under `skey(scheme, name)`, which is
 what presets, default sets and `visible_if` read and write.
 """
 from html import escape
+import math
 
 import streamlit as st
 
@@ -26,6 +27,7 @@ def current_params(scheme_name, scheme_obj):
     return {
         sp.name: st.session_state.get(skey(scheme_name, sp.name), sp.default)
         for sp in scheme_obj.param_schema()
+        if sp.control != "derived_slider"
     }
 
 
@@ -150,13 +152,23 @@ def param_visible(scheme_name, sp):
     return True
 
 
-def render_rail(container, scheme, specs, skip=()):
+def render_rail(container, scheme, specs, skip=(), derived_slots=None):
     """Presets, then grouped knobs. Returns the full parameter dict.
 
     "Show advanced" reveals advanced knobs inside the group they belong to (a
     pump waist next to the pump power); advanced-only groups follow, folded
     when long.
     """
+    derived_slots = {} if derived_slots is None else derived_slots
+
+    def render_control(box, sp):
+        if sp.control == "derived_slider":
+            # Reserve the schema's position before solving. Fill it from this
+            # rerun's observables, without collecting a parameter or stale state.
+            derived_slots[sp.name] = (sp, box.empty(), scheme.name)
+        else:
+            params[sp.name] = render_param(box, scheme.name, sp, scheme)
+
     scheme_presets = scheme.presets()
     if scheme_presets and getattr(scheme, "presets_group", None):
         render_group_header(container, scheme.presets_group)
@@ -187,10 +199,10 @@ def render_rail(container, scheme, specs, skip=()):
         render_group_header(container, group)
         for sp in visible:
             if sp.group == group and not sp.advanced:
-                params[sp.name] = render_param(container, scheme.name, sp, scheme)
+                render_control(container, sp)
         if show_advanced:
             for sp in advanced_by_group.pop(group, []):
-                params[sp.name] = render_param(container, scheme.name, sp, scheme)
+                render_control(container, sp)
 
     if advanced:
         def _toggle_advanced(k=advanced_key):
@@ -208,9 +220,49 @@ def render_rail(container, scheme, specs, skip=()):
                     render_group_header(container, group)
                     box = container
                 for sp in group_specs:
-                    params[sp.name] = render_param(box, scheme.name, sp, scheme)
+                    render_control(box, sp)
 
     for sp in specs:
-        if sp.name not in params:
-            params[sp.name] = st.session_state[skey(scheme.name, sp.name)]
+        if sp.control != "derived_slider" and sp.name not in params:
+            params[sp.name] = st.session_state.get(
+                skey(scheme.name, sp.name), sp.default)
     return params
+
+
+def render_derived_params(derived_slots, readouts):
+    """Fill output-only slider rows from the current observable descriptor.
+
+    Values use each ParamSpec's display unit. Missing/non-finite values stay
+    unavailable; no slider position is invented. These widget states are never
+    copied into parameters or solve keys.
+    """
+    for name, (sp, slot, scheme_name) in derived_slots.items():
+        item = readouts.get(name) or {}
+        value = item.get("value")
+        status = item.get("status") or ""
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            value = float("nan")
+        lower = float(sp.vmin) if sp.vmin is not None else min(0.0, value)
+        upper = float(sp.vmax) if sp.vmax is not None else max(1.0, value)
+        available = (math.isfinite(value) and math.isfinite(lower)
+                     and math.isfinite(upper) and lower < upper
+                     and lower <= value <= upper)
+        label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
+        with slot.container():
+            _hover_label(st, label, sp.help)
+            if not available:
+                st.caption(status or "Unavailable")
+                continue
+            step = float(sp.step) if sp.step is not None else (upper - lower) / 1000.0
+            fmt = sp.format or "%.6g"
+            # Include the computed value in widget identity. A stable input key
+            # would restore the previous slider value after a readout changed.
+            st.slider(
+                label, min_value=lower, max_value=upper, value=value, step=step,
+                format=fmt, disabled=True, label_visibility="collapsed",
+                key=f"{scheme_name}__derived_{name}__{value.hex()}",
+            )
+            if status:
+                st.caption(status)

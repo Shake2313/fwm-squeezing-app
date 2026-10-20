@@ -199,7 +199,7 @@ def test_default_seeded_scan_uses_nf3_and_full_scan_gate():
     rendered = scheme.observables(
         spectrum, scheme.defaults(), include_figures=False)
     assert [metric["label"] for metric in rendered["metrics"]] == [
-        "Squeezing indicator", "Seed gain G_s", "Conjugate gain G_c"
+        "Squeezing Degree [dB]", "Seed gain G_s", "Conjugate gain G_c"
     ]
     assert not any(metric["label"] == "Floquet truncation"
                    for metric in rendered["metrics"])

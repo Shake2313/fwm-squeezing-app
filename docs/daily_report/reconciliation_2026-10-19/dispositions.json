@@ -1,0 +1,989 @@
+{
+  "origin": "ai_recheck_and_registry_mapping",
+  "reviewed_on": "2026-10-19",
+  "previous_report_cutoff": "2026-08-07",
+  "report_count": 55,
+  "finding_families": 85,
+  "dispositions": {
+    "accepted_or_retained": 61,
+    "implemented_current_pass": 5,
+    "already_fixed": 11,
+    "rejected": 8
+  },
+  "new_registry_items": [
+    "od-sas-optical-depth-log-convention",
+    "od-sas-normalization-reference-provenance",
+    "scheme-current-documentation-and-examples",
+    "od-sas-coated-readout-provenance",
+    "sas-local-readout-convergence-export",
+    "od-sas-csv-branch-selection",
+    "daily-review-validation-reproducibility",
+    "rydberg-layered-sweep-cache",
+    "rydberg-finite-if-affine-postprocess",
+    "rydberg-csv-acquisition-order",
+    "magneto-paraffin-exchange-dephasing-contract",
+    "magneto-dephasing-label-contract",
+    "magneto-jones-stokes-reference",
+    "magneto-lazy-fallback-stacks",
+    "shared-small-cache-and-loop-reuse",
+    "biphoton-finite-coincidence-gate",
+    "biphoton-reference-rate-and-bandwidth-planes",
+    "fwm-fast-displayed-readout-error-certificate",
+    "biphoton-angle-trace-vectorization",
+    "fwm-diagnostic-report-smoke",
+    "fwm-propagation-cache-partition"
+  ],
+  "findings": [
+    {
+      "id": "collision-contract",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 충돌 계수·pressure shift·pump/probe homogeneous 폭 계약",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "collisional-coefficient-provenance-and-pressure-shift"
+      ]
+    },
+    {
+      "id": "pump-rabi-provenance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 종·선·편광별 pump Rabi 규약과 잘못 표기된 비율 정정",
+      "verdict": "accept_existing_corrected",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "species-line-rabi-and-saturation-provenance"
+      ]
+    },
+    {
+      "id": "lambda-cold-angle",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ Lambda Doppler-off에서 beam angle이 스펙트럼을 바꾸는 결함",
+      "verdict": "implemented",
+      "disposition": "implemented_current_pass",
+      "priority": "P1",
+      "registry_ids": [
+        "lambda-spectrum-validity"
+      ]
+    },
+    {
+      "id": "lambda-grid-and-visibility",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ EIT/CPT linewidth·group index 수렴 및 visibility gate",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "lambda-spectrum-validity"
+      ]
+    },
+    {
+      "id": "lambda-joint-geometry",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 실제 probe-coupling Δk와 2-D 공동 Maxwell 상관",
+      "verdict": "accept_existing_expanded",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "lambda-spectrum-validity"
+      ]
+    },
+    {
+      "id": "lambda-model-semantics",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ Lambda scalar medium·ground-coherence dephasing·slow-light 의미 명시",
+      "verdict": "accept",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "lambda-spectrum-validity"
+      ]
+    },
+    {
+      "id": "od-log-convention",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ Decadic absorbance와 natural optical depth의 이름·export 구분",
+      "verdict": "accept",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "od-sas-optical-depth-log-convention"
+      ]
+    },
+    {
+      "id": "od-normalization-provenance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 열적 정규화의 독립 근거·versioned reference와 software-vs-experiment 경계",
+      "verdict": "accept",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "od-sas-normalization-reference-provenance"
+      ]
+    },
+    {
+      "id": "od-tighten-internal-anchor",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ AutoOD 내부 closure test의 허용오차를 명시된 0.1%에 맞춤",
+      "verdict": "accept_reframed",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "od-sas-normalization-reference-provenance"
+      ]
+    },
+    {
+      "id": "od-cache-revision",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ SAS cache version7을 현 정규화 후 갱신하라는 과거 제안",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P2",
+      "registry_ids": [
+        "od-sas-normalization-reference-provenance"
+      ]
+    },
+    {
+      "id": "od-isotope-ledger",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 이미 구현된 custom Rb isotope fraction과 새 원소 결정을 분리",
+      "verdict": "accept_partial_already_fixed",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "od-sas-isotope-fraction-and-element-coverage"
+      ]
+    },
+    {
+      "id": "guide-and-reproducible-examples",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ OD/SAS·Lambda Guide/그림/실행 예제 동기화",
+      "verdict": "accept",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "coated-export-provenance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 코팅 셀 figure/export의 population-only·T1 참조 표기",
+      "verdict": "accept",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "od-sas-coated-readout-provenance"
+      ]
+    },
+    {
+      "id": "sas-local-convergence-export",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 정량 lock·linewidth export의 고정창 수렴 상태 보존",
+      "verdict": "accept_existing_extension",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "sas-local-readout-convergence-export"
+      ]
+    },
+    {
+      "id": "sas-performance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ OD/SAS dense velocity arithmetic와 exact scalar/finite-probe 재사용",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "sas-od-dense-velocity-arithmetic"
+      ]
+    },
+    {
+      "id": "finite-probe-readout-performance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ Legendre node cache·per-frequency inversion loop의 작은 성능 후보",
+      "verdict": "accept_bounded_candidate",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "sas-od-dense-velocity-arithmetic"
+      ]
+    },
+    {
+      "id": "lambda-performance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ Lambda pole port·sparse affine update·BLAS controller 재사용",
+      "verdict": "accept_existing_restrict",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "lambda-pole-residue-doppler"
+      ]
+    },
+    {
+      "id": "completed-low-cost-work",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 이미 완료된 pump-off solve skip·CSV median·line-strength cache·running median",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P3",
+      "registry_ids": [
+        "experimental-csv-calibration-and-sweep-direction",
+        "sas-subdoppler-readout-trust"
+      ]
+    },
+    {
+      "id": "completed-core-features",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 이미 완료된 OD 분산·분리온도·코팅·CSV 의미 보존",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P2",
+      "registry_ids": [
+        "od-sas-dispersive-susceptibility",
+        "od-sas-independent-doppler-and-density-temperature",
+        "od-sas-paraffin-population-memory",
+        "experimental-csv-calibration-and-sweep-direction"
+      ]
+    },
+    {
+      "id": "csv-branch-view",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 보존된 CSV forward/reverse branch를 비교 UI에서 선택·overlay",
+      "verdict": "accept_optional",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "od-sas-csv-branch-selection"
+      ]
+    },
+    {
+      "id": "heavy-models",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ VCC·hyperfine/Zeeman·coated transport·segmented pump·physical spectrum fit",
+      "verdict": "accept_existing_keep_scoped",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "full-velocity-changing-collision-kernel",
+        "lambda-hyperfine-resolved-manifold",
+        "paraffin-coated-cell-extensions",
+        "od-sas-weak-probe-magneto-optical-reference-mode",
+        "od-sas-experimental-spectrum-fitting",
+        "od-sas-segmented-cell-propagation"
+      ]
+    },
+    {
+      "id": "reject-unvalidated-free-knobs",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 검증 없는 low-order 편광·Zeeman/Dicke·코팅 proxy 즉시 도입",
+      "verdict": "reject",
+      "disposition": "rejected",
+      "priority": "P2",
+      "registry_ids": []
+    },
+    {
+      "id": "reject-naive-optimizations",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 느려진 naive interpolation vectorization·단순 affine hoist 강제",
+      "verdict": "reject",
+      "disposition": "rejected",
+      "priority": "P3",
+      "registry_ids": []
+    },
+    {
+      "id": "park-tiny-caches-multirhs",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 추가 immutable atom/angular cache·coated multi-RHS",
+      "verdict": "park",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "shared-small-cache-and-loop-reuse"
+      ]
+    },
+    {
+      "id": "reject-old-baseline-restoration",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 오래된 49/25·raw hash·실험검증 표현을 correctness oracle로 복원",
+      "verdict": "reject",
+      "disposition": "rejected",
+      "priority": "P1",
+      "registry_ids": []
+    },
+    {
+      "id": "suite-reproducibility",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_1_2.json",
+      "title": "⟦AI⟧ 자동 리뷰의 공통 test 수집·문서·Windows capsule 실패 정리",
+      "verdict": "accept_cross_scheme",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "daily-review-validation-reproducibility"
+      ]
+    },
+    {
+      "id": "r3-opacity",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Expose participating opacity and qualify predicted sweeps",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "rydberg-effective-opacity-and-sweep-trust"
+      ]
+    },
+    {
+      "id": "r3-readout",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Add readout-specific resolution, edge and detector visibility diagnostics",
+      "verdict": "accepted_with_correction",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "rydberg-readout-validity-guardrails"
+      ]
+    },
+    {
+      "id": "r3-cache-correctness",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Close stale extra-view key mismatch; preserve unfinished cache work separately",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P1",
+      "registry_ids": [
+        "rydberg-extra-view-dependency-correctness"
+      ]
+    },
+    {
+      "id": "r3-layered-cache",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Separate atomic spectrum, finite-IF, optical propagation and detector caches",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "rydberg-layered-sweep-cache"
+      ]
+    },
+    {
+      "id": "r3-quick-performance",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Use affine finite-IF assembly and scalar-equivalent detector vectorization",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "rydberg-finite-if-affine-postprocess"
+      ]
+    },
+    {
+      "id": "r3-rho-reuse",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Do not claim free reuse of a density matrix the current pipeline does not retain",
+      "verdict": "rejected_as_immediate_patch",
+      "disposition": "rejected",
+      "priority": "P3",
+      "registry_ids": []
+    },
+    {
+      "id": "r3-calibration-data",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Keep held-out data and measured receiver transfer as external dependencies",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "rydberg-experimental-validation-dataset",
+        "rydberg-readout-transfer-function-validation"
+      ]
+    },
+    {
+      "id": "r3-spatial-polarization",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Retain conditional Zeeman and spatial RF extensions",
+      "verdict": "accepted_parked_or_external",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "rydberg-zeeman-polarization-reference-mode",
+        "rydberg-rf-field-map-import"
+      ]
+    },
+    {
+      "id": "r3-doppler-port",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Preserve discrete Maxwell measure when accelerating Rydberg Doppler-on",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "rydberg-doppler-on-pole-residue"
+      ]
+    },
+    {
+      "id": "r3-provenance-guide",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Synchronize Rydberg input evidence, user guide and stale static-only docstring",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "r3-csv-acquisition",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Preserve or disclose acquisition-order reversals in Rydberg trace import",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "rydberg-csv-acquisition-order"
+      ]
+    },
+    {
+      "id": "r3-csv-duplicate",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Do not reintroduce already-completed duplicate-median vectorization",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P3",
+      "registry_ids": [
+        "rydberg-experimental-analysis-report"
+      ]
+    },
+    {
+      "id": "r4-closed-physics",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Keep lifetime/elastic separation and light-state normalization closed",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P1",
+      "registry_ids": [
+        "magneto-dynamics-semantics",
+        "magneto-light-region-normalization"
+      ]
+    },
+    {
+      "id": "r4-convergence-zero",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Finish physical-zero, B-grid and reference applicability trust",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "magneto-observable-convergence-and-trust"
+      ]
+    },
+    {
+      "id": "r4-paraffin-rates",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Separate paraffin exchange from additional in-beam dephasing",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "magneto-paraffin-exchange-dephasing-contract"
+      ]
+    },
+    {
+      "id": "r4-collisional-name",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Match collisional depolarization UI to implemented ground pure dephasing",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "magneto-dephasing-label-contract"
+      ]
+    },
+    {
+      "id": "r4-nmor-gate",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Suppress unsupported elliptical/circular plane-rotation claims",
+      "verdict": "implemented",
+      "disposition": "implemented_current_pass",
+      "priority": "P1",
+      "registry_ids": [
+        "magneto-observable-convergence-and-trust"
+      ]
+    },
+    {
+      "id": "r4-stokes",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Keep general ellipse orientation/Jones-Stokes as separate optional extension",
+      "verdict": "accepted_parked_or_external",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "magneto-jones-stokes-reference"
+      ]
+    },
+    {
+      "id": "r4-preset-truth",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Expand exact-Doppler preset review to EIT and Buffer LCA labels",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "magneto-eit-dip-preset-exact-doppler"
+      ]
+    },
+    {
+      "id": "r4-stale-velocity",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Retire obsolete dense velocity default recommendations",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P3",
+      "registry_ids": [
+        "pole-residue-doppler-reuse",
+        "magneto-observable-convergence-and-trust"
+      ]
+    },
+    {
+      "id": "r4-lazy-stack",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Build dense B stacks only for off/fallback rows",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "magneto-lazy-fallback-stacks"
+      ]
+    },
+    {
+      "id": "r4-stale-artifacts",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Regenerate or explicitly retire stale Hanle system-study artifacts",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "r4-guide-cleanup",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Update Magneto guide and remove ignored velocity-class controls",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "shared-small-cache",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Profile BLAS controller reuse and immutable angular-momentum cache",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "shared-small-cache-and-loop-reuse"
+      ]
+    },
+    {
+      "id": "shared-physical-extensions",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Keep sourced collision and geometry/VCC/open-manifold dependencies distinct",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "collisional-coefficient-provenance-and-pressure-shift",
+        "geometry-aware-buffer-relaxation-budget",
+        "full-velocity-changing-collision-kernel",
+        "paraffin-coated-cell-extensions"
+      ]
+    },
+    {
+      "id": "shared-export",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Keep result export coverage and round-trip checks within existing app item",
+      "verdict": "accepted",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "app-result-export-and-provenance"
+      ]
+    },
+    {
+      "id": "rejected-doublet-visibility",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Reject blanket unresolved-doublet or low-transmission invalidation",
+      "verdict": "rejected_overbroad_inference",
+      "disposition": "rejected",
+      "priority": "P1",
+      "registry_ids": []
+    },
+    {
+      "id": "rejected-cost-free-heavy",
+      "source": "docs/daily_report/reconciliation_2026-10-19/schemes_3_4.json",
+      "title": "Reject negligible-cost full physics and unjustified retuning",
+      "verdict": "rejected_scope_or_cost_claim",
+      "disposition": "rejected",
+      "priority": "P2",
+      "registry_ids": []
+    },
+    {
+      "id": "FWM-01",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Biphoton observable provenance must remain separate",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "biphoton-source-trust-boundary"
+      ]
+    },
+    {
+      "id": "FWM-02",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Coincidence gate and histogram g2 were physically conflated",
+      "verdict": "accepted_and_patched",
+      "disposition": "implemented_current_pass",
+      "priority": "P1",
+      "registry_ids": [
+        "biphoton-finite-coincidence-gate"
+      ]
+    },
+    {
+      "id": "FWM-03",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Scalar bandwidth throughput is not a spectral filter model",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "biphoton-source-trust-boundary",
+        "biphoton-heldout-validation-dataset"
+      ]
+    },
+    {
+      "id": "FWM-04",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Anchored brightness and waveform-norm relative rate",
+      "verdict": "accept_existing_with_scope_correction",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "biphoton-source-trust-boundary",
+        "biphoton-heldout-validation-dataset"
+      ]
+    },
+    {
+      "id": "FWM-05",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Literature table mixed raw/filter rates and validated a configured bandwidth",
+      "verdict": "accepted_and_patched",
+      "disposition": "implemented_current_pass",
+      "priority": "P1",
+      "registry_ids": [
+        "biphoton-reference-rate-and-bandwidth-planes"
+      ]
+    },
+    {
+      "id": "FWM-06",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Legacy coincidence test calls noncanonical production gain nonclassical",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-gain-only-trust-boundary",
+        "biphoton-source-trust-boundary"
+      ]
+    },
+    {
+      "id": "FWM-07",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Seeded gain-only/noise trust boundary after L1/Jasperse work",
+      "verdict": "partly_already_fixed",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-passive-l1-readout",
+        "fwm-jasperse-nf-seed-noise-efficiencies"
+      ]
+    },
+    {
+      "id": "FWM-08",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Unequal-loss balanced covariance needs physical input",
+      "verdict": "accept_existing_reject_cheap_synthesis",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-balanced-readout-covariance-correction"
+      ]
+    },
+    {
+      "id": "FWM-09",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Option-A/loss ledger and self-consistent depletion",
+      "verdict": "accept_existing_partial_done",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-option-a-and-loss-ledger",
+        "fwm-mean-gain-plane-carrier-corrections"
+      ]
+    },
+    {
+      "id": "FWM-10",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Normalization/residual/input provenance",
+      "verdict": "accept_existing_partial_done",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-coupling-normalization-audit",
+        "fwm-reference-parameter-provenance",
+        "fwm-line-strength-factorization"
+      ]
+    },
+    {
+      "id": "FWM-11",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Production Fast detector-dependent source sampling is already fixed",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-fast-detector-independent-sampling"
+      ]
+    },
+    {
+      "id": "FWM-12",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Production detector/noise knobs no longer invalidate atomic cache",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-gain-only-trust-boundary",
+        "fwm-passive-l1-readout"
+      ]
+    },
+    {
+      "id": "FWM-13",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Fast displayed-axis and adjacent-order error certificate remains narrower than full scan",
+      "verdict": "accept_followup",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-fast-displayed-readout-error-certificate"
+      ]
+    },
+    {
+      "id": "FWM-14",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ 4sigma Maxwell cutoff and scanner measure decisions",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "fwm-ultra-maxwell-cutoff-scope",
+        "squeezing-scanner-converged-velocity-measure"
+      ]
+    },
+    {
+      "id": "FWM-15",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Old constant-N/gain-proportional noise widget failures are stale",
+      "verdict": "reject_stale",
+      "disposition": "rejected",
+      "priority": "P1",
+      "registry_ids": []
+    },
+    {
+      "id": "FWM-16",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Hidden ten-point/tier-specific empirical gain correction was retired",
+      "verdict": "reject_stale_current_code_claim",
+      "disposition": "rejected",
+      "priority": "P1",
+      "registry_ids": []
+    },
+    {
+      "id": "FWM-17",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Absolute gain/peak physics remains unresolved",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-tpd-gain-physical-replacement",
+        "fwm-reference-parameter-provenance"
+      ]
+    },
+    {
+      "id": "FWM-18",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Finite-seed 2D angular Doppler production",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "fwm-finite-seed-angular-doppler-production",
+        "fwm-angular-doppler-reference",
+        "fwm-pump-state-linear-response-reference"
+      ]
+    },
+    {
+      "id": "FWM-19",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Microscopic Langevin/RF/full thermal propagation remains separate research",
+      "verdict": "accept_existing_reject_blanket_deferral",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "fwm-quantum-langevin-microscopic-core",
+        "fwm-rf-squeezing-spectrum-and-bandwidth"
+      ]
+    },
+    {
+      "id": "FWM-20",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Full Zeeman reference",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "fwm-zeeman-resolved-reference-mode"
+      ]
+    },
+    {
+      "id": "FWM-21",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Independent biphoton and squeezing validation datasets",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "biphoton-heldout-validation-dataset",
+        "fwm-squeezing-spectrum-heldout-validation"
+      ]
+    },
+    {
+      "id": "FWM-22",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Coupled tolerance and robust regions",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "fwm-joint-tolerance-and-robust-operating-region"
+      ]
+    },
+    {
+      "id": "FWM-23",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Guide/README figures, names, solver scope and retired gain/noise text",
+      "verdict": "accept_existing_expand",
+      "disposition": "accepted_or_retained",
+      "priority": "P1",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "FWM-24",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Delta-temperature scanner is a historical diagnostic and has stale physics-facing names",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "FWM-25",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Low-pump conclusion overstates conditional ideal-law result",
+      "verdict": "accept_existing",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "scheme-current-documentation-and-examples"
+      ]
+    },
+    {
+      "id": "FWM-26",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Pole-row and full-scan source reuse is already implemented",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P3",
+      "registry_ids": [
+        "pole-residue-doppler-reuse",
+        "fwm-fast-balanced-pole-residue-tiers"
+      ]
+    },
+    {
+      "id": "FWM-27",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Biphoton opposite-channel cache and lazy phase map already exist",
+      "verdict": "already_fixed",
+      "disposition": "already_fixed",
+      "priority": "P3",
+      "registry_ids": [
+        "fwm-batch-cache-and-map-separation"
+      ]
+    },
+    {
+      "id": "FWM-28",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ One-dimensional biphoton angle trace vectorization",
+      "verdict": "accept_low_priority",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "biphoton-angle-trace-vectorization"
+      ]
+    },
+    {
+      "id": "FWM-29",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Historical test discovery/Scrub failures retired; current nested capsule path reproduced by root",
+      "verdict": "mixed_stale_failures_rejected_current_capsule_failure_patched_by_root",
+      "disposition": "implemented_current_pass",
+      "priority": "P2",
+      "registry_ids": [
+        "daily-review-validation-reproducibility"
+      ]
+    },
+    {
+      "id": "FWM-30",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Thermal/excess-noise diagnostic report has no cheap schema/regeneration smoke",
+      "verdict": "accept_small_new_subscope",
+      "disposition": "accepted_or_retained",
+      "priority": "P2",
+      "registry_ids": [
+        "fwm-diagnostic-report-smoke"
+      ]
+    },
+    {
+      "id": "FWM-31",
+      "source": "docs/daily_report/reconciliation_2026-10-19/scheme_5.json",
+      "title": "⟦AI⟧ Atomic-response versus propagation cache partition is optional after retired hotfix",
+      "verdict": "accept_only_measured_bottleneck",
+      "disposition": "accepted_or_retained",
+      "priority": "P3",
+      "registry_ids": [
+        "fwm-propagation-cache-partition"
+      ]
+    }
+  ]
+}

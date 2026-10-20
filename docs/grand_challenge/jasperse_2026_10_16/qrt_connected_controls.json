@@ -1,0 +1,380 @@
+[
+  {
+    "delta_MHz": 0.0,
+    "velocity_m_s": -200.0,
+    "direct_seconds": 0.0040197999915108085,
+    "full_seconds": 0.0459471000067424,
+    "maximum_relative_error": 6.94999613415348e-14,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 14.29080083717302,
+        "alpha_em_per_m": 11.266507189810907,
+        "alpha_net_per_m": 3.024293647362112,
+        "kubo_relative_residual": 3.107518010431608e-17
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 2.504093595379121,
+        "alpha_em_per_m": 3.212519735301853,
+        "alpha_net_per_m": -0.708426139922732,
+        "kubo_relative_residual": 1.0367777782888904e-16
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 4.440908478703263e-16,
+        "maximum_state_hermiticity_error": 1.754483967142605e-15,
+        "minimum_phase_sampled_state_eigenvalue": 0.0012210587082132982,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.01884183272769299,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 0.0,
+    "velocity_m_s": 0.0,
+    "direct_seconds": 0.0035860000061802566,
+    "full_seconds": 0.04758039998705499,
+    "maximum_relative_error": 2.595701431573616e-12,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 11.243346438792956,
+        "alpha_em_per_m": 8.257966537052889,
+        "alpha_net_per_m": 2.985379901740066,
+        "kubo_relative_residual": 1.1849386984585483e-16
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 1.5652040772415645,
+        "alpha_em_per_m": 2.2251875238421643,
+        "alpha_net_per_m": -0.6599834466005998,
+        "kubo_relative_residual": 0.0
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 4.440893317725679e-16,
+        "maximum_state_hermiticity_error": 2.7505583275353042e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0015299665704502086,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.022207037637247795,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 0.0,
+    "velocity_m_s": 200.0,
+    "direct_seconds": 0.0036844999995082617,
+    "full_seconds": 0.04797990000224672,
+    "maximum_relative_error": 6.95310475862243e-12,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 8.611186395113688,
+        "alpha_em_per_m": 5.5474977297288905,
+        "alpha_net_per_m": 3.063688665384797,
+        "kubo_relative_residual": 0.0
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 0.849088193022782,
+        "alpha_em_per_m": 1.4738091093228909,
+        "alpha_net_per_m": -0.624720916300109,
+        "kubo_relative_residual": 7.533017794517663e-17
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 2.2204520214911e-16,
+        "maximum_state_hermiticity_error": 4.5856500221483035e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0019942337547164965,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.026160705976690436,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 23.7,
+    "velocity_m_s": -200.0,
+    "direct_seconds": 0.003980599984060973,
+    "full_seconds": 0.04690149999805726,
+    "maximum_relative_error": 6.853406731011091e-13,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 132.69163579985096,
+        "alpha_em_per_m": 102.39678117409356,
+        "alpha_net_per_m": 30.294854625757395,
+        "kubo_relative_residual": 0.0
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 14.831887077382397,
+        "alpha_em_per_m": 19.488790078429965,
+        "alpha_net_per_m": -4.656903001047566,
+        "kubo_relative_residual": 4.5573810181431116e-17
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 2.220481436514554e-16,
+        "maximum_state_hermiticity_error": 4.101446628191029e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0012216146600277785,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.01886676751584424,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 23.7,
+    "velocity_m_s": 0.0,
+    "direct_seconds": 0.003635100001702085,
+    "full_seconds": 0.0462575999845285,
+    "maximum_relative_error": 1.6542323066914832e-12,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 53.96475879281964,
+        "alpha_em_per_m": 38.564142258386624,
+        "alpha_net_per_m": 15.400616534433013,
+        "kubo_relative_residual": 0.0
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 5.0256691981576385,
+        "alpha_em_per_m": 7.309736096980927,
+        "alpha_net_per_m": -2.284066898823289,
+        "kubo_relative_residual": 0.0
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 2.2204481665278087e-16,
+        "maximum_state_hermiticity_error": 4.2756347323954535e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0015302867648475339,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.022220233241405506,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 23.7,
+    "velocity_m_s": 200.0,
+    "direct_seconds": 0.0036139999865554273,
+    "full_seconds": 0.04701149999164045,
+    "maximum_relative_error": 5.147215986767151e-12,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 26.122121759735045,
+        "alpha_em_per_m": 16.26534076829117,
+        "alpha_net_per_m": 9.856780991443875,
+        "kubo_relative_residual": 6.800201207768461e-17
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 1.817751770502722,
+        "alpha_em_per_m": 3.216523057056864,
+        "alpha_net_per_m": -1.3987712865541422,
+        "kubo_relative_residual": 0.0
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 3.330669074745474e-16,
+        "maximum_state_hermiticity_error": 5.988994388506422e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.001994480830533851,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.026169199568652927,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 52.269382,
+    "velocity_m_s": -200.0,
+    "direct_seconds": 0.003622799995355308,
+    "full_seconds": 0.04510020001907833,
+    "maximum_relative_error": 4.04343225568482e-13,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 331.20320153834786,
+        "alpha_em_per_m": 244.92429017755975,
+        "alpha_net_per_m": 86.2789113607881,
+        "kubo_relative_residual": 0.0
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 23.333980161333592,
+        "alpha_em_per_m": 31.077313366730372,
+        "alpha_net_per_m": -7.74333320539678,
+        "kubo_relative_residual": 0.0
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 3.330687164402646e-16,
+        "maximum_state_hermiticity_error": 3.960765952732442e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.0012243387285484602,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.018934097385742872,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 52.269382,
+    "velocity_m_s": 0.0,
+    "direct_seconds": 0.0035954000195488334,
+    "full_seconds": 0.04645449999952689,
+    "maximum_relative_error": 3.1086244689504383e-15,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 69855.84319763174,
+        "alpha_em_per_m": 68007.50420654274,
+        "alpha_net_per_m": 1848.338991088991,
+        "kubo_relative_residual": 7.811756269549363e-17
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 6073.096249026966,
+        "alpha_em_per_m": 6238.0463336853045,
+        "alpha_net_per_m": -164.95008465833874,
+        "kubo_relative_residual": 4.556187612286148e-18
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 2.224004960390841e-16,
+        "maximum_state_hermiticity_error": 4.330953612520184e-15,
+        "minimum_phase_sampled_state_eigenvalue": 0.0022836273392792027,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.043167935469714466,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  },
+  {
+    "delta_MHz": 52.269382,
+    "velocity_m_s": 200.0,
+    "direct_seconds": 0.0036136999842710793,
+    "full_seconds": 0.046048799995332956,
+    "maximum_relative_error": 6.581402089977928e-13,
+    "rates": {
+      "probe": {
+        "alpha_abs_per_m": 232.24141433897987,
+        "alpha_em_per_m": 135.3446709179649,
+        "alpha_net_per_m": 96.89674342101496,
+        "kubo_relative_residual": 6.11900110738209e-17
+      },
+      "conjugate": {
+        "alpha_abs_per_m": 10.87578218749497,
+        "alpha_em_per_m": 19.47282415156618,
+        "alpha_net_per_m": -8.597041964071211,
+        "kubo_relative_residual": 9.122235303795828e-17
+      },
+      "reservoirs": {
+        "dissipator_relative_error": 1.4412732636322982e-16,
+        "ground_collision_dephasing_s_inverse": 11218.99200484083,
+        "optical_collision_dephasing_s_inverse": 2916782.4715778083,
+        "positive_dephasing_construction_margin_s_inverse": 2913977.723576598,
+        "transit_reset_s_inverse": 628318.5307179586,
+        "reservoir_scope": "declared four-level radiative, collisional and Markov-reset model"
+      },
+      "atomic_diagnostics": {
+        "maximum_state_trace_error": 2.220453345024348e-16,
+        "maximum_state_hermiticity_error": 2.71287558376926e-14,
+        "minimum_phase_sampled_state_eigenvalue": 0.001998860657437,
+        "analytic_trace_zero_contraction_bound_s_inverse": 628318.5307179586,
+        "source_covariance_harmonic_order": 6,
+        "passed": true
+      },
+      "mean_order": 3,
+      "response_order": 3,
+      "method": "connected-qrt",
+      "mean_excited_population": 0.026286910597197757,
+      "scope": "same conditional reduced Lindblad; connected ordered QRT; finite harmonic convergence required"
+    }
+  }
+]

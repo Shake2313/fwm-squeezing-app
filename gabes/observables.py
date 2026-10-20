@@ -195,7 +195,8 @@ def canonical_transfer_diagnostics(
     }
 
 
-def pump_depletion_saturation(G_s, G_c, P_pump, P_seed):
+def pump_depletion_saturation(
+        G_s, G_c, P_pump, P_seed, *, legacy_probe_floor=False):
     """
     Energy-conservation (pump-depletion) saturation of the small-signal FWM gains.
 
@@ -214,14 +215,22 @@ def pump_depletion_saturation(G_s, G_c, P_pump, P_seed):
         G_s_sat = 1 + (G_s−1) / (1 + (G_s−1)·P_seed / P_cap),   P_cap = P_pump/2
         G_c_sat =      G_c    / (1 +  G_c   ·P_seed / P_cap)
 
-    so (G_s−1) and G_c saturate identically (preserving the twin-beam relation
-    G_c ≈ G_s − 1). Returns the saturated (G_s, G_c).
+    so positive (G_s−1) and G_c saturate identically (preserving the twin-beam
+    relation G_c ≈ G_s − 1). Passive probe transmission G_s <= 1 is retained:
+    a pump-energy limit cannot restore absorbed seed photons.
+
+    ``legacy_probe_floor=True`` reproduces the historical G_s >= 1 display
+    floor solely for explicitly labelled numerical fixtures. Returns the
+    saturated (G_s, G_c); this heuristic does not deplete the atomic pump state.
     """
     P_seed = max(float(P_seed), 1e-30)
     P_cap = max(0.5 * float(P_pump), 1e-30)
-    gain_part = np.maximum(np.asarray(G_s, dtype=float) - 1.0, 0.0)
+    probe = np.asarray(G_s, dtype=float)
+    gain_part = np.maximum(probe - 1.0, 0.0)
     conj = np.maximum(np.asarray(G_c, dtype=float), 0.0)
     G_s_sat = 1.0 + gain_part / (1.0 + gain_part * P_seed / P_cap)
+    if not legacy_probe_floor:
+        G_s_sat = np.where(probe <= 1.0, probe, G_s_sat)
     G_c_sat = conj / (1.0 + conj * P_seed / P_cap)
     return G_s_sat, G_c_sat
 
@@ -282,6 +291,74 @@ def _smooth_same(y, x, fwhm):
     return full[start:start + y.size]
 
 
+def _biphoton_delay_density(tau, intensity, window_ns, timing_fwhm_ns):
+    """Normalize the sampled source and integrate a zero-centred, full-width gate.
+
+    The source density is piecewise linear on the supplied delay domain and zero
+    outside it. Gaussian timing tails are retained on the whole real line, even
+    when the supplied (usually causal) plotting axis starts at zero. The existing
+    scalar filter changes the rate only; it supplies no spectral reshaping.
+    """
+    from scipy.special import ndtr
+
+    if (tau.ndim != 1 or intensity.shape != tau.shape or tau.size < 2
+            or not np.all(np.isfinite(tau))
+            or not np.all(np.diff(tau) > 0)
+            or not np.all(np.isfinite(intensity))):
+        raise ValueError("Biphoton delay samples must be finite and strictly increasing")
+    mass = float(np.trapezoid(intensity, tau))
+    if mass <= 0:
+        return np.zeros_like(tau), 0.0
+    pdf = intensity / mass
+    width = max(float(window_ns), 0.0)
+    low, high = -width / 2.0, width / 2.0
+    sigma = max(float(timing_fwhm_ns), 0.0) / 2.354820045
+    if sigma == 0.0:
+        inner = tau[(tau > low) & (tau < high)]
+        edges = np.concatenate(([max(low, tau[0])], inner,
+                                [min(high, tau[-1])]))
+        capture = (float(np.trapezoid(np.interp(edges, tau, pdf), edges))
+                   if edges[-1] > edges[0] else 0.0)
+        return pdf, float(np.clip(capture, 0.0, 1.0))
+
+    left, right = tau[:-1], tau[1:]
+    slope = np.diff(pdf) / (right - left)
+    # The app supplies 481 points, but callers may provide longer traces. Bound
+    # the Gaussian work arrays rather than allocating an unbounded N-by-N grid.
+    detected = np.empty_like(tau)
+    rows_per_chunk = max(1, 65_536 // left.size)
+    for start in range(0, tau.size, rows_per_chunk):
+        positions = tau[start:start + rows_per_chunk, None]
+        z_left = (positions - left) / sigma
+        z_right = (positions - right) / sigma
+        phi_left = np.exp(-0.5 * z_left**2) / np.sqrt(2.0 * np.pi)
+        phi_right = np.exp(-0.5 * z_right**2) / np.sqrt(2.0 * np.pi)
+        probability = ndtr(z_left) - ndtr(z_right)
+        detected[start:start + rows_per_chunk] = np.sum(
+            (pdf[:-1] + slope * (positions - left)) * probability
+            + slope * sigma * (phi_left - phi_right), axis=1)
+
+    def cdf_at(edge):
+        # Analytic convolution of each linear source segment with a Gaussian CDF.
+        z0, z1 = (edge - left) / sigma, (edge - right) / sigma
+        p0, p1 = ndtr(z0), ndtr(z1)
+        f0 = np.exp(-0.5 * z0**2) / np.sqrt(2.0 * np.pi)
+        f1 = np.exp(-0.5 * z1**2) / np.sqrt(2.0 * np.pi)
+        h0 = (z0 * p0 + f0) - (z1 * p1 + f1)
+        h1 = 0.5 * (((z0**2 - 1.0) * p0 + z0 * f0)
+                    - ((z1**2 - 1.0) * p1 + z1 * f1))
+        segment = (pdf[:-1] * sigma * h0
+                   + slope * (sigma * (edge - left) * h0 - sigma**2 * h1))
+        # Avoid cancellation far from the gate and retain full source mass.
+        segment = np.where(z1 > 9.0,
+                           0.5 * (pdf[:-1] + pdf[1:]) * (right - left), segment)
+        segment = np.where(z0 < -9.0, 0.0, segment)
+        return float(np.sum(segment))
+
+    capture = cdf_at(high) - cdf_at(low) if width > 0 else 0.0
+    return np.maximum(detected, 0.0), float(np.clip(capture, 0.0, 1.0))
+
+
 def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
                    signal_eff=0.1, idler_eff=0.1,
                    dark_signal_cps=0.0, dark_idler_cps=0.0,
@@ -296,6 +373,11 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     signal-idler timing-difference response, coincidence window and finite filter
     bandwidth are folded into the returned count-rate and correlation observables.
 
+    ``coincidence_cps`` and CAR use the symmetric gate ``[-W/2, W/2]``; the
+    former all-time coincidence is explicit as ``all_time_coincidence_cps``.
+    Histogram g2 uses a normalized delay density and is independent of W.
+    The source density is conditional on the supplied finite delay domain, with
+    a Gaussian timing response and scalar (non-reshaping) filter throughput.
     ``source_fwhm_ns`` is measured from ``|waveform|^2`` before timing smoothing;
     ``detected_fwhm_ns`` is measured after it. The legacy ``fwhm_ns`` key remains
     an alias for the detected width.
@@ -314,31 +396,34 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
         filter_transmission = 1.0
     pair_rate = max(float(pair_rate_cps), 0.0) * filter_transmission
 
-    intensity = _smooth_same(intensity, tau_axis_ns, timing_jitter_ns)
-    if np.nanmax(intensity) > 0:
-        intensity = intensity / np.nanmax(intensity)
-    detected_fwhm_ns = fwhm_interp(tau_axis_ns, intensity)
+    detected_pdf, gate_capture = _biphoton_delay_density(
+        tau_axis_ns, intensity, coincidence_window_ns, timing_jitter_ns)
+    detected_fwhm_ns = fwhm_interp(tau_axis_ns, detected_pdf)
 
     eta_s = np.clip(float(signal_eff), 0.0, 1.0)
     eta_i = np.clip(float(idler_eff), 0.0, 1.0)
     singles_signal = pair_rate * eta_s + max(float(dark_signal_cps), 0.0)
     singles_idler = pair_rate * eta_i + max(float(dark_idler_cps), 0.0)
-    coincidence = pair_rate * eta_s * eta_i
-    accidental = singles_signal * singles_idler * max(float(coincidence_window_ns), 0.0) * 1e-9
-    raw_accidental = accidental
-    raw_car = coincidence / max(raw_accidental, 1e-30)
-    added_accidental = 0.0
+    all_time_coincidence = pair_rate * eta_s * eta_i
+    coincidence = all_time_coincidence * gate_capture
+    window_s = max(float(coincidence_window_ns), 0.0) * 1e-9
+    raw_accidental_density = singles_signal * singles_idler
+    peak_density_hz = float(np.max(detected_pdf)) * 1e9
+    raw_peak_excess = (all_time_coincidence * peak_density_hz
+                       / max(raw_accidental_density, 1e-30))
+    accidental_density = raw_accidental_density
     if target_g2_peak is not None:
-        target_car = max(float(target_g2_peak) - 1.0, 0.0)
-        if target_car > 0 and target_car < raw_car:
-            accidental = coincidence / target_car
-            added_accidental = max(accidental - raw_accidental, 0.0)
-            car = target_car
-        else:
-            car = raw_car
-    else:
-        car = raw_car
-    g2_tau = 1.0 + car * intensity
+        target_excess = max(float(target_g2_peak) - 1.0, 0.0)
+        if target_excess > 0:
+            accidental_density = max(
+                accidental_density, all_time_coincidence * peak_density_hz / target_excess)
+    raw_accidental = raw_accidental_density * window_s
+    accidental = accidental_density * window_s
+    added_accidental = (accidental_density - raw_accidental_density) * window_s
+    raw_car = coincidence / max(raw_accidental, 1e-30)
+    car = coincidence / max(accidental, 1e-30)
+    g2_tau = (1.0 + all_time_coincidence * detected_pdf * 1e9
+              / max(accidental_density, 1e-30))
     g2_peak = float(np.nanmax(g2_tau)) if g2_tau.size else np.nan
     return {
         "g2_SI_tau": g2_tau,
@@ -350,6 +435,13 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
         "singles_signal_cps": singles_signal,
         "singles_idler_cps": singles_idler,
         "coincidence_cps": coincidence,
+        "all_time_coincidence_cps": all_time_coincidence,
+        "gate_captured_coincidence_cps": coincidence,
+        "gate_capture_fraction": gate_capture,
+        "coincidence_gate_convention": "symmetric [-W/2, W/2] about zero delay",
+        "delay_density_normalization": "supplied finite source delay domain; full Gaussian timing tails",
+        "detected_delay_density_per_ns": detected_pdf,
+        "filter_model": "scalar throughput; no temporal reshaping",
         "accidental_cps": accidental,
         "raw_accidental_cps": raw_accidental,
         "added_accidental_cps": added_accidental,
@@ -359,7 +451,7 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
         "heralding_idler": coincidence / max(singles_signal, 1e-30),
         "cauchy_schwarz_R": g2_peak ** 2 / 4.0,
         "g2_peak": g2_peak,
-        "raw_g2_peak": 1.0 + raw_car,
+        "raw_g2_peak": 1.0 + raw_peak_excess,
         "filter_transmission": filter_transmission,
     }
 

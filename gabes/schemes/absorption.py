@@ -42,23 +42,25 @@ def _ne_buffer_gamma(params):
     return constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
 
 
-def _affine_scan_coeffs(atom, build_H0):
+def _affine_scan_coeffs(atom, build_H0, scan_shift=None):
     """Constant pieces of L(s, kv) = base + s·A_coef + kv·B_coef.
 
     Valid only when `build_H0(s)` is affine in the scan variable s — true for
     the Λ (two-photon detuning) and Rydberg ladders. The s-independent drive
     entries are bit-identical between build_H0(0) and build_H0(1), so the
     difference isolates dL/ds exactly with no cancellation. The optical Doppler
-    shift enters separately as −Δ_eff·S_v with Δ_eff = s − kv, hence
-    A_coef = dL/ds − S_v (the s part) and B_coef = S_v (the +k·v part).
+    shift enters as −s·scan_shift + kv·S_v.  These operators coincide for
+    the legacy optical-only shift, but a residual Raman Doppler term belongs
+    only in S_v and must not change a stationary atom's scan Hamiltonian.
     """
     base = core.build_liouvillian(build_H0(0.0), atom)
     dL_ds = core.build_liouvillian(build_H0(1.0), atom) - base
-    return base, dL_ds - atom.S_v, atom.S_v
+    scan_shift = atom.S_v if scan_shift is None else scan_shift
+    return base, dL_ds - scan_shift, atom.S_v
 
 
 def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
-                   probe_omega=None, k_vec=None, mass=None):
+                   probe_omega=None, k_vec=None, mass=None, scan_shift=None):
     """
     χ̄(scan) = probe coherence ρ_eg / Ω_p, Doppler-averaged over the Maxwell
     velocity distribution (optical shift plus optional per-level residual shifts).
@@ -75,6 +77,7 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     om_p = PROBE_RABI * GAMMA if probe_omega is None else probe_omega
     k_vec = K_VEC if k_vec is None else k_vec
     mass = constants.MASS_85RB if mass is None else mass
+    scan_shift = atom.S_v if scan_shift is None else scan_shift
     n = atom.n_levels
     doppler_on = params.get("doppler", "off") == "on"
 
@@ -86,7 +89,8 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         # Scan-dependent H, single (v = 0) class: Δ_eff = s. Fold the scan loop
         # into the affine kernel (kv = 0, unit weight) when available.
         if kernels.available():
-            base, A_coef, B_coef = _affine_scan_coeffs(atom, build_H0)
+            base, A_coef, B_coef = _affine_scan_coeffs(
+                atom, build_H0, scan_shift=scan_shift)
             with core.blas_single_thread():
                 out = kernels.affine_scan_chi(
                     base, A_coef, B_coef,
@@ -96,7 +100,7 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         out = np.zeros(scan.size, dtype=complex)
         for i, s in enumerate(scan):
             L0 = core.build_liouvillian(build_H0(s), atom)
-            rho = core.steady_state_batched(L0, np.array([s]), atom.S_v, n)
+            rho = core.steady_state_batched(L0, np.array([s]), scan_shift, n)
             out[i] = rho[0, e, g] / om_p
         return out
 
@@ -125,7 +129,8 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     v, w = doppler.velocity_grid(T, mass=mass, dv=2.0, cutoff_sigma=4.0)
     kv = k_vec * v
     if kernels.available():
-        base, A_coef, B_coef = _affine_scan_coeffs(atom, build_H0)
+        base, A_coef, B_coef = _affine_scan_coeffs(
+            atom, build_H0, scan_shift=scan_shift)
         with core.blas_single_thread():
             out = kernels.affine_scan_chi(
                 base, A_coef, B_coef,
@@ -135,8 +140,8 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         return out / om_p
     out = np.zeros(scan.size, dtype=complex)
     for i, s in enumerate(scan):
-        L0 = core.build_liouvillian(build_H0(s), atom)
-        rho = core.steady_state_batched(L0, s - kv, atom.S_v, n)
+        L0 = core.build_liouvillian(build_H0(s), atom) - s * scan_shift
+        rho = core.steady_state_batched(L0, -kv, atom.S_v, n)
         out[i] = ((rho[:, e, g] / om_p) * w).sum()
     return out
 
@@ -146,13 +151,13 @@ def _hyperfine_alpha(scan, params, line_strength=None):
     Realistic 85Rb D1 absorption coefficient α(scan) [1/m]: an incoherent sum of
     the four hyperfine transitions (Fg∈{2,3}→Fe∈{2,3}), each a Doppler-broadened
     Voigt placed at its line-center detuning, weighted by the validated
-    Clebsch-Gordan strength C_F² and ground population p_F, with self-broadening.
+    Clebsch-Gordan strength C_F² and thermal sublevel population, with self-broadening.
 
     The Voigt *shape* is produced once by the OBE Doppler kernel (a genuine OBE
     solve — no analytic wofz) on a fine grid, normalised to unit area, then
-    shifted/scaled per line. The per-line integrated absorption reproduces the
-    lab-validated AutoOD scaling:
-        ∫α_F dδ = π · k · p_F · C_F² · |d|² · N / (ε₀ℏ) / (2(2I+1)).
+    shifted/scaled per line. Since C_F² sums initial magnetic sublevels,
+    the thermal population is included exactly once:
+        ∫α_F dδ = π · k · C_F² · |d|² · N / (ε₀ℏ) / (2(2I+1)).
 
     Returns (alpha, components, info) where `components` maps (Fg,Fe)→α_F(scan)
     and `info` carries N, Γ_eff, σ_v, Doppler FWHM for the readout.
@@ -194,7 +199,7 @@ def _hyperfine_alpha(scan, params, line_strength=None):
     alpha = np.zeros_like(scan)
     components = {}
     for (Fg, Fe) in hyperfine.TRANSITIONS:
-        I_line = ls * K * hyperfine.GROUND_POP[Fg] * hyperfine.CF2[(Fg, Fe)]
+        I_line = ls * K * hyperfine.CF2[(Fg, Fe)]
         line = I_line * np.interp(scan - shifts[(Fg, Fe)], grid, S_unit,
                                   left=0.0, right=0.0)
         alpha += line
@@ -214,7 +219,7 @@ class ODScheme(Scheme):
     title = "Optical absorption (OD)"
     supports_headless_observables = True
     caption = ("Weak-probe absorption. The full 85Rb D1 four-line hyperfine "
-               "spectrum (validated against the lab AutoOD calculator), or a single "
+               "spectrum with thermal sublevel normalization, or a single "
                "bare 2-level Voigt. Doppler-broadened in a warm vapor; natural-"
                "linewidth Lorentzian when Doppler is off.")
 
@@ -223,8 +228,8 @@ class ODScheme(Scheme):
             ParamSpec("model", "Absorption model", "Model", "85Rb D1 hyperfine",
                       choices=("85Rb D1 hyperfine", "single 2-level"),
                       help="Hyperfine: the full 85Rb D1 four-line spectrum (CG "
-                      "strengths, ground populations, self-broadening) validated "
-                      "against the lab AutoOD calculator. Single: one bare 2-level "
+                      "strengths, ground populations, self-broadening) compared "
+                      "against the normalization-corrected AutoOD calculator. Single: one bare 2-level "
                       "Voigt — the validation backbone the Λ schemes reduce to."),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 50.0, 20.0, 200.0, 1.0, "°C",
                       help="Sets the 85Rb density (absorption scale) and Doppler width."),
@@ -233,7 +238,7 @@ class ODScheme(Scheme):
             ParamSpec("line_strength", "Line-strength factor", "Detection & scaling", 1.0,
                       0.01, 2.0, 0.01, "", help="Effective |d|² calibration knob. Single: "
                       "=1.0 reproduces the textbook 3λ²/2π cross-section. Hyperfine: "
-                      "=1.0 reproduces the validated AutoOD absolute scale.",
+                      "=1.0 uses the lifetime-derived dipole and thermal sublevel populations.",
                       recompute=False),
             ParamSpec("doppler", "Doppler (vapor motion)", "Numerics", "on",
                       choices=("on", "off"), advanced=True),
@@ -247,7 +252,7 @@ class ODScheme(Scheme):
         return [
             Preset("85Rb D1 cell (90 °C, 12.5 mm)",
                    values=dict(model="85Rb D1 hyperfine", temp_c=90.0, cell_mm=12.5),
-                   icon="🧪", help="AutoOD-validated warm-cell spectrum."),
+                   icon="🧪", help="Thermally normalized warm-cell spectrum."),
             Preset("Single line (cold)",
                    values=dict(model="single 2-level", temp_c=25.0, cell_mm=3.0,
                                doppler="off"), icon="📏"),
@@ -315,7 +320,7 @@ class ODScheme(Scheme):
         ]
         rows = "".join(
             f"| {Fg}→{Fe}′ | {hyperfine.LINE_SHIFT_HZ[(Fg, Fe)]/1e9:.3f} | "
-            f"{hyperfine.GROUND_POP[Fg]*hyperfine.CF2[(Fg, Fe)]:.4f} |\n"
+            f"{hyperfine.CF2[(Fg, Fe)]:.4f} |\n"
             for (Fg, Fe) in hyperfine.TRANSITIONS)
         derived = derived_table([
             ("N(85Rb), pure cell", f"{raw['N']:.3e} /m³"),
@@ -327,7 +332,7 @@ class ODScheme(Scheme):
             ("Ne broadening / 2π", f"{buffer_mhz:.3f} MHz"),
             ("Natural Γ / 2π", f"{GAMMA_MHZ:.3f} MHz"),
         ])
-        lines = ("| Line | Center [GHz] | p_F·C_F² |\n|---|---|---|\n" + rows)
+        lines = ("| Line | Center [GHz] | C_F² |\n|---|---|---|\n" + rows)
         return dict(metrics=metrics, figure=fig, tables=[
             derived,
             {"title": "Hyperfine lines (relative strength)", "markdown": lines}])
@@ -465,7 +470,7 @@ LAMBDA_COUPLING_DIAMETER_REF_MM = 1.0
 
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
-    cache_version = "physical-units-v3"
+    cache_version = "physical-units-v4-independent-scan-shift"
     defaults_version = "physical-units-v3"
     supports_headless_observables = True
 
@@ -664,7 +669,8 @@ class LambdaScheme(Scheme):
             Dc_mhz=Dc_mhz, gg_khz=gg_khz)
         chi_bar = _solve_chi_avg(
             atom, build_H0, (2, 0), scan, params, h_dep=True,
-            probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"])
+            probe_omega=probe, k_vec=medium["k_vec"], mass=medium["mass"],
+            scan_shift=core.comm_super(np.diag([0.0, 0.0, 1.0])))
         return dict(scan=scan, chi_bar=chi_bar, N=medium["N"], T=medium["T"], Dc=Dc,
                     L=params.get("cell_mm", 10.0) * 1e-3, ls=1.0,
                     gamma=gamma, gamma_mhz=gamma_mhz, k_vec=medium["k_vec"],

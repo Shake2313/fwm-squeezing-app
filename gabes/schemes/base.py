@@ -58,7 +58,7 @@ class ParamSpec:
     advanced: bool = False        # render inside an "Advanced" expander
     endpoints: Optional[tuple] = None   # (left, right) caption under a slider
     hidden: bool = False          # keep in params/session state, but do not render
-    control: str = "auto"         # auto / segmented / checkbox
+    control: str = "auto"         # auto / segmented / checkbox / derived_slider
     visible_if: Optional[dict] = None   # {param_name: allowed value(s)}
     applies_defaults: bool = False      # choosing a value applies the scheme's
                                         # recommended_defaults[value] set, and
@@ -143,7 +143,10 @@ class Scheme(ABC):
 
     # ---- helpers shared by the UI ----
     def recompute_keys(self):
-        return tuple(s.name for s in self.param_schema() if s.recompute)
+        return tuple(s.name for s in self.param_schema()
+                     if s.recompute and s.control != "derived_slider")
 
     def defaults(self):
-        return {s.name: s.default for s in self.param_schema()}
+        # Derived slider rows display observables, never input parameters.
+        return {s.name: s.default for s in self.param_schema()
+                if s.control != "derived_slider"}

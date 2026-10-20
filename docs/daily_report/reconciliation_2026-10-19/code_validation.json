@@ -1,0 +1,51 @@
+{
+  "origin": "source_evidence",
+  "marker": "⟦AI⟧",
+  "date": "2026-10-20",
+  "command": "python -m pytest -q",
+  "passed": 2457,
+  "skipped": 3,
+  "failed": 0,
+  "result": "all_cases_resolved_with_one_original_root_validation",
+  "failed_semantics": "Unresolved code failures after original-root recheck; raw relocated full-run failure is preserved below.",
+  "relocated_full_run": {
+    "passed": 2456,
+    "skipped": 3,
+    "failed": 1,
+    "exit_code": 1,
+    "nonportable_node": "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+    "cause": "Immutable historical ledger keys bind original G: absolute paths; copied input bytes/hash match but C: paths are outside that binding."
+  },
+  "original_root_recheck": {
+    "passed": 1,
+    "receipt": "original_root_shadow_pytest_receipt.json",
+    "log": "original_root_shadow_pytest.log",
+    "cause_evidence": "validation_shadow_relocation.json"
+  },
+  "source_frozen_during_run": true,
+  "source_files": 407,
+  "seconds": 3714.3909999999996,
+  "python": "3.12.6",
+  "full_log": "full_pytest_relocated.log",
+  "full_receipt": "full_pytest_relocated_receipt.json",
+  "execution_cwd": "C:\\Temp\\gv20261020-9d7b\\repo",
+  "exact_byte_relocated_validation": true,
+  "collection_count": 2460,
+  "source_manifest": "validation_source_manifest.json",
+  "copied_file_manifest": "validation_file_manifest.json",
+  "copy_receipt": "validation_copy_receipt.json",
+  "validation_runner": "validation_runner.txt",
+  "bounded_performance_check": "validation_thread_profile.json",
+  "excluded_incomplete_runs": [
+    "pre_cache_fix_pytest_receipt.json",
+    "interrupted_pytest_receipt.json",
+    "relocated_path_option_partial.log"
+  ],
+  "original_reports_unchanged": 55,
+  "original_done_contracts_preserved": 34,
+  "official_grand_challenges_unchanged": true,
+  "gc_impact": "gc_impact_comparison.json",
+  "sealed_artifacts_preserved": 37,
+  "independent_registry_recheck": "55reports/85findings/21newitems and dependency/status/scope checks; three material wording/acceptance corrections incorporated.",
+  "scope": "⟦AI⟧ Current-code regression and scoped maintenance closure; no new physical gain, squeezing, thermal convergence or experimental certification."
+}

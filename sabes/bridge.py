@@ -11,12 +11,12 @@ one is derived:
     pump/probe waist <- collimator diameter x telescope magnification
     seeded_angle_deg <- millimetres of separation at the D-shaped mirrors
     tpd              <- signal-generator frequency (exactly, no coefficient)
-    loss_pct         <- iris clipping and post-cell optics
+    after_cell_eff_pct <- iris clipping and post-cell optics
     qe_pct           <- photodiode responsivity
 
 Pipeline order matters and is not arbitrary: detection *geometry* is computed
-before the solve because `loss_pct` is a solve input, while detection *readout*
-needs the gains the solve produces. `run()` sequences it correctly.
+before the readout, while detector power needs the gains the solve produces.
+External optical loss and QE do not enter the atomic solve.
 
 Fidelity note: the pump waist has an interior optimum at Ultra fidelity but looks
 monotonic at Fast, because Fast carries only the longitudinal phase mismatch and
@@ -39,7 +39,7 @@ from .detection import DetectionSettings
 DERIVED_KEYS = (
     "opd", "tpd", "temp_c", "cell_mm",
     "pump_mw", "probe_uw", "pump_waist_um", "probe_waist_um",
-    "seeded_angle_deg", "loss_pct", "qe_pct",
+    "seeded_angle_deg", "loss_pct", "after_cell_eff_pct", "qe_pct",
     "seed_wanted_sideband_uw", "eom_residual_carrier_uw",
     "eom_other_sidebands_uw", "eom_residual_carrier_to_wanted_ratio",
     "eom_other_sidebands_to_wanted_ratio",
@@ -71,6 +71,7 @@ PARAM_GRID = {
     "probe_waist_um": 0.01,
     "seeded_angle_deg": 1e-4,
     "loss_pct": 1e-3,
+    "after_cell_eff_pct": 1e-3,
     "qe_pct": 1e-3,
     "tpd": 1e-3,
 }
@@ -107,14 +108,34 @@ class SabesResult:
 
     @property
     def gain_referred_noise_db(self):
-        """Gain-referred algebraic diagnostic; not a squeezing prediction."""
+        """Current NF in dB; legacy raw algebra only for old result fixtures."""
         if self.raw is None:
             return None
+        view = self.observables or {}
+        if "jasperse_readout" in view or "passive_l1_operating_point" in view:
+            point = view.get("passive_l1_operating_point") or {}
+            value = point.get("NF_dB")
+            return (float(value) if value is not None and np.isfinite(value)
+                    else None)
         values = self.raw.get("gain_referred_noise_dB")
         if values is None:
             values = self.raw["S_dB"]
         return float(np.asarray(values)[
             _operating_index(self.raw, self.params)])
+
+    @property
+    def noise_factor(self):
+        """Linear NF at the selected point, with unavailable values preserved."""
+        if self.raw is None:
+            return None
+        view = self.observables or {}
+        if "jasperse_readout" in view or "passive_l1_operating_point" in view:
+            point = view.get("passive_l1_operating_point") or {}
+            value = point.get("NF")
+            return (float(value) if value is not None and np.isfinite(value)
+                    and value > 0.0 else None)
+        value = self.gain_referred_noise_db
+        return 10.0**(value/10.0) if value is not None and np.isfinite(value) else None
 
     @property
     def squeezing_db(self):
@@ -144,14 +165,13 @@ class SabesResult:
 
     @property
     def eta(self):
-        """Detection efficiency the solve actually used.
+        """External after-cell transmission times QE used in the readout.
 
         Read from `params`, not from `geometry`: an explicit override (a test
-        pinning the paper's numbers, say) changes what was solved without
-        changing what the optics predict, and the reported floor must follow the
-        former.
+        pinning a detector calibration, say) changes the readout without
+        changing what the optics predict. The reported floor follows that input.
         """
-        return self.params["qe_pct"] / 100.0 * (1.0 - self.params["loss_pct"] / 100.0)
+        return fwm._detection_efficiency_from_params(self.params)
 
     @property
     def gain_referred_detection_floor_db(self):
@@ -248,6 +268,7 @@ def to_gabes_params(chain, settings, geometry, *, base=None, quantize=True,
         "probe_waist_um": chain.seed_waist_m * 1e6,
         "seeded_angle_deg": settings.crossing_angle_deg,
         "loss_pct": geometry.loss_pct,
+        "after_cell_eff_pct": 100.0 - geometry.loss_pct,
         "qe_pct": geometry.qe_pct,
     })
     if ("probe_uw" in overrides and "seed_wanted_sideband_uw" in overrides
@@ -274,7 +295,10 @@ def to_gabes_params(chain, settings, geometry, *, base=None, quantize=True,
         overrides["seed_wanted_sideband_uw"] = overrides["probe_uw"]
     elif "seed_wanted_sideband_uw" in overrides:
         overrides["probe_uw"] = overrides["seed_wanted_sideband_uw"]
+    if "loss_pct" in overrides and "after_cell_eff_pct" not in overrides:
+        overrides["after_cell_eff_pct"] = 100.0 - float(overrides["loss_pct"])
     params.update(overrides)
+    params["loss_pct"] = 100.0 - float(params["after_cell_eff_pct"])
     if quantize:
         params = quantize_params(params)
 
@@ -291,6 +315,16 @@ def to_gabes_params(chain, settings, geometry, *, base=None, quantize=True,
         float(params["eom_other_sidebands_uw"]) / denominator
         if wanted > 0.0 else float("inf"))
     return params
+
+
+def noise_observables(raw, params):
+    """Cheap current NF readout for the page, without figures or cell-loss audit."""
+    if "T_canonical_small_signal" not in raw:
+        return {}
+    readout = fwm._seeded_passive_l1_readout(raw, params)
+    center = raw.get("raman_center_minus_GHz", fwm.branch_center_GHz(params["opd"], -1))
+    point = fwm._passive_l1_selected(readout, raw, center + params["tpd"]*1e-3)
+    return {"jasperse_readout": readout, "passive_l1_operating_point": point}
 
 
 def solve_key(params, scheme=None):

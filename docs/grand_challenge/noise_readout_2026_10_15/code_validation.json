@@ -1,0 +1,94 @@
+{
+  "record": "FWM-NOISE-2026-10-15-CODE",
+  "origin": "source_evidence",
+  "verified_on": "2026-10-15",
+  "scope": "Static conditional production L1 diagnostic; no microscopic or experimental certification",
+  "command": "python -m pytest -q",
+  "exit_code": 0,
+  "full_suite": {
+    "passed": 2287,
+    "failed": 0,
+    "skipped": 4,
+    "warnings": 2,
+    "seconds": 836.21
+  },
+  "log": "docs/grand_challenge/noise_readout_2026_10_15/full_pytest_frozen.log",
+  "final_source_targeted": {
+    "passed": 93,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 2,
+    "seconds": 6.09
+  },
+  "thermal_extension_rerun": {
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "warnings": 0,
+    "seconds": 256.14
+  },
+  "initial_full_preserved": {
+    "result": {
+      "passed": 2278,
+      "failed": 3,
+      "skipped": 4,
+      "warnings": 0,
+      "seconds": 821.07
+    },
+    "reason": "Three strict source guards rejected code modified during first run; frozen source rerun passes without relaxing guards",
+    "log": "docs/grand_challenge/noise_readout_2026_10_15/full_pytest.log"
+  },
+  "source_hashes_unchanged_during_frozen_run": true,
+  "source_state": [
+    {
+      "path": "gabes/passive_readout.py",
+      "sha256": "bb909af8bece55a90b81f15e063ed339135b285e1744b3bb501c3250ab811955",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "gabes/schemes/fwm.py",
+      "sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "gabes_ui/export.py",
+      "sha256": "2c712362984ed319ff8d7198dfb4bc87a3bf11442ec0d433f1cdb7dda0ac49a6",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "tests/test_fwm_passive_l1_reference.py",
+      "sha256": "7fef0f946dbc77e755f5d463378c15902b2981e011a8c3aecca684834c098061",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "tests/test_fwm_passive_l1_integration.py",
+      "sha256": "e03b15559402f241b326dd647870a32460bee4d947225480ab7096ab557fdaab",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "tests/test_fwm_floquet.py",
+      "sha256": "e2d7d3ea00174f5dc7fd5bf22951ad12f1ad6f03083ee8e77650c9fc06606ac0",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": false
+    },
+    {
+      "path": "README.md",
+      "sha256": "8a21d35ee30656102a3713bf78cd3443151f7a4b7d82123c7e2e220063a8661e",
+      "mapped_read_consistent": true,
+      "atomic_flush_needed": true
+    }
+  ],
+  "baseline_npz_sha256": "e6adff1479c1a6b4ed58943809e3be77a2944b7df170c0ec46e00f231eea0324",
+  "legacy_arrays_compared": 20,
+  "legacy_arrays_bitwise_equal": true,
+  "gc_comparison": "docs/grand_challenge/noise_readout_2026_10_15/final_verified_gc_impact_comparison.json",
+  "gc_passed": true,
+  "physical_squeezing_dB": null,
+  "milestones_completed": 0,
+  "milestones_total": 4
+}

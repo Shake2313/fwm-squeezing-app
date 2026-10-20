@@ -1,0 +1,77 @@
+{
+  "origin": "source_evidence_original_root_nonportable_ledger_test",
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-vv",
+    "--tb=long",
+    "--basetemp=C:/Temp/gv20261020-9d7b/poriginal-shadow",
+    "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "execution_root": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "python": "C:\\Python312\\python.exe",
+  "started_utc": "2026-10-19T19:23:21.083181+00:00",
+  "completed_utc": "2026-10-19T19:23:37.498589+00:00",
+  "elapsed_seconds": 16.40599999999995,
+  "exit_code": 0,
+  "nodeid": "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+  "source_manifest": "C:\\Temp\\gv20261020-9d7b\\evidence\\source_manifest.json",
+  "source_manifest_file_sha256": "a3d78fb6d41c024f075de9de0a84befc5866506f4236582aa4bfd9e57b8673d8",
+  "source_files": 407,
+  "original_sources_equal_manifest_before": true,
+  "original_sources_equal_manifest_after": true,
+  "mirror_sources_equal_manifest_before": true,
+  "mirror_sources_equal_manifest_after": true,
+  "changed_original_source_paths": [],
+  "changed_mirror_source_paths": [],
+  "pinned_expected": {
+    "analysis/grand_challenge/variance_reduction_review.py": "80104ee806780f8e45260431f479ccee3b27584f3862924817ac2759ebe9185a",
+    "docs/grand_challenge/variance_reduction_2026_10_13/review.json": "0e66edcc63a72c943348178f3bb8788ba3f24604bb9826f87718209ad7716de3"
+  },
+  "pinned_before": {
+    "analysis/grand_challenge/variance_reduction_review.py": "80104ee806780f8e45260431f479ccee3b27584f3862924817ac2759ebe9185a",
+    "docs/grand_challenge/variance_reduction_2026_10_13/review.json": "0e66edcc63a72c943348178f3bb8788ba3f24604bb9826f87718209ad7716de3"
+  },
+  "pinned_after": {
+    "analysis/grand_challenge/variance_reduction_review.py": "80104ee806780f8e45260431f479ccee3b27584f3862924817ac2759ebe9185a",
+    "docs/grand_challenge/variance_reduction_2026_10_13/review.json": "0e66edcc63a72c943348178f3bb8788ba3f24604bb9826f87718209ad7716de3"
+  },
+  "pinned_helper_and_review_unchanged": true,
+  "historical_json_rewritten": false,
+  "source_or_test_edits": false,
+  "thread_counts": {
+    "BLAS": 1,
+    "OMP": 1,
+    "NUMBA": 1
+  },
+  "scope": "One intentionally absolute-root-bound immutable historical-ledger test; complements the relocated full-suite run without claiming that its C-root failure passed there.",
+  "log": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\daily_report\\reconciliation_2026-10-19\\original_root_shadow_pytest.log",
+  "source_frozen": true,
+  "pinned_inputs_frozen": true,
+  "campaign_input_hashes": {
+    "docs/grand_challenge/thermal_campaign_v2/plan.json": {
+      "original_capture_sha256": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+      "after_original_test_sha256": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+      "matches_capture_before_test": true
+    },
+    "docs/grand_challenge/thermal_campaign_v2/sources.zip": {
+      "original_capture_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+      "after_original_test_sha256": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+      "matches_capture_before_test": true
+    },
+    "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json": {
+      "original_capture_sha256": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+      "after_original_test_sha256": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+      "matches_capture_before_test": true
+    }
+  },
+  "campaign_stability_basis": "Original captured bytes before the test match original bytes after it; successful preregister invokes exact expected-SHA reads and ByteLedger.verify for all three campaign inputs.",
+  "validation_supplement": {
+    "origin": "ai_receipt_schema_normalization",
+    "marker": "⟦AI⟧",
+    "added_utc": "2026-10-19T19:24:13.212862+00:00",
+    "initial_receipt_sha256": "14feeb8946b38a0ccc6b39181f5867552ca5386bbfb6291f5190e0bed084da13",
+    "initial_receipt_preserved_at": "C:\\Temp\\gv20261020-9d7b\\evidence\\original_root_shadow_pytest_receipt.json"
+  }
+}

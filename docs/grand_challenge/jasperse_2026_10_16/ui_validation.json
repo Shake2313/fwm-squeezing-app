@@ -1,0 +1,55 @@
+{
+  "origin": "source_evidence",
+  "method": "Playwright real headless Microsoft Edge against task-owned Streamlit server",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "date": "2026-10-16",
+  "screenshot": "output/playwright/jasperse_20261016_qe80.png",
+  "console_errors": 0,
+  "derived_controls": [
+    {
+      "name": "seed_shot_noise_b",
+      "value": 6.2468462940531,
+      "disabled_attribute": true,
+      "tab_index": -1,
+      "click_and_arrow_changes_value": false
+    },
+    {
+      "name": "eta_probe_pct",
+      "value": 64.99604219634887,
+      "disabled_attribute": true,
+      "tab_index": -1,
+      "click_and_arrow_changes_value": false
+    },
+    {
+      "name": "eta_conjugate_pct",
+      "value": 73.65135117373855,
+      "disabled_attribute": true,
+      "tab_index": -1,
+      "click_and_arrow_changes_value": false
+    }
+  ],
+  "qe_change_pct": [
+    92,
+    80
+  ],
+  "before_totals_pct": [
+    74.7454485258012,
+    84.69905384979931
+  ],
+  "after_totals_pct": [
+    64.99604219634887,
+    73.65135117373855
+  ],
+  "unchanged_shot_rin_scaled": 6.2468462940531,
+  "before_after_nf_dB_display": [
+    -8.19,
+    -5.81
+  ],
+  "unchanged_seed_gain_display": 394.88,
+  "primary_label": "Squeezing Degree [dB]",
+  "retired_controls_absent": true,
+  "streamlit_note": "Streamlit disabled slider uses inert handlers and disabled attribute on a div without aria-disabled; keyboard focus removed. Actual click/arrow inertness verified."
+}

@@ -1,0 +1,135 @@
+{
+  "record": "FWM-MEAN-GAIN-2026-10-15-PRODUCTION",
+  "origin": "source_evidence",
+  "no_fitting_performed": true,
+  "prepatch_fwm_sha256": "e3d422163426445a3eb4e82b96a8056d7fd88d5b82a88ba696ba51bffd3b2e04",
+  "prepatch_observables_sha256": "0b708458aefb55abbb76ab4d7e62e8288e8aa322c40161e0f1b733067612c8e8",
+  "current_fwm_sha256": "b03b7e0debf7748c6fe25f56c3a21af743398a4e5def3f1ad612d4d303b54562",
+  "points": 401,
+  "new_meanfield_scans": 3,
+  "new_thermal_transport_solves": 0,
+  "session_prior_comparison_attempt_scans": 3,
+  "prior_attempt": "array comparator rejected Unicode status arrays after solves; dtype handling corrected, no physics change",
+  "input_seed_W": 3.91798707534069e-06,
+  "input_seed_status": "AI handoff conditional vapor-entry assumption; measured pump-off output does not identify it",
+  "detection_efficiency": 0.7068170330192308,
+  "detection_efficiency_status": "AI handoff value; atomic/downstream split and RF calibration unresolved",
+  "human_confirmed": "blue+1GHz from85Rb F2-Fprime3; seed below pump; pure85 with possible~0.1%87",
+  "full_spectrum_summary": {
+    "prepatch": {
+      "peak_probe_gain": 236.2616156274346,
+      "peak_lab_tpd_MHz": -23.699999999999832,
+      "peak_small_signal_gain": 238.7671219013015,
+      "absorbing_displayed_probe_points": 0,
+      "invalid_passive_points": 41,
+      "physical_squeezing_dB": null
+    },
+    "current": {
+      "peak_probe_gain": 236.26912137548538,
+      "peak_lab_tpd_MHz": -23.699999999999832,
+      "peak_small_signal_gain": 238.77478879595617,
+      "absorbing_displayed_probe_points": 89,
+      "invalid_passive_points": 41,
+      "physical_squeezing_dB": null
+    }
+  },
+  "historical_fixture_arrays_bitwise_equal": {
+    "probe_axis_GHz": true,
+    "G_s": true,
+    "G_c": true,
+    "gain_referred_noise_dB": true,
+    "S_dB": true,
+    "G_s_smallsignal": true,
+    "G_c_smallsignal": true,
+    "T_field_small_signal": true,
+    "Q_photon_flux": true,
+    "T_canonical_small_signal": true,
+    "conjugate_photon_flux_gain_smallsignal": true,
+    "photon_flux_gap_smallsignal": true,
+    "commutator_defect_smallsignal": true,
+    "commutator_defect_max_smallsignal": true,
+    "omega_probe_rad_s": true,
+    "omega_conjugate_rad_s": true,
+    "k_probe_propagation_per_m": true,
+    "k_conjugate_propagation_per_m": true,
+    "delta_k_z": true,
+    "delta_k_z_vacuum": true,
+    "passive_l1_G_s": true,
+    "passive_l1_G_c": true,
+    "passive_l1_D": true,
+    "passive_l1_T": true,
+    "passive_l1_q1": true,
+    "passive_l1_det_abs2": true,
+    "passive_l1_S_src": true,
+    "passive_l1_S_det": true,
+    "passive_l1_F_p": true,
+    "passive_l1_F_c": true,
+    "passive_l1_Lambda": true,
+    "passive_l1_formal_noise_dB": true,
+    "passive_l1_noise_dB": true,
+    "passive_completion_min_eig": true,
+    "passive_completion_tolerance": true,
+    "passive_completion_valid": true,
+    "passive_l1_status": true,
+    "seed_fano_input": true
+  },
+  "all_historical_fixture_arrays_bitwise_equal": true,
+  "current_vs_prepatch": {
+    "G_s": {
+      "max_abs": 0.9844438849469137,
+      "max_relative": 0.9844438849469137
+    },
+    "G_c": {
+      "max_abs": 0.0077258420721477705,
+      "max_relative": 8.54384888048082e-05
+    },
+    "G_s_smallsignal": {
+      "max_abs": 0.007670483555102692,
+      "max_relative": 3.2622433036134654e-05
+    },
+    "G_c_smallsignal": {
+      "max_abs": 0.00789319143046896,
+      "max_relative": 8.543783966597403e-05
+    },
+    "omega_probe_rad_s": {
+      "max_abs": 12073154743.0,
+      "max_relative": 5.095399898203642e-06
+    },
+    "delta_k_z_vacuum": {
+      "max_abs": 0.0012561865150928497,
+      "max_relative": 5.095363935395096e-06
+    }
+  },
+  "current_gain_reference": {
+    "status": "UNAVAILABLE",
+    "reason": "pump-off atomic transmission not supplied",
+    "probe_power_gain": null,
+    "conjugate_power_gain": null,
+    "medium_input_seed_per_reference_power": null,
+    "pump_off_atomic_transmission": null,
+    "provenance": {
+      "gain_quantity": "power ratio, not photon-flux ratio",
+      "source_input_plane": "vapor entrance after entrance window",
+      "source_output_plane": "vapor exit before output window",
+      "reference_plane": "measured pump-off seed output",
+      "formula": "G_j_ref=G_j*tau_j/(A0*tau_ref)",
+      "output_transmissions_include": "output windows, collection and subsequent optical throughput",
+      "entrance_window": "cancels for equal vapor-entry on/off seed power",
+      "total_cell_transmission_identifies_A0": false,
+      "detector_response": "powers require prior responsivity calibration",
+      "atomic_response_modified": false
+    },
+    "source_gain_keys": [
+      "G_s_smallsignal",
+      "G_c_smallsignal"
+    ]
+  },
+  "experimental_peak_from_ai_handoff": {
+    "gain": 24.857142857142858,
+    "lab_tpd_MHz": -2.2,
+    "raw_data_independently_acquired_here": false
+  },
+  "minimum_same_plane_peak_gain_ratio_A0_1": 9.505079595565503,
+  "lab_peak_location_gap_MHz": -21.499999999999833,
+  "scope": "Conditional current mean-field diagnostic; static canonical L1 validity not microscopic atomic noise or experimental agreement."
+}

@@ -7,7 +7,7 @@ Data layer (gabes.species):
 
 Pump off (P = 0) → OD:
   reduces to linear Doppler-broadened absorption; ⁸⁵Rb D1 reproduces the AutoOD
-  scale (integrated + peak) and the 49/25 F=3/F=2 manifold ratio.
+  scale (integrated + peak) and the 7/5 F=3/F=2 manifold ratio.
 
 Pump on → SAS:
   sharp Doppler-free features appear (Lamb dips + crossovers); crossovers are
@@ -22,6 +22,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -85,6 +86,29 @@ def _metric_number(view, label):
 
 
 # ---------------------------------------------------------------- data layer
+@pytest.mark.parametrize("iso", [species.RB85, species.RB87, species.CS133])
+@pytest.mark.parametrize("line", ["D1", "D2"])
+def test_thermal_absorption_oscillator_sum_and_manifold_ratio(iso, line):
+    """Lifetime sum rule and degeneracy ratio, independent of frozen spectra."""
+    density = 2.3e16
+    _, nu, linewidth_mhz, _, _ = iso.line(line)
+    wavelength = constants.C_LIGHT / nu
+    gamma = 2 * np.pi * linewidth_mhz * 1e6
+    areas = species.line_integrated_alpha(iso, line, density)
+    # Integrating alpha over angular frequency gives N*Gamma*lambda^2/4
+    # for D1 and twice that for D2, from the dipole lifetime relation.
+    expected = density * gamma * wavelength**2 / (4 if line == "D1" else 2)
+    np.testing.assert_allclose(sum(areas.values()), expected, rtol=2e-13)
+    lower, upper = sorted({fg for fg, _ in areas})
+    groups = {fg: sum(a for (g, _), a in areas.items() if g == fg)
+              for fg in (lower, upper)}
+    np.testing.assert_allclose(groups[upper] / groups[lower],
+                               (2*upper+1)/(2*lower+1), rtol=2e-13)
+    man = species.build_manifold(iso, line)
+    for g in range(len(man.Fg)):
+        np.testing.assert_allclose(man.S_abs[man.g_idx == g].sum(), 1., rtol=2e-13)
+
+
 def test_cf2_matches_validated_85rb_d1():
     for (Fg, Fe), ref in hyperfine.CF2.items():
         assert abs(species.cf2(Fg, Fe, 2.5, 0.5, 0.5) - ref) < 1e-9
@@ -281,13 +305,13 @@ def test_paraffin_checkbox_is_inert_for_generic_toy():
     np.testing.assert_array_equal(coated["alpha_unit"], plain["alpha_unit"])
 
 
-def test_pump_off_is_smooth_and_49_25():
+def test_pump_off_is_smooth_and_7_5():
     p = _params(species=RB85_KEY, line="D1", pump_power_mw=0.0, temp_c=45.0)
     raw = SAS.compute(p)
     x, a = raw["scan"] / (2 * np.pi) / 1e9, raw["alpha_unit"]
     f2 = a[x > 0.5].sum()
     f3 = a[x < -0.5].sum()
-    assert 1.90 <= f3 / f2 <= 2.02                    # validated 49/25 ≈ 1.96
+    assert 1.36 <= f3 / f2 <= 1.44                    # thermal 7/5 = 1.4
     assert np.abs(np.diff(a, 2)).max() / max(a.max(), 1e-9) < 0.02   # no features
 
     view = SAS.observables(raw, p, include_figures=False)
@@ -415,8 +439,8 @@ def test_legacy_subdoppler_wrapper_keeps_nan_nan_for_a_flat_trace():
     assert np.isnan(width) and np.isnan(center)
 
 
-def test_rb85_d1_fixed_window_2x_4x_readouts_converge_within_five_percent():
-    """Reference-only refinement: freeze the baseline window before 2x/4x solves."""
+def test_rb85_d1_fixed_window_4x_8x_readouts_converge_within_five_percent():
+    """Reference-only refinement: freeze the baseline window before 4x/8x solves."""
     p = _params(species=RB85_KEY, line="D1")
     p.update(SAS.recommended_defaults(p)["SAS default"])
     baseline_points = int(p["scan_points"])
@@ -442,30 +466,32 @@ def test_rb85_d1_fixed_window_2x_4x_readouts_converge_within_five_percent():
         feature1.center - feature1.fwhm,
         feature1.center + feature1.fwhm,
     )
-    # (N-1) sets the sample intervals, so these are exactly 2x and 4x density.
-    x2, T2, feature2, view2 = measure(2 * (baseline_points - 1) + 1, fixed_window)
+    # Corrected absorption makes the 2x feature span only about 5.96 samples;
+    # keep the six-sample resolution gate and compare genuinely resolved grids.
+    # (N-1) sets the sample intervals, so these are exactly 4x and 8x density.
     x4, T4, feature4, view4 = measure(4 * (baseline_points - 1) + 1, fixed_window)
+    x8, T8, feature8, view8 = measure(8 * (baseline_points - 1) + 1, fixed_window)
 
-    for feature in (feature2, feature4):
+    for feature in (feature4, feature8):
         assert feature.resolved
         assert fixed_window[0] <= feature.center <= fixed_window[1]
         assert feature.scan_edge_distance > feature.fwhm
-    assert 1.9 <= feature4.samples_per_fwhm / feature2.samples_per_fwhm <= 2.1
-    for view in (view2, view4):
+    assert 1.9 <= feature8.samples_per_fwhm / feature4.samples_per_fwhm <= 2.1
+    for view in (view4, view8):
         heroes = [m["label"] for m in view["metrics"] if m.get("tier") == "hero"]
         assert heroes == ["Lock Slope"]
         assert next(m["value"] for m in view["metrics"]
                     if m["label"] == "SAS resolution") == "resolved"
 
-    lock2 = _lock_readout_metrics(
-        x2, T2, 1000.0, search_window=fixed_window)
     lock4 = _lock_readout_metrics(
         x4, T4, 1000.0, search_window=fixed_window)
-    slope2 = float(lock2[0]["value"].split()[0])
+    lock8 = _lock_readout_metrics(
+        x8, T8, 1000.0, search_window=fixed_window)
     slope4 = float(lock4[0]["value"].split()[0])
+    slope8 = float(lock8[0]["value"].split()[0])
 
-    assert abs(feature4.fwhm - feature2.fwhm) / feature4.fwhm <= 0.05
-    assert abs(slope4 - slope2) / slope4 <= 0.05
+    assert abs(feature8.fwhm - feature4.fwhm) / feature8.fwhm <= 0.05
+    assert abs(slope8 - slope4) / slope8 <= 0.05
 
 
 def test_mode_and_buffer_pressure_control_metric_hierarchy():
@@ -741,9 +767,4 @@ def test_doppler_temperature_schema_is_advanced_and_gated():
 
 
 if __name__ == "__main__":
-    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
-    for fn in fns:
-        fn()
-        print("ok:", fn.__name__)
-    print(f"\nAbsorption (OD/SAS) OK ({len(fns)} tests): data, pump-off AutoOD "
-          "fidelity, sub-Doppler features, hyperfine pumping, generic.")
+    sys.exit(pytest.main([__file__, "-q"]))

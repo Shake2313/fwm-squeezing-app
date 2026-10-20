@@ -50,7 +50,12 @@ def laboratory_provenance(*, enabled, eligible, D_GHz, branch):
         "transition_is_validation_interval": False,
         "calibration_conditions": {
             "opd_GHz": 1.06, "temperature_C": 118.0, "pump_W": 0.380,
-            "cell_input_seed_W": 3.7e-6, "cell_m": 0.0125,
+            "cell_input_seed_W": None,
+            "assumed_simulation_seed_W": 3.7e-6,
+            "measured_pump_off_reference_seed_W": 3.7e-6,
+            "cell_input_seed_status": (
+                "unresolved: measured pump-off output is not a cell-input calibration"),
+            "cell_m": 0.0125,
             "pump_waist_m": 530e-6, "probe_waist_m": 330e-6,
             "waist_convention": "1/e^2 intensity radius", "crossing_angle_deg": 0.32,
             "transit_rate_over_2pi_Hz": 100e3, "inherited_residual": 0.74,
@@ -71,12 +76,16 @@ def laboratory_provenance(*, enabled, eligible, D_GHz, branch):
     }
 
 
-def apply_power_gain(G_s, G_c, *, calibration, P_pump, P_seed):
+def apply_power_gain(
+        G_s, G_c, *, calibration, P_pump, P_seed, legacy_probe_floor=False):
     """Apply a monotone readout fit, preserving no-gain and pump-budget limits.
 
     This does not calibrate the transfer matrix, microscopic covariance, or a
     physical squeezing spectrum. Downstream algebraic noise remains a diagnostic.
     Inactive contexts return the original arrays without numerical changes.
+    Passive probe transmission is retained outside the fitted gain domain.
+    ``legacy_probe_floor=True`` retains the historical unit display floor for
+    explicitly labelled numerical fixtures.
     """
     weight = calibration["blend_weight"]
     if weight == 0.0:
@@ -91,7 +100,11 @@ def apply_power_gain(G_s, G_c, *, calibration, P_pump, P_seed):
     # The upstream soft saturation has already run. Do not saturate twice;
     # enforce only its hard pump-energy envelope if this empirical map hits it.
     cap = max(0.5 * float(P_pump), 0.0) / max(float(P_seed), 1e-30)
-    return (np.clip(mapped(G_s, LAB_PROBE_AFFINE), 1.0, 1.0 + cap),
+    probe = np.asarray(G_s, dtype=float)
+    probe_mapped = np.clip(mapped(probe, LAB_PROBE_AFFINE), 1.0, 1.0 + cap)
+    if not legacy_probe_floor:
+        probe_mapped = np.where(probe <= 1.0, probe, probe_mapped)
+    return (probe_mapped,
             np.clip(mapped(G_c, LAB_CONJUGATE_AFFINE), 0.0, cap))
 
 

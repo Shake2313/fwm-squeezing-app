@@ -1,0 +1,4075 @@
+{
+  "origin": "source_evidence",
+  "method": "independent mpmath.expm recurrence; exact binary64 matrix inputs",
+  "results": [
+    {
+      "legacy_centroid": false,
+      "pump_W": 0.6,
+      "seed_W": 8e-06,
+      "row4_python_probe_gain": 66535.78377950512,
+      "row4_compiled_probe_gain": 66535.78387682256,
+      "row4_python_conjugate_gain": 13474.918282738341,
+      "row4_compiled_conjugate_gain": 13474.918641769913,
+      "row4_mp90_probe_gain": 66535.78387243902,
+      "row4_mp90_conjugate_gain": 13474.918625597882,
+      "row4_python_mp90_conjugate_relative_error": 2.54442754353529e-08,
+      "row4_compiled_mp90_conjugate_relative_error": 1.2001579624920875e-09,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 2.6644433992473182e-08,
+      "all_rows_max_capped_conjugate_relative_difference": 1.960113538146402e-08,
+      "all_rows_max_conjugate_gain": 3.1967950453289604e+46,
+      "row4_minimum_positive_remaining": 0.00032091569975271905,
+      "row4_minimum_positive_remaining_step0": 27,
+      "row4_python_trace": [
+        {
+          "remaining": 0.5999801486640282,
+          "probe_power": 1.6926740371664475e-05,
+          "conjugate_power": 1.0924595600130912e-05
+        },
+        {
+          "remaining": 0.5998488197840639,
+          "probe_power": 7.98719726958157e-05,
+          "conjugate_power": 7.93082432402351e-05
+        },
+        {
+          "remaining": 0.599103080014945,
+          "probe_power": 0.00044186996360668756,
+          "conjugate_power": 0.000463050021448235
+        },
+        {
+          "remaining": 0.5948763821802864,
+          "probe_power": 0.0024977457323592067,
+          "conjugate_power": 0.0026338720873544516
+        },
+        {
+          "remaining": 0.5711064456621754,
+          "probe_power": 0.014066730384538676,
+          "conjugate_power": 0.014834823953285909
+        },
+        {
+          "remaining": 0.4436191212656196,
+          "probe_power": 0.0762490744908133,
+          "conjugate_power": 0.08013980424356709
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.3308790852892887,
+          "conjugate_power": 0.34005526217835097
+        },
+        {
+          "remaining": 0.07601802708414965,
+          "probe_power": 0.3136628726702613,
+          "conjugate_power": 0.21032710024558907
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4772417499680102,
+          "conjugate_power": 0.33823733329976907
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4524100340832106,
+          "conjugate_power": 0.20920269562077753
+        },
+        {
+          "remaining": 0.04174398056751458,
+          "probe_power": 0.42887035543912777,
+          "conjugate_power": 0.1293936639933578
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.49224869466071247,
+          "conjugate_power": 0.1920688985764999
+        },
+        {
+          "remaining": 0.014575595214869425,
+          "probe_power": 0.46663614141846654,
+          "conjugate_power": 0.11879626336666402
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4816854502600525,
+          "conjugate_power": 0.12765308401434153
+        },
+        {
+          "remaining": 0.06443095023695525,
+          "probe_power": 0.45662252094278083,
+          "conjugate_power": 0.07895452882026391
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5176328664727531,
+          "conjugate_power": 0.16567016848985364
+        },
+        {
+          "remaining": 0.006840047169431068,
+          "probe_power": 0.49069953074982586,
+          "conjugate_power": 0.10246842208074326
+        },
+        {
+          "remaining": 0.015847345546221983,
+          "probe_power": 0.488262193741911,
+          "conjugate_power": 0.09589846071186697
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5015572442810065,
+          "conjugate_power": 0.11264509713423204
+        },
+        {
+          "remaining": 0.05487568890311906,
+          "probe_power": 0.4754603510591043,
+          "conjugate_power": 0.06967196003777666
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5257652108797098,
+          "conjugate_power": 0.14624223950771248
+        },
+        {
+          "remaining": 0.01114718367867644,
+          "probe_power": 0.49840873517415435,
+          "conjugate_power": 0.0904520811471692
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5026612787176326,
+          "conjugate_power": 0.09795265389974116
+        },
+        {
+          "remaining": 0.06291650162045379,
+          "probe_power": 0.4765069406693731,
+          "conjugate_power": 0.060584557710173084
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5301203427699741,
+          "conjugate_power": 0.14531278716748378
+        },
+        {
+          "remaining": 0.007593531108441798,
+          "probe_power": 0.5025372619994865,
+          "conjugate_power": 0.08987720689207163
+        },
+        {
+          "remaining": 0.010125091004931447,
+          "probe_power": 0.5006144860403449,
+          "conjugate_power": 0.08926842295472379
+        },
+        {
+          "remaining": 0.00032091569975271905,
+          "probe_power": 0.5040359355137797,
+          "conjugate_power": 0.09565114878646756
+        },
+        {
+          "remaining": 0.052482915448998385,
+          "probe_power": 0.48219622199412043,
+          "conjugate_power": 0.06532886255688117
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5313270858129048,
+          "conjugate_power": 0.14124337396439524
+        },
+        {
+          "remaining": 0.00896654401532078,
+          "probe_power": 0.5036812161091564,
+          "conjugate_power": 0.08736023987552292
+        },
+        {
+          "remaining": 0.005257699780871566,
+          "probe_power": 0.5039529351498813,
+          "conjugate_power": 0.09079736506924693
+        },
+        {
+          "remaining": 0.018386332699632454,
+          "probe_power": 0.4977680783303423,
+          "conjugate_power": 0.08385358897002525
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5140806114716538,
+          "conjugate_power": 0.10915100424476988
+        },
+        {
+          "remaining": 0.04516506068685139,
+          "probe_power": 0.48733210573676417,
+          "conjugate_power": 0.06751083357638443
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5294377596597036,
+          "conjugate_power": 0.13379645180179164
+        },
+        {
+          "remaining": 0.015363550568275569,
+          "probe_power": 0.5018901948721809,
+          "conjugate_power": 0.08275425455954352
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5118867442039476,
+          "conjugate_power": 0.10104652275708911
+        },
+        {
+          "remaining": 0.052257468642041734,
+          "probe_power": 0.48525238918760766,
+          "conjugate_power": 0.06249814217035076
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5312667103661387,
+          "conjugate_power": 0.13633844528812905
+        },
+        {
+          "remaining": 0.012057518535480233,
+          "probe_power": 0.5036239821015887,
+          "conjugate_power": 0.0843264993629311
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5087836477580923,
+          "conjugate_power": 0.09553827342392314
+        },
+        {
+          "remaining": 0.05860600511896674,
+          "probe_power": 0.48231075223122827,
+          "conjugate_power": 0.059091242649804976
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5325590134836787,
+          "conjugate_power": 0.1397951637385696
+        },
+        {
+          "remaining": 0.008694446140397022,
+          "probe_power": 0.5048490444468074,
+          "conjugate_power": 0.08646450941279547
+        },
+        {
+          "remaining": 0.005826396004355278,
+          "probe_power": 0.504621017132678,
+          "conjugate_power": 0.08956058686296667
+        },
+        {
+          "remaining": 0.01568049833930102,
+          "probe_power": 0.49962766079349147,
+          "conjugate_power": 0.0846998408672075
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5121035550781488,
+          "conjugate_power": 0.10460428298084033
+        },
+        {
+          "remaining": 0.049851433559157915,
+          "probe_power": 0.48545791901602997,
+          "conjugate_power": 0.0646986474248121
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311887436351084,
+          "conjugate_power": 0.13676162638283162
+        },
+        {
+          "remaining": 0.01186968738069101,
+          "probe_power": 0.5035500721147841,
+          "conjugate_power": 0.08458824050452489
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5084157558692824,
+          "conjugate_power": 0.09529376698631749
+        },
+        {
+          "remaining": 0.05910598428642228,
+          "probe_power": 0.4819620023953924,
+          "conjugate_power": 0.05894001331818532
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.532435116172451,
+          "conjugate_power": 0.13999859257182884
+        },
+        {
+          "remaining": 0.008686074379125025,
+          "probe_power": 0.504731593727546,
+          "conjugate_power": 0.08659033189332901
+        },
+        {
+          "remaining": 0.005922405900289224,
+          "probe_power": 0.5044864165926083,
+          "conjugate_power": 0.08959917750710245
+        },
+        {
+          "remaining": 0.015351386578996942,
+          "probe_power": 0.49968536634243665,
+          "conjugate_power": 0.08497124707856622
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.511639972510753,
+          "conjugate_power": 0.1040781703913528
+        },
+        {
+          "remaining": 0.0506163002767788,
+          "probe_power": 0.48501845745356187,
+          "conjugate_power": 0.06437324226965949
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311971322229305,
+          "conjugate_power": 0.13714469908376004
+        },
+        {
+          "remaining": 0.011624801510069976,
+          "probe_power": 0.5035580242298343,
+          "conjugate_power": 0.08482517426009566
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5080179664693781,
+          "conjugate_power": 0.09488136611221504
+        },
+        {
+          "remaining": 0.059738149496568166,
+          "probe_power": 0.48158491066781245,
+          "conjugate_power": 0.05868493983561935
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5322862702360407,
+          "conjugate_power": 0.14013915014047876
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 0.5999801486640282,
+          "probe_power": 1.6926740371664475e-05,
+          "conjugate_power": 1.0924595600130917e-05
+        },
+        {
+          "remaining": 0.5998488197840639,
+          "probe_power": 7.987197269581575e-05,
+          "conjugate_power": 7.930824324023513e-05
+        },
+        {
+          "remaining": 0.599103080014945,
+          "probe_power": 0.0004418699636066877,
+          "conjugate_power": 0.00046305002144823523
+        },
+        {
+          "remaining": 0.5948763821802863,
+          "probe_power": 0.0024977457323592063,
+          "conjugate_power": 0.002633872087354451
+        },
+        {
+          "remaining": 0.5711064456621754,
+          "probe_power": 0.014066730384538671,
+          "conjugate_power": 0.014834823953285902
+        },
+        {
+          "remaining": 0.44361912126561964,
+          "probe_power": 0.07624907449081328,
+          "conjugate_power": 0.08013980424356704
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.3308790852892885,
+          "conjugate_power": 0.3400552621783508
+        },
+        {
+          "remaining": 0.0760180270841498,
+          "probe_power": 0.31366287267026116,
+          "conjugate_power": 0.210327100245589
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4772417499680103,
+          "conjugate_power": 0.33823733329976935
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4524100340832108,
+          "conjugate_power": 0.20920269562077773
+        },
+        {
+          "remaining": 0.04174398056751421,
+          "probe_power": 0.4288703554391278,
+          "conjugate_power": 0.12939366399335794
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.49224869466071186,
+          "conjugate_power": 0.19206889857649936
+        },
+        {
+          "remaining": 0.014575595214870158,
+          "probe_power": 0.4666361414184661,
+          "conjugate_power": 0.11879626336666374
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4816854502600535,
+          "conjugate_power": 0.12765308401434303
+        },
+        {
+          "remaining": 0.06443095023695349,
+          "probe_power": 0.45662252094278166,
+          "conjugate_power": 0.07895452882026485
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5176328664727524,
+          "conjugate_power": 0.16567016848985255
+        },
+        {
+          "remaining": 0.00684004716943228,
+          "probe_power": 0.4906995307498251,
+          "conjugate_power": 0.10246842208074261
+        },
+        {
+          "remaining": 0.01584734554621752,
+          "probe_power": 0.48826219374191265,
+          "conjugate_power": 0.09589846071186982
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5015572442810017,
+          "conjugate_power": 0.11264509713422526
+        },
+        {
+          "remaining": 0.05487568890312783,
+          "probe_power": 0.4754603510590997,
+          "conjugate_power": 0.0696719600377725
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5257652108797116,
+          "conjugate_power": 0.14624223950771836
+        },
+        {
+          "remaining": 0.011147183678671053,
+          "probe_power": 0.49840873517415607,
+          "conjugate_power": 0.09045208114717283
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5026612787176258,
+          "conjugate_power": 0.09795265389973193
+        },
+        {
+          "remaining": 0.06291650162046587,
+          "probe_power": 0.4765069406693667,
+          "conjugate_power": 0.06058455771016741
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5301203427699751,
+          "conjugate_power": 0.14531278716749
+        },
+        {
+          "remaining": 0.007593531108437087,
+          "probe_power": 0.5025372619994875,
+          "conjugate_power": 0.0898772068920755
+        },
+        {
+          "remaining": 0.010125091004948322,
+          "probe_power": 0.5006144860403371,
+          "conjugate_power": 0.08926842295471461
+        },
+        {
+          "remaining": 0.00032091569969801986,
+          "probe_power": 0.5040359355138012,
+          "conjugate_power": 0.09565114878650076
+        },
+        {
+          "remaining": 0.05248291544990225,
+          "probe_power": 0.48219622199374595,
+          "conjugate_power": 0.06532886255635174
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5313270858130835,
+          "conjugate_power": 0.14124337396483538
+        },
+        {
+          "remaining": 0.008966544014879018,
+          "probe_power": 0.5036812161093258,
+          "conjugate_power": 0.08736023987579519
+        },
+        {
+          "remaining": 0.0052576997823306675,
+          "probe_power": 0.5039529351492856,
+          "conjugate_power": 0.09079736506838369
+        },
+        {
+          "remaining": 0.018386332693165898,
+          "probe_power": 0.49776807833299025,
+          "conjugate_power": 0.08385358897384382
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5140806114656272,
+          "conjugate_power": 0.10915100423568307
+        },
+        {
+          "remaining": 0.04516506069818466,
+          "probe_power": 0.4873321057310511,
+          "conjugate_power": 0.06751083357076419
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5294377596634426,
+          "conjugate_power": 0.13379645181066147
+        },
+        {
+          "remaining": 0.015363550559245149,
+          "probe_power": 0.5018901948757253,
+          "conjugate_power": 0.08275425456502956
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5118867441950299,
+          "conjugate_power": 0.10104652274379204
+        },
+        {
+          "remaining": 0.052257468658719865,
+          "probe_power": 0.4852523891791537,
+          "conjugate_power": 0.06249814216212641
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5312667103696018,
+          "conjugate_power": 0.13633844529874345
+        },
+        {
+          "remaining": 0.0120575185256321,
+          "probe_power": 0.5036239821048717,
+          "conjugate_power": 0.08432649936949621
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5087836477465894,
+          "conjugate_power": 0.09553827340801054
+        },
+        {
+          "remaining": 0.05860600513971319,
+          "probe_power": 0.4823107522203239,
+          "conjugate_power": 0.05909124263996288
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.532559013486342,
+          "conjugate_power": 0.13979516375028728
+        },
+        {
+          "remaining": 0.00869444613062479,
+          "probe_power": 0.5048490444493322,
+          "conjugate_power": 0.08646450942004298
+        },
+        {
+          "remaining": 0.005826396036650874,
+          "probe_power": 0.5046210171185526,
+          "conjugate_power": 0.08956058684479651
+        },
+        {
+          "remaining": 0.015680498202996922,
+          "probe_power": 0.49962766084857674,
+          "conjugate_power": 0.08469984094842634
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5121035549368422,
+          "conjugate_power": 0.10460428277200379
+        },
+        {
+          "remaining": 0.04985143382227937,
+          "probe_power": 0.4854579188820757,
+          "conjugate_power": 0.06469864729564491
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311887437046209,
+          "conjugate_power": 0.13676162656854354
+        },
+        {
+          "remaining": 0.01186968719993092,
+          "probe_power": 0.5035500721806797,
+          "conjugate_power": 0.08458824061938935
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.508415755658667,
+          "conjugate_power": 0.09529376668542731
+        },
+        {
+          "remaining": 0.05910598467218212,
+          "probe_power": 0.4819620021957357,
+          "conjugate_power": 0.05894001313208217
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5324351162189167,
+          "conjugate_power": 0.1399985927808787
+        },
+        {
+          "remaining": 0.008686074205777763,
+          "probe_power": 0.504731593771594,
+          "conjugate_power": 0.08659033202262818
+        },
+        {
+          "remaining": 0.005922406471711835,
+          "probe_power": 0.5044864163421979,
+          "conjugate_power": 0.08959917718609023
+        },
+        {
+          "remaining": 0.015351384188327084,
+          "probe_power": 0.4996853673079868,
+          "conjugate_power": 0.0849712485036861
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5116399700045644,
+          "conjugate_power": 0.10407816669243701
+        },
+        {
+          "remaining": 0.05061630494037704,
+          "probe_power": 0.48501845507777464,
+          "conjugate_power": 0.06437323998184831
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311971333997174,
+          "conjugate_power": 0.13714470230731773
+        },
+        {
+          "remaining": 0.011624798400715246,
+          "probe_power": 0.503558025345391,
+          "conjugate_power": 0.08482517625389382
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5080179628021799,
+          "conjugate_power": 0.09488136090722904
+        },
+        {
+          "remaining": 0.0597381561922841,
+          "probe_power": 0.48158490719142505,
+          "conjugate_power": 0.05868493661629082
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5322862709795121,
+          "conjugate_power": 0.14013915370621796
+        }
+      ]
+    },
+    {
+      "legacy_centroid": false,
+      "pump_W": 0.05,
+      "seed_W": 0.0002,
+      "row4_python_probe_gain": 216.64078271111995,
+      "row4_compiled_probe_gain": 216.64078270979428,
+      "row4_python_conjugate_gain": 34.813930730721296,
+      "row4_compiled_conjugate_gain": 34.813930729100065,
+      "row4_mp90_probe_gain": 216.64078271028578,
+      "row4_mp90_conjugate_gain": 34.81393072970118,
+      "row4_python_mp90_conjugate_relative_error": 2.9302037400594735e-11,
+      "row4_compiled_mp90_conjugate_relative_error": 1.7266422849312274e-11,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 4.6568415790204654e-11,
+      "all_rows_max_capped_conjugate_relative_difference": 3.6423752902692286e-11,
+      "all_rows_max_conjugate_gain": 2.599112675209701e+46,
+      "row4_minimum_positive_remaining": 0.00021555975924006463,
+      "row4_minimum_positive_remaining_step0": 47,
+      "row4_python_trace": [
+        {
+          "remaining": 0.04950371660070512,
+          "probe_power": 0.00042316850929161195,
+          "conjugate_power": 0.00027311489000327277
+        },
+        {
+          "remaining": 0.04625977828838007,
+          "probe_power": 0.0019785430968297713,
+          "conjugate_power": 0.0019616786147901586
+        },
+        {
+          "remaining": 0.02944464982304207,
+          "probe_power": 0.010172783196687817,
+          "conjugate_power": 0.01058256698027011
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03687355100496212,
+          "conjugate_power": 0.03704476314998843
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03495495619995972,
+          "conjugate_power": 0.022912504169793596
+        },
+        {
+          "remaining": 0.0028922301754524225,
+          "probe_power": 0.033136189209894015,
+          "conjugate_power": 0.014171580614653564
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.039318718458164564,
+          "conjugate_power": 0.018523362004671445
+        },
+        {
+          "remaining": 0.001470244160771494,
+          "probe_power": 0.03727289735015586,
+          "conjugate_power": 0.011456858489072652
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03956210151658024,
+          "conjugate_power": 0.012685509163536324
+        },
+        {
+          "remaining": 0.0048502868660081095,
+          "probe_power": 0.0375036167659666,
+          "conjugate_power": 0.007846096368025279
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042844990918261085,
+          "conjugate_power": 0.014748709939930493
+        },
+        {
+          "remaining": 0.00046210449294941704,
+          "probe_power": 0.0406156917388821,
+          "conjugate_power": 0.009122203768168488
+        },
+        {
+          "remaining": 0.0018745658177345068,
+          "probe_power": 0.04023334091778127,
+          "conjugate_power": 0.008092093264484228
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042137888100781874,
+          "conjugate_power": 0.010510269945243646
+        },
+        {
+          "remaining": 0.00375392706342612,
+          "probe_power": 0.039945380707256,
+          "conjugate_power": 0.006500692229317882
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04355984451407205,
+          "conjugate_power": 0.011866493622321722
+        },
+        {
+          "remaining": 0.001567121515985979,
+          "probe_power": 0.04129335026240194,
+          "conjugate_power": 0.0073395282216120825
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04256555461756983,
+          "conjugate_power": 0.009287220063530425
+        },
+        {
+          "remaining": 0.004104979633255726,
+          "probe_power": 0.04035079499351501,
+          "conjugate_power": 0.0057442253732292526
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044076361981388285,
+          "conjugate_power": 0.011573954812718428
+        },
+        {
+          "remaining": 0.0012584171144697934,
+          "probe_power": 0.041782992430147686,
+          "conjugate_power": 0.007158590455382529
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04260309569508813,
+          "conjugate_power": 0.00857684997789223
+        },
+        {
+          "remaining": 0.004508761882134663,
+          "probe_power": 0.04038638274366621,
+          "conjugate_power": 0.0053048553741991255
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04436899751232783,
+          "conjugate_power": 0.011636271623210528
+        },
+        {
+          "remaining": 0.0009424644351927244,
+          "probe_power": 0.04206040162692312,
+          "conjugate_power": 0.007197133937884155
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04240354970138621,
+          "conjugate_power": 0.007960413060298344
+        },
+        {
+          "remaining": 0.005079196679574234,
+          "probe_power": 0.04019721947406982,
+          "conjugate_power": 0.00492358384635595
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.0445467269739112,
+          "conjugate_power": 0.011878451746764015
+        },
+        {
+          "remaining": 0.0006241920593158048,
+          "probe_power": 0.04222888351640137,
+          "conjugate_power": 0.007346924424282829
+        },
+        {
+          "remaining": 0.0008434234339230193,
+          "probe_power": 0.042033191108532604,
+          "conjugate_power": 0.007323385457544389
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04230375860676909,
+          "conjugate_power": 0.00789746006278227
+        },
+        {
+          "remaining": 0.0052127324401203285,
+          "probe_power": 0.040102620683163615,
+          "conjugate_power": 0.0048846468767160586
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044637246703914196,
+          "conjugate_power": 0.012059336910893687
+        },
+        {
+          "remaining": 0.0004265032002854132,
+          "probe_power": 0.04231469334787274,
+          "conjugate_power": 0.00745880345184185
+        },
+        {
+          "remaining": 0.0016264896868708207,
+          "probe_power": 0.04172016874518217,
+          "conjugate_power": 0.006853341567946999
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04315083288849792,
+          "conjugate_power": 0.00914315148085244
+        },
+        {
+          "remaining": 0.003639262061484602,
+          "probe_power": 0.040905620221015515,
+          "conjugate_power": 0.005655117717499872
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044289234096039326,
+          "conjugate_power": 0.011027135273641653
+        },
+        {
+          "remaining": 0.001394833686424085,
+          "probe_power": 0.04198478843951002,
+          "conjugate_power": 0.0068203778740658855
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042969899721714874,
+          "conjugate_power": 0.00859181833375592
+        },
+        {
+          "remaining": 0.00415178524846741,
+          "probe_power": 0.040734101320675,
+          "conjugate_power": 0.00531411343085758
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04443394196141758,
+          "conjugate_power": 0.011262062942542965
+        },
+        {
+          "remaining": 0.001112350441326143,
+          "probe_power": 0.04212196690369988,
+          "conjugate_power": 0.006965682654973978
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042708063541578904,
+          "conjugate_power": 0.00814805443636112
+        },
+        {
+          "remaining": 0.004674469419909659,
+          "probe_power": 0.040485888931068546,
+          "conjugate_power": 0.0050396416490217895
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04455107408436665,
+          "conjugate_power": 0.011573068340719793
+        },
+        {
+          "remaining": 0.0008089533960011107,
+          "probe_power": 0.04223300443916103,
+          "conjugate_power": 0.007158042164837848
+        },
+        {
+          "remaining": 0.00021555975924006463,
+          "probe_power": 0.042350552019991744,
+          "conjugate_power": 0.007633888220768193
+        },
+        {
+          "remaining": 0.00266402184585633,
+          "probe_power": 0.04126251356182402,
+          "conjugate_power": 0.006273464592319653
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.043916790621553466,
+          "conjugate_power": 0.010379348606729576
+        },
+        {
+          "remaining": 0.002148559898085921,
+          "probe_power": 0.04163172384489418,
+          "conjugate_power": 0.006419716257019907
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04356331241449712,
+          "conjugate_power": 0.009587445815880414
+        },
+        {
+          "remaining": 0.0029734446984786564,
+          "probe_power": 0.041296637721953855,
+          "conjugate_power": 0.005929917579567486
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04402085314962585,
+          "conjugate_power": 0.010349970764352404
+        },
+        {
+          "remaining": 0.002068082371638574,
+          "probe_power": 0.041730371819165446,
+          "conjugate_power": 0.006401545809195984
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04351924590394855,
+          "conjugate_power": 0.009406923754324377
+        },
+        {
+          "remaining": 0.00312687279756181,
+          "probe_power": 0.041254864068369396,
+          "conjugate_power": 0.005818263134068789
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04409536507032397,
+          "conjugate_power": 0.010441019187691955
+        },
+        {
+          "remaining": 0.0019411332035819346,
+          "probe_power": 0.04180100675541084,
+          "conjugate_power": 0.006457860041007216
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04343979352994911,
+          "conjugate_power": 0.00924284432246445
+        },
+        {
+          "remaining": 0.0033036756645685233,
+          "probe_power": 0.041179545739175684,
+          "conjugate_power": 0.005716778596255811
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04416933360939417,
+          "conjugate_power": 0.010575439746128507
+        },
+        {
+          "remaining": 0.0017878731060026977,
+          "probe_power": 0.04187112658311678,
+          "conjugate_power": 0.006541000310880542
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04332815654222398,
+          "conjugate_power": 0.009051621989987541
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 0.04950371660070512,
+          "probe_power": 0.0004231685092916119,
+          "conjugate_power": 0.00027311489000327293
+        },
+        {
+          "remaining": 0.04625977828838008,
+          "probe_power": 0.001978543096829771,
+          "conjugate_power": 0.0019616786147901573
+        },
+        {
+          "remaining": 0.029444649823042082,
+          "probe_power": 0.010172783196687813,
+          "conjugate_power": 0.010582566980270108
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.036873551004962125,
+          "conjugate_power": 0.03704476314998844
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03495495619995972,
+          "conjugate_power": 0.022912504169793603
+        },
+        {
+          "remaining": 0.002892230175452418,
+          "probe_power": 0.03313618920989401,
+          "conjugate_power": 0.014171580614653574
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03931871845816455,
+          "conjugate_power": 0.018523362004671445
+        },
+        {
+          "remaining": 0.0014702441607714904,
+          "probe_power": 0.037272897350155855,
+          "conjugate_power": 0.011456858489072654
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03956210151658023,
+          "conjugate_power": 0.012685509163536317
+        },
+        {
+          "remaining": 0.004850286866008132,
+          "probe_power": 0.03750361676596659,
+          "conjugate_power": 0.007846096368025276
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04284499091826109,
+          "conjugate_power": 0.014748709939930516
+        },
+        {
+          "remaining": 0.0004621044929493838,
+          "probe_power": 0.04061569173888211,
+          "conjugate_power": 0.009122203768168505
+        },
+        {
+          "remaining": 0.0018745658177346553,
+          "probe_power": 0.04023334091778121,
+          "conjugate_power": 0.008092093264484136
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042137888100781985,
+          "conjugate_power": 0.010510269945243832
+        },
+        {
+          "remaining": 0.003753927063425897,
+          "probe_power": 0.0399453807072561,
+          "conjugate_power": 0.006500692229318002
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.043559844514071966,
+          "conjugate_power": 0.01186649362232155
+        },
+        {
+          "remaining": 0.0015671215159861586,
+          "probe_power": 0.041293350262401864,
+          "conjugate_power": 0.007339528221611983
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04256555461756998,
+          "conjugate_power": 0.009287220063530667
+        },
+        {
+          "remaining": 0.0041049796332554315,
+          "probe_power": 0.04035079499351517,
+          "conjugate_power": 0.005744225373229405
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04407636198138822,
+          "conjugate_power": 0.011573954812718225
+        },
+        {
+          "remaining": 0.0012584171144699667,
+          "probe_power": 0.04178299243014763,
+          "conjugate_power": 0.007158590455382406
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04260309569508831,
+          "conjugate_power": 0.008576849977892473
+        },
+        {
+          "remaining": 0.004508761882134353,
+          "probe_power": 0.04038638274366638,
+          "conjugate_power": 0.0053048553741992755
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04436899751232778,
+          "conjugate_power": 0.011636271623210327
+        },
+        {
+          "remaining": 0.0009424644351929151,
+          "probe_power": 0.04206040162692305,
+          "conjugate_power": 0.007197133937884033
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042403549701386434,
+          "conjugate_power": 0.007960413060298668
+        },
+        {
+          "remaining": 0.005079196679573829,
+          "probe_power": 0.040197219474070026,
+          "conjugate_power": 0.0049235838463561514
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04454672697391114,
+          "conjugate_power": 0.01187845174676381
+        },
+        {
+          "remaining": 0.0006241920593159869,
+          "probe_power": 0.04222888351640131,
+          "conjugate_power": 0.007346924424282703
+        },
+        {
+          "remaining": 0.0008434234339223536,
+          "probe_power": 0.04203319110853288,
+          "conjugate_power": 0.007323385457544767
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04230375860676822,
+          "conjugate_power": 0.007897460062780968
+        },
+        {
+          "remaining": 0.005212732440121961,
+          "probe_power": 0.04010262068316279,
+          "conjugate_power": 0.004884646876715255
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04463724670391438,
+          "conjugate_power": 0.01205933691089451
+        },
+        {
+          "remaining": 0.00042650320028473417,
+          "probe_power": 0.04231469334787291,
+          "conjugate_power": 0.007458803451842359
+        },
+        {
+          "remaining": 0.0016264896868737866,
+          "probe_power": 0.04172016874518089,
+          "conjugate_power": 0.006853341567945327
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04315083288850049,
+          "conjugate_power": 0.009143151480856513
+        },
+        {
+          "remaining": 0.003639262061479649,
+          "probe_power": 0.04090562022101796,
+          "conjugate_power": 0.005655117717502395
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044289234096037584,
+          "conjugate_power": 0.011027135273637743
+        },
+        {
+          "remaining": 0.001394833686428153,
+          "probe_power": 0.041984788439508376,
+          "conjugate_power": 0.006820377874063471
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04296989972171867,
+          "conjugate_power": 0.00859181833376169
+        },
+        {
+          "remaining": 0.004151785248460252,
+          "probe_power": 0.040734101320678597,
+          "conjugate_power": 0.005314113430861152
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04443394196141581,
+          "conjugate_power": 0.011262062942538132
+        },
+        {
+          "remaining": 0.001112350441330817,
+          "probe_power": 0.042121966903698196,
+          "conjugate_power": 0.006965682654970991
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04270806354158402,
+          "conjugate_power": 0.008148054436368407
+        },
+        {
+          "remaining": 0.004674469419900323,
+          "probe_power": 0.04048588893107338,
+          "conjugate_power": 0.005039641649026299
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04455107408436512,
+          "conjugate_power": 0.01157306834071423
+        },
+        {
+          "remaining": 0.0008089533960059948,
+          "probe_power": 0.0422330044391596,
+          "conjugate_power": 0.007158042164834408
+        },
+        {
+          "remaining": 0.00021555975922474139,
+          "probe_power": 0.04235055201999832,
+          "conjugate_power": 0.0076338882207769385
+        },
+        {
+          "remaining": 0.0026640218459506922,
+          "probe_power": 0.04126251356178544,
+          "conjugate_power": 0.006273464592263875
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04391679062160743,
+          "conjugate_power": 0.010379348606818247
+        },
+        {
+          "remaining": 0.0021485598979799235,
+          "probe_power": 0.041631723844945324,
+          "conjugate_power": 0.006419716257074753
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04356331241442732,
+          "conjugate_power": 0.009587445815755399
+        },
+        {
+          "remaining": 0.002973444698622156,
+          "probe_power": 0.041296637721887686,
+          "conjugate_power": 0.005929917579490162
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04402085314969229,
+          "conjugate_power": 0.010349970764480042
+        },
+        {
+          "remaining": 0.0020680823714966635,
+          "probe_power": 0.04173037181922841,
+          "conjugate_power": 0.00640154580927493
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04351924590385326,
+          "conjugate_power": 0.009406923754162796
+        },
+        {
+          "remaining": 0.003126872797752091,
+          "probe_power": 0.04125486406827906,
+          "conjugate_power": 0.005818263133968851
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04409536507040446,
+          "conjugate_power": 0.010441019187855852
+        },
+        {
+          "remaining": 0.0019411332034042746,
+          "probe_power": 0.04180100675548714,
+          "conjugate_power": 0.006457860041108587
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04343979352982246,
+          "conjugate_power": 0.009242844322256753
+        },
+        {
+          "remaining": 0.003303675664817046,
+          "probe_power": 0.04117954573905561,
+          "conjugate_power": 0.005716778596127347
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044169333609489915,
+          "conjugate_power": 0.010575439746333886
+        },
+        {
+          "remaining": 0.001787873105784893,
+          "probe_power": 0.04187112658320754,
+          "conjugate_power": 0.006541000311007571
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.043328156542057156,
+          "conjugate_power": 0.009051621989722305
+        }
+      ]
+    },
+    {
+      "legacy_centroid": false,
+      "pump_W": 1.2,
+      "seed_W": 1e-06,
+      "row4_python_probe_gain": 1046166.0231537491,
+      "row4_compiled_probe_gain": 1046166.0231535868,
+      "row4_python_conjugate_gain": 183473.51920875188,
+      "row4_compiled_conjugate_gain": 183473.51920851573,
+      "row4_mp90_probe_gain": 1046166.0231545599,
+      "row4_mp90_conjugate_gain": 183473.51920993315,
+      "row4_python_mp90_conjugate_relative_error": 6.43834748286637e-12,
+      "row4_compiled_mp90_conjugate_relative_error": 7.725445922700255e-12,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 1.287081552447944e-12,
+      "all_rows_max_capped_conjugate_relative_difference": 9.859890681696015e-13,
+      "all_rows_max_conjugate_gain": 3.5923959608836264e+46,
+      "row4_minimum_positive_remaining": 0.006340105564808157,
+      "row4_minimum_positive_remaining_step0": 59,
+      "row4_python_trace": [
+        {
+          "remaining": 1.1999975185830036,
+          "probe_power": 2.1158425464580594e-06,
+          "conjugate_power": 1.3655744500163642e-06
+        },
+        {
+          "remaining": 1.1999811018556006,
+          "probe_power": 9.984283500415289e-06,
+          "conjugate_power": 9.913860898796627e-06
+        },
+        {
+          "remaining": 1.1998878546807556,
+          "probe_power": 5.5247927391073815e-05,
+          "conjugate_power": 5.7897391853265586e-05
+        },
+        {
+          "remaining": 1.199358472237051,
+          "probe_power": 0.0003127223947249293,
+          "conjugate_power": 0.0003298053682241189
+        },
+        {
+          "remaining": 1.1963529808616051,
+          "probe_power": 0.0017749111700631481,
+          "conjugate_power": 0.0018731079683315353
+        },
+        {
+          "remaining": 1.1793341228998382,
+          "probe_power": 0.010055921907968893,
+          "conjugate_power": 0.010610955192192876
+        },
+        {
+          "remaining": 1.0845454581934972,
+          "probe_power": 0.05621163823716138,
+          "conjugate_power": 0.05924390356934137
+        },
+        {
+          "remaining": 0.6054307565123581,
+          "probe_power": 0.2905465488986544,
+          "conjugate_power": 0.30402369458898754
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.949367143849417,
+          "conjugate_power": 0.9411002393775201
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8999699249598029,
+          "conjugate_power": 0.5820785807598801
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8531429290338095,
+          "conjugate_power": 0.3600206014223755
+        },
+        {
+          "remaining": 0.16857274304492534,
+          "probe_power": 0.808752422913351,
+          "conjugate_power": 0.22267583404172347
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.027649427400176,
+          "conjugate_power": 0.47464454213546525
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.974179045540063,
+          "conjugate_power": 0.29357172582845936
+        },
+        {
+          "remaining": 0.0949335458372888,
+          "probe_power": 0.9234908203766161,
+          "conjugate_power": 0.18157663378609507
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0188955832409654,
+          "conjugate_power": 0.31151655263833733
+        },
+        {
+          "remaining": 0.04144465763820465,
+          "probe_power": 0.9658806790733973,
+          "conjugate_power": 0.19267566328839816
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0034668692442845,
+          "conjugate_power": 0.24175551911944407
+        },
+        {
+          "remaining": 0.09921838726804566,
+          "probe_power": 0.9512547478224818,
+          "conjugate_power": 0.14952786490947256
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0429908390687646,
+          "conjugate_power": 0.28789146930011295
+        },
+        {
+          "remaining": 0.03321543670754956,
+          "probe_power": 0.9887222169544163,
+          "conjugate_power": 0.17806334633803433
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.013359066270661,
+          "conjugate_power": 0.21587047494164985
+        },
+        {
+          "remaining": 0.10585102054749501,
+          "probe_power": 0.960632236682501,
+          "conjugate_power": 0.1335177427700039
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0549979420678488,
+          "conjugate_power": 0.2813660359812889
+        },
+        {
+          "remaining": 0.02586912065208949,
+          "probe_power": 1.0001045695617068,
+          "conjugate_power": 0.1740273097862036
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.013637903569463,
+          "conjugate_power": 0.19858416446691957
+        },
+        {
+          "remaining": 0.11627842313021168,
+          "probe_power": 0.9608965655930852,
+          "conjugate_power": 0.12282601127670308
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0615549549123928,
+          "conjugate_power": 0.28286687659538057
+        },
+        {
+          "remaining": 0.018724997747146838,
+          "probe_power": 1.0063204096567597,
+          "conjugate_power": 0.1749555925960933
+        },
+        {
+          "remaining": 0.00788957436980306,
+          "probe_power": 1.0083904637480805,
+          "conjugate_power": 0.18372096188211676
+        },
+        {
+          "remaining": 0.049264150861829115,
+          "probe_power": 0.9899390095585304,
+          "conjugate_power": 0.16079783957964067
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0382064976757486,
+          "conjugate_power": 0.23465869966874842
+        },
+        {
+          "remaining": 0.07067576573121323,
+          "probe_power": 0.9841868131410971,
+          "conjugate_power": 0.14513842112768968
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0507554376610109,
+          "conjugate_power": 0.250783688674104
+        },
+        {
+          "remaining": 0.04880632466538845,
+          "probe_power": 0.9960828100165192,
+          "conjugate_power": 0.1551118653180921
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0385511264228313,
+          "conjugate_power": 0.22564137220143335
+        },
+        {
+          "remaining": 0.075926363099976,
+          "probe_power": 0.984513510256813,
+          "conjugate_power": 0.139561126643211
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0536987077134086,
+          "conjugate_power": 0.25155565717179923
+        },
+        {
+          "remaining": 0.04553872891211405,
+          "probe_power": 0.9988729366238639,
+          "conjugate_power": 0.15558933446402176
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0371663313392974,
+          "conjugate_power": 0.22051563715593442
+        },
+        {
+          "remaining": 0.08040941604217122,
+          "probe_power": 0.983200768462991,
+          "conjugate_power": 0.13639081549483784
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0560512590759528,
+          "conjugate_power": 0.254467599900855
+        },
+        {
+          "remaining": 0.041507523289420784,
+          "probe_power": 1.001103080659214,
+          "conjugate_power": 0.15739039605136548
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0345644287421072,
+          "conjugate_power": 0.21518770106688193
+        },
+        {
+          "remaining": 0.08617131136543138,
+          "probe_power": 0.9807342473701594,
+          "conjugate_power": 0.13309544126440906
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0583302597888522,
+          "conjugate_power": 0.25868017263855214
+        },
+        {
+          "remaining": 0.03674159051762341,
+          "probe_power": 1.0032635010127717,
+          "conjugate_power": 0.15999590846960524
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0308085126773434,
+          "conjugate_power": 0.20888618285502492
+        },
+        {
+          "remaining": 0.0936293437388877,
+          "probe_power": 0.9771737581317647,
+          "conjugate_power": 0.12919789812934784
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0606461403160918,
+          "conjugate_power": 0.26400385027542705
+        },
+        {
+          "remaining": 0.031253468929238276,
+          "probe_power": 1.005458882259973,
+          "conjugate_power": 0.1632886488107881
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0258041009020646,
+          "conjugate_power": 0.20126304750682616
+        },
+        {
+          "remaining": 0.10308834197552255,
+          "probe_power": 0.9724297345798188,
+          "conjugate_power": 0.12448292344465864
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0629042168824356,
+          "conjugate_power": 0.27029401975032397
+        },
+        {
+          "remaining": 0.025222360158822538,
+          "probe_power": 1.0075994671866073,
+          "conjugate_power": 0.16717917265457002
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.019431325534182,
+          "conjugate_power": 0.19219850510905923
+        },
+        {
+          "remaining": 0.11473602811380128,
+          "probe_power": 0.966388545766012,
+          "conjugate_power": 0.11887642612018674
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.064830807336611,
+          "conjugate_power": 0.2772861133377153
+        },
+        {
+          "remaining": 0.01907134361119245,
+          "probe_power": 1.0094258137983532,
+          "conjugate_power": 0.17150384259045381
+        },
+        {
+          "remaining": 0.006340105564808157,
+          "probe_power": 1.0117173785913227,
+          "conjugate_power": 0.18194351584386856
+        },
+        {
+          "remaining": 0.05696357639748012,
+          "probe_power": 0.9889954829722106,
+          "conjugate_power": 0.15404194063030946
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0451345051982628,
+          "conjugate_power": 0.24089467160373726
+        },
+        {
+          "remaining": 0.06025123225479609,
+          "probe_power": 0.9907543444176448,
+          "conjugate_power": 0.14899542332755913
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.046166023153749,
+          "conjugate_power": 0.23851557497137738
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 1.1999975185830034,
+          "probe_power": 2.1158425464580594e-06,
+          "conjugate_power": 1.3655744500163646e-06
+        },
+        {
+          "remaining": 1.1999811018556008,
+          "probe_power": 9.984283500415287e-06,
+          "conjugate_power": 9.913860898796627e-06
+        },
+        {
+          "remaining": 1.1998878546807556,
+          "probe_power": 5.524792739107384e-05,
+          "conjugate_power": 5.789739185326563e-05
+        },
+        {
+          "remaining": 1.199358472237051,
+          "probe_power": 0.0003127223947249295,
+          "conjugate_power": 0.0003298053682241189
+        },
+        {
+          "remaining": 1.1963529808616054,
+          "probe_power": 0.0017749111700631488,
+          "conjugate_power": 0.0018731079683315353
+        },
+        {
+          "remaining": 1.1793341228998382,
+          "probe_power": 0.010055921907968899,
+          "conjugate_power": 0.010610955192192885
+        },
+        {
+          "remaining": 1.0845454581934972,
+          "probe_power": 0.05621163823716141,
+          "conjugate_power": 0.059243903569341394
+        },
+        {
+          "remaining": 0.6054307565123577,
+          "probe_power": 0.2905465488986545,
+          "conjugate_power": 0.30402369458898776
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.9493671438494173,
+          "conjugate_power": 0.9411002393775202
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8999699249598032,
+          "conjugate_power": 0.5820785807598805
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8531429290338095,
+          "conjugate_power": 0.36002060142237585
+        },
+        {
+          "remaining": 0.16857274304492512,
+          "probe_power": 0.8087524229133511,
+          "conjugate_power": 0.22267583404172372
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0276494274001753,
+          "conjugate_power": 0.474644542135465
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.9741790455400625,
+          "conjugate_power": 0.2935717258284593
+        },
+        {
+          "remaining": 0.09493354583728945,
+          "probe_power": 0.9234908203766155,
+          "conjugate_power": 0.181576633786095
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0188955832409659,
+          "conjugate_power": 0.3115165526383383
+        },
+        {
+          "remaining": 0.04144465763820388,
+          "probe_power": 0.9658806790733974,
+          "conjugate_power": 0.19267566328839877
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0034668692442839,
+          "conjugate_power": 0.2417555191194431
+        },
+        {
+          "remaining": 0.09921838726804662,
+          "probe_power": 0.9512547478224813,
+          "conjugate_power": 0.14952786490947198
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0429908390687643,
+          "conjugate_power": 0.28789146930011345
+        },
+        {
+          "remaining": 0.03321543670754914,
+          "probe_power": 0.9887222169544161,
+          "conjugate_power": 0.1780633463380347
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0133590662706606,
+          "conjugate_power": 0.21587047494164938
+        },
+        {
+          "remaining": 0.10585102054749604,
+          "probe_power": 0.9606322366825002,
+          "conjugate_power": 0.13351774277000367
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0549979420678492,
+          "conjugate_power": 0.2813660359812899
+        },
+        {
+          "remaining": 0.025869120652088292,
+          "probe_power": 1.0001045695617075,
+          "conjugate_power": 0.17402730978620426
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.013637903569461,
+          "conjugate_power": 0.1985841644669176
+        },
+        {
+          "remaining": 0.11627842313021453,
+          "probe_power": 0.9608965655930836,
+          "conjugate_power": 0.12282601127670183
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.061554954912393,
+          "conjugate_power": 0.2828668765953823
+        },
+        {
+          "remaining": 0.018724997747145766,
+          "probe_power": 1.0063204096567597,
+          "conjugate_power": 0.17495559259609442
+        },
+        {
+          "remaining": 0.007889574369806675,
+          "probe_power": 1.0083904637480783,
+          "conjugate_power": 0.18372096188211506
+        },
+        {
+          "remaining": 0.049264150861810324,
+          "probe_power": 0.9899390095585378,
+          "conjugate_power": 0.1607978395796519
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0382064976757346,
+          "conjugate_power": 0.23465869966872666
+        },
+        {
+          "remaining": 0.0706757657312399,
+          "probe_power": 0.9841868131410838,
+          "conjugate_power": 0.14513842112767625
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0507554376610224,
+          "conjugate_power": 0.2507836886741296
+        },
+        {
+          "remaining": 0.04880632466536124,
+          "probe_power": 0.9960828100165308,
+          "conjugate_power": 0.15511186531810794
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0385511264228118,
+          "conjugate_power": 0.2256413722014026
+        },
+        {
+          "remaining": 0.07592636310001342,
+          "probe_power": 0.9845135102567946,
+          "conjugate_power": 0.13956112664319198
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0536987077134237,
+          "conjugate_power": 0.25155565717183176
+        },
+        {
+          "remaining": 0.04553872891207957,
+          "probe_power": 0.9988729366238784,
+          "conjugate_power": 0.15558933446404188
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0371663313392718,
+          "conjugate_power": 0.2205156371558938
+        },
+        {
+          "remaining": 0.08040941604222071,
+          "probe_power": 0.9832007684629666,
+          "conjugate_power": 0.13639081549481272
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0560512590759712,
+          "conjugate_power": 0.2544675999008959
+        },
+        {
+          "remaining": 0.0415075232893777,
+          "probe_power": 1.0011030806592314,
+          "conjugate_power": 0.1573903960513908
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0345644287420734,
+          "conjugate_power": 0.21518770106682839
+        },
+        {
+          "remaining": 0.08617131136549686,
+          "probe_power": 0.9807342473701272,
+          "conjugate_power": 0.13309544126437595
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0583302597888737,
+          "conjugate_power": 0.2586801726386027
+        },
+        {
+          "remaining": 0.036741590517571,
+          "probe_power": 1.0032635010127924,
+          "conjugate_power": 0.15999590846963652
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0308085126772975,
+          "conjugate_power": 0.2088861828549554
+        },
+        {
+          "remaining": 0.09362934373897357,
+          "probe_power": 0.9771737581317215,
+          "conjugate_power": 0.1291978981293049
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0606461403161158,
+          "conjugate_power": 0.2640038502754882
+        },
+        {
+          "remaining": 0.031253468929178345,
+          "probe_power": 1.0054588822599957,
+          "conjugate_power": 0.163288648810826
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.025804100902006,
+          "conjugate_power": 0.20126304750674096
+        },
+        {
+          "remaining": 0.10308834197563088,
+          "probe_power": 0.9724297345797631,
+          "conjugate_power": 0.12448292344460596
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0629042168824587,
+          "conjugate_power": 0.27029401975039474
+        },
+        {
+          "remaining": 0.02522236015875698,
+          "probe_power": 1.007599467186629,
+          "conjugate_power": 0.16717917265461388
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0194313255341072,
+          "conjugate_power": 0.19219850510895636
+        },
+        {
+          "remaining": 0.11473602811393606,
+          "probe_power": 0.9663885457659408,
+          "conjugate_power": 0.11887642612012311
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.06483080733663,
+          "conjugate_power": 0.2772861133377937
+        },
+        {
+          "remaining": 0.01907134361112623,
+          "probe_power": 1.0094258137983714,
+          "conjugate_power": 0.1715038425905024
+        },
+        {
+          "remaining": 0.006340105565016555,
+          "probe_power": 1.0117173785912321,
+          "conjugate_power": 0.18194351584375137
+        },
+        {
+          "remaining": 0.05696357639631677,
+          "probe_power": 0.9889954829726844,
+          "conjugate_power": 0.1540419406309988
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0451345051975147,
+          "conjugate_power": 0.24089467160254324
+        },
+        {
+          "remaining": 0.06025123225624337,
+          "probe_power": 0.990754344416936,
+          "conjugate_power": 0.14899542332682064
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.04616602315456,
+          "conjugate_power": 0.2385155749729131
+        }
+      ]
+    },
+    {
+      "legacy_centroid": true,
+      "pump_W": 0.6,
+      "seed_W": 8e-06,
+      "row4_python_probe_gain": 60950.39512645549,
+      "row4_compiled_probe_gain": 60950.39509806053,
+      "row4_python_conjugate_gain": 6433.814755229695,
+      "row4_compiled_conjugate_gain": 6433.814733908509,
+      "row4_mp90_probe_gain": 60950.39515481243,
+      "row4_mp90_conjugate_gain": 6433.8147765223275,
+      "row4_python_mp90_conjugate_relative_error": 3.309487951032081e-09,
+      "row4_compiled_mp90_conjugate_relative_error": 6.623413951208249e-09,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 3.3139260224857026e-09,
+      "all_rows_max_capped_conjugate_relative_difference": 2.8286235576047147e-09,
+      "all_rows_max_conjugate_gain": 3.1949986118792397e+46,
+      "row4_minimum_positive_remaining": 0.005277350510960455,
+      "row4_minimum_positive_remaining_step0": 60,
+      "row4_python_trace": [
+        {
+          "remaining": 0.5999801489096547,
+          "probe_power": 1.6926625730722906e-05,
+          "conjugate_power": 1.0924464614616688e-05
+        },
+        {
+          "remaining": 0.5998488226067068,
+          "probe_power": 7.987060862033935e-05,
+          "conjugate_power": 7.930678467281701e-05
+        },
+        {
+          "remaining": 0.5991031040270051,
+          "probe_power": 0.00044185829218221077,
+          "conjugate_power": 0.0004630376808127334
+        },
+        {
+          "remaining": 0.5948765634838815,
+          "probe_power": 0.00249765752543056,
+          "conjugate_power": 0.0026337789906879065
+        },
+        {
+          "remaining": 0.5711077124962498,
+          "probe_power": 0.014066113639327108,
+          "conjugate_power": 0.014834173864423107
+        },
+        {
+          "remaining": 0.44362698181108207,
+          "probe_power": 0.07624523440012802,
+          "conjugate_power": 0.08013578378878995
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.33086478140061115,
+          "conjugate_power": 0.34004112340427545
+        },
+        {
+          "remaining": 0.07603973141288697,
+          "probe_power": 0.31364939843430567,
+          "conjugate_power": 0.21031887015280729
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.47725757927344664,
+          "conjugate_power": 0.33826549575862935
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.45242516294317514,
+          "conjugate_power": 0.20922062651537415
+        },
+        {
+          "remaining": 0.04171811492109195,
+          "probe_power": 0.4288848138897368,
+          "conjugate_power": 0.12940507118917116
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4922301877789349,
+          "conjugate_power": 0.19203491453253946
+        },
+        {
+          "remaining": 0.014613740766959926,
+          "probe_power": 0.4666187245270314,
+          "conjugate_power": 0.11877553470600849
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.48173009372802794,
+          "conjugate_power": 0.12772249696114218
+        },
+        {
+          "remaining": 0.06434537942099135,
+          "probe_power": 0.45666496586879884,
+          "conjugate_power": 0.07899765471020981
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5176186539964472,
+          "conjugate_power": 0.16562133005694846
+        },
+        {
+          "remaining": 0.006883342768892062,
+          "probe_power": 0.4906861913712912,
+          "conjugate_power": 0.10243846585981671
+        },
+        {
+          "remaining": 0.01567935206882247,
+          "probe_power": 0.4883331036359601,
+          "conjugate_power": 0.09599554429521741
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.501384275195147,
+          "conjugate_power": 0.11238001867941985
+        },
+        {
+          "remaining": 0.05520331184459647,
+          "probe_power": 0.4752965112626149,
+          "conjugate_power": 0.06950817689278872
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5258355852905121,
+          "conjugate_power": 0.14645037891496615
+        },
+        {
+          "remaining": 0.010951377498417791,
+          "probe_power": 0.4984755836011004,
+          "conjugate_power": 0.0905810389004818
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5024191191546872,
+          "conjugate_power": 0.09761338885927369
+        },
+        {
+          "remaining": 0.06335562207012821,
+          "probe_power": 0.47627751076340574,
+          "conjugate_power": 0.06037486716646621
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.530158235344944,
+          "conjugate_power": 0.1455361562777217
+        },
+        {
+          "remaining": 0.007419097244224543,
+          "probe_power": 0.5025733197925296,
+          "conjugate_power": 0.09001558296324572
+        },
+        {
+          "remaining": 0.01074928050817718,
+          "probe_power": 0.5003358753445118,
+          "conjugate_power": 0.08892284414731096
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5048283165843122,
+          "conjugate_power": 0.09685703707793035
+        },
+        {
+          "remaining": 0.0615395899569289,
+          "probe_power": 0.4785613540945471,
+          "conjugate_power": 0.059907055948523996
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5322772944209052,
+          "conjugate_power": 0.14448317519335785
+        },
+        {
+          "remaining": 0.006061575378544001,
+          "probe_power": 0.5045821210968221,
+          "conjugate_power": 0.08936430352463383
+        },
+        {
+          "remaining": 0.01568966260674315,
+          "probe_power": 0.4995284320007579,
+          "conjugate_power": 0.08478990539249892
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5115057540143538,
+          "conjugate_power": 0.10426997626709225
+        },
+        {
+          "remaining": 0.05062461167388638,
+          "probe_power": 0.4848913545985273,
+          "conjugate_power": 0.06449203372758633
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.530908046017587,
+          "conjugate_power": 0.13719562765681548
+        },
+        {
+          "remaining": 0.011867001541413222,
+          "probe_power": 0.5032841167090781,
+          "conjugate_power": 0.08485688174950867
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5081924688387598,
+          "conjugate_power": 0.09552155235651733
+        },
+        {
+          "remaining": 0.05917649030228195,
+          "probe_power": 0.48175046454136516,
+          "conjugate_power": 0.05908104515635287
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5324376199696316,
+          "conjugate_power": 0.14038116936947842
+        },
+        {
+          "remaining": 0.008446723848103521,
+          "probe_power": 0.5047341046705915,
+          "conjugate_power": 0.0868271714813049
+        },
+        {
+          "remaining": 0.006674822002026751,
+          "probe_power": 0.5041016499531588,
+          "conjugate_power": 0.08923152804481448
+        },
+        {
+          "remaining": 0.012230405530219535,
+          "probe_power": 0.500897397072814,
+          "conjugate_power": 0.08688019739696629
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5081561368046382,
+          "conjugate_power": 0.0990658584659532
+        },
+        {
+          "remaining": 0.05701874279135551,
+          "probe_power": 0.48171602291660875,
+          "conjugate_power": 0.06127323429203573
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5327432520940063,
+          "conjugate_power": 0.1415648682515598
+        },
+        {
+          "remaining": 0.0074248644972037675,
+          "probe_power": 0.5050238343043907,
+          "conjugate_power": 0.0875593011984054
+        },
+        {
+          "remaining": 0.010401354885800934,
+          "probe_power": 0.5024796850809942,
+          "conjugate_power": 0.08712696003320489
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5061149501530604,
+          "conjugate_power": 0.09469382499589048
+        },
+        {
+          "remaining": 0.061657870358949596,
+          "probe_power": 0.47978104221951134,
+          "conjugate_power": 0.058569087421539046
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5331401517493158,
+          "conjugate_power": 0.14316419524657126
+        },
+        {
+          "remaining": 0.006059416212917806,
+          "probe_power": 0.5054000826847705,
+          "conjugate_power": 0.08854850110231163
+        },
+        {
+          "remaining": 0.015530188039259596,
+          "probe_power": 0.5002734419482672,
+          "conjugate_power": 0.08420437001247322
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5119166884282006,
+          "conjugate_power": 0.10346495885725625
+        },
+        {
+          "remaining": 0.05073297018499118,
+          "probe_power": 0.48528090748824076,
+          "conjugate_power": 0.06399412232676807
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311588157424382,
+          "conjugate_power": 0.136683124900023
+        },
+        {
+          "remaining": 0.011946267868235758,
+          "probe_power": 0.503521838514984,
+          "conjugate_power": 0.08453989361678023
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5084825860844264,
+          "conjugate_power": 0.09538919873647117
+        },
+        {
+          "remaining": 0.058983330336274974,
+          "probe_power": 0.48202548655849736,
+          "conjugate_power": 0.058999183105227816
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5323331626394749,
+          "conjugate_power": 0.13981733060802934
+        },
+        {
+          "remaining": 0.00889448607942267,
+          "probe_power": 0.5046350824095124,
+          "conjugate_power": 0.08647843151106505
+        },
+        {
+          "remaining": 0.005277350510960455,
+          "probe_power": 0.5047376896019783,
+          "conjugate_power": 0.08999295988706102
+        },
+        {
+          "remaining": 0.018162712698729322,
+          "probe_power": 0.4985240412888929,
+          "conjugate_power": 0.08332124601237775
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5143664042835892,
+          "conjugate_power": 0.10818202186879097
+        },
+        {
+          "remaining": 0.045493165533967234,
+          "probe_power": 0.4876031610116441,
+          "conjugate_power": 0.06691167345438881
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 0.5999801489096547,
+          "probe_power": 1.6926625730722903e-05,
+          "conjugate_power": 1.0924464614616687e-05
+        },
+        {
+          "remaining": 0.5998488226067068,
+          "probe_power": 7.987060862033941e-05,
+          "conjugate_power": 7.930678467281707e-05
+        },
+        {
+          "remaining": 0.5991031040270051,
+          "probe_power": 0.00044185829218221093,
+          "conjugate_power": 0.0004630376808127337
+        },
+        {
+          "remaining": 0.5948765634838815,
+          "probe_power": 0.0024976575254305623,
+          "conjugate_power": 0.0026337789906879074
+        },
+        {
+          "remaining": 0.5711077124962497,
+          "probe_power": 0.014066113639327117,
+          "conjugate_power": 0.014834173864423119
+        },
+        {
+          "remaining": 0.4436269818110819,
+          "probe_power": 0.07624523440012809,
+          "conjugate_power": 0.08013578378879001
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.33086478140061143,
+          "conjugate_power": 0.3400411234042755
+        },
+        {
+          "remaining": 0.07603973141288677,
+          "probe_power": 0.31364939843430584,
+          "conjugate_power": 0.21031887015280734
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.4772575792734464,
+          "conjugate_power": 0.338265495758629
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.45242516294317475,
+          "conjugate_power": 0.20922062651537393
+        },
+        {
+          "remaining": 0.0417181149210926,
+          "probe_power": 0.4288848138897364,
+          "conjugate_power": 0.12940507118917094
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.49223018777893546,
+          "conjugate_power": 0.19203491453254037
+        },
+        {
+          "remaining": 0.014613740766959094,
+          "probe_power": 0.46661872452703185,
+          "conjugate_power": 0.11877553470600902
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.48173009372802683,
+          "conjugate_power": 0.1277224969611407
+        },
+        {
+          "remaining": 0.0643453794209935,
+          "probe_power": 0.45666496586879757,
+          "conjugate_power": 0.07899765471020889
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5176186539964474,
+          "conjugate_power": 0.16562133005694982
+        },
+        {
+          "remaining": 0.006883342768891306,
+          "probe_power": 0.4906861913712911,
+          "conjugate_power": 0.10243846585981754
+        },
+        {
+          "remaining": 0.015679352068825442,
+          "probe_power": 0.48833310363595855,
+          "conjugate_power": 0.09599554429521596
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5013842751951498,
+          "conjugate_power": 0.11238001867942486
+        },
+        {
+          "remaining": 0.05520331184459062,
+          "probe_power": 0.47529651126261757,
+          "conjugate_power": 0.06950817689279179
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5258355852905109,
+          "conjugate_power": 0.14645037891496257
+        },
+        {
+          "remaining": 0.010951377498421273,
+          "probe_power": 0.49847558360109917,
+          "conjugate_power": 0.09058103890047957
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5024191191546916,
+          "conjugate_power": 0.09761338885927975
+        },
+        {
+          "remaining": 0.06335562207012045,
+          "probe_power": 0.4762775107634096,
+          "conjugate_power": 0.060374867166469955
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5301582353449429,
+          "conjugate_power": 0.14553615627771785
+        },
+        {
+          "remaining": 0.0074190972442283116,
+          "probe_power": 0.5025733197925284,
+          "conjugate_power": 0.09001558296324332
+        },
+        {
+          "remaining": 0.010749280508163478,
+          "probe_power": 0.5003358753445175,
+          "conjugate_power": 0.088922844147319
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.504828316584295,
+          "conjugate_power": 0.0968570370779047
+        },
+        {
+          "remaining": 0.061539589956961405,
+          "probe_power": 0.47856135409453043,
+          "conjugate_power": 0.05990705594850812
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5322772944209089,
+          "conjugate_power": 0.14448317519337484
+        },
+        {
+          "remaining": 0.0060615753785302935,
+          "probe_power": 0.5045821210968253,
+          "conjugate_power": 0.08936430352464435
+        },
+        {
+          "remaining": 0.01568966260679787,
+          "probe_power": 0.4995284320007339,
+          "conjugate_power": 0.08478990539246822
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5115057540144085,
+          "conjugate_power": 0.10426997626717727
+        },
+        {
+          "remaining": 0.05062461167378198,
+          "probe_power": 0.48489135459857907,
+          "conjugate_power": 0.06449203372763891
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5309080460175606,
+          "conjugate_power": 0.13719562765674537
+        },
+        {
+          "remaining": 0.01186700154148163,
+          "probe_power": 0.503284116709053,
+          "conjugate_power": 0.08485688174946528
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5081924688388392,
+          "conjugate_power": 0.09552155235663126
+        },
+        {
+          "remaining": 0.05917649030213636,
+          "probe_power": 0.48175046454144027,
+          "conjugate_power": 0.05908104515642334
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5324376199696137,
+          "conjugate_power": 0.14038116936939934
+        },
+        {
+          "remaining": 0.00844672384816975,
+          "probe_power": 0.5047341046705742,
+          "conjugate_power": 0.08682717148125599
+        },
+        {
+          "remaining": 0.006674822001804683,
+          "probe_power": 0.5041016499532556,
+          "conjugate_power": 0.08923152804493975
+        },
+        {
+          "remaining": 0.012230405531099215,
+          "probe_power": 0.5008973970724593,
+          "conjugate_power": 0.08688019739644146
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5081561368056976,
+          "conjugate_power": 0.0990658584674964
+        },
+        {
+          "remaining": 0.05701874278939702,
+          "probe_power": 0.4817160229176128,
+          "conjugate_power": 0.0612732342929902
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5327432520936636,
+          "conjugate_power": 0.14156486825038966
+        },
+        {
+          "remaining": 0.0074248644982525544,
+          "probe_power": 0.5050238343040658,
+          "conjugate_power": 0.08755930119768163
+        },
+        {
+          "remaining": 0.010401354882017962,
+          "probe_power": 0.5024796850826022,
+          "conjugate_power": 0.08712696003537979
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5061149501482386,
+          "conjugate_power": 0.09469382498870527
+        },
+        {
+          "remaining": 0.06165787036796475,
+          "probe_power": 0.47978104221494033,
+          "conjugate_power": 0.058569087417094906
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5331401517503058,
+          "conjugate_power": 0.1431641952511416
+        },
+        {
+          "remaining": 0.006059416209152812,
+          "probe_power": 0.5054000826857087,
+          "conjugate_power": 0.08854850110513844
+        },
+        {
+          "remaining": 0.015530188054220115,
+          "probe_power": 0.500273441941744,
+          "conjugate_power": 0.0842043700040359
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5119166884432532,
+          "conjugate_power": 0.10346495888050981
+        },
+        {
+          "remaining": 0.05073297015633929,
+          "probe_power": 0.4852809075025101,
+          "conjugate_power": 0.0639941223411506
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5311588157353525,
+          "conjugate_power": 0.1366831248809085
+        },
+        {
+          "remaining": 0.01194626788677557,
+          "probe_power": 0.5035218385082667,
+          "conjugate_power": 0.08453989360495771
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5084825861058678,
+          "conjugate_power": 0.09538919876708105
+        },
+        {
+          "remaining": 0.058983330297016856,
+          "probe_power": 0.48202548657882277,
+          "conjugate_power": 0.058999183124160325
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.532333162634643,
+          "conjugate_power": 0.13981733058664336
+        },
+        {
+          "remaining": 0.008894486097230573,
+          "probe_power": 0.5046350824049318,
+          "conjugate_power": 0.08647843149783761
+        },
+        {
+          "remaining": 0.005277350453061856,
+          "probe_power": 0.5047376896273202,
+          "conjugate_power": 0.08999295991961782
+        },
+        {
+          "remaining": 0.018162712954167378,
+          "probe_power": 0.49852404118551696,
+          "conjugate_power": 0.08332124586031561
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.5143664045228962,
+          "conjugate_power": 0.10818202222681808
+        },
+        {
+          "remaining": 0.045493165085668336,
+          "probe_power": 0.48760316123849945,
+          "conjugate_power": 0.06691167367583221
+        }
+      ]
+    },
+    {
+      "legacy_centroid": true,
+      "pump_W": 0.05,
+      "seed_W": 0.0002,
+      "row4_python_probe_gain": 204.7956658439022,
+      "row4_compiled_probe_gain": 204.79566584329896,
+      "row4_python_conjugate_gain": 21.051444837854586,
+      "row4_compiled_conjugate_gain": 21.051444837387148,
+      "row4_mp90_probe_gain": 204.79566584305877,
+      "row4_mp90_conjugate_gain": 21.051444837201103,
+      "row4_python_mp90_conjugate_relative_error": 3.10421734193789e-11,
+      "row4_compiled_mp90_conjugate_relative_error": 8.837633647310331e-12,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 2.2204571514805593e-11,
+      "all_rows_max_capped_conjugate_relative_difference": 1.900390955711373e-11,
+      "all_rows_max_conjugate_gain": 2.5976542441009117e+46,
+      "row4_minimum_positive_remaining": 0.0002483402805337747,
+      "row4_minimum_positive_remaining_step0": 30,
+      "row4_python_trace": [
+        {
+          "remaining": 0.04950372274136651,
+          "probe_power": 0.0004231656432680726,
+          "conjugate_power": 0.00027311161536541724
+        },
+        {
+          "remaining": 0.046259847472062444,
+          "probe_power": 0.001978509641140463,
+          "conjugate_power": 0.001961642886797092
+        },
+        {
+          "remaining": 0.02944515902452976,
+          "probe_power": 0.010172534178207387,
+          "conjugate_power": 0.010582306797262853
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.036872867451128555,
+          "conjugate_power": 0.037044138533372045
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03495431772954786,
+          "conjugate_power": 0.022912173928034157
+        },
+        {
+          "remaining": 0.002892995969153392,
+          "probe_power": 0.033135592981955335,
+          "conjugate_power": 0.014171411048891282
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03931942462960698,
+          "conjugate_power": 0.01852480530785719
+        },
+        {
+          "remaining": 0.0014686438402140949,
+          "probe_power": 0.03727357692666311,
+          "conjugate_power": 0.011457779233122793
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03956003057320913,
+          "conjugate_power": 0.012682554185994482
+        },
+        {
+          "remaining": 0.004854048320292457,
+          "probe_power": 0.037501663787860816,
+          "conjugate_power": 0.007844287891846725
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04284614763752243,
+          "conjugate_power": 0.014751639789541155
+        },
+        {
+          "remaining": 0.00045916242837096104,
+          "probe_power": 0.04061679933067526,
+          "conjugate_power": 0.00912403824095378
+        },
+        {
+          "remaining": 0.001887580028669884,
+          "probe_power": 0.040228012287939346,
+          "conjugate_power": 0.008084407683390755
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042148618417292436,
+          "conjugate_power": 0.01052701354862218
+        },
+        {
+          "remaining": 0.003733372183711361,
+          "probe_power": 0.03995556358539781,
+          "conjugate_power": 0.006511064230890828
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.043552414948935345,
+          "conjugate_power": 0.01184966913708477
+        },
+        {
+          "remaining": 0.001584541413923484,
+          "probe_power": 0.04128631851135306,
+          "conjugate_power": 0.007329140074723458
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04258076854203045,
+          "conjugate_power": 0.00931069010731354
+        },
+        {
+          "remaining": 0.004076015804439002,
+          "probe_power": 0.04036522830124824,
+          "conjugate_power": 0.005758755894312759
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04406861058507444,
+          "conjugate_power": 0.011553572453714592
+        },
+        {
+          "remaining": 0.0012783429887249422,
+          "probe_power": 0.041775655726586626,
+          "conjugate_power": 0.007146001284688433
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042623238473871956,
+          "conjugate_power": 0.008606109737948914
+        },
+        {
+          "remaining": 0.00447154572244442,
+          "probe_power": 0.0404054884598461,
+          "conjugate_power": 0.005322965817709477
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044361645452272884,
+          "conjugate_power": 0.011612613440655539
+        },
+        {
+          "remaining": 0.0009640377113207827,
+          "probe_power": 0.0420534435570955,
+          "conjugate_power": 0.007182518731583714
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04242987574927717,
+          "conjugate_power": 0.00799642730620633
+        },
+        {
+          "remaining": 0.005031942242515932,
+          "probe_power": 0.04022218668323499,
+          "conjugate_power": 0.004945871074249094
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04454142990792227,
+          "conjugate_power": 0.01185248527237933
+        },
+        {
+          "remaining": 0.0006452445550089846,
+          "probe_power": 0.04222387356213734,
+          "conjugate_power": 0.007330881882853664
+        },
+        {
+          "remaining": 0.0007683995875464806,
+          "probe_power": 0.04206623583067151,
+          "conjugate_power": 0.0073653645817819986
+        },
+        {
+          "remaining": 0.0002483402805337747,
+          "probe_power": 0.042204155982724464,
+          "conjugate_power": 0.007747503736741762
+        },
+        {
+          "remaining": 0.0024605889889854618,
+          "probe_power": 0.04124259373368461,
+          "conjugate_power": 0.006496817277329919
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04375951555329185,
+          "conjugate_power": 0.010311817685616932
+        },
+        {
+          "remaining": 0.0023393932188698974,
+          "probe_power": 0.04148264336556335,
+          "conjugate_power": 0.006377963415566759
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04365531430242044,
+          "conjugate_power": 0.009872220564995196
+        },
+        {
+          "remaining": 0.0027100679850611802,
+          "probe_power": 0.041383863859586416,
+          "conjugate_power": 0.006106068155352392
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04387489866496289,
+          "conjugate_power": 0.010149033895499674
+        },
+        {
+          "remaining": 0.0023306970795566317,
+          "probe_power": 0.04159202292361698,
+          "conjugate_power": 0.006277279996826403
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04367700529305209,
+          "conjugate_power": 0.009723550227657106
+        },
+        {
+          "remaining": 0.0027814597143029467,
+          "probe_power": 0.041404426235957394,
+          "conjugate_power": 0.006014114049739675
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04393728854953882,
+          "conjugate_power": 0.010155842956799308
+        },
+        {
+          "remaining": 0.0022673419595654037,
+          "probe_power": 0.041651166570404595,
+          "conjugate_power": 0.006281491470030006
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04366018923417221,
+          "conjugate_power": 0.009626984543932628
+        },
+        {
+          "remaining": 0.0028571276597730297,
+          "probe_power": 0.041388485141443256,
+          "conjugate_power": 0.005954387198783709
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04398840202796619,
+          "conjugate_power": 0.010207814850941837
+        },
+        {
+          "remaining": 0.0021867428492866265,
+          "probe_power": 0.0416996205391007,
+          "conjugate_power": 0.006313636611612667
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04361879221628994,
+          "conjugate_power": 0.009527417738588166
+        },
+        {
+          "remaining": 0.002957953804705986,
+          "probe_power": 0.0413492420715076,
+          "conjugate_power": 0.005892804123786411
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044040424249121676,
+          "conjugate_power": 0.010290198321954195
+        },
+        {
+          "remaining": 0.0020864724119728246,
+          "probe_power": 0.04174893596729937,
+          "conjugate_power": 0.0063645916207278035
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04355569047268436,
+          "conjugate_power": 0.009409301585675083
+        },
+        {
+          "remaining": 0.0030908283053138284,
+          "probe_power": 0.04128942360476641,
+          "conjugate_power": 0.005819748089919764
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044099049862309,
+          "conjugate_power": 0.010401360160661802
+        },
+        {
+          "remaining": 0.001962142455703644,
+          "probe_power": 0.041804511203295217,
+          "conjugate_power": 0.006433346341001141
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04346920822574513,
+          "conjugate_power": 0.009262554530562258
+        },
+        {
+          "remaining": 0.00326357528941432,
+          "probe_power": 0.041207441156792,
+          "conjugate_power": 0.005728983553793681
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04416698851651988,
+          "conjugate_power": 0.010543045309646058
+        },
+        {
+          "remaining": 0.0018101050539089808,
+          "probe_power": 0.041868914909043146,
+          "conjugate_power": 0.006520980037047878
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04335504066618711,
+          "conjugate_power": 0.00907848320530634
+        },
+        {
+          "remaining": 0.0034856525166104303,
+          "probe_power": 0.0410992139038807,
+          "conjugate_power": 0.005615133579508869
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044244664665384785,
+          "conjugate_power": 0.010717759260063556
+        },
+        {
+          "remaining": 0.001628408166314742,
+          "probe_power": 0.04194254945322473,
+          "conjugate_power": 0.006629042380460542
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04320727127135087,
+          "conjugate_power": 0.008849290632619113
+        },
+        {
+          "remaining": 0.0037674911733773667,
+          "probe_power": 0.04095913316878045,
+          "conjugate_power": 0.005473375657842192
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 0.04950372274136651,
+          "probe_power": 0.0004231656432680726,
+          "conjugate_power": 0.0002731116153654172
+        },
+        {
+          "remaining": 0.046259847472062444,
+          "probe_power": 0.001978509641140463,
+          "conjugate_power": 0.001961642886797092
+        },
+        {
+          "remaining": 0.029445159024529755,
+          "probe_power": 0.01017253417820739,
+          "conjugate_power": 0.010582306797262856
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.036872867451128576,
+          "conjugate_power": 0.037044138533372066
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03495431772954788,
+          "conjugate_power": 0.02291217392803416
+        },
+        {
+          "remaining": 0.002892995969153389,
+          "probe_power": 0.03313559298195533,
+          "conjugate_power": 0.014171411048891285
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03931942462960697,
+          "conjugate_power": 0.018524805307857183
+        },
+        {
+          "remaining": 0.001468643840214128,
+          "probe_power": 0.03727357692666308,
+          "conjugate_power": 0.01145777923312279
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.03956003057320917,
+          "conjugate_power": 0.012682554185994553
+        },
+        {
+          "remaining": 0.004854048320292389,
+          "probe_power": 0.037501663787860844,
+          "conjugate_power": 0.007844287891846772
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.0428461476375224,
+          "conjugate_power": 0.014751639789541113
+        },
+        {
+          "remaining": 0.0004591624283710347,
+          "probe_power": 0.04061679933067522,
+          "conjugate_power": 0.009124038240953753
+        },
+        {
+          "remaining": 0.0018875800286695728,
+          "probe_power": 0.040228012287939464,
+          "conjugate_power": 0.008084407683390964
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.042148618417292186,
+          "conjugate_power": 0.0105270135486218
+        },
+        {
+          "remaining": 0.0037333721837118318,
+          "probe_power": 0.03995556358539758,
+          "conjugate_power": 0.006511064230890593
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04355241494893551,
+          "conjugate_power": 0.011849669137085152
+        },
+        {
+          "remaining": 0.0015845414139231077,
+          "probe_power": 0.0412863185113532,
+          "conjugate_power": 0.007329140074723696
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04258076854203013,
+          "conjugate_power": 0.009310690107313047
+        },
+        {
+          "remaining": 0.004076015804439636,
+          "probe_power": 0.04036522830124791,
+          "conjugate_power": 0.005758755894312456
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04406861058507462,
+          "conjugate_power": 0.011553572453715053
+        },
+        {
+          "remaining": 0.0012783429887244968,
+          "probe_power": 0.041775655726586786,
+          "conjugate_power": 0.0071460012846887196
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04262323847387151,
+          "conjugate_power": 0.008606109737948266
+        },
+        {
+          "remaining": 0.004471545722445269,
+          "probe_power": 0.04040548845984566,
+          "conjugate_power": 0.0053229658177090765
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044361645452273044,
+          "conjugate_power": 0.011612613440656092
+        },
+        {
+          "remaining": 0.0009640377113203038,
+          "probe_power": 0.04205344355709564,
+          "conjugate_power": 0.007182518731584055
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04242987574927658,
+          "conjugate_power": 0.007996427306205546
+        },
+        {
+          "remaining": 0.0050319422425169754,
+          "probe_power": 0.04022218668323442,
+          "conjugate_power": 0.0049458710742486065
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04454142990792239,
+          "conjugate_power": 0.011852485272379911
+        },
+        {
+          "remaining": 0.0006452445550085525,
+          "probe_power": 0.04222387356213743,
+          "conjugate_power": 0.007330881882854022
+        },
+        {
+          "remaining": 0.0007683995875480096,
+          "probe_power": 0.042066235830670824,
+          "conjugate_power": 0.007365364581781169
+        },
+        {
+          "remaining": 0.000248340280528567,
+          "probe_power": 0.042204155982726525,
+          "conjugate_power": 0.0077475037367449135
+        },
+        {
+          "remaining": 0.0024605889890160653,
+          "probe_power": 0.04124259373367194,
+          "conjugate_power": 0.006496817277311997
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04375951555331147,
+          "conjugate_power": 0.010311817685648582
+        },
+        {
+          "remaining": 0.002339393218831727,
+          "probe_power": 0.041482643365581946,
+          "conjugate_power": 0.006377963415586333
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04365531430239681,
+          "conjugate_power": 0.009872220564951973
+        },
+        {
+          "remaining": 0.0027100679851103397,
+          "probe_power": 0.041383863859564,
+          "conjugate_power": 0.006106068155325657
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04387489866498865,
+          "conjugate_power": 0.010149033895546899
+        },
+        {
+          "remaining": 0.0023306970795030305,
+          "probe_power": 0.041592022923641364,
+          "conjugate_power": 0.006277279996855611
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04367700529301979,
+          "conjugate_power": 0.00972355022759996
+        },
+        {
+          "remaining": 0.0027814597143689134,
+          "probe_power": 0.04140442623592676,
+          "conjugate_power": 0.006014114049704328
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04393728854957165,
+          "conjugate_power": 0.010155842956861462
+        },
+        {
+          "remaining": 0.0022673419594958504,
+          "probe_power": 0.0416511665704357,
+          "conjugate_power": 0.006281491470068447
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04366018923412912,
+          "conjugate_power": 0.009626984543857832
+        },
+        {
+          "remaining": 0.002857127659860168,
+          "probe_power": 0.041388485141402385,
+          "conjugate_power": 0.005954387198737448
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04398840202800792,
+          "conjugate_power": 0.010207814851022462
+        },
+        {
+          "remaining": 0.002186742849197225,
+          "probe_power": 0.041699620539140246,
+          "conjugate_power": 0.006313636611662535
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04361879221623252,
+          "conjugate_power": 0.00952741773849016
+        },
+        {
+          "remaining": 0.00295795380482106,
+          "probe_power": 0.04134924207145315,
+          "conjugate_power": 0.005892804123725791
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04404042424917416,
+          "conjugate_power": 0.010290198322058042
+        },
+        {
+          "remaining": 0.002086472411858847,
+          "probe_power": 0.041748935967349125,
+          "conjugate_power": 0.0063645916207920325
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04355569047260787,
+          "conjugate_power": 0.0094093015855469
+        },
+        {
+          "remaining": 0.0030908283054656475,
+          "probe_power": 0.04128942360469388,
+          "conjugate_power": 0.005819748089840478
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.044099049862373944,
+          "conjugate_power": 0.010401360160794362
+        },
+        {
+          "remaining": 0.0019621424555601114,
+          "probe_power": 0.041804511203356765,
+          "conjugate_power": 0.00643334634108313
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04346920822564336,
+          "conjugate_power": 0.009262554530395449
+        },
+        {
+          "remaining": 0.0032635752896139855,
+          "probe_power": 0.041207441156695515,
+          "conjugate_power": 0.005728983553690505
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.0441669885165983,
+          "conjugate_power": 0.010543045309813141
+        },
+        {
+          "remaining": 0.0018101050537313106,
+          "probe_power": 0.041868914909117476,
+          "conjugate_power": 0.006520980037151219
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.043355040666052114,
+          "conjugate_power": 0.009078483205091003
+        },
+        {
+          "remaining": 0.003485652516871608,
+          "probe_power": 0.041099213903752714,
+          "conjugate_power": 0.005615133579375681
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04424466466547635,
+          "conjugate_power": 0.010717759260270672
+        },
+        {
+          "remaining": 0.0016284081660998537,
+          "probe_power": 0.0419425494533115,
+          "conjugate_power": 0.006629042380588646
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.04320727127117295,
+          "conjugate_power": 0.008849290632344416
+        },
+        {
+          "remaining": 0.0037674911737159587,
+          "probe_power": 0.04095913316861176,
+          "conjugate_power": 0.005473375657672287
+        }
+      ]
+    },
+    {
+      "legacy_centroid": true,
+      "pump_W": 1.2,
+      "seed_W": 1e-06,
+      "row4_python_probe_gain": 1030568.2646373617,
+      "row4_compiled_probe_gain": 1030568.2646379009,
+      "row4_python_conjugate_gain": 162335.95172412897,
+      "row4_compiled_conjugate_gain": 162335.95172481518,
+      "row4_mp90_probe_gain": 1030568.264637034,
+      "row4_mp90_conjugate_gain": 162335.95172371366,
+      "row4_python_mp90_conjugate_relative_error": 2.5583467876815496e-12,
+      "row4_compiled_mp90_conjugate_relative_error": 6.785445635611163e-12,
+      "row4_mp60_mp90_conjugate_relative_difference": 0.0,
+      "all_rows_max_raw_conjugate_relative_difference": 4.227063143957821e-12,
+      "all_rows_max_capped_conjugate_relative_difference": 3.327116360196669e-12,
+      "all_rows_max_conjugate_gain": 3.590380492308826e+46,
+      "row4_minimum_positive_remaining": 0.0029822304241702846,
+      "row4_minimum_positive_remaining_step0": 59,
+      "row4_python_trace": [
+        {
+          "remaining": 1.1999975186137068,
+          "probe_power": 2.1158282163403633e-06,
+          "conjugate_power": 1.365558076827086e-06
+        },
+        {
+          "remaining": 1.1999811022084528,
+          "probe_power": 9.984112980809322e-06,
+          "conjugate_power": 9.913678566279565e-06
+        },
+        {
+          "remaining": 1.1998878576837666,
+          "probe_power": 5.524646775767373e-05,
+          "conjugate_power": 5.7895848475526004e-05
+        },
+        {
+          "remaining": 1.199358494970795,
+          "probe_power": 0.0003127113356184439,
+          "conjugate_power": 0.000329793693586723
+        },
+        {
+          "remaining": 1.1963531421422187,
+          "probe_power": 0.0017748327026748485,
+          "conjugate_power": 0.0018730251551065382
+        },
+        {
+          "remaining": 1.1793352164279893,
+          "probe_power": 0.010055389769217918,
+          "conjugate_power": 0.010610393802792698
+        },
+        {
+          "remaining": 1.0845524726160267,
+          "probe_power": 0.05620822081801392,
+          "conjugate_power": 0.05924030656595913
+        },
+        {
+          "remaining": 0.6054681729495215,
+          "probe_power": 0.2905281796585331,
+          "conjugate_power": 0.30400464739194527
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.9493406963340685,
+          "conjugate_power": 0.9410797637824697
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8999450985804908,
+          "conjugate_power": 0.5820673413288437
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8531196266909521,
+          "conjugate_power": 0.3600145310530156
+        },
+        {
+          "remaining": 0.16859782220848543,
+          "probe_power": 0.8087305532229798,
+          "conjugate_power": 0.22267262456853482
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0276542269786295,
+          "conjugate_power": 0.4746736515271867
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.9741838606268876,
+          "conjugate_power": 0.2935904489464174
+        },
+        {
+          "remaining": 0.09491670491164084,
+          "probe_power": 0.9234956363641199,
+          "conjugate_power": 0.18158865872423946
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.018886983348189,
+          "conjugate_power": 0.31150577765254434
+        },
+        {
+          "remaining": 0.04145873985427451,
+          "probe_power": 0.9658727896238812,
+          "conjugate_power": 0.19266947052184402
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0034766684464493,
+          "conjugate_power": 0.24177547489776774
+        },
+        {
+          "remaining": 0.0991961300413754,
+          "probe_power": 0.9512642961536694,
+          "conjugate_power": 0.14954057380495522
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0429829915718967,
+          "conjugate_power": 0.2878761979586543
+        },
+        {
+          "remaining": 0.033231616269398245,
+          "probe_power": 0.9887150469715531,
+          "conjugate_power": 0.17805433675904864
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0133734884348296,
+          "conjugate_power": 0.21589401922507978
+        },
+        {
+          "remaining": 0.10582219801137063,
+          "probe_power": 0.9606461699893424,
+          "conjugate_power": 0.133532631999287
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0549905535605653,
+          "conjugate_power": 0.2813470925820039
+        },
+        {
+          "remaining": 0.025887143092313797,
+          "probe_power": 1.0000978377855696,
+          "conjugate_power": 0.17401601912211642
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0136576280441285,
+          "conjugate_power": 0.19861291890491023
+        },
+        {
+          "remaining": 0.11624137773884437,
+          "probe_power": 0.9609155253953506,
+          "conjugate_power": 0.12284409686580476
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0615486773774307,
+          "conjugate_power": 0.28284487333835356
+        },
+        {
+          "remaining": 0.018743855608691767,
+          "probe_power": 1.006314732739787,
+          "conjugate_power": 0.17494241165152102
+        },
+        {
+          "remaining": 0.007829322526911792,
+          "probe_power": 1.0084162132507777,
+          "conjugate_power": 0.18375546422230996
+        },
+        {
+          "remaining": 0.04957018941976668,
+          "probe_power": 0.9898143148033524,
+          "conjugate_power": 0.160616495776881
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0384337516684967,
+          "conjugate_power": 0.2350123170690506
+        },
+        {
+          "remaining": 0.07024099690267013,
+          "probe_power": 0.9844025107354674,
+          "conjugate_power": 0.14535749236186227
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0505470878838343,
+          "conjugate_power": 0.250364314354138
+        },
+        {
+          "remaining": 0.04926257003396162,
+          "probe_power": 0.9958855721870062,
+          "conjugate_power": 0.15485285777903218
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0388661037560618,
+          "conjugate_power": 0.2261621046914473
+        },
+        {
+          "remaining": 0.07530508649884357,
+          "probe_power": 0.984812366905721,
+          "conjugate_power": 0.1398835465954353
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0534414329919175,
+          "conjugate_power": 0.25102021574621786
+        },
+        {
+          "remaining": 0.046113140336835695,
+          "probe_power": 0.9986293202467679,
+          "conjugate_power": 0.15525853941639658
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0375829073598128,
+          "conjugate_power": 0.22119104307998225
+        },
+        {
+          "remaining": 0.07959616812021283,
+          "probe_power": 0.9835959371120966,
+          "conjugate_power": 0.13680889476769056
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0557442726873436,
+          "conjugate_power": 0.2537993082670407
+        },
+        {
+          "remaining": 0.04221122398957122,
+          "probe_power": 1.0008123397936157,
+          "conjugate_power": 0.15697743621681295
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0351145120608998,
+          "conjugate_power": 0.216055018056941
+        },
+        {
+          "remaining": 0.08511281253249792,
+          "probe_power": 0.9812559760641887,
+          "conjugate_power": 0.13363221140331316
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0579768474695284,
+          "conjugate_power": 0.2578584051098669
+        },
+        {
+          "remaining": 0.03758422096375838,
+          "probe_power": 1.002928750414377,
+          "conjugate_power": 0.15948802862186465
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0315326314703155,
+          "conjugate_power": 0.209989274610455
+        },
+        {
+          "remaining": 0.09226004619066225,
+          "probe_power": 0.9778604660079517,
+          "conjugate_power": 0.12988048780138578
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0602615332496574,
+          "conjugate_power": 0.26301550598899015
+        },
+        {
+          "remaining": 0.032228691762911404,
+          "probe_power": 1.0050945606209374,
+          "conjugate_power": 0.16267774761615153
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0267472455364297,
+          "conjugate_power": 0.20264096266477488
+        },
+        {
+          "remaining": 0.10134144660675248,
+          "probe_power": 0.9733240707679222,
+          "conjugate_power": 0.12533548262532535
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0625232707986096,
+          "conjugate_power": 0.2691447475970468
+        },
+        {
+          "remaining": 0.02629363790082509,
+          "probe_power": 1.0072386166266627,
+          "conjugate_power": 0.16646874547251206
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0206312437741523,
+          "conjugate_power": 0.19386466710150826
+        },
+        {
+          "remaining": 0.11256745123950039,
+          "probe_power": 0.9675262936051762,
+          "conjugate_power": 0.11990725515532365
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0645142573638038,
+          "conjugate_power": 0.2760152552513209
+        },
+        {
+          "remaining": 0.020156766910795404,
+          "probe_power": 1.0091260092219718,
+          "conjugate_power": 0.17071822386723307
+        },
+        {
+          "remaining": 0.0029822304241702846,
+          "probe_power": 1.0131751547649404,
+          "conjugate_power": 0.18384361481088926
+        },
+        {
+          "remaining": 0.07885657839275093,
+          "probe_power": 0.9800502324771861,
+          "conjugate_power": 0.1410941891300629
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0565873790709484,
+          "conjugate_power": 0.26011832862954726
+        },
+        {
+          "remaining": 0.037503607742353784,
+          "probe_power": 1.001611578107571,
+          "conjugate_power": 0.1608858141500752
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0305682646373617,
+          "conjugate_power": 0.21103673724136773
+        }
+      ],
+      "row4_mp90_trace": [
+        {
+          "remaining": 1.1999975186137068,
+          "probe_power": 2.115828216340363e-06,
+          "conjugate_power": 1.3655580768270858e-06
+        },
+        {
+          "remaining": 1.1999811022084528,
+          "probe_power": 9.98411298080932e-06,
+          "conjugate_power": 9.913678566279565e-06
+        },
+        {
+          "remaining": 1.1998878576837668,
+          "probe_power": 5.524646775767376e-05,
+          "conjugate_power": 5.789584847552602e-05
+        },
+        {
+          "remaining": 1.1993584949707947,
+          "probe_power": 0.0003127113356184439,
+          "conjugate_power": 0.00032979369358672315
+        },
+        {
+          "remaining": 1.1963531421422187,
+          "probe_power": 0.001774832702674849,
+          "conjugate_power": 0.001873025155106539
+        },
+        {
+          "remaining": 1.1793352164279893,
+          "probe_power": 0.010055389769217922,
+          "conjugate_power": 0.010610393802792708
+        },
+        {
+          "remaining": 1.084552472616027,
+          "probe_power": 0.056208220818013924,
+          "conjugate_power": 0.05924030656595914
+        },
+        {
+          "remaining": 0.605468172949521,
+          "probe_power": 0.2905281796585334,
+          "conjugate_power": 0.30400464739194555
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.949340696334069,
+          "conjugate_power": 0.9410797637824698
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8999450985804908,
+          "conjugate_power": 0.5820673413288437
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.8531196266909519,
+          "conjugate_power": 0.3600145310530157
+        },
+        {
+          "remaining": 0.1685978222084858,
+          "probe_power": 0.8087305532229794,
+          "conjugate_power": 0.22267262456853476
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0276542269786297,
+          "conjugate_power": 0.47467365152718716
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 0.9741838606268874,
+          "conjugate_power": 0.2935904489464175
+        },
+        {
+          "remaining": 0.09491670491164107,
+          "probe_power": 0.9234956363641194,
+          "conjugate_power": 0.18158865872423952
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0188869833481893,
+          "conjugate_power": 0.3115057776525448
+        },
+        {
+          "remaining": 0.041458739854274555,
+          "probe_power": 0.9658727896238812,
+          "conjugate_power": 0.19266947052184422
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0034766684464493,
+          "conjugate_power": 0.24177547489776813
+        },
+        {
+          "remaining": 0.09919613004137542,
+          "probe_power": 0.951264296153669,
+          "conjugate_power": 0.14954057380495547
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0429829915718962,
+          "conjugate_power": 0.2878761979586546
+        },
+        {
+          "remaining": 0.03323161626939864,
+          "probe_power": 0.9887150469715525,
+          "conjugate_power": 0.1780543367590488
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0133734884348298,
+          "conjugate_power": 0.2158940192250807
+        },
+        {
+          "remaining": 0.10582219801137016,
+          "probe_power": 0.9606461699893423,
+          "conjugate_power": 0.13353263199928755
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0549905535605648,
+          "conjugate_power": 0.2813470925820041
+        },
+        {
+          "remaining": 0.02588714309231434,
+          "probe_power": 1.0000978377855692,
+          "conjugate_power": 0.1740160191221165
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0136576280441287,
+          "conjugate_power": 0.19861291890491142
+        },
+        {
+          "remaining": 0.11624137773884391,
+          "probe_power": 0.9609155253953506,
+          "conjugate_power": 0.12284409686580545
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0615486773774307,
+          "conjugate_power": 0.28284487333835395
+        },
+        {
+          "remaining": 0.018743855608692135,
+          "probe_power": 1.0063147327397866,
+          "conjugate_power": 0.17494241165152125
+        },
+        {
+          "remaining": 0.007829322526910482,
+          "probe_power": 1.0084162132507783,
+          "conjugate_power": 0.18375546422231112
+        },
+        {
+          "remaining": 0.04957018941977304,
+          "probe_power": 0.9898143148033496,
+          "conjugate_power": 0.1606164957768773
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0384337516685016,
+          "conjugate_power": 0.23501231706905787
+        },
+        {
+          "remaining": 0.07024099690266158,
+          "probe_power": 0.9844025107354716,
+          "conjugate_power": 0.14535749236186676
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0505470878838306,
+          "conjugate_power": 0.2503643143541299
+        },
+        {
+          "remaining": 0.049262570033970755,
+          "probe_power": 0.995885572187002,
+          "conjugate_power": 0.15485285777902713
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0388661037560682,
+          "conjugate_power": 0.22616210469145792
+        },
+        {
+          "remaining": 0.0753050864988315,
+          "probe_power": 0.9848123669057266,
+          "conjugate_power": 0.13988354659544183
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0534414329919122,
+          "conjugate_power": 0.25102021574620775
+        },
+        {
+          "remaining": 0.0461131403368467,
+          "probe_power": 0.998629320246763,
+          "conjugate_power": 0.1552585394163903
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0375829073598202,
+          "conjugate_power": 0.22119104307999513
+        },
+        {
+          "remaining": 0.0795961681201978,
+          "probe_power": 0.9835959371121036,
+          "conjugate_power": 0.13680889476769853
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0557442726873378,
+          "conjugate_power": 0.2537993082670286
+        },
+        {
+          "remaining": 0.04221122398958437,
+          "probe_power": 1.0008123397936102,
+          "conjugate_power": 0.15697743621680543
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0351145120609095,
+          "conjugate_power": 0.21605501805695726
+        },
+        {
+          "remaining": 0.08511281253247935,
+          "probe_power": 0.9812559760641975,
+          "conjugate_power": 0.13363221140332315
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0579768474695221,
+          "conjugate_power": 0.2578584051098532
+        },
+        {
+          "remaining": 0.03758422096377353,
+          "probe_power": 1.0029287504143702,
+          "conjugate_power": 0.15948802862185615
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0315326314703284,
+          "conjugate_power": 0.20998927461047545
+        },
+        {
+          "remaining": 0.09226004619063759,
+          "probe_power": 0.9778604660079641,
+          "conjugate_power": 0.12988048780139835
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0602615332496512,
+          "conjugate_power": 0.2630155059889727
+        },
+        {
+          "remaining": 0.03222869176292841,
+          "probe_power": 1.005094560620931,
+          "conjugate_power": 0.16267774761614068
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.026747245536446,
+          "conjugate_power": 0.2026409626647984
+        },
+        {
+          "remaining": 0.1013414466067228,
+          "probe_power": 0.9733240707679373,
+          "conjugate_power": 0.12533548262533986
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0625232707986028,
+          "conjugate_power": 0.26914474759702706
+        },
+        {
+          "remaining": 0.026293637900844057,
+          "probe_power": 1.007238616626656,
+          "conjugate_power": 0.16646874547249982
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0206312437741731,
+          "conjugate_power": 0.19386466710153777
+        },
+        {
+          "remaining": 0.11256745123946268,
+          "probe_power": 0.9675262936051954,
+          "conjugate_power": 0.11990725515534184
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.064514257363798,
+          "conjugate_power": 0.276015255251299
+        },
+        {
+          "remaining": 0.020156766910814576,
+          "probe_power": 1.0091260092219658,
+          "conjugate_power": 0.17071822386721952
+        },
+        {
+          "remaining": 0.002982230424111609,
+          "probe_power": 1.0131751547649657,
+          "conjugate_power": 0.18384361481092265
+        },
+        {
+          "remaining": 0.07885657839321304,
+          "probe_power": 0.9800502324769969,
+          "conjugate_power": 0.14109418912979002
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.0565873790711382,
+          "conjugate_power": 0.26011832862988943
+        },
+        {
+          "remaining": 0.037503607741962444,
+          "probe_power": 1.0016115781077508,
+          "conjugate_power": 0.16088581415028672
+        },
+        {
+          "remaining": 0.0,
+          "probe_power": 1.030568264637034,
+          "conjugate_power": 0.21103673724082775
+        }
+      ]
+    }
+  ],
+  "scaled_random": [
+    {
+      "chi_scale": 0.1,
+      "pump_W": 0.6,
+      "seed_W": 8e-06,
+      "maximum_probe_relative_difference": 7.327471962526033e-15,
+      "maximum_conjugate_relative_difference": 4.107825191113079e-15,
+      "maximum_probe_gain": 8024728.596293868,
+      "maximum_conjugate_gain": 178243.63777651096,
+      "maximum_net_power_added_over_pump": 107.38188708057552
+    },
+    {
+      "chi_scale": 0.1,
+      "pump_W": 0.05,
+      "seed_W": 0.0002,
+      "maximum_probe_relative_difference": 1.0547118733938987e-14,
+      "maximum_conjugate_relative_difference": 1.532107773982716e-14,
+      "maximum_probe_gain": 12414589.170977997,
+      "maximum_conjugate_gain": 9971.637983738912,
+      "maximum_net_power_added_over_pump": 49667.77791130947
+    },
+    {
+      "chi_scale": 0.1,
+      "pump_W": 1.2,
+      "seed_W": 1e-06,
+      "maximum_probe_relative_difference": 5.551115123125783e-15,
+      "maximum_conjugate_relative_difference": 5.551115123125783e-15,
+      "maximum_probe_gain": 6193543.208358832,
+      "maximum_conjugate_gain": 715398.062405703,
+      "maximum_net_power_added_over_pump": 5.238302557619287
+    },
+    {
+      "chi_scale": 0.03,
+      "pump_W": 0.6,
+      "seed_W": 8e-06,
+      "maximum_probe_relative_difference": 4.440892098500626e-15,
+      "maximum_conjugate_relative_difference": 6.661338147750939e-15,
+      "maximum_probe_gain": 109.10334477355858,
+      "maximum_conjugate_gain": 12.080410836307992,
+      "maximum_net_power_added_over_pump": 0.0014709445162716529
+    },
+    {
+      "chi_scale": 0.03,
+      "pump_W": 0.05,
+      "seed_W": 0.0002,
+      "maximum_probe_relative_difference": 4.107825191113079e-15,
+      "maximum_conjugate_relative_difference": 4.107825191113079e-15,
+      "maximum_probe_gain": 111.13593572976329,
+      "maximum_conjugate_gain": 11.735412057360831,
+      "maximum_net_power_added_over_pump": 0.4480366952838173
+    },
+    {
+      "chi_scale": 0.03,
+      "pump_W": 1.2,
+      "seed_W": 1e-06,
+      "maximum_probe_relative_difference": 4.440892098500626e-15,
+      "maximum_conjugate_relative_difference": 5.995204332975845e-15,
+      "maximum_probe_gain": 109.09757131946814,
+      "maximum_conjugate_gain": 12.081515077430069,
+      "maximum_net_power_added_over_pump": 9.193020143908271e-05
+    }
+  ],
+  "bounded_physical": [
+    {
+      "pump_W": 0.6,
+      "seed_W": 8e-06,
+      "maximum_probe_relative_difference": 2.886579864025407e-15,
+      "maximum_conjugate_relative_difference": 3.1086244689504383e-15,
+      "maximum_probe_gain": 33064.48210057093,
+      "maximum_conjugate_gain": 34603.33732890653,
+      "maximum_net_power_added_over_pump": 0.9966431306175021
+    },
+    {
+      "pump_W": 0.05,
+      "seed_W": 0.0002,
+      "maximum_probe_relative_difference": 2.6645352591003757e-15,
+      "maximum_conjugate_relative_difference": 3.552713678800501e-15,
+      "maximum_probe_gain": 117.13904385765264,
+      "maximum_conjugate_gain": 138.7710345910937,
+      "maximum_net_power_added_over_pump": 0.9825533256688468
+    },
+    {
+      "pump_W": 1.2,
+      "seed_W": 1e-06,
+      "maximum_probe_relative_difference": 3.552713678800501e-15,
+      "maximum_conjugate_relative_difference": 3.774758283725532e-15,
+      "maximum_probe_gain": 356248.80994231935,
+      "maximum_conjugate_gain": 320852.50068606425,
+      "maximum_net_power_added_over_pump": 0.6444633840285023
+    }
+  ]
+}

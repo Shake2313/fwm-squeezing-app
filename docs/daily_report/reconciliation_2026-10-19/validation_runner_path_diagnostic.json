@@ -1,0 +1,20 @@
+{
+  "origin": "ai_verification_runner_rootcause",
+  "marker": "⟦AI⟧",
+  "raw_pytest_addopts": "--basetemp=C:\\Temp\\gv20261020-9d7b\\pfull",
+  "shlex_parsed": [
+    "--basetemp=C:Tempgv20261020-9d7bpfull"
+  ],
+  "effective_basetemp": "C:\\Temp\\gv20261020-9d7b\\repo\\Tempgv20261020-9d7bpfull",
+  "effective_exists": true,
+  "effective_inside_repo": true,
+  "intended": "C:\\Temp\\gv20261020-9d7b\\pfull",
+  "intended_exists": false,
+  "safe_pytest_addopts": "--basetemp=C:/Temp/gv20261020-9d7b/pfull",
+  "safe_shlex_parsed": [
+    "--basetemp=C:/Temp/gv20261020-9d7b/pfull"
+  ],
+  "isolated_diagnostic": "2 passed in38.61s with direct argv --basetemp outside repo",
+  "log": "C:\\Temp\\gv20261020-9d7b\\evidence\\workflow_failure_diagnostic.log",
+  "scope": "No product/source/test change. Windows backslashes stripped by PYTEST_ADDOPTS POSIX shlex, causing external fixture paths to be treated as repository-relative paths."
+}
