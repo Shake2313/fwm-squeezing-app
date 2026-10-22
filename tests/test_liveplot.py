@@ -176,3 +176,44 @@ pickle.dumps(trace)
     result = subprocess.run([sys.executable, "-c", script], text=True, encoding="utf-8",
                             errors="replace", capture_output=True, timeout=30)
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_live_component_real_runtime_registry_error_remains_visible(monkeypatch, seeded_figure):
+    import importlib
+    from types import SimpleNamespace
+    from streamlit.runtime import Runtime
+    bidi = importlib.import_module("streamlit.components.v2.bidi_component.main")
+    monkeypatch.setattr(liveplot, "_MOUNTABLE", True)
+    monkeypatch.setattr(bidi, "get_script_run_ctx", lambda: SimpleNamespace(_enqueue=lambda message: None))
+    monkeypatch.setattr(Runtime, "instance", lambda: SimpleNamespace(bidi_component_registry={}))
+    with pytest.raises(ValueError, match="Component 'gabes_live_plot' is not registered"):
+        liveplot.render_live_plot(seeded_figure, "fwm")
+
+
+@pytest.mark.parametrize("failure_source", ["component", "callback"])
+def test_live_component_value_errors_remain_visible_in_apptest(monkeypatch, failure_source):
+    from streamlit.testing.v1 import AppTest
+    message = "Component 'gabes_live_plot' is not registered"
+    def component(**kwargs):
+        if failure_source == "component":
+            raise ValueError(message)
+        kwargs["on_gesture_change"]()
+    def fail(*args):
+        raise ValueError(message)
+    monkeypatch.setattr(liveplot, "_MOUNTABLE", True)
+    monkeypatch.setattr(liveplot, "_COMPONENT", component)
+    monkeypatch.setattr(liveplot, "_commit", fail)
+    app = AppTest.from_string('''
+import matplotlib.pyplot as plt
+from gabes_ui import liveplot
+fig, axes = plt.subplots(2, 1)
+for axis in axes:
+    axis.plot([-1., 0., 1.], [1., 2., 4.])
+    axis.axvline(0.2)
+    axis.axhline(0.)
+    axis.scatter([0.2], [2.4])
+liveplot.render_live_plot(fig, "fwm")
+plt.close(fig)
+''').run(timeout=10)
+    assert len(app.exception) == 1
+    assert app.exception[0].message == message

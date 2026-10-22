@@ -1,0 +1,21 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "scope": "Narrow updated readout text and static artifact inclusion; existing figures not regenerated; full current-documentation item remains open.",
+  "results": [
+    {
+      "path": "docs/Userguide/GABES_User_Guide_v2.html",
+      "sha256": "06647a5ffb6e9dcf0cdcb0b8e753fee094c3a5a8e526337bc6278701df60198e",
+      "html_parser": "passed",
+      "contracts_present": true,
+      "inline_images": 0
+    },
+    {
+      "path": "static/GABES_User_Guide.html",
+      "sha256": "5009ea30f6d6add159ec57a72d0faa438e08a6d185845fd30dc04852805c9c0b",
+      "html_parser": "passed",
+      "contracts_present": true,
+      "inline_images": 9
+    }
+  ]
+}

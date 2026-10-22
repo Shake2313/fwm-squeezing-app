@@ -1,0 +1,32 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "chat_scoped_commit_checkpoint",
+  "date": "2026-10-23",
+  "parent": "4fbf04b7b39a4ea71612ac8d306d4ce964224aad",
+  "tested_source_tree": "0cf723703d2f58020213daff43b84d4544cf8be9",
+  "status": "PASS_IN_DECLARED_CANDIDATE_SCOPE",
+  "passed": 334,
+  "failed": 0,
+  "skipped": 0,
+  "test_files": 16,
+  "source_files_frozen": 251,
+  "command": "C:\\Python312\\python.exe -m pytest -q --durations=10 tests/test_rydberg_opacity.py tests/test_rydberg_eit.py analysis/rydberg_cell_heating/test_adapter_integration_regressions.py analysis/rydberg_cell_heating/test_workflow.py tests/test_optical_depth_contract.py tests/test_magneto_readout.py tests/test_magneto.py tests/test_biphoton_evidence.py tests/test_coincidence.py tests/test_experimental_csv.py tests/test_liveplot.py tests/test_defaults_browser.py tests/test_sas.py tests/test_probe_saturation.py tests/test_fwm_generic.py tests/test_biphoton_reference_table.py --junitxml=C:\\Temp\\gabes-chat-checkpoint-20261023-pytest.xml",
+  "recheck_command": "C:\\Python312\\python.exe -m pytest -q tests/test_experimental_csv.py::test_streamlit_import_repairs_stale_experimental_csv_module --junitxml=C:\\Temp\\gabes-chat-checkpoint-20261023-recheck.xml",
+  "first_execution": {
+    "passed": 333,
+    "failed": 1,
+    "exit_code": 1,
+    "log": "commit_validation/focused_first.log"
+  },
+  "recheck": {
+    "passed": 1,
+    "exit_code": 0,
+    "log": "commit_validation/asset_recheck.log",
+    "cause": "Verification export initially omitted existing tracked assets/gabes-mark-v3.svg; complete existing assets copied from candidate index, no production/source/test changes."
+  },
+  "source_bindings": "commit_validation/sources.json",
+  "coverage_rule": "334 unique candidate cases; first 333 passed plus the asset-export-only failure rerun after restoring existing tracked SVG assets. No production source/test edits between runs.",
+  "installed_candidate_scope": "Existing HEAD seeded-FWM v20, with only this chat's two biphoton display/evidence methods and associated readout/opacity patches. Independent v22 defaults menu/preset and SABES/performance edits remain outside this commit. Standalone browser transport is a prerequisite for its narrow AppTest registry fix.",
+  "historical_receipt_scope": "full_pytest_receipt.json and chat_maintenance snapshot describe the prior reviewed working tree (v22), not exact bytes of this synthesized commit candidate. They remain separate dated evidence.",
+  "unchanged_science": "No new GC milestone, physical calibration or noise-covariance certification."
+}

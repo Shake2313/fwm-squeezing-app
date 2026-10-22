@@ -23,6 +23,7 @@ import numpy as np
 from .. import atoms, beam, constants, core, doppler, kernels, observables, species
 from .. import rydberg_electrometry as electrometry
 from .. import rydberg_experiment as rydberg_experiment
+from .. import rydberg_opacity as opacity
 from ..report import derived_table
 from .base import ExtraView, ParamSpec, Scheme
 
@@ -54,6 +55,17 @@ TRANSIT_FACTOR = 0.6
 # probe power).
 PROBE_RABI_REF_MHZ = 2.0
 SUPERHET_ATOMIC_CACHE_SIZE = 16
+
+
+def _finite_scenario_envelope(curves):
+    """Finite scenario envelope and sample counts, retaining all-invalid gaps."""
+    values = np.asarray(curves, dtype=float)
+    finite = np.isfinite(values)
+    counts = np.sum(finite, axis=0)
+    lower = np.min(np.where(finite, values, np.inf), axis=0)
+    upper = np.max(np.where(finite, values, -np.inf), axis=0)
+    return (np.where(counts > 0, lower, np.nan),
+            np.where(counts > 0, upper, np.nan), counts)
 
 
 @functools.lru_cache(maxsize=1)
@@ -138,6 +150,8 @@ class RydbergEITScheme(Scheme):
         detector_rin_per_sqrt_hz=0.0,
         detector_rin_correlation=1.0,
         measurement_enbw_hz=1.0,
+        effective_opacity_participation=0.001,
+        effective_opacity_relative_uncertainty=0.5,
         atom_participation_fraction=1.0,
         beam_overlap_efficiency=1.0,
         sam_enabled="Off",
@@ -313,6 +327,21 @@ class RydbergEITScheme(Scheme):
                 0.01, 1.0e4, 0.01, "Hz", advanced=True, recompute=False,
                 help="Used only to convert the field ASD to an RMS noise floor; "
                      "the displayed sensitivity remains per sqrt(Hz)."),
+            ParamSpec(
+                "effective_opacity_participation", "Effective opacity participation",
+                "Detection & scaling", r["effective_opacity_participation"],
+                0.0, 1.0, 0.0001, "×", advanced=True, recompute=False,
+                format="%.4f",
+                help="Uncalibrated effective multiplier of the atomic optical "
+                     "response. The legacy value 0.001 preserves the reference "
+                     "spectrum. It is independent of the atom-number fraction."),
+            ParamSpec(
+                "effective_opacity_relative_uncertainty", "Opacity scenario half-width",
+                "Detection & scaling", r["effective_opacity_relative_uncertainty"],
+                0.0, 1.0, 0.05, "relative", advanced=True, recompute=False,
+                help="Assumed lower/nominal/upper opacity scenarios in the power "
+                     "and temperature panels. This is not a measured standard "
+                     "uncertainty or a confidence interval."),
             ParamSpec(
                 "atom_participation_fraction", "Participating atom fraction",
                 "Detection & scaling", r["atom_participation_fraction"],
@@ -641,6 +670,9 @@ class RydbergEITScheme(Scheme):
             temperature_cold_spot_source=temperature_state.cold_spot_source,
             L=float(params.get("cell_mm", self._REF["cell_mm"])) * 1e-3,
             ls=0.001,
+            # Compatibility alias only; live propagation uses the named factor.
+            ls_status="deprecated legacy nominal combined opacity alias",
+            atomic_line_strength=1.0,
             k_vec=k_vec,
             omega0=2 * np.pi * nu0,
             dipole=dipole,
@@ -669,11 +701,18 @@ class RydbergEITScheme(Scheme):
         return [(float(x[i]), float(y[i])) for i in range(1, y.size - 1)
                 if abs(x[i]) <= window_mhz and y[i] > y[i - 1] and y[i] >= y[i + 1]]
 
+    @staticmethod
+    def _opacity_scale(raw, params):
+        """Apply the atomic strength and effective participation exactly once."""
+        return (float(raw.get("atomic_line_strength", 1.0))
+                * opacity.opacity_spec(params)["value"])
+
     def _transmission(self, chi, raw, params):
         """(x [MHz], Beer-Lambert transmission, χ_phys) for one coherence array."""
         x = raw["scan"] / MHZ
         alpha, xphys = observables.absorption_coefficient(
-            chi, raw["k_vec"], raw["N"], dipole=raw["dipole"], line_strength=raw["ls"])
+            chi, raw["k_vec"], raw["N"], dipole=raw["dipole"],
+            line_strength=self._opacity_scale(raw, params))
         # Cell length only scales αL here (recompute=False navigate-only knob), so
         # read it from the live params, not the cached raw, or a cell-length change
         # would not update the transmission.
@@ -864,19 +903,25 @@ class RydbergEITScheme(Scheme):
             cached.move_to_end(key)
             return existing
 
-    def _superheterodyne_readout(self, raw, params, x, transmission):
+    def _superheterodyne_readout(
+            self, raw, params, x, transmission, atomic_response=None):
         """Finite-IF atomic response with RF and detector calibration."""
-        if raw["lo_rabi_mhz"] <= 0.0:
+        if raw["lo_rabi_mhz"] <= 0.0 or self._opacity_scale(raw, params) == 0.0:
             return None
 
-        indices, absorption_phasors, optimization_scope = (
-            self._cached_superheterodyne_atomic_phasors(
-                raw, params, x, transmission))
+        response_reused = atomic_response is not None
+        if atomic_response is None:
+            atomic_response = self._cached_superheterodyne_atomic_phasors(
+                raw, params, x, transmission)
+        indices, absorption_phasors, optimization_scope = atomic_response
+        if response_reused and str(params.get("doppler", self._REF["doppler"])) == "on":
+            optimization_scope = "fixed nominal static-gradient sampled point (opacity scenario)"
 
         # chi_bar = rho_10 / Omega_probe.  Linearizing
         # T=exp[-k Im(chi_phys)L] gives the complex transmission phasor below.
         chi_scale = observables.chi_phys(
-            1.0, raw["N"], dipole=raw["dipole"], line_strength=raw["ls"])
+            1.0, raw["N"], dipole=raw["dipole"],
+            line_strength=self._opacity_scale(raw, params))
         cell_length_m = float(params.get(
             "cell_mm", self._REF["cell_mm"])) * 1.0e-3
         transmission_phasor_per_rabi = (
@@ -947,8 +992,8 @@ class RydbergEITScheme(Scheme):
         local_best = int(np.nanargmin(total_field_asd))
         best_index = int(indices[local_best])
         best = candidates[local_best]
-        if best is None:  # pragma: no cover - guarded by finite argmin above
-            raise RuntimeError("finite-IF scan produced no calibrated response")
+        if best is None:
+            return None
         current_phasor, signal_power_w, reference_channel, noise, sensitivity = best
         enbw_hz = float(params.get(
             "measurement_enbw_hz", self._REF["measurement_enbw_hz"]))
@@ -973,6 +1018,7 @@ class RydbergEITScheme(Scheme):
             enbw_hz=enbw_hz,
             rf_coupling=rf_coupling,
             optimization_scope=optimization_scope,
+            atomic_response=atomic_response,
         )
 
     @staticmethod
@@ -1002,14 +1048,15 @@ class RydbergEITScheme(Scheme):
 
         return abs(crossing(1) - crossing(-1)), contrast
 
-    def _readout(self, raw, params):
+    def _readout(self, raw, params, atomic_response=None):
         """Cheap transmission/dispersion arrays + scalar metrics, with no
         matplotlib — the headless path tests and scans reuse without paying the
         figure-build cost. `observables` wraps this and draws the figure."""
         x, T_trans, xphys = self._transmission(raw["chi_bar"], raw, params)
         ic = int(np.argmin(np.abs(x)))
         width, _ = self._eit_features(x, T_trans)
-        slope = np.nanmax(np.abs(np.gradient(T_trans, x)))
+        slope = (np.nanmax(np.abs(np.gradient(T_trans, x)))
+                 if np.ptp(T_trans) > 0.0 else 0.0)
         if_delta = max(float(params.get("if_khz", self._REF["if_khz"])) / 1000.0,
                        1e-9)
         if_valid = (x >= x[0] + if_delta) & (x <= x[-1] - if_delta)
@@ -1017,9 +1064,16 @@ class RydbergEITScheme(Scheme):
             t_hi = np.interp(x[if_valid] + if_delta, x, T_trans)
             t_lo = np.interp(x[if_valid] - if_delta, x, T_trans)
             if_readout = (t_hi - t_lo) / (2.0 * if_delta)
-            i_if = int(np.nanargmax(np.abs(if_readout)))
-            if_disc = float(abs(if_readout[i_if]))
-            if_detuning = float(x[if_valid][i_if])
+            finite_response = np.isfinite(if_readout)
+            if finite_response.any():
+                i_if = int(np.argmax(np.where(
+                    finite_response, np.abs(if_readout), -np.inf)))
+                if_disc = float(abs(if_readout[i_if]))
+                if_detuning = (float(x[if_valid][i_if]) if if_disc > 0.0
+                               else float("nan"))
+            else:
+                if_disc = float("nan")
+                if_detuning = float("nan")
         else:
             if_disc = float("nan")
             if_detuning = float("nan")
@@ -1098,7 +1152,8 @@ class RydbergEITScheme(Scheme):
             dict(label="IF discriminator", value=f"{if_disc:.3f} /MHz",
                  help="Finite-difference transmission discriminator at the selected "
                       "IF offset; a static proxy for a lock-in/superhet readout."),
-            dict(label="IF optimum detuning", value=f"{if_detuning:+.2f} MHz",
+            dict(label="IF optimum detuning",
+                 value=(f"{if_detuning:+.2f} MHz" if np.isfinite(if_detuning) else "—"),
                  help="Probe detuning where the finite-IF discriminator is largest."),
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}"),
         ])
@@ -1125,7 +1180,9 @@ class RydbergEITScheme(Scheme):
                     help="Optically inferred AT field divided by the independent "
                          "standard-antenna-method field."))
         if raw["lo_rabi_mhz"] > 0:
-            superhet = self._superheterodyne_readout(raw, params, x, T_trans)
+            superhet = self._superheterodyne_readout(
+                raw, params, x, T_trans, atomic_response=atomic_response)
+        if superhet is not None:
             sensitivity = superhet["sensitivity"]
             noise = superhet["noise"]
             metrics.extend([
@@ -1187,6 +1244,13 @@ class RydbergEITScheme(Scheme):
             else:
                 preferred_heroes = (
                     "Total sensitivity", "AT status", "PSN-limited sensitivity")
+        elif raw["lo_rabi_mhz"] > 0:
+            metrics.append(dict(
+                label="Sensitivity status", value="no finite optical response",
+                kind="status", help="No field sensitivity is available at zero "
+                     "effective opacity or without a finite detector response."))
+            preferred_heroes = (
+                "Sensitivity status", "RF field from fitted Ω_RF", "AT status")
         else:
             preferred_heroes = (
                 ("EIT linewidth", "Transmission at resonance", "IF discriminator")
@@ -1205,8 +1269,59 @@ class RydbergEITScheme(Scheme):
         metrics = ([by_label[label] for label in hero_labels]
                    + [metric for metric in metrics
                       if metric["label"] not in selected])
+        metrics.append(dict(
+            label="Prediction scope", value="PREDICTED · opacity uncalibrated",
+            kind="status", help="The opacity and its scenario range are assumed; "
+                 "absolute sensitivity and sweep optima lack held-out validation."))
+        opacity_spec = opacity.opacity_spec(params)
+        sensitivity_readout = dict(
+            status=("NOT_APPLICABLE_NO_LO" if raw["lo_rabi_mhz"] <= 0 else
+                    "UNAVAILABLE_ZERO_OPACITY" if opacity_spec["value"] == 0 else
+                    "UNAVAILABLE_NO_FINITE_RESPONSE"),
+            total_field_asd_nv_cm_per_sqrt_hz=None,
+            psn_field_asd_nv_cm_per_sqrt_hz=None,
+            optimum_detuning_mhz=None,
+            optimization_scope=None,
+        )
+        if superhet is not None:
+            sensitivity_readout.update(
+                status="PREDICTED",
+                total_field_asd_nv_cm_per_sqrt_hz=float(
+                    superhet["sensitivity"].total_field_asd_nv_cm_per_sqrt_hz),
+                psn_field_asd_nv_cm_per_sqrt_hz=float(
+                    superhet["sensitivity"].psn_field_asd_nv_cm_per_sqrt_hz),
+                optimum_detuning_mhz=superhet["optimum_detuning_mhz"],
+                optimization_scope=superhet["optimization_scope"],
+            )
+        trust_readout = dict(
+            prediction_status="PREDICTED",
+            calibration_status="UNCALIBRATED",
+            experimental_visibility="NOT_ASSESSED",
+            numerical_convergence="NOT_ASSESSED",
+            effective_opacity=opacity_spec,
+            atomic_line_strength=float(raw.get("atomic_line_strength", 1.0)),
+            atom_number_participation_fraction=float(params.get(
+                "atom_participation_fraction", self._REF["atom_participation_fraction"])),
+            atom_number_scope="reporting only; independent of optical opacity",
+            model_scope=("scalar four-level cascade; anchored optical Rabi/transit "
+                         "model; pointwise balanced detector; no held-out "
+                         "experimental validation"),
+            doppler_mode=str(params.get("doppler", self._REF["doppler"])),
+            eit_width_mhz=(float(width) if raw["lo_rabi_mhz"] <= 0
+                           and np.isfinite(width) else None),
+            at_split_mhz=at_split_mhz,
+            max_slope_per_mhz=float(slope),
+            if_discriminator_per_mhz=(float(if_disc) if np.isfinite(if_disc) else None),
+            if_optimum_detuning_mhz=(float(if_detuning)
+                                    if np.isfinite(if_detuning) else None),
+            resonance_transmission=float(T_trans[ic]),
+            finite_if=sensitivity_readout,
+        )
         return dict(
             x=x, T_trans=T_trans, xphys=xphys, width=width, metrics=metrics,
+            max_slope_per_mhz=float(slope), if_discriminator_per_mhz=float(if_disc),
+            rydberg_readout=trust_readout, effective_opacity=opacity_spec,
+            prediction_status="PREDICTED",
             superhet=superhet, effective_atoms=self._effective_atom_number(raw, params),
             at_split_mhz=at_split_mhz, at_field_v_m=at_field_v_m,
             at_split_field_estimate_v_m=at_split_field_estimate_v_m, sam=sam)
@@ -1253,18 +1368,24 @@ class RydbergEITScheme(Scheme):
                     f"85Rb Rydberg {view}: "
                     f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
                     f"Omega_LO = {raw['lo_rabi_mhz']:.2f} MHz")
-                response_x = superhet["response_detuning_mhz"]
+                response_x = (superhet["response_detuning_mhz"]
+                              if superhet is not None else np.array([]))
                 response_per_khz = (
                     np.abs(superhet["transmission_phasor_per_angular_rabi"])
-                    * 2.0 * np.pi * 1.0e3)
+                    * 2.0 * np.pi * 1.0e3
+                    if superhet is not None else np.array([]))
                 if response_x.size > 1:
                     axR.plot(response_x, response_per_khz,
                              color="#dc2626", lw=1.6)
                 else:
                     axR.plot(response_x, response_per_khz, "o",
                              color="#dc2626")
-                axR.axvline(superhet["optimum_detuning_mhz"], color="gray",
-                            ls=":", lw=0.8)
+                if superhet is not None:
+                    axR.axvline(superhet["optimum_detuning_mhz"], color="gray",
+                                ls=":", lw=0.8)
+                else:
+                    axR.text(0.5, 0.5, "No finite optical response",
+                             transform=axR.transAxes, ha="center")
                 axR.set_ylabel("|dT| per 1 kHz SIG")
                 axR.set_title(
                     f"Finite-IF linear response ({float(params.get('if_khz', self._REF['if_khz'])):.0f} kHz IF)")
@@ -1296,6 +1417,14 @@ class RydbergEITScheme(Scheme):
             ("N(85Rb)", f"{raw['N']:.3e} /m³"),
             ("Effective Gaussian-overlap atoms", f"{effective_atoms.atoms:.3e}"),
             ("Effective overlap area", f"{effective_atoms.effective_area_m2:.3e} m²"),
+            ("Prediction status", "PREDICTED; opacity UNCALIBRATED"),
+            ("Atomic line strength", f"{float(raw.get('atomic_line_strength', 1.0)):g}"),
+            ("Effective opacity participation", f"{ro['effective_opacity']['value']:.6g}"),
+            ("Opacity source", ro["effective_opacity"]["source"]),
+            ("Opacity scenario half-width",
+             f"{ro['effective_opacity']['relative_uncertainty']:.0%} assumed; "
+             "not a standard uncertainty or confidence interval"),
+            ("Atom-number participation", "Reporting only; separate from opacity"),
         ])
         tables = [derived]
         if sam is not None:
@@ -1341,6 +1470,9 @@ class RydbergEITScheme(Scheme):
         )
         return dict(
             metrics=ro["metrics"], figure=fig, tables=tables,
+            rydberg_readout=ro["rydberg_readout"],
+            effective_opacity=ro["effective_opacity"],
+            prediction_status="PREDICTED",
             comparison=comparison)
 
     def extra_views(self):
@@ -1349,18 +1481,48 @@ class RydbergEITScheme(Scheme):
         to diagnose the temperature-dependent RF operating point."""
         def _compute_sweep(params):
             powers = np.linspace(0.5, 10.0, 16)
-            comp = {"width": [], "amp": []}
-            uncomp = {"width": [], "amp": []}
+            spec = opacity.opacity_spec(params)
+            scenarios = [dict(sample, comp={"width": [], "amp": []},
+                              uncomp={"width": [], "amp": []},
+                              prediction_status="PREDICTED")
+                         for sample in opacity.opacity_samples(params)]
             for p_uw in powers:
                 pr = dict(params, probe_power_uw=float(p_uw), view="EIT")
                 raw = self.compute(pr)
-                x, T_c, _ = self._transmission(raw["chi_bar"], raw, pr)
-                x, T_u, _ = self._transmission(raw["chi_bar_uncomp"], raw, pr)
-                wc, ac = self._eit_features(x, T_c)
-                wu, au = self._eit_features(x, T_u)
-                comp["width"].append(wc); comp["amp"].append(p_uw * ac)
-                uncomp["width"].append(wu); uncomp["amp"].append(p_uw * au)
-            return dict(powers=powers.tolist(), comp=comp, uncomp=uncomp)
+                for scenario in scenarios:
+                    scenario_params = dict(
+                        pr, effective_opacity_participation=scenario["value"])
+                    for key, chi_key in (("comp", "chi_bar"),
+                                         ("uncomp", "chi_bar_uncomp")):
+                        x, transmission, _ = self._transmission(
+                            raw[chi_key], raw, scenario_params)
+                        width, contrast = self._eit_features(x, transmission)
+                        scenario[key]["width"].append(float(width))
+                        scenario[key]["amp"].append(float(p_uw * contrast))
+            for scenario in scenarios:
+                scenario["optima"] = {}
+                for key in ("comp", "uncomp"):
+                    amplitudes = np.asarray(scenario[key]["amp"])
+                    widths = np.asarray(scenario[key]["width"])
+                    valid = np.isfinite(widths)
+                    scenario["optima"][key] = dict(
+                        peak_amplitude_power_uw=(
+                            float(powers[int(np.argmax(amplitudes))])
+                            if np.any(amplitudes > 0) else None),
+                        minimum_linewidth_power_uw=(
+                            float(powers[int(np.argmin(
+                                np.where(valid, widths, np.inf)))])
+                            if valid.any() else None),
+                    )
+            nominal = next(s for s in scenarios if s["value"] == spec["value"])
+            return dict(
+                powers=powers.tolist(), comp=nominal["comp"],
+                uncomp=nominal["uncomp"], opacity_scenarios=scenarios,
+                effective_opacity=spec, prediction_status="PREDICTED",
+                calibration_status="UNCALIBRATED",
+                uncertainty_scope="assumed opacity scenarios; not a confidence interval",
+                optimum_scope="sampled model optimum; not an experimental recommendation",
+            )
 
         def _render_sweep(s):
             import matplotlib.pyplot as plt
@@ -1376,8 +1538,21 @@ class RydbergEITScheme(Scheme):
             aA.legend(fontsize=9)
             aW.plot(powers, s["uncomp"]["width"], "s-", color="#1f77b4")
             aW.plot(powers, s["comp"]["width"], "o-", color="#d62728")
+            labelled_incomplete = set()
+            for key, color in (("comp", "#d62728"), ("uncomp", "#1f77b4")):
+                for ax, field in ((aA, "amp"), (aW, "width")):
+                    curves = np.asarray([v[key][field] for v in s["opacity_scenarios"]])
+                    lower, upper, counts = _finite_scenario_envelope(curves)
+                    ax.fill_between(powers, lower, upper, color=color, alpha=0.12)
+                    if np.any(counts < curves.shape[0]) and ax not in labelled_incomplete:
+                        ax.text(0.02, 0.03,
+                                "Unavailable scenarios excluded; band covers finite cases only",
+                                transform=ax.transAxes, fontsize=7)
+                        labelled_incomplete.add(ax)
             aW.set_ylabel("EIT linewidth [MHz]")
             aW.set_xlabel("Probe power [uW]")
+            figF.suptitle("PREDICTED: assumed opacity scenarios (not a confidence interval)",
+                          fontsize=10)
             figF.tight_layout()
             return figF
 
@@ -1388,42 +1563,32 @@ class RydbergEITScheme(Scheme):
             # effective/cold-spot calibration for experimental overlays.
             temperatures = np.array(
                 [20.0, 30.0, 35.0, 40.0, 42.0, 45.0, 47.0, 50.0, 53.0, 55.0])
-            spectra = []
-            widths = []
-            contrasts = []
-            peaks = []
-            slopes = []
-            if_discriminators = []
+            spec = opacity.opacity_spec(params)
+            scenario_fields = (
+                "spectra", "widths_mhz", "contrasts", "resonance_transmission",
+                "max_slope_per_mhz", "if_discriminator_per_mhz",
+                "psn_sensitivity_nv_cm_sqrt_hz", "total_sensitivity_nv_cm_sqrt_hz",
+                "superhet_optimum_detuning_mhz", "finite_if_status",
+            )
+            doppler_on = str(params.get("doppler", self._REF["doppler"])) == "on"
+            scenario_scope = (
+                "fixed nominal static-gradient sampled point at each temperature"
+                if doppler_on else "full probe-detuning scan at each temperature")
+            scenarios = [dict(
+                sample, **{key: [] for key in scenario_fields},
+                prediction_status="PREDICTED", optimization_scope=scenario_scope,
+            ) for sample in opacity.opacity_samples(params)]
             densities = []
             transit = []
             effective_atoms = []
-            psn_sensitivity = []
-            total_sensitivity = []
-            superhet_detunings = []
             for temp_c in temperatures:
                 pr = dict(
                     params, temperature_model="Linked", temp_c=float(temp_c),
                     view="EIT", lo_rabi_mhz=0.0)
                 raw = self.compute(pr)
-                ro = self._readout(raw, pr)
-                x, transmission, _ = self._transmission(
-                    raw["chi_bar"], raw, pr)
-                width, contrast = self._eit_features(x, transmission)
-                metric_values = {
-                    metric["label"]: metric["value"]
-                    for metric in ro["metrics"]
-                }
-                ic = int(np.argmin(np.abs(x)))
-                spectra.append(transmission.tolist())
-                widths.append(float(width))
-                contrasts.append(float(contrast))
-                peaks.append(float(transmission[ic]))
-                slopes.append(float(metric_values["Max spectral slope"].split()[0]))
-                if_discriminators.append(float(
-                    metric_values["IF discriminator"].split()[0]))
                 densities.append(float(raw["N"]))
                 transit.append(float(raw["transit_mhz"]))
-                effective_atoms.append(float(ro["effective_atoms"].atoms))
+                effective_atoms.append(float(self._effective_atom_number(raw, pr).atoms))
 
                 at_lo = max(float(params.get(
                     "lo_rabi_mhz", self._REF["lo_rabi_mhz"])),
@@ -1432,36 +1597,64 @@ class RydbergEITScheme(Scheme):
                     params, temperature_model="Linked", temp_c=float(temp_c),
                     view="AT electrometry", lo_rabi_mhz=at_lo)
                 at_raw = self.compute(at_params)
-                at_ro = self._readout(at_raw, at_params)
-                sensitivity = at_ro["superhet"]["sensitivity"]
-                psn_sensitivity.append(float(
-                    sensitivity.psn_field_asd_nv_cm_per_sqrt_hz))
-                total_sensitivity.append(float(
-                    sensitivity.total_field_asd_nv_cm_per_sqrt_hz))
-                superhet_detunings.append(float(
-                    at_ro["superhet"]["optimum_detuning_mhz"]))
-            finite_sensitivity = np.where(
-                np.isfinite(total_sensitivity), total_sensitivity, np.inf)
-            best_index = int(np.argmin(finite_sensitivity))
+                atomic_response = None
+                for scenario in scenarios:
+                    scenario_params = dict(
+                        pr, effective_opacity_participation=scenario["value"])
+                    ro = self._readout(raw, scenario_params)
+                    x, transmission = ro["x"], ro["T_trans"]
+                    width, contrast = self._eit_features(x, transmission)
+                    ic = int(np.argmin(np.abs(x)))
+                    scenario["spectra"].append(transmission.tolist())
+                    scenario["widths_mhz"].append(float(width))
+                    scenario["contrasts"].append(float(contrast))
+                    scenario["resonance_transmission"].append(float(transmission[ic]))
+                    # Preserve the legacy three-decimal sweep values while
+                    # keeping numeric readout fields independent of UI strings.
+                    scenario["max_slope_per_mhz"].append(
+                        float(f"{ro['max_slope_per_mhz']:.3f}"))
+                    scenario["if_discriminator_per_mhz"].append(
+                        float(f"{ro['if_discriminator_per_mhz']:.3f}"))
+                    at_scenario_params = dict(
+                        at_params, effective_opacity_participation=scenario["value"])
+                    at_ro = self._readout(
+                        at_raw, at_scenario_params, atomic_response=atomic_response)
+                    if at_ro["superhet"] is not None and atomic_response is None:
+                        atomic_response = at_ro["superhet"]["atomic_response"]
+                    sensitivity = at_ro["rydberg_readout"]["finite_if"]
+                    for field, source in (
+                        ("psn_sensitivity_nv_cm_sqrt_hz", "psn_field_asd_nv_cm_per_sqrt_hz"),
+                        ("total_sensitivity_nv_cm_sqrt_hz", "total_field_asd_nv_cm_per_sqrt_hz"),
+                    ):
+                        value = sensitivity[source]
+                        scenario[field].append(float("nan") if value is None else value)
+                    scenario["superhet_optimum_detuning_mhz"].append(
+                        sensitivity["optimum_detuning_mhz"])
+                    scenario["finite_if_status"].append(sensitivity["status"])
+            for scenario in scenarios:
+                values = np.asarray(scenario["total_sensitivity_nv_cm_sqrt_hz"])
+                valid = np.isfinite(values)
+                best_index = int(np.argmin(np.where(valid, values, np.inf)))
+                scenario["best_sensitivity_temperature_c"] = (
+                    float(temperatures[best_index]) if valid.any() else None)
+                scenario["best_total_sensitivity_nv_cm_sqrt_hz"] = (
+                    float(values[best_index]) if valid.any() else None)
+            nominal = next(s for s in scenarios if s["value"] == spec["value"])
             return dict(
                 temperatures_c=temperatures.tolist(),
                 temperature_semantics="linked effective/cold-spot simulation temperature",
                 frequency_mhz=x.tolist(),
-                spectra=spectra,
-                widths_mhz=widths,
-                contrasts=contrasts,
-                resonance_transmission=peaks,
-                max_slope_per_mhz=slopes,
-                if_discriminator_per_mhz=if_discriminators,
                 density_m3=densities,
                 transit_mhz=transit,
                 effective_atoms=effective_atoms,
-                psn_sensitivity_nv_cm_sqrt_hz=psn_sensitivity,
-                total_sensitivity_nv_cm_sqrt_hz=total_sensitivity,
-                superhet_optimum_detuning_mhz=superhet_detunings,
-                best_sensitivity_temperature_c=float(temperatures[best_index]),
-                best_total_sensitivity_nv_cm_sqrt_hz=float(
-                    total_sensitivity[best_index]),
+                **{key: nominal[key] for key in scenario_fields},
+                best_sensitivity_temperature_c=nominal["best_sensitivity_temperature_c"],
+                best_total_sensitivity_nv_cm_sqrt_hz=nominal["best_total_sensitivity_nv_cm_sqrt_hz"],
+                opacity_scenarios=scenarios, effective_opacity=spec,
+                prediction_status="PREDICTED", calibration_status="UNCALIBRATED",
+                optimization_scope=scenario_scope,
+                uncertainty_scope="assumed opacity scenarios; not a confidence interval",
+                optimum_scope="sampled model optimum; not an experimental recommendation",
             )
 
         def _render_temperature_sweep(sweep):
@@ -1498,9 +1691,25 @@ class RydbergEITScheme(Scheme):
             ax_sensitivity.semilogy(
                 temperatures, sweep["total_sensitivity_nv_cm_sqrt_hz"],
                 "s-", label="total")
-            ax_sensitivity.axvline(
-                sweep["best_sensitivity_temperature_c"], color="gray",
-                ls=":", lw=1.0)
+            scenarios = sweep["opacity_scenarios"]
+            curves = np.asarray([v["total_sensitivity_nv_cm_sqrt_hz"]
+                                 for v in scenarios])
+            lower, upper, counts = _finite_scenario_envelope(curves)
+            incomplete = np.any(counts < curves.shape[0])
+            ax_sensitivity.fill_between(
+                temperatures, lower, upper, alpha=0.15,
+                label=("finite opacity scenarios only" if incomplete else
+                       "assumed opacity scenarios"))
+            if incomplete:
+                ax_sensitivity.text(
+                    0.02, 0.03,
+                    "Unavailable scenario sensitivity: no finite range bound; "
+                    "band covers finite cases only",
+                    transform=ax_sensitivity.transAxes, fontsize=7, wrap=True)
+            if sweep["best_sensitivity_temperature_c"] is not None:
+                ax_sensitivity.axvline(
+                    sweep["best_sensitivity_temperature_c"], color="gray",
+                    ls=":", lw=1.0)
             ax_sensitivity.set_xlabel("Linked cell temperature [C]")
             ax_sensitivity.set_ylabel("Sensitivity [nV/cm/sqrt(Hz)]")
             ax_sensitivity.set_title("Finite-IF electrometry sensitivity")
@@ -1522,6 +1731,8 @@ class RydbergEITScheme(Scheme):
             ax_density.legend(fontsize=8)
             for ax in axes.ravel():
                 ax.grid(alpha=0.25)
+            fig.suptitle("PREDICTED: assumed opacity range (not a confidence interval)",
+                         fontsize=10)
             fig.tight_layout()
             return fig
 
@@ -1530,9 +1741,11 @@ class RydbergEITScheme(Scheme):
                 key="Fig. 2(b): probe-power dependence (peak amplitude & linewidth)",
                 description="Sweeps the probe power 0.5–10 µW and extracts the EIT "
                             "peak amplitude and linewidth with and without B-field "
-                            "compensation — the power broadening of Ju et al. Fig. 2(b).",
+                            "compensation. PREDICTED with assumed opacity scenarios; "
+                            "the band is not a confidence interval or external validation.",
                 compute=_compute_sweep, render=_render_sweep,
-                param_keys=("cell_mm",),
+                param_keys=("cell_mm", "effective_opacity_participation",
+                            "effective_opacity_relative_uncertainty"),
             ),
             ExtraView(
                 key="Cell-heating sweep: EIT and finite-IF sensitivity",
@@ -1541,7 +1754,8 @@ class RydbergEITScheme(Scheme):
                             "Gaussian-overlap atom number, and the finite-IF PSN/total "
                             "sensitivity. This generic panel uses linked temperatures; "
                             "use the analysis CLI to apply measured heater-to-effective "
-                            "and cold-spot calibrations.",
+                            "and cold-spot calibrations. PREDICTED optima remain "
+                            "conditional on the uncalibrated opacity scenario range.",
                 compute=_compute_temperature_sweep,
                 render=_render_temperature_sweep,
                 param_keys=(
@@ -1552,6 +1766,8 @@ class RydbergEITScheme(Scheme):
                     "detector_electronic_noise_pa_sqrt_hz",
                     "detector_rin_per_sqrt_hz", "detector_rin_correlation",
                     "atom_participation_fraction", "beam_overlap_efficiency",
+                    "effective_opacity_participation",
+                    "effective_opacity_relative_uncertainty",
                 ),
             ),
         ]
@@ -1559,10 +1775,13 @@ class RydbergEITScheme(Scheme):
     def info(self):
         return (
             "**Rydberg-EIT electrometry.** 85Rb cascade-EIT / microwave Autler-Townes "
-            "model calibrated to the photon-shot-noise-limited vapor-cell experiment "
-            "of Ju et al. The EIT view reproduces Fig. 2(a) (transmission with / "
-            "without B-field compensation); the probe-power panel reproduces "
-            "Fig. 2(b). Around the LO-dressed steady state, a finite-IF first-order "
+            "model with optical linewidth/Rabi anchors from the vapor-cell experiment "
+            "of Ju et al. The EIT view models transmission with / without B-field "
+            "compensation; the probe-power panel models its power dependence. "
+            "The effective optical opacity is an explicit uncalibrated input. "
+            "Temperature/power sweeps and their sampled optima are PREDICTED; "
+            "their opacity bands are assumed scenarios, not confidence intervals. "
+            "Around the LO-dressed steady state, a finite-IF first-order "
             "Liouvillian solve predicts the weak-SIG transmission phasor. Combined "
             "with the declared RF dipole and balanced-detector noise budget, it "
             "reports PSN, technical, and total field sensitivity. This is not a "

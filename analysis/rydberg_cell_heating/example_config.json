@@ -24,6 +24,8 @@
       "detector_rin_per_sqrt_hz": 0.0,
       "detector_rin_correlation": 1.0,
       "measurement_enbw_hz": 1.0,
+      "effective_opacity_participation": 0.001,
+      "effective_opacity_relative_uncertainty": 0.5,
       "doppler": "off"
     },
     "thermal": {
@@ -78,6 +80,11 @@
     }
   ],
   "source_notes": [
+    {
+      "id": "effective_opacity_assumption",
+      "status": "ASSUMED",
+      "note": "Legacy opacity 0.001 is uncalibrated and separate from atomic line strength and atom count. Relative half-width 0.5 defines lower/nominal/upper sensitivity scenarios, not a measured standard uncertainty or confidence interval."
+    },
     {
       "id": "cell_heating_presentation",
       "status": "PPT",

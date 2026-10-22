@@ -1,0 +1,64 @@
+........................................................................ [  2%]
+........................................................................ [  5%]
+........................................................................ [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 28%]
+.......sss.............................................................. [ 31%]
+........................................................................ [ 34%]
+........................................................................ [ 37%]
+........................................................................ [ 40%]
+........................................................................ [ 43%]
+........................................................................ [ 46%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 98%]
+................................................                         [100%]
+============================== warnings summary ===============================
+tests/test_biphoton_evidence.py: 1 warning
+tests/test_fwm_measured_gain_integration.py: 1 warning
+tests/test_fwm_passive_l1_integration.py: 1 warning
+tests/test_fwm_passive_l1_reference.py: 1 warning
+tests/test_jasperse_integration.py: 1 warning
+tests/test_optical_depth_contract.py: 5 warnings
+tests/test_ui_derived_controls.py: 1 warning
+  C:\Temp\gv20261021-local\repo\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================ slowest 15 durations =============================
+127.51s call     tests/quantum/test_periodic_field.py::test_periodic_cell_report_checks_convergence_refs_and_preserves_existing_output
+79.14s call     tests/quantum/test_thermal_campaign_extend.py::test_append_only_parent_arrivals_after_snapshot_are_not_mutation_or_extra_imports
+67.61s call     tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[link_count_zero]
+60.24s call     tests/test_sabes_bridge.py::test_corrected_absolute_normalization_exposes_paper_power_mismatch
+58.74s call     tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]
+58.73s call     tests/test_fwm_gain_hotfix.py::test_ultra_matches_all_saved_pre_hotfix_arrays[ultra_default]
+57.80s call     tests/test_fwm_gain_hotfix.py::test_ultra_matches_all_saved_pre_hotfix_arrays[ultra_detuned]
+54.42s call     tests/quantum/test_thermal_campaign_extend.py::test_destination_race_is_exclusive_and_preserves_external_target
+50.50s call     tests/quantum/test_thermal_campaign_extend.py::test_empty_campaign_extension_passes_both_real_capsules_without_any_native_solve
+48.89s call     tests/test_sabes_bridge.py::test_warnings_aggregate_from_every_stage
+47.64s call     tests/test_sabes_bridge.py::test_hard_focus_onto_the_diode_breaks_the_linearity_limit
+46.65s call     tests/test_sabes_bridge.py::test_defocus_also_relieves_the_density_limit
+44.79s call     tests/quantum/test_smooth_qrt.py::test_short_smooth_physical_rb85_d1_against_centered_qrt
+43.52s call     tests/test_sabes_bridge.py::test_a_longer_focal_length_relieves_the_density_limit
+41.73s call     tests/quantum/test_thermal_campaign_extend.py::test_resealed_request_coverage_must_match_staged_declaration[requested_powers]
+2493 passed, 3 skipped, 1 deselected, 11 warnings in 3002.92s (0:50:02)

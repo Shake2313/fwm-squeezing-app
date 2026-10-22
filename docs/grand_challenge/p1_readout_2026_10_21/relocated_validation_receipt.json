@@ -1,0 +1,57 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "exact_byte_relocated_plus_original_path_case",
+  "source_files": 411,
+  "critical_data_files": 67,
+  "source_frozen": true,
+  "source_before": {
+    "original": [],
+    "mirror": []
+  },
+  "source_after": {
+    "original": [],
+    "mirror": []
+  },
+  "original_case": {
+    "marker": "⟦AI⟧",
+    "origin": "source_evidence",
+    "command": [
+      "C:\\Python312\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+    ],
+    "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+    "started_utc": "2026-10-20T18:34:52.321641+00:00",
+    "completed_utc": "2026-10-20T18:34:58.399541+00:00",
+    "exit_code": 0,
+    "seconds": 6.077999999994063,
+    "log": "original_root_case.log"
+  },
+  "relocated_full": {
+    "marker": "⟦AI⟧",
+    "origin": "source_evidence",
+    "command": [
+      "C:\\Python312\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "--durations=15",
+      "--deselect=tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+    ],
+    "cwd": "C:\\Temp\\gv20261021-local\\repo",
+    "started_utc": "2026-10-20T18:40:15.132904+00:00",
+    "completed_utc": "2026-10-20T19:30:21.716286+00:00",
+    "exit_code": 0,
+    "seconds": 3006.5780000000086,
+    "log": "full_pytest_local_v2.log"
+  },
+  "collection_count": 2497,
+  "ordered_nodeids_identical": true,
+  "all_cases_covered": true,
+  "exact_byte_copy_receipt": "copy_receipt.json",
+  "source_manifest": "source_manifest.json",
+  "file_manifest": "file_manifest.json",
+  "threads": 8
+}

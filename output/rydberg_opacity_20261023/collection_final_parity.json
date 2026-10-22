@@ -1,0 +1,7 @@
+{
+  "tests": 2750,
+  "mirror_tests": 2750,
+  "final_python_byte_parity": true,
+  "collection_mode": "Final-byte C mirror collection; prior baseline original/mirror ordered collection matched. Original final recollection interrupted for filesystem delay.",
+  "nodeids_sha256": "8cfa5283215d67f4ed04f3796cce570c2af5cd00f1096eaf5f73057a8a44779f"
+}

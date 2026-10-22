@@ -1,0 +1,24 @@
+{
+  "baseline_to_final_paths": [
+    "gabes_ui\\component_runtime.py",
+    "gabes_ui\\defaults_browser.py",
+    "gabes_ui\\liveplot.py",
+    "tests\\test_defaults_browser.py",
+    "tests\\test_liveplot.py",
+    "tests\\quantum\\test_source_provenance.py",
+    "tests\\test_sabes_bridge.py",
+    "analysis\\grand_challenge\\source_provenance.py"
+  ],
+  "ui_fix_paths": [
+    "gabes_ui/component_runtime.py",
+    "gabes_ui/defaults_browser.py",
+    "gabes_ui/liveplot.py",
+    "tests/test_defaults_browser.py",
+    "tests/test_liveplot.py"
+  ],
+  "independent_concurrent_paths": [
+    "tests/quantum/test_source_provenance.py",
+    "tests/test_sabes_bridge.py",
+    "analysis/grand_challenge/source_provenance.py"
+  ]
+}

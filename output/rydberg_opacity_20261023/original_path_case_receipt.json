@@ -1,0 +1,8 @@
+{
+  "command": "python -m pytest -q tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+  "cwd": "G:\\\ub0b4 \ub4dc\ub77c\uc774\ube0c\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "exit_code": 0,
+  "seconds": 6.0658248999970965,
+  "nodeid": "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+  "log": ".                                                                        [100%]\n1 passed in 2.83s\n"
+}

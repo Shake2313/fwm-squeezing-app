@@ -297,3 +297,94 @@ def test_axial_capability_requires_emitted_segmented_spectrum(tmp_path: Path):
     point = results["model"]["sweeps"]["EIT"][0]
     assert not point["axial_profile"]["beer_lambert"]["available"]
     assert not results["capabilities"]["axial_beer_lambert"]["available"]
+
+
+@pytest.mark.parametrize("mode,include_spectrum", [
+    ("scheme", True), ("scheme", False), ("configured", False),
+])
+def test_opacity_temperature_scenarios_reuse_nominal_states_and_report_optima(
+        tmp_path, monkeypatch, mode, include_spectrum):
+    from gabes import schemes
+
+    config = json.loads(_config(tmp_path).read_text(encoding="utf-8"))
+    config["model"]["views"] = ["EIT", "AT electrometry"]
+    config["model"]["include_spectra_in_results"] = include_spectrum
+    config["model"]["base_params"].update(
+        effective_opacity_participation=.001,
+        effective_opacity_relative_uncertainty=1.0)
+    config["model"]["axial_profile"] = {
+        "enabled": True, "status": "ASSUMED", "points": 3,
+        "left_offset_c": 0.0, "right_offset_c": 0.0,
+    }
+    config["electrometry"] = {
+        "enabled": True, "mode": mode, "status": "ASSUMED",
+        "transition_dipole_c_m": 2e-27, "angular_factor": .5,
+        "field_amplitude_convention": "peak", "quantum_efficiency": .8,
+        "signal_probe_power_scale": 1.0, "probe_detuning_search_points": 11,
+    }
+    path = tmp_path / "opacity.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+    scheme = schemes.get("rydberg_eit")
+    original_compute = scheme.compute
+    solves = []
+
+    def counted(params):
+        solves.append(dict(params))
+        return original_compute(params)
+
+    monkeypatch.setattr(scheme, "compute", counted)
+    artifacts = run_analysis(path, make_figures=False)
+    assert len(solves) == 4  # two temperatures x two views; none for scenarios
+    result = json.loads(artifacts["results"].read_text(encoding="utf-8"))
+    json.dumps(result, allow_nan=False)
+    model = result["model"]
+    opacity = model["effective_opacity"]
+    assert opacity["status"] == "ASSUMED"
+    assert opacity["calibration_status"] == "UNCALIBRATED"
+    scenarios = model["opacity_scenarios"]
+    assert scenarios["status"] == "PREDICTED"
+    assert "not measured confidence" in scenarios["scope"]
+    assert scenarios["samples"] == [
+        {"label": "nominal", "value": .001},
+        {"label": "lower", "value": 0.0},
+        {"label": "upper", "value": .002},
+    ]
+    assert scenarios["sweeps"]["nominal"] == model["sweeps"]
+    assert scenarios["optima"]["nominal"] == model["optima"]
+    assert scenarios["optima"]["lower"]["min_total_field_sensitivity"] is None
+    assert scenarios["optima"]["lower"]["max_spectral_slope"] is None
+    assert scenarios["optima"]["lower"]["max_if_discriminator"] is None
+    assert scenarios["optima"]["upper"]["min_total_field_sensitivity"]["value"] > 0.0
+    for view in model["views"]:
+        for index, nominal in enumerate(model["sweeps"][view]):
+            for label in ("lower", "upper"):
+                point = scenarios["sweeps"][label][view][index]
+                assert ("spectrum" in point) is include_spectrum
+                assert point["effective_opacity"]["value"] == (0.0 if label == "lower" else .002)
+            lower = scenarios["sweeps"]["lower"][view][index]
+            upper = scenarios["sweeps"]["upper"][view][index]
+            assert lower["metrics"]["transmission_at_resonance"]["value"] == 1.0
+            assert upper["metrics"]["transmission_at_resonance"]["value"] < nominal[
+                "metrics"]["transmission_at_resonance"]["value"]
+            if include_spectrum:
+                # Uniform axial density preserves the already scaled lumped T;
+                # multiplying opacity again here would fail this parity check.
+                np.testing.assert_allclose(upper["axial_profile"]["beer_lambert"]["transmission"],
+                                           upper["spectrum"]["transmission"], rtol=1e-14)
+    manifest = json.loads(artifacts["manifest"].read_text(encoding="utf-8"))
+    assert "gabes/rydberg_opacity.py" in {row["path"] for row in manifest["code"]}
+
+
+def test_zero_opacity_deduplicates_workflow_scenarios(tmp_path):
+    config = json.loads(_config(tmp_path).read_text(encoding="utf-8"))
+    config["model"]["temperatures_c"] = [40.0]
+    config["model"]["base_params"]["effective_opacity_participation"] = 0.0
+    path = tmp_path / "zero-opacity.json"
+    path.write_text(json.dumps(config), encoding="utf-8")
+    artifact = run_analysis(path, make_figures=False)
+    result = json.loads(artifact["results"].read_text(encoding="utf-8"))
+    scenarios = result["model"]["opacity_scenarios"]
+    assert scenarios["samples"] == [{"label": "nominal", "value": 0.0}]
+    assert set(scenarios["sweeps"]) == {"nominal"}
+    assert all(value is None for value in scenarios["optima"]["nominal"].values())
+    assert all(value is None for value in result["model"]["optima"].values())

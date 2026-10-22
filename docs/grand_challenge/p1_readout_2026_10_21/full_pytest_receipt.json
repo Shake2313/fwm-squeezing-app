@@ -1,0 +1,52 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "exact_byte_relocated_plus_original_path_case",
+  "exit_code": 0,
+  "started_utc": "2026-10-20T18:34:52.321641+00:00",
+  "completed_utc": "2026-10-20T19:30:21.716286+00:00",
+  "seconds": 3012.6560000000027,
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--durations=15",
+    "--deselect=tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "additional_original_root_command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "passed": 2494,
+  "skipped": 3,
+  "failed": 0,
+  "additional_original_root_passed": 1,
+  "collection_count": 2497,
+  "all_cases_covered": true,
+  "source_files": 411,
+  "source_frozen": true,
+  "changed_source_paths_during_run": [],
+  "critical_data_files": 67,
+  "critical_data_frozen": true,
+  "publication_additional_pins": {
+    "docs/grand_challenge/thermal_campaign_v2/grid-p3-s11.json": "5f6075bfe2aa61b160cd63a5f79e701a0a37bb181acc6bed8bfdd17c53814525",
+    "docs/grand_challenge/thermal_campaign_v2/plan.json": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+    "docs/grand_challenge/thermal_campaign_v2/sources.zip": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+    "docs/grand_challenge/variance_reduction_2026_10_13/review.json": "0e66edcc63a72c943348178f3bb8788ba3f24604bb9826f87718209ad7716de3"
+  },
+  "critical_data_and_configs_rechecked_at_publication_both_roots": true,
+  "execution_cwd": "C:\\Temp\\gv20261021-local\\repo",
+  "original_cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "relocated_summary": "2493 passed, 3 skipped, 1 deselected, 11 warnings in 3002.92s (0:50:02)",
+  "original_case_summary": "1 passed in 1.29s",
+  "source_manifest": "relocated_source_manifest.json",
+  "file_manifest": "relocated_file_manifest.json",
+  "collection_parity": "relocated_collection_parity.json",
+  "details": "relocated_validation_receipt.json",
+  "relocation_scope": "⟦AI⟧ Same411Python bytes and frozen data in local C copy; ordered collection of all2497cases identical. One immutable absolute-G-path ledger test runs at its bound original root; the other2496 run in C. No source/test/ledger shim or branch/worktree created.",
+  "original_interruption": "original_interrupted_receipt.json",
+  "log": "full_pytest.log"
+}

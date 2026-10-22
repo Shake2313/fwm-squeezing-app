@@ -44,7 +44,10 @@ def test_reference_defaults_match_rydberg_eit_paper():
 
 def test_extra_views_declare_live_readout_dependencies():
     probe_sweep, temperature_sweep = RydbergEITScheme().extra_views()
-    assert probe_sweep.param_keys == ("cell_mm",)
+    assert probe_sweep.param_keys == (
+        "cell_mm", "effective_opacity_participation",
+        "effective_opacity_relative_uncertainty",
+    )
     assert temperature_sweep.param_keys == (
         "cell_mm", "if_khz", "rf_transition_dipole_ea0",
         "rf_angular_factor", "rf_field_convention",
@@ -53,6 +56,7 @@ def test_extra_views_declare_live_readout_dependencies():
         "detector_electronic_noise_pa_sqrt_hz",
         "detector_rin_per_sqrt_hz", "detector_rin_correlation",
         "atom_participation_fraction", "beam_overlap_efficiency",
+        "effective_opacity_participation", "effective_opacity_relative_uncertainty",
     )
 
 

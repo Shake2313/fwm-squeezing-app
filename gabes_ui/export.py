@@ -91,18 +91,24 @@ def _collect_figure_curve_payloads(fig):
             if x_data.size == 0 or y_data.size == 0:
                 continue
             n = min(len(x_data), len(y_data))
-            payload["traces"].append({
+            quantity_metadata = getattr(curve, "_gabes_export_metadata", None)
+            quantity_metadata = (quantity_metadata
+                                 if isinstance(quantity_metadata, dict) else {})
+            trace = {
                 "axis_index": int(axis_index),
                 "curve_index": int(curve_index),
                 "figure_curve_label": label,
                 "x_label": x_name or "x",
-                "y_label": y_name or "y",
+                "y_label": quantity_metadata.get("y_label", y_name or "y"),
                 "x_unit": x_unit,
-                "y_unit": y_unit,
+                "y_unit": quantity_metadata.get("y_unit", y_unit),
                 "x_data": to_json_primitive(np.asarray(x_data[:n]).tolist()),
                 "y_data": to_json_primitive(np.asarray(y_data[:n]).tolist()),
                 "color": str(curve.get_color()),
-            })
+            }
+            if quantity_metadata:
+                trace["quantity_metadata"] = to_json_primitive(quantity_metadata)
+            payload["traces"].append(trace)
     return payload
 
 
@@ -210,6 +216,11 @@ def build_export_payload(*, scheme, raw, params, view, plot_payloads,
         "view": {
             "metrics": to_json_primitive(view.get("metrics", [])),
             "sidebar_readouts": to_json_primitive(view.get("sidebar_readouts", {})),
+            "optical_readout": to_json_primitive(view.get("optical_readout")),
+            "magneto_readout": to_json_primitive(view.get("magneto_readout")),
+            "rydberg_readout": to_json_primitive(view.get("rydberg_readout")),
+            "biphoton_evidence": to_json_primitive(view.get("biphoton_evidence")),
+            "biphoton_readout": to_json_primitive(view.get("biphoton_readout")),
             "jasperse_readout": to_json_primitive(view.get("jasperse_readout")),
             "experimental_jasperse_readout": to_json_primitive(view.get("experimental_jasperse_readout")),
             "experimental_gain_calibration": to_json_primitive(view.get("experimental_gain_calibration")),

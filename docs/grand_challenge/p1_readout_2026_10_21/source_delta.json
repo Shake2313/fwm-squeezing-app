@@ -1,0 +1,77 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "scope": "AST comparison against session-start source, not HEAD; complete bodies include docstrings.",
+  "modules": {
+    "sas": {
+      "changed": [
+        "SASScheme._obs_generic",
+        "SASScheme._obs_species"
+      ],
+      "added": [
+        "_attenuation_figure_views",
+        "_attenuation_peak_metrics",
+        "_optical_readout"
+      ],
+      "removed": [],
+      "unchanged_definition_count": 31,
+      "before_source_sha256": "48faaee865c4a842cc99287a7a5ea7dd6843a06f785225c71426796817de4915",
+      "after_source_sha256": "eae2aa355933571763f671a6d82b3c1e599e4c6c7c6a75b1af1893c1765c081a"
+    },
+    "magneto": {
+      "changed": [
+        "MagnetoScheme.info",
+        "MagnetoScheme.observables",
+        "MagnetoScheme.param_schema"
+      ],
+      "added": [
+        "_at_zero",
+        "_central_feature",
+        "_local_derivative",
+        "_relative_change",
+        "_scan_contains_zero",
+        "_zero_field_diagnostics"
+      ],
+      "removed": [],
+      "unchanged_definition_count": 18,
+      "before_source_sha256": "58416bbc200ed40e1a82bdc87c992c52efa8ee171fcc483742282a62b289415a",
+      "after_source_sha256": "9ff745c6ac09457571ee5a9dbd70317832cae3f40f1d8c1cf0dc33dbf0c7e369"
+    },
+    "fwm": {
+      "changed": [
+        "FWMScheme._biphoton_observables",
+        "FWMScheme._reference_validation_table"
+      ],
+      "added": [],
+      "removed": [],
+      "unchanged_definition_count": 124,
+      "before_source_sha256": "4bb3121128ab9760211bd7e2ee971c4a3db64ec6d563a48849acb0b5cc8bab04",
+      "after_source_sha256": "c036a776eae6a55214bbde1e7c24af5bc11cea27d0b694c32073134815240e60"
+    },
+    "observables": {
+      "changed": [
+        "biphoton_stats",
+        "coincidence_stats",
+        "optical_density"
+      ],
+      "added": [
+        "decadic_absorbance",
+        "optical_depth"
+      ],
+      "removed": [],
+      "unchanged_definition_count": 23,
+      "before_source_sha256": "36cdae34efbec1bfd5f1cd11ac41dd97e3d0d62347e50a7ba6737b1e32e347e4",
+      "after_source_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238"
+    }
+  },
+  "biphoton_stats_numeric_body_unchanged": {
+    "compared_to": "session-start observables snapshot",
+    "passed": true,
+    "excluded": "docstring and three additive return metadata entries",
+    "added_keys": [
+      "thermal_arm_comparison_R",
+      "physical_cauchy_schwarz_R",
+      "nonclassicality_status"
+    ]
+  }
+}

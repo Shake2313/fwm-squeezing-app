@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-23",
+  "origin": "ai_execution_of_human_request",
+  "command": "python -m pytest -q",
+  "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "exit_code": 4294967295,
+  "started_utc": "2026-10-22T17:42:41.847453+00:00",
+  "completed_utc": "2026-10-22T17:43:12.809699+00:00",
+  "wall_seconds": 30.962920699996175,
+  "frozen_python_files": 434,
+  "source_hashes_unchanged": false,
+  "changed_source_paths": [
+    "analysis\\rydberg_cell_heating\\test_workflow.py",
+    "analysis\\rydberg_cell_heating\\workflow.py"
+  ],
+  "passed": null,
+  "skipped": null,
+  "warnings": 0,
+  "failed": null,
+  "pytest_seconds": null,
+  "log": "output/rydberg_opacity_20261023/full_pytest.log",
+  "frozen_sources": "output/rydberg_opacity_20261023/source_before.json"
+}

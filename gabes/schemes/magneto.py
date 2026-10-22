@@ -12,7 +12,6 @@ import re
 import numpy as np
 
 from .. import constants, core, kernels, observables, pole_doppler, species, zeeman
-from ..lineshape import halfwidth_from_center, lorentz_fwhm
 from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
 
@@ -41,6 +40,8 @@ SIGNAL_NMOR = "NMOR rotation"
 LIGHT_STATE_NORMALIZATION = "trace-one conditional light-region state"
 DENSITY_CONVENTION = "local vapor density N, applied once"
 ABSOLUTE_SCALE_STATUS = "external validation required"
+MODEL_SCOPE_STATUS = "closed hyperfine pair; open-channel leakage and repump omitted"
+SAMPLED_GRID_RTOL = 0.05
 
 DOPPLER_OFF = "off: v = 0 class only"
 DOPPLER_EXACT = "exact untruncated Maxwell average (pole–residue)"
@@ -116,6 +117,126 @@ def _qwp_drive_weights(theta_deg):
     e_plus = (ex - 1j * ey) / math.sqrt(2.0)
     e_minus = (ex + 1j * ey) / math.sqrt(2.0)
     return {+1: math.sqrt(2.0) * e_plus, -1: math.sqrt(2.0) * e_minus}
+
+
+def _scan_contains_zero(x):
+    return (x.ndim == 1 and x.size >= 2 and np.all(np.isfinite(x))
+            and np.all(np.diff(x) > 0.0) and x[0] <= 0.0 <= x[-1])
+
+
+def _at_zero(x, y):
+    """Interpolate only inside the sampled physical-field interval."""
+    return (float(np.interp(0.0, x, y))
+            if _scan_contains_zero(x) and np.all(np.isfinite(y)) else float("nan"))
+
+
+def _central_feature(x, y):
+    """Two half-height crossings about physical zero, with symmetric wings.
+
+    The symmetric window is the largest one about zero contained in the scan.
+    Interpolating its endpoints prevents an offset scan from choosing unequal
+    physical wing distances. No Lorentzian shape or left/right symmetry is used.
+    """
+    result = dict(center=float("nan"), background=float("nan"), amplitude=float("nan"),
+                  left=float("nan"), right=float("nan"), width=float("nan"),
+                  status="physical zero outside scan")
+    if not _scan_contains_zero(x) or not np.all(np.isfinite(y)):
+        return result
+    center = float(np.interp(0.0, x, y))
+    radius = min(-float(x[0]), float(x[-1]))
+    result.update(center=center, status="unresolved in scan")
+    if radius <= 0.0:
+        return result
+    axis = np.unique(np.r_[x[(x > -radius) & (x < radius)], -radius, 0.0, radius])
+    values = np.interp(axis, x, y)
+    ic = int(np.searchsorted(axis, 0.0))
+    background = float(0.5 * (values[0] + values[-1]))
+    amplitude = center - background
+    result.update(background=background, amplitude=amplitude)
+    scale = max(abs(center), abs(background), np.finfo(float).tiny)
+    if abs(amplitude) <= 32 * np.finfo(float).eps * scale:
+        return result
+    target = background + 0.5 * amplitude
+
+    def crossing(step):
+        i = ic
+        while 0 <= i + step < axis.size:
+            j = i + step
+            if (values[j] - target) * np.sign(amplitude) <= 0.0:
+                fraction = (target - values[i]) / (values[j] - values[i])
+                return float(axis[i] + fraction * (axis[j] - axis[i]))
+            i = j
+        return float("nan")
+
+    left, right = crossing(-1), crossing(+1)
+    result.update(left=left, right=right)
+    if np.isfinite(left) and np.isfinite(right) and right > left:
+        result.update(width=right - left, status="sampled")
+    return result
+
+
+def _local_derivative(x, y, stride=1):
+    """Derivative at physical zero from fourth-degree local interpolation.
+
+    Five actual samples are used, including both sides of zero. The outer
+    stencil uses stride=2, so consistency can be checked without a new solve.
+    This also handles zero falling between samples after a field offset.
+    """
+    if not _scan_contains_zero(x) or not np.all(np.isfinite(y)):
+        return float("nan")
+    ic = int(np.argmin(np.abs(x)))
+    indices = ic + stride * np.arange(-2, 3)
+    if indices[0] < 0 or indices[-1] >= x.size:
+        return float("nan")
+    local_x = x[indices]
+    if local_x[0] >= 0.0 or local_x[-1] <= 0.0:
+        return float("nan")
+    scale = float(np.max(np.abs(local_x)))
+    z = local_x / scale
+    values = y[indices] - np.interp(0.0, x, y)
+    # Differentiate the five Lagrange basis polynomials at zero. These small
+    # products avoid another linear-system solve in the readout path.
+    derivative = 0.0
+    for j in range(5):
+        denominator = np.prod([z[j] - z[k] for k in range(5) if k != j])
+        weight = sum(np.prod([-z[k] for k in range(5) if k not in (j, m)])
+                     for m in range(5) if m != j) / denominator
+        derivative += weight * values[j]
+    return float(derivative / scale)
+
+
+def _relative_change(a, b):
+    if not np.isfinite(a) or not np.isfinite(b):
+        return float("nan")
+    return abs(a - b) / max(abs(a), abs(b), np.finfo(float).tiny)
+
+
+def _zero_field_diagnostics(x, alpha, rotation):
+    """Readout-only sampled consistency, distinct from external validation."""
+    x = np.asarray(x, dtype=float)
+    alpha = np.asarray(alpha, dtype=float)
+    rotation = np.asarray(rotation, dtype=float)
+    feature = _central_feature(x, alpha)
+    coarse_indices = np.unique(np.r_[np.arange(0, x.size, 2), x.size - 1])
+    coarse = _central_feature(x[coarse_indices], alpha[coarse_indices])
+    width_change = _relative_change(feature["width"], coarse["width"])
+    if not _scan_contains_zero(x):
+        width_status = slope_status = "physical zero outside scan"
+    else:
+        width_status = ("unresolved in scan" if not np.isfinite(width_change) else
+                        "sample-grid consistent" if width_change <= SAMPLED_GRID_RTOL
+                        and feature["amplitude"] * coarse["amplitude"] > 0.0 else
+                        "nonconverged on sampled grid")
+        slope_status = "insufficient local samples"
+    slope = _local_derivative(x, rotation)
+    coarse_slope = _local_derivative(x, rotation, stride=2)
+    slope_change = _relative_change(slope, coarse_slope)
+    if np.isfinite(slope_change):
+        slope_status = ("sample-grid consistent" if slope_change <= SAMPLED_GRID_RTOL
+                        and slope * coarse_slope >= 0.0 else
+                        "nonconverged on sampled grid")
+    return dict(feature, width_status=width_status, width_relative_change=width_change,
+                slope=slope, slope_status=slope_status, slope_relative_change=slope_change)
 
 
 class MagnetoScheme(Scheme):
@@ -248,12 +369,13 @@ class MagnetoScheme(Scheme):
                       advanced_group="Relaxation overrides",
                       help="Effective transit/reservoir reload into an isotropic "
                            "ground state; exposed here as an override."),
-            ParamSpec("collisional_depol_khz", "Collisional depolarization", "Atomic", 0.5,
+            ParamSpec("collisional_depol_khz", "Ground pure dephasing", "Atomic", 0.5,
                       0.0, 200.0, 0.5, "kHz", advanced=True,
                       visible_if={"cell_type": CELL_BUFFER},
                       advanced_group="Relaxation overrides",
-                      help="Spin-destruction ground-coherence loss without population "
-                           "reload; a buffer-gas consequence exposed as an override."),
+                      help="Ground-state phase randomization without redistribution "
+                           "of Zeeman populations; exposed as an override. This rate "
+                           "does not describe isotropic spin destruction."),
             ParamSpec("transit_relax_khz", "Transit relaxation", "Atomic", 80.0,
                       0.1, 1000.0, 1.0, "kHz", advanced=True,
                       visible_if={"cell_type": CELL_PARAFFIN},
@@ -375,7 +497,9 @@ class MagnetoScheme(Scheme):
             "- H. J. Lee and H. S. Moon, magnetic-field-induced absorption in a "
             "paraffin-coated rubidium vapor cell, *JOSA B* **30**, 2301 (2013).\n"
             "- H. S. Moon and H. J. Kim, Ramsey EIA to MIT transformation in a "
-            "paraffin-coated Rb vapor cell, *Optics Express* **22**, 18604 (2014).\n"
+            "paraffin-coated Rb vapor cell, *Optics Express* **22**, 18604 (2014). "
+            "Its D2 F=2 → F'=3 transition is a qualitative coating reference, "
+            "outside the current D1 transition set.\n"
             "- Y.-J. Yu, H. J. Lee, and H. S. Moon, level-crossing absorption "
             "with narrow spectral width in Rb vapor with buffer gas, "
             "*Phys. Rev. A* **81**, 023416 (2010)."
@@ -785,7 +909,8 @@ class MagnetoScheme(Scheme):
                         ],
                         figure=fig, tables=[])
 
-        x = raw["b_ut"]
+        x = np.asarray(raw["b_ut"])
+        physical_x = np.asarray(raw.get("b_physical_ut", x + raw["b_offset_ut"]))
         ls = params["line_strength"]
         xprobe = observables.chi_phys(
             raw["chi_probe"], raw["N_eff"], dipole=raw["dipole"], line_strength=ls)
@@ -797,47 +922,103 @@ class MagnetoScheme(Scheme):
         alpha = k * np.imag(xprobe)
         T_trans = np.exp(-alpha * L)
         rotation = 0.25 * k * L * np.real(xp - xm)
-        ic = int(np.argmin(np.abs(x)))
-        bg = 0.5 * (alpha[0] + alpha[-1])
-        amp = alpha[ic] - bg
-        if amp < -0.02 * max(abs(bg), abs(alpha[ic]), 1e-30):
+        diagnostic = _zero_field_diagnostics(physical_x, alpha, rotation)
+        physical_zero_available = _scan_contains_zero(physical_x)
+        bg, amp = diagnostic["background"], diagnostic["amplitude"]
+        if not np.isfinite(amp):
+            feature = "unavailable"
+        elif amp < -0.02 * max(abs(bg), abs(diagnostic["center"]), 1e-30):
             feature = "EIT-like dip"
-        elif amp > 0.02 * max(abs(bg), abs(alpha[ic]), 1e-30):
+        elif amp > 0.02 * max(abs(bg), abs(diagnostic["center"]), 1e-30):
             feature = "EIA/MIA-like peak"
         else:
             feature = "crossover"
-        fwhm = lorentz_fwhm(x, alpha)
-        central_hw = halfwidth_from_center(x, alpha)
-        fwhm_str = f"{fwhm:.3f} µT" if fwhm == fwhm else "n/a"
-        central_str = f"{2*central_hw:.3f} µT" if central_hw == central_hw else "n/a"
+        width_ok = diagnostic["width_status"] == "sample-grid consistent"
+        slope_ok = diagnostic["slope_status"] == "sample-grid consistent"
+        central_str = f"{diagnostic['width']:.3f} µT" if width_ok else "unavailable"
+        physical_T = _at_zero(physical_x, T_trans)
+        command_T = _at_zero(x, T_trans)
+        physical_rotation = _at_zero(physical_x, rotation)
+        command_rotation = _at_zero(x, rotation)
+        drive = _qwp_drive_weights(raw["qwp_deg"])
+        circular_powers = [abs(drive[q]) ** 2 for q in (+1, -1)]
+        linear_input = math.isclose(*circular_powers, rel_tol=0.0, abs_tol=1e-12)
+        circular_input = min(circular_powers) <= 1e-12
+        rotation_scope = (
+            "linear-input approximation" if linear_input else
+            "undefined for circular input" if circular_input else
+            "unsupported for elliptical input")
+        magneto_readout = dict(
+            field_unit="µT", default_reference="physical zero",
+            physical_zero_in_scan=bool(physical_zero_available),
+            physical_zero_command_ut=-float(raw["b_offset_ut"]),
+            physical_zero_transmission=physical_T,
+            command_zero_transmission=command_T,
+            physical_zero_rotation_rad=physical_rotation if linear_input else None,
+            command_zero_rotation_rad=command_rotation if linear_input else None,
+            rotation_scope=rotation_scope,
+            feature=feature,
+            central_absorption_per_m=diagnostic["center"],
+            background_absorption_per_m=diagnostic["background"],
+            feature_amplitude_per_m=diagnostic["amplitude"],
+            central_width_ut=diagnostic["width"],
+            left_half_height_ut=diagnostic["left"],
+            right_half_height_ut=diagnostic["right"],
+            width_status=diagnostic["width_status"],
+            width_relative_change=diagnostic["width_relative_change"],
+            slope_rad_per_ut=diagnostic["slope"] if linear_input else None,
+            slope_status=diagnostic["slope_status"] if linear_input else rotation_scope,
+            slope_relative_change=diagnostic["slope_relative_change"] if linear_input else None,
+            sampled_grid_tolerance=SAMPLED_GRID_RTOL,
+            numerical_scope="same-scan coarsening/stencil consistency; no full convergence certificate",
+            model_scope=MODEL_SCOPE_STATUS,
+            absolute_scale_status=raw["absolute_scale_status"],
+        )
+        magneto_readout = {
+            key: None if isinstance(value, (float, np.floating)) and not np.isfinite(value)
+            else value for key, value in magneto_readout.items()}
+
+        def mark_field_references(ax):
+            ax.axvline(0.0, color="gray", ls=":", lw=0.8,
+                       label="Command zero")
+            if physical_zero_available and abs(raw["b_offset_ut"]) > 1e-14:
+                ax.axvline(-raw["b_offset_ut"], color="black", ls="--", lw=0.8,
+                           label="Physical zero")
+                ax.legend(fontsize=8)
 
         title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
                  f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
         fig = None
         if params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR:
-            slope = np.gradient(rotation, x)[ic]
-            drive = _qwp_drive_weights(raw["qwp_deg"])
-            circular_powers = [abs(drive[q]) ** 2 for q in (+1, -1)]
-            linear_input = math.isclose(*circular_powers, rel_tol=0.0, abs_tol=1e-12)
-            circular_input = min(circular_powers) <= 1e-12
-            rotation_scope = (
-                "linear-input approximation" if linear_input else
-                "undefined for circular input" if circular_input else
-                "unsupported for elliptical input")
             metrics = [
-                dict(label="Rotation at B=0", value=f"{rotation[ic]*1e3:.2f} mrad"),
-                dict(label="Slope dtheta/dB", value=f"{slope*1e3:.2f} mrad/µT",
-                     tier="hero"),
+                dict(label="Rotation at physical B=0",
+                     value=(f"{physical_rotation*1e3:.2f} mrad"
+                            if physical_zero_available else "unavailable")),
+                dict(label="Rotation at command B=0",
+                     value=f"{command_rotation*1e3:.2f} mrad",
+                     help="Secondary reference at the center of the commanded scan."),
+                dict(label="Slope dtheta/dB",
+                     value=(f"{diagnostic['slope']*1e3:.2f} mrad/µT"
+                            if slope_ok else "unavailable"),
+                     **({"tier": "hero"} if slope_ok else {})),
                 dict(label="Peak |rotation|", value=f"{np.max(np.abs(rotation))*1e3:.2f} mrad",
-                     tier="hero"),
+                     **({"tier": "hero"} if slope_ok else {})),
+                dict(label="Slope status", value=diagnostic["slope_status"], kind="status",
+                     **({} if slope_ok else {"tier": "hero"}),
+                     help="A fourth-degree local derivative is compared with a "
+                          "twice-spaced stencil. A change above 5% suppresses "
+                          "the numeric hero; agreement is sampled consistency, "
+                          "not a full convergence certificate."),
                 dict(label="Absolute rotation/slope status",
                      value=raw["absolute_scale_status"], kind="status",
                      help="The internal state and density convention is fixed, but "
                           "absolute NMOR rotation and slope still require an "
                           "independent measurement."),
             ]
-            note = ("NMOR readout: zero crossing near B=0; slope is the magnetometer "
-                    "signal. Absolute rotation and slope remain externally unvalidated.")
+            note = ("NMOR slope is evaluated at physical zero. Command-zero rotation "
+                    "is secondary. Local sampled-grid consistency uses a 5% check "
+                    "without additional atomic solves; absolute rotation and slope "
+                    "remain externally unvalidated.")
             if not linear_input:
                 # Re(chi_+ - chi_-) is a plane-angle approximation for linear
                 # input. Elliptical input needs a Jones/Stokes readout, and a
@@ -856,47 +1037,56 @@ class MagnetoScheme(Scheme):
                 fig, ax = plt.subplots(figsize=(8.5, 4.6))
                 ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
                 ax.axhline(0, color="black", lw=0.6)
-                ax.axvline(0, color="gray", ls=":", lw=0.8)
+                mark_field_references(ax)
                 ax.set_ylabel("Polarization rotation  [mrad]" if linear_input else
                               "Circular-birefringence diagnostic  [mrad]")
-                ax.set_xlabel("Magnetic field B  [µT]")
+                ax.set_xlabel("Commanded magnetic field B  [uT]")
                 ax.set_title(title)
                 fig.tight_layout()
         else:
             metrics = [
-                dict(label="Transmission at B=0", value=f"{T_trans[ic]:.3f}",
-                     **({"tier": "hero"} if not np.isfinite(central_hw) else {})),
+                dict(label="Transmission at physical B=0",
+                     value=f"{physical_T:.3f}" if physical_zero_available else "unavailable",
+                     **({"tier": "hero"} if not width_ok else {})),
+                dict(label="Transmission at command B=0", value=f"{command_T:.3f}",
+                     help="Secondary reference at the center of the commanded scan."),
                 dict(label="Zero-field feature", value=feature,
-                     **({"tier": "hero"} if np.isfinite(central_hw) else {})),
-                dict(label="Feature FWHM", value=fwhm_str),
+                     **({"tier": "hero"} if width_ok else {})),
                 dict(label="Central width", value=central_str,
-                     **({"tier": "hero"} if np.isfinite(central_hw) else {})),
+                     **({"tier": "hero"} if width_ok else {}),
+                     help="Distance between both interpolated half-height crossings "
+                          "about physical zero; the background uses symmetric wings."),
+                dict(label="Width status", value=diagnostic["width_status"], kind="status",
+                     **({} if width_ok else {"tier": "hero"}),
+                     help="The width and feature sign are checked against every "
+                          "second existing B sample. A change above 5% suppresses "
+                          "the numeric hero; agreement is sampled consistency."),
                 dict(label="Absolute contrast status",
                      value=raw["absolute_scale_status"], kind="status",
                      help="The internal state and density convention is fixed, but "
                           "absolute transmission contrast still requires an "
                           "independent measurement."),
             ]
-            if not np.isfinite(central_hw):
-                metrics.append(dict(
-                    label="Width status", value="unresolved in scan", kind="status",
-                    help="No finite half-height crossing was found around the "
-                         "commanded B=0 sample; widen or recenter the B scan.",
-                    tier="hero"))
-            note = ("Transmission readout: feature sign is classified from absorption "
-                    "at B=0 relative to the scan wings. Absolute contrast remains "
-                    "externally unvalidated.")
+            note = ("Transmission and feature sign use physical zero and symmetric "
+                    "physical-field wings. Command-zero transmission is secondary. "
+                    "The width check measures sampled-grid consistency without "
+                    "additional atomic solves; absolute contrast remains externally "
+                    "unvalidated.")
             if include_figures:
                 import matplotlib.pyplot as plt
 
                 fig, axT = plt.subplots(figsize=(8.5, 4.6))
                 axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
-                axT.axvline(0, color="gray", ls=":", lw=0.8)
+                mark_field_references(axT)
                 axT.set_ylabel("Transmission")
-                axT.set_xlabel("Magnetic field B  [µT]")
+                axT.set_xlabel("Commanded magnetic field B  [uT]")
                 axT.set_title(title)
                 fig.tight_layout()
 
+        metrics.append(dict(label="Model scope", value=MODEL_SCOPE_STATUS, kind="status",
+                            help="Only one ground/excited hyperfine pair is retained. "
+                                 "Other ground-F leakage, repumping and interference "
+                                 "with the other excited hyperfine manifold are omitted."))
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         elastic_mhz = raw.get("gamma_elastic", 0.0) / (2 * np.pi) / 1e6
@@ -915,10 +1105,17 @@ class MagnetoScheme(Scheme):
             ("Elastic optical dephasing / 2π", f"{elastic_mhz:.3f} MHz"),
             ("Buffer reservoir reload / 2π",
              f"{raw['gamma_transit']/(2*np.pi)/1e3:.3f} kHz"),
-            ("Collisional ground dephasing / 2π",
+            ("Ground pure dephasing / 2π",
              f"{raw['gamma_depol']/(2*np.pi)/1e3:.3f} kHz"),
             ("I_sat (D1 scale)", f"{raw['isat']:.4f} mW/cm²"),
             ("Longitudinal B0 offset", f"{raw['b_offset_ut']:.4f} µT"),
+            ("Physical zero on command axis", f"{-raw['b_offset_ut']:.4f} µT"),
+            ("Width sampled-grid change",
+             f"{diagnostic['width_relative_change']:.2%}" if np.isfinite(
+                 diagnostic['width_relative_change']) else "unavailable"),
+            ("Slope sampled-stencil change",
+             f"{diagnostic['slope_relative_change']:.2%}" if np.isfinite(
+                 diagnostic['slope_relative_change']) else "unavailable"),
             ("Residual transverse B", f"{raw['b_perp_ut']:.4f} µT"),
             ("N(87Rb)", f"{raw['N']:.3e} /m³"),
             ("Optical-state normalization", raw["light_state_normalization"]),
@@ -937,7 +1134,8 @@ class MagnetoScheme(Scheme):
             ("Two-region γ_in / 2π", f"{raw['gamma_in']/(2*np.pi)/1e3:.3f} kHz"),
             ("Wall γ / 2π", f"{raw['gamma_wall']/(2*np.pi):.3f} Hz"),
         ])
-        return dict(metrics=metrics, figure=fig, tables=[
+        return dict(metrics=metrics, figure=fig, magneto_readout=magneto_readout,
+                    hero_count=sum(m.get("tier") == "hero" for m in metrics), tables=[
             {"title": "Notes", "markdown": note},
             derived,
         ])

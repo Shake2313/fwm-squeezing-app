@@ -1,0 +1,7 @@
+{
+  "tests": 2742,
+  "mirror_tests": 2742,
+  "ordered_nodeids_equal": true,
+  "original_sha256": "d8ce7d69bedf12756c25eee351be492a9c8c5d5bafc7040cde67f09655ab86f1",
+  "mirror_sha256": "d8ce7d69bedf12756c25eee351be492a9c8c5d5bafc7040cde67f09655ab86f1"
+}

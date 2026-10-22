@@ -36,6 +36,7 @@ from ..core import (
     trace_zero_liouvillian_response,
 )
 from ..lineshape import fwhm_interp
+from ..biphoton_evidence import biphoton_output_evidence
 from ..passive_readout import passive_l1_from_spectrum
 from ..jasperse import seed_noise_components
 from ..fwm_experiment_gain import calibrate_spectrum as calibrate_experimental_gain
@@ -694,13 +695,11 @@ NOISE_MODE_LABELS = {
     NOISE_GAIN_PROPORTIONAL: "Gain proportional Noise a",
 }
 
-# Biphoton source model. "Predictive" solves the Doppler-averaged cascade/double-Λ
-# biphoton amplitude from first principles (Chen et al. PRR 4, 023132 (2024)
-# Eq. (3-5); Kim et al. QST 9, 045006 (2024) Eq. (2); Du, Wen, Rubin JOSAB 25,
-# C98 (2008)) — waveform, FWHM, bandwidth, OD reshaping and the rate scaling are
-# computed, with only one residual scalar per topology setting the absolute rate
-# (the squeezing-mode `line_strength` philosophy). "Calibrated" is the legacy
-# reference-injected estimate kept for comparison.
+# Historical stored model keys below are retained for compatibility. The reduced
+# coherent waveform uses Chen et al. PRR4,023132(2024), Kim et al. QST9,045006(2024)
+# and Du et al. JOSAB25,C98(2008); this does not derive the absolute collection
+# rate. Rb/Cs rates are anchored and diamond coefficients are assumed template
+# values. Numerical velocity refinement checks FWHM, not the complete waveform.
 BIPHOTON_PREDICTIVE = "Predictive (first-principles)"
 BIPHOTON_CALIBRATED = "Calibrated (reference)"
 BIPHOTON_MODELS = (BIPHOTON_PREDICTIVE, BIPHOTON_CALIBRATED)
@@ -4903,6 +4902,14 @@ class FWMScheme(Scheme):
             source_bandwidth_mhz=raw["source_bandwidth_mhz"],
             target_g2_peak=None if predictive else topo.target_g2_peak,
         )
+        evidence = biphoton_output_evidence(
+            raw, stats, params, velocity_fwhm_tolerance=PRED_V_FWHM_TOL)
+
+        def display(key, value, suffix=""):
+            if not evidence["observables"][key]["display_numeric"]:
+                return "unconverged"
+            return f"{value}{suffix}"
+
         width_is_reportable = velocity_converged or not predictive
         source_width_value = (
             f"{stats['source_fwhm_ns']:.2f} ns"
@@ -4927,8 +4934,12 @@ class FWMScheme(Scheme):
                       color="#1f77b4", lw=1.8)
             axG2.axhline(2.0, color="black", lw=0.7, ls=":")
             axG2.set_ylabel(r"$g^{(2)}_{SI}(\tau)$")
-            title_tag = ("Reduced model · reference-anchored rate" if predictive
-                         else "Reference model")
+            rate_kind = evidence["observables"]["source_pair_rate_cps"]["origin"]
+            title_tag = ("Reduced model" if predictive else "Reference model")
+            title_tag += (" · assumed template rate" if rate_kind == "assumed_template"
+                          else " · reference-anchored rate")
+            if not width_is_reportable:
+                title_tag += " · qualitative, velocity check failed"
             axG2.set_title(f"{topo.label}: {title_tag}")
             axG2.grid(alpha=0.3)
 
@@ -5030,15 +5041,25 @@ class FWMScheme(Scheme):
                 label="Model status", value="Reference model",
                 help="Reproduces stored calibration values; it is not an independent "
                      "prediction.")
+        if evidence["observables"]["source_pair_rate_cps"]["origin"] == "assumed_template":
+            rate_help = ("Assumed template pair-rate coefficient; no literature rate "
+                         "anchor or held-out validation. Scalar filter throughput applied.")
+            status["value"] = ("Assumed diamond template" if width_is_reportable
+                               else "Assumed diamond template · unconverged")
+            status["help"] = "Generic template parameters are assumed; no validated diamond preset."
+        elif not evidence["observables"]["pair_rate_cps"]["display_numeric"]:
+            rate_help += " Filter-passed rate withheld because the waveform check failed."
+        source_fwhm_help += " Velocity refinement tests FWHM only; it is not experimental validation."
+        detected_fwhm_help += " Timing-response reuse is not independent width validation."
         metrics = [
             status,
             dict(label="Peak signal–idler correlation",
-                 value=f"{stats['g2_peak']:.2f}", help=g2_help,
+                 value=display("g2_peak", f"{stats['g2_peak']:.2f}"), help=g2_help,
                  tier="hero"),
-            dict(label="CAR", value=f"{stats['CAR']:.1f}",
+            dict(label="CAR", value=display("CAR", f"{stats['CAR']:.1f}"),
                  help="Captured true coincidences divided by accidentals in the "
                       "symmetric gate [-W/2, W/2] about zero delay."),
-            dict(label="Pair rate", value=f"{stats['pair_rate_cps']:.1f} cps",
+            dict(label="Pair rate", value=display("pair_rate_cps", f"{stats['pair_rate_cps']:.1f}", " cps"),
                  help=rate_help, tier="hero"),
             dict(label="Intrinsic biphoton width",
                  value=source_width_value,
@@ -5046,13 +5067,17 @@ class FWMScheme(Scheme):
             dict(label="Detected biphoton width",
                  value=detected_width_value,
                  help=detected_fwhm_help),
-            dict(label="Source bandwidth", value=f"{raw['source_bandwidth_mhz']:.0f} MHz",
-                 help=("Spectral FWHM from the waveform (predictive)." if predictive
-                       else "Reference source bandwidth.")),
+            dict(label="Source bandwidth", value=display(
+                "source_bandwidth_mhz", f"{raw['source_bandwidth_mhz']:.0f}", " MHz"),
+                 help=("Spectral FWHM from the reduced waveform; spectral/time-grid convergence "
+                       "has not been certified." if predictive else "Reference or assumed source bandwidth.")),
             dict(label="Phase-matching efficiency",
                  value=f"{raw['phase_match_weight']:.3f}",
                  help="Vector sinc^2 phase-matching collection weight."),
         ]
+        for metric in metrics:
+            if metric["value"] == "unconverged":
+                metric["kind"] = "status"
 
         field_rows = "".join(
             f"| {f.role} | {raw['topology'].levels[f.lower].name} -> "
@@ -5092,30 +5117,55 @@ class FWMScheme(Scheme):
         detection_table = (
             "Source estimate with detector/background model:\n\n"
             f"| Quantity | Value |\n|---|---|\n"
-            f"| Signal singles | {stats['singles_signal_cps']:.2f} cps |\n"
-            f"| Idler singles | {stats['singles_idler_cps']:.2f} cps |\n"
-            f"| All-time true coincidence | {stats['all_time_coincidence_cps']:.3f} cps |\n"
-            f"| Gate-captured true coincidence | {stats['coincidence_cps']:.3f} cps |\n"
+            f"| Source estimate before filter | {raw['pair_rate_cps']:.3f} cps |\n"
+            f"| Signal singles | {display('singles_signal_cps', f'{stats["singles_signal_cps"]:.2f}', ' cps')} |\n"
+            f"| Idler singles | {display('singles_idler_cps', f'{stats["singles_idler_cps"]:.2f}', ' cps')} |\n"
+            f"| All-time true coincidence | {display('all_time_coincidence_cps', f'{stats["all_time_coincidence_cps"]:.3f}', ' cps')} |\n"
+            f"| Gate-captured true coincidence | {display('coincidence_cps', f'{stats["coincidence_cps"]:.3f}', ' cps')} |\n"
             f"| Coincidence gate | symmetric [-W/2, W/2], W = {params['coincidence_window_ns']:.3f} ns |\n"
-            f"| Gate capture fraction | {stats['gate_capture_fraction']:.6f} |\n"
-            f"| Accidental coincidence | {stats['accidental_cps']:.3e} cps |\n"
-            f"| Raw accidental before reference calibration | {stats['raw_accidental_cps']:.3e} cps |\n"
-            f"| Added unmodelled accidental/background | {stats['added_accidental_cps']:.3e} cps |\n"
-            f"| Raw g2 peak before reference calibration | {stats['raw_g2_peak']:.2f} |\n"
-            f"| Heralding signal | {stats['heralding_signal']:.3e} |\n"
-            f"| Heralding idler | {stats['heralding_idler']:.3e} |\n"
-            f"| Cauchy-Schwarz R | {stats['cauchy_schwarz_R']:.2f} |\n"
+            f"| Gate capture fraction | {display('gate_capture_fraction', f'{stats["gate_capture_fraction"]:.6f}')} |\n"
+            f"| Accidental coincidence | {display('accidental_cps', f'{stats["accidental_cps"]:.3e}', ' cps')} |\n"
+            f"| Raw accidental before reference calibration | {display('raw_accidental_cps', f'{stats["raw_accidental_cps"]:.3e}', ' cps')} |\n"
+            f"| Added unmodelled accidental/background | {display('added_accidental_cps', f'{stats["added_accidental_cps"]:.3e}', ' cps')} |\n"
+            f"| Raw g2 peak before reference calibration | {display('raw_g2_peak', f'{stats["raw_g2_peak"]:.2f}')} |\n"
+            f"| Heralding signal | {display('heralding_signal', f'{stats["heralding_signal"]:.3e}')} |\n"
+            f"| Heralding idler | {display('heralding_idler', f'{stats["heralding_idler"]:.3e}')} |\n"
+            f"| Thermal-arm comparison R (assumed g²_SS = g²_II = 2) | {display('cauchy_schwarz_R', f'{stats["cauchy_schwarz_R"]:.2f}')} |\n"
+            f"| Physical nonclassicality | unavailable: auto-correlations/covariance not supplied |\n"
             f"| Intrinsic biphoton width | {source_width_table} |\n"
             f"| Detected biphoton width | {detected_width_table} |\n"
             f"| Net timing-difference response FWHM | {params['timing_jitter_ns']:.3f} ns |\n"
-            f"| Filter transmission estimate | {stats['filter_transmission']:.3f} |\n"
+            f"| Filter transmission estimate | {display('filter_transmission', f'{stats["filter_transmission"]:.3f}')} |\n"
             f"| Filter model | Scalar throughput; no temporal reshaping |\n"
             f"| Delay density normalization | Finite source-delay axis; full Gaussian timing tails |\n\n"
             f"{raw['notes']}"
         )
         validation_table = self._reference_validation_table(raw, params, stats)
+        evidence_labels = {
+            "source_pair_rate_cps": "Source rate before filter",
+            "source_fwhm_ns": "Intrinsic width",
+            "detected_fwhm_ns": "Detected width",
+            "source_bandwidth_mhz": "Source bandwidth",
+            "pair_rate_cps": "Filter-passed rate",
+            "g2_peak": "Peak g²",
+            "CAR": "Gate CAR",
+            "coincidence_cps": "Gate-captured coincidence",
+            "phase_match_weight": "Phase matching",
+            "cauchy_schwarz_R": "Assumed thermal-arm comparison",
+        }
+        evidence_table = (
+            "Conditional model estimates; no same-condition measurements or held-out validation. "
+            "Velocity refinement checks intrinsic FWHM only, not the whole waveform, "
+            "spectral bandwidth or time-window convergence. Seeded-FWM validation does "
+            "not validate this spontaneous-source model.\n\n"
+            "| Output | Basis | Status |\n|---|---|---|\n"
+            + "".join(f"| {label} | {evidence['observables'][key]['origin'].replace('_', ' ')} | "
+                      f"{evidence['observables'][key]['status'].replace('_', ' ')} |\n"
+                      for key, label in evidence_labels.items()))
         return {
             "metrics": metrics,
+            "biphoton_readout": stats,
+            "biphoton_evidence": evidence,
             "figure": fig,
             "figures": extra_figures,
             "figure_controls": ["phase_detail"],
@@ -5123,6 +5173,7 @@ class FWMScheme(Scheme):
                 {"title": "Source geometry", "markdown": topology_table},
                 {"title": "Detection estimates", "markdown": detection_table},
                 {"title": "Literature comparison", "markdown": validation_table},
+                {"title": "Observable evidence", "markdown": evidence_table},
             ],
         }
 
@@ -5140,6 +5191,10 @@ class FWMScheme(Scheme):
                 return "predicted (approx)"
             if kind == "setting":
                 return "setting only"
+            if kind == "geometry":
+                return "conditional geometry" if ok else "geometry CHECK"
+            if kind == "assembly":
+                return "assembly PASS" if ok else "assembly CHECK"
             return "PASS" if ok else "CHECK"
 
         def row(name, calc, ref, ok, note="", kind="physical"):
@@ -5155,12 +5210,15 @@ class FWMScheme(Scheme):
                 "anchored source rate before filter and detection losses", kind="calibrated"))
             rows.append(row(
                 "Filter-passed pair rate / pump",
-                f"{stats['pair_rate_cps'] / pump_mw:.0f} cps/mW",
+                ("unconverged" if predictive and not velocity_converged
+                 and params.get("filter_bandwidth_mhz", 0.0) > 0 else
+                 f"{stats['pair_rate_cps'] / pump_mw:.0f} cps/mW"),
                 "no independent filter-matched reference", False,
                 "source anchor times the scalar filter-transmission estimate",
                 kind="predicted"))
             rows.append(row(
-                "g2 peak", f"{stats['g2_peak']:.2f} (raw {stats['raw_g2_peak']:.1f})",
+                "g2 peak", ("unconverged" if predictive and not velocity_converged
+                            else f"{stats['g2_peak']:.2f} (raw {stats['raw_g2_peak']:.1f})"),
                 "44(3)", abs(stats["g2_peak"] - 44.0) <= 3.0,
                 ("predicted from waveform |ψ|² + physical accidentals"
                  if predictive else
@@ -5181,7 +5239,7 @@ class FWMScheme(Scheme):
                     ("velocity-converged source waveform + net timing response; "
                      "absolute ns carries per-source calibration uncertainty"
                      if predictive else "model waveform + net timing response"),
-                    kind="predicted" if predictive else "physical"))
+                    kind="predicted" if predictive else "calibrated"))
             rows.append(row(
                 "OD estimate", f"{raw['od_estimate']:.1f}",
                 "112(3)", abs(raw["od_estimate"] - 112.0) <= 3.0,
@@ -5216,12 +5274,14 @@ class FWMScheme(Scheme):
                 min(stats["detected_fwhm_ns"], other_stats["detected_fwhm_ns"]),
                 1e-30)
             rows.append(row(
-                "Detected BTW width ratio", f"{ratio:.2f}",
+                "Detected BTW width ratio", (
+                    "unconverged" if predictive and (not velocity_converged
+                    or not other_raw.get("velocity_converged", True)) else f"{ratio:.2f}"),
                 "about 3", abs(ratio - 3.0) <= 0.5,
                 ("predicted ordering (917 narrower than 795); absolute ratio approximate"
                  if predictive else
                  "medium model only; full Cs BTW theory is not yet included"),
-                kind="predicted" if predictive else "physical"))
+                kind="predicted" if predictive else "calibrated"))
             rows.append(row(
                 "OD estimate", f"{raw['od_estimate']:.1f}",
                 "about 10", abs(raw["od_estimate"] - 10.0) <= 2.0,
@@ -5235,21 +5295,29 @@ class FWMScheme(Scheme):
         rows.append(row(
             "Phase matching", f"{raw['phase_match_weight']:.3f}",
             "> 0.90", raw["phase_match_weight"] > 0.90,
-            "vector sinc^2(|Delta k| L / 2)"))
+            "reference-geometry offset + vector sinc^2; not independent validation",
+            kind="geometry"))
         rows.append(row(
             "Energy conservation", f"{raw['energy_mismatch_hz']/1e6:.3f} MHz",
             "near 0 MHz", abs(raw["energy_mismatch_hz"]) < 1e6,
-            "wavelength bookkeeping"))
+            "wavelength bookkeeping, not experimental validation", kind="assembly"))
 
-        if predictive:
+        if topo.name == TOPOLOGY_DIAMOND:
+            intro = (
+                "**Assumed diamond template.** Rate and lifetime coefficients are "
+                "assumed inputs with no paper anchor or held-out validation.\n\n")
+        elif predictive:
             intro = (
                 "**Reduced model.** Waveform-derived widths are approximate. Pair-"
-                "rate rows are reference-anchored; phase matching and energy "
-                "conservation are independent geometry checks.\n\n")
+                "rate rows are reference-anchored. Velocity refinement checks "
+                "intrinsic FWHM only.\n\n")
         else:
             intro = (
-                "**Reference model.** Calibrated rows agree by construction. Phase "
-                "matching and energy conservation are independent geometry checks.\n\n")
+                "**Reference model.** Lifetime and optional added-background anchors "
+                "are comparison inputs, not independent width or correlation validation.\n\n")
+        intro += (
+            "Phase matching uses a reference-geometry offset; energy conservation "
+            "checks wavelength bookkeeping. Neither is held-out experimental validation.\n\n")
         return (
             intro
             + "| Check | Calculated | Reference | Verdict | Note |\n|---|---:|---:|---|---|\n"

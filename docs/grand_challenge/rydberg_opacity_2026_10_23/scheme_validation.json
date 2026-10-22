@@ -1,0 +1,168 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "ai_implementation_validation",
+  "date": "2026-10-23",
+  "scope": "P1 effective opacity / sweep trust maintenance; no default atomic physics, GC milestone, held-out calibration, or readout-validity closure claim",
+  "source_hashes": {
+    "before_scheme": "87b6c56b0ad444b08f67cf0d16d8cd108aeb58a14d5370f79dcb7768d7b65c0d",
+    "current_scheme": "2024fd4ea16bb7978e0ebffdca583340d04f526eb69b597ba28451567d06989b",
+    "test_rydberg_opacity": "f3be0a65d2d6622bb90dcf4f7270b057ec0c0909f80931758da1c59996ceb351",
+    "test_rydberg_eit": "c20284456e308f2e899f2f2bdcb532fb4d152957bb47a8017c5856172635f704",
+    "default_parity_before_npz": "a2ab09da8d60957c6cb1347768ce2470477b2e6d15a08885476413f153ba51d9"
+  },
+  "baseline": {
+    "source": "current production scheme captured before edits, default EIT and AT electrometry, 801 points, Doppler off",
+    "artifact": "default_parity_before.npz",
+    "eit": {
+      "width_mhz": 1.6130585827288382,
+      "resonance_transmission": 0.9400166150823321
+    },
+    "at": {
+      "total_field_asd_nv_cm_per_sqrt_hz": 6.0823872151659275,
+      "optimum_detuning_mhz": -2.2200000000000006,
+      "resonance_transmission": 0.8060292831188751
+    },
+    "effective_atoms": 1666113.598699703
+  },
+  "default_parity": {
+    "acceptance_relative_error": 1e-12,
+    "result": "PASS",
+    "comparisons": {
+      "eit": {
+        "scan": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "chi": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "transmission": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "xphys": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        }
+      },
+      "at": {
+        "scan": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "chi": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "transmission": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "xphys": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "phasor": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        },
+        "field_asd": {
+          "array_exact": true,
+          "relative_l2_error": 0.0
+        }
+      }
+    }
+  },
+  "compute_reuse": {
+    "deterministic_sweep_test_grid_points": 101,
+    "opacity_scenarios": 3,
+    "relative_scenario_half_width": 1.0,
+    "power_static_compute_calls": 16,
+    "power_finite_if_response_calls": 0,
+    "temperature_static_compute_calls": 20,
+    "temperature_finite_if_response_calls": 10,
+    "added_static_or_finite_if_solves_for_scenarios": 0,
+    "doppler_on_scope": "reuse nominal static-gradient sampled point at each temperature; no reoptimization across detuning for each opacity scenario"
+  },
+  "actual_default_801_point_sweeps": {
+    "opacity_relative_scenario_half_width": 0.5,
+    "temperature_scenarios": [
+      {
+        "label": "nominal",
+        "effective_opacity": 0.001,
+        "best_sampled_temperature_c": 47.0,
+        "best_total_asd_nv_cm_per_sqrt_hz": 0.9717313911479347
+      },
+      {
+        "label": "lower",
+        "effective_opacity": 0.0005,
+        "best_sampled_temperature_c": 55.0,
+        "best_total_asd_nv_cm_per_sqrt_hz": 0.9788162507316097
+      },
+      {
+        "label": "upper",
+        "effective_opacity": 0.0015,
+        "best_sampled_temperature_c": 45.0,
+        "best_total_asd_nv_cm_per_sqrt_hz": 0.9679435540124577
+      }
+    ],
+    "power_scenarios": {
+      "all_three_sampled_amplitude_maxima_power_uw": 10.0,
+      "all_three_sampled_minimum_linewidth_power_uw": 0.5,
+      "compensation_cases": [
+        "comp",
+        "uncomp"
+      ]
+    },
+    "status": "PREDICTED / UNCALIBRATED",
+    "interpretation": "assumed opacity scenarios, not confidence intervals or recommended experimental operating points"
+  },
+  "focused_tests": {
+    "command": "python -m pytest -q tests/test_rydberg_opacity.py tests/test_rydberg_eit.py",
+    "passed": 55,
+    "failed": 0,
+    "elapsed_seconds": 13.05,
+    "warnings": 2,
+    "warning_scope": "pre-existing datetime.utcnow deprecation from export.py",
+    "coverage": [
+      "input bounds and boundary deduplication",
+      "legacy default numeric parity",
+      "live navigate-only factor",
+      "independent atomic strength / atom-number fraction",
+      "IF cache reuse",
+      "Doppler nominal-index scenario reuse",
+      "zero opacity and unavailable sensitivity",
+      "strict JSON export provenance/scenario preservation",
+      "both extra-view scenario curves and sampled optima / zero lower bound / no added solves",
+      "zero static discriminator has no arbitrary detuning; typed null/display dash; flat transmission slope exactly zero",
+      "finite-aware plot envelopes retain valid scenarios and all-invalid gaps; incomplete/unbounded scenario annotation"
+    ]
+  },
+  "full_suite": "PASS_IN_COMPOSITE_SCOPE: frozen full baseline plus affected-source revalidation and original-path case; docs/grand_challenge/rydberg_opacity_2026_10_23/full_pytest_receipt.json",
+  "closed_scopes_preserved": [
+    "atomic OBE / dephasing / scan / velocity measure unchanged",
+    "existing optical anchors and pointwise balanced detector unchanged",
+    "static AT resolution does not gate finite-IF sensitivity",
+    "experimental visibility and numerical convergence NOT_ASSESSED",
+    "held-out opacity calibration remains external dependency"
+  ],
+  "atomic_method_ast_parity": {
+    "_atom": true,
+    "_probe_rabi": true,
+    "_coupling_rabi": true,
+    "_transit_rate_mhz": true,
+    "_inhomogeneous": true,
+    "_scan": true,
+    "_scan_chi": true,
+    "_superheterodyne_atomic_phasors": true,
+    "_cached_superheterodyne_atomic_phasors": true
+  },
+  "independent_review_corrections": {
+    "origin": "ai_independent_adversarial_review",
+    "reviewer": "review_fwm",
+    "zero_static_if_optimum": "all-zero static proxy magnitude remains0; optimum is unavailable, typed null and display dash",
+    "incomplete_envelope": "finite-only min/max avoids reduction warnings; all-invalid points remain gaps; annotations explicitly exclude unavailable cases and withhold a finite sensitivity-range bound",
+    "default_parity_scope": "unchanged defaults retain original numeric path; final golden/default-array regression passed"
+  }
+}

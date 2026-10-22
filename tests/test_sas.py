@@ -317,7 +317,8 @@ def test_pump_off_is_smooth_and_7_5():
     view = SAS.observables(raw, p, include_figures=False)
     assert view["hero_count"] == 1
     assert [metric["label"] for metric in view["metrics"]] == [
-        "Peak OD", "Gaussian Doppler FWHM", "Peak phase shift"
+        "Peak absorbance A10", "Peak optical depth tau",
+        "Gaussian Doppler FWHM", "Peak phase shift"
     ]
     assert view["metrics"][0]["tier"] == "hero"
     broad = next(m for m in view["metrics"] if m["label"] == "Gaussian Doppler FWHM")
@@ -376,13 +377,16 @@ def test_observables_render_species():
     assert view["figure"] is not None
     figure_views = view["figure_views"]
     assert [item["label"] for item in figure_views] == [
-        "Transmission", "Optical density", "Dispersion"
+        "Transmission", "Decadic absorbance A10", "Optical depth tau", "Dispersion"
     ]
     assert figure_views[0]["figure"] is view["figure"]
     assert all(len(item["figure"].axes) == 1 for item in figure_views)
     assert figure_views[0]["figure"].axes[0].get_ylabel() == "Transmission"
-    assert figure_views[1]["figure"].axes[0].get_ylabel() == "Optical density"
-    dispersion_label = figure_views[2]["figure"].axes[0].get_ylabel()
+    assert figure_views[1]["figure"].axes[0].get_ylabel() == (
+        "Decadic absorbance A10 = -log10(T)  [dimensionless]")
+    assert figure_views[2]["figure"].axes[0].get_ylabel() == (
+        "Optical depth tau = -ln(T)  [dimensionless]")
+    dispersion_label = figure_views[3]["figure"].axes[0].get_ylabel()
     assert dispersion_label == "Refractive index  n - 1  [ppm]"
     assert dispersion_label.isascii()                 # mathtext layout lock
     assert view["comparison"]["axis_index"] == 0
@@ -519,8 +523,8 @@ def test_mode_and_buffer_pressure_control_metric_hierarchy():
                     assert labels[0] == "SAS resolution"
                     assert not any(label.startswith("Lock ") for label in labels)
                 else:
-                    assert heroes == ["Peak OD"]
-                    assert labels[0] == "Peak OD"
+                    assert heroes == ["Peak absorbance A10"]
+                    assert labels[0] == "Peak absorbance A10"
                     assert not any(label.startswith("Lock ") for label in labels)
 
                 if pressure > 0.0:
@@ -548,7 +552,7 @@ def test_generic_lamb_dip_and_crossover():
     # Doppler-envelope flank must not be substituted as a lock slope.
     rendered = SAS.observables(raw2, p2)
     assert [item["label"] for item in rendered["figure_views"]] == [
-        "Transmission", "Optical density", "Dispersion"
+        "Transmission", "Decadic absorbance A10", "Optical depth tau", "Dispersion"
     ]
     assert rendered["figure_views"][0]["figure"] is rendered["figure"]
     view2 = SAS.observables(raw2, p2, include_figures=False)
@@ -689,7 +693,7 @@ def test_observables_survive_a_raw_dict_without_the_dispersion_key():
     legacy_view = SAS.observables(legacy, p)
     assert [item["label"] for item in view["figure_views"]][-1] == "Dispersion"
     assert [item["label"] for item in legacy_view["figure_views"]] == [
-        "Transmission", "Optical density"
+        "Transmission", "Decadic absorbance A10", "Optical depth tau"
     ]
     assert "Peak phase shift" not in {m["label"] for m in legacy_view["metrics"]}
 

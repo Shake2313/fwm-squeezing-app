@@ -1,0 +1,15 @@
+{
+  "origin": "source_evidence",
+  "command": "python -m pytest -q",
+  "started_utc": "2026-10-18T18:29:48.056635+00:00",
+  "completed_utc": "2026-10-18T18:51:12.988612+00:00",
+  "elapsed_seconds": 1284.9220000000205,
+  "exit_code": 4294967295,
+  "source_files": 326,
+  "changed_source_paths_during_run": [],
+  "source_frozen": true,
+  "blas_threads": 1,
+  "log": "pre_cache_fix_pytest.log",
+  "status": "stopped_for_final_source_change",
+  "reason": "⟦AI⟧ Late UI-cache review found stale observables could survive deployment; readout cache revision bumped. This partial run is not counted as a passed full regression."
+}

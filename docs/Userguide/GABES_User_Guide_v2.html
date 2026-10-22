@@ -582,6 +582,14 @@ streamlit run streamlit_app.py</pre>
     주 결과로 표시됩니다.
   </p>
 
+  <!-- OD log conventions -->
+  <p style="color:var(--muted);font-size:0.92rem">
+    감쇠량은 무차원 <b>Decadic absorbance A10</b>(A10 = −log₁₀ T)와
+    <b>Optical depth tau</b>(τ = −ln T = ln(10) A10)로 나누어 표시·export합니다.
+    기존 <code>optical_density()</code> API 값은 base-10 A10을 유지합니다.
+    유한 프로브에서는 수집된 출력 투과율에 해당하는 유효 감쇠량입니다.
+  </p>
+
   <!-- A: Lambda -->
   <div class="scheme" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>Λ 결맞음 (EIT / AT / CPT)</h3></div>
@@ -605,14 +613,21 @@ streamlit run streamlit_app.py</pre>
   <!-- A: Rydberg -->
   <div class="scheme" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>Rydberg-EIT 전기계측</h3></div>
-    <p class="out">⁸⁵Rb 캐스케이드 EIT / 마이크로파 AT 정적 스펙트럼입니다. 5S–5P–40D 사다리와
-      37&nbsp;GHz 40D–39F RF 다리를 다루며, EIT 피크가 RF장에 의해 갈라지는 AT 분리가 전기장의
-      자 역할을 합니다.</p>
+    <p class="out">⁸⁵Rb 5S–5P–40D 사다리와 37&nbsp;GHz 40D–39F RF 다리를 다룹니다.
+      AT 스펙트럼의 fitted RF Rabi로 장을 환산하며, 단순 피크 분리는 optical line pulling의
+      영향을 받는 근사 추정입니다. LO-dressed 정상상태의 finite-IF 약신호 응답과 검출기
+      PSN·RIN·전자잡음으로 조건부 절대 감도를 계산합니다.</p>
+    <p class="out">Advanced의 <b>Effective opacity participation</b>은 기존 기본값
+      <b>0.001</b>을 노출합니다. 원자 line strength와 atom-number participation은 별개입니다.
+      이 opacity는 <b>UNCALIBRATED</b>이며 온도·프로브 파워 sweep은 <b>PREDICTED</b>입니다.
+      기본 ±50% opacity 범위는 가정 시나리오로, 실측 불확도나 신뢰구간이 아닙니다.
+      각 시나리오의 예측값·최적점과 출처를 함께 확인할 수 있습니다.</p>
   </div>
   <figure>
     <img src="userguide_assets/rydberg.png" alt="Rydberg 캐스케이드 EIT의 마이크로파 AT 분리">
     <figcaption><b>Rydberg-EIT.</b> 캐스케이드 EIT 투명 피크가 마이크로파 RF장에 의해 AT 이중
-      피크로 갈라집니다(위: 투과, 아래: 분산). 분리 폭이 RF 전기장 세기에 직접 대응합니다.</figcaption>
+      피크로 갈라집니다(위: 투과, 아래: 분산). 정적 스펙트럼 예시이며 현재 finite-IF 감도
+      화면의 검증 자료는 아닙니다. 절대 장 환산에는 full-spectrum fitted RF Rabi를 우선합니다.</figcaption>
   </figure>
 
   <!-- C: Magneto -->
@@ -628,6 +643,16 @@ streamlit run streamlit_app.py</pre>
       좁은 Ramsey형 투과 피크입니다. QWP 각도와 잔류 횡장을 바꾸면 같은 자리가 EIA/MIA형
       흡수로 뒤집히기도 하며, NMOR 읽기를 고르면 영점 교차 회전 신호로 바뀝니다.</figcaption>
   </figure>
+
+  <!-- Magneto readout conventions -->
+  <p style="color:var(--muted);font-size:0.92rem">
+    실제 장은 B<sub>physical</sub> = B<sub>command</sub> + B<sub>zero offset</sub>입니다.
+    중앙 투과·폭·선편광 회전/slope는 실제 영점을 기준으로 읽고 명령 영점은 별도로 표시합니다.
+    스캔이 실제 영점을 놓치거나 국소 격자 검사가 불충분하면 해당 주 수치는 unavailable 또는
+    nonconverged로 표시합니다. 이 검사는 전체 스캔·실험 가시성 인증이 아닙니다.
+    <b>Ground pure dephasing</b>은 바닥상태 population을 보존하며 coherence만 감쇠합니다.
+    선택한 닫힌 hyperfine 쌍 밖의 누설·repump·excited-hyperfine 간섭은 포함하지 않습니다.
+  </p>
 
   <!-- D: FWM -->
   <div class="scheme" style="margin-top:30px">
@@ -652,8 +677,13 @@ streamlit run streamlit_app.py</pre>
       <b>After-cell optical efficiency</b>, <b>Detector quantum efficiency</b>를 조절합니다.
       shot RIN <b>b</b>와 양팔 total efficiency는 계산값으로 표시합니다.
       EOM carrier·sideband를 직접 설정하는 실험 구성은 SABES에서 다룹니다.
-      Biphoton의 <b>Reduced model</b>은 파형을 계산하되 발생률 스케일은 문헌 기준이며,
-      <b>Reference model</b>은 저장된 보정을 재현합니다. 1D/1D+2D 위상정합 보기는 플롯 바로
+      Biphoton의 <b>Reduced model</b>은 파형을 계산하고 Rb/Cs 발생률 스케일은 문헌 기준입니다.
+      Generic diamond의 계수는 문헌 anchor가 없는 가정 template입니다.
+      <b>Reference model</b>은 저장된 보정을 재현합니다. 출력별 근거와 수치 범위를 JSON에
+      함께 기록합니다. 속도 격자 검사는 FWHM 안정성만 확인하며 전체 파형·대역폭·검출 count의
+      수렴이나 독립 실험 검증을 뜻하지 않습니다. Cauchy–Schwarz 비교는 모델에 없는 양팔
+      auto-correlation을 각각 2로 가정하므로, nonclassicality의 관측값으로 쓰지 않습니다.
+      씨앗형 FWM 검증은 이 자발 짝광자원 검증과 별개입니다. 1D/1D+2D 위상정합 보기는 플롯 바로
       위에서 바꿉니다.</p>
   </div>
 
@@ -848,7 +878,7 @@ streamlit run streamlit_app.py</pre>
         <td><a href="#fwm-limits">씨앗형 FWM 해석 범위</a>: 절대 이득, 조건부 NF, production 1-D와
           별도 2-D 기준 경로의 차이.</td></tr>
       <tr><td>짝광자 SFWM</td>
-        <td>문헌에 보정한 source estimate</td>
+        <td>Rb/Cs 문헌 기준 또는 Generic diamond 가정 template의 source estimate</td>
         <td>완전한 양자-Langevin 전파/잡음 계산으로 해석하면 안 됩니다.</td></tr>
     </tbody>
   </table>

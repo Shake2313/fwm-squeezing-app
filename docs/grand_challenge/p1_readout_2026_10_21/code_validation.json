@@ -1,0 +1,37 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "date": "2026-10-21",
+  "passed": 2494,
+  "skipped": 3,
+  "failed": 0,
+  "mode": "full_exact_byte_mirror_plus_one_original_path_case",
+  "relocated_summary": "2493 passed, 3 skipped, 1 deselected, 11 warnings in 3002.92s (0:50:02)",
+  "summary": "2494passed/3skipped/0failed across all2497cases",
+  "receipt": "full_pytest_receipt.json",
+  "source_files": 411,
+  "source_frozen": true,
+  "seconds": 3012.6560000000027,
+  "focused_checks": [
+    {
+      "scope": "OD/SAS log/finite-probe/CSV/JSON",
+      "passed": 92
+    },
+    {
+      "scope": "Final Magneto readout/render",
+      "passed": 33,
+      "source": "magneto_validation.json"
+    },
+    {
+      "scope": "Biphoton evidence/ideal claim/rate planes",
+      "source": "biphoton_validation.json"
+    }
+  ],
+  "export": "export_validation.json",
+  "preservation": "gc_preservation_comparison.json",
+  "execution_recovery": [
+    "original_interrupted_receipt.json",
+    "relocated_interrupted_receipt.json"
+  ],
+  "review_note": "⟦AI⟧ Focused counts overlap the complete suite and are not added. Whole-source freeze is compared before/after. Early integration hero-count failure and provenance refinements resolved before final full run."
+}

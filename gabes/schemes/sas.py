@@ -822,13 +822,14 @@ class SASScheme(Scheme):
 
     def _obs_species(self, raw, params, alpha, chi_real, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e9                  # GHz (relative)
-        T_trans = observables.transmission(alpha, L)
-        OD = observables.optical_density(alpha, L)
+        finite_probe = raw.get("probe_model") == (
+            "finite_power_2level_gaussian_propagation")
+        optical_readout = _optical_readout(
+            x, "GHz", alpha, L, params, effective=finite_probe)
+        T_trans = optical_readout["transmission"]
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         pump = params["pump_power_mw"]
         pump_on = pump > 0
-        finite_probe = raw.get("probe_model") == (
-            "finite_power_2level_gaussian_propagation")
         probe_power = float(raw.get("probe_power_mw", _probe_power_mw(params)))
         regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
         if finite_probe:
@@ -855,19 +856,20 @@ class SASScheme(Scheme):
             axT.set_ylabel("Transmission")
             axT.set_xlabel(xlabel)
             axT.set_title(title)
-            fig_od, axA = plt.subplots(1, 1, figsize=(8.5, 4.35))
-            axA.plot(x, OD, color="#F43F5E", lw=1.3)
-            axA.set_ylabel("Optical density")
-            axA.set_xlabel(xlabel)
-            axA.set_title(title)
+            attenuation_views = _attenuation_figure_views(
+                optical_readout, "Relative frequency (ref: line centroid)  [GHz]",
+                title, linewidth=1.3)
+            attenuation_axes = [item["figure"].axes[0]
+                                for item in attenuation_views]
             for gx in marker_x:
-                for ax in (axT, axA):
+                for ax in (axT, *attenuation_axes):
                     ax.axvline(gx, color="gray", ls=":", lw=0.5, alpha=0.6)
             fig.tight_layout()
-            fig_od.tight_layout()
+            for item in attenuation_views:
+                item["figure"].tight_layout()
             figure_views = [
                 {"label": "Transmission", "figure": fig},
-                {"label": "Optical density", "figure": fig_od},
+                *attenuation_views,
             ]
             if chi_real is not None:
                 figure_views.append({
@@ -877,9 +879,7 @@ class SASScheme(Scheme):
                 })
 
         feature = subdoppler_feature(x, T_trans) if pump_on else None
-        peak_metric = dict(
-            label="Effective peak OD" if finite_probe else "Peak OD",
-            value=f"{np.nanmax(OD):.2f}")
+        peak_metric, depth_metric = _attenuation_peak_metrics(optical_readout)
         broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
             status_metric, feature_metrics = _subdoppler_metrics(
@@ -894,10 +894,10 @@ class SASScheme(Scheme):
             else:
                 status_metric["tier"] = "hero"
                 metrics = [status_metric, *feature_metrics]
-            metrics.extend([peak_metric, broad_metric])
+            metrics.extend([peak_metric, depth_metric, broad_metric])
         else:
             peak_metric["tier"] = "hero"
-            metrics = [peak_metric, broad_metric]
+            metrics = [peak_metric, depth_metric, broad_metric]
         metrics.extend(_dispersion_metrics(chi_real, raw.get("k_vec"), L))
         metrics.extend(_probe_saturation_metrics(raw, params, L))
         metrics.extend(_temperature_metrics(raw))
@@ -937,6 +937,7 @@ class SASScheme(Scheme):
             hero_count=1,
             figure=fig,
             figure_views=figure_views,
+            optical_readout=optical_readout,
             tables=tables,
             comparison={
                 "axis_index": 0,
@@ -949,8 +950,8 @@ class SASScheme(Scheme):
 
     def _obs_generic(self, raw, params, alpha, chi_real, L, include_figures=True):
         x = raw["scan"] / (2 * np.pi) / 1e6                  # MHz
-        T_trans = observables.transmission(alpha, L)
-        OD = observables.optical_density(alpha, L)
+        optical_readout = _optical_readout(x, "MHz", alpha, L, params)
+        T_trans = optical_readout["transmission"]
         offs_mhz = raw["offsets"] / (2 * np.pi) / 1e6
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
 
@@ -967,21 +968,21 @@ class SASScheme(Scheme):
             axT.set_ylabel("Transmission")
             axT.set_xlabel(xlabel)
             axT.set_title(title)
-            fig_od, axA = plt.subplots(1, 1, figsize=(8.5, 4.35))
-            axA.plot(x, OD, color="#F43F5E", lw=1.6)
-            axA.set_ylabel("Optical density")
-            axA.set_xlabel(xlabel)
-            axA.set_title(title)
-            for ax in (axT, axA):
+            attenuation_views = _attenuation_figure_views(
+                optical_readout, xlabel, title, linewidth=1.6)
+            attenuation_axes = [item["figure"].axes[0]
+                                for item in attenuation_views]
+            for ax in (axT, *attenuation_axes):
                 for off in offs_mhz:
                     ax.axvline(off, color="gray", ls=":", lw=0.7)
                 if raw["two"]:
                     ax.axvline(0.0, color="green", ls=":", lw=0.7)
             fig.tight_layout()
-            fig_od.tight_layout()
+            for item in attenuation_views:
+                item["figure"].tight_layout()
             figure_views = [
                 {"label": "Transmission", "figure": fig},
-                {"label": "Optical density", "figure": fig_od},
+                *attenuation_views,
             ]
             if chi_real is not None:
                 figure_views.append({
@@ -1002,7 +1003,7 @@ class SASScheme(Scheme):
             subdoppler_feature(x, T_trans, search_window=feature_window)
             if pump_on else None
         )
-        peak_metric = dict(label="Peak OD", value=f"{np.nanmax(OD):.2f}")
+        peak_metric, depth_metric = _attenuation_peak_metrics(optical_readout)
         broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
             status_metric, feature_metrics = _subdoppler_metrics(
@@ -1017,10 +1018,10 @@ class SASScheme(Scheme):
             else:
                 status_metric["tier"] = "hero"
                 metrics = [status_metric, *feature_metrics]
-            metrics.extend([peak_metric, broad_metric])
+            metrics.extend([peak_metric, depth_metric, broad_metric])
         else:
             peak_metric["tier"] = "hero"
-            metrics = [peak_metric, broad_metric]
+            metrics = [peak_metric, depth_metric, broad_metric]
         metrics.extend(_dispersion_metrics(chi_real, raw.get("k_vec"), L))
         metrics.extend(_temperature_metrics(raw))
         if params.get("ne_pressure_torr", 0.0) != 0.0:
@@ -1034,6 +1035,7 @@ class SASScheme(Scheme):
             hero_count=1,
             figure=fig,
             figure_views=figure_views,
+            optical_readout=optical_readout,
             tables=[{"title": "Notes", "markdown": note}],
             comparison={
                 "axis_index": 0,
@@ -1048,6 +1050,70 @@ class SASScheme(Scheme):
 # =====================================================================
 # helpers
 # =====================================================================
+def _optical_readout(x, x_unit, alpha, L, params, *, effective=False):
+    """Typed attenuation values shared by plots, headless readout and export."""
+    return dict(
+        schema="gabes-optical-attenuation-v1",
+        x=x,
+        x_unit=x_unit,
+        transmission=observables.transmission(alpha, L),
+        decadic_absorbance=observables.decadic_absorbance(alpha, L),
+        optical_depth=observables.optical_depth(alpha, L),
+        cell_length_m=float(L),
+        line_strength=float(params["line_strength"]),
+        effective=bool(effective),
+        attenuation_scope=(
+            "Collected Gaussian power transmission; alpha_eff = -ln(T) / L."
+            if effective else "Uniform Beer-Lambert intensity attenuation."),
+        conventions={
+            "transmission": "T = exp(-tau)",
+            "decadic_absorbance": "A10 = -log10(T) = tau / ln(10)",
+            "optical_depth": "tau = -ln(T) = alpha_eff * L",
+        },
+        unit="dimensionless",
+    )
+
+
+def _attenuation_peak_metrics(readout):
+    prefix = "Effective peak" if readout["effective"] else "Peak"
+    scope = readout["attenuation_scope"]
+    return (
+        dict(label=f"{prefix} absorbance A10",
+             value=f"{np.nanmax(readout['decadic_absorbance']):.2f}",
+             help=f"Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. {scope}"),
+        dict(label=f"{prefix} optical depth tau",
+             value=f"{np.nanmax(readout['optical_depth']):.2f}",
+             help=f"Optical depth τ = −ln(T) = α_eff L, dimensionless. {scope}"),
+    )
+
+
+def _attenuation_figure_views(readout, xlabel, title, *, linewidth):
+    import matplotlib.pyplot as plt
+
+    views = []
+    quantities = (
+        ("decadic_absorbance", "Decadic absorbance A10", "#F43F5E",
+         "Decadic absorbance A10 = -log10(T)"),
+        ("optical_depth", "Optical depth tau", "#9333EA",
+         "Optical depth tau = -ln(T)"),
+    )
+    for quantity, label, color, y_label in quantities:
+        fig, ax = plt.subplots(1, 1, figsize=(8.5, 4.35))
+        curve, = ax.plot(readout["x"], readout[quantity], color=color, lw=linewidth)
+        curve._gabes_export_metadata = {
+            "quantity": quantity,
+            "y_label": y_label,
+            "y_unit": "dimensionless",
+            "definition": readout["conventions"][quantity],
+            "effective": readout["effective"],
+        }
+        ax.set_ylabel(f"{y_label}  [dimensionless]")
+        ax.set_xlabel(xlabel)
+        ax.set_title(title)
+        views.append({"label": label, "figure": fig})
+    return views
+
+
 def _pump_detuning_axis(omega, gamma_eff, covered_detunings=None):
     """Fine pump-state axis, optionally covering every requested detuning.
 

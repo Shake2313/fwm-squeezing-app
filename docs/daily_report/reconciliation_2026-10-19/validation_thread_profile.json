@@ -1,0 +1,47 @@
+{
+  "origin": "bounded_thread_count_profile",
+  "main_full_not_modified": true,
+  "concurrent_full_suite": true,
+  "results": [
+    {
+      "threads": 1,
+      "command": [
+        "C:\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "--durations=3",
+        "--tb=short",
+        "--basetemp=C:/Temp/gv20261020-9d7b/pthread-1",
+        "tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]"
+      ],
+      "cwd": "C:\\Temp\\gv20261020-9d7b\\repo",
+      "started_utc": "2026-10-19T19:16:16.521288+00:00",
+      "log": "C:\\Temp\\gv20261020-9d7b\\evidence\\thread_profile_1.log",
+      "exit_code": 0,
+      "timeout": false,
+      "elapsed_seconds": 70.25,
+      "log_tail": ".                                                                        [100%]\n============================= slowest 3 durations =============================\n48.21s call     tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]\n13.80s setup    tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]\n\n(1 durations < 0.005s hidden.  Use -vv to show these durations.)\n1 passed in 67.72s (0:01:07)\n"
+    },
+    {
+      "threads": 8,
+      "command": [
+        "C:\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "--durations=3",
+        "--tb=short",
+        "--basetemp=C:/Temp/gv20261020-9d7b/pthread-8",
+        "tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]"
+      ],
+      "cwd": "C:\\Temp\\gv20261020-9d7b\\repo",
+      "started_utc": "2026-10-19T19:17:26.792018+00:00",
+      "log": "C:\\Temp\\gv20261020-9d7b\\evidence\\thread_profile_8.log",
+      "exit_code": 0,
+      "timeout": false,
+      "elapsed_seconds": 70.28099999999995,
+      "log_tail": ".                                                                        [100%]\n============================= slowest 3 durations =============================\n48.77s call     tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]\n13.28s setup    tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]\n\n(1 durations < 0.005s hidden.  Use -vv to show these durations.)\n1 passed in 67.76s (0:01:07)\n"
+    }
+  ]
+}

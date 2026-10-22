@@ -1,0 +1,184 @@
+{
+  "provenance": {
+    "marker": "⟦AI⟧",
+    "origin": "implementation validation",
+    "adoption_status": "implemented; focused and final exact-byte C suite plus one original path-bound case passed"
+  },
+  "date": "2026-10-21",
+  "scope": [
+    "magneto-observable-convergence-and-trust",
+    "magneto-dephasing-label-contract"
+  ],
+  "model_boundary": "No atomic/default changes; selected closed hyperfine pair only. Same-scan consistency is not a global convergence or held-out experimental certificate.",
+  "schedule": {
+    "EIT": {
+      "201": {
+        "feature": "crossover",
+        "feature_amplitude_per_m": 0.35728525111897014,
+        "central_width_ut": 0.9808176949976064,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.000733772807136926,
+        "slope_rad_per_ut": -0.11732042646212908,
+        "slope_status": "nonconverged on sampled grid",
+        "slope_relative_change": 0.08186141743197085,
+        "hero_count": 2
+      },
+      "401": {
+        "feature": "crossover",
+        "feature_amplitude_per_m": 0.35728525111897014,
+        "central_width_ut": 0.9804760273971671,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.0003483497516224288,
+        "slope_rad_per_ut": -0.11834342181154699,
+        "slope_status": "sample-grid consistent",
+        "slope_relative_change": 0.008644294154743585,
+        "hero_count": 2
+      },
+      "801": {
+        "feature": "crossover",
+        "feature_amplitude_per_m": 0.35728525111897014,
+        "central_width_ut": 0.9804719216964113,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 4.187456542632644e-06,
+        "slope_rad_per_ut": -0.1184028024221002,
+        "slope_status": "sample-grid consistent",
+        "slope_relative_change": 0.0005015135565924182,
+        "hero_count": 2
+      }
+    },
+    "NMOR": {
+      "121": {
+        "feature": "EIT-like dip",
+        "feature_amplitude_per_m": -2.816493632029477,
+        "central_width_ut": 0.11328307760410353,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.02138867698109289,
+        "slope_rad_per_ut": -0.28528450671267963,
+        "slope_status": "nonconverged on sampled grid",
+        "slope_relative_change": 0.3603610860598024,
+        "hero_count": 1
+      },
+      "201": {
+        "feature": "EIT-like dip",
+        "feature_amplitude_per_m": -2.816493632029477,
+        "central_width_ut": 0.1106691989720005,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.04880438481903567,
+        "slope_rad_per_ut": -0.314868427109771,
+        "slope_status": "nonconverged on sampled grid",
+        "slope_relative_change": 0.15963777661314374,
+        "hero_count": 1
+      },
+      "401": {
+        "feature": "EIT-like dip",
+        "feature_amplitude_per_m": -2.816493632029477,
+        "central_width_ut": 0.10990380845736472,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.006916021094807312,
+        "slope_rad_per_ut": -0.32160825081067607,
+        "slope_status": "sample-grid consistent",
+        "slope_relative_change": 0.020956625596252755,
+        "hero_count": 2
+      },
+      "801": {
+        "feature": "EIT-like dip",
+        "feature_amplitude_per_m": -2.816493632029477,
+        "central_width_ut": 0.10948199579088036,
+        "width_status": "sample-grid consistent",
+        "width_relative_change": 0.003838016829489546,
+        "slope_rad_per_ut": -0.32195828740098703,
+        "slope_status": "sample-grid consistent",
+        "slope_relative_change": 0.0010872109959853503,
+        "hero_count": 2
+      }
+    }
+  },
+  "last_step_checks": {
+    "EIT": {
+      "sign_preserved": true,
+      "width_relative_change": 4.187474077498367e-06,
+      "slope_relative_change": 0.0005015135565924182
+    },
+    "NMOR": {
+      "sign_preserved": true,
+      "width_relative_change": 0.0038528039559130645,
+      "slope_relative_change": 0.0010872109959853503
+    }
+  },
+  "raw_dynamics_ast_unchanged": true,
+  "changed_methods": [
+    "param_schema",
+    "info",
+    "observables"
+  ],
+  "verifier": {
+    "command": "python tests/verify_hanle_eit_eia.py",
+    "exit_code": 0,
+    "data_precision": "Values transcribed from actual verifier stdout at its printed precision.",
+    "screening_relative_tolerance": 0.2,
+    "screening_scope": "Explicit unmatched-apparatus screen; within tolerance is CHECK, not experimental validation.",
+    "sign_trend": "PASS",
+    "absolute_widths": [
+      {
+        "reference": "Lee-Moon linear CPT",
+        "model_mg": 0.95,
+        "reference_mg": 0.12,
+        "ratio": 7.92,
+        "status": "FAIL"
+      },
+      {
+        "reference": "Lee-Moon circular MIA",
+        "model_mg": 2.305,
+        "reference_mg": 0.2,
+        "ratio": 11.52,
+        "status": "FAIL"
+      },
+      {
+        "reference": "Yu low-power circular LCA",
+        "model_mg": 3.349,
+        "reference_mg": 2.4,
+        "ratio": 1.4,
+        "status": "FAIL"
+      }
+    ]
+  },
+  "tests": [
+    {
+      "command": "python -m pytest -q tests/test_magneto.py tests/test_headless_observables.py",
+      "passed": 30,
+      "failed": 0,
+      "seconds": 35.12
+    },
+    {
+      "command": "python -m pytest -q tests/test_magneto_readout.py",
+      "passed": 11,
+      "failed": 0,
+      "seconds": 24.97
+    },
+    {
+      "command": "python -m pytest -q tests/test_magneto_doppler.py tests/test_schemes_render.py tests/test_resonant_hanle_reference.py",
+      "passed": 36,
+      "failed": 1,
+      "seconds": 56.63,
+      "resolved_failure": "Nonconverged NMOR correctly has one status hero; view now declares hero_count=1. Final readout/render rerun recorded separately."
+    },
+    {
+      "command": "python -m pytest -q tests/test_magneto_readout.py tests/test_schemes_render.py",
+      "passed": 33,
+      "failed": 0,
+      "seconds": 33.81,
+      "scope": "Final current-source rerun after explicit hero_count fix."
+    }
+  ],
+  "implementation_files": [
+    "gabes/schemes/magneto.py",
+    "tests/verify_hanle_eit_eia.py",
+    "tests/test_magneto.py",
+    "tests/test_magneto_readout.py"
+  ],
+  "focused_status": "passed; prior hero-count contract failure resolved by final rerun",
+  "production_source_frozen": true,
+  "preserved_api_alias": "collisional_depol_khz",
+  "readout_no_atomic_or_native_linear_solves_and_raw_immutability": "passed; both solve and lstsq forbidden in headless fixture; figure/headless typed readout equal",
+  "full_regression_receipt": "full_pytest_receipt.json"
+}

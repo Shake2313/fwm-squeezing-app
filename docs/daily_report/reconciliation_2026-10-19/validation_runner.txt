@@ -1,0 +1,132 @@
+"""Mandatory full suite against byte-identical relocated live sources."""
+from pathlib import Path
+import datetime
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+
+BASE = Path(__file__).resolve().parent
+MIRROR = BASE / 'repo'
+EVIDENCE = BASE / 'evidence'
+SOURCE = Path('G:/내 드라이브/Coding/GABES - Generic Atomic Bloch Equation Solver')
+OUT = SOURCE / 'docs/daily_report/reconciliation_2026-10-19'
+CORE_DIRS = ('gabes', 'gabes_ui', 'sabes', 'analysis', 'tools', 'tests')
+EXCLUDED_PARTS = {'__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache'}
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def sha(path):
+    h = hashlib.sha256()
+    with path.open('rb') as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def core_sources(root):
+    result = {p.relative_to(root).as_posix()
+              for name in CORE_DIRS for p in (root / name).rglob('*.py')
+              if not EXCLUDED_PARTS.intersection(p.parts)}
+    result.update(p.relative_to(root).as_posix() for p in root.glob('*.py'))
+    return result
+
+
+def verify_sources(root, baseline):
+    changed = [name for name, expected in baseline.items()
+               if not (root / name).is_file() or sha(root / name) != expected]
+    # The capture contains every live Python file in the active code/test trees.
+    expected_core = {name for name in baseline
+                     if name.split('/')[0] in CORE_DIRS or '/' not in name}
+    current_core = core_sources(root)
+    return dict(changed_paths=changed, new_core_paths=sorted(current_core - expected_core),
+                missing_core_paths=sorted(expected_core - current_core))
+
+
+def verify_files(root, manifest, names):
+    return [name for name in names if not (root / name).is_file()
+            or sha(root / name) != manifest[name]['sha256']]
+
+
+def save(path, receipt):
+    with path.open('x', encoding='utf-8') as handle:
+        json.dump(receipt, handle, ensure_ascii=False, indent=2)
+        handle.write('\n')
+
+
+def main():
+    collection = json.loads((EVIDENCE / 'collection_receipt.json').read_text(encoding='utf-8'))
+    if collection['exit_code'] or not collection['ordered_nodeids_identical']:
+        raise RuntimeError('Collection parity prerequisite failed')
+    sources = json.loads((EVIDENCE / 'source_manifest.json').read_text(encoding='utf-8'))
+    manifest = json.loads((EVIDENCE / 'file_manifest.json').read_text(encoding='utf-8'))
+    copied = json.loads((EVIDENCE / 'copy_receipt.json').read_text(encoding='utf-8'))
+    # These are immutable run inputs; process notes and final report prose are
+    # intentionally outside this list because the root reviewer writes them.
+    critical_data = [name for name in manifest if (
+        name.startswith(('tests/', 'references/AutoOD-Rb/', 'analysis/fwm_gain_hotfix/'))
+        and not name.endswith(('.py', '.log')))
+        or name == 'archive/AutoOD/ReferenceOD.csv']
+    before = {label: verify_sources(root, sources)
+              for label, root in [('original', SOURCE), ('mirror', MIRROR)]}
+    original_data_before = verify_files(SOURCE, manifest, critical_data)
+    mirror_data_before = verify_files(MIRROR, manifest, critical_data)
+    if any(any(value.values()) for value in before.values()) or original_data_before or mirror_data_before:
+        raise RuntimeError('Pre-run source/data mismatch: ' + repr(
+            (before, original_data_before, mirror_data_before)))
+    env = os.environ.copy()
+    for name in ('PYTHONPATH', 'GIT_DIR', 'GIT_WORK_TREE', 'PYTEST_ADDOPTS'):
+        env.pop(name, None)
+    env.update(PYTHONIOENCODING='utf-8', OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1',
+               NUMBA_NUM_THREADS='1', NUMBA_CACHE_DIR=str(BASE / 'numba-cache'),
+               MPLCONFIGDIR=str(BASE / 'matplotlib-cache'),
+               PYTEST_ADDOPTS='--basetemp=' + (BASE / 'pfull').as_posix(),
+               TEMP=str(BASE / 'temp'), TMP=str(BASE / 'temp'))
+    log = OUT / 'full_pytest_relocated.log'
+    receipt_path = OUT / 'full_pytest_relocated_receipt.json'
+    if log.exists() or receipt_path.exists():
+        raise FileExistsError('Do not replace a prior verification run')
+    t0 = time.monotonic()
+    started = utc()
+    with log.open('x', encoding='utf-8') as handle:
+        result = subprocess.run([sys.executable, '-m', 'pytest', '-q'], cwd=MIRROR,
+                                env=env, stdout=handle, stderr=subprocess.STDOUT)
+    after = {label: verify_sources(root, sources)
+             for label, root in [('original', SOURCE), ('mirror', MIRROR)]}
+    original_data_after = verify_files(SOURCE, manifest, critical_data)
+    mirror_data_after = verify_files(MIRROR, manifest, critical_data)
+    receipt = dict(origin='exact_byte_relocated_source_evidence',
+                   command='python -m pytest -q', execution_cwd=str(MIRROR),
+                   started_utc=started, completed_utc=utc(), elapsed_seconds=time.monotonic()-t0,
+                   exit_code=result.returncode, original_head=copied['original_head'],
+                   original_branch=copied['original_branch'], original_dirty=copied['original_dirty'],
+                   python=sys.executable, copy_receipt=str(EVIDENCE / 'copy_receipt.json'),
+                   file_manifest=str(EVIDENCE / 'file_manifest.json'),
+                   source_manifest=str(EVIDENCE / 'source_manifest.json'),
+                   exact_byte_manifest_sha256=copied['manifest_sha256'],
+                   collection_parity=collection,
+                   source_before=before, source_after=after,
+                   critical_data_files=len(critical_data),
+                   original_data_before_mismatches=original_data_before,
+                   mirror_data_before_mismatches=mirror_data_before,
+                   original_data_after_mismatches=original_data_after,
+                   mirror_data_after_mismatches=mirror_data_after,
+                   source_files=len(sources),
+                   source_frozen=not any(any(value.values()) for value in after.values()),
+                   critical_data_frozen=not original_data_after and not mirror_data_after,
+                   blas_threads=1, numba_threads=1,
+                   relocation_scope='Same interpreter/libraries; raw-byte copied live working tree, no symlinks/junctions to source; plain .git scratch only; no branch/worktree created. Receipt records original Git provenance independently.',
+                   cache_and_temp_root=str(BASE), log=str(log))
+    save(EVIDENCE / 'full_pytest_receipt.json', receipt)
+    save(receipt_path, receipt)
+    print(json.dumps(receipt, ensure_ascii=False), flush=True)
+    raise SystemExit(result.returncode)
+
+
+if __name__ == '__main__':
+    main()

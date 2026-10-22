@@ -1,0 +1,21 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "cases": [
+    {
+      "offset_ut": 0.0,
+      "strict_json": true,
+      "typed_readout_preserved": true,
+      "physical_zero_in_scan": true,
+      "slope_status": "nonconverged on sampled grid"
+    },
+    {
+      "offset_ut": 100.0,
+      "strict_json": true,
+      "typed_readout_preserved": true,
+      "physical_zero_in_scan": false,
+      "slope_status": "physical zero outside scan"
+    }
+  ],
+  "scope": "Actual headless Magneto raw/readout strict-JSON roundtrip, including physical-zero outside scan. OD log CSV/JSON and biphoton evidence covered by focused pytest fixtures."
+}

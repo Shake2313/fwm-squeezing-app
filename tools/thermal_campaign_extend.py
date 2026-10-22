@@ -292,9 +292,10 @@ def verify_stage(stage, *, expected_controller_sha256, expected_grid_sha256=None
 
 
 def verify_in_fresh_capsule(stage, control, raw):
-    scratch = ROOT/'.git'/'grand-challenge-runs'
-    scratch.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='thermal-import-check-', dir=scratch) as folder:
+    # ROOT already points into the first execution capsule here. Nesting another
+    # full source tree below it exceeds Windows path limits on ordinary checkouts.
+    # A separate temporary root retains source/hash isolation without path growth.
+    with tempfile.TemporaryDirectory(prefix='thermal-import-check-') as folder:
         c.extract_bundle(stage, folder)
         script = copy_controllers(folder, controller_files(control, raw, stage=stage))
         output = Path(folder)/'verification.json'

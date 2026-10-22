@@ -1,0 +1,14 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "original_count": 2497,
+  "mirror_count": 2497,
+  "ordered_nodeids_identical": true,
+  "imported_module_paths": {
+    "gabes": "C:\\Temp\\gv20261021-local\\repo\\gabes\\__init__.py",
+    "gabes.schemes.fwm": "C:\\Temp\\gv20261021-local\\repo\\gabes\\schemes\\fwm.py",
+    "analysis.grand_challenge.thermal_campaign": "C:\\Temp\\gv20261021-local\\repo\\analysis\\grand_challenge\\thermal_campaign.py",
+    "tools.thermal_campaign_extend": "C:\\Temp\\gv20261021-local\\repo\\tools\\thermal_campaign_extend.py"
+  },
+  "excluded_original_root_node": "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+}

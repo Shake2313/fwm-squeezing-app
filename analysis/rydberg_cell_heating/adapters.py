@@ -21,12 +21,13 @@ import importlib
 import importlib.util
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Mapping
 
 import numpy as np
 
 from gabes import constants, observables, schemes
+from gabes.rydberg_opacity import opacity_spec
 from gabes.rydberg_electrometry import (
     BalancedDetector,
     PhotodiodeChannel,
@@ -85,6 +86,7 @@ class StaticPoint:
     params: dict[str, Any]
     raw: dict[str, Any]
     readout: dict[str, Any]
+    atomic_response_cache: dict = field(default_factory=dict)
 
 
 class StaticRydbergAdapter:
@@ -143,19 +145,30 @@ class StaticRydbergAdapter:
             params["cold_spot_temp_c"] = float(
                 temperature_c if cold_spot_temp_c is None else cold_spot_temp_c)
         raw = self.scheme.compute(params)
-        readout = self.scheme._readout(raw, params)
+        return self.point_from_raw(raw, params, temperature_c, include_spectrum)
+
+    def point_from_raw(
+        self, raw, params, temperature_c, include_spectrum=True,
+        *, atomic_response=None, atomic_response_cache=None,
+    ) -> StaticPoint:
+        """Reapply propagation/readout to one fixed atomic state, without a solve."""
+        readout = self.scheme._readout(raw, params, atomic_response=atomic_response)
         x = np.asarray(readout["x"], dtype=float)
         transmission = np.asarray(readout["T_trans"], dtype=float)
         width, contrast = self.scheme._eit_features(x, transmission)
-        slope = float(np.nanmax(np.abs(np.gradient(transmission, x))))
+        # np.gradient can leave roundoff-sized slopes for an exactly constant
+        # curve on a floating-point grid. Such a curve has no discriminator.
+        slope = (0.0 if np.ptp(transmission) == 0.0 else
+                 float(np.nanmax(np.abs(np.gradient(transmission, x)))))
         ic = int(np.argmin(np.abs(x)))
         metrics = readout.get("metrics", [])
 
         result: dict[str, Any] = {
             "temperature_c": float(temperature_c),
-            "view": view,
+            "view": params["view"],
             "status": "PREDICTED",
             "parameters": params,
+            "effective_opacity": opacity_spec(params),
             "metrics": {
                 "number_density_m3": {
                     "value": _finite_or_none(raw.get("N")),
@@ -225,7 +238,10 @@ class StaticRydbergAdapter:
                 "transmission": transmission.tolist(),
                 "status": "PREDICTED",
             }
-        return StaticPoint(result=result, params=params, raw=raw, readout=readout)
+        return StaticPoint(
+            result=result, params=params, raw=raw, readout=readout,
+            atomic_response_cache=(
+                {} if atomic_response_cache is None else atomic_response_cache))
 
 
 class ElectrometryAdapter:
@@ -327,8 +343,8 @@ class ElectrometryAdapter:
             if superhet is None:
                 return {
                     "available": False,
-                    "status": "PENDING",
-                    "message": "scheme-native finite-IF readout was not produced",
+                    "status": "PREDICTED",
+                    "message": "no finite non-zero scheme-native responsivity for this opacity/model",
                 }
             sensitivity = superhet["sensitivity"]
             rf_coupling = superhet["rf_coupling"]
@@ -400,15 +416,22 @@ class ElectrometryAdapter:
         absorption_operator[0, 1] = -0.5j
         absorption_operator[1, 0] = +0.5j
         susceptibility_scale = (
-            -2.0 * raw["N"] * raw["ls"] * raw["dipole"] ** 2
+            -2.0 * raw["N"] * scheme._opacity_scale(raw, params) * raw["dipole"] ** 2
             / (constants.EPS_0 * constants.HBAR)
         )
         propagation_scale = (
-            -raw["L"] * raw["k_vec"] * susceptibility_scale / probe
+            -float(params["cell_mm"]) * 1.0e-3 * raw["k_vec"] * susceptibility_scale / probe
         )
 
         records: list[dict[str, Any]] = []
-        for detuning_mhz in detunings:
+        phase = float(cfg.get("signal_phase_rad", 0.0))
+        # The cache belongs to one atomic state and is shared only with its
+        # opacity scenarios. Detector/propagation changes reuse these phasors.
+        cache_key = ("configured", tuple(detunings), if_omega, phase,
+                     microwave_detuning)
+        cached_phasors = point.atomic_response_cache.get(cache_key)
+        phasors = []
+        for index, detuning_mhz in enumerate(detunings):
             s = float(detuning_mhz) * mhz
             hamiltonian = np.zeros((4, 4), dtype=complex)
             hamiltonian[1, 1] = -s
@@ -417,15 +440,15 @@ class ElectrometryAdapter:
             hamiltonian[0, 1] = hamiltonian[1, 0] = probe / 2.0
             hamiltonian[1, 2] = hamiltonian[2, 1] = coupling / 2.0
             hamiltonian[2, 3] = hamiltonian[3, 2] = lo / 2.0
-            response = weak_signal_response(
-                atom,
-                hamiltonian,
-                if_omega,
-                signal_transition=(2, 3),
-                signal_phase_rad=float(cfg.get("signal_phase_rad", 0.0)),
-            )
-            atomic_phasor = response.real_observable_phasor_per_angular_rabi(
-                absorption_operator)
+            if cached_phasors is None:
+                response = weak_signal_response(
+                    atom, hamiltonian, if_omega,
+                    signal_transition=(2, 3), signal_phase_rad=phase)
+                atomic_phasor = response.real_observable_phasor_per_angular_rabi(
+                    absorption_operator)
+            else:
+                atomic_phasor = cached_phasors[index]
+            phasors.append(atomic_phasor)
             t0 = float(np.interp(detuning_mhz, x_all, transmission))
             transmitted_power = input_probe_power_w * signal_power_scale * t0
             detector = self._detector(transmitted_power)
@@ -456,10 +479,11 @@ class ElectrometryAdapter:
                 "atomic_phasor_per_angular_rabi_real": float(np.real(atomic_phasor)),
                 "atomic_phasor_per_angular_rabi_imag": float(np.imag(atomic_phasor)),
             })
+        point.atomic_response_cache[cache_key] = tuple(phasors)
         if not records:
             return {
                 "available": False,
-                "status": "PENDING",
+                "status": "PREDICTED",
                 "message": "finite-IF scan produced no non-zero calibrated responsivity",
             }
         optimum = min(records, key=lambda row: row["total_field_asd_nv_cm_per_sqrt_hz"])

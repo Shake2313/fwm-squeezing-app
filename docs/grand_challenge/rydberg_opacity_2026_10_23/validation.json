@@ -1,0 +1,230 @@
+{
+  "origin": "ai_scoped_maintenance_verification",
+  "status": "PASS",
+  "date": "2026-10-23",
+  "preserved_prior_done_objects": 43,
+  "preserved_old_default_values": true,
+  "new_defaults": {
+    "effective_opacity_participation": 0.001,
+    "effective_opacity_relative_uncertainty": 0.5
+  },
+  "default_arrays_exact": true,
+  "measured_opacity_uncertainty": null,
+  "sealed_artifacts_unchanged": 37,
+  "fwm_gc_ast_nodes_unchanged": 34,
+  "observables_gc_ast_nodes_unchanged": 8,
+  "sabes_and_quantum_python_unchanged": 41,
+  "runtime_assets_configuration_unchanged": 21,
+  "full_suite": {
+    "date": "2026-10-23",
+    "origin": "ai_execution_of_human_request",
+    "status": "PASS_IN_COMPOSITE_SCOPE",
+    "validation_mode": "full_baseline_plus_affected_source_revalidation_plus_original_path_case",
+    "passed": 2747,
+    "skipped": 3,
+    "failed": 0,
+    "collected": 2750,
+    "frozen_python_files": 435,
+    "source_hashes_unchanged": true,
+    "source_hashes_unchanged_scope": "Final affected-source recheck only; baseline differs by eight explicitly recorded files (one new).",
+    "baseline": {
+      "passed": 2727,
+      "skipped": 3,
+      "deselected": 1,
+      "failed": 3,
+      "errors": 8,
+      "exit_code": 1,
+      "collected": 2742,
+      "mirror_source_unchanged": true,
+      "log": "output/rydberg_opacity_20261023/full_pytest_mirror.log",
+      "receipt": "output/rydberg_opacity_20261023/mirror_full_receipt.json"
+    },
+    "recheck": {
+      "passed": 260,
+      "skipped": 3,
+      "failed": 0,
+      "files": [
+        "tests/quantum/test_source_provenance.py",
+        "tests/test_sabes_bridge.py",
+        "tests\\test_defaults_browser.py",
+        "tests\\test_experimental_csv.py",
+        "tests\\test_fwm_measured_gain_integration.py",
+        "tests\\test_liveplot.py",
+        "tests\\test_od_comparison_ui.py",
+        "tests\\test_sabes_apparatus_ui.py",
+        "tests\\test_sabes_page.py",
+        "tests\\test_ui_defaults.py",
+        "tests\\test_ui_derived_controls.py"
+      ],
+      "supplemental_nodes": [
+        "tests/quantum/test_thermal_campaign.py::test_cache_rejects_source_edits_and_new_dependency_inventory",
+        "tests/quantum/test_thermal_campaign.py::test_source_bundle_survives_relocation_and_live_source_changes"
+      ],
+      "new_test_nodes": [
+        "tests/quantum/test_source_provenance.py::test_byte_cache_does_not_share_mutable_manifest_rows",
+        "tests/quantum/test_source_provenance.py::test_byte_cache_reuses_compilation_but_detects_same_metadata_edit",
+        "tests/test_defaults_browser.py::test_apptest_real_value_errors_remain_visible[callback]",
+        "tests/test_defaults_browser.py::test_apptest_real_value_errors_remain_visible[component]",
+        "tests/test_defaults_browser.py::test_unregistered_real_runtime_component_error_remains_visible",
+        "tests/test_liveplot.py::test_live_component_real_runtime_registry_error_remains_visible",
+        "tests/test_liveplot.py::test_live_component_value_errors_remain_visible_in_apptest[callback]",
+        "tests/test_liveplot.py::test_live_component_value_errors_remain_visible_in_apptest[component]"
+      ],
+      "resolved_baseline_failures": [
+        "tests/test_defaults_browser.py::test_apptest_component_registry_falls_back",
+        "tests/test_fwm_measured_gain_integration.py::test_actual_streamlit_preset_calibration_and_hidden_reference",
+        "tests/test_od_comparison_ui.py::test_axis_reframing_preserves_signal_adjustments",
+        "tests/test_od_comparison_ui.py::test_fit_alignment_improves_seconds_overlay_without_changing_physics",
+        "tests/test_od_comparison_ui.py::test_overflowing_alignment_is_reported_without_crashing_the_plot[x]",
+        "tests/test_od_comparison_ui.py::test_overflowing_alignment_is_reported_without_crashing_the_plot[y]",
+        "tests/test_od_comparison_ui.py::test_relative_inversion_and_absolute_calibration_export_the_plotted_transmission",
+        "tests/test_od_comparison_ui.py::test_seconds_upload_frames_nonuniform_data_and_repeated_apply_keeps_clean_theory",
+        "tests/test_od_comparison_ui.py::test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_x_scale]",
+        "tests/test_od_comparison_ui.py::test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_y_scale]",
+        "tests/test_ui_defaults.py::test_real_dropdown_loads_before_mode_widgets_and_marks_edited_settings"
+      ],
+      "receipt": "output/rydberg_opacity_20261023/affected_recheck_receipt.json"
+    },
+    "original_path_receipt": "output/rydberg_opacity_20261023/original_path_case_receipt.json",
+    "final_sources": "output/rydberg_opacity_20261023/source_final_before.json",
+    "phase_changes": {
+      "baseline_to_final_paths": [
+        "gabes_ui\\component_runtime.py",
+        "gabes_ui\\defaults_browser.py",
+        "gabes_ui\\liveplot.py",
+        "tests\\test_defaults_browser.py",
+        "tests\\test_liveplot.py",
+        "tests\\quantum\\test_source_provenance.py",
+        "tests\\test_sabes_bridge.py",
+        "analysis\\grand_challenge\\source_provenance.py"
+      ],
+      "ui_fix_paths": [
+        "gabes_ui/component_runtime.py",
+        "gabes_ui/defaults_browser.py",
+        "gabes_ui/liveplot.py",
+        "tests/test_defaults_browser.py",
+        "tests/test_liveplot.py"
+      ],
+      "independent_concurrent_paths": [
+        "tests/quantum/test_source_provenance.py",
+        "tests/test_sabes_bridge.py",
+        "analysis/grand_challenge/source_provenance.py"
+      ]
+    },
+    "collection_parity": "output/rydberg_opacity_20261023/collection_final_parity.json",
+    "coverage_rule": "Unique final collection: frozen baseline outcomes retained for unchanged tests/dependencies; affected whole-file outcomes replaced by final-source recheck; one immutable-path case passed at original root. Counts are not sums of overlapping test runs.",
+    "limitation": "This is not a single final-byte full-suite exit-0 run. Raw baseline failures and source phases are retained. Unchanged scientific/model paths reuse baseline results after a reviewed narrow UI correction and byte-keyed provenance cache/test reuse changes.",
+    "interrupted_attempts": "Two interrupted original-root runs are retained separately and excluded from all PASS counts."
+  },
+  "remaining_p1": [
+    {
+      "id": "collisional-coefficient-provenance-and-pressure-shift",
+      "status": "ready"
+    },
+    {
+      "id": "species-line-rabi-and-saturation-provenance",
+      "status": "ready"
+    },
+    {
+      "id": "lambda-spectrum-validity",
+      "status": "ready"
+    },
+    {
+      "id": "rydberg-readout-validity-guardrails",
+      "status": "needs_decision"
+    },
+    {
+      "id": "fwm-gain-only-trust-boundary",
+      "status": "in_progress"
+    },
+    {
+      "id": "fwm-balanced-readout-covariance-correction",
+      "status": "ready"
+    },
+    {
+      "id": "fwm-option-a-and-loss-ledger",
+      "status": "ready"
+    },
+    {
+      "id": "fwm-coupling-normalization-audit",
+      "status": "ready"
+    },
+    {
+      "id": "sabes-mean-field-trust-boundary",
+      "status": "ready"
+    },
+    {
+      "id": "sabes-calibration-trust-schema",
+      "status": "ready"
+    },
+    {
+      "id": "sabes-balanced-detection-and-sql-calibration",
+      "status": "blocked_external"
+    },
+    {
+      "id": "fwm-squeezing-spectrum-heldout-validation",
+      "status": "blocked_external"
+    },
+    {
+      "id": "fwm-reference-parameter-provenance",
+      "status": "ready"
+    },
+    {
+      "id": "fwm-finite-seed-angular-doppler-production",
+      "status": "ready"
+    },
+    {
+      "id": "fwm-rf-squeezing-spectrum-and-bandwidth",
+      "status": "parked"
+    },
+    {
+      "id": "fwm-tpd-gain-physical-replacement",
+      "status": "in_progress"
+    },
+    {
+      "id": "od-sas-normalization-reference-provenance",
+      "status": "ready"
+    },
+    {
+      "id": "scheme-current-documentation-and-examples",
+      "status": "ready"
+    },
+    {
+      "id": "magneto-paraffin-exchange-dephasing-contract",
+      "status": "ready"
+    },
+    {
+      "id": "fwm-fast-displayed-readout-error-certificate",
+      "status": "ready"
+    }
+  ],
+  "limitation": "⟦AI⟧ Opacity scenarios are assumed sensitivity checks, not measured confidence limits; existing scalar/dephasing/pointwise detector models remain unchanged. Rydberg guardrails and held-out calibration remain open.",
+  "app_render_checks": [
+    {
+      "exceptions": 0,
+      "scheme": "rydberg_eit",
+      "saved_opacity": 0.001,
+      "T0": 0.9400166150823321,
+      "prediction_status": "PREDICTED",
+      "calibration_status": "UNCALIBRATED",
+      "scope": "Single actual app render via AppTest with saved control values; native browser gesture rendering not assessed"
+    },
+    {
+      "exceptions": 0,
+      "scheme": "rydberg_eit",
+      "saved_opacity": 0.0005,
+      "T0": 0.9695445400198652,
+      "prediction_status": "PREDICTED",
+      "calibration_status": "UNCALIBRATED",
+      "scope": "Single actual app render via AppTest with saved control values; native browser gesture rendering not assessed"
+    }
+  ],
+  "visual_checks": {
+    "actual_801_point_plots": "PASS",
+    "zero_lower_opacity_band": "finite bands and unavailable annotation visible",
+    "images": [
+      "output/rydberg_opacity_20261023/power_scenarios.png",
+      "output/rydberg_opacity_20261023/temperature_scenarios.png"
+    ]
+  }
+}

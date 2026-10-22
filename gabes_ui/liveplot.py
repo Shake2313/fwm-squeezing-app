@@ -17,6 +17,7 @@ import matplotlib as mpl
 from matplotlib.colors import to_hex
 
 from gabes.plot_style import apply_gabes_plot_style
+from .component_runtime import missing_apptest_component
 
 _ASSETS = Path(__file__).resolve().parents[1] / "assets" / "ui"
 _COMPONENT = st.components.v2.component(
@@ -175,5 +176,10 @@ def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False
         # AppTest stubs the v2 component registry; keep its native-widget path.
         _MOUNTABLE = False
         logging.getLogger(__name__).warning("Live plot unavailable; using static plot", exc_info=True)
+        return False
+    except ValueError as error:
+        if not missing_apptest_component(error, "gabes_live_plot"):
+            raise
+        # AppTest owns a fresh registry while this module's callable survives.
         return False
     return True

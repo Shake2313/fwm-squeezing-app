@@ -1,0 +1,20 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "ai_scoped_maintenance_verification",
+  "passed": true,
+  "differences": {
+    "fwm_dependency_ast": [],
+    "observables_dependency_ast": [],
+    "numerical_source_sha256": [
+      "gabes/observables.py"
+    ],
+    "sealed_artifact_sha256": []
+  },
+  "counts": {
+    "fwm_dependency_ast": 34,
+    "observables_dependency_ast": 8,
+    "numerical_source_sha256": 94,
+    "sealed_artifact_sha256": 37
+  },
+  "scope": "⟦AI⟧ 34 FWM and 8 observables GC dependency AST nodes unchanged; numerical byte changes confined to off-path optical/coincidence helpers. 37 sealed artifacts and 93 other numerical sources unchanged. No new GC physics assertion or native rerun."
+}

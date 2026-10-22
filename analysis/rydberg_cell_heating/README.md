@@ -95,6 +95,28 @@ absorption arrays.
 
 ## Absolute electrometry chain
 
+### Effective opacity scenarios
+
+`model.base_params.effective_opacity_participation` is the compact model's
+dimensionless effective opacity in [0, 1], default 0.001. It is separate from
+atomic dipole/line strength and from the geometric atom-count participation.
+The value is `ASSUMED` and `UNCALIBRATED`; existing nominal spectra and readouts
+are preserved. `effective_opacity_relative_uncertainty` (default 0.5) is an
+assumed relative scenario half-width, **not** a measured standard uncertainty
+or confidence interval.
+
+`results.json` records this provenance in `model.effective_opacity` and adds
+`model.opacity_scenarios`: unique lower/nominal/upper opacity values, temperature
+sweep metrics and sampled optima. The scenarios reuse each nominal atomic state;
+they add no static atomic solves. Configured electrometry also reuses its atomic
+phasors. Doppler-on scheme sensitivity stays at the nominal sampled detuning,
+so scenario optima are conditional on that fixed sample. Arbitrary optional
+helper plugins are excluded from scenario sensitivity optima. Zero opacity or
+no finite response has no sensitivity optimum. With
+`include_spectra_in_results: false`, scalar metrics/provenance remain available.
+All scenario outputs are `PREDICTED`; experimental calibration remains pending.
+The existing axial Beer--Lambert path uses the opacity-scaled transmission once.
+
 The `electrometry` config block can reuse the scheme-native finite-IF response
 (`mode: "scheme"`) or run a separately configured detector chain
 (`mode: "configured"`). Both paths retain the RF transition dipole/angular

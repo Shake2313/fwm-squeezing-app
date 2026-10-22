@@ -13,6 +13,7 @@ never silently substituted.
 from __future__ import annotations
 
 import argparse
+import copy
 import csv
 import datetime as dt
 from dataclasses import asdict
@@ -57,6 +58,7 @@ from gabes.rydberg_experiment import (
     sam_field_calibration,
 )
 from gabes.rydberg_experimental_csv import load_eit_csv, load_psd_csv, load_rf_sweep_csv
+from gabes.rydberg_opacity import opacity_samples, opacity_spec
 
 
 SCHEMA_VERSION = 1
@@ -357,9 +359,11 @@ def _metric_value(point: Mapping[str, Any], name: str) -> float | None:
 
 
 def _best_point(
-    points: list[dict[str, Any]], metric: str, *, minimize: bool = False
+    points: list[dict[str, Any]], metric: str, *, minimize: bool = False,
+    positive_only: bool = False,
 ) -> dict[str, Any] | None:
-    candidates = [p for p in points if _metric_value(p, metric) is not None]
+    candidates = [p for p in points if _metric_value(p, metric) is not None
+                  and (not positive_only or _metric_value(p, metric) > 0.0)]
     if not candidates:
         return None
     selector = min if minimize else max
@@ -1118,8 +1122,27 @@ def run_analysis(
     helper_adapters = [OptionalHelperAdapter(spec) for spec in config.get("helpers", [])]
     helper_summaries = [helper.discover() for helper in helper_adapters]
     sweeps: dict[str, list[dict[str, Any]]] = {}
+    opacity = opacity_spec(static.parameters(views[0], overrides))
+    samples = opacity_samples(static.parameters(views[0], overrides))
+    scenario_sweeps = {sample["label"]: {} for sample in samples}
+
+    def attach_context(point, temperature, solver_thermal, axial_profile, axial_result):
+        # Give each scenario its own axial result: attaching transmission mutates
+        # that mapping. The density geometry itself is shared and not rescaled.
+        point.result["temperature_c"] = temperature
+        point.result["heater_setpoint_c"] = temperature
+        point.result["effective_vapor_temp_c"] = solver_thermal["effective_vapor_temp_c"]
+        point.result["thermal_state"] = solver_thermal
+        point.result["axial_profile"] = copy.deepcopy(axial_result)
+        _attach_segmented_beer_lambert(point.result, point.raw, axial_profile)
+        _attach_effective_atom_number(point.result, point.raw, atom_config, axial_profile)
+        point.result["electrometry"] = electrometry.evaluate(point)
+        point.result["sam_comparison"] = _sam_at_comparison(point.result, sam, sam_config)
+
     for view in views:
         points: list[dict[str, Any]] = []
+        for sample in samples:
+            scenario_sweeps[sample["label"]][view] = []
         for temperature in temperatures:
             thermal = _thermal_state(temperature, datasets, thermal_config)
             axial_params = static.parameters(view, overrides)
@@ -1137,35 +1160,54 @@ def run_analysis(
                 heater_setpoint_c=solver_thermal["heater_setpoint_c"],
                 cold_spot_temp_c=solver_thermal["cold_spot_temp_c"],
             )
-            # The sweep axis is a heater setpoint.  Preserve the solver's vapor
-            # temperature separately instead of silently relabelling it.
-            point.result["temperature_c"] = temperature
-            point.result["heater_setpoint_c"] = temperature
-            point.result["effective_vapor_temp_c"] = solver_thermal[
-                "effective_vapor_temp_c"]
-            point.result["thermal_state"] = solver_thermal
-            point.result["axial_profile"] = axial_result
-            _attach_segmented_beer_lambert(
-                point.result, point.raw, axial_profile)
-            _attach_effective_atom_number(
-                point.result, point.raw, atom_config, axial_profile)
-            point.result["electrometry"] = electrometry.evaluate(point)
-            point.result["sam_comparison"] = _sam_at_comparison(
-                point.result, sam, sam_config)
+            attach_context(point, temperature, solver_thermal, axial_profile, axial_result)
             if helper_adapters:
                 point.result["optional_helpers"] = {
                     helper.module_name: helper.evaluate(point) for helper in helper_adapters
                 }
             points.append(point.result)
+            nominal_superhet = point.readout.get("superhet")
+            atomic_response = (None if nominal_superhet is None
+                               else nominal_superhet.get("atomic_response"))
+            for sample in samples:
+                scenario_point = point
+                if sample["label"] != "nominal":
+                    scenario_params = dict(
+                        point.params, effective_opacity_participation=sample["value"])
+                    scenario_point = static.point_from_raw(
+                        point.raw, scenario_params,
+                        solver_thermal["effective_vapor_temp_c"], include_spectrum,
+                        atomic_response=atomic_response,
+                        atomic_response_cache=point.atomic_response_cache)
+                    attach_context(scenario_point, temperature, solver_thermal,
+                                   axial_profile, axial_result)
+                scenario_sweeps[sample["label"]][view].append(scenario_point.result)
         sweeps[view] = points
 
     preferred = sweeps.get("EIT") or next(iter(sweeps.values()))
     optima = {
-        "max_spectral_slope": _best_point(preferred, "max_spectral_slope_per_mhz"),
-        "max_if_discriminator": _best_point(preferred, "if_discriminator_per_mhz"),
+        "max_spectral_slope": _best_point(
+            preferred, "max_spectral_slope_per_mhz", positive_only=True),
+        "max_if_discriminator": _best_point(
+            preferred, "if_discriminator_per_mhz", positive_only=True),
         "min_total_field_sensitivity": _best_helper_point(
             sweeps, "field_sensitivity_nv_cm_sqrt_hz"),
     }
+    scenario_optima = {}
+    for label, scenarios in scenario_sweeps.items():
+        scenario_preferred = scenarios.get("EIT") or next(iter(scenarios.values()))
+        # Arbitrary optional plugins need not support opacity reuse. These
+        # scenario sensitivity optima cover only the explicit electrometry adapter.
+        native_only = {name: [dict(point, optional_helpers={}) for point in rows]
+                       for name, rows in scenarios.items()}
+        scenario_optima[label] = {
+            "max_spectral_slope": _best_point(
+                scenario_preferred, "max_spectral_slope_per_mhz", positive_only=True),
+            "max_if_discriminator": _best_point(
+                scenario_preferred, "if_discriminator_per_mhz", positive_only=True),
+            "min_total_field_sensitivity": _best_helper_point(
+                native_only, "field_sensitivity_nv_cm_sqrt_hz"),
+        }
     has_absolute = any(
         _helper_metric(point, "field_sensitivity_nv_cm_sqrt_hz") is not None
         for points in sweeps.values() for point in points
@@ -1198,6 +1240,21 @@ def run_analysis(
             "base_params": overrides,
             "sweeps": sweeps,
             "optima": optima,
+            "effective_opacity": opacity,
+            "opacity_scenarios": {
+                "status": "PREDICTED",
+                "input_status": "ASSUMED",
+                "uncertainty_kind": opacity["uncertainty_kind"],
+                "scope": (
+                    "Fixed atomic state; propagation and explicit electrometry "
+                    "reevaluated. Doppler-on scheme sensitivity uses the fixed "
+                    "nominal sampled detuning; no extra static solves. Optional "
+                    "helper plugins are excluded from scenario sensitivity optima. "
+                    "Assumed sensitivity scenarios, not measured confidence bounds."),
+                "samples": samples,
+                "sweeps": scenario_sweeps,
+                "optima": scenario_optima,
+            },
         },
         "optional_helpers": helper_summaries,
         "electrometry_adapter": electrometry_summary,
@@ -1269,7 +1326,7 @@ def run_analysis(
         code_paths.append(scheme_path)
     for name in (
         "rydberg_electrometry.py", "rydberg_experiment.py",
-        "rydberg_experimental_csv.py",
+        "rydberg_experimental_csv.py", "rydberg_opacity.py",
     ):
         path = ROOT / "gabes" / name
         if path.is_file():

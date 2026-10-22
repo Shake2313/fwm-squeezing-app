@@ -1,0 +1,24 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "pid": 180,
+  "controller_pid": 19908,
+  "started_utc": "2026-10-20T18:14:08.979176+00:00",
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--durations=15"
+  ],
+  "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "environment": {
+    "OPENBLAS_NUM_THREADS": "8",
+    "MKL_NUM_THREADS": "8",
+    "OMP_NUM_THREADS": "8",
+    "NUMBA_NUM_THREADS": "8",
+    "PYTEST_ADDOPTS": "--basetemp=C:/Temp/gv20261021-p1/pytest",
+    "MPLCONFIGDIR": "C:\\Temp\\gv20261021-p1\\mpl",
+    "NUMBA_CACHE_DIR": "C:\\Temp\\gv20261021-p1\\numba"
+  }
+}

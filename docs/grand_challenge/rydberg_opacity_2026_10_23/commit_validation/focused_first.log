@@ -1,0 +1,146 @@
+........................................................................ [ 21%]
+.....................................................................F.. [ 43%]
+........................................................................ [ 64%]
+........................................................................ [ 86%]
+..............................................                           [100%]
+================================== FAILURES ===================================
+_________ test_streamlit_import_repairs_stale_experimental_csv_module _________
+
+    def test_streamlit_import_repairs_stale_experimental_csv_module():
+        # The repair guard lives with the only code that uses the CSV API — the
+        # plot card (gabes_ui/plotcard.py) — and importing the app must still run it.
+        script = r'''
+    import importlib
+    import inspect
+    import sys
+    
+    import gabes as gabes_package
+    import gabes.experimental_csv as ecsv
+    import streamlit as st
+    
+    required = (
+        "CALIBRATION_ABSOLUTE_DARK_REFERENCE",
+        "CALIBRATION_ABSOLUTE_GAIN_OFFSET",
+        "CALIBRATION_RELATIVE_EXTREMA",
+        "MAX_FILE_BYTES",
+        "ExperimentalCSVError",
+        "load_experimental_csv",
+    )
+    for name in required[:3]:
+        delattr(ecsv, name)
+    
+    real_reload = importlib.reload
+    reload_calls = []
+    import_locks = []
+    
+    def recording_reload(module):
+        reload_calls.append(module.__name__)
+        return real_reload(module)
+    
+    class StopAfterImports(BaseException):
+        pass
+    
+    def verify_bindings_then_stop(*args, **kwargs):
+        namespace = inspect.currentframe().f_back.f_globals
+        assert namespace["__name__"] == "streamlit_app"
+        plotcard = sys.modules["gabes_ui.plotcard"]
+        assert all(getattr(plotcard, name) is getattr(ecsv, name) for name in required)
+        import_lock = plotcard._EXPERIMENTAL_CSV_IMPORT_LOCK
+        assert import_lock is gabes_package._streamlit_experimental_csv_import_lock
+        import_locks.append(import_lock)
+        raise StopAfterImports
+    
+    importlib.reload = recording_reload
+    st.set_page_config = verify_bindings_then_stop
+    
+    for _ in range(2):
+        try:
+            import streamlit_app
+        except StopAfterImports:
+            pass
+        else:
+            raise AssertionError("streamlit_app continued beyond the import check")
+    
+    assert all(hasattr(ecsv, name) for name in required)
+    assert reload_calls == ["gabes.experimental_csv"]
+    assert len(import_locks) == 2 and import_locks[0] is import_locks[1]
+    '''
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            # A traceback from the child carries this repository's path, which is
+            # not decodable in the console codepage on a Korean Windows install;
+            # without this the failure message itself would fail to build.
+            encoding="utf-8",
+            errors="replace",
+            timeout=30,
+        )
+>       assert result.returncode == 0, (result.stdout or "") + (result.stderr or "")
+E       AssertionError: 2026-10-23 04:40:44.403 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+E         2026-10-23 04:40:44.429 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+E         2026-10-23 04:40:44.430 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+E         2026-10-23 04:40:44.438 WARNING streamlit.runtime.caching.cache_data_api: No runtime found, using MemoryCacheStorageManager
+E         2026-10-23 04:40:44.445 No runtime found, using MemoryCacheStorageManager
+E         Traceback (most recent call last):
+E           File "<string>", line 47, in <module>
+E           File "C:\Temp\gabes-chat-checkpoint-20261023\streamlit_app.py", line 66, in <module>
+E             ICON_SVG = _asset_text(ICON_ASSET)
+E                        ^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\caching\cache_utils.py", line 280, in __call__
+E             return self._get_or_create_cached_value(args, kwargs, spinner_message)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\caching\cache_utils.py", line 325, in _get_or_create_cached_value
+E             return self._handle_cache_miss(cache, value_key, func_args, func_kwargs)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\caching\cache_utils.py", line 384, in _handle_cache_miss
+E             computed_value = self._info.func(*func_args, **func_kwargs)
+E                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Temp\gabes-chat-checkpoint-20261023\streamlit_app.py", line 50, in _asset_text
+E             return (APP_DIR / "assets" / filename).read_text(encoding="utf-8")
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Python312\Lib\pathlib.py", line 1027, in read_text
+E             with self.open(mode='r', encoding=encoding, errors=errors) as f:
+E                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Python312\Lib\pathlib.py", line 1013, in open
+E             return io.open(self, mode, buffering, encoding, errors, newline)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E         FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Temp\\gabes-chat-checkpoint-20261023\\assets\\gabes-mark-v3.svg'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['C:\\Python312\\python.exe', '-c', '\nimport importlib\nimport inspect\nimport sys\n\nimport ga...Errno 2] No such file or directory: \'C:\\\\Temp\\\\gabes-chat-checkpoint-20261023\\\\assets\\\\gabes-mark-v3.svg\'\n').returncode
+
+tests\test_experimental_csv.py:88: AssertionError
+============================== warnings summary ===============================
+tests/test_rydberg_opacity.py::test_export_preserves_live_opacity_provenance_and_scenario_bounds[0.0]
+tests/test_rydberg_opacity.py::test_export_preserves_live_opacity_provenance_and_scenario_bounds[0.002]
+tests/test_optical_depth_contract.py::test_figures_headless_json_and_csv_share_explicit_quantity_contract[species-OD]
+tests/test_optical_depth_contract.py::test_figures_headless_json_and_csv_share_explicit_quantity_contract[species-SAS]
+tests/test_optical_depth_contract.py::test_figures_headless_json_and_csv_share_explicit_quantity_contract[generic-OD]
+tests/test_optical_depth_contract.py::test_figures_headless_json_and_csv_share_explicit_quantity_contract[generic-SAS]
+tests/test_optical_depth_contract.py::test_figures_headless_json_and_csv_share_explicit_quantity_contract[finite-probe]
+tests/test_biphoton_evidence.py::test_strict_export_preserves_evidence_and_readout_status
+  C:\Temp\gabes-chat-checkpoint-20261023\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+tests/test_fwm_generic.py::test_biphoton_ui_render_modes
+  C:\Temp\gabes-chat-checkpoint-20261023\gabes\schemes\fwm.py:4971: RuntimeWarning: More than 20 figures have been opened. Figures created through the pyplot interface (`matplotlib.pyplot.figure`) are retained until explicitly closed and may consume too much memory. (To control this warning, see the rcParam `figure.max_open_warning`). Consider using `matplotlib.pyplot.close()`.
+    figV, (axA, axP) = plt.subplots(2, 1, figsize=(8.5, 6.0), sharex=True)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+---- generated xml file: C:\Temp\gabes-chat-checkpoint-20261023-pytest.xml ----
+============================ slowest 10 durations =============================
+16.89s call     tests/test_probe_saturation.py::test_passivity_limited_probe_power_sweep_is_continuous_and_monotonic
+10.98s call     tests/test_fwm_generic.py::test_squeezing_observables_tolerate_rapid_tpd_changes
+10.77s call     tests/test_fwm_generic.py::test_fwm_headless_observables_skip_figure_generation
+8.73s call     tests/test_probe_saturation.py::test_passivity_limited_result_converges_with_intensity_radial_and_scan_grids
+7.04s call     tests/test_coincidence.py::test_fwm_spectrum_coincidence_is_an_unverified_gain_only_comparison
+6.96s call     tests/test_sas.py::test_rb85_d1_fixed_window_4x_8x_readouts_converge_within_five_percent
+5.80s setup    tests/test_rydberg_opacity.py::test_default_optical_arrays_and_finite_if_match_legacy_baseline
+5.76s call     tests/test_liveplot.py::test_csv_cache_uses_current_class_after_streamlit_module_replacement
+5.53s call     tests/test_experimental_csv.py::test_streamlit_import_repairs_stale_experimental_csv_module
+4.72s call     tests/test_probe_saturation.py::test_passivity_guard_covers_strong_pump_probe_and_small_waist_boundaries
+=========================== short test summary info ===========================
+FAILED tests/test_experimental_csv.py::test_streamlit_import_repairs_stale_experimental_csv_module
+1 failed, 333 passed, 9 warnings in 161.83s (0:02:41)

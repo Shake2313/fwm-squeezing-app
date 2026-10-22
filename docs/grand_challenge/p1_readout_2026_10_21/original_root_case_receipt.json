@@ -1,0 +1,17 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "cwd": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "started_utc": "2026-10-20T18:34:52.321641+00:00",
+  "completed_utc": "2026-10-20T18:34:58.399541+00:00",
+  "exit_code": 0,
+  "seconds": 6.077999999994063,
+  "log": "original_root_case.log"
+}

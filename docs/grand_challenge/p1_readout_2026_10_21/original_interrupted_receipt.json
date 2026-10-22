@@ -1,0 +1,12 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "observed_interruption",
+  "status": "terminated_without_completion_receipt",
+  "observed_exit_code": null,
+  "completed_progress_markers": 929,
+  "test_failure_markers": 0,
+  "source_changes": [],
+  "drive_remount_observed_local": "2026-10-21 03:27:12 +09:00",
+  "causal_status": "unconfirmed; drive remount coincides with missing controller/child",
+  "recovery": "C-drive raw-byte mirror, detached breakaway controller and local logs; absolute-root-bound test runs at original G path; no production source or frozen evidence edits"
+}

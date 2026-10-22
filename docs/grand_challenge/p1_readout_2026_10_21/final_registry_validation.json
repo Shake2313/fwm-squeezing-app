@@ -1,0 +1,19 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "passed": true,
+  "previous_done_objects_preserved": 39,
+  "new_done": 4,
+  "total_done": 43,
+  "remaining_p1": {
+    "ready": 15,
+    "needs_decision": 1,
+    "in_progress": 2,
+    "blocked_external": 2,
+    "parked": 1
+  },
+  "dependency_graph": "valid and acyclic",
+  "ledger_ids_unique": true,
+  "new_report_links_valid": 13,
+  "official_grand_challenges_identical": true
+}

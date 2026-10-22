@@ -1,0 +1,9 @@
+{
+  "exceptions": 0,
+  "scheme": "rydberg_eit",
+  "saved_opacity": 0.0005,
+  "T0": 0.9695445400198652,
+  "prediction_status": "PREDICTED",
+  "calibration_status": "UNCALIBRATED",
+  "scope": "Single actual app render via AppTest with saved control values; native browser gesture rendering not assessed"
+}

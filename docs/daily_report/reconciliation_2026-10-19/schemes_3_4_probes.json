@@ -1,0 +1,134 @@
+{
+  "provenance": "⟦AI⟧ Independent current-code checks, diagnostic model changes not applied",
+  "results": {
+    "opacity_sensitivity_nv_cm_sqrt_hz": {
+      "0.0005": 11.781990082637408,
+      "0.001": 6.0823872151659275,
+      "0.002": 3.238775722524435
+    },
+    "80_c": {
+      "transmission_zero": 1.7989228471831501e-06,
+      "heroes": [
+        {
+          "label": "EIT linewidth",
+          "value": "0.31 MHz",
+          "help": "FWHM of the central transparency feature.",
+          "tier": "hero"
+        },
+        {
+          "label": "Transmission at resonance",
+          "value": "0.000",
+          "tier": "hero"
+        }
+      ]
+    },
+    "weak_lo_heroes": [
+      {
+        "label": "Total sensitivity",
+        "value": "10.50 nV/cm/√Hz",
+        "help": "Finite-IF weak-SIG OBE response divided into the total balanced-detector ASD (PSN + RIN + electronics). This is a conditional model prediction, not the paper's 12.5 value injected as an anchor.",
+        "tier": "hero"
+      },
+      {
+        "label": "AT status",
+        "value": "doublet unresolved",
+        "kind": "status",
+        "help": "The microwave dressing is on, but the optical spectrum does not contain two resolved transparency peaks.",
+        "tier": "hero"
+      }
+    ],
+    "extra_views": {
+      "Fig. 2(b): probe-power dependence (peak amplitude & linewidth)": {
+        "filtered_full_parity": true,
+        "detector_change_atomic_compute_count": 16
+      },
+      "Cell-heating sweep: EIT and finite-IF sensitivity": {
+        "filtered_full_parity": true,
+        "detector_change_atomic_compute_count": 20
+      }
+    },
+    "affine_assembly": {
+      "array_equal": true,
+      "max_abs_error": 0.0
+    },
+    "magneto_presets": {
+      "🕳️ EIT dip": {
+        "feature": "crossover",
+        "fallback_rows": 0
+      },
+      "⛰️ EIA peak": {
+        "feature": "EIA/MIA-like peak",
+        "fallback_rows": 0
+      },
+      "🌫️ Buffer Hanle": {
+        "feature": "EIT-like dip",
+        "fallback_rows": 0
+      },
+      "✖️ Buffer LCA": {
+        "feature": "crossover",
+        "fallback_rows": 0
+      },
+      "🧭 NMOR": {
+        "feature": null,
+        "fallback_rows": 0
+      }
+    },
+    "nmor_slope_mrad_per_ut": {
+      "121": {
+        "three_point": -252.1473146467906,
+        "five_point": -285.2845067126805
+      },
+      "401": {
+        "three_point": -314.6017245613172,
+        "five_point": -321.6082508106734
+      },
+      "801": {
+        "three_point": -320.11914669106966,
+        "five_point": -321.9582874009837
+      }
+    },
+    "zero_reference": {
+      "command_zero_transmission": 0.7873603043263682,
+      "physical_zero_transmission": 0.7877886629134139,
+      "displayed_metric": {
+        "label": "Transmission at B=0",
+        "value": "0.787"
+      }
+    },
+    "paraffin_exchange_only_max_chi_relative_change": 0.3504210072863466,
+    "hanle_saved_report_recheck": {
+      "b_ut": -0.040000000000000036,
+      "transmission": 0.6425600521945513,
+      "slope_per_ut": 0.0679216370518958
+    },
+    "rydberg_bidirectional_import": {
+      "detuning_mhz": [
+        -1.0,
+        0.0,
+        1.0
+      ],
+      "signal": [
+        5.0,
+        4.5,
+        3.0
+      ],
+      "provenance_fields": [
+        "source_name",
+        "sha256",
+        "file_size_bytes",
+        "encoding",
+        "delimiter",
+        "header",
+        "x_column",
+        "y_column",
+        "total_rows",
+        "valid_rows",
+        "ignored_rows",
+        "nonfinite_rows",
+        "duplicate_rows_merged",
+        "assumptions"
+      ],
+      "assumptions": []
+    }
+  }
+}

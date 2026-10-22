@@ -1,0 +1,635 @@
+{
+  "schema": "gabes-mean-gain-gc-impact-v1",
+  "mode": "current",
+  "label": "daily",
+  "prepatch_fwm_sha256": "bba9038231826c0bb8ba2b502b492f3be822866b72f6bf4121398ae7f29937f7",
+  "loaded_fwm_sha256": "4bb3121128ab9760211bd7e2ee971c4a3db64ec6d563a48849acb0b5cc8bab04",
+  "loaded_observables_sha256": "36cdae34efbec1bfd5f1cd11ac41dd97e3d0d62347e50a7ba6737b1e32e347e4",
+  "observables_numerical_dependency_ast": {
+    "_gain_matrix_from_chi": "81323c180a50bb0df916073a1ca5f234832103539ee312c0fe79980bcbced2db",
+    "canonical_transfer_from_field": "331a5f6c00f68e35f59e59b57b8d5ff8f8837e001a7bcc7d26f895c0c0ac746c",
+    "chi_phys": "a32b591e7741505d17949898299170c6b2f42990ab2eae6f0252eb55e9b7979e",
+    "constants": "62505a9ea447a0473f55a25dadc404e57c6cd4b656486cf5c7cfe8d237fb2854",
+    "gain_from_chi": "45864f780e713ec4d237873782106b99e35dba2bd0ffb115071e61344666acb8",
+    "matrix_exp_2x2": "d352878dfc2eb82cbe0628844608806ba23807e11c75490d6a6f5a5498d93544",
+    "np": "271fc31378e1108a9784c29c3c4768de571ce080301b4ad9721ba767fcf5842b",
+    "photon_flux_mode_matrix": "43798cea63008faab43794eb17d0f9a8d3a4c3c7254a16104f9aef42083b9938"
+  },
+  "source_metadata_scope": "Baseline executes the byte-verified prepatch FWM snapshot in memory; report source_sha256 fields and historical validators inspect the physical working-tree files independently. Numerical payload comparison excludes only source hashes and environment; no old evidence is rehashed.",
+  "all_21_entrypoints_imported": [
+    "atomic_noise_audit",
+    "downstream_audit",
+    "field_noise_audit",
+    "foundation_audit",
+    "kinetic_audit",
+    "normalization_audit",
+    "periodic_field_audit",
+    "periodic_noise_audit",
+    "readout_audit",
+    "seed_validity_audit",
+    "spatial_audit",
+    "transport_ensemble_audit",
+    "adjoint_transport_audit",
+    "exponential_transport_audit",
+    "kinetic_refinement_audit",
+    "rb_thermal_ensemble_audit",
+    "rb_thermal_reference_jobs",
+    "rb_transport_audit",
+    "smooth_transport_audit",
+    "spatial_field_audit",
+    "spatial_uncertainty_audit"
+  ],
+  "fwm_numerical_dependency_ast": {
+    "@module_control_0": "98586bcbe0e7033346e77c6d77b392f568051af4acfd6a664a95abc92e623c83",
+    "ATOM": "2a03c81fbd786f84780d66cffec02ef91f073ee9de3bb226ee12c159a145e93f",
+    "E2": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "E3": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "EXCITED_F": "b89c236556668548820e8fff091dd0d9453e32922d8b6260187d03e8b8d38b8e",
+    "EXCITED_STATES": "215d1eb3dcfbdaf25adb8b4cd0b5bc6a1e43c9afc7ca5fccb6fd8cc5310bbc8c",
+    "G1": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "G2": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "GROUND_F": "461310c25863f99b2770011eeec299a791228a311dd5193feaf4886387f56f32",
+    "N_LEVELS": "d79f67c261c8188fe4dd97713628d5b9b481ba0cfaaa90c82b1f15fdd7ddbfbe",
+    "OMEGA_EXCITED_HF": "6644e0976dca340199c036d56730924012f33acb941934d414847121fe3ea9b7",
+    "OMEGA_HF": "6644e0976dca340199c036d56730924012f33acb941934d414847121fe3ea9b7",
+    "PumpWeakResponseReference": "65be62bb5e19cea8a97f458aee64f544a2aeda25db03cea8a33747d5e7a4f983",
+    "TRANSITION_DIPOLE_SCALE": "837802a753a0756b86a75b643c1d38d555a3f826657497af3b9363600a72fcb4",
+    "T_CELL": "a4ec4f9a5df9706d4c594233914f362546fee7ed7902efee25a1f260d47b9be2",
+    "W_PUMP": "337f4226c2716821b4359615c9eba2cda4dcaef1df8b0d4243376fafc9e02928",
+    "_add_static_drive": "43669a8b2046958a0cd03a5c9cdef704dc7262ac250ad635c572b9895519ffa1",
+    "_pump_nambu_operators": "af2e885c620288eed7b243e0b9485fb69bd5feb26462f453b5768ed4f4e8512a",
+    "_pump_reference_system": "8edb99418f83030ea582cfb39f54925697981a2f850fc2eaafde63e322c3a9da",
+    "atoms": "f85b86af051617aa1a16df544a77993b0098b975e9d309a8220452a566795d1e",
+    "build_liouvillian": "caa8d511ba6bcd06b685905e5adba0e004c752dda4d6bf7ac89c86f8ebf50422",
+    "collisional_atom": "04971cf4afd38eb306d01f84d73519f0ee3e68682553126a1fecdc63ba8c87fc",
+    "comm_super": "caa8d511ba6bcd06b685905e5adba0e004c752dda4d6bf7ac89c86f8ebf50422",
+    "constants": "f85b86af051617aa1a16df544a77993b0098b975e9d309a8220452a566795d1e",
+    "dataclass": "321ed2ed3afceb74be547c9905ed4c676e453b1a68fe7cb2d3e214caeac2624d",
+    "hyperfine": "f85b86af051617aa1a16df544a77993b0098b975e9d309a8220452a566795d1e",
+    "np": "271fc31378e1108a9784c29c3c4768de571ce080301b4ad9721ba767fcf5842b",
+    "pump_hamiltonian_at_Deff_zero": "70588defdcdb8e4741ff4a9be0fdc55fb32906fb73719a9d972b23016cb812da",
+    "pump_only_weak_response_reference": "60cdc4a254004638f475e12052d2933b4ec8e49694c29f8d938e37ccba297e00",
+    "pump_weak_response_reference_provenance": "f61fcc891da15de38800e7a29958794aab0fa9cdbf464293456924524e0c8c77",
+    "rabi_freq": "6644e0976dca340199c036d56730924012f33acb941934d414847121fe3ea9b7",
+    "steady_state_batched": "caa8d511ba6bcd06b685905e5adba0e004c752dda4d6bf7ac89c86f8ebf50422",
+    "thermal_transit_reset_superoperator": "3b384dd4ca6f905dd2c43b241c7d41333fc62b9d422a01c263282e3556f729d8",
+    "trace_zero_liouvillian_response": "caa8d511ba6bcd06b685905e5adba0e004c752dda4d6bf7ac89c86f8ebf50422"
+  },
+  "fwm_numerical_dependency_bound_ast": {
+    "@module_control_0": "98586bcbe0e7033346e77c6d77b392f568051af4acfd6a664a95abc92e623c83",
+    "ATOM": "2a03c81fbd786f84780d66cffec02ef91f073ee9de3bb226ee12c159a145e93f",
+    "E2": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "E3": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "EXCITED_F": "b89c236556668548820e8fff091dd0d9453e32922d8b6260187d03e8b8d38b8e",
+    "EXCITED_STATES": "215d1eb3dcfbdaf25adb8b4cd0b5bc6a1e43c9afc7ca5fccb6fd8cc5310bbc8c",
+    "G1": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "G2": "9285486c088110057e471c50fc0a0c42f07a0d4fa0877083aca648ebf4ad691e",
+    "GROUND_F": "461310c25863f99b2770011eeec299a791228a311dd5193feaf4886387f56f32",
+    "N_LEVELS": "d79f67c261c8188fe4dd97713628d5b9b481ba0cfaaa90c82b1f15fdd7ddbfbe",
+    "OMEGA_EXCITED_HF": "9c553af706d06d75179974e66ad9c2ea2fbfe3ef24001e0e4ebdeb1fde54d9fa",
+    "OMEGA_HF": "7777f8346c9999031604396d213a711efcd929b91b3cade0a6a371d74c698f72",
+    "PumpWeakResponseReference": "65be62bb5e19cea8a97f458aee64f544a2aeda25db03cea8a33747d5e7a4f983",
+    "TRANSITION_DIPOLE_SCALE": "837802a753a0756b86a75b643c1d38d555a3f826657497af3b9363600a72fcb4",
+    "T_CELL": "a4ec4f9a5df9706d4c594233914f362546fee7ed7902efee25a1f260d47b9be2",
+    "W_PUMP": "337f4226c2716821b4359615c9eba2cda4dcaef1df8b0d4243376fafc9e02928",
+    "_add_static_drive": "43669a8b2046958a0cd03a5c9cdef704dc7262ac250ad635c572b9895519ffa1",
+    "_pump_nambu_operators": "af2e885c620288eed7b243e0b9485fb69bd5feb26462f453b5768ed4f4e8512a",
+    "_pump_reference_system": "8edb99418f83030ea582cfb39f54925697981a2f850fc2eaafde63e322c3a9da",
+    "atoms": "bfc8924be521bd09489b9c7b6ff33c4efda64f760a073d86313530b8e379b12d",
+    "build_liouvillian": "6c8d095de2756f59764198c56de17e904c7a3ec14ada7b0ecea0fe5a2b9a2cfd",
+    "collisional_atom": "04971cf4afd38eb306d01f84d73519f0ee3e68682553126a1fecdc63ba8c87fc",
+    "comm_super": "3604d8fcb8850f4fbef9b14ec3f46a4f2c35036812edb524d01cf434a83ec883",
+    "constants": "5fb07eb1fee0f6cfbaafcd8df902f9d6103d1616a9cb3a1f7a1594d29476c267",
+    "dataclass": "321ed2ed3afceb74be547c9905ed4c676e453b1a68fe7cb2d3e214caeac2624d",
+    "hyperfine": "81a5eefcadd9282780201f5216a9c4cb71e515f597f492a9124404557327e711",
+    "np": "271fc31378e1108a9784c29c3c4768de571ce080301b4ad9721ba767fcf5842b",
+    "pump_hamiltonian_at_Deff_zero": "70588defdcdb8e4741ff4a9be0fdc55fb32906fb73719a9d972b23016cb812da",
+    "pump_only_weak_response_reference": "60cdc4a254004638f475e12052d2933b4ec8e49694c29f8d938e37ccba297e00",
+    "pump_weak_response_reference_provenance": "f61fcc891da15de38800e7a29958794aab0fa9cdbf464293456924524e0c8c77",
+    "rabi_freq": "3b3a8bc6f0c2075a37aaf94e1c76382853c104d9e33d1d33f43502a3490aeaf5",
+    "steady_state_batched": "f901a8743539f092f477c3c729f2b255242c79e85b53f6d6baa28f1f9d881fbb",
+    "thermal_transit_reset_superoperator": "3b384dd4ca6f905dd2c43b241c7d41333fc62b9d422a01c263282e3556f729d8",
+    "trace_zero_liouvillian_response": "3a7c52237a30d7cdec1c07f33f29a80f959f22e4517d2a98cb380b224c197729"
+  },
+  "observables_numerical_dependency_bound_ast": {
+    "_gain_matrix_from_chi": "81323c180a50bb0df916073a1ca5f234832103539ee312c0fe79980bcbced2db",
+    "canonical_transfer_from_field": "331a5f6c00f68e35f59e59b57b8d5ff8f8837e001a7bcc7d26f895c0c0ac746c",
+    "chi_phys": "a32b591e7741505d17949898299170c6b2f42990ab2eae6f0252eb55e9b7979e",
+    "constants": "62505a9ea447a0473f55a25dadc404e57c6cd4b656486cf5c7cfe8d237fb2854",
+    "gain_from_chi": "45864f780e713ec4d237873782106b99e35dba2bd0ffb115071e61344666acb8",
+    "matrix_exp_2x2": "d352878dfc2eb82cbe0628844608806ba23807e11c75490d6a6f5a5498d93544",
+    "np": "271fc31378e1108a9784c29c3c4768de571ce080301b4ad9721ba767fcf5842b",
+    "photon_flux_mode_matrix": "43798cea63008faab43794eb17d0f9a8d3a4c3c7254a16104f9aef42083b9938"
+  },
+  "fwm_runtime_constants": {
+    "EXCITED_F": {
+      "2": 2,
+      "3": 3
+    },
+    "EXCITED_STATES": [
+      2,
+      3
+    ],
+    "G1": 0,
+    "G2": 1,
+    "GROUND_F": {
+      "0": 2,
+      "1": 3
+    },
+    "N_LEVELS": 4,
+    "OMEGA_EXCITED_HF": 2271874143.3699946,
+    "OMEGA_HF": 19074069457.25325,
+    "TRANSITION_DIPOLE_SCALE": [
+      [
+        0.0,
+        0.0,
+        0.6085806194501846,
+        1.1385500851066221
+      ],
+      [
+        0.0,
+        0.0,
+        1.1385500851066221,
+        1.0183501544346312
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "T_CELL": 394.15,
+    "W_PUMP": 0.00053
+  },
+  "numerical_source_sha256": {
+    "analysis/grand_challenge/adjoint_transport_audit.py": "75d987a0594e5876beb193b36c0b99ce1ec7bc0ad94ffe13958b9d3a86e053c3",
+    "analysis/grand_challenge/atomic_noise_audit.py": "9aaaed3834ed804edb2185b9ad78995dcfa0e56e9c50a1af2d3841a3f0768e65",
+    "analysis/grand_challenge/downstream_audit.py": "210c810669e0334de25997e5a66c95172c5cc6dfcd858e9341d7170d4975c832",
+    "analysis/grand_challenge/exponential_transport_audit.py": "55c1755ed43bded2233caca8164b6f9075c839360c61e4f1a286fff6105fa3fe",
+    "analysis/grand_challenge/field_noise_audit.py": "3f7b7fa801ac1ec1dd7a48264a8a7d0b10824cf2496ddd702a22ee467292ff5c",
+    "analysis/grand_challenge/foundation_audit.py": "657b9711235a85700586e5b95fbcdab69a3ac6e4579bd1c93396a18cc35e7d59",
+    "analysis/grand_challenge/inflow_audit.py": "8fb853b2aef0adf6a084e6f2df65a496771c02ab61e9bfe50079742945833152",
+    "analysis/grand_challenge/kinetic_audit.py": "a60091241d0f649241633e5f0bf71692343058f3893bc0fdc52b50a7e297b75b",
+    "analysis/grand_challenge/kinetic_refinement_audit.py": "9d06de6a319e0b75990e50778d40e094d3be3b9854e58beaa87746d5c49bde7f",
+    "analysis/grand_challenge/normalization_audit.py": "d9d5215b8d822bbb0d0a5cafc384b86a357eb1059771066757796552e6b23f67",
+    "analysis/grand_challenge/periodic_field_audit.py": "7f9c0806e1734ca3eede9e898875469c719953e543e77e1d13797b2a5a698427",
+    "analysis/grand_challenge/periodic_noise_audit.py": "1865a858607152af844e1fb0019363179ee6ef5001f6e8aebe1d62aa7a0c2058",
+    "analysis/grand_challenge/rb_thermal_ensemble.py": "8dec590392dd4801261f02c006ffc05409cf0592ac067123e8bd815dfcd53ba0",
+    "analysis/grand_challenge/rb_thermal_ensemble_audit.py": "ce61af4629ec8731fe5d60522fa68a2921389e593e72134744fcec28ce280509",
+    "analysis/grand_challenge/rb_thermal_reference_jobs.py": "8435761140df87cf4cd71771b871113600a0d007632707343abbe7a4a9afe480",
+    "analysis/grand_challenge/rb_transport_audit.py": "f461544ec693e0b3132334498ebb5e03ae4d1195d285ca7fb0ace425b11fdff0",
+    "analysis/grand_challenge/readout_audit.py": "11c602f1a42e5254594f50b196b7f8165fdd257b4f55345e3ba4ce8bd6b1a8e9",
+    "analysis/grand_challenge/reference/adjoint_transport.py": "638228fa43f634901825d23b22ef107c8c6df0d8acc1e5373a1cecc9c087544f",
+    "analysis/grand_challenge/reference/atomic_qrt.py": "517f7abbb9b45d40fa3e4373b44240e6a5bd86f4ece3cc9434fa682825e6b35d",
+    "analysis/grand_challenge/reference/ballistic_linear_channel.py": "5f517494fa01a0b1f67a3fb4a8e8419a2648584cbdbee954958a43726c8e1515",
+    "analysis/grand_challenge/reference/direct_readout.py": "561a8b44415618a4127ff2774fa633457700145d9e8617057105de9d5454f3ac",
+    "analysis/grand_challenge/reference/exponential_transport.py": "4277edf26d5d54567ca51449f040c3f19287d295957b03c8eaabbf2f08b24861",
+    "analysis/grand_challenge/reference/fock_photocurrent.py": "8fedabb98b1b9193db41bb17650d29ebb178c3fe819937bbe604010ef7df2325",
+    "analysis/grand_challenge/reference/kinetic.py": "b0b9ba55cd448c8ddfb7d4d34a7b3a6b4d5fc1f2dfc76940dbef5ca19c91ec5c",
+    "analysis/grand_challenge/reference/periodic_field.py": "7fbd76a3f4d969abe4df2d84fe3657afd7f4176964944a30b2a51cae16642972",
+    "analysis/grand_challenge/reference/periodic_qrt.py": "bfa6fde63b7e769a1e5f3204841cd0f324cf27fa55b249e2e86f1c3ef1e698a3",
+    "analysis/grand_challenge/reference/segmented_qrt.py": "03d5d5ae261f77155fcf6da62f98ee1dc9763d6bea0207842fc57096e9b4d489",
+    "analysis/grand_challenge/reference/smooth_qrt.py": "385d5097bb9013ce84f79e0471d3834c9085a583d0f583ad0bdc83c8c45ec8b7",
+    "analysis/grand_challenge/reference/spatial_field.py": "14cfdfb241a85e9bc992715e378354477eb2e76222b4b145c833c063fafd9926",
+    "analysis/grand_challenge/reference/torus_qrt.py": "fac1b05ab70f7c3c5a84a872d50ed0e0cdd5b60e54bbed0835e858ac37343ab6",
+    "analysis/grand_challenge/reference/transport_qrt.py": "53909f46b7e703bc045ee62fe77f99cb6a8460105846fd8f77387b3f8a4dbd05",
+    "analysis/grand_challenge/reference/uncoupled_d1.py": "9047710dbfa7b17ddf66ad08c157bc7a1f998125c98a282b4c350a22b8d9c87b",
+    "analysis/grand_challenge/regime_variance_review.py": "7d871fd9cea1c5eecf2975a916ad0f8ecb7673e8b8da21ba08ffec4a307ce62b",
+    "analysis/grand_challenge/seed_validity_audit.py": "827b708f0181e3d31e873768862b45a27fb2bf832c17ababf3a6c9aae3bcac83",
+    "analysis/grand_challenge/smooth_transport_audit.py": "d4f5984b8605234779af901dfe8b2ecad06bc2d1f0ae20074fe81ff3b3792589",
+    "analysis/grand_challenge/smooth_transport_qrt_refinement.py": "4dbd292a6489a620f17c76f453aaaa9b3c29eaef9f2c3a9a9911f4b10c016549",
+    "analysis/grand_challenge/source_provenance.py": "0cd225db2b84094886cf488d6167a893b2e3d86f695dcc3942befe447a940bbf",
+    "analysis/grand_challenge/spatial_audit.py": "2931702dc7e491eb05ac5a983112330271dabc7c3cda695c2259454fefdff096",
+    "analysis/grand_challenge/spatial_field_audit.py": "2d367e5d31719a6b5a877b33b1e333764208193713bc361571824d82bbe8a47c",
+    "analysis/grand_challenge/spatial_uncertainty_audit.py": "55406c43495c9b3c57a22468f25f2766b5eb0238daf3f6f42d192427fa56b914",
+    "analysis/grand_challenge/thermal_campaign.py": "ff3ba03f3401877374e987abe3c5b30d0b7da4bf8b290e27c24a3e18d08d7387",
+    "analysis/grand_challenge/transport_audit.py": "12a80c8f5afc2795711c03b1e32369b0a88c432982d2a830f81ea5973b6fda39",
+    "analysis/grand_challenge/transport_ensemble_audit.py": "e1eba5371eeb667e1fc6ef837d235fceefcbd5ec0b5e93713477fb9c2824bc18",
+    "analysis/grand_challenge/transport_ensemble_refinement.py": "5c9e24dd73247a9bbf3604e622ec9bb4b8401e7c825fab2434f919bcfa00de8f",
+    "analysis/grand_challenge/transport_fixtures.py": "d89ebb6f50aa7a9438d4a3767a78f922103527f249f4dfc2a4c44c14a30da2a3",
+    "analysis/grand_challenge/variance_reduction_pilot_shadow.py": "d9839dd2f6400655d5a7742917722600bad4d7d75d2308b1fa3622d817acb433",
+    "analysis/grand_challenge/variance_reduction_review.py": "80104ee806780f8e45260431f479ccee3b27584f3862924817ac2759ebe9185a",
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/atoms.py": "79a87223ae8976aba1659b3dea798043f07dd6478aa6d0ee8d8146115b657b94",
+    "gabes/constants.py": "e0e078f925ccbe11f4c6ef5eba2219a7c21697b5030bf90dcddb9276b7ff6589",
+    "gabes/core.py": "3ac1f199dcb2f610d5ba5fb2fa6a18617536d33ed3705a8d2e340e94444d4d5a",
+    "gabes/doppler.py": "c2fd00c6c79d53ec7743004c7abbd57749adaa6e319e039adb7ec08c9fa5a10c",
+    "gabes/fwm_quantum/__init__.py": "484ef009fe081a938ab6e95f6a0237682890e81308ce92a2db9d12616f0321e2",
+    "gabes/fwm_quantum/field.py": "4971bbd15666d1cb092a4cd0833789ec5535504894fc0b08f2e4aea2672f63cd",
+    "gabes/fwm_quantum/inputs.py": "2534b2073cfeaa290f69c1333d71cb047643d3acc49c048b283ebf2a65f646c5",
+    "gabes/fwm_quantum/kinetic.py": "97ccfc4e108ef0158551f71f8f3c67c56ef6f1833dfed3f47a010123b8fc0dbc",
+    "gabes/fwm_quantum/model.py": "8416d286bcd6a76c422bbdd2b8b8bca437a06572f77c0dace6402568207633d5",
+    "gabes/fwm_quantum/normalization.py": "80258995fa27fb0a811fcc267631cfd291b4ab376792b8fefebfbe069d58c106",
+    "gabes/fwm_quantum/periodic.py": "56cf4e42959d7db9f290628a4956ae755eff725bcfd5c677bdc1ed48f41f3dc9",
+    "gabes/fwm_quantum/periodic_cell.py": "a3a9dfb11a320ea6a751c6a23afd5ab287ad8094cd525b20be71810b12ae970d",
+    "gabes/fwm_quantum/readout.py": "793afd1d8cc0c49fbdd053f32f8c5b7b910e4ab06da96075418db06624b97f63",
+    "gabes/fwm_quantum/seed_validity.py": "a7ee4d273c232c0debf64e8cde913a1ddd0050c591df468aac0111b7cddb7e9d",
+    "gabes/fwm_quantum/smooth_transport.py": "5cb5c6682e375b9a273a0abc325af2af6a28742981c5174826e1569e3592984c",
+    "gabes/fwm_quantum/spatial.py": "0e84b807ffdba30a245705057c19a09ea4a652445ad10a13fbe6d4658592f9b4",
+    "gabes/fwm_quantum/spatial_cell.py": "4b6321ae9df11e55d7d4d9335f9471179e185480ff3de3b698d52fd0edfd2ec5",
+    "gabes/fwm_quantum/transport.py": "a4279e9e322e1a0c19a85c2a3edd02e0721e80796f8440c25402d99a7930b858",
+    "gabes/fwm_quantum/transport_ensemble.py": "6a11257abdbddcd0163639dbba230764863b7ce0661c646b936e05475efb63f3",
+    "gabes/hyperfine.py": "e3dfcffceb45c529b81fa4988c9f3aebc2199a8173aa3fbb4acc28c2e5a5818b",
+    "gabes/kernels.py": "b08533c8c2ca403f9da114d8de96539a518cf5b23e25415dfea88bb6672880b8",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/observables.py": "36cdae34efbec1bfd5f1cd11ac41dd97e3d0d62347e50a7ba6737b1e32e347e4",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "gabes/quantum/__init__.py": "f2901826a4fe9bb28fdd92723b2b5b88a82a311a31e0488263dc9b93e3ba6316",
+    "gabes/quantum/channels.py": "bcb7a2846602d1d1b68a1fd4ae0ee1e6df5b7b7ed2e1c47c5cee3f6ea46a46c0",
+    "gabes/quantum/contracts.py": "aa058acda4035e6f3654643ba96c592e756c5dfc8bf052f814ce293447c01c9f",
+    "gabes/quantum/diffusion.py": "4cc9f87433f07e8c83ba38be44ec24f11055f1256ee8a17dec20bd749f2fd63b",
+    "gabes/quantum/inflow.py": "303b9d73a9e518dc16e250a653da48fa837e53f22ff754e81ecc3739bb3ce5d2",
+    "gabes/quantum/periodic.py": "d198677a9090441d51111eb5e898ce4316860d92a3672724963d03c72467b22c",
+    "gabes/quantum/periodic_field.py": "1f9e336edfc505c5db24d994d0c0c3eda6f4aadaafbb284d3b749f04cc856fc2",
+    "gabes/quantum/photocounting.py": "92bce96856fe1f3e12d9600c6da2bae7f95a6619d1750a1be6a39da31d5e9c0c",
+    "gabes/quantum/readout.py": "ce4e8d08f5a44298e7e5948d9c48adcf1bb2aa4a10f51ea275abb4005620b7cb",
+    "gabes/quantum/reservoirs.py": "ce4f4f648dc53bb520b61515ba9c422ffece87423ae3dc68c442078cf858c01c",
+    "gabes/quantum/segmented_transport.py": "8a62bac3053f13678e38df7f85198cf9d6a4502701172de9d8b016735f258941",
+    "gabes/quantum/sidebands.py": "c2c2b3a8d13881a522acabb97c1933ddac8f042b4e356a11b70727e84889d225",
+    "gabes/quantum/smooth_transport.py": "95f00437ac8bbab32383dd5e621205e4075c4d24c8482d407a6dd1028c3f45b9",
+    "gabes/quantum/spatial.py": "ff9bfb9e3dbd9ecb1b85efd9e69f274ce79e3949ba063fd95f5becf1e4c1e145",
+    "gabes/quantum/spatial_modes.py": "9516283b9b7d298f25e14a784279831809f3e6219710ff0a2f7e0fef182edc8c",
+    "gabes/quantum/spectrum_analysis.py": "b86df3c416a10c406facda0ac8bc207c3a6deceaf26c103e8b3795cae9bb2fa8",
+    "gabes/quantum/transport.py": "de3543b1b580065924aefd09d2a1dd9029b64b1d0ae9bd91e78b44adfc3200f1",
+    "gabes/quantum/traveling.py": "7ad8b96a813fb3d3d34308c16a58f4fcdb2d25325368257479ac56f0b1051d7f",
+    "gabes/quantum/uncertainty.py": "2400c553ab49a0e76169e158f645820485dedc20fe72ad9435c8282a6126969a",
+    "gabes/schemes/base.py": "33d1ca1a2e4860a738451f4930f9e6c64f8bf07997a5bd2d7edf66afffa35361",
+    "gabes/species.py": "932a47c8ab3bacb025c53d88294c388c32dad5c9387f246086eb42180d98e960",
+    "gabes/zeeman.py": "543ae7e8888b8d6c491d8e5884a698bf639f300c9d624ed2eb66b8fe345923b2"
+  },
+  "sealed_artifact_sha256": {
+    "docs/grand_challenge/adjoint_transport_report_v1.json": "214019ff0ded03d6581e372247f534323b5d52bf7d296fe92c74f48514652865",
+    "docs/grand_challenge/exponential_transport_report_v1.json": "53d4e70834afd5079b08059162ba45efd7aad415cd4174751d2d959431bf5ed1",
+    "docs/grand_challenge/inflow_report_v1.json": "262ecbfe648ad45f45845e2b31f33396fdc972c59ef7181b5a46ec55c37d63bc",
+    "docs/grand_challenge/rb_thermal_ensemble_report_v1.json": "0143841d3016cfbcb26b78f42ff20d9150e3b01f61c54a35f2dbb2bc803a4860",
+    "docs/grand_challenge/rb_thermal_ensemble_report_v2.json": "802c06bb72a04367c38c8868f4abd8666572f4931e6f63d8ce605d0dbf600282",
+    "docs/grand_challenge/rb_thermal_ensemble_report_v3.json": "c5cfc2142020b38648ab8ccbbc7a68ad777690647057cdf33c6ee13848f2737f",
+    "docs/grand_challenge/rb_transport_report_v1.json": "2edcfed7c44c51a7458af167c811b5bb899a8c9331f811850b2112fa9983e24b",
+    "docs/grand_challenge/s0_foundation_report.json": "edc17c9df20e488d8240baba46f562d01e99fbcfeb90aa1f0a4b1c8ae5076f2b",
+    "docs/grand_challenge/s1_atomic_noise_report.json": "bd71d30ab6b0acd92035bd3aac16b8ffd1a3787702f19de0d63484d171f928ea",
+    "docs/grand_challenge/s1_field_noise_report.json": "25c45e90ae18c25a728732223bf1529bfabbb9e4fdbf35995f74c745d27b10fa",
+    "docs/grand_challenge/s1_kinetic_report.json": "d635edbbf4209979efb80da790aacbd20f08fb4c68ede54a4019e619d04504dc",
+    "docs/grand_challenge/s1_kinetic_report_v2.json": "18d0e6dbd347e9f05e27b133676d72beb89fa262237cf4ad129dead73df30b38",
+    "docs/grand_challenge/s1_normalization_report.json": "6d7510df6e9865058eb5fe398e0a0f9aa28c89fdf3e5340b01cbcab6ddd074b9",
+    "docs/grand_challenge/s1_periodic_field_report.json": "f40e6e76a1e857b1765faed92a78cffbfd0edc26f0ea751dfb3de63ba068726e",
+    "docs/grand_challenge/s1_periodic_field_report_v2.json": "3b1d8fca9fa0c096d0a6550da4bed6e8a858096170f04246f851e69790db53a6",
+    "docs/grand_challenge/s1_periodic_noise_report.json": "fcbe7a9b84c2760c4d5f7d84266d9b805dec497a60f600ccff2de9f815710a78",
+    "docs/grand_challenge/s1_periodic_noise_report_v2.json": "d383599c2603718da822c8583d302229e8fb929092dde6b5855ed16879a0c3c7",
+    "docs/grand_challenge/s1_readout_report.json": "b7ca41291da080861f25a61664bc9fd7b08484280b08e4ea2cc82e192e163591",
+    "docs/grand_challenge/s1_readout_report_v2.json": "3624e54752ff9d08c4ed43e8a7814b362d54eaf2f75e6ffae87783a4234e8c0c",
+    "docs/grand_challenge/s1_seed_validity_report.json": "14833e673ad1b62ba8390221754fdc39c9b8b5ce103e07e9672f78aee8c25618",
+    "docs/grand_challenge/s1_seed_validity_report_v2.json": "587d618963a252416d62d80d48e78015c4a238c5ec921ed2629acff0eee29329",
+    "docs/grand_challenge/s1_spatial_field_report.json": "f4bfeb5fe422456f0a070964a7b91fa8caabfc3eaccfcf95157c1b52dac0b07d",
+    "docs/grand_challenge/s1_spatial_field_report_v2.json": "0eb3341ba520db72066ecc6116be848a3134c1191a5008a0e3d17f9c975728d0",
+    "docs/grand_challenge/s1_spatial_report.json": "525b9cecaa604be061f945fe1dd338f6fcb147846ae89ff4e907ff2af5b01682",
+    "docs/grand_challenge/s1_transport_report.json": "403a36979eb1fe58c39bed5276092af1ba58f6d137471fcac85dae948c312cc4",
+    "docs/grand_challenge/s1_transport_report_v2.json": "a268828ab763f6d9d87913c453a20a86f164f657bcc57491c5392662ca386e32",
+    "docs/grand_challenge/s2_downstream_report.json": "4e7e8151404ee1962fc34d39a3ee5c31ad2b7515f67c88d4aa4e1a861ba9af0a",
+    "docs/grand_challenge/s2_downstream_report_v2.json": "b38f19a3f60da53afb85695eff4417a232767ce9fbd211c2c95ef30f07786bef",
+    "docs/grand_challenge/smooth_transport_report_v1.json": "783953243fc4a8d7159119917c93ee24732db6f2baf911b64edb436275a4e004",
+    "docs/grand_challenge/smooth_transport_report_v2.json": "b25dd8b30316f1568ca47d82b136941bd7168e9bee4738058e7d8f909b747578",
+    "docs/grand_challenge/spatial_uncertainty_report_v1.json": "58a57a572674a78834d391f399cde40080d69c72b0f3bb08b3948f3860285346",
+    "docs/grand_challenge/thermal_campaign_v2/plan.json": "749f6f661b85e1662fe2a33f0def452702df30447d67074d8d81d8550f15cdfb",
+    "docs/grand_challenge/thermal_campaign_v2/sources.zip": "db9e039c85ba7757d9402d76e4632a039e9a016253d105af7d24fc83da8b4f80",
+    "docs/grand_challenge/transport_ensemble_refinement_report_v1.json": "82bf1f805257145e06091a51babe62ba4fd865eda61aef3b4fa47aca8f89c9bf",
+    "docs/grand_challenge/transport_ensemble_report_v1.json": "b2571c4777456b0a53ce528bfefecbc99c9dc013f475e79719f29948b9d9141c",
+    "tests/baseline_focused.npz": "e6adff1479c1a6b4ed58943809e3be77a2944b7df170c0ec46e00f231eea0324",
+    "tests/baseline_focused_manifest.json": "94b406c37cb2bcbbf6dbe1892ebe8fe3aa3ea32290d41ff1e46e5bd8075533e6"
+  },
+  "historical_source_inventory": {
+    "adjoint_transport_report_v1.json": {
+      "source_count": 34,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py",
+        "tests/quantum/test_adjoint_transport_audit.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "exponential_transport_report_v1.json": {
+      "source_count": 38,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py",
+        "tests/quantum/test_adjoint_transport_audit.py",
+        "tests/quantum/test_exponential_transport_audit.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "rb_transport_report_v1.json": {
+      "source_count": 24,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s0_foundation_report.json": {
+      "source_count": 9,
+      "changed_parent_sources": [
+        "gabes/schemes/fwm.py",
+        "gabes/quantum/contracts.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": false
+    },
+    "s1_atomic_noise_report.json": {
+      "source_count": 11,
+      "changed_parent_sources": [
+        "gabes/schemes/fwm.py",
+        "gabes/fwm_quantum/model.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": false
+    },
+    "s1_field_noise_report.json": {
+      "source_count": 15,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py",
+        "gabes/fwm_quantum/model.py",
+        "gabes/fwm_quantum/field.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_kinetic_report.json": {
+      "source_count": 35,
+      "changed_parent_sources": [
+        "gabes/doppler.py",
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_kinetic_report_v2.json": {
+      "source_count": 36,
+      "changed_parent_sources": [
+        "gabes/doppler.py",
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_normalization_report.json": {
+      "source_count": 26,
+      "changed_parent_sources": [
+        "gabes/fwm_quantum/model.py",
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_periodic_field_report.json": {
+      "source_count": 33,
+      "changed_parent_sources": [
+        "analysis/grand_challenge/periodic_field_audit.py",
+        "gabes/fwm_quantum/periodic_cell.py",
+        "gabes/observables.py",
+        "gabes/quantum/periodic_field.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_periodic_field_report_v2.json": {
+      "source_count": 33,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_periodic_noise_report.json": {
+      "source_count": 31,
+      "changed_parent_sources": [
+        "analysis/grand_challenge/periodic_noise_audit.py",
+        "gabes/observables.py",
+        "gabes/quantum/periodic.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_periodic_noise_report_v2.json": {
+      "source_count": 31,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_readout_report.json": {
+      "source_count": 20,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py",
+        "gabes/fwm_quantum/model.py",
+        "gabes/fwm_quantum/field.py",
+        "gabes/fwm_quantum/readout.py",
+        "analysis/grand_challenge/readout_audit.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_readout_report_v2.json": {
+      "source_count": 20,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py",
+        "gabes/fwm_quantum/model.py",
+        "gabes/fwm_quantum/field.py",
+        "gabes/fwm_quantum/readout.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_seed_validity_report.json": {
+      "source_count": 28,
+      "changed_parent_sources": [
+        "analysis/grand_challenge/seed_validity_audit.py",
+        "gabes/fwm_quantum/model.py",
+        "gabes/observables.py",
+        "gabes/quantum/photocounting.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_seed_validity_report_v2.json": {
+      "source_count": 28,
+      "changed_parent_sources": [
+        "gabes/fwm_quantum/model.py",
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_spatial_field_report.json": {
+      "source_count": 31,
+      "changed_parent_sources": [
+        "gabes/kernels.py",
+        "analysis/grand_challenge/spatial_field_audit.py"
+      ],
+      "tracks_fwm": false,
+      "tracks_observables": false
+    },
+    "s1_spatial_field_report_v2.json": {
+      "source_count": 41,
+      "changed_parent_sources": [
+        "gabes/kernels.py",
+        "gabes/observables.py",
+        "gabes/doppler.py",
+        "gabes/schemes/fwm.py",
+        "gabes/schemes/base.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_spatial_report.json": {
+      "source_count": 36,
+      "changed_parent_sources": [
+        "gabes/doppler.py",
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s1_transport_report.json": {
+      "source_count": 12,
+      "changed_parent_sources": [
+        "tests/quantum/test_transport.py"
+      ],
+      "tracks_fwm": false,
+      "tracks_observables": false
+    },
+    "s1_transport_report_v2.json": {
+      "source_count": 12,
+      "changed_parent_sources": [],
+      "tracks_fwm": false,
+      "tracks_observables": false
+    },
+    "s2_downstream_report.json": {
+      "source_count": 25,
+      "changed_parent_sources": [
+        "gabes/schemes/fwm.py",
+        "gabes/observables.py",
+        "gabes/quantum/uncertainty.py",
+        "gabes/quantum/spectrum_analysis.py",
+        "analysis/grand_challenge/downstream_audit.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "s2_downstream_report_v2.json": {
+      "source_count": 25,
+      "changed_parent_sources": [
+        "gabes/schemes/fwm.py",
+        "gabes/observables.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "smooth_transport_report_v1.json": {
+      "source_count": 27,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "smooth_transport_report_v2.json": {
+      "source_count": 28,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    },
+    "spatial_uncertainty_report_v1.json": {
+      "source_count": 34,
+      "changed_parent_sources": [
+        "gabes/observables.py",
+        "gabes/schemes/base.py",
+        "gabes/schemes/fwm.py"
+      ],
+      "tracks_fwm": true,
+      "tracks_observables": true
+    }
+  },
+  "historical_validator_behavior": {
+    "adjoint_parent": {
+      "accepted": false,
+      "exception": "ValueError",
+      "message": "parent source changed: rerun the primary/reference audit"
+    },
+    "exponential_reference": {
+      "accepted": false,
+      "exception": "ValueError",
+      "message": "parent source changed: rerun the primary/reference audit"
+    },
+    "thermal_reference_sources": {
+      "accepted": false,
+      "exception": "ValueError",
+      "message": "parent source changed: rerun the primary/reference audit"
+    },
+    "spatial_uncertainty_parent": {
+      "accepted": true,
+      "parent_code_matches_current_sources": false,
+      "changed_source_paths": [
+        "gabes/kernels.py",
+        "gabes/observables.py",
+        "gabes/doppler.py",
+        "gabes/schemes/fwm.py",
+        "gabes/schemes/base.py"
+      ],
+      "scope": "historical fixture evidence; current nominal recomputed, not cached from this parent"
+    }
+  },
+  "representative_reports": {
+    "foundation_audit": {
+      "path": "docs/daily_report/reconciliation_2026-10-19/daily_foundation_audit.json",
+      "elapsed_seconds": 0.046999999962281436,
+      "expected_controls_passed": true,
+      "numerical_payload_sha256": "3ac486202354a7a907785ebd7041445a25ed09b2ba13b5d6098028bc19e97c17"
+    },
+    "atomic_noise_audit": {
+      "path": "docs/daily_report/reconciliation_2026-10-19/daily_atomic_noise_audit.json",
+      "elapsed_seconds": 1.047000000020489,
+      "expected_controls_passed": true,
+      "numerical_payload_sha256": "7f391d64e75b3e88065c618546183f7994ecdf28cc6227115d66283866e5216a"
+    },
+    "field_noise_audit": {
+      "path": "docs/daily_report/reconciliation_2026-10-19/daily_field_noise_audit.json",
+      "elapsed_seconds": 2.094000000040978,
+      "expected_controls_passed": true,
+      "numerical_payload_sha256": "82581e26f53490c5fdc1af502a34ca2e37648e7eb2326a8b366414d13bd0f394"
+    },
+    "readout_audit": {
+      "path": "docs/daily_report/reconciliation_2026-10-19/daily_readout_audit.json",
+      "elapsed_seconds": 2.327999999979511,
+      "expected_controls_passed": true,
+      "numerical_payload_sha256": "e54455ddbea60c1d42e721d344206b631a6943b37299cadf0da1d36012ea7aca"
+    }
+  },
+  "new_atomic_transport_solves": 0
+}

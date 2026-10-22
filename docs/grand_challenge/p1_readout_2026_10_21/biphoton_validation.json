@@ -1,0 +1,63 @@
+{
+  "provenance": {
+    "marker": "⟦AI⟧",
+    "origin": "independent implementation/dataflow review and metadata correction",
+    "adoption_status": "implemented; focused and final exact-byte C suite plus one original path-bound case passed"
+  },
+  "date": "2026-10-21",
+  "scope": "biphoton-source-trust-boundary",
+  "review_result": "No remaining material gap found within the declared readout/evidence boundary after the corrections below.",
+  "corrections": [
+    {
+      "output": "source_v",
+      "finding": "Reference-mode source_v is the analytic reduced velocity envelope, not the injected timing waveform.",
+      "resolution": "Always reduced_model; classify psi_tau/source_fwhm separately from timing-specific reference_fwhm/emission-lifetime metadata."
+    },
+    {
+      "output": "source_bandwidth_mhz",
+      "finding": "Both Cs reference channels have no reference_bandwidth_mhz and source code uses an assumed300MHz fallback; unrelated OD/g2 references incorrectly made its origin reference_anchored.",
+      "resolution": "Predictive bandwidth depends on psi_tau; nonpredictive bandwidth is its own stored reference input or explicit assumed_input300MHz fallback, with no waveform dependency."
+    },
+    {
+      "output": "raw_g2_peak and raw_CAR",
+      "finding": "Pre-calibration fields were grouped with final target-g2 added-background results.",
+      "resolution": "Raw outputs are detector_derived and depend on pre-calibration quantities; final g2 may separately depend on target_g2_peak."
+    },
+    {
+      "output": "g2/CAR/accidental dependencies",
+      "finding": "Grouping histogram correlation and finite-gate CAR obscured their different window dependence.",
+      "resolution": "Histogram g2 depends on normalized waveform, all-time coincidence and singles, plus optional target; CAR depends on gate-captured coincidence and accidentals; raw accidental rate explicitly includes gate width."
+    }
+  ],
+  "preserved_scope": {
+    "source_compute": "GenericFWMSolver source, topology/rate constants, velocity refinement and raw arrays unchanged.",
+    "finite_gate_and_rate_planes": "Source-before-filter, filter-passed, all-time coincidence and gate-captured counts remain distinct; symmetric gate/histogram arithmetic unchanged.",
+    "numeric_biphoton_stats_ast_unchanged_except_additive_metadata": true,
+    "ast_comparison_detail": "Compared HEAD/current AST after excluding docstring and additive thermal_arm_comparison_R, physical_cauchy_schwarz_R and nonclassicality_status return entries.",
+    "quantum_claims": "Assumed thermal-arm R remains comparison only; physical nonclassicality unavailable; explicit ideal_canonical opt-in supports ideal fixtures only.",
+    "numerics": "FWHM-only velocity refinement is not whole-waveform/time-grid/spectral/absolute-rate certification; failed affected displays remain withheld and raw diagnostic arrays retained."
+  },
+  "tests": [
+    {
+      "command": "python -m pytest -q tests/test_biphoton_evidence.py",
+      "passed": 12,
+      "failed": 0,
+      "warnings": 1,
+      "seconds": 6.26,
+      "warning_scope": "Existing gabes_ui/export.py naive datetime.utcnow deprecation."
+    }
+  ],
+  "fixtures": [
+    "Both actual Cs topology metadata: missing reference bandwidth remains assumed300MHz, timing anchor remains separate.",
+    "Reference source_v analytic envelope versus reference-timing waveform.",
+    "Explicit bandwidth-reference input independent of waveform.",
+    "Actual biphoton_stats pre/post-target background equality at machine-roundoff tolerance; raw outputs remain pre-calibration.",
+    "Dependency-aware failure gates, diamond template, source immutability/no-resolve, thermal-R and strict JSON export retained from existing focused tests."
+  ],
+  "edited_files": [
+    "gabes/biphoton_evidence.py",
+    "tests/test_biphoton_evidence.py"
+  ],
+  "production_source_frozen": true,
+  "full_regression_receipt": "full_pytest_receipt.json"
+}

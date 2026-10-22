@@ -28,6 +28,34 @@ sys.path.insert(0, str(ROOT))
 from gabes import observables, schemes  # noqa: E402
 
 UT_PER_MG = 0.1  # 1 mG = 0.1 uT
+# Explicit screening rule for this unmatched-apparatus comparison. Agreement
+# within this tolerance is CHECK, never experimental validation or a PASS.
+WIDTH_SCREENING_RTOL = 0.20
+
+
+def width_comparison(model_mg, reference_mg, relative_tolerance=WIDTH_SCREENING_RTOL):
+    """Quantitative screening, separate from a sign/trend implementation check."""
+    if not np.isfinite(reference_mg) or reference_mg <= 0.0:
+        raise ValueError("The reference width must be finite and positive.")
+    if not 0.0 <= relative_tolerance < 1.0:
+        raise ValueError("The relative screening tolerance must be in [0, 1).")
+    if not np.isfinite(model_mg) or model_mg <= 0.0:
+        return dict(status="CHECK", ratio=None, relative_error=None,
+                    tolerance=relative_tolerance)
+    ratio = float(model_mg / reference_mg)
+    error = abs(ratio - 1.0)
+    return dict(status="CHECK" if error <= relative_tolerance else "FAIL",
+                ratio=ratio, relative_error=error, tolerance=relative_tolerance)
+
+
+def width_comparison_line(label, model_mg, reference_mg):
+    comparison = width_comparison(model_mg, reference_mg)
+    if comparison["ratio"] is None:
+        return f"Absolute-width CHECK ({label}): unresolved in the sampled scan."
+    return (f"Absolute-width {comparison['status']} ({label}): model={model_mg:.3f} mG, "
+            f"reference={reference_mg:.3f} mG, ratio={comparison['ratio']:.2f}, "
+            f"relative error={comparison['relative_error']:.1%} "
+            f"(screening tolerance {comparison['tolerance']:.0%}).")
 
 
 def alpha_curve(raw, p):
@@ -196,20 +224,27 @@ def transition_dependence():
             sign = "peak ABS" if amp > 0 else "dip"
             fw = fw if fw == fw else float("nan")
         print(f"    {I:>10.2f} {bperp_mg:>11.1f} | {sign:>10} {fw:>9.3f}")
+        print("      Sign/trend " + ("PASS" if sign == "peak ABS" else "CHECK")
+              + ": circular-input absorption feature.")
+        print("      " + width_comparison_line("Yu LCA", fw, 2.4))
 
     print("\n  NOTE: Spontaneous emission is now built from polarization-grouped")
     print("  jump operators Sigma_q (zeeman.py / atoms.py emission_ops), carrying")
     print("  transfer of coherence (TOC). The reference Fe=Fg+1 -> EIA rule")
     print("  (Lezama; arXiv physics/0512199) is reproduced for LINEAR polarization,")
     print("  and Yu's circular-pol buffer LCA (PRA 81, 023416) is reproduced once a")
-    print("  transverse residual field is present (now exposed for both cells); its")
-    print("  width reaches the reference ~2.4 mG at low power and low ground relax.")
+    print("  transverse residual field is present. These are sign/trend checks;")
+    print("  the quantitative widths are screened separately above.")
 
 
 def main():
     print("=" * 74)
     print("GABES Hanle vs Moon-group paraffin-cell references (87Rb, F=2->F'=1)")
     print("=" * 74)
+    print("Scope: one closed 87Rb D1 hyperfine pair; other ground-F leakage,")
+    print("repump and the other excited hyperfine manifold are omitted.")
+    print("Widths use an explicit 20% screening tolerance, without matched apparatus")
+    print("or uncertainty calibration: CHECK is not experimental validation.")
 
     bmax = 5 * UT_PER_MG  # +/-0.5 uT = +/-5 mG window, resolves a sub-mG core
 
@@ -262,13 +297,12 @@ def main():
     print("=" * 74)
     if found is not None:
         print(f"  - Polarization sign switch reproduced at fixed B_perp = "
-              f"{found:.2f} mG: linear=CPT dip, circular=MIA peak. MATCH.")
+              f"{found:.2f} mG: linear=CPT dip, circular=MIA peak. Sign/trend PASS.")
     else:
         print("  - No single fixed B_perp gave linear=dip & circular=peak "
               "in the scanned window. (See table [1].)")
-    print(f"  - Feature widths land in the {lin['fwhm_ut']/UT_PER_MG:.2f}-"
-          f"{cir['fwhm_ut']/UT_PER_MG:.2f} mG range; paper is 0.12-0.20 mG "
-          "(same sub-mG order).")
+    print("  - " + width_comparison_line("linear CPT", lin['fwhm_ut']/UT_PER_MG, 0.12))
+    print("  - " + width_comparison_line("circular MIA", cir['fwhm_ut']/UT_PER_MG, 0.20))
 
     transition_dependence()
 

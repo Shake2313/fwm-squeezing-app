@@ -1,0 +1,799 @@
+......................................................sss............... [ 27%]
+........................................................................ [ 55%]
+.............................................................EEEEEEEE... [ 83%]
+..........................................                               [100%]
+=================================== ERRORS ====================================
+_ ERROR at setup of test_seconds_upload_frames_nonuniform_data_and_repeated_apply_keeps_clean_theory _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002063EFC9E80>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:38.728 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:40.039 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_fit_alignment_improves_seconds_overlay_without_changing_physics _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002063EFCAAE0>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:40.138 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:41.749 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_____ ERROR at setup of test_axis_reframing_preserves_signal_adjustments ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064B53F410>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:41.886 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:43.042 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_relative_inversion_and_absolute_calibration_export_the_plotted_transmission _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064403EB70>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:43.086 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:44.255 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_x_scale] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064920B9B0>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:44.389 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:45.365 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_y_scale] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064917F410>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:45.453 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:46.695 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_overflowing_alignment_is_reported_without_crashing_the_plot[x] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064B447E00>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:46.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:48.311 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+_ ERROR at setup of test_overflowing_alignment_is_reported_without_crashing_the_plot[y] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002064B53C980>
+
+    @pytest.fixture
+    def comparison_app(monkeypatch):
+        from streamlit.delta_generator import DeltaGenerator
+        from streamlit.testing.v1 import AppTest
+        from gabes_ui import export as ui_export
+    
+        captures = []
+    
+        def uploaded_csv(_self, *args, **kwargs):
+            import streamlit as st
+            return SimpleNamespace(
+                name="seconds_scope.csv",
+                getvalue=lambda: st.session_state["_comparison_source_bytes"],
+            )
+    
+        def capture_export(_container, **kwargs):
+            captures.append(kwargs)
+    
+        monkeypatch.setattr(DeltaGenerator, "file_uploader", uploaded_csv)
+        monkeypatch.setattr(ui_export, "render_export", capture_export)
+        app = AppTest.from_string("""
+    import numpy as np
+    import streamlit as st
+    from gabes import schemes
+    from gabes_ui.plotcard import render_plot_section
+    
+    scheme = schemes.get('sas')
+    if '_comparison_base_view' not in st.session_state:
+        params = scheme.defaults()
+        params.update(pump_power_mw=0.0, line='D2', temp_c=25.0, scan_points=401)
+        raw = scheme.compute(params)
+        view = scheme.observables(raw, params)
+        # AppTest's segmented-control serializer currently assumes multiselect.
+        # Exercise the real default Transmission figure as a single plot page.
+        view = dict(view, figure_views=[])
+        theory = view['figure'].axes[0].lines[0]
+        x = np.asarray(theory.get_xdata())
+        y = np.asarray(theory.get_ydata())
+        position = np.linspace(0.0, 1.0, 601) ** 1.7
+        sample_x = x[0] + (x[-1] - x[0]) * position
+        seconds = 1.0e-6 + 2.0e-7 * position
+        transmission = np.interp(sample_x, x, y)
+        signal = 0.23 + 0.68 * transmission
+        st.session_state['_comparison_source_bytes'] = (
+            '\\n'.join(f'{a:.15g},{b:.15g}' for a, b in zip(seconds, signal))
+        ).encode()
+        st.session_state['_comparison_source_transmission'] = transmission
+        st.session_state['_comparison_source_seconds'] = seconds
+        st.session_state['_comparison_theory_xlim'] = view['figure'].axes[0].get_xlim()
+        st.session_state['_comparison_original_line_count'] = len(view['figure'].axes[0].lines)
+        st.session_state['_comparison_base_view'] = view
+        st.session_state['_comparison_raw'] = raw
+        st.session_state['_comparison_params'] = params
+        st.session_state['sas___overlay'] = True
+    
+    render_plot_section(
+        st.session_state['_comparison_base_view'], scheme,
+        {spec.name: spec for spec in scheme.param_schema()},
+        st.session_state['_comparison_raw'], st.session_state['_comparison_params'],
+        scheme.cache_version, 'comparison-widget-test',
+    )
+    """, default_timeout=30).run()
+>       assert not app.exception
+E       assert not ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])])
+E        +  where ElementList(_list=[Exception(message="Component 'gabes_live_plot' is not registered", stack_trace=['File "C:\\Users\\8...\main.py", line 349, in _bidi_component\n    raise ValueError(f"Component \'{component_name}\' is not registered")'])]) = AppTest(\n    _script_path='C:\\Users\\82104\\AppData\\Local\\Temp\\tmptubecd4a\\15b96c7c774ad993cde4462b98ed3ba2',\n   ...SpecialBlock(\n            type='sidebar'\n        ),\n        2: SpecialBlock(\n            type='event'\n        )\n    }\n).exception
+
+tests\test_od_comparison_ui.py:70: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2026-10-23 04:13:48.431 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-10-23 04:13:49.591 Uncaught app execution
+Traceback (most recent call last):
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\fragment.py", line 442, in wrapped_fragment
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 697, in _render_comparison_fragment
+    _render_plot_and_export(
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 677, in _render_plot_and_export
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\plotcard.py", line 655, in render_plot_card
+    live = render_live_plot(page_fig, scheme.name, comparison_payload,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp\gv20261023-rydberg\repo\gabes_ui\liveplot.py", line 172, in render_live_plot
+    _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\__init__.py", line 193, in _mount_component
+    return st._bidi_component(
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\82104\AppData\Roaming\Python\Python312\site-packages\streamlit\components\v2\bidi_component\main.py", line 349, in _bidi_component
+    raise ValueError(f"Component '{component_name}' is not registered")
+ValueError: Component 'gabes_live_plot' is not registered
+============================== warnings summary ===============================
+tests/test_fwm_measured_gain_integration.py::test_strict_json_exports_current_reference_profile_status_domain_and_raw_arrays
+tests/test_ui_derived_controls.py::test_export_preserves_display_values_and_unavailable_status
+  C:\Temp\gv20261023-rydberg\repo\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+----- generated xml file: C:\Temp\gv20261023-rydberg\affected_recheck.xml -----
+=========================== short test summary info ===========================
+ERROR tests/test_od_comparison_ui.py::test_seconds_upload_frames_nonuniform_data_and_repeated_apply_keeps_clean_theory
+ERROR tests/test_od_comparison_ui.py::test_fit_alignment_improves_seconds_overlay_without_changing_physics
+ERROR tests/test_od_comparison_ui.py::test_axis_reframing_preserves_signal_adjustments
+ERROR tests/test_od_comparison_ui.py::test_relative_inversion_and_absolute_calibration_export_the_plotted_transmission
+ERROR tests/test_od_comparison_ui.py::test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_x_scale]
+ERROR tests/test_od_comparison_ui.py::test_zero_alignment_scale_apply_and_fit_show_readable_errors[sas___csv_y_scale]
+ERROR tests/test_od_comparison_ui.py::test_overflowing_alignment_is_reported_without_crashing_the_plot[x]
+ERROR tests/test_od_comparison_ui.py::test_overflowing_alignment_is_reported_without_crashing_the_plot[y]
+247 passed, 3 skipped, 2 warnings, 8 errors in 152.88s (0:02:32)

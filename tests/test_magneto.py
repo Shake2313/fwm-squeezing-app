@@ -315,10 +315,14 @@ def test_nmor_plane_rotation_requires_linear_input():
         view = sc.headless_observables(raw, p)
         metrics = {metric["label"]: metric for metric in view["metrics"]}
         assert metrics["Rotation readout status"]["value"] == expected
-        rotation_labels = {"Rotation at B=0", "Slope dtheta/dB", "Peak |rotation|"}
+        rotation_labels = {"Rotation at physical B=0", "Rotation at command B=0",
+                           "Slope dtheta/dB", "Peak |rotation|"}
         if angle == 0.0:
             assert rotation_labels <= metrics.keys()
-            assert metrics["Slope dtheta/dB"]["tier"] == "hero"
+            if metrics["Slope dtheta/dB"]["value"] == "unavailable":
+                assert metrics["Slope status"]["tier"] == "hero"
+            else:
+                assert metrics["Slope dtheta/dB"]["tier"] == "hero"
         else:
             assert not rotation_labels.intersection(metrics)
             assert metrics["Rotation readout status"]["tier"] == "hero"
@@ -564,8 +568,10 @@ def test_unresolved_central_width_uses_status_hero():
     view = sc.headless_observables(sc.compute(p), p)
     heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
     assert [m["label"] for m in heroes] == [
-        "Transmission at B=0", "Width status"]
+        "Transmission at physical B=0", "Width status"]
     assert heroes[1].get("kind") == "status"
+    assert heroes[0]["value"] == "unavailable"
+    assert heroes[1]["value"] == "physical zero outside scan"
     assert all(str(m["value"]).lower() != "n/a" for m in heroes)
 
 

@@ -1,0 +1,18 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--durations=15",
+    "--deselect=tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "cwd": "C:\\Temp\\gv20261021-local\\repo",
+  "started_utc": "2026-10-20T18:40:15.132904+00:00",
+  "completed_utc": "2026-10-20T19:30:21.716286+00:00",
+  "exit_code": 0,
+  "seconds": 3006.5780000000086,
+  "log": "full_pytest_local_v2.log"
+}

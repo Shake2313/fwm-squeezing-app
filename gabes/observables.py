@@ -235,7 +235,7 @@ def pump_depletion_saturation(
     return G_s_sat, G_c_sat
 
 
-def coincidence_stats(G_s, G_c):
+def coincidence_stats(G_s, G_c, *, ideal_canonical=False):
     """
     Equal-time twin-beam (signal/conjugate) photon statistics for the FWM
     parametric process, in the **ideal (lossless) parametric** limit set by the
@@ -253,10 +253,18 @@ def coincidence_stats(G_s, G_c):
     R > 1 everywhere in the gain region is the nonclassical photon-pair signature.
     Only meaningful where there is net gain (G_s > 1); elsewhere set to NaN.
 
-    Returns a dict of per-point arrays (plus a `gain_mask`).
+    These arrays are a legacy ideal-law comparison, not evidence that a supplied
+    mean-field gain is a physical quantum channel. ``ideal_canonical=True`` is
+    an explicit lossless-TMSV fixture assumption; inconsistent gains are rejected.
+    It supplies an ideal comparison claim only, never experimental validation.
     """
     G_s = np.asarray(G_s, dtype=float)
     G_c = np.asarray(G_c, dtype=float)
+    if ideal_canonical and (not np.all(np.isfinite(G_s))
+                            or not np.all(np.isfinite(G_c))
+                            or np.any(G_s < 1.0) or np.any(G_c < 0.0)
+                            or not np.allclose(G_s - G_c, 1.0, rtol=1e-9, atol=1e-12)):
+        raise ValueError("Ideal canonical fixture requires G_s>=1, G_c>=0 and G_s-G_c=1")
     gain = G_s > 1.0
     n_pairs = np.where(gain, G_s - 1.0, np.nan)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -268,6 +276,16 @@ def coincidence_stats(G_s, G_c):
         "n_c": np.where(gain, G_c, np.nan),
         "g2_ss": g2_auto, "g2_cc": g2_auto, "g2_sc": g2_sc,
         "cauchy_schwarz": R, "gain_mask": gain,
+        "evidence": {
+            "origin": "explicit_ideal_canonical_fixture" if ideal_canonical else "legacy_gain_only_comparison",
+            "assumptions": "Lossless two-mode squeezed vacuum; thermal auto-correlations g2=2",
+            "ideal_fixture_opt_in": bool(ideal_canonical),
+            "ideal_nonclassicality_available": bool(ideal_canonical),
+            "physical_nonclassicality_available": False,
+            "independent_validation": False,
+        },
+        "ideal_nonclassicality": np.where(gain, R > 1.0, False) if ideal_canonical else None,
+        "physical_nonclassicality": None,
     }
 
 
@@ -381,6 +399,10 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
     ``source_fwhm_ns`` is measured from ``|waveform|^2`` before timing smoothing;
     ``detected_fwhm_ns`` is measured after it. The legacy ``fwhm_ns`` key remains
     an alias for the detected width.
+    ``cauchy_schwarz_R`` is a compatibility alias for ``thermal_arm_comparison_R``:
+    it assumes g2_SS=g2_II=2 without modelling or measuring those auto-correlations.
+    ``physical_cauchy_schwarz_R`` remains unavailable; the comparison is not an
+    independently established nonclassicality claim.
     """
     tau_axis_ns = np.asarray(tau_axis_ns, dtype=float)
     waveform = np.asarray(waveform, dtype=complex)
@@ -450,6 +472,9 @@ def biphoton_stats(tau_axis_ns, waveform, pair_rate_cps, *,
         "heralding_signal": coincidence / max(singles_idler, 1e-30),
         "heralding_idler": coincidence / max(singles_signal, 1e-30),
         "cauchy_schwarz_R": g2_peak ** 2 / 4.0,
+        "thermal_arm_comparison_R": g2_peak ** 2 / 4.0,
+        "physical_cauchy_schwarz_R": None,
+        "nonclassicality_status": "unavailable_without_auto_correlations",
         "g2_peak": g2_peak,
         "raw_g2_peak": 1.0 + raw_peak_excess,
         "filter_transmission": filter_transmission,
@@ -673,9 +698,28 @@ def transmission(alpha, L):
     return np.exp(-alpha * L)
 
 
-def optical_density(alpha, L):
-    """Base-10 optical density OD = −log10(T) = αL / ln10."""
+def optical_depth(alpha, L):
+    """Natural-log intensity attenuation τ = −ln(T) = αL (dimensionless).
+
+    Evaluate from the attenuation coefficient, rather than taking a logarithm
+    of the transmission, so the result remains finite when T underflows to zero.
+    For a collected nonlinear beam, alpha is its effective attenuation
+    coefficient and τ describes the collected power transmission.
+    """
+    return alpha * L
+
+
+def decadic_absorbance(alpha, L):
+    """Decadic absorbance A10 = −log10(T) = αL / ln(10), dimensionless."""
     return alpha * L / np.log(10.0)
+
+
+def optical_density(alpha, L):
+    """Compatibility name for decadic absorbance, preserving its base-10 value.
+
+    Use ``optical_depth`` for the distinct natural-log quantity τ = αL.
+    """
+    return decadic_absorbance(alpha, L)
 
 
 def refractive_index(chi_phys_axis):

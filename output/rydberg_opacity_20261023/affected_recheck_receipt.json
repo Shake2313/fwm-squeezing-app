@@ -1,0 +1,40 @@
+{
+  "command": "C:\\Python312\\python.exe -m pytest -q tests/quantum/test_source_provenance.py tests/test_sabes_bridge.py tests\\test_defaults_browser.py tests\\test_experimental_csv.py tests\\test_fwm_measured_gain_integration.py tests\\test_liveplot.py tests\\test_od_comparison_ui.py tests\\test_sabes_apparatus_ui.py tests\\test_sabes_page.py tests\\test_ui_defaults.py tests\\test_ui_derived_controls.py --junitxml=C:\\Temp\\gv20261023-rydberg\\affected_recheck.xml",
+  "cwd": "C:\\Temp\\gv20261023-rydberg\\repo",
+  "exit_code": 0,
+  "started_utc": "2026-10-22T19:16:36.423285+00:00",
+  "wall_seconds": 234.80128150002565,
+  "summary": [
+    "258 passed, 3 skipped, 2 warnings in 221.20s (0:03:41)"
+  ],
+  "test_files": [
+    "tests/quantum/test_source_provenance.py",
+    "tests/test_sabes_bridge.py",
+    "tests\\test_defaults_browser.py",
+    "tests\\test_experimental_csv.py",
+    "tests\\test_fwm_measured_gain_integration.py",
+    "tests\\test_liveplot.py",
+    "tests\\test_od_comparison_ui.py",
+    "tests\\test_sabes_apparatus_ui.py",
+    "tests\\test_sabes_page.py",
+    "tests\\test_ui_defaults.py",
+    "tests\\test_ui_derived_controls.py"
+  ],
+  "final_collected": 2750,
+  "source_hashes_unchanged": true,
+  "changed_original_paths": [],
+  "changed_mirror_paths": [],
+  "frozen_python_files": 435,
+  "baseline_source_delta": [
+    "gabes_ui\\component_runtime.py",
+    "gabes_ui\\defaults_browser.py",
+    "gabes_ui\\liveplot.py",
+    "tests\\test_defaults_browser.py",
+    "tests\\test_liveplot.py",
+    "tests\\quantum\\test_source_provenance.py",
+    "tests\\test_sabes_bridge.py",
+    "analysis\\grand_challenge\\source_provenance.py"
+  ],
+  "log": "output/rydberg_opacity_20261023/affected_recheck.log",
+  "junit_xml": "output/rydberg_opacity_20261023/affected_recheck.xml"
+}

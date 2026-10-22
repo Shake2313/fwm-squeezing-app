@@ -1,5 +1,16 @@
 # Next session
 
+## ⟦AI⟧ 유지보수 현황 — 2026-10-23
+
+[10/19 daily review](../daily_report/reconciliation_2026-10-19/README.md)의 1회 재검수·registry 반영,
+[10/21 P1 readout](p1_readout_2026_10_21/README.md)의 OD log·Magneto·biphoton 근거 경계,
+[10/23 Rydberg opacity](rydberg_opacity_2026_10_23/README.md)의 명시적 opacity·시나리오·현행 기준 검수를 보존한다.
+체크리스트 **102개 중45done, 잔여P1 20개**. 기존 완료 범위·봉인 근거·공식GC **0/4**는 유지한다.
+검증은 고유 최종case 기준 **2747PASS·3skip**의 조합 근거이며, 단일 최종소스 전체실행PASS 주장이 아니다.
+원본 baseline 실패와 UI·변경소스 재검사 범위는 [10/23 receipt](rydberg_opacity_2026_10_23/full_pytest_receipt.json)에 구분한다.
+아래 과학 목표·결과·다음 질문은 이 유지보수 노트로 변경하지 않는다.
+
+
 Governance snapshot: **2026-10-02**. Atomic science snapshot: **2026-09-28**.
 Read the SAME [living blueprint](blueprint.md) first: dashboard, closed scopes,
 open dependencies, current experiment card, mandatory end-turn PI review.

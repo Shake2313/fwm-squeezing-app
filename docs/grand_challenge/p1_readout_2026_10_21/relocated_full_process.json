@@ -1,0 +1,16 @@
+{
+  "marker": "⟦AI⟧",
+  "origin": "source_evidence",
+  "pid": 16660,
+  "controller_pid": 24148,
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--durations=15",
+    "--deselect=tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid"
+  ],
+  "cwd": "C:\\Temp\\gv20261021-local\\repo",
+  "started_utc": "2026-10-20T18:34:58.401553+00:00"
+}

@@ -147,9 +147,14 @@ the ⁸⁷Rb fraction is complementary. Natural composition stays at 72.17/27.83
 Mixtures use a fixed ⁸⁵Rb frequency centroid even when the dominant isotope
 changes. The existing pure-isotope menu retains its own isotope centroid.
 
-The OD/SAS graph currently shows **Transmission** only. **Optical density** and
-weak-probe **Dispersion** are temporarily hidden from the plot selector; their
-calculated curves remain available in exports. CSV comparison is on Transmission. Comparison and
+The OD/SAS graph currently shows **Transmission** only. **Decadic absorbance A10**,
+**Optical depth tau**, and weak-probe **Dispersion** are temporarily hidden from
+the plot selector; their calculated curves remain available in exports. The dimensionless quantities
+are `A10 = -log10(T)` and `tau = -ln(T) = ln(10)*A10`. The compatibility API
+`observables.optical_density()` retains its original base-10 value. For finite
+probe power, both logs describe the effective collected transmission. JSON and
+each plotted CSV identify the convention and unit explicitly.
+CSV comparison is on Transmission. Comparison and
 export controls rerun only their plot section, reuse the cached theory, and
 export the same aligned data shown on the graph with correction provenance.
 
@@ -157,6 +162,23 @@ In seeded FWM, dragging **Two-photon detuning δ** previews the cursor and selec
 gain/noise locally on the cached curves. Clicking or dragging directly on the
 plot also selects δ. Release commits the operating point and updates the result
 strip and exports; the preview interpolates canonical NF before taking its dB log.
+
+### Hanle / EIA / NMOR readouts
+
+The command field and physical field satisfy
+`B_physical = B_command + B_zero_offset`. Central transmission, feature width
+and linear-polarization rotation/slope use physical zero; command zero is a
+separate readout. A scan that misses physical zero reports it as unavailable.
+Widths use both interpolated half-height crossings. Local higher-order slopes
+and widths carry a sampled-grid consistency status; an unresolved default grid
+withholds numeric heroes. This local check does not certify a whole B scan or
+experimental visibility. Literature sign/trend and quantitative-width agreement
+are reported separately.
+
+**Ground pure dephasing** damps ground-state coherences and preserves ground
+populations. Its saved API key `collisional_depol_khz` is retained. The selected
+closed hyperfine pair omits leakage to other ground hyperfine levels, repumping,
+and excited-hyperfine interference; it is a conditional model scope.
 
 ### Rydberg finite-IF electrometry and cell heating
 
@@ -168,6 +190,15 @@ at the declared IF, then refers balanced-detector PSN, RIN, and electronics nois
 back to RF field through an explicit 40D–39F dipole and peak/RMS convention.
 Displayed absolute sensitivities are conditional predictions: the literature
 11.2/12.5 nV/cm/√Hz values are not injected as anchors.
+
+Advanced **Effective opacity participation** exposes the legacy `0.001` optical
+scaling factor. It multiplies the atomic susceptibility once in transmission
+and finite-IF propagation, separately from atomic line strength and the
+atom-number participation control. It remains **UNCALIBRATED**. Temperature
+and probe-power panels carry **PREDICTED** status and lower/nominal/upper opacity
+scenarios. Their default ±50% range is an assumed sensitivity check, not a
+measured uncertainty or confidence interval; each scenario retains its own
+predicted optimum. The analysis workflow exports the same provenance and scope.
 
 The advanced SAM controls convert source power/gain/loss/distance to field with a
 standard-uncertainty budget and flag a failed `2D²/λ` far-field criterion. The
@@ -339,19 +370,28 @@ See [calibration, held-out comparisons, limitations and runtime measurements](an
   source-model comparison, and numerical diagnostics live under Advanced.
 - Biphoton readout: `g²_SI(τ)`, intrinsic source FWHM, timing-response-broadened
   detected FWHM, pair-rate estimate, singles, true and accidental coincidences,
-  CAR, heralding estimates, and Cauchy-Schwarz R. The legacy `fwhm_ns` API key is
+  CAR, heralding estimates, and an assumed thermal-arm Cauchy-Schwarz comparison.
+  That comparison assumes both unmodelled auto-correlations equal two; it is
+  not an established nonclassicality test. The legacy `fwhm_ns` API key is
   retained as an alias for the detected width.
+  True coincidences and CAR integrate a symmetric full-width gate `[-W/2, W/2]`
+  against the normalized source delay density and full Gaussian timing response.
+  `all_time_coincidence_cps` retains the ungated rate; histogram `g²_SI(τ)` is
+  independent of that gate width. Normalization uses the supplied finite source
+  delay domain; the filter is a scalar throughput estimate without waveform reshaping.
 - The waveform is a coherent sum over Doppler velocity classes. Biphoton v3 phase
   matching uses calibrated longitudinal Δk plus absolute transverse Δk, with a
   strict vector `sinc²(|Δk| L / 2)` collection weight.
 - Reference anchors: the 87Rb telecom source is calibrated to order
-  `g²_SI≈44`, OD≈112, bandwidth≈300 MHz, and coincidence rate≈38,000 cps/mW;
+  `g²_SI≈44`, OD≈112, and source pair-rate scale≈38,000 cps/mW before filter
+  and detector losses. The 300 MHz filter setting is an input, not a source-bandwidth validation;
   the Cs BTW preset exposes the wavelength-dependent temporal-width change
   reported for the 852-917 nm and 852-795 nm cascade channels.
 - **Source model** (`biphoton_model`, under Advanced):
   - **Reduced model** calculates the Doppler-averaged waveform, including the
     Ω_c² Autler-Townes term, velocity-class coherent sum, natural-linewidth decay,
-    and vector phase matching. Its pair-rate scale remains reference-anchored.
+    and vector phase matching. Its Rb/Cs pair-rate scale remains reference-anchored;
+    Generic diamond uses an assumed template coefficient without a paper anchor.
   - **Reference model** reproduces the stored reference calibration for comparison.
 - **Reduced-model limits:** absolute ns-widths and the Cs channel ratio are
   **approximate**; the
@@ -360,7 +400,12 @@ See [calibration, held-out comparisons, limitations and runtime measurements](an
   source FWHM is about 0.17 ns; the 0.55 ns net signal-idler timing response
   broadens the detected FWHM to about 0.50 ns, which is the quantity compared
   with the measured 0.56(4) ns. That agreement is not an independent validation.
-  The absolute pair rate stays **reference-anchored** and currently
+  Each output carries its own origin and numerical scope in the JSON export.
+  Velocity refinement checks FWHM stability only; it does not certify the entire
+  waveform, bandwidth, detector counts, or independent experimental agreement.
+  A failed check withholds affected numeric heroes. Seeded-FWM validation does
+  not validate spontaneous-source rate, waveform or correlation statistics.
+  The Rb/Cs absolute pair rate stays **reference-anchored** and currently
   scales with pump power, coupling drive, vector phase matching, and the square
   root of the density ratio; OD/cell length do not directly scale the rate. An OD
   waveform-reshaping path (Du/Chen ρ̄, group-delay/precursor) is implemented but

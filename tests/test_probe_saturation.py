@@ -303,10 +303,10 @@ def test_finite_probe_reduces_effective_od_and_suppresses_undefined_dispersion()
 
     weak_peak = float(next(
         metric["value"] for metric in weak_view["metrics"]
-        if metric["label"] == "Peak OD"))
+        if metric["label"] == "Peak absorbance A10"))
     finite_peak = float(next(
         metric["value"] for metric in finite_view["metrics"]
-        if metric["label"] == "Effective peak OD"))
+        if metric["label"] == "Effective peak absorbance A10"))
     assert finite_peak < weak_peak
     finite_labels = {metric["label"] for metric in finite_view["metrics"]}
     finite_values = {metric["label"]: metric["value"]

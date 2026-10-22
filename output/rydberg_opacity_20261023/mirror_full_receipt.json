@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-23",
+  "origin": "ai_execution_of_human_request",
+  "command": "python -m pytest -q --deselect=tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+  "cwd": "C:\\Temp\\gv20261023-rydberg\\repo",
+  "exit_code": 1,
+  "passed": null,
+  "skipped": null,
+  "deselected": null,
+  "warnings": 0,
+  "pytest_seconds": null,
+  "failed": null,
+  "wall_seconds": 3874.9672075999842,
+  "started_utc": "2026-10-22T18:03:41.185561+00:00",
+  "completed_utc": "2026-10-22T19:08:16.153617+00:00",
+  "frozen_python_files": 434,
+  "mirror_python_byte_parity": true,
+  "source_hashes_unchanged": false,
+  "changed_mirror_source_paths": [],
+  "changed_original_source_paths": [
+    "tests\\quantum\\test_source_provenance.py",
+    "tests\\test_sabes_bridge.py",
+    "analysis\\grand_challenge\\source_provenance.py"
+  ],
+  "original_path_case": "tests/quantum/test_variance_reduction_pilot_shadow.py::test_preregistration_does_not_touch_future_grid",
+  "log": "C:\\Temp\\gv20261023-rydberg\\full_pytest.log"
+}

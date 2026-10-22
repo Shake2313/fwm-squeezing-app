@@ -11,7 +11,7 @@ from gabes import experimental_csv as ecsv
 
 
 ROOT = Path(__file__).resolve().parent.parent
-REFERENCE_OD = ROOT / "references" / "AutoOD" / "ReferenceOD.csv"
+REFERENCE_OD = ROOT / "archive" / "AutoOD" / "ReferenceOD.csv"
 
 
 def test_streamlit_import_repairs_stale_experimental_csv_module():
