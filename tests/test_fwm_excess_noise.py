@@ -102,7 +102,7 @@ def test_focused_and_full_heavy_solves_ignore_current_and_retired_noise_controls
 def test_current_a_b_nf_follow_ideal_photon_statistics_without_mutating_cache(seeded_spectrum):
     import matplotlib.pyplot as plt
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), tpd=0.0, seed_classical_rin_scaled=2.0,
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1, tpd=0.0, seed_classical_rin_scaled=2.0,
                   after_cell_eff_pct=80.0, qe_pct=90.0)
     original = deepcopy(seeded_spectrum)
     b, nf = _ideal_expected(seeded_spectrum, params)
@@ -160,7 +160,7 @@ def test_off_grid_marker_uses_log_of_interpolated_nf_and_lies_on_curve(seeded_sp
 
 def test_full_scan_current_seed_noise_uses_each_branch_input_power(seeded_spectrum):
     import matplotlib.pyplot as plt
-    params = dict(fwm.FWMScheme().defaults(), seed_classical_rin_scaled=1.0,
+    params = dict(fwm.FWMScheme().defaults(), noise_model=fwm.NOISE_PASSIVE_L1, seed_classical_rin_scaled=1.0,
                   after_cell_eff_pct=75.0, qe_pct=80.0)
     full = {"D_GHz": 0.9, "minus": seeded_spectrum,
             "plus": dict(seeded_spectrum, input_seed_power_W=4e-6)}

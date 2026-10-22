@@ -60,7 +60,7 @@ def _current_reference(raw, params):
 def test_focused_headless_current_nf_mask_nonpassive_points_without_cache_mutation(passive_spectrum):
     import matplotlib.pyplot as plt
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), tpd=-8.0, seed_classical_rin_scaled=3.0)
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1, tpd=-8.0, seed_classical_rin_scaled=3.0)
     original = deepcopy(passive_spectrum)
     expected = _current_reference(passive_spectrum, params)
     rendered = scheme.observables(passive_spectrum, params)
@@ -95,7 +95,7 @@ def test_focused_headless_current_nf_mask_nonpassive_points_without_cache_mutati
 @pytest.mark.parametrize("classical_rin", (0.0, 3.0))
 def test_full_scan_uses_current_seed_rin_and_shared_external_efficiency(passive_spectrum, classical_rin):
     import matplotlib.pyplot as plt
-    params = dict(fwm.FWMScheme().defaults(), seed_classical_rin_scaled=classical_rin,
+    params = dict(fwm.FWMScheme().defaults(), noise_model=fwm.NOISE_PASSIVE_L1, seed_classical_rin_scaled=classical_rin,
                   after_cell_eff_pct=70.0, qe_pct=80.0)
     full = {"D_GHz": 0.9, "minus": passive_spectrum,
             "plus": dict(passive_spectrum, eta=0.5)}
@@ -114,7 +114,7 @@ def test_full_scan_uses_current_seed_rin_and_shared_external_efficiency(passive_
 
 def test_current_nf_independent_of_retired_pump_scatter_and_input_fano_ui(passive_spectrum):
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), tpd=-8.0)
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1, tpd=-8.0)
     shifted = dict(passive_spectrum,
         gain_referred_noise_dB=passive_spectrum["gain_referred_noise_dB"]+9.0,
         hardened_noise={"pump_scatter_noise": 50.0})
@@ -132,7 +132,7 @@ def test_all_invalid_curve_and_point_outside_scan_remain_unavailable(passive_spe
     raw = deepcopy(passive_spectrum)
     raw["T_canonical_small_signal"][:] = raw["T_canonical_small_signal"][1]
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), tpd=0.0)
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1, tpd=0.0)
     view = scheme.observables(raw, params)
     try:
         assert view["metrics"][0]["value"] == "unavailable"
@@ -148,7 +148,7 @@ def test_selected_nf_uses_canonical_transfer_instead_of_displayed_capped_gain(pa
     import matplotlib.pyplot as plt
     raw = deepcopy(passive_spectrum)
     raw["T_canonical_small_signal"][1] = raw["T_canonical_small_signal"][2]
-    params = dict(fwm.FWMScheme().defaults(), tpd=-4.0, seed_classical_rin_scaled=3.0)
+    params = dict(fwm.FWMScheme().defaults(), noise_model=fwm.NOISE_PASSIVE_L1, tpd=-4.0, seed_classical_rin_scaled=3.0)
     reference = _current_reference(raw, params)
     expected_nf = 0.5*(reference["NF"][0]+reference["NF"][1])
     rendered = fwm.FWMScheme().observables(raw, params)
@@ -169,7 +169,7 @@ def test_selected_nf_uses_canonical_transfer_instead_of_displayed_capped_gain(pa
 def test_result_export_separates_current_a_b_nf_from_cached_coherent_reference(passive_spectrum):
     from gabes_ui.export import build_export_payload
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), seed_classical_rin_scaled=3.0, tpd=-8.0)
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1, seed_classical_rin_scaled=3.0, tpd=-8.0)
     view = scheme.headless_observables(passive_spectrum, params)
     payload = build_export_payload(scheme=scheme, raw=passive_spectrum, params=params,
         view=view, plot_payloads=[], comparison_payload=None,

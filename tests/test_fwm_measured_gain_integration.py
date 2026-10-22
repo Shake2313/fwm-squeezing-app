@@ -16,6 +16,7 @@ from gabes.schemes import fwm
 def reference_params():
     scheme = fwm.FWMScheme()
     params = dict(scheme.defaults(), **scheme.presets()[0].values)
+    params["noise_model"] = fwm.NOISE_PASSIVE_L1
     params["measured_gain_calibration"] = True
     return params
 
@@ -286,6 +287,7 @@ def test_actual_streamlit_preset_checkbox_and_context_readout():
         "from gabes_ui.controls import render_rail, render_derived_params, skey\n"
         "from tests.test_fwm_measured_gain_integration import reference_raw\n"
         "scheme=FWMScheme()\n"
+        "st.session_state[skey(scheme.name,'_show_advanced')]=True\n"
         "for key,value in scheme.defaults().items():\n"
         "    sk=skey(scheme.name,key)\n"
         "    st.session_state[sk]=st.session_state.get(sk,value)\n"

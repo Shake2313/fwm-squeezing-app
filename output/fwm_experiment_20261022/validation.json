@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-22",
+  "scope": "practical FWM; independent of Grand Challenge milestones",
+  "command": "python -m pytest -q",
+  "exit_code": 0,
+  "passed": 2627,
+  "skipped": 3,
+  "failed": 0,
+  "warnings": 12,
+  "duration_seconds": 1011.4,
+  "frozen_python_files": 425,
+  "source_hashes_unchanged": true,
+  "changed_frozen_paths": [],
+  "cache_version": "fwm-experimental-jasperse-gain-v20",
+  "browser_ui": {
+    "errors": 0,
+    "nominal_preset": true,
+    "extrapolated_delta_mhz": -100.0,
+    "changed_pump_mw": 350.0,
+    "gain_and_nf_remain_available": true,
+    "downloaded_strict_json": "browser_result_bundle.json"
+  },
+  "implementation_record": "docs/fwm_experiment_2026_10_22/README.md",
+  "earlier_full_runs": "Preserved incomplete logs stopped for final cache revision and selected-point metadata correction; only full_pytest_v20.log is final validation."
+}

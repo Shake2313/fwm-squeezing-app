@@ -5,6 +5,17 @@ with a **scheme-driven** Streamlit front-end: pick a physics scheme in the
 top bar and it declares its own controls and plots. Started as a single 85Rb D1
 double-Λ four-wave-mixing model (now one scheme among several).
 
+## Experimental FWM (2026-10-13 calibration)
+
+Restart the app and choose **2026-10-13 experiment (calibrated Jasperse)**.
+The gain toggle corrects peak position, width and both arm gains using the 23
+measured points. It continues the current model outside the measured interval
+and after changing operating conditions; extrapolation is labelled.
+**Experimental Jasperse** includes both distributed vacuum-loss reservoirs with
+an explicit common-loss assumption. **Passive L1** remains selectable.
+These practical approximations are separate from Grand Challenge acceptance.
+[Implementation, calibration and validation](docs/fwm_experiment_2026_10_22/README.md).
+
 ## Schemes (current)
 
 | Cluster | Scheme | Output |

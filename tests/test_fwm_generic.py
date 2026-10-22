@@ -933,7 +933,8 @@ def test_qe_knob_sets_current_nf_and_its_conditional_symmetric_loss_floor():
     """Passive static NF uses external η exactly once; raw source stays neutral."""
     scheme = fwm.FWMScheme()
     params = scheme.defaults()
-    params.update(qe_pct=90.45, after_cell_eff_pct=94.5, resolution=fwm.FIDELITY_FAST)
+    params.update(noise_model=fwm.NOISE_PASSIVE_L1,
+                  qe_pct=90.45, after_cell_eff_pct=94.5, resolution=fwm.FIDELITY_FAST)
     raw = scheme.compute(params)
     eta = 0.9045 * (1.0 - 0.055)
     assert raw["qe"] == 1.0

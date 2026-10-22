@@ -1,0 +1,13 @@
+{
+  "scope": "FWM commit snapshot over bff9ca9e5014a680eef5e9e44ba7099a2ed0bee6",
+  "related_tests": 154,
+  "failed": 0,
+  "seconds": 12.56,
+  "previous_full_workspace": {
+    "passed": 2627,
+    "skipped": 3,
+    "failed": 0
+  },
+  "unrelated_staged_changes_preserved": true,
+  "browser_evidence": "browser_result_bundle.json.gz"
+}

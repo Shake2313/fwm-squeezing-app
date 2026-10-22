@@ -27,7 +27,8 @@ def test_unequal_external_efficiencies_match_jasperse_eq5_and_seed_variance(sque
 @pytest.fixture(scope="module")
 def physical_view():
     scheme = fwm.FWMScheme()
-    params = dict(scheme.defaults(), resolution=fwm.FIDELITY_BALANCED,
+    params = dict(scheme.defaults(), noise_model=fwm.NOISE_PASSIVE_L1,
+                  resolution=fwm.FIDELITY_BALANCED,
                   after_cell_eff_pct=50.0, qe_pct=60.0)
     raw = scheme.compute(params)
     view = scheme.headless_observables(raw, params)
