@@ -72,6 +72,22 @@ class DetectionSettings:
     # It is not calculated from the RF drive.  -100 dBc/Hz is a simulation
     # setting, not a measured system value.
     eom_unwanted_rin_db_per_hz: float = -100.0
+    # Independently confirmed aggregate values for a dated lab snapshot. None
+    # retains the per-optic and responsivity estimates of the paper profile.
+    post_cell_transmission_override: float | None = None
+    qe_pct_override: float | None = None
+
+    def __post_init__(self):
+        transmission = self.post_cell_transmission_override
+        if transmission is not None and (
+                not math.isfinite(float(transmission))
+                or not 0.0 <= float(transmission) <= 1.0):
+            raise ValueError(
+                "post_cell_transmission_override must be between 0 and 1")
+        qe = self.qe_pct_override
+        if qe is not None and (not math.isfinite(float(qe))
+                               or not 0.0 < float(qe) <= 100.0):
+            raise ValueError("qe_pct_override must be positive and at most 100")
 
 
 @dataclass(frozen=True)
@@ -96,6 +112,9 @@ class DetectionGeometry:
     loss_pct: float
     qe_pct: float
     warnings: Tuple[str, ...] = ()
+    exit_to_dmirror_m: float = 0.0
+    mode_to_dmirror_m: float = 0.0
+    mode_origin: str = "nominal cell centre; waist position unmeasured"
 
     @property
     def separation_margin(self):
@@ -114,6 +133,11 @@ class DetectionGeometry:
     @property
     def eta(self):
         return self.qe_pct / 100.0 * (1.0 - self.loss_pct / 100.0)
+
+    @property
+    def responsivity_a_per_w(self):
+        """795 nm photocurrent conversion consistent with the adopted QE."""
+        return self.qe_pct * 0.01 * 795.0 / 1239.841984
 
     @property
     def squeezing_floor_db(self):
@@ -170,7 +194,13 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
     layout = layout or layout_parts.PART2
     c = calibration.value
 
-    distance = layout_parts.cell_to_dmirror_m(layout)
+    # The 23 inch measurement starts at the OUTPUT END, whereas the Gaussian
+    # mode is represented at a nominal cell-centre plane. Its waist/crossing z
+    # has not been measured; half-cell propagation is a stated model convention,
+    # never an inference that the physical beams cross at the centre.
+    exit_distance = layout_parts.cell_to_dmirror_m(layout)
+    half_cell = 0.5 * c("cell_length_mm") * 1e-3
+    distance = exit_distance + half_cell
     angle_rad = math.radians(settings.crossing_angle_deg)
 
     # Both twin beams use the seed transverse mode after the cell.
@@ -180,10 +210,10 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
     twin_at_dmirror = _propagate(twin_mode, distance)
     pump_at_dmirror = _propagate(pump_mode, distance)
 
-    pump_separation = distance * math.tan(angle_rad)
+    pump_separation = exit_distance * math.tan(angle_rad)
     twin_separation = 2.0 * pump_separation
 
-    lens_distance = layout_parts.cell_to_lens_m(layout)
+    lens_distance = layout_parts.cell_to_lens_m(layout) + half_cell
     residual = c("loss_post_cell_residual")
     arm_specs = (
         ("probe", detection.probe_lens_focal_mm,
@@ -198,18 +228,23 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
         focused = at_lens.through_thin_lens(focal_m)
         # Place the diode at the post-lens waist, then apply the defocus knob.
         at_pd = focused.propagated(-focused.z_m + detection.pd_defocus_mm * 1e-3)
+        transmission = (layout_parts.transmission_of(route, calibration)
+                        * residual)
+        if detection.post_cell_transmission_override is not None:
+            transmission = float(detection.post_cell_transmission_override)
         arms.append(ArmGeometry(
             name=name,
             radius_at_dmirror_m=twin_at_dmirror.radius_m,
             spot_radius_m=at_pd.radius_m,
             lens_focal_m=focal_m,
-            optics_transmission=(layout_parts.transmission_of(route, calibration)
-                                 * residual),
+            optics_transmission=transmission,
         ))
 
     # GABES uses the mean arm loss; detector calculations retain each arm value.
     transmission = sum(arm.optics_transmission for arm in arms) / len(arms)
-    qe_pct = _quantum_efficiency_pct(calibration)
+    qe_pct = (_quantum_efficiency_pct(calibration)
+              if detection.qe_pct_override is None
+              else float(detection.qe_pct_override))
 
     warnings = []
     margin = pump_separation / twin_at_dmirror.radius_m
@@ -230,6 +265,8 @@ def geometry(chain, settings, detection=None, calibration=None, layout=None):
         loss_pct=100.0 * (1.0 - transmission),
         qe_pct=qe_pct,
         warnings=tuple(warnings),
+        exit_to_dmirror_m=exit_distance,
+        mode_to_dmirror_m=distance,
     )
 
 
@@ -248,7 +285,9 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
     seed_w = chain.seed_power_w
     density_limit = c("pd_max_power_density_w_per_cm2")
     active_radius = 0.5 * c("pd_active_diameter_mm") * 1e-3
-    responsivity = c("pd_responsivity_a_per_w")
+    # Keep the photocurrent/noise conversion consistent with an independently
+    # supplied QE. With no override this reconstructs the calibration exactly.
+    responsivity = geom.responsivity_a_per_w
     nep = c("bpd_nep_w_per_rthz")
     saturation = c("bpd_cw_saturation_w")
 
@@ -301,14 +340,26 @@ def readout(geom, chain, gains, settings, detection=None, calibration=None):
                 f"{arm.name}: spot radius {arm.spot_radius_m * 1e6:.0f} um is "
                 f"larger than the {active_radius * 1e6:.0f} um active radius")
         if residual > 0.05 * power:
-            warnings.append(
-                f"{arm.name}: residual pump is {100 * residual / power:.1f} % of "
-                f"the signal; pump scatter will dominate the noise floor")
+            if power > 0.0:
+                warnings.append(
+                    f"{arm.name}: residual pump is {100 * residual / power:.1f} % of "
+                    f"the signal; pump scatter will dominate the noise floor")
+            else:
+                warnings.append(
+                    f"{arm.name}: no transmitted signal; residual pump is still "
+                    f"an independently supplied detector input")
 
     bandwidth = 1.0
     shot = math.sqrt(2.0 * ELEMENTARY_CHARGE * responsivity * total * bandwidth)
     electronic = responsivity * nep
-    clearance = 20.0 * math.log10(shot / electronic) if electronic > 0 else math.inf
+    if shot <= 0.0:
+        clearance = -math.inf
+        warnings.append(
+            "no transmitted twin-beam power; shot-noise normalization is "
+            "unavailable")
+    else:
+        clearance = (20.0 * math.log10(shot / electronic)
+                     if electronic > 0 else math.inf)
     if clearance < CLEARANCE_WARN_DB:
         warnings.append(
             f"shot noise is only {clearance:.1f} dB above the amplifier noise; "

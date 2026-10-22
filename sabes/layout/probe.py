@@ -32,6 +32,7 @@ class ProbeReading:
     fraction_along: float
     display_point: tuple
     pick_distance: float
+    mode_scope: str = ""
 
     @property
     def beam_name(self):
@@ -52,6 +53,7 @@ _BEAM_TO_CHAIN_PATH = {
     "pump": "pump",
     "seed": "seed",
     "common": "common",
+    "reference": "reference",
 }
 
 
@@ -84,7 +86,47 @@ def resolve_link_beam(chain, link, twin_states=None):
     return state
 
 
+def _post_cell_mode(layout, link, beam, fraction, detection, calibration):
+    """Twin mode at a probe point, using the detector geometry conventions.
+
+    Each resolved twin state starts at the nominal cell-centre mode plane.
+    Propagating just the current link would repeatedly reset it there. Include
+    the full preceding route, and apply the collection lens before a PD probe.
+    """
+    from ..calibration import default_calibration
+    from ..detection import DetectionSettings
+
+    calibration = calibration or default_calibration()
+    detection = detection or DetectionSettings()
+    suffix = "probe" if link.beam == "probe" else "conj"
+    route = ("cell", "pbs_out", f"dm_{suffix}", f"iris_{suffix}",
+             f"lens_{suffix}", "bpd")
+    try:
+        start_index = route.index(link.a)
+    except ValueError:
+        return None
+    if start_index == len(route) - 1 or route[start_index + 1] != link.b:
+        return None
+    before = layout.path_length_m(*route[:start_index + 1])
+    before += 0.5 * calibration.value("cell_length_mm") * 1e-3
+    mode = beam.mode.propagated(before)
+    if link.a == f"lens_{suffix}":
+        focal_mm = (detection.probe_lens_focal_mm if suffix == "probe"
+                    else detection.conjugate_lens_focal_mm)
+        mode = mode.through_thin_lens(focal_mm * 1e-3)
+        # The detector model places the diode at the post-lens waist plus its
+        # explicit defocus. This distance is an optical-model convention, not
+        # a surveyed path extracted from schematic coordinates.
+        along_m = fraction * (-mode.z_m + detection.pd_defocus_mm * 1e-3)
+        scope = "nominal post-lens waist / diode-defocus placement"
+    else:
+        along_m = 0.0 if link.path_m is None else link.path_m * fraction
+        scope = "nominal cell-centre mode; output-end route distances"
+    return beam.with_mode(mode.propagated(along_m)), along_m, scope
+
+
 def beam_at(layout: Layout, x, y, chain, *, twin_states=None,
+            detection=None, calibration=None,
             tolerance=PICK_TOLERANCE) -> Optional[ProbeReading]:
     """Nearest beam to a display point, with its mode propagated to that point.
 
@@ -107,16 +149,22 @@ def beam_at(layout: Layout, x, y, chain, *, twin_states=None,
     if state is None:
         return None
 
-    # Display fraction maps onto physical distance only when the segment has a
-    # real length. Without one there is nothing to propagate along, and the
-    # honest answer is the beam as it entered the segment.
-    along_m = 0.0 if link.path_m is None else link.path_m * fraction
-    if along_m:
-        state = state.with_mode(state.mode.propagated(along_m))
+    post_cell = (_post_cell_mode(layout, link, state, fraction,
+                                detection, calibration)
+                 if link.beam in ("probe", "conjugate") else None)
+    if post_cell is not None:
+        state, along_m, scope = post_cell
+    else:
+        # No physical length means no inferred propagation on the SQL bypass
+        # or other unmeasured segments.
+        along_m = 0.0 if link.path_m is None else link.path_m * fraction
+        if along_m:
+            state = state.with_mode(state.mode.propagated(along_m))
+        scope = ""
 
     return ProbeReading(link=link, beam=state, distance_along_m=along_m,
                         fraction_along=fraction, display_point=closest,
-                        pick_distance=distance)
+                        pick_distance=distance, mode_scope=scope)
 
 
 def optic_at(layout: Layout, x, y):

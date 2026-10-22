@@ -1,0 +1,33 @@
+{
+  "scope": "10/16 SABES apparatus implementation; no atomic model certification",
+  "full_pytest": {
+    "passed": 2570,
+    "skipped": 3,
+    "failed": 0,
+    "warnings": 11,
+    "receipt": "full_pytest_receipt.json"
+  },
+  "frozen_code_and_settings": 238,
+  "physics_integrity": {
+    "checked_files": 74,
+    "changed_files": [],
+    "scope": "gabes Python source and focused baseline artifact"
+  },
+  "ui_validation": "ui_validation.json",
+  "independent_review": {
+    "outcome": "no remaining must-fix issues",
+    "resolved": [
+      "zero-transmission dark detector and unavailable normalization",
+      "zero QE validation",
+      "post-cell profiler propagation and lens consistency",
+      "confirmed SQL PBS identity and actual matched-power procedure",
+      "durable optic widget values after dialog closure"
+    ]
+  },
+  "official_gc_milestones_changed": false,
+  "post_closure_document_tests": {
+    "command": "python -m pytest -q tests/test_docs_consistency.py",
+    "passed": 4,
+    "failed": 0
+  }
+}

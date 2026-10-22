@@ -80,7 +80,7 @@ def glyph_for(node):
         return "mirror"
     if node_id.startswith("dm_"):
         return "dmirror"
-    if node_id.startswith("pbs"):
+    if node_id.startswith("pbs") or node_id == "bs_sql":
         return "cube"
     if node_id.startswith(("hwp", "qwp")):
         return "waveplate"
@@ -226,5 +226,5 @@ def legend_rows():
         (BEAM_STYLE[BEAM_SEED]["stroke"], True, "seed"),
         (BEAM_STYLE[BEAM_PROBE]["stroke"], False, "probe"),
         (BEAM_STYLE[BEAM_CONJUGATE]["stroke"], False, "conjugate"),
-        (BEAM_STYLE[BEAM_REFERENCE]["stroke"], True, "locking reference"),
+        (BEAM_STYLE[BEAM_REFERENCE]["stroke"], True, "SAS / SQL reference"),
     )

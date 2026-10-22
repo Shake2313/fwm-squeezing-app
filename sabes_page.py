@@ -38,9 +38,13 @@ from sabes.beamline import (SetupSettings, solve_seed_polarizer_deg,
                             solve_seed_trim_deg, solve_split_angle_deg)
 from sabes.calibration import default_calibration
 from sabes.detection import DetectionSettings
+from sabes.apparatus import default_apparatus
+from sabes.presets import (LAB_PROFILE, PAPER_PROFILE, PROFILES, power_targets,
+                           profile_calibration, profile_settings)
+from sabes.session_export import session_json
 
 SESSION_PREFIX = "_sabes_"
-SETTINGS_VERSION = "sabes-eom-noise-v3"
+SETTINGS_VERSION = "sabes-apparatus-20261016-v4"
 
 FIDELITIES = (fwm.FIDELITY_FAST, fwm.FIDELITY_ULTRA)
 
@@ -74,9 +78,10 @@ CONTROLS = {
                        "GHz ground hyperfine splitting. This IS the two-photon "
                        "detuning, with the sign flipped and no calibration "
                        "coefficient in between."),
-    "eom_rf_dbm": ("RF drive", "dBm", 0.0, 30.0, 0.5,
-                   "Sets the modulation index β = π V_peak / V_π and hence how "
-                   "much power lands in the wanted −1 sideband."),
+    "eom_rf_dbm": ("Effective EOM RF input (model)", "dBm", 0.0, 30.0, 0.5,
+                   "Sets β = π V_peak / V_π. The recorded generator display is "
+                   "11.8 dBm; actual power at the EOM port is unmeasured. "
+                   "This independent model input has not been calibrated to it."),
     "eom_unwanted_rin_db_per_hz": (
         "Unwanted-mode RIN", "dBc/Hz", -180.0, -60.0, 1.0,
         "One-sided fractional-intensity-noise PSD for each unwanted "
@@ -113,20 +118,30 @@ CONTROLS = {
                              "First lens of the seed telescope."),
     "seed_telescope_f2_mm": ("Focal length", "mm", 25.0, 1000.0, 5.0,
                              "Second lens of the seed telescope."),
+    "pump_waist_override_um": ("Recorded pump radius", "µm", 10.0, 2000.0, 1.0,
+                               "1/e² intensity radius. Its longitudinal position "
+                               "has not been measured; this is the model mode size."),
+    "seed_waist_override_um": ("Recorded seed radius", "µm", 10.0, 2000.0, 1.0,
+                               "1/e² intensity radius; exact waist position unknown."),
+    "post_cell_transmission_override": ("Aggregate post-cell transmission", "", 0.0, 1.0, 0.001,
+                                        "Common recorded efficiency applied to each arm. "
+                                        "Replaces the individual optic-loss model when enabled."),
+    "qe_pct_override": ("Recorded quantum efficiency", "%", 1.0, 100.0, 0.1,
+                        "Adopted S3883 efficiency at 795 nm; determines detector responsivity."),
     "opd_ghz": ("One-photon detuning Δ", "GHz", -3.0, 3.0, 0.05,
-                "Where the pump sits. Set by the ECDL lock, not modelled from "
-                "its temperature / current / PZT — mode hops make that "
-                "unpredictable."),
+                "Pump detuning selected by visually reading SAS. No electronic "
+                "SAS lock is currently in use; temperature/current/PZT do not "
+                "uniquely determine this value."),
     "cell_temp_c": ("Temperature", "°C", 60.0, 150.0, 1.0,
-                    "Vapour temperature from the heater controller."),
+                    "Effective vapour-temperature input. The 113 °C reference "
+                    "comes from OD; sensor voltage and heater setting are separate quantities."),
     "dmirror_separation_mm": ("Separation here", "mm", 0.5, 15.0, 0.05,
-                              "Alignment is done by overlapping at the cell "
-                              "and separating by this much 23 inch "
-                              "downstream, so this is the crossing-angle "
-                              "knob."),
+                              "Probe–pump gap at the D-mirror, about 23 inch "
+                              "from the cell OUTPUT end. The exit-plane overlap "
+                              "triangle estimates the crossing angle."),
     "pump_leakage_dbm": ("Pump leakage", "dBm", -120.0, -10.0, 1.0,
-                         "OBSERVED pump power reaching the detector — measure "
-                         "it, do not derive it. A Gaussian tail claims 1e-9 "
+                         "Model input for residual pump power at the detector; "
+                         "the default is an assumption requiring measurement. A Gaussian tail claims 1e-9 "
                          "rejection, which is useless and contradicted by the "
                          "paper naming pump scatter as a real limit. It enters "
                          "the spectrum analyser through its calculable shot noise. "
@@ -170,9 +185,29 @@ def _key(name):
     return SESSION_PREFIX + name
 
 
-def _defaults():
-    base = SetupSettings()
-    detection = DetectionSettings()
+def _widget_key(name):
+    return _key("widget_" + name)
+
+
+def _copy_widget(name):
+    # Dialog widgets disappear between optic selections. Keep the model inputs
+    # outside Streamlit's widget-cleanup lifecycle.
+    st.session_state[_key(name)] = st.session_state[_widget_key(name)]
+
+
+def _render_bool_control(label, name, **kwargs):
+    widget_key = _widget_key(name)
+    return st.checkbox(label, key=widget_key,
+                       value=st.session_state[_key(name)],
+                       on_change=_copy_widget, args=(name,), **kwargs)
+
+
+def _selected_profile():
+    return st.session_state.get(_key("profile"), PAPER_PROFILE)
+
+
+def _defaults(profile=PAPER_PROFILE):
+    base, detection = profile_settings(profile)
     values = {f.name: getattr(base, f.name) for f in fields(base)}
     values.update({f.name: getattr(detection, f.name) for f in fields(detection)})
     # The generator is exposed as an offset from the hyperfine splitting, because
@@ -185,19 +220,41 @@ def _defaults():
     values["resolution"] = FIDELITIES[0]
     values["instrument"] = INSTRUMENTS[0]
     values["scope_mode"] = "Scan"
+    values["use_recorded_waists"] = profile == LAB_PROFILE
+    values["use_recorded_detection"] = profile == LAB_PROFILE
+    # Widgets always need numbers; disabled overrides are returned as None by
+    # _current so the paper optical model remains available without alteration.
+    for name, fallback in (("pump_waist_override_um", 530.0),
+                           ("seed_waist_override_um", 330.0),
+                           ("post_cell_transmission_override", 0.9709),
+                           ("qe_pct_override", 90.5)):
+        if values[name] is None:
+            values[name] = fallback
     return values
 
 
 def _seed_session_state():
     version_key = _key("_version")
-    values = _defaults()
+    st.session_state.setdefault(_key("profile"), LAB_PROFILE)
+    values = _defaults(_selected_profile())
     if st.session_state.get(version_key) != SETTINGS_VERSION:
+        for name in _editable_transmission_keys():
+            st.session_state.pop(_key(name), None)
         for name, value in values.items():
             st.session_state[_key(name)] = value
         st.session_state[version_key] = SETTINGS_VERSION
     else:
         for name, value in values.items():
             st.session_state.setdefault(_key(name), value)
+
+
+def _profile_changed():
+    _reset_defaults()
+    for name in ("selected", "open_optic", "_solver_error"):
+        st.session_state.pop(_key(name), None)
+    for part in layout.LAYOUTS:
+        st.session_state.pop(_probe_key(part.key), None)
+        st.session_state.pop(_key(f"inspect_{part.key}"), None)
 
 
 def _current():
@@ -221,6 +278,10 @@ def _current():
         pump_telescope_f2_mm=get("pump_telescope_f2_mm"),
         seed_telescope_f1_mm=get("seed_telescope_f1_mm"),
         seed_telescope_f2_mm=get("seed_telescope_f2_mm"),
+        pump_waist_override_um=(get("pump_waist_override_um")
+                                if get("use_recorded_waists") else None),
+        seed_waist_override_um=(get("seed_waist_override_um")
+                                if get("use_recorded_waists") else None),
         opd_ghz=get("opd_ghz"),
         cell_temp_c=get("cell_temp_c"),
         dmirror_separation_mm=get("dmirror_separation_mm"),
@@ -231,6 +292,10 @@ def _current():
         conjugate_lens_focal_mm=get("conjugate_lens_focal_mm"),
         pd_defocus_mm=get("pd_defocus_mm"),
         eom_unwanted_rin_db_per_hz=get("eom_unwanted_rin_db_per_hz"),
+        post_cell_transmission_override=(get("post_cell_transmission_override")
+                                         if get("use_recorded_detection") else None),
+        qe_pct_override=(get("qe_pct_override")
+                          if get("use_recorded_detection") else None),
     )
     return settings, detection
 
@@ -239,15 +304,16 @@ def _current():
 # Sidebar
 # ----------------------------------------------------------------------
 def _apply_solved_knobs():
-    """Re-solve the three power knobs onto the paper operating point."""
+    """Re-solve power knobs onto the selected reference targets."""
     settings, _ = _current()
     calibration = _session_calibration()
+    pump_w, eom_w, seed_w = power_targets(_selected_profile())
     try:
-        split = solve_split_angle_deg(0.600, settings, calibration)
+        split = solve_split_angle_deg(pump_w, settings, calibration)
         settings = replace(settings, hwp_split_deg=split)
-        polarizer = solve_seed_polarizer_deg(7.0e-3, settings, calibration)
+        polarizer = solve_seed_polarizer_deg(eom_w, settings, calibration)
         settings = replace(settings, seed_polarizer_deg=polarizer)
-        trim = solve_seed_trim_deg(8.0e-6, settings, calibration)
+        trim = solve_seed_trim_deg(seed_w, settings, calibration)
     except ValueError as exc:
         st.session_state[_key("_solver_error")] = str(exc)
         return
@@ -255,6 +321,8 @@ def _apply_solved_knobs():
     st.session_state[_key("hwp_split_deg")] = round(split, 4)
     st.session_state[_key("seed_polarizer_deg")] = round(polarizer, 4)
     st.session_state[_key("seed_trim_hwp_deg")] = round(trim, 4)
+    for name in ("hwp_split_deg", "seed_polarizer_deg", "seed_trim_hwp_deg"):
+        st.session_state.pop(_widget_key(name), None)
 
 
 def _back_to_gabes():
@@ -262,8 +330,13 @@ def _back_to_gabes():
 
 
 def _reset_defaults():
-    for name, value in _defaults().items():
+    for name, value in _defaults(_selected_profile()).items():
         st.session_state[_key(name)] = value
+    for name in _editable_transmission_keys():
+        st.session_state.pop(_key(name), None)
+    for name in list(st.session_state):
+        if name.startswith(_key("widget_")):
+            st.session_state.pop(name, None)
 
 
 def _render_sidebar(host):
@@ -279,12 +352,23 @@ def _render_sidebar(host):
                       use_container_width=True)
     st.sidebar.divider()
 
+    st.sidebar.selectbox("Calculation profile", PROFILES, key=_key("profile"),
+                         on_change=_profile_changed,
+                         help="Changing profiles resets model controls and transmission edits.")
+    st.sidebar.caption("Apparatus baseline: 2026-10-16 · confirmed 2026-10-21")
+    if _selected_profile() == LAB_PROFILE:
+        st.sidebar.caption(
+            "294.804 mW pump · 113 °C OD reference · 3.039 GHz EOM. "
+            "FWM power/temperature reference: 2026-10-13. "
+            "Seed input ≈3.92 µW is a detector-based proxy. "
+            "Solved angles and effective EOM RF remain model inputs.")
+
     left, right = st.sidebar.columns(2)
     left.button("Solve knobs", on_click=_apply_solved_knobs,
                 use_container_width=True,
-                help="Set the split, polarizer and trim angles that put 600 mW "
-                     "on the pump, 7 mW into the EOM and 8 µW of seed at the "
-                     "cell, for the calibration currently in force.")
+                help="Solve split, polarizer and trim angles for this profile's "
+                     "power targets using the current calibration. Angles are "
+                     "model solutions, not recorded bench settings.")
     right.button("Reset", on_click=_reset_defaults, use_container_width=True)
 
     error = st.session_state.get(_key("_solver_error"))
@@ -316,7 +400,7 @@ def _render_sidebar(host):
 
 def _session_calibration():
     """The shipped calibration with any per-optic transmission edits applied."""
-    calibration = default_calibration()
+    calibration = profile_calibration(_selected_profile())
     updates = {
         name: st.session_state[SESSION_PREFIX + name]
         for name in _editable_transmission_keys()
@@ -345,10 +429,16 @@ def _owned_parameters():
 def _render_control(container, name):
     """One numeric input, from the single shared definition."""
     label, unit, low, high, step, help_text = CONTROLS[name]
+    widget_key = _widget_key(name)
+    flag = ("use_recorded_waists" if name.endswith("waist_override_um") else
+            "use_recorded_detection" if name in
+            ("post_cell_transmission_override", "qe_pct_override") else None)
     container.number_input(
         f"{label} [{unit}]" if unit else label,
         min_value=float(low), max_value=float(high), step=float(step),
-        key=_key(name), help=help_text,
+        key=widget_key, value=float(st.session_state[_key(name)]), help=help_text,
+        on_change=_copy_widget, args=(name,),
+        disabled=flag is not None and not st.session_state[_key(flag)],
         format="%.4f" if step < 0.05 else "%.2f")
 
 
@@ -410,16 +500,27 @@ def _handle_canvas_event(event, part_key):
     st.session_state[seen] = event.get("seq")
     if event.get("kind") == canvas_module.KIND_OPTIC:
         st.session_state[_key("selected")] = event.get("id")
+        st.session_state[_key(f"inspect_{part_key}")] = event.get("id")
         # Clicking an optic opens its editor straight away; the flag survives
         # the rerun the dialog needs, and the dialog clears it on close.
         st.session_state[_key("open_optic")] = event.get("id")
     else:
         st.session_state[_probe_key(part_key)] = [event["x"], event["y"]]
         st.session_state[_key("selected")] = None
+        st.session_state[_key(f"inspect_{part_key}")] = None
     return True
 
 
-@st.dialog("Optic")
+def _inspect_changed(part_key):
+    st.session_state[_key("selected")] = st.session_state[
+        _key(f"inspect_{part_key}")]
+
+
+def _dismiss_optic():
+    st.session_state.pop(_key("open_optic"), None)
+
+
+@st.dialog("Optic", on_dismiss=_dismiss_optic)
 def _optic_dialog(part_key, node_id):
     """Edit one optic's parameters, in a modal on top of the drawing.
 
@@ -438,16 +539,26 @@ def _optic_dialog(part_key, node_id):
     st.markdown(f"### {node.display_label or node.id}")
     if node.note:
         st.caption(node.note)
+    _render_hardware_details(node_id)
 
     editable = [name for name in node.params if name in CONTROLS]
+    if any(name.endswith("waist_override_um") for name in editable):
+        _render_bool_control("Use recorded cell mode radii", "use_recorded_waists",
+                             help="When disabled, both radii follow the telescope model.")
+    if "qe_pct_override" in editable:
+        _render_bool_control("Use recorded post-cell efficiency and QE",
+                             "use_recorded_detection",
+                             help="The aggregate transmission replaces per-optic losses in both arms.")
     for name in editable:
         _render_control(st, name)
 
     if node.transmission_key:
         st.markdown("**Transmission**")
+        name = node.transmission_key
         st.number_input(
             "Per-pass transmission", min_value=0.0, max_value=1.0, step=0.001,
-            key=SESSION_PREFIX + node.transmission_key, format="%.4f",
+            key=_widget_key(name), value=float(st.session_state[_key(name)]),
+            on_change=_copy_widget, args=(name,), format="%.4f",
             help="Fraction of power this optic passes. Editing it marks the "
                  "coefficient as hand-set, which is what it is until somebody "
                  "measures it.")
@@ -483,8 +594,9 @@ def _render_optic_panel(part, node_id, settings, detection):
     st.markdown(f"**{node.display_label or node.id}**")
     if node.note:
         st.caption(node.note)
+    _render_hardware_details(node_id)
     rows = [(CONTROLS[name][0] if name in CONTROLS else name,
-             f"{values.get(name, float('nan')):.4g}"
+             (f"{values[name]:.4g}" if values.get(name) is not None else "model default")
              + (f" {CONTROLS[name][1]}" if name in CONTROLS else ""))
             for name in node.params]
     if rows:
@@ -495,16 +607,26 @@ def _render_optic_panel(part, node_id, settings, detection):
         st.rerun()
 
 
+def _render_hardware_details(node_id):
+    apparatus = default_apparatus()
+    for item in apparatus.equipment_for_node(node_id):
+        st.markdown(f"**{item.label}** · {item.model_label or 'model unknown'}")
+        st.caption(f"Status: {item.status} · sources: {', '.join(item.source_ids)}")
+        if item.notes:
+            st.caption(item.notes)
+
+
 #: What can be dropped on a point of the table. The last two need a photodiode,
 #: exactly as on the bench, so they read through one rather than off the beam.
 INSTRUMENTS = ("Power meter", "Beam profiler", "Wavemeter", "Photodiode",
                "Oscilloscope", "Spectrum analyser")
 
 
-def _detector_from_calibration(calibration):
+def _detector_from_calibration(calibration, geometry=None):
     c = calibration.value
     return instruments.Photodiode(
-        responsivity_a_per_w=c("pd_responsivity_a_per_w"),
+        responsivity_a_per_w=getattr(geometry, "responsivity_a_per_w",
+                                     c("pd_responsivity_a_per_w")),
         transimpedance_v_per_a=c("bpd_transimpedance_v_per_a"),
         bandwidth_hz=c("bpd_bandwidth_hz"),
         nep_w_per_rthz=c("bpd_nep_w_per_rthz"),
@@ -530,7 +652,7 @@ def _read_instrument(choice, reading, result, calibration, detection):
     if choice == "Wavemeter":
         return instruments.Wavemeter(wanted_offset_hz=wanted).measure(beam)
 
-    detector = _detector_from_calibration(calibration)
+    detector = _detector_from_calibration(calibration, result.geometry)
     if choice == "Photodiode":
         return detector.measure(beam)
 
@@ -665,6 +787,8 @@ def _render_table_tab(result, calibration, host, detection):
     part = layout.LAYOUTS[names.index(choice)]
 
     st.caption(part.title)
+    st.caption("Drawing coordinates are schematic. Physical x/y/z, exact waist "
+               "positions and the crossing point still require measurement.")
     probe = st.session_state.get(_probe_key(part.key))
     spec = layout.build_spec(part, result.chain, selected=selected,
                              probe=probe, twin_states=twin)
@@ -690,11 +814,19 @@ def _render_table_tab(result, calibration, host, detection):
     left, right = st.columns([1, 1])
     with left:
         st.markdown("###### Selected optic")
+        node_ids = [node.id for node in part.nodes]
+        selector_key = _key(f"inspect_{part.key}")
+        inspected = st.selectbox(
+            "Inspect hardware", [None] + node_ids, key=selector_key,
+            on_change=_inspect_changed, args=(part.key,),
+            format_func=lambda value: ("Choose an optic" if value is None else
+                                      part.node(value).display_label or value))
+        selected = inspected
         if selected:
             _render_optic_panel(part, selected, settings, detection)
         else:
-            st.caption("Click a highlighted optic. Greyed hardware is drawn "
-                       "for orientation but owns no parameter.")
+            st.caption("Click an optic or choose hardware above to inspect its "
+                       "model, source and recorded status.")
     with right:
         st.markdown("###### Instrument")
         choice = st.selectbox(
@@ -704,6 +836,9 @@ def _render_table_tab(result, calibration, host, detection):
                  "oscilloscope and the spectrum analyser read through a "
                  "photodiode, as they do on the bench.")
         if choice == "Oscilloscope":
+            st.caption("Bench: Monitor+ mainly probe, Monitor− mainly conjugate; "
+                       "gain switch 10⁵ V/A. Output termination is unknown, so "
+                       "virtual volts are not an absolute Monitor calibration.")
             st.radio("Mode", ("Scan", "Time series"), key=_key("scope_mode"),
                      horizontal=True, label_visibility="collapsed",
                      help="Scan is a swept-laser trace and is computed. Time "
@@ -711,10 +846,17 @@ def _render_table_tab(result, calibration, host, detection):
         probed = None
         if probe:
             probed = layout.beam_at(part, probe[0], probe[1], result.chain,
-                                    twin_states=twin)
+                                    twin_states=twin, detection=detection,
+                                    calibration=calibration)
         _render_probe_panel(probed)
+        if probed is not None and probed.mode_scope:
+            st.caption(probed.mode_scope)
 
     if probed is not None:
+        if probed.link.beam == "reference":
+            st.caption("SQL bypass: available coherent branch power before "
+                       "unmeasured attenuation. The ideal 50:50 split is a model "
+                       "assumption. A matched-power SQL trace is not inferred.")
         st.divider()
         st.markdown(f"###### {choice} on the {probed.link.beam} beam")
         _render_reading(_read_instrument(
@@ -778,14 +920,47 @@ def _provenance_panel(calibration):
     unverified = calibration.unverified()
     verified = len(calibration) - len(unverified)
     st.markdown(
-        f"**{verified} of {len(calibration)}** coefficients are backed by a "
-        f"datasheet, the paper, or a fit. The rest are placeholders — results "
-        f"that depend on them are *predicted*, not *reproduced*."
+        f"**{verified} of {len(calibration)}** coefficients carry a datasheet, "
+        f"paper or fit source tag. These tags do not establish calibration of "
+        f"the installed apparatus. The table below retains reported, nominal "
+        f"and interactively edited inputs."
     )
     rows = [(c.name, f"{c.value:g}", c.unit or "—", c.provenance)
             for c in unverified]
     st.markdown(_markdown_table(("Coefficient", "Value", "Unit", "Provenance"),
                                 rows))
+
+
+def _render_apparatus_tab(result, detection, calibration):
+    apparatus = default_apparatus()
+    st.markdown(f"**{apparatus.title}**")
+    st.caption(f"Baseline {apparatus.baseline_date} · confirmed {apparatus.confirmed_on}. "
+               f"{apparatus.update_policy}")
+    st.markdown("#### Equipment")
+    st.dataframe(list(apparatus.equipment_rows()), hide_index=True,
+                 use_container_width=True)
+    st.markdown("#### Connections")
+    st.dataframe(list(apparatus.connection_rows()), hide_index=True,
+                 use_container_width=True)
+    st.markdown("#### Recorded quantities and unknowns")
+    st.dataframe(list(apparatus.fact_rows()), hide_index=True,
+                 use_container_width=True)
+    with st.expander("Sources and deferred details"):
+        st.dataframe([{"id": item.id, "source": item.label,
+                       "origin": item.origin, "reference": item.reference,
+                       "date": item.date, "note": item.note}
+                      for item in apparatus.sources], hide_index=True,
+                     use_container_width=True)
+        for question in apparatus.deferred_questions():
+            st.markdown(f"- {question.question}")
+            st.caption("Revisit when needed for: " + ", ".join(question.contexts))
+    st.download_button(
+        "Download current session JSON",
+        session_json(result, detection, calibration, apparatus, _selected_profile()),
+        file_name=f"sabes_session_{apparatus.baseline_date}.json",
+        mime="application/json",
+        help="Includes dated inventory, unknowns, source tags, and actual active "
+             "model inputs/calibration. Unavailable numbers are null.")
 
 
 def _set_browser_title(title):
@@ -865,10 +1040,9 @@ def render(host=None):
 
     st.markdown(
         "<div class='sabes-header'><h1>SABES</h1>"
-        "<p>Lab settings in, mean-field diagnostics out — the EOM-based ⁸⁵Rb "
-        "twin-beam setup "
-        "of Sim, Kim &amp; Moon, <em>Sci. Rep.</em> <strong>15</strong>, 7727 "
-        "(2025), driven by the knobs you actually turn.</p></div>",
+        "<p>The EOM-based ⁸⁵Rb twin-beam apparatus · 2026-10-16 baseline. "
+        "Recorded hardware and wiring accompany the selected calculation "
+        "profile, based on Sim, Kim &amp; Moon (2025).</p></div>",
         unsafe_allow_html=True,
     )
 
@@ -885,7 +1059,7 @@ def render(host=None):
     gate = raw.get("claim_gate", {})
     metrics = [
         {"label": "Validation level",
-         "value": gate.get("level", "MEAN_FIELD_DIAGNOSTIC"),
+         "value": gate.get("level", "MEAN_FIELD_DIAGNOSTIC").replace("_", " ").title(),
          "help": "Quantitative gain and physical squeezing claims are blocked."},
         {"label": "Squeezing Degree [dB]",
          "value": _noise_db_text(result.gain_referred_noise_db),
@@ -923,7 +1097,7 @@ def render(host=None):
         st.warning(warning, icon="⚠️")
 
     tabs = st.tabs(["Optical table", "Spectrum", "Derived parameters",
-                    "Power budget", "Detection", "Calibration"])
+                    "Power budget", "Detection", "Calibration", "Apparatus & wiring"])
 
     with tabs[0]:
         _render_table_tab(result, calibration, host, detection)
@@ -970,6 +1144,8 @@ def render(host=None):
                 f" ({eom_shift:+.3g} dB normalized shift; absolute EOM PSD "
                 "is positive)")
         rows = [
+            ("Cell output end → D-mirror", f"{geom.exit_to_dmirror_m * 1e3:.1f} mm"),
+            ("Gaussian propagation origin", geom.mode_origin),
             ("Twin radius at D-mirrors",
              f"{geom.twin_radius_at_dmirror_m * 1e6:.0f} µm"),
             ("Pump–twin separation",
@@ -978,7 +1154,7 @@ def render(host=None):
              f"{geom.separation_margin:.1f} twin radii"),
             ("Mean post-cell transmission",
              f"{geom.optics_transmission * 100:.2f} %"),
-            ("Observed pump leakage",
+            ("Pump leakage input (assumed until measured)",
              f"{detection.pump_leakage_dbm:.0f} dBm"),
             ("Effective unwanted-mode RIN",
              f"{readout.eom_noise.rin_db_per_hz:.1f} dBc/Hz"),
@@ -1015,6 +1191,15 @@ def render(host=None):
             ]
         st.markdown(_markdown_table(("Quantity", "Value"), rows))
         st.caption(
+            "Bench detector: S3883 eyes on the PDB450A circuit, gain switch "
+            "10⁵ V/A. RF → Rigol DSA875; Monitor +/- → Keysight DSOX1204A. "
+            "Termination is unknown. Virtual SA uses a 50 Ω conversion and "
+            "a stock noise-floor assumption; absolute output volts are uncalibrated.")
+        if detection.post_cell_transmission_override is not None:
+            st.caption("Recorded aggregate efficiency is active: it replaces "
+                       "individual post-cell optic losses. Disable it on the "
+                       "balanced detector to explore per-optic transmission edits.")
+        st.caption(
             "The shipped RIN is an assumption. Unwanted modes pass through the "
             "probe arm without atomic gain or a conjugate partner. Treat the "
             "result as calibrated only after measuring detector-plane mode "
@@ -1022,6 +1207,9 @@ def render(host=None):
 
     with tabs[5]:
         _provenance_panel(calibration)
+
+    with tabs[6]:
+        _render_apparatus_tab(result, detection, calibration)
 
 
 def _render_metrics(metrics):

@@ -31,7 +31,8 @@ import math
 
 from gabes import constants
 
-from .beamstate import BeamState, monochromatic
+from .beamstate import (BeamState, JONES_H, JONES_V, linear_jones,
+                        monochromatic)
 from .calibration import default_calibration
 from .layout import parts as layout_parts
 from .layout.parts import CELL_TO_DMIRROR_M
@@ -80,6 +81,10 @@ class SetupSettings:
     pump_telescope_f2_mm: float = 150.0
     seed_telescope_f1_mm: float = 400.0
     seed_telescope_f2_mm: float = 150.0
+    # Independent cell-radius inputs. None retains the telescope/calibration
+    # estimate; supplied values do not establish the waist's physical z.
+    pump_waist_override_um: float | None = None
+    seed_waist_override_um: float | None = None
 
     # --- geometry / cell ---
     opd_ghz: float = 0.9
@@ -91,6 +96,13 @@ class SetupSettings:
     ecdl_current_ma: float = float("nan")
     ecdl_pzt_v: float = float("nan")
     ta_temp_c: float = float("nan")
+
+    def __post_init__(self):
+        for name in ("pump_waist_override_um", "seed_waist_override_um"):
+            value = getattr(self, name)
+            if value is not None and (not math.isfinite(float(value))
+                                      or float(value) <= 0.0):
+                raise ValueError(f"{name} must be finite and positive")
 
     @property
     def tpd_mhz(self):
@@ -106,11 +118,12 @@ class SetupSettings:
 
     @property
     def crossing_angle_deg(self):
-        """Angle from the separation the beams are actually set to.
+        """Approximate angle from the output-end alignment triangle.
 
-        Alignment is done by overlapping at the cell and separating by a stated
-        number of mm at the D-shaped mirrors, so the millimetre reading is the
-        primary variable and the angle is derived.
+        The gap is probe-to-pump at the D-mirror, not probe-to-conjugate.
+        Overlap is checked at the output cell end; its approximately 23 inch
+        distance to the mirror sets this angle. This does not determine an
+        exact crossing coordinate inside the cell.
         """
         return math.degrees(math.atan(
             self.dmirror_separation_mm * 1e-3 / CELL_TO_DMIRROR_M))
@@ -274,6 +287,17 @@ class SourceChain:
     def seed_waist_m(self):
         return self.seed.mode.waist_m
 
+    @property
+    def sql_reference_arms(self):
+        """Ideal alternative SQL branches, before uncalibrated attenuation.
+
+        They are not simultaneous extra power in the FWM configuration and are
+        not a matched-power experimental SQL normalization.
+        """
+        return tuple(stage.beam for stage in self.stages
+                     if stage.path == "reference"
+                     and stage.name in ("SQL BS probe", "SQL BS conjugate"))
+
     def stage_power(self, path, name):
         for stage in self.stages:
             if stage.path == path and stage.name == name:
@@ -316,7 +340,11 @@ def _etalon(calibration, seed_offset_hz, detune_ghz):
 
 
 def build_source_chain(settings=None, calibration=None):
-    """Run the full source chain and return both beams at the cell face."""
+    """Run the source chain at its nominal cell mode plane.
+
+    The telescope estimate uses a nominal cell-centre mode origin. Actual
+    waist and crossing positions inside the cell remain unmeasured.
+    """
     settings = settings or SetupSettings()
     calibration = calibration or default_calibration()
     c = calibration.value
@@ -368,7 +396,27 @@ def build_source_chain(settings=None, calibration=None):
                                settings.pump_telescope_f2_mm * 1e-3,
                                record, "pump")
     pump = WaistRescale(c("waist_scale_factor")).apply(pump)
+    if settings.pump_waist_override_um is not None:
+        pump = pump.with_mode(replace(
+            pump.mode, waist_m=float(settings.pump_waist_override_um) * 1e-6))
     record("pump", "collimator + telescope", pump)
+
+    # In the alternative SQL configuration the pump takes the bypass instead
+    # of the atomic cell. Unknown HWP setting, attenuation and splitter loss
+    # are not inferred from the FWM detector power. The ideal balanced HWP/PBS
+    # reference has orthogonally polarized equal-output branches; this does not
+    # assert the HWP setting currently used on the table.
+    # A probe on this drawn alternative resolves to coherent carrier light.
+    bypass_route = tuple(node_id for node_id in layout_parts.ROUTE_PUMP_DELIVERY
+                         if node_id != "cell")
+    sql_pump = LossElement(layout_parts.transmission_of(
+        bypass_route, calibration)).apply(pump)
+    record("reference", "SQL bypass", sql_pump)
+    record("reference", "SQL HWP balanced",
+           sql_pump.with_jones(linear_jones(45.0)))
+    record("reference", "SQL BS probe", sql_pump.scaled(0.5).with_jones(JONES_H))
+    record("reference", "SQL BS conjugate",
+           sql_pump.scaled(0.5).with_jones(JONES_V))
 
     pump = LossElement(layout_parts.transmission_of(
         layout_parts.ROUTE_PUMP_DELIVERY, calibration)).apply(pump)
@@ -414,7 +462,16 @@ def build_source_chain(settings=None, calibration=None):
         record("seed", f"etalon {index + 1}", seed)
 
     seed = LossElement(layout_parts.transmission_of(
-        layout_parts.ROUTE_SEED_FILTERS, calibration)).apply(seed)
+        layout_parts.ROUTE_SEED_FILTERS_TO_GT, calibration)).apply(seed)
+    record("seed", "after seed GT", seed)
+    seed = LossElement(c("t_m_seed_out")).apply(seed)
+    record("seed", "before noise eater", seed)
+    # The inserted, powered NEL is not optimized. Only its throughput enters;
+    # there is no feedback/noise-suppression transfer function in this model.
+    seed = LossElement(c("t_noise_eater")).apply(seed)
+    record("seed", "noise eater", seed)
+    seed = LossElement(layout_parts.transmission_of(
+        layout_parts.ROUTE_SEED_FILTERS_AFTER_NEL, calibration)).apply(seed)
     seed = FiberCoupling(c("seed_fiber_out_efficiency")).apply(seed)
     seed = FiberCollimator(c("seed_collimator_diameter_mm") * 1e-3).apply(seed)
     record("seed", "delivery fiber + collimator", seed)
@@ -426,6 +483,9 @@ def build_source_chain(settings=None, calibration=None):
                                settings.seed_telescope_f2_mm * 1e-3,
                                record, "seed")
     seed = WaistRescale(c("waist_scale_factor")).apply(seed)
+    if settings.seed_waist_override_um is not None:
+        seed = seed.with_mode(replace(
+            seed.mode, waist_m=float(settings.seed_waist_override_um) * 1e-6))
     seed = Polarizer(settings.seed_gtp_deg).apply(seed)
     record("seed", "trim + telescope", seed)
 

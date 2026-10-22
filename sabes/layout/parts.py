@@ -9,7 +9,7 @@ drawing had been measured when it has not.
 
 Path lengths are the opposite: every one that carries physics is either a design
 value (a telescope is afocal, so its lenses sit `f1 + f2` apart by definition) or
-a measurement (23 inch from the cell to the D-shaped mirrors), and the ones that
+a measurement (about 23 inch from the output cell end to the D-shaped mirrors), and the ones that
 are neither say `nominal` out loud. Segments where the beam does not meaningfully
 diverge carry `None` and exist only for the eye.
 
@@ -28,7 +28,7 @@ from .table import (BEAM_COMMON, BEAM_CONJUGATE, BEAM_PROBE, BEAM_PUMP,
 
 # Distances the detection model needs. Kept here so the layout owns the
 # geometry and `sabes.detection` stops carrying loose coefficients.
-CELL_TO_DMIRROR_M = 0.5842        # 23 inch, measured
+CELL_TO_DMIRROR_M = 0.5842        # about 23 inch, output cell end -> D-mirror
 DMIRROR_TO_IRIS_M = 0.10          # nominal
 IRIS_TO_LENS_M = 0.2158           # nominal; cell->lens then totals 0.90 m
 
@@ -57,8 +57,9 @@ _PART1_NODES = (
     # --- master laser and the locking arm ---
     _optic("ecdl", "795 nm ECDL", 880, 60, kind="source", w=86, h=52,
            modelled=True, params=("ecdl_power_mw",),
-           note="Detuning is set by locking to the reference arm, not by "
-                "predicting frequency from temperature / current / PZT."),
+           note="SAS reference arm is read by eye; no active SAS lock on "
+                "2026-10-16. Current/temperature/PZT are recorded controls, "
+                "not a predictive frequency calibration."),
     _decor("oi_ecdl", "OI", 880, 140, shape="circle", w=22, h=22,
            note="Optical isolator. Loss only; not modelled.",
            lumped=True),
@@ -119,10 +120,6 @@ _PART1_NODES = (
            note="Holds the fiber EOM under its ~10 mW rating. The split alone "
                 "cannot satisfy both that and the pump power.",
            transmission_key="t_pol_seed"),
-    _decor("noise_eater", "Noise eater", 250, 306, w=62, h=24,
-           note="Intensity-noise servo. Not modelled, but it acts on exactly "
-                "the noise a squeezing measurement cares about.",
-           transmission_key="t_noise_eater", lumped=True),
     _mirror("m_seed_1", 176, 258, angle=45,
            transmission_key="t_m_seed_1", lumped=True),
     _optic("hwp_eom", "HWP", 240, 258, w=8, h=24, modelled=True,
@@ -134,7 +131,9 @@ _PART1_NODES = (
     _optic("eom", "fiber EOM", 306, 190, w=92, h=22, modelled=True,
            params=("eom_offset_mhz", "eom_rf_dbm",
                    "eom_unwanted_rin_db_per_hz"),
-           note="EOSPACE LiNbO3 phase modulator. The RF offset from the ground-"
+           note="EOSPACE PM-0S5-10-PFA-PFA-780-UL, replacing the paper EOM. "
+                "E8257D -> N-to-SMA adapter -> SMA cable -> EOM. "
+                "The RF offset from the ground-"
                 "state splitting sets the two-photon detuning. Unwanted-mode "
                 "RIN is a detector-level input."),
     _optic("f220_eom_out", "F220", 400, 190, kind="fiber", w=26, h=34,
@@ -158,6 +157,11 @@ _PART1_NODES = (
            note="Glan-Taylor after the filter chain. Part 2 has further GTPs on "
                 "each arm; the model previously had only one.",
            transmission_key="t_gt_seed"),
+    _decor("noise_eater", "Noise eater", 262, 342, w=62, h=24,
+           note="Thorlabs NEL03A/M, after etalon 3 / GT and before the seed "
+                "output fiber. Inserted and powered on, not optimized "
+                "(2026-10-16): transmission only; no noise suppression claim.",
+           transmission_key="t_noise_eater", lumped=True),
     _mirror("m_seed_out", 262, 292, angle=45,
            transmission_key="t_m_seed_out", lumped=True),
     _mirror("m_seed_down", 262, 396, angle=-45,
@@ -208,10 +212,11 @@ _PART1_LINKS = (
     Link("m_et_2", "etalon_2", BEAM_SEED, carries="etalon 1"),
     Link("etalon_2", "etalon_3", BEAM_SEED, carries="etalon 2"),
     Link("etalon_3", "gt_seed", BEAM_SEED, carries="etalon 3"),
-    Link("gt_seed", "m_seed_out", BEAM_SEED, carries="etalon 3"),
-    Link("m_seed_out", "m_seed_down", BEAM_SEED, carries="etalon 3"),
+    Link("gt_seed", "m_seed_out", BEAM_SEED, carries="after seed GT"),
+    Link("m_seed_out", "noise_eater", BEAM_SEED, carries="before noise eater"),
+    Link("noise_eater", "m_seed_down", BEAM_SEED, carries="noise eater"),
     Link("m_seed_down", "f220_seed", BEAM_SEED, via=((160, 396),),
-         carries="etalon 3"),
+         carries="noise eater"),
 )
 
 PART1 = Layout(
@@ -244,7 +249,7 @@ _PART2_NODES = (
            modelled=True, params=("seed_telescope_f1_mm",),
            transmission_key="t_seed_l1"),
     _optic("seed_l2", "f=150", 330, 60, shape="circle", w=16, h=16,
-           modelled=True, params=("seed_telescope_f2_mm",),
+           modelled=True, params=("seed_telescope_f2_mm", "seed_waist_override_um"),
            transmission_key="t_seed_l2"),
     _mirror("m_seed_a", 250, 60, angle=45,
            transmission_key="t_m_seed_a", lumped=True),
@@ -263,7 +268,7 @@ _PART2_NODES = (
            modelled=True, params=("pump_telescope_f1_mm",),
            transmission_key="t_pump_l1"),
     _optic("pump_l2", "f=150", 400, 152, shape="circle", w=16, h=16,
-           modelled=True, params=("pump_telescope_f2_mm",),
+           modelled=True, params=("pump_telescope_f2_mm", "pump_waist_override_um"),
            transmission_key="t_pump_l2"),
     _mirror("m_pump_a", 330, 152, angle=45,
            transmission_key="t_m_pump_a", lumped=True),
@@ -283,11 +288,33 @@ _PART2_NODES = (
            transmission_key="t_pbs_out", lumped=True),
     _decor("dump", "Beam block", 496, 322, w=54, h=22),
 
+    # Alternative SQL route from the pump, bypassing the atomic cell. Display
+    # placement follows the user's reference diagram; no path was surveyed.
+    _mirror("m_sql_bypass", 250, 420, angle=-45,
+           note="Alternative pump bypass for SQL; not a simultaneous split "
+                "of the FWM pump. Optical distance unmeasured."),
+    _decor("hwp_sql", "SQL HWP", 500, 420, w=8, h=24,
+           note="SQL reference HWP. Its setting and delivered detector powers "
+                "have not been calibrated; no automatic power matching."),
+    _decor("bs_sql", "SQL PBS (ideal equal outputs)", 660, 420, w=26, h=26,
+           note="Second PBS for the SQL reference; HWP balances its outputs. "
+                "Equal coherent branches are a model assumption, not measured "
+                "splitting, throughput, or the current HWP setting."),
+    _decor("flip_sql_probe", "Flip mirror", 830, 214, kind="mirror",
+           w=22, h=6, angle=45,
+           note="SQL reference injection into probe detection arm. Alternative "
+                "to the FWM beam; individual path length unmeasured."),
+    _decor("flip_sql_conj", "Flip mirror", 830, 300, kind="mirror",
+           w=22, h=6, angle=45,
+           note="SQL reference injection into conjugate detection arm. "
+                "Alternative to the FWM beam; path length unmeasured."),
+
     # --- twin-beam separation and detection ---
     _optic("dm_probe", "D-mirror", 700, 214, w=24, h=8, angle=45,
            modelled=True, params=("dmirror_separation_mm",),
-           note="Alignment is done by overlapping at the cell and separating "
-                "by a stated number of mm here, so this is the crossing angle.",
+           note="Approximate 23 inch from the output cell end. Angle uses "
+                "probe-pump gap here after checking overlap at that exit plane; "
+                "the crossing point inside the cell has not been measured.",
            transmission_key="t_dm_probe", lumped=True),
     _optic("dm_conj", "D-mirror", 700, 300, w=24, h=8, angle=-45,
            modelled=True, params=("dmirror_separation_mm",),
@@ -309,7 +336,9 @@ _PART2_NODES = (
            modelled=True, params=("conjugate_lens_focal_mm",),
            transmission_key="t_lens_conj"),
     _optic("bpd", "Balanced detector", 920, 257, kind="detector", w=54, h=76,
-           modelled=True, params=("pd_defocus_mm", "pump_leakage_dbm"),
+           modelled=True, params=("pd_defocus_mm", "pump_leakage_dbm",
+                                  "post_cell_transmission_override",
+                                  "qe_pct_override"),
            note="PDB450A with Hamamatsu S3883 photodiodes fitted.",
            transmission_key="t_bpd"),
 )
@@ -349,11 +378,25 @@ _PART2_LINKS = (
          provenance=PROVENANCE_NOMINAL, carries="at cell"),
     Link("pbs_out", "dump", BEAM_PUMP, carries="at cell"),
 
+    # SQL uses the same detector eyes via the two flip mirrors. The normal
+    # iris-to-lens links retain their aggregate nominal distances; these new
+    # unmeasured branches do not split that number into invented subsegments.
+    Link("pbs_in", "m_sql_bypass", BEAM_REFERENCE, carries="SQL bypass",
+         note="Alternative SQL configuration; bypasses cell, available pump "
+              "power before uncalibrated SQL attenuation."),
+    Link("m_sql_bypass", "hwp_sql", BEAM_REFERENCE, carries="SQL bypass"),
+    Link("hwp_sql", "bs_sql", BEAM_REFERENCE, carries="SQL HWP balanced"),
+    Link("bs_sql", "flip_sql_probe", BEAM_REFERENCE, carries="SQL BS probe",
+         via=((760, 420), (760, 356), (830, 356)),
+         note="Ideal equal-output HWP/PBS branch; no measured SQL power matching."),
+    Link("bs_sql", "flip_sql_conj", BEAM_REFERENCE, carries="SQL BS conjugate",
+         via=((660, 470), (940, 470), (940, 300)),
+         note="Ideal equal-output HWP/PBS branch; no measured SQL power matching."),
     # twins to the detector
     Link("pbs_out", "dm_probe", BEAM_PROBE, path_m=CELL_TO_DMIRROR_M - 0.10,
          provenance=PROVENANCE_MEASURED, carries="probe",
-         note="Cell to the D-shaped mirrors is 23 inch; this is the part after "
-              "the rejection PBS."),
+         note="About 23 inch from the output cell end to the D-shaped mirrors; "
+              "the exit-to-PBS allocation remains nominal."),
     Link("pbs_out", "dm_conj", BEAM_CONJUGATE, path_m=CELL_TO_DMIRROR_M - 0.10,
          provenance=PROVENANCE_MEASURED, carries="conjugate"),
     Link("dm_probe", "iris_probe", BEAM_PROBE, path_m=DMIRROR_TO_IRIS_M,
@@ -366,12 +409,19 @@ _PART2_LINKS = (
          provenance=PROVENANCE_NOMINAL, carries="conjugate"),
     Link("lens_probe", "bpd", BEAM_PROBE, carries="probe"),
     Link("lens_conj", "bpd", BEAM_CONJUGATE, carries="conjugate"),
+    # Shared collection segments favour the normal FWM route when probing an
+    # overlapping stroke; SQL branches are independently probeable before the
+    # flip-mirror joins. No detector switching state is inferred from a sketch.
+    Link("flip_sql_probe", "lens_probe", BEAM_REFERENCE,
+         carries="SQL BS probe"),
+    Link("flip_sql_conj", "lens_conj", BEAM_REFERENCE,
+         carries="SQL BS conjugate"),
 )
 
 PART2 = Layout(
     key="part2",
     title="Part 2 — delivery, the vapour cell, and detection",
-    width=960, height=400,
+    width=960, height=500,
     nodes=_PART2_NODES,
     links=_PART2_LINKS,
 )
@@ -401,10 +451,14 @@ ROUTE_TA_TO_SPLIT = ("m_mopa_out", "oi_mopa", "hwp_split", "m_split_1",
 ROUTE_PUMP_TO_FIBER = ("pbs_split", "f230_pump")
 ROUTE_PUMP_DELIVERY = ("col_pump", "qwp_pump", "hwp_pump", "pump_l1", "pump_l2",
                        "m_pump_a", "gtp_pump", "pbs_in", "cell")
-ROUTE_SEED_TO_EOM = ("pbs_split", "pol_seed", "noise_eater", "m_seed_1",
+ROUTE_SEED_TO_EOM = ("pbs_split", "pol_seed", "m_seed_1",
                      "hwp_eom", "f220_eom_in")
-ROUTE_SEED_FILTERS = ("f220_eom_out", "m_et_1", "hwp_etalon", "m_et_2",
-                      "gt_seed", "m_seed_out", "m_seed_down", "f220_seed")
+ROUTE_SEED_FILTERS_TO_GT = ("f220_eom_out", "m_et_1", "hwp_etalon", "m_et_2",
+                            "gt_seed")
+ROUTE_SEED_FILTERS_AFTER_NEL = ("m_seed_down", "f220_seed")
+ROUTE_SEED_FILTERS = (ROUTE_SEED_FILTERS_TO_GT
+                      + ("m_seed_out", "noise_eater")
+                      + ROUTE_SEED_FILTERS_AFTER_NEL)
 ROUTE_SEED_DELIVERY = ("col_seed", "qwp_seed", "hwp_seed", "seed_l1", "seed_l2",
                        "m_seed_a", "gtp_seed", "pbs_in", "cell")
 ROUTE_POST_CELL_PROBE = ("pbs_out", "dm_probe", "iris_probe", "lens_probe",
@@ -436,12 +490,16 @@ def transmission_of(route, calibration):
 
 
 def cell_to_dmirror_m(layout=None):
-    """Measured 23 inch, summed over the layout rather than quoted."""
+    """Output-end to D-mirror distance (about 23 inch), excluding half-cell.
+
+    The historical helper name is retained. The cell node marks the output
+    plane for these route lengths, not a measured in-cell crossing point.
+    """
     return (layout or PART2).path_length_m(*ROUTE_TO_DMIRROR)
 
 
 def cell_to_lens_m(layout=None):
-    """Cell to the focusing lens, summed over the layout rather than guessed."""
+    """Output cell end to focusing lens; downstream allocations are nominal."""
     return (layout or PART2).path_length_m(*ROUTE_TO_LENS)
 
 
@@ -457,7 +515,7 @@ def with_detection_distances(cell_to_dmirror=None, dmirror_to_iris=None,
     base = layout or PART2
     overrides = {}
     if cell_to_dmirror is not None:
-        # The measured 23 inch spans the cell through the rejection PBS, so the
+        # The approximate 23 inch starts at the output end, through the PBS, so the
         # override has to land on the segment after it.
         after_pbs = base.link_between("cell", "pbs_out").path_m or 0.0
         overrides[("pbs_out", "dm_probe")] = float(cell_to_dmirror) - after_pbs

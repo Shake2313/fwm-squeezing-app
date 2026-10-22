@@ -186,7 +186,8 @@ class SabesResult:
     @property
     def eom_shot_noise_only_db(self):
         """Gain diagnostic including shot noise from unwanted EOM modes."""
-        if self.readout is None or self.gain_referred_noise_db is None:
+        if (self.readout is None or self.gain_referred_noise_db is None
+                or self.readout.eom_noise.sql_psd_a2_per_hz <= 0.0):
             return None
         return self.readout.eom_noise.shot_noise_only_db(
             self.gain_referred_noise_db)
@@ -194,7 +195,8 @@ class SabesResult:
     @property
     def eom_rin_loaded_noise_db(self):
         """Gain diagnostic including shot noise and classical EOM RIN."""
-        if self.readout is None or self.gain_referred_noise_db is None:
+        if (self.readout is None or self.gain_referred_noise_db is None
+                or self.readout.eom_noise.sql_psd_a2_per_hz <= 0.0):
             return None
         return self.readout.eom_noise.rin_loaded_db(self.gain_referred_noise_db)
 

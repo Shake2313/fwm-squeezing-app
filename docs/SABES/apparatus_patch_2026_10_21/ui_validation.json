@@ -1,0 +1,31 @@
+{
+  "scope": "Real Chromium / local Streamlit at port 8527, 2026-10-21",
+  "checks": {
+    "default_lab_profile_seen": true,
+    "live_edited_transmission_exported": true,
+    "generator_display_separate": true,
+    "port_power_unknown": true,
+    "detector_termination_unknown": true,
+    "effective_rf_model_retained": true,
+    "apparatus_baseline_preserved": true
+  },
+  "observed_interactions": [
+    "Lab first load",
+    "Paper profile switch and Lab reload",
+    "Part 2 SQL PBS/flip diagram",
+    "BPD optic click: PDB450A, S3883, DSOX1204A, DSA875",
+    "Initial controls 0.9709 / 90.5 / -60 / per-pass 1",
+    "Edit aggregate transmission to 0.92, Done, inspect persisted value, reopen",
+    "Escape dismisses modal",
+    "Apparatus & wiring tab",
+    "Download current session JSON"
+  ],
+  "browser_console_errors": 0,
+  "screenshots_reviewed": [
+    "output/playwright/sabes-apparatus.png",
+    "output/playwright/sabes-detector-dialog.png",
+    "output/playwright/sabes-fwm-sql.png"
+  ],
+  "export_artifact": ".playwright-cli/sabes-session-2026-10-16.json",
+  "claim_scope": "UI/profile/export behavior only; no physical validation claim"
+}

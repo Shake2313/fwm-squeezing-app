@@ -1,0 +1,153 @@
+{
+  "schema_version": "sabes_user_confirmed_apparatus_v1",
+  "baseline_date": "2026-10-16",
+  "confirmed_on": "2026-10-21",
+  "origin": "human_direct_answers",
+  "source": "Current user answers Q1–Q26; Notion README updated and fetched",
+  "source_page": "https://app.notion.com/p/3fa6cba14fee81c9b447c1d6e36cabae",
+  "update_policy": "Living snapshot; preserve dated changes. Ask only material inputs when needed; minor details use existing sources or remain deferred.",
+  "equipment": {
+    "ecdl_ta_controller": {
+      "manufacturer": "SRS",
+      "model": "LDC501"
+    },
+    "oscilloscope": {
+      "manufacturer": "Keysight",
+      "model": "DSOX1204A"
+    },
+    "spectrum_analyzer": {
+      "manufacturer": "Rigol",
+      "model": "DSA875"
+    },
+    "etalon_temperature_controller": {
+      "manufacturer": "Thorlabs",
+      "model": "TC200"
+    },
+    "pbs": {
+      "manufacturer": "Thorlabs",
+      "model": "CCM1-PBS252/M",
+      "scope": "all PBS"
+    },
+    "lenses": {
+      "manufacturer": "Thorlabs",
+      "type": "plano-convex",
+      "part_numbers": null
+    },
+    "fiber_eom": {
+      "manufacturer": "EOSPACE",
+      "model": "PM-0S5-10-PFA-PFA-780-UL",
+      "replaced_paper_eom": true,
+      "replacement_date": null
+    },
+    "rf_generator": {
+      "manufacturer": "Agilent/Keysight",
+      "model": "E8257D",
+      "connection": [
+        "N-to-SMA adapter",
+        "SMA cable",
+        "fiber EOM"
+      ],
+      "latest_setting_source": "2026-09-03 experiment in 2026-09-04 lab deck",
+      "latest_recorded_display_dbm": 11.8,
+      "eom_port_measured_power_dbm": null
+    },
+    "noise_eater": {
+      "manufacturer": "Thorlabs",
+      "model": "NEL03A/M",
+      "after": [
+        "etalon 3",
+        "GT"
+      ],
+      "before": "seed output fiber",
+      "inserted": true,
+      "powered_on": true,
+      "optimized": false,
+      "adopted_model_scope": "transmission only; no claimed suppression"
+    },
+    "pump_fiber": {
+      "type": "APC-to-APC",
+      "oz_high_power_in_use": false,
+      "length_m": null,
+      "mfd_um": null,
+      "pm": null,
+      "ar_coating": null
+    },
+    "waveform_generator": {
+      "model": null,
+      "status": "deferred",
+      "ask_when": "Before related control, wiring, coil or frequency-response work needs its exact model; remind user this was deferred."
+    }
+  },
+  "geometry": {
+    "crossing_point": "inside FWM cell",
+    "crossing_z_mm": null,
+    "crossing_z_status": "user will provide later measurement",
+    "cell_to_dmirror": {
+      "approximate": true,
+      "value_mm": 584.2,
+      "value_inch": 23,
+      "from_plane": "output end of FWM cell",
+      "to_plane": "D-mirror"
+    },
+    "angle_method": "Confirm overlap at output cell end; use probe-to-pump separation at D-mirror and output-end-to-mirror distance to form triangle.",
+    "waist_reference_um": {
+      "pump": 530,
+      "seed": 330,
+      "definition": "1/e^2 intensity radius",
+      "exact_z_measured": false
+    },
+    "sql_layout_source": "User-provided diagram, uploaded to Notion as SABES_FWM_SQL_layout_10-16_confirmed_2026-10-21.png"
+  },
+  "operation": {
+    "sas_locked": false,
+    "sas_setting_method": "manual visual alignment using SAS",
+    "ta_model_policy": "measurement-based heuristic; current and temperature vary",
+    "cl_model": "LJ1477L1",
+    "cl_model_status": "tentative",
+    "ta_chip_model": null,
+    "ta_asphere_models": null
+  },
+  "detector": {
+    "model": "PDB450A",
+    "diodes": "S3883",
+    "circuit_changed": false,
+    "gain_switch_v_per_a": 100000,
+    "rf_to": "spectrum analyzer",
+    "monitor_plus_to": "oscilloscope, currently mainly probe",
+    "monitor_minus_to": "oscilloscope, currently mainly conjugate",
+    "load_ohm": null
+  },
+  "electrical": {
+    "table_grounded": false,
+    "sa_same_table_as_detector": true,
+    "large_previous_electrical_noise_absent_after_move": true,
+    "power_strip": "그린세이프",
+    "power_filter": "homemade",
+    "wiring_differs_from_old_diagram": true
+  },
+  "thermal": {
+    "heater": "homemade",
+    "source_page": "https://app.notion.com/p/24f6cba14fee804eb94eea4d11b3652e",
+    "sensor_position": "top surface of cell",
+    "fwm_magnetic_shield": false,
+    "cold_spot_measured": false,
+    "vt_measurement_apparatus": "FWM board",
+    "hanle_board_same_type": true,
+    "hanle_similar_behavior_status": "user expectation, not separate measured Hanle calibration"
+  },
+  "hanle": {
+    "power_measurement_date": "2026-10-16",
+    "before_cell_uw": 27.17,
+    "after_cell_uw": 26.53,
+    "correction": "user corrected reversed front/back ordering",
+    "detailed_cell_and_scan": "deferred"
+  },
+  "efficiency": {
+    "qe": 0.905,
+    "optical_including_cell": 0.781,
+    "total_approx": 0.707,
+    "after_cell_approx": 0.9709,
+    "status": "previous confirmations retained; user will report changes"
+  },
+  "sabes_runtime_modified": false
+}
