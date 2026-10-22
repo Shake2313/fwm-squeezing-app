@@ -353,14 +353,35 @@ JS_SIDEBAR = r"""
 ((want) => {
   const sb = document.querySelector('[data-testid="stSidebar"]');
   const open = !!sb && sb.getAttribute('aria-expanded') !== 'false' && sb.getBoundingClientRect().width > 60;
-  if (open === want) return 'ok';
-  const sel = ['[data-testid="stSidebarCollapseButton"] button', '[data-testid="stExpandSidebarButton"]',
-               '[data-testid="stSidebarCollapsedControl"] button',
-               '[data-testid="stSidebarHeader"] button', '[data-testid="stSidebar"] [data-testid="stBaseButton-headerNoPadding"]'];
-  for (const s of sel) { const b = document.querySelector(s); if (b) { b.click(); return 'clicked'; } }
-  return 'missing';
+  if (sb && open === want) return 'ok';
+  const selector = want ? '[data-testid="stExpandSidebarButton"]' :
+                          '[data-testid="stSidebarCollapseButton"] button';
+  const button = document.querySelector(selector);
+  if (!button) return null;
+  const r = button.getBoundingClientRect();
+  const x = r.left + r.width / 2, y = r.top + r.height / 2;
+  const hit = document.elementFromPoint(x, y);
+  return r.width > 0 && r.height > 0 && hit && button.contains(hit) ? [x, y] : null;
 })
 """
+
+
+async def set_sidebar(cdp, want):
+    """Use a real pointer click and verify the resulting sidebar state."""
+    deadline = time.monotonic() + 5
+    clicked = False
+    previous = None
+    while time.monotonic() < deadline:
+        target = await cdp.js(JS_SIDEBAR + f"({str(want).lower()})")
+        if target == "ok":
+            return
+        # The close control moves while the mobile rail animates into view.
+        if target and target == previous and not clicked:
+            await cdp.click(*target)
+            clicked = True
+        previous = target
+        await asyncio.sleep(0.1)
+    raise RuntimeError(f"Sidebar could not be {'opened' if want else 'closed'} by pointer")
 
 
 def _center_js(selector_expr):
@@ -450,6 +471,10 @@ async def run_audit(url, out_dir, browser):
                 results[row["name"]]["ready_ms_desktop"] = await wait_ready(
                     cdp, expect_title=row["title"], min_wait=1.0)
             log(f"desktop: {row['title']}")
+            await set_sidebar(cdp, False)
+            await set_sidebar(cdp, True)
+            await asyncio.sleep(0.8)
+            results[row["name"]]["sidebar_roundtrip_desktop"] = True
             results[row["name"]]["desktop"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_desktop.png")
             if row["n_advanced_controls"] and await cdp.js(JS_ADVANCED_TOGGLE):
@@ -467,11 +492,14 @@ async def run_audit(url, out_dir, browser):
         await wait_ready(cdp, expect_title=first, min_wait=1.0)
         for idx, row in enumerate(inventory):
             # The switcher lives in the top bar; an open sidebar would cover it.
-            await cdp.js(JS_SIDEBAR + "(false)")
-            await asyncio.sleep(0.8)
+            await set_sidebar(cdp, False)
             if idx:
                 await switch_scheme(cdp, row["title"])
                 await wait_ready(cdp, expect_title=row["title"], min_wait=1.0)
+            await set_sidebar(cdp, True)
+            await set_sidebar(cdp, False)
+            await asyncio.sleep(0.8)
+            results[row["name"]]["sidebar_roundtrip_mobile"] = True
             log(f"mobile: {row['title']}")
             results[row["name"]]["mobile"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_mobile.png")
@@ -505,6 +533,8 @@ def git_head():
 # Reporting
 # ----------------------------------------------------------------------
 ROWS = [
+    ("sidebar close/reopen (desktop)", lambda s: s.get("sidebar_roundtrip_desktop")),
+    ("sidebar open/close (phone)", lambda s: s.get("sidebar_roundtrip_mobile")),
     ("plot top (desktop, px)", lambda s: (s.get("desktop") or {}).get("plot", {}) and s["desktop"]["plot"]["top"]),
     ("plot fully on 1st screen", lambda s: (s.get("desktop") or {}).get("plot", {}) and s["desktop"]["plot"]["fully_visible"]),
     ("rail height (px)", lambda s: (s.get("desktop") or {}).get("rail_scroll_height")),

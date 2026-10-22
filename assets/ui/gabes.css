@@ -4,7 +4,8 @@
    Streamlit internals targeted here (re-check after a Streamlit upgrade):
    stAppViewContainer, stHeader, stToolbar, stDecoration, stStatusWidget,
    stMainBlockContainer, stAppViewBlockContainer, stSidebar, stSidebarHeader,
-   stSidebarContent, stSidebarUserContent, stBaseButton-headerNoPadding,
+   stSidebarContent, stSidebarUserContent, stSidebarCollapseButton,
+   stExpandSidebarButton, stBaseButton-headerNoPadding,
    stIconMaterial, stImage, stCaptionContainer, stMarkdownContainer, stButton,
    stSelectbox, stSlider, stSliderThumbValue, stSliderTickBar, stExpander,
    stMain, stFullScreenFrame, stDataFrame, stTable, stElementContainer,
@@ -24,14 +25,39 @@
   height: 0 !important;
   min-height: 0 !important;
   background: transparent !important;
+  pointer-events: none;
 }
 
-[data-testid="stHeader"] > div,
-[data-testid="stToolbar"],
+/* Keep Streamlit's real reopen button. Translating the collapsed rail's control
+   by a fixed distance loses it when the user resizes the rail. */
+[data-testid="stHeader"] > div:not(:has([data-testid="stExpandSidebarButton"])),
+[data-testid="stToolbar"]:not(:has([data-testid="stExpandSidebarButton"])),
+[data-testid="stToolbar"] > div:not(:has([data-testid="stExpandSidebarButton"])),
 [data-testid="stDecoration"],
 [data-testid="stStatusWidget"],
 .stDeployButton {
   display: none !important;
+}
+
+[data-testid="stExpandSidebarButton"] {
+  position: fixed;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  padding: 0;
+  pointer-events: auto;
+  color: var(--g-ink-2);
+  background: var(--g-surface);
+  border: 1px solid var(--g-line);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(14, 23, 38, 0.08);
+}
+
+[data-testid="stAppViewContainer"]:has([data-testid="stSidebar"][aria-expanded="false"])
+  .st-key-gabes_topbar {
+  padding-left: 3.5rem;
 }
 
 [data-testid="stMainBlockContainer"],
@@ -79,23 +105,8 @@ section.main > div,
   box-shadow: 0 1px 3px rgba(14, 23, 38, 0.08);
 }
 
-[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarContent"] {
-  overflow: visible !important;
-}
-
-[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] button[data-testid="stBaseButton-headerNoPadding"] {
-  transform: translateX(312px);
-}
-
-[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] [data-testid="stIconMaterial"] {
-  font-size: 0 !important;
-}
-
-[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarHeader"] [data-testid="stIconMaterial"]::before {
-  content: "keyboard_double_arrow_right";
-  font-family: inherit;
-  font-size: 1.25rem;
-  line-height: 1;
+[data-testid="stSidebar"][aria-expanded="false"] [data-testid="stSidebarCollapseButton"] {
+  display: none !important;
 }
 
 [data-testid="stSidebarContent"],
