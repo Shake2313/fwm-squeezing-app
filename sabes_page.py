@@ -536,7 +536,8 @@ def _optic_dialog(part_key, node_id):
         st.warning("That optic is not on this part of the table.")
         return
 
-    st.markdown(f"### {node.display_label or node.id}")
+    title = (node.display_label or node.id).replace("*", r"\*")
+    st.markdown(f"### {title}")
     if node.note:
         st.caption(node.note)
     _render_hardware_details(node_id)
@@ -562,16 +563,11 @@ def _optic_dialog(part_key, node_id):
             help="Fraction of power this optic passes. Editing it marks the "
                  "coefficient as hand-set, which is what it is until somebody "
                  "measures it.")
-        if node.lumped:
-            st.caption("This optic is **lumped**: a transmission is the whole "
-                       "of what the model knows about it.")
-
     missing = [name for name in node.params if name not in CONTROLS]
     if missing:
         st.caption("Recorded but not modelled here: " + ", ".join(missing))
     if not editable and not missing and not node.transmission_key:
-        st.caption("This optic is in the physics but owns no adjustable "
-                   "parameter.")
+        st.caption("This item has no adjustable model parameter.")
 
     if st.button("Done", use_container_width=True):
         st.session_state.pop(_key("open_optic"), None)
@@ -591,7 +587,8 @@ def _render_optic_panel(part, node_id, settings, detection):
     for index, name in enumerate(ETALON_KEYS):
         values[name] = settings.etalon_detune_ghz[index]
 
-    st.markdown(f"**{node.display_label or node.id}**")
+    title = (node.display_label or node.id).replace("*", r"\*")
+    st.markdown(f"**{title}**")
     if node.note:
         st.caption(node.note)
     _render_hardware_details(node_id)
@@ -807,8 +804,8 @@ def _render_table_tab(result, calibration, host, detection):
         for colour, dashed, name in layout.legend_rows())
     st.markdown(
         f"<div class='sabes-legend'>{swatches}"
-        "<span class='sabes-key sabes-key--note'>stroke width encodes "
-        "power on a log scale — it is not the beam size</span></div>",
+        "<span class='sabes-key sabes-key--note'>* Detailed component model "
+        "not yet implemented</span></div>",
         unsafe_allow_html=True)
 
     left, right = st.columns([1, 1])
@@ -1250,7 +1247,7 @@ def _inject_css():
         .sabes-key { display: inline-flex; align-items: center; gap: .35rem; }
         .sabes-key i { width: 18px; height: 4px; border-radius: 2px;
             display: inline-block; }
-        .sabes-key--note { color: #94A3B8; font-style: italic; }
+        .sabes-key--note { color: #5B6B80; }
         .sabes-synth { border-left: 3px solid #B45309;
             background: #FEF3C7; color: #78350F; padding: .45rem .7rem;
             border-radius: 4px; font-size: .78rem; margin-bottom: .6rem; }

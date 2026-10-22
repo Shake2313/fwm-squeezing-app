@@ -3,6 +3,8 @@
 프론트엔드(`streamlit_app.py` 계열) 디자인 리팩터링의 단일 출처. 계산 코드와 독립 진행.
 새 세션은 이 파일 → `plan.md` 현재 단계 → `log.md` 최신 항목 순서로 읽고 시작.
 
+SABES에도 같은 시각 규약 적용. 광학 테이블의 glyph·광로·라벨·모델 표시·화면 검수 기준은 [SABES 디자인 규칙](../SABES/design_rules.md), 사용자 결정은 D13 참조.
+
 ## 현재 상태
 - 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
 - 진행 단계: P0 · P1(`4cb011f`) · P2 셸(`7a95e9e`) · P3 ScrubField 완료. 다음: **P4 readout 계약**.

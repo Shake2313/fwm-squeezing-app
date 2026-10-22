@@ -47,9 +47,9 @@ class Node:
     `modelled`  does the physics know what this element *does*? A half-wave
                 plate rotates polarization; an optical isolator, as far as this
                 model is concerned, does nothing but attenuate.
-    `lumped`    is a single transmission the whole story? Anything on the table
-                that is not detail-modelled is drawn with "(lumped)" after its
-                label, so the picture never implies more than the model has.
+    `lumped`    is a single transmission the whole story? These and otherwise
+                unmodelled components carry a compact * after their label.
+                Partial loss/geometry support does not imply a detailed model.
 
     Loss-only elements carry `transmission_key`, the calibration coefficient for
     per-pass transmission. Devices such as the EOM and etalons use their own
@@ -76,8 +76,13 @@ class Node:
         return bool(self.params) or bool(self.transmission_key)
 
     @property
+    def component_model_pending(self):
+        """Presentation marker; independent of editable controls and losses."""
+        return self.lumped or not self.modelled
+
+    @property
     def display_label(self):
-        return f"{self.label} (lumped)" if self.lumped and self.label else self.label
+        return f"{self.label}*" if self.component_model_pending and self.label else self.label
 
 
 @dataclass(frozen=True)

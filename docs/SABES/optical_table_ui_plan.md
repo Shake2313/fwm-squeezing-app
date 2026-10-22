@@ -7,6 +7,10 @@ and the parameter count itself became the usability problem.
 
 Tracked in `docs/checklist.json` under the `sabes-*` ids.
 
+Current presentation rules: [SABES design rules](design_rules.md), user decision
+D13 (2026-10-22). These supersede the original repeated lumped labels and
+beam-width legend requirement; the optical model and coordinate contract remain.
+
 ## Where SABES is now
 
 Working, headless-testable, and deployed behind `?app=sabes`:
@@ -151,14 +155,15 @@ Renderer driven by the Stage A layout. Two tabs, matching the drawings.
 
 **Beam thickness cannot be to scale.** A 530 µm beam on a 1 m table is 0.05 % of
 the width — invisible. Thickness is therefore a deliberate visual encoding
-(log-scaled, roughly µW→3 px through W→12 px) and the legend must say so.
+(log-scaled, roughly µW→3 px through W→12 px). Keep this implementation
+convention here, outside the user-facing legend.
 
 Path identity keeps the drawings' own colour convention: orange for the
 high-power pump, red dashed for the seed, blue for the conjugate.
 
-Modelled optics are visually distinguished from decorative ones (isolators,
-steering mirrors, beam blocks), so "clickable" and "in the physics" mean the same
-thing and nobody has to guess.
+An asterisk marks an incomplete component model, including loss-only or partial
+representations. Editable transmissions and controls remain independent of this
+status, so an asterisk does not imply that an optic cannot be opened.
 
 ## Stage D — click to edit
 

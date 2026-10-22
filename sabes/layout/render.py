@@ -10,17 +10,15 @@ quietly lie:
 
   Beam thickness is NOT to scale. A 530 um beam on a metre of table is 0.05 % of
   the width -- drawn honestly it would be invisible. Thickness encodes *power*,
-  logarithmically, and the legend says so.
+  logarithmically. This internal drawing convention is not a physical scale.
 
   Colour follows the setup drawings themselves: orange for the high-power pump,
   red for the seed and the probe it becomes, blue for the conjugate. Reusing the
   lab's own key means nobody has to translate.
 
-Detail-modelled optics are drawn saturated; anything whose only modelled
-behaviour is a transmission is drawn muted and labelled "(lumped)". Muting
-follows `Node.lumped` while clicking follows `Node.clickable` -- they are no
-longer the same question, because a lumped optic still owns its transmission
-and is still worth opening.
+Detail-modelled optics are drawn saturated; incomplete component models are
+muted and labelled with *. Partial transmission or geometry support can still
+exist. Clicking follows `Node.clickable`, independently of this status.
 """
 import math
 
@@ -155,13 +153,13 @@ def node_shape(node, *, selected=False):
     """One optic as a canvas shape, glyph and styling included."""
     glyph = glyph_for(node)
     # Two different questions: how prominent it looks, and whether it opens.
-    detailed = not node.lumped
+    detailed = not node.component_model_pending
     fill = _FILL.get(glyph, "#E2E8F0")
     stroke = INK if detailed else MUTED_INK
     common = dict(
         label=node.display_label or None,
         title=(node.note or node.label or node.id) + (
-            "" if detailed else "  (lumped: only its transmission is modelled)"),
+            "" if detailed else "  (* detailed component model not yet implemented)"),
         fill=fill,
         stroke="#0F766E" if selected else stroke,
         stroke_width=2.6 if selected else (1.5 if detailed else 1.0),

@@ -256,16 +256,22 @@ def test_the_two_collimators_are_distinct_parts():
     assert parts.PART1.node("f220_seed").label == "F220"
 
 
-def test_unmodelled_hardware_is_drawn_and_labelled_lumped():
+def test_incomplete_component_models_use_stars_without_hiding_partial_support():
     """Drawn so the table looks like the table, and labelled so nothing is
     implied about how much of it the physics actually knows."""
     for node_id in ("oi_ecdl", "oi_mopa", "cl", "noise_eater", "rb_ref"):
         node = parts.PART1.node(node_id)
         assert node.lumped
         if node.label:
-            assert node.display_label.endswith("(lumped)")
+            assert node.display_label.endswith("*")
+    # Partial geometry and ideal SQL branches are not full component models.
+    for node_id in ("pbs_out", "dm_probe", "dm_conj", "hwp_sql", "bs_sql",
+                    "flip_sql_probe", "flip_sql_conj"):
+        assert parts.PART2.node(node_id).display_label.endswith("*")
+    assert parts.PART1.node("m_ecdl_1").display_label == ""
     # A detail-modelled optic must not be labelled that way.
-    assert not parts.PART2.node("cell").display_label.endswith("(lumped)")
+    assert not parts.PART2.node("cell").display_label.endswith("*")
+    assert not parts.PART1.node("eom").display_label.endswith("*")
     assert "locking" in parts.PART1.node("ecdl").note.lower() or \
         "reference arm" in parts.PART1.node("ecdl").note.lower()
 

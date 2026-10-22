@@ -1,0 +1,79 @@
+{
+  "scope": "Requested marker/legend presentation and design standards, not a whole-table redesign",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "verified": [
+    "Part1 and Part2 compact asterisk labels",
+    "Detailed EOM and cell retain unstarred labels",
+    "Noise eater selection and modal title show literal asterisk",
+    "lumped removed from visible canvas labels/tooltips and modal",
+    "Stroke-width sentence removed from legend",
+    "Legend explains detailed component model pending",
+    "390px legend right291.875 within390px viewport",
+    "No browser console errors"
+  ],
+  "legend_bounds_390": {
+    "width": 279.875,
+    "right": 291.875,
+    "viewport": 390
+  },
+  "physical_sources_match_head": {
+    "sabes/beamline.py": true,
+    "sabes/bridge.py": true,
+    "sabes/detection.py": true,
+    "sabes/beamstate.py": true,
+    "sabes/devices.py": true,
+    "sabes/calibration.py": true,
+    "sabes/calibration_sim2025.json": true,
+    "sabes/layout/parts.py": true,
+    "sabes/layout/probe.py": true
+  },
+  "screenshots": [
+    "output/playwright/sabes_design_20261022/part1_1440.png",
+    "output/playwright/sabes_design_20261022/part2_1440.png",
+    "output/playwright/sabes_design_20261022/part1_390.png",
+    "output/playwright/sabes_design_20261022/part2_390.png",
+    "output/playwright/sabes_design_20261022/legend_390.png"
+  ],
+  "existing_quality_items_for_next_layout_pass": {
+    "part2_clipped_label": [
+      "Balanced detector"
+    ],
+    "part2_overlapping_labels": [
+      [
+        "QWP",
+        "HWP"
+      ],
+      [
+        "5725 · 2.0 mm*",
+        "QWP*"
+      ],
+      [
+        "QWP*",
+        "HWP*"
+      ],
+      [
+        "Flip mirror*",
+        "f=75"
+      ],
+      [
+        "Flip mirror*",
+        "f=100"
+      ],
+      [
+        "f=75",
+        "Balanced detector"
+      ]
+    ],
+    "source": "SVG text getBBox at390px, schematic coordinates; identified by current QA, not introduced or fixed by marker substitution"
+  },
+  "full_quality_bar_completed": false
+}

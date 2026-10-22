@@ -70,16 +70,18 @@ def test_clickability_in_the_drawing_matches_the_model(chain):
             assert shape["clickable"] == part.node(shape["id"]).clickable
 
 
-def test_lumped_hardware_recedes_but_still_opens(chain):
-    """Muting follows `lumped`; clicking follows `clickable`. Different questions:
-    a lumped optic owns its transmission and is still worth opening."""
+def test_incomplete_component_models_are_starred_but_still_open(chain):
+    """A pending component model may still own a usable transmission control."""
     spec = layout.build_spec(parts.PART1, chain)
     by_id = {s["id"]: s for s in _shapes(spec) if s.get("id")}
     assert by_id["noise_eater"]["opacity"] < 1.0
-    assert "lumped" in by_id["noise_eater"]["title"]
-    assert by_id["noise_eater"]["label"].endswith("(lumped)")
+    assert "component model not yet implemented" in by_id["noise_eater"]["title"]
+    assert by_id["noise_eater"]["label"] == "Noise eater*"
     assert by_id["noise_eater"]["clickable"] is True
     assert "opacity" not in by_id["eom"] or by_id["eom"]["opacity"] == 1.0
+    for part in layout.LAYOUTS:
+        spec = layout.build_spec(part, chain)
+        assert "lumped" not in json.dumps(spec).lower()
 
 
 def test_beams_are_never_clickable(chain):

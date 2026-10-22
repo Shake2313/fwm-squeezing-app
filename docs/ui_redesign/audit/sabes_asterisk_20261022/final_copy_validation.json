@@ -1,0 +1,32 @@
+{
+  "checked_at_utc": "2026-10-22T09:44:46.072418+00:00",
+  "changed_after_full_run": {
+    "sabes_page.py": {
+      "full_run_sha256": "19dba42207f09875522260a92b5efcb07dcb1a8adfe9d56bcb083b0aaa7fbe5b",
+      "final_sha256": "c3a20208392f600345d883cda4ea9c6d03db9973a856b3fdc4f2c2b97dd0b004"
+    },
+    "tests/test_fwm_passive_l1_integration.py": {
+      "full_run_sha256": "85ae219605d137af2950c710e486241291e58a7cdce21285c27658cbb614b6a2",
+      "final_sha256": "db2bd7274ce6ea01e36e8acad107e876c6f7fa08f490234ce17818142d901309"
+    },
+    "tests/test_jasperse_integration.py": {
+      "full_run_sha256": "b3221d061c6d63d167c8638f2a8bc0f3751d4fc6fe72cb0527594e1b9c39479b",
+      "final_sha256": "4d691f0a36b93e2e914846770f257ab8c4dbac951dffd7bd8a48d99104c905c1"
+    }
+  },
+  "task_change": {
+    "path": "sabes_page.py",
+    "description": "Removed only the redundant pending-model caption in the optic dialog"
+  },
+  "other_changed_sources": "Concurrent unrelated edits are listed for provenance and were preserved; they are outside this task.",
+  "targeted_command": "python -m pytest -q tests/test_sabes_layout.py tests/test_sabes_render.py tests/test_sabes_page.py tests/test_sabes_apparatus_ui.py",
+  "targeted_result": "73 passed in 6.00s",
+  "docs_consistency_result": "4 passed in 0.47s",
+  "browser_snapshot": "output/playwright/sabes_design_20261022/final_dialog.yml",
+  "browser_screenshot": "output/playwright/sabes_design_20261022/final_dialog_390.png",
+  "browser_checks": [
+    "Noise eater literal asterisk in modal heading",
+    "Redundant and overbroad transmission caption absent",
+    "Legend retains asterisk explanation"
+  ]
+}

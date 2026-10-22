@@ -1,0 +1,10 @@
+{
+  "command": "python -m pytest -q",
+  "started_at_utc": "2026-10-22T09:23:39.508056+00:00",
+  "finished_at_utc": "2026-10-22T09:40:51.857341+00:00",
+  "elapsed_seconds": 1032.35,
+  "exit_code": 0,
+  "source_count": 239,
+  "changed_sources": [],
+  "scope": "SABES presentation marker and legend; physics unchanged"
+}
