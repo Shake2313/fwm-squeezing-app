@@ -175,7 +175,7 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   margin: 1rem 0 0.3rem;
   padding: 0.1rem 0.04rem;
   color: var(--g-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -299,7 +299,7 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   border: 1px solid var(--g-line-strong);
   border-radius: 4px;
   color: var(--g-muted);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -388,7 +388,7 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 .g-cell-label {
   overflow: hidden;
   color: var(--g-muted);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -426,20 +426,29 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 
 .g-cell-sub {
   color: var(--g-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .g-chip {
   display: inline-flex;
   align-items: center;
-  height: 1.5rem;
-  padding: 0 0.6rem;
+  min-height: 1.5rem;
+  padding: 0.2rem 0.6rem;
   border: 1px solid transparent;
   border-radius: 999px;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
 }
+
+.g-cell-status { align-self: flex-start; max-width: 100%; }
+.g-cell-status .g-chip { line-height: 1.35; }
+.g-estimate { font-family: var(--g-font-sans); }
+.g-derived { display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.2rem 0.6rem; padding: 0.25rem 0; color: var(--g-ink-2); }
+.g-derived-label { flex: 1 1 8rem; font-size: 0.8rem; }
+.g-derived-value { font: 0.8rem var(--g-font-mono); white-space: nowrap; }
+.g-derived-unit { margin-left: 0.35em; color: var(--g-muted); font: 0.75rem var(--g-font-sans); }
 
 .g-chip--warn {
   background: var(--g-warn-bg);
@@ -639,6 +648,27 @@ button[data-testid="stBaseButton-tertiary"]:hover {
     overflow: visible;
     white-space: normal;
   }
+}
+
+/* Keep the two-mode instrument bar together in a half-width desktop window.
+   Compact text visually while preserving each button's accessible name. */
+@media (max-width: 1000px) {
+  .st-key-gabes_topbar { gap: 0.35rem; }
+  .st-key-gabes_topbar > [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {
+    flex: 1 1 7.5rem;
+    min-width: 7.5rem;
+  }
+  .st-key-gabes_topbar [data-testid="stPopoverButton"] p,
+  .st-key-gabes_topbar_end button p {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .st-key-gabes_topbar_end { gap: 0.35rem; }
 }
 
 /* ---- Tall viewport (portrait monitor) ---- */

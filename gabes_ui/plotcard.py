@@ -31,6 +31,9 @@ from gabes_ui.readout import caption_html
 
 PLOT_LOCK = RLock()
 
+# Temporary user preference; restore the existing tabs by setting this True.
+SHOW_SAS_EXTRA_VIEWS = False
+
 _EXPERIMENTAL_CSV_IMPORT_LOCK = _gabes.__dict__.setdefault(
     "_streamlit_experimental_csv_import_lock", RLock()
 )
@@ -78,7 +81,9 @@ def _cached_experimental_csv(
     offset=None,
 ):
     """Parse/correct uploaded scope data outside the physics solve cache."""
-    return load_experimental_csv(
+    # Streamlit can retain a cached wrapper across a source reload while
+    # replacing the module. Resolve the current class factory before pickling.
+    return importlib.import_module("gabes.experimental_csv").load_experimental_csv(
         csv_bytes,
         denoise=denoise,
         calibration_mode=calibration_mode,
@@ -341,10 +346,12 @@ def _render_experimental_comparison(view, scheme_name, panel):
 
         panel.caption(
             "X span is framed automatically; this is not a frequency calibration. "
-            "Set controls, then Apply alignment to redraw once."
+            "Drag the curve or use the controls below the plot for a live preview. "
+            "The precise controls here take effect on Apply alignment."
         )
         # Forms keep slider drags in the browser and send one update on Apply.
-        with panel.form(skey(scheme_name, "_csv_alignment_form")):
+        precise = panel.expander("Precise alignment · base scale, direction and signal", expanded=False)
+        with precise.form(skey(scheme_name, "_csv_alignment_form")):
             base_scale = st.number_input(
                 f"Base X scale  [{x_unit}/{raw_x_unit}]", min_value=0.0,
                 key=scale_key, format="%.6g",
@@ -573,7 +580,7 @@ def _pop_figure_title(fig):
     return "  ·  ".join(parts)
 
 
-def render_plot_card(view, scheme, spec_by_name):
+def render_plot_card(view, scheme, spec_by_name, raw=None):
     """Plot views as tabs, overlay/export tools, figure. Returns (comparison
     payload, plot payloads, export popover) for the export step."""
     fig = view.get("figure")
@@ -586,6 +593,12 @@ def render_plot_card(view, scheme, spec_by_name):
         pages = [("Plot", fig)]
     if not pages:
         return None, [], None
+
+    # Temporary display policy: keep all physical readouts/export data intact.
+    hidden_pages = []
+    if scheme.name == "sas" and not SHOW_SAS_EXTRA_VIEWS:
+        hidden_pages = [f for label, f in pages if label != "Transmission"]
+        pages = [(label, f) for label, f in pages if label == "Transmission"] or [("Transmission", fig)]
 
     labels = [label for label, _ in pages]
     selected = labels[0]
@@ -620,11 +633,12 @@ def render_plot_card(view, scheme, spec_by_name):
         export_box = st.popover("Export", icon=":material/download:", type="tertiary")
 
     with card:
+        plot_area = st.container()
         if overlay_on:
-            plot_area, panel = st.columns([2.6, 1], gap="medium")
+            panel = st.expander("Overlay settings · upload, calibrate and fit", expanded=True)
             comparison_payload = _render_experimental_comparison(view, scheme.name, panel)
         else:
-            plot_area, comparison_payload = st.container(), None
+            comparison_payload = None
 
     plot_payloads = ui_export.collect_view_plot_payloads(view, fig)
     page_fig = dict(pages)[selected]
@@ -634,7 +648,17 @@ def render_plot_card(view, scheme, spec_by_name):
             control_spec = spec_by_name.get(control_name)
             if control_spec is not None:
                 render_param(st, scheme.name, control_spec, scheme)
-        render_fig(page_fig)
+        from gabes_ui.liveplot import render_live_plot
+        with PLOT_LOCK:
+            live = False
+            if not (scheme.name == "fwm" and raw and raw.get("kind") == "biphoton"):
+                live = render_live_plot(page_fig, scheme.name, comparison_payload,
+                                        canonical_noise=bool(raw and "T_canonical_small_signal" in raw),
+                                        gain_digits=6 if (raw or {}).get("claim_gate", {}).get("quantitative_gain_supported") else 3)
+        if live:
+            _close_fig(page_fig)
+        else:
+            render_fig(page_fig)
     if caption:
         caption_slot.markdown(
             f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
@@ -642,12 +666,15 @@ def render_plot_card(view, scheme, spec_by_name):
     for _label, other in pages:
         if other is not page_fig:
             _close_fig(other)
+    for other in hidden_pages:
+        if other is not page_fig:
+            _close_fig(other)
     return comparison_payload, plot_payloads, export_box
 
 
 def _render_plot_and_export(view, scheme, spec_by_name, raw, params,
                             cache_version, readout_cache_version):
-    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name)
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
     if export_box is not None:
         ui_export.render_export(
             export_box, scheme=scheme, raw=raw, params=params, view=view,
@@ -713,7 +740,11 @@ def render_more(view, scheme, params, cache_version):
     _label, kind, obj = items[labels.index(picked)]
     with st.container(border=True, key="gabes_morepanel"):
         if kind == "table":
-            st.markdown(obj["markdown"])
+            if scheme.name == "fwm" and obj["title"] == "Model diagnostics":
+                from gabes_ui.diagnostics import render_diagnostics
+                render_diagnostics(obj["markdown"])
+            else:
+                st.markdown(obj["markdown"])
         elif kind == "figure":
             render_fig(obj)
         else:

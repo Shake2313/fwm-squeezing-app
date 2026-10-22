@@ -17,6 +17,17 @@ from gabes_ui.controls import (
 from gabes_ui.readout import clean_choice_label
 
 
+def apply_scheme_link(state, query, available_schemes):
+    """Apply a supported ?scheme=<registry name> once per URL selection."""
+    requested = query.get("scheme")
+    if not isinstance(requested, str) or requested == state.get("_scheme_link_applied"):
+        return
+    matched = next((s for s in available_schemes if s.name == requested), None)
+    if matched is not None:
+        state["_scheme_choice"] = matched.title
+        state["_scheme_link_applied"] = requested
+
+
 def brand_html(icon_svg, variant):
     mark = base64.b64encode(icon_svg.encode("utf-8")).decode("ascii")
     return (f"<div class='gabes-brand {variant}'>"

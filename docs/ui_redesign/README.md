@@ -43,7 +43,7 @@
 ## ui_audit DOM 계약 (리디자인 중 유지, 바꾸면 도구도 같은 커밋에서 수정)
 - `stApp`의 `data-test-script-state` 속성 (Streamlit 제공).
 - scheme 전환기 = `role=combobox`, `aria-label`에 "Scheme" 포함; 옵션 = `role=option`, 텍스트 = scheme title.
-- 메인 plot = `stMain` 안 최대 `img`/`iframe`/`canvas`.
+- 메인 plot = `stMain` 안 최대 `img`/`iframe`/`canvas` (인라인 컴포넌트 shadow root 포함).
 - control rail = Streamlit sidebar.
 - Advanced 토글 = sidebar 안 summary/button, 텍스트 "Advanced…" 또는 "Show advanced".
 - 숫자 knob(ScrubField)은 **shadow DOM 안**(`.stBidiComponent` 호스트 → `.sf`). 일반 `document.querySelector`로 안 잡힘 —

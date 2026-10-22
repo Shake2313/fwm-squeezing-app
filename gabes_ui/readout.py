@@ -4,12 +4,48 @@ Pure string builders: Streamlit only receives the finished HTML, so the rules
 here are unit-tested without a running app.
 """
 import re
+import math
 from html import escape
 
 from gabes.ui_metrics import partition_metrics, split_metric_value
 from gabes_ui.format import looks_numeric
 
 MAX_SECONDARY = 4
+
+
+def scheme_label(title):
+    """Compact display name; scheme identity and saved choices stay unchanged."""
+    return re.sub(r"\s+\([^()]*\)$", "", str(title))
+
+
+def present_metrics(metrics, *, scheme_name, raw=None):
+    """Display-only qualifications; never rewrite model/export descriptors."""
+    items = [dict(m) for m in metrics]
+    if scheme_name != "fwm":
+        return items
+    gain_supported = bool((raw or {}).get("claim_gate", {}).get("quantitative_gain_supported"))
+    for metric in items:
+        if metric.get("label") == "Squeezing Degree [dB]" and metric.get("delta"):
+            note = str(metric.pop("delta"))
+            if "physical squeezing unavailable" in note:
+                scope = ("Conditional NF" if "conditional passive completion" in note else
+                         "NF unavailable" if "passive completion unavailable" in note else
+                         "Legacy diagnostic")
+                metric["status"] = dict(label="Noise interpretation",
+                                        value=f"{scope} · physical squeezing unavailable", help=note)
+            else:
+                metric["delta"] = note
+        if not gain_supported and metric.get("label") in {
+                "Seed gain G_s", "Conjugate gain G_c", "Atomic probe gain G_s", "Atomic conjugate gain G_c"}:
+            try:
+                number = float(metric["value"])
+                if math.isfinite(number):
+                    metric["value"] = f"{number:.3g}"
+                    metric["approximate"] = True
+                    metric["help"] = "Qualitative model estimate; quantitative gain claim unsupported. " + str(metric.get("help") or "")
+            except (ValueError, TypeError):
+                pass
+    return items
 
 # Status values that read as a caveat get the warning tone. P4 lets a scheme
 # state the tone explicitly; until then the wording decides.
@@ -36,14 +72,21 @@ def _value_html(metric):
     number, unit = split_metric_value(value, kind=metric.get("kind"))
     num_class = " g-num" if looks_numeric(value) else ""
     unit_html = f"<span class='g-unit'>{escape(unit)}</span>" if unit else ""
-    return f"<div class='g-cell-value{num_class}'>{escape(number)}{unit_html}</div>"
+    approx = "<span class='g-estimate' aria-label='approximate'>≈ </span>" if metric.get("approximate") else ""
+    return f"<div class='g-cell-value{num_class}'>{approx}{escape(number)}{unit_html}</div>"
 
 
 def _cell_html(metric, role):
-    label = escape(str(metric.get("label", "")))
+    label = str(metric.get("label", ""))
+    _, unit = split_metric_value(metric.get("value", ""), kind=metric.get("kind"))
+    if unit:
+        label = re.sub(r"\s*\[" + re.escape(unit) + r"\]$", "", label)
+    label = caption_html(label)
     title = escape(str(metric.get("help") or ""), quote=True)
     delta = metric.get("delta")
     sub = f"<div class='g-cell-sub'>{escape(str(delta))}</div>" if delta is not None else ""
+    if metric.get("status"):
+        sub += f"<div class='g-cell-status'>{_chip_html(metric['status'])}</div>"
     return (f"<div class='g-cell g-cell--{role}' title='{title}'>"
             f"<div class='g-cell-label'>{label}</div>{_value_html(metric)}{sub}</div>")
 
@@ -95,6 +138,8 @@ _CAPTION_RULES = [
     (re.compile(r"\bdelta\b"), "δ"),
     (re.compile(r"\bGamma\b"), "Γ"),
     (re.compile(r"\bgamma\b"), "γ"),
+    (re.compile(r"\b(?:eta|η)_(\w+)"), r"η<sub>\1</sub>"),
+    (re.compile(r"\bG_(\w+)"), r"G<sub>\1</sub>"),
     (re.compile(r"\beta\b"), "η"),
     (re.compile(r"(\d)\s?uW\b"), r"\1 µW"),
     (re.compile(r"(\d)\s?uT\b"), r"\1 µT"),

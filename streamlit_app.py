@@ -31,10 +31,13 @@ from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_section
 from gabes_ui.readout import (
     metrics_table_markdown,
     partition_readout,
+    present_metrics,
+    scheme_label,
     strip_html,
 )
 from gabes_ui.shell import (
     brand_html,
+    apply_scheme_link,
     render_preset_selector,
     render_regime_selector,
 )
@@ -56,7 +59,9 @@ ICON_ASSET = "gabes-mark-v3-dark.svg" if THEME_BASE == "dark" else "gabes-mark-v
 # resolves correctly both locally and on Streamlit Community Cloud — so the link
 # opens from any computer. The file is fully self-contained (images base64-inlined
 # by docs/Userguide/build_static_guide.py), so it needs no sibling assets.
-GUIDE_URL = "app/static/GABES_User_Guide.html"
+_guide_file = APP_DIR / "static" / "GABES_User_Guide.html"
+_guide_revision = _guide_file.stat().st_mtime_ns if _guide_file.exists() else 0
+GUIDE_URL = f"app/static/GABES_User_Guide.html?v={_guide_revision}"
 
 ICON_SVG = _asset_text(ICON_ASSET)
 
@@ -131,6 +136,7 @@ st.sidebar.markdown(brand_html(ICON_SVG, "gabes-brand--rail"), unsafe_allow_html
 
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
+apply_scheme_link(st.session_state, st.query_params, all_schemes)
 _scheme_title_migrations = {
     "Four-wave mixing (Gain diagnostic / Biphoton)":
         "Four-wave mixing (Squeezing / Biphoton)",
@@ -145,8 +151,14 @@ topbar = st.container(horizontal=True, vertical_alignment="center", gap="small",
                       key="gabes_topbar")
 with topbar:
     st.markdown(brand_html(ICON_SVG, "gabes-brand--top"), unsafe_allow_html=True, width="content")
-    choice = st.selectbox("Scheme", titles, key="_scheme_choice",
-                          label_visibility="collapsed", width=310)
+    def _scheme_changed():
+        selected = all_schemes[titles.index(st.session_state["_scheme_choice"])]
+        st.query_params["scheme"] = selected.name
+        st.session_state["_scheme_link_applied"] = selected.name
+
+    choice = st.selectbox("Scheme", titles, key="_scheme_choice", format_func=scheme_label,
+                          on_change=_scheme_changed,
+                          label_visibility="collapsed", width=240)
 scheme = all_schemes[titles.index(choice)]
 
 specs = scheme.param_schema()
@@ -243,7 +255,7 @@ render_derived_params(derived_slots, view.get("sidebar_readouts", {}))
 # ----------------------------------------------------------------------
 # Readout strip → plot card → More
 # ----------------------------------------------------------------------
-metrics = view.get("metrics", [])
+metrics = present_metrics(view.get("metrics", []), scheme_name=scheme.name, raw=raw)
 if metrics:
     heroes, secondary, statuses, overflow = partition_readout(
         metrics, hero_count=view.get("hero_count") or 2)

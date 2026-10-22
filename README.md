@@ -2,7 +2,7 @@
 
 Ensemble optical-Bloch-equation solver for warm-vapor / cold-atom spectroscopy,
 with a **scheme-driven** Streamlit front-end: pick a physics scheme in the
-sidebar and it declares its own controls and plots. Started as a single 85Rb D1
+top bar and it declares its own controls and plots. Started as a single 85Rb D1
 double-Λ four-wave-mixing model (now one scheme among several).
 
 ## Schemes (current)
@@ -89,6 +89,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 streamlit run streamlit_app.py
 ```
 
+Direct scheme links use registry names, for example `?scheme=fwm` or `?scheme=sas`.
+Changing the Scheme selection updates this URL parameter.
+
 **Trap**: `python streamlit_app.py` does NOT work (no server, prints "run it with
 streamlit run"). The supported application entry point is the Streamlit command
 above. Root-level `fwm_obe` CLI/import compatibility is retired; its shim is kept
@@ -111,8 +114,12 @@ equal detunings and warns that this loses hysteresis information.
 Uploads are automatically framed into the theoretical X range, including
 seconds-axis scope data with very different numeric spans. **Base X scale**
 holds the coarse correction, while **X fine scale ×** keeps a stable 0.1–3 range.
-Adjust scale, shift, sweep direction, and relative-signal Y scale/offset, then
-click **Apply alignment**: dragging controls sends no intermediate redraws.
+The plot keeps its full width; upload, calibration and fitting live in the
+collapsible **Overlay settings** below it. Drag the experimental curve or the
+controls directly below the plot to preview alignment locally in the browser;
+release to synchronize the committed alignment and exports once. Relative data
+also offer live Y scale/offset controls. **Precise alignment** holds the base
+scale, sweep direction and inversion; click **Apply alignment** for those edits.
 **Bring into view** restores automatic framing; **Use raw axis** restores the
 original axis. Framing alone does not establish a frequency calibration.
 
@@ -129,10 +136,16 @@ the ⁸⁷Rb fraction is complementary. Natural composition stays at 72.17/27.83
 Mixtures use a fixed ⁸⁵Rb frequency centroid even when the dominant isotope
 changes. The existing pure-isotope menu retains its own isotope centroid.
 
-The graph opens on **Transmission**; tabs also expose **Optical density** and
-weak-probe **Dispersion**. CSV comparison is on Transmission. Comparison and
+The OD/SAS graph currently shows **Transmission** only. **Optical density** and
+weak-probe **Dispersion** are temporarily hidden from the plot selector; their
+calculated curves remain available in exports. CSV comparison is on Transmission. Comparison and
 export controls rerun only their plot section, reuse the cached theory, and
 export the same aligned data shown on the graph with correction provenance.
+
+In seeded FWM, dragging **Two-photon detuning δ** previews the cursor and selected
+gain/noise locally on the cached curves. Clicking or dragging directly on the
+plot also selects δ. Release commits the operating point and updates the result
+strip and exports; the preview interpolates canonical NF before taking its dB log.
 
 ### Rydberg finite-IF electrometry and cell heating
 

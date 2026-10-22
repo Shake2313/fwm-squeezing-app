@@ -1,0 +1,292 @@
+{
+ "tag": "feedback_after_20261021",
+ "git_head": "3295e47",
+ "created": "2026-10-21 18:31:04 +0900",
+ "url_mode": "external",
+ "meta": {
+  "transfer_kb": 1704,
+  "requests": 73
+ },
+ "schemes": {
+  "sas": {
+   "name": "sas",
+   "title": "Absorption spectroscopy (OD / SAS)",
+   "n_main_controls": 7,
+   "n_advanced_controls": 8,
+   "ready_ms_desktop": 3855,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 238,
+     "bottom": 754,
+     "width": 1079,
+     "height": 516,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 900,
+    "rail_open": true,
+    "rail_scroll_height": 900,
+    "rail_content_height": 681,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 43,
+    "dom_nodes": 805
+   },
+   "desktop_rail_advanced_open": 1277,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 474,
+     "bottom": 633,
+     "width": 334,
+     "height": 160,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "rail_content_height": null,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 28,
+    "dom_nodes": 812
+   }
+  },
+  "lambda": {
+   "name": "lambda",
+   "title": "Λ coherence (EIT / AT / CPT)",
+   "n_main_controls": 9,
+   "n_advanced_controls": 4,
+   "ready_ms_desktop": 1732,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 229,
+     "bottom": 857,
+     "width": 864,
+     "height": 628,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 942,
+    "rail_open": true,
+    "rail_scroll_height": 900,
+    "rail_content_height": 693,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 34,
+    "dom_nodes": 432
+   },
+   "desktop_rail_advanced_open": 1085,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 341,
+     "bottom": 583,
+     "width": 334,
+     "height": 243,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "rail_content_height": null,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 21,
+    "dom_nodes": 439
+   }
+  },
+  "rydberg_eit": {
+   "name": "rydberg_eit",
+   "title": "Rydberg-EIT electrometry",
+   "n_main_controls": 10,
+   "n_advanced_controls": 21,
+   "ready_ms_desktop": 1711,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 229,
+     "bottom": 804,
+     "width": 1079,
+     "height": 575,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 900,
+    "rail_open": true,
+    "rail_scroll_height": 900,
+    "rail_content_height": 654,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 38,
+    "dom_nodes": 453
+   },
+   "desktop_rail_advanced_open": 1358,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 408,
+     "bottom": 586,
+     "width": 334,
+     "height": 178,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "rail_content_height": null,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 27,
+    "dom_nodes": 460
+   }
+  },
+  "magneto": {
+   "name": "magneto",
+   "title": "Magneto-optics (Hanle/MOR)",
+   "n_main_controls": 9,
+   "n_advanced_controls": 10,
+   "ready_ms_desktop": 1725,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 280,
+     "bottom": 829,
+     "width": 1079,
+     "height": 549,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 915,
+    "rail_open": true,
+    "rail_scroll_height": 900,
+    "rail_content_height": 781,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 46,
+    "dom_nodes": 483
+   },
+   "desktop_rail_advanced_open": 1570,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 517,
+     "bottom": 687,
+     "width": 334,
+     "height": 170,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 844,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "rail_content_height": null,
+    "help_glyphs": 7,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 29,
+    "dom_nodes": 490
+   }
+  },
+  "fwm": {
+   "name": "fwm",
+   "title": "Four-wave mixing (Squeezing / Biphoton)",
+   "n_main_controls": 17,
+   "n_advanced_controls": 2,
+   "ready_ms_desktop": 1724,
+   "desktop": {
+    "viewport": [
+     1440,
+     900
+    ],
+    "plot": {
+     "top": 260,
+     "bottom": 872,
+     "width": 813,
+     "height": 612,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 990,
+    "rail_open": true,
+    "rail_scroll_height": 1195,
+    "rail_content_height": 1099,
+    "help_glyphs": 10,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 30,
+    "dom_nodes": 537
+   },
+   "desktop_rail_advanced_open": 1402,
+   "mobile": {
+    "viewport": [
+     390,
+     844
+    ],
+    "plot": {
+     "top": 407,
+     "bottom": 659,
+     "width": 334,
+     "height": 251,
+     "kind": "img",
+     "fully_visible": true
+    },
+    "main_scroll_height": 890,
+    "rail_open": false,
+    "rail_scroll_height": null,
+    "rail_content_height": null,
+    "help_glyphs": 10,
+    "help_icons": 0,
+    "iframes": 0,
+    "main_expanders": 0,
+    "text_leaves_first_viewport": 24,
+    "dom_nodes": 544
+   }
+  }
+ }
+}

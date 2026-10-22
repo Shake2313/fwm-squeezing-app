@@ -18,7 +18,8 @@ _CSS = """
 .gbtn:focus-visible{outline:2px solid var(--g-accent,#0284C7);outline-offset:2px;}
 .gbtn svg{width:16px;height:16px;flex-shrink:0;}
 .gbtn[aria-busy="true"]{opacity:.6;cursor:progress;}
-@media (max-width:640px){.gbtn .lbl{display:none;}}
+@media (max-width:1000px){.gbtn .lbl{position:absolute;width:1px;height:1px;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;}}
 """
 
 _JS = """
@@ -30,7 +31,9 @@ export default function(component) {
   btn.onclick = async () => {
     btn.setAttribute("aria-busy", "true");
     try {
-      const text = await (await fetch(url)).text();
+      const response = await fetch(url, { cache: "no-cache" });
+      if (!response.ok) throw new Error("Guide could not be loaded");
+      const text = await response.text();
       const blobUrl = URL.createObjectURL(new Blob([text], { type: "text/html" }));
       if (!window.open(blobUrl, "_blank")) window.open(url, "_blank");
     } catch (_e) {

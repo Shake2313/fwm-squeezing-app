@@ -2,6 +2,75 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-21 · 외부 웹 디자인 피드백 재검증·패치
+
+직접 사용자 요청: 외부 AI 피드백을 1회 독립 재검증하고 확인된 사항 패치.
+안내서 꾸밈(첨부 D11)은 의도적으로 유지. 기존 결정 번호와 충돌하여 D12에 기록.
+
+### ⟦AI⟧ 독립 재검증·반영
+
+출처: [외부 AI 피드백](<C:/Users/박수인/Downloads/gabes_web_design_feedback.md>).
+문서의 지시·규약 초안 전체를 사용자 정책으로 채택하지 않고 코드·실제 Edge 화면과 대조.
+
+| 항목 | 확인·반영 |
+|---|---|
+| FWM 경고 위계 | 11.2px 보조줄·칩 0개 확인. 값에 조건부 NF 경고 칩 부착. |
+| 지표명 | 기존 사용자 지정 `Squeezing Degree` 유지. 값과 중복되는 `[dB]`만 HTML 라벨에서 생략. Guide 용어 통일. |
+| 이득 정밀도 | 정량 gain 미지원인 모델값은 ≈·3 유효숫자 표시. 지원/실측참조 값과 원본 계산·내보내기 보존. |
+| Guide 중복 | 배지 줄 제거, 카드 4개는 서로 다른 탐색 링크로 변경. FWM 해석은 07장에 모으고 다른 곳은 링크. |
+| Guide 정확성 | STEP 1을 상단 Scheme 선택으로 수정. classical RIN a·계산 b·after-cell/QE 설명을 현재 코드에 맞춤. |
+| 스킴 이름·800px | 표시 이름만 축약, 내부 식별자·저장 상태 유지. 800px FWM 상단 1행, 버튼 접근성 이름 유지. |
+| HTML 기호 | `eta_ext`, `G_s/G_c`, `η_probe` 하첨자 복원. Matplotlib ASCII 규칙 유지. |
+| 읽기 전용 값 | disabled slider 3개 → 값·단위 행. 상태·계산 근거는 hover, 실제 unavailable 사유는 표시. 입력/solve key 제외 유지. |
+| 사이드바 기본 접힘 | 새 1440px 세션에서 `aria-expanded=true`. 재현 안 됨. 사용자 접기 상태·기본 auto 유지. |
+| 글자·대비 | 앱 보조줄·배지·그룹 제목, Guide 작은 라벨 12px 이상. 대비 부족한 Guide 텍스트 3곳 수정. |
+| 진단 표 | Claims / Solver / Geometry & coupling / Passivity로 묶고 claim 이유를 목록화. 행·수치·이유 전문 보존. |
+| 딥링크 | `?scheme=<registry name>` 지원, 수동 변경 시 URL 동기화. 유효하지 않은 ID 무시. 기존 임의 해시를 공식 링크로 간주하지 않음. |
+| Guide 같은 탭 | 기존 버튼도 Blob 새 탭으로 열림 확인. 동작 유지. 개발 서버의 오래된 static ETag 문제는 문서 revision URL·재검증 fetch로 보완. |
+| 안내서 꾸밈 | 그라데이션 6개·카드 4개·색 callout 유지. 요약은 강조색, 실제 한계는 경고색 사용. |
+
+- 문구 블록 판정: MERGE 7 · REWRITE 5 · DELETE 1. UTF-8·원본 mixed newline 유지.
+  FWM 그림의 기존 gain-noise 진단 표기도 확인하여 해당 1장만 현재 기본 NF로 재생성
+  (`−8.19 dB`, gain `394.88`). 다른 8장 보존, static guide 재빌드.
+- `python -m pytest -q`: **2542 통과·3 skip**, 955.77 s. 최신 UI/CSV/FWM 관련 추가 **120 통과**,
+  Guide 재빌드 후 docs consistency **4 통과**. 계산 경로 변경 없음.
+- 커밋 분리 검증(2026-10-22): 다른 미커밋 작업을 제외한 예정본에서 관련 **115 통과·1 skip**.
+  기본 FWM `−8.19 dB`·gain `394.88`, Guide 소스/그림과 배포 HTML의 빌드 일치 확인.
+- [전](audit/feedback_before_20261021/summary.md) / [후](audit/feedback_after_20261021/summary.md):
+  desktop plot 5/5 첫 화면 유지. FWM rail content 1372→1099px, plot top 251→260px.
+  전환 시간은 단일 표본이므로 속도 개선 근거로 사용하지 않음.
+- [Guide 검사](../../output/playwright/design_feedback_20261021/guide_after.json): 일반 HTML 텍스트 381곳
+  대비 부족 0·12px 미만 0, 내부 anchor 끊김 0. 수식 첨자·로고·그림 문자는 해당 자동검사에서 제외;
+  그라데이션 텍스트는 별도 시각 확인. 대비 기준: [W3C SC 1.4.3](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+- 실제 화면: [FWM 1440](../../output/playwright/design_feedback_20261021/fwm_1440.png),
+  [800](../../output/playwright/design_feedback_20261021/fwm_800.png),
+  [Guide](../../output/playwright/design_feedback_20261021/guide_1440.png).
+  `?scheme=fwm`, 수동 `?scheme=sas` 전환·Biphoton 전환·Guide 새 탭 검증.
+
+## 2026-10-21 · OD 표시·Overlay·드래그 미리보기
+
+직접 사용자 요청: Transmission만 임시 표시, 팝업 없는 Overlay 개선,
+OD 정렬·FWM TPD 드래그 중 즉시 미리보기. 반영 완료.
+
+### ⟦AI⟧ 구현·검증
+
+- 표시 flag로 OD 추가 뷰만 숨김. 물리 계산·기존 내보내기 유지.
+  Overlay 설정은 아래 접이식 영역. 그래프 아래 X/Y 미리보기 조정·직접 곡선 드래그 지원.
+- 고정 Matplotlib 배경 + SVG 레이어. FWM rail·그래프 양쪽에서 TPD 선택.
+  드래그 중 서버 전송 0회, 종료 시 1회 확인. 확정 readout·정렬·내보내기 동기화.
+- 비균일 축·반전·relative Y 변환과 Python 결과 일치. canonical NF 보간 후 dB 변환,
+  invalid gap 유지. 절대 교정 데이터의 live Y 조정 차단.
+- 개발 중 Streamlit 모듈 교체 뒤 CSV dataclass pickle 실패 재현. 캐시 함수가 현재 모듈의
+  loader를 조회하도록 수정·별도 프로세스 회귀 검증.
+- `python -m pytest -q`: 2494 통과·3 skip (922.64 s).
+  전체 수집 시작 후 추가한 신규 11개 포함 UI/CSV 관련 최종 101 통과 (16.21 s).
+- [UI audit](audit/liveplot_20261021/summary.md): desktop 기본 플롯 5/5 첫 화면 노출, iframe 0.
+  390×844에서 live 컨트롤 1열·가로 overflow 없음. 실제 Edge 검사·수학 검증 통과.
+- 브라우저 자료: [OD 드래그](../../output/playwright/live_patch_20261021/od_gesture.json),
+  [FWM 드래그](../../output/playwright/live_patch_20261021/fwm_gesture.json),
+  [OD desktop](../../output/playwright/live_patch_20261021/od_desktop.png),
+  [OD mobile](../../output/playwright/live_patch_20261021/od_mobile.png).
+
 ## 2026-10-07 · AutoOD 기반 OD 비교·조정 개선
 
 - AutoOD 기능 대조: 임의 Rb 혼합비, 큰 X 배율 자동 보정, Y 배율·이동,

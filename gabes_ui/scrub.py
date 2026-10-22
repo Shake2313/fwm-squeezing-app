@@ -158,6 +158,12 @@ export default function (component) {
     setStateValue("value", JSON.stringify(Object.assign({ n: S.seq }, payload)));
   }
   function stream(v) {           // navigate-only knobs follow the drag
+    if (data.previewKey) {
+      window.dispatchEvent(new CustomEvent("gabes-preview", {
+        detail: { key: data.previewKey, value: v }
+      }));
+      return; // Browser-local preview; pointer-up sends the only Python update.
+    }
     if (!data.live) return;
     const now = Date.now();
     if (S.sentAt && now - S.sentAt < 125) return;
@@ -247,7 +253,15 @@ export default function (component) {
     if (!d.moved) beginEdit();
     else if (S.shown !== d.v) send({ v: S.shown });
   };
-  el.value.onpointercancel = () => { S.drag = null; root.classList.remove("is-dragging"); };
+  function cancelPreview() {
+    if (data.previewKey) {
+      paint(data.value, data.text);
+      window.dispatchEvent(new CustomEvent("gabes-preview", {
+        detail: { key: data.previewKey, value: data.value, cancel: true }
+      }));
+    }
+  }
+  el.value.onpointercancel = () => { S.drag = null; root.classList.remove("is-dragging"); cancelPreview(); };
 
   el.track.onpointerdown = (e) => {
     if (!hasRange || e.button !== 0) return;
@@ -272,7 +286,7 @@ export default function (component) {
     if (el.track.hasPointerCapture(e.pointerId)) el.track.releasePointerCapture(e.pointerId);
     if (t && S.shown !== t.v) send({ v: S.shown });
   };
-  el.track.onpointercancel = () => { S.track = null; root.classList.remove("is-dragging"); };
+  el.track.onpointercancel = () => { S.track = null; root.classList.remove("is-dragging"); cancelPreview(); };
 
   // ---- keyboard -------------------------------------------------------
   el.value.onkeydown = (e) => {
@@ -289,6 +303,7 @@ export default function (component) {
     else return;
     e.preventDefault();
     paint(bound(tidy(v)));
+    if (data.previewKey) stream(S.shown);
     clearTimeout(S.keyTimer);            // a key repeat is one gesture
     S.keyTimer = setTimeout(() => send({ v: S.shown }), 160);
   };
@@ -402,7 +417,7 @@ def _fallback(container, key, label, unit, vmin, vmax, step, fmt, help_, endpoin
 
 def scrub_field(container, *, key, label, value, vmin, vmax, step, unit="",
                 default=None, fmt=None, help=None, endpoints=None, live=False,
-                integer=False, on_change=None):
+                integer=False, on_change=None, preview_key=None):
     """Render one precise numeric knob and return its value.
 
     `st.session_state[key]` is the value — a plain entry, not widget state, so
@@ -433,6 +448,7 @@ def scrub_field(container, *, key, label, value, vmin, vmax, step, unit="",
         "help": help or "",
         "ends": list(endpoints) if endpoints else None,
         "live": bool(live),
+        "previewKey": preview_key,
         "note": note,
     }
     comp_key = state_key(key)

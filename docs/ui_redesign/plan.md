@@ -107,6 +107,6 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 - [ ] User Guide 스크린샷 9장 재캡처 → `docs/Userguide/build_static_guide.py`
 - [ ] 최종 audit `final` + `--compare baseline final` 표 → `log.md`
 
-## 추가 후보 (미확정, 착수 전 사용자 확인)
-- FWM plot의 δ 마커 직접 드래그 (navigate-only knob, 픽셀↔데이터 매핑 필요)
-- scheme deep link (`?scheme=`) — audit·공유 편의
+## 추가 후보
+- [x] FWM plot의 δ 마커 직접 드래그 — 2026-10-21 사용자 요청, D11 반영.
+- [x] scheme deep link (`?scheme=`) — 2026-10-21 웹 디자인 피드백 패치 요청으로 반영.

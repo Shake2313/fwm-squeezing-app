@@ -14,6 +14,7 @@ import streamlit as st
 
 from gabes_ui.format import slider_format
 from gabes_ui.scrub import scrub_field
+from gabes_ui.readout import caption_html
 
 ADVANCED_FOLD = 6     # an advanced-only group longer than this starts folded
 
@@ -132,6 +133,7 @@ def render_param(container, scheme_name, sp, scheme_obj=None):
         fmt=slider_format(sp), help=help_,
         endpoints=getattr(sp, "endpoints", None),
         live=not getattr(sp, "recompute", True),
+        preview_key=key if scheme_name == "fwm" and sp.name == "tpd" else None,
         integer=_is_integer_knob(sp), on_change=on_change,
     )
 
@@ -230,10 +232,10 @@ def render_rail(container, scheme, specs, skip=(), derived_slots=None):
 
 
 def render_derived_params(derived_slots, readouts):
-    """Fill output-only slider rows from the current observable descriptor.
+    """Fill read-only value rows from the current observable descriptor.
 
     Values use each ParamSpec's display unit. Missing/non-finite values stay
-    unavailable; no slider position is invented. These widget states are never
+    unavailable. These display values are never
     copied into parameters or solve keys.
     """
     for name, (sp, slot, scheme_name) in derived_slots.items():
@@ -244,25 +246,16 @@ def render_derived_params(derived_slots, readouts):
             value = float(value)
         except (TypeError, ValueError):
             value = float("nan")
-        lower = float(sp.vmin) if sp.vmin is not None else min(0.0, value)
-        upper = float(sp.vmax) if sp.vmax is not None else max(1.0, value)
-        available = (math.isfinite(value) and math.isfinite(lower)
-                     and math.isfinite(upper) and lower < upper
-                     and lower <= value <= upper)
-        label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
+        available = math.isfinite(value)
+        label = caption_html(sp.label)
+        note = " ".join(dict.fromkeys(text for text in (sp.help, status) if text))
+        number = (sp.format or "%.6g") % value if available else "Unavailable"
+        unit = f"<span class='g-derived-unit'>{escape(sp.unit)}</span>" if available and sp.unit else ""
         with slot.container():
-            _hover_label(st, label, sp.help)
-            if not available:
-                st.caption(status or "Unavailable")
-                continue
-            step = float(sp.step) if sp.step is not None else (upper - lower) / 1000.0
-            fmt = sp.format or "%.6g"
-            # Include the computed value in widget identity. A stable input key
-            # would restore the previous slider value after a readout changed.
-            st.slider(
-                label, min_value=lower, max_value=upper, value=value, step=step,
-                format=fmt, disabled=True, label_visibility="collapsed",
-                key=f"{scheme_name}__derived_{name}__{value.hex()}",
-            )
-            if status:
+            st.markdown(
+                f"<div class='g-derived' role='group' aria-label='{escape(sp.label, quote=True)}' "
+                f"title='{escape(note, quote=True)}'><span class='g-derived-label'>{label}</span>"
+                f"<span class='g-derived-value'>{escape(number)}{unit}</span></div>",
+                unsafe_allow_html=True)
+            if not available and status:
                 st.caption(status)

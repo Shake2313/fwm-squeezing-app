@@ -16,7 +16,8 @@ DOM contract the redesign must keep (or update here in the same commit):
   * the scheme switcher is a role=combobox whose aria-label contains "Scheme",
     reachable with the sidebar closed (top bar), and its options are
     role=option elements whose text is the scheme title;
-  * the main plot is the largest img / iframe / canvas inside stMain;
+  * the main plot is the largest img / iframe / canvas inside stMain,
+    including inline components' shadow roots;
   * the control rail is Streamlit's sidebar (stSidebar / stSidebarContent);
   * the advanced toggle is a sidebar summary/button whose text contains
     "Advanced controls", "Show advanced" or "Hide advanced".
@@ -230,11 +231,14 @@ class CDP:
 # ----------------------------------------------------------------------
 JS_READY = r"""
 (() => {
+  const deep = (root, selector) => [...root.querySelectorAll(selector),
+    ...[...root.querySelectorAll('*')].filter(e => e.shadowRoot)
+      .flatMap(e => deep(e.shadowRoot, selector))];
   const app = document.querySelector('[data-testid="stApp"]');
   if (!app) return {ready: false, state: 'noapp'};
   const state = app.getAttribute('data-test-script-state');
   const main = document.querySelector('[data-testid="stMain"]');
-  const big = main ? [...main.querySelectorAll('img,iframe,canvas')].filter(e => {
+  const big = main ? deep(main, 'img,iframe,canvas').filter(e => {
     const r = e.getBoundingClientRect(); return r.width * r.height > 40000; }) : [];
   const spinning = !!document.querySelector('[data-testid="stSpinner"]');
   const sw = [...document.querySelectorAll('[role="combobox"]')]
@@ -248,13 +252,16 @@ JS_READY = r"""
 
 JS_MEASURE = r"""
 (() => {
+  const deep = (root, selector) => [...root.querySelectorAll(selector),
+    ...[...root.querySelectorAll('*')].filter(e => e.shadowRoot)
+      .flatMap(e => deep(e.shadowRoot, selector))];
   const vh = innerHeight, vw = innerWidth;
   const main = document.querySelector('[data-testid="stMain"]');
   if (main) main.scrollTop = 0;
   const rail = document.querySelector('[data-testid="stSidebarContent"]')
             || document.querySelector('[data-testid="stSidebar"]');
   const sidebar = document.querySelector('[data-testid="stSidebar"]');
-  const cands = main ? [...main.querySelectorAll('img,iframe,canvas')]
+  const cands = main ? deep(main, 'img,iframe,canvas')
     .map(e => ({e, r: e.getBoundingClientRect()}))
     .filter(o => o.r.width > 0 && o.r.height > 0) : [];
   cands.sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height);
@@ -365,6 +372,9 @@ def _center_js(selector_expr):
 
 
 async def wait_ready(cdp, *, expect_title=None, timeout=600.0, min_wait=0.0):
+    from gabes_ui.readout import scheme_label
+    if expect_title is not None:
+        expect_title = scheme_label(expect_title)
     start = time.time()
     last_sig = None
     stable = 0
@@ -389,6 +399,8 @@ async def wait_ready(cdp, *, expect_title=None, timeout=600.0, min_wait=0.0):
 async def switch_scheme(cdp, title):
     """Open the scheme switcher and pick `title`; retried because a rerun that is
     still settling can re-render the select and close its menu."""
+    from gabes_ui.readout import scheme_label
+    title = scheme_label(title)
     title_js = json.dumps(title)
     for _attempt in range(4):
         await wait_ready(cdp, min_wait=0.5)

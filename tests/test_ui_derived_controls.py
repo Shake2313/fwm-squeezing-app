@@ -1,5 +1,6 @@
 """Output-only sidebar controls stay current without entering model inputs."""
 import json
+import re
 
 from gabes.schemes.base import ParamSpec, Scheme
 
@@ -37,7 +38,7 @@ def test_derived_rows_never_become_defaults_or_solve_parameters():
     assert scheme.recompute_keys() == ("seed",)
 
 
-def test_derived_sliders_are_disabled_current_and_omitted_from_inputs():
+def test_derived_rows_are_read_only_current_and_omitted_from_inputs():
     from streamlit.testing.v1 import AppTest
 
     app = AppTest.from_string(
@@ -60,13 +61,16 @@ def test_derived_sliders_are_disabled_current_and_omitted_from_inputs():
     ).run()
     assert not app.exception
     assert [slider.label for slider in app.slider] == [
-        "Seed power", "Classical seed noise a", "Seed shot noise b",
-        "After-cell efficiency  [%]", "Total Probe Efficiency  [%]",
-        "Total Conjugate Efficiency  [%]",
+        "Seed power", "Classical seed noise a", "After-cell efficiency  [%]",
     ]
-    assert [slider.proto.disabled for slider in app.slider] == [
-        False, False, True, False, True, True]
-    assert [app.slider[i].value for i in (2, 4, 5)] == [4.0, 90.0, 45.0]
+    assert all(not slider.proto.disabled for slider in app.slider)
+
+    def row_values():
+        return [float(re.search(r"class='g-derived-value'>([^<]+)", m.value)[1])
+                for m in app.markdown if "class='g-derived-value'" in m.value
+                and ">Unavailable<" not in m.value]
+
+    assert row_values() == [4.0, 90.0, 45.0]
     expected_keys = set(DerivedScheme().defaults())
     assert set(app.session_state["collected_params"]) == expected_keys
     assert set(app.session_state["current_params"]) == expected_keys
@@ -75,16 +79,16 @@ def test_derived_sliders_are_disabled_current_and_omitted_from_inputs():
     app.slider(key="derived_test__efficiency").set_value(80.0)
     app.run()
     assert not app.exception
-    assert [app.slider[i].value for i in (2, 4, 5)] == [6.0, 80.0, 40.0]
+    assert row_values() == [6.0, 80.0, 40.0]
     assert set(app.session_state["collected_params"]) == expected_keys
 
     app.checkbox(key="derived_test__available").uncheck().run()
     assert not app.exception
-    assert "Total Probe Efficiency  [%]" not in [s.label for s in app.slider]
+    assert len(app.slider) == 3
     assert any("Unavailable: transmission is not passive" in item.value
                for item in app.caption)
-    assert app.slider[-1].proto.disabled
-    assert app.slider[-1].value == 40.0
+    assert row_values() == [6.0, 40.0]
+    assert any(">Unavailable<" in m.value for m in app.markdown)
 
 
 def test_export_preserves_display_values_and_unavailable_status():
