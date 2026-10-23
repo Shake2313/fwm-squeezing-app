@@ -1035,14 +1035,6 @@ def render(host=None):
                         resolution=fidelity)
     params = result.params
 
-    st.markdown(
-        "<div class='sabes-header'><h1>SABES</h1>"
-        "<p>The EOM-based ⁸⁵Rb twin-beam apparatus · 2026-10-16 baseline. "
-        "Recorded hardware and wiring accompany the selected calculation "
-        "profile, based on Sim, Kim &amp; Moon (2025).</p></div>",
-        unsafe_allow_html=True,
-    )
-
     # ---- Tier B: the solve ----
     raw = _cached_solve(bridge.solve_key(params), fwm.FWMScheme().cache_version)
     result = replace(result, raw=raw,
@@ -1054,39 +1046,32 @@ def render(host=None):
 
     # ---- Tier C: readout ----
     gate = raw.get("claim_gate", {})
+    validation_level = gate.get("level", "MEAN_FIELD_DIAGNOSTIC").replace("_", " ").title()
+    st.markdown(
+        "<div class='sabes-header'><div class='sabes-title'><h1>SABES</h1>"
+        "<span class='g-chip g-chip--neutral sabes-status' "
+        "aria-label='Validation level: {level}' "
+        "title='Model status. See Detection for calculation details.'>{level}</span>"
+        "</div><p>The EOM-based ⁸⁵Rb twin-beam apparatus · 2026-10-16 baseline. "
+        "Recorded hardware and wiring accompany the selected calculation "
+        "profile, based on Sim, Kim &amp; Moon (2025).</p></div>".format(
+            level=escape(validation_level)),
+        unsafe_allow_html=True,
+    )
     metrics = [
-        {"label": "Validation level",
-         "value": gate.get("level", "MEAN_FIELD_DIAGNOSTIC").replace("_", " ").title(),
-         "help": "Quantitative gain and physical squeezing claims are blocked."},
-        {"label": "Squeezing Degree [dB]",
+        {"label": "Noise level [dB]",
          "value": _noise_db_text(result.gain_referred_noise_db),
-         "help": "10·log10(NF) at the selected two-photon detuning. Conditional "
-                 "passive completion; microscopic atomic covariance is unavailable."},
-        {"label": "NF",
-         "value": (f"{result.noise_factor:.6g}" if result.noise_factor is not None
-                   else "unavailable"),
-         "help": "Var(N_probe−N_conjugate) / mean(N_probe+N_conjugate)."},
-        {"label": "RIN-loaded diagnostic",
-         "value": _noise_db_text(result.eom_rin_loaded_noise_db),
-         "help": "Gain-only estimate after unpaired-mode shot noise and the "
-                 "specified EOM RIN. This is not a squeezing prediction."},
-        {"label": "Algebraic detection floor",
-         "value": f"{result.gain_referred_detection_floor_db:+.2f} dB",
-         "help": "10·log10(1−η) within the ideal-vacuum completion only; not a "
-                 "physical squeezing bound for the current atomic model."},
+         "help": "Calculated NF in dB: 10·log10(NF) at the selected two-photon "
+                 "detuning. Model interpretation is shown by the status badge; "
+                 "this is not a measured noise level."},
+        {"label": "Gain G_s / G_c",
+         "value": f"{result.gains[0]:.2f} / {result.gains[1]:.2f}",
+         "help": "Probe (seed) gain G_s / conjugate gain G_c. Both gains use "
+                 "the input seed power as their reference."},
         {"label": "Detector clearance",
          "value": f"{readout.clearance_db:.1f} dB",
          "help": "Shot noise above the amplifier noise floor. This is detector "
                  "headroom only and does not validate the modeled dB diagnostic."},
-        {"label": "Carrier : seed",
-         "value": (f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.3g} %"),
-         "help": "Residual pump-frequency light in the seed mode after the "
-                 "etalon chain, computed from the quantized powers passed to "
-                 "GABES. It remains unapplied to the reduced atomic response; "
-                 "the balanced-detector layer applies the separately declared "
-                 "effective RIN."},
-        {"label": "Pump gain G_s", "value": f"{result.gains[0]:.2f}"},
-        {"label": "Conjugate gain G_c", "value": f"{result.gains[1]:.2f}"},
     ]
     _render_metrics(metrics)
 
@@ -1121,6 +1106,15 @@ def render(host=None):
 
     with tabs[3]:
         st.markdown(_budget_table(result.chain))
+        st.markdown(_markdown_table(("Spectral purity", "Value"), [
+            ("Residual carrier : seed",
+             f"{params['eom_residual_carrier_to_wanted_ratio'] * 100:.3g} %"),
+        ]))
+        st.caption(
+            "Residual pump-frequency power / wanted seed power after the etalon "
+            "chain, using the quantized solver inputs. The residual carrier "
+            "is not applied to the reduced atomic response; its effective RIN "
+            "is handled separately in Detection.")
         st.markdown("#### EOM mode → etalon transfer")
         st.caption(
             "Each etalon attenuates each EOM line by the listed power "
@@ -1141,6 +1135,12 @@ def render(host=None):
                 f" ({eom_shift:+.3g} dB normalized shift; absolute EOM PSD "
                 "is positive)")
         rows = [
+            ("Model status", validation_level),
+            ("Calculated NF [dB]", _noise_db_text(result.gain_referred_noise_db)),
+            ("NF (linear)", (f"{result.noise_factor:.6g}"
+                             if result.noise_factor is not None else "unavailable")),
+            ("Algebraic detection floor",
+             f"{result.gain_referred_detection_floor_db:+.2f} dB"),
             ("Cell output end → D-mirror", f"{geom.exit_to_dmirror_m * 1e3:.1f} mm"),
             ("Gaussian propagation origin", geom.mode_origin),
             ("Twin radius at D-mirrors",
@@ -1188,6 +1188,12 @@ def render(host=None):
             ]
         st.markdown(_markdown_table(("Quantity", "Value"), rows))
         st.caption(
+            "NF = Var(N_probe−N_conjugate) / mean(N_probe+N_conjugate). "
+            "The algebraic floor 10·log10(1−η) assumes ideal-vacuum completion; "
+            "it is not a physical squeezing bound for the current atomic model. "
+            "The RIN-loaded diagnostic adds unwanted-mode shot noise and the "
+            "specified EOM RIN; it is not a physical squeezing prediction.")
+        st.caption(
             "Bench detector: S3883 eyes on the PDB450A circuit, gain switch "
             "10⁵ V/A. RF → Rigol DSA875; Monitor +/- → Keysight DSOX1204A. "
             "Termination is unknown. Virtual SA uses a 50 Ω conversion and "
@@ -1232,16 +1238,24 @@ def _inject_css():
         .sabes-brand-sub { font-size: .78rem; font-weight: 600; color: #475569;
             margin-top: .2rem; }
         .sabes-brand-note { font-size: .7rem; color: #64748B; margin-top: .25rem; }
-        .sabes-header h1 { margin-bottom: .1rem; color: #0F766E; letter-spacing: .04em; }
+        .sabes-title { display: flex; align-items: center; flex-wrap: wrap;
+            gap: .5rem 1rem; margin-bottom: .35rem; }
+        .sabes-header h1 { margin: 0; color: #0F766E; letter-spacing: .04em; }
+        .sabes-status { white-space: normal; }
+        [data-testid="stAppViewContainer"]:has([data-testid="stSidebar"][aria-expanded="false"])
+            .sabes-header { padding-top: 1.5rem; }
         .sabes-header p { color: #475569; margin-top: 0; font-size: .92rem; }
         .sabes-metrics { display: grid; gap: .6rem; margin: .8rem 0 1.1rem 0;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .sabes-metric { border: 1px solid rgba(15,118,110,.22); border-radius: 12px;
             padding: .6rem .75rem; background: rgba(15,118,110,.05); }
         .sabes-metric-label { font-size: .72rem; text-transform: uppercase;
             letter-spacing: .06em; color: #0F766E; font-weight: 700; }
         .sabes-metric-value { font-size: 1.35rem; font-weight: 700; color: #0F172A;
-            margin-top: .15rem; }
+            margin-top: .15rem; font-variant-numeric: tabular-nums; }
+        @media (max-width: 700px) {
+            .sabes-metrics { grid-template-columns: 1fr; }
+        }
         .sabes-legend { display: flex; flex-wrap: wrap; gap: .1rem 1.1rem;
             margin: .35rem 0 .9rem 0; font-size: .78rem; color: #475569; }
         .sabes-key { display: inline-flex; align-items: center; gap: .35rem; }

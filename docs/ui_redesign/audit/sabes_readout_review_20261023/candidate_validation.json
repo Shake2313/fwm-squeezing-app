@@ -1,0 +1,12 @@
+{
+  "command": "pytest --ignore=tmp --ignore=output --ignore=archive/AutoOD -q tests/test_sabes_page.py tests/test_sabes_current_nf.py tests/test_docs_consistency.py -k not test_canvas_events_round_trip_through_the_real_table_state",
+  "exit_code": 0,
+  "elapsed_seconds": 1.97,
+  "page": "exact proposed commit version, imported instead of the mixed working-tree page",
+  "excluded": "Uncommitted canvas event test belongs to the deferred optical-table change",
+  "base": "eebdb2a03867d576741a6df2d90d0e5c7daa24ca",
+  "page_sha256": "7a8ad3c8fafb505710beaf77b8a5cc77add6dc7ba513bfe777a3f2dfcc26242e",
+  "passed": 30,
+  "deselected": 1,
+  "pytest_elapsed_seconds": 1.46
+}

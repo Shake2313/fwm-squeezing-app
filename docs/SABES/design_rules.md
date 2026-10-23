@@ -11,6 +11,12 @@
 
 이전 광학 테이블 계획의 `(lumped)` 반복 표기·선 굵기 설명 요구는 위 최신 요청으로 대체.
 
+### 상단 요약 · 사용자 채택, 2026-10-22
+
+- 상단은 잡음 수준(`Noise level [dB]`)·`Gain G_s / G_c`·`Detector clearance` 세 카드.
+- `G_s`는 probe/seed gain. 기존 `Pump gain` 명칭 제거. 잡음 수준은 계산 NF의 dB 값으로 설명.
+- 모델 상태는 제목 옆 작은 배지. NF 선형값·algebraic detection floor·RIN 진단은 Detection, 잔류 carrier : seed는 Power budget에 배치.
+
 ## ⟦AI⟧ 구현 기준 · 제안
 
 아래 수치·배치·검증 항목은 위 요구를 구현하기 위한 작업 기준. 별도 사용자 결정으로 승격하지 않음.
