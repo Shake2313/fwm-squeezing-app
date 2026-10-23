@@ -103,13 +103,55 @@ def _chip_html(metric):
             f"aria-label='{escape(f'{label}: {value}', quote=True)}'>{escape(value)}</span>")
 
 
-def strip_html(heroes, secondary, statuses):
-    """One-line readout: hero cells, secondary cells, then status chips."""
+def magneto_status_summary(statuses):
+    """One quiet model qualifier; actionable numerical/input problems stand out."""
+    by_label = {str(m.get("label", "")): str(m.get("value", "")) for m in statuses}
+    if "invalid" in by_label.get("Status", "").lower():
+        return "Check transition", "warn"
+    rotation = by_label.get("Rotation readout status", "")
+    if "unsupported" in rotation or "undefined" in rotation:
+        return "Check polarization", "warn"
+    grid_states = [by_label.get(label, "") for label in ("Width status", "Slope status")]
+    if "physical zero outside scan" in grid_states:
+        return "Check field range", "warn"
+    if any(state and state != "sample-grid consistent" for state in grid_states):
+        return "Check resolution", "warn"
+    if any(by_label.get(label) == "unavailable" for label in ("Peak shot-noise SNR", "Shot noise RMS")):
+        return "Check detection", "warn"
+    return "Model estimate", "neutral"
+
+
+def _compact_magneto_status_html(statuses):
+    label, tone = magneto_status_summary(statuses)
+    rows = []
+    for metric in statuses:
+        heading = escape(str(metric.get("label", "")))
+        value = escape(str(metric.get("value", "")))
+        help_text = str(metric.get("help") or "")
+        note = f"<p>{escape(help_text)}</p>" if help_text else ""
+        rows.append(f"<div><dt>{heading}</dt><dd>{value}{note}</dd></div>")
+    symbol = "!" if tone == "warn" else "i"
+    return (
+        f"<div class='g-cell g-cell--model'><details class='g-model-status g-model-status--{tone}'>"
+        f"<summary title='Open numerical checks, experimental validation and model assumptions'>"
+        f"<span class='g-model-status-icon' aria-hidden='true'>{symbol}</span>"
+        f"{escape(label)}<span class='g-model-status-chevron' aria-hidden='true'>⌄</span></summary>"
+        "<div class='g-model-status-body'><p class='g-model-status-intro'>"
+        "Conditional model; absolute signal levels are not experimentally validated.</p>"
+        f"<dl>{''.join(rows)}</dl></div></details></div>"
+    )
+
+
+def strip_html(heroes, secondary, statuses, *, compact_statuses=False):
+    """Readout cells with status chips or an opt-in compact model disclosure."""
     cells = [_cell_html(m, "hero") for m in heroes]
     cells += [_cell_html(m, "secondary") for m in secondary]
     if statuses:
-        chips = "".join(_chip_html(m) for m in statuses)
-        cells.append(f"<div class='g-cell g-cell--status'>{chips}</div>")
+        if compact_statuses:
+            cells.append(_compact_magneto_status_html(statuses))
+        else:
+            chips = "".join(_chip_html(m) for m in statuses)
+            cells.append(f"<div class='g-cell g-cell--status'>{chips}</div>")
     return f"<section class='g-strip' aria-label='Key results'>{''.join(cells)}</section>"
 
 

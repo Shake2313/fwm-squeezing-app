@@ -1,12 +1,69 @@
 """Readout strip, chips and captions (gabes_ui.readout)."""
+from copy import deepcopy
+from xml.etree import ElementTree
+
+import pytest
+
 from gabes_ui.readout import (
     caption_html,
     clean_choice_label,
     metrics_table_markdown,
+    magneto_status_summary,
     partition_readout,
     status_tone,
     strip_html,
 )
+
+
+MAGNETO_STATUSES = [
+    dict(label="Width status", value="sample-grid consistent", kind="status"),
+    dict(label="Absolute contrast status", value="external validation required", kind="status",
+         help="Absolute contrast requires an independent measurement."),
+    dict(label="Model scope", value="closed hyperfine pair; open-channel leakage and repump omitted",
+         kind="status", help="Other ground-F leakage and repumping are omitted."),
+]
+
+
+def test_magneto_statuses_become_one_closed_disclosure_without_losing_details():
+    before = deepcopy(MAGNETO_STATUSES)
+    html = strip_html([], [], MAGNETO_STATUSES, compact_statuses=True)
+    root = ElementTree.fromstring(html)
+    details, = root.findall(".//details")
+    assert "open" not in details.attrib
+    assert "Model estimate" in "".join(details.find("summary").itertext())
+    assert len(details.findall(".//dt")) == len(MAGNETO_STATUSES)
+    text = "".join(details.itertext())
+    for metric in MAGNETO_STATUSES:
+        assert metric["label"] in text and metric["value"] in text
+        if metric.get("help"):
+            assert metric["help"] in text
+    assert "not experimentally validated" in text
+    assert "g-chip" not in html
+    assert MAGNETO_STATUSES == before
+
+
+@pytest.mark.parametrize("status, label", [
+    ({"label": "Status", "value": "invalid transition"}, "Check transition"),
+    ({"label": "Rotation readout status", "value": "undefined for circular input"}, "Check polarization"),
+    ({"label": "Rotation readout status", "value": "unsupported for elliptical input"}, "Check polarization"),
+    ({"label": "Width status", "value": "physical zero outside scan"}, "Check field range"),
+    ({"label": "Slope status", "value": "nonconverged on sampled grid"}, "Check resolution"),
+    ({"label": "Peak shot-noise SNR", "value": "unavailable"}, "Check detection"),
+])
+def test_compact_summary_surfaces_actionable_conditions(status, label):
+    assert magneto_status_summary([status]) == (label, "warn")
+    root = ElementTree.fromstring(strip_html([], [], [status], compact_statuses=True))
+    assert label in "".join(root.find(".//summary").itertext())
+
+
+def test_compact_status_details_escape_user_content_and_do_not_change_numeric_cells():
+    metric = dict(label="Peak shot-noise SNR", value="1172 ×")
+    status = dict(label="<scope>", value="<unsafe>", help="<script>alert('x')</script>")
+    compact = ElementTree.fromstring(strip_html([metric], [], [status], compact_statuses=True))
+    normal = ElementTree.fromstring(strip_html([metric], [], [status]))
+    assert ElementTree.tostring(compact[0]) == ElementTree.tostring(normal[0])
+    assert compact.find(".//script") is None
+    assert "<unsafe>" in "".join(compact.itertext())
 
 SAS_LIKE = [
     dict(label="SAS resolution", value="resolution-limited", tier="hero", kind="status",

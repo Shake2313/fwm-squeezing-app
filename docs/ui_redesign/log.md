@@ -2,6 +2,20 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-23 · 자기광학 상태 배지 감량
+
+직접 사용자 요청: `sample-grid consistent`·`external validation required`·긴 hyperfine 제한 세 배지 과밀 해소. 삭제 또는 디자인으로 정리.
+
+### ⟦AI⟧ 구현·검증
+
+- 자기광학 상단에 중립 `Model estimate` disclosure1개. 기존 상태·설명은 클릭/키보드로 펼침. 수치 카드와 같은 줄로 배치해 기본 상태의 별도 경고 행 제거.
+- 실제 조치 필요 시 `Check resolution`·`Check polarization`·`Check field range`·`Check detection` 등 한 개의 경고 배지. 색·기호·라벨 함께 사용. 모델 추정치를 실험 검증 완료로 표시하지 않음.
+- 표시 계층만 변경. 계산·SNR·기존 상태 descriptor/export 보존. 다른 스킴은 기존 chip 배치 유지.
+- `python -m pytest -q tests/test_ui_readout.py tests/test_ui_metrics.py tests/test_ui_design_feedback.py`: **31 통과**, 1.29s. 상세 보존·경고 우선순위·HTML escape·다른 숫자 셀 보존 확인.
+- 실제 Chrome1440×900/390×844: 닫힘·펼침·Space 조작·rotation의 `Check resolution` 확인. 모바일 닫힘/펼침 가로 overflow0, 앱 예외0·브라우저 error0. 기존 theme warning 존재.
+- [기본 화면](../../output/playwright/magneto_status_20261023_closed.png) · [상세 펼침](../../output/playwright/magneto_status_20261023_open.png) · [모바일](../../output/playwright/magneto_status_20261023_mobile.png).
+- 수치 경로 무변경으로 전체 numerical regression·GC campaign 생략. 필수 검증 이월 없음.
+
 ## 2026-10-23 · SABES 상단 요약 리뷰·커밋
 
 직접 사용자 요청: SABES 리뷰, 이슈 수정, 추가 검수1회 후 상단 변경 커밋·푸시.

@@ -483,6 +483,47 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   color: var(--g-ink-3);
 }
 
+/* Magneto model qualifications: one disclosure, with detail on demand. */
+.g-cell--model { flex: 0 1 auto; align-items: flex-start; }
+.g-cell--model:has(.g-model-status[open]) { flex: 1 1 100%; }
+.g-model-status { max-width: 100%; font-size: 0.75rem; color: var(--g-muted); }
+.g-model-status summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--g-line);
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.g-model-status summary::-webkit-details-marker { display: none; }
+.g-model-status summary:hover { background: var(--g-fill-soft); color: var(--g-ink); }
+.g-model-status summary:focus-visible { outline: 2px solid var(--g-accent-ink); outline-offset: 3px; }
+.g-model-status-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  line-height: 1;
+}
+.g-model-status--warn summary { color: var(--g-warn-ink); border-color: var(--g-warn-line); }
+.g-model-status-chevron { transition: transform 120ms ease; }
+.g-model-status[open] .g-model-status-chevron { transform: rotate(180deg); }
+.g-model-status-body { width: 32rem; max-width: 100%; padding-top: 0.7rem; white-space: normal; }
+.g-model-status-body .g-model-status-intro { margin: 0 0 0.6rem; color: var(--g-ink-2); }
+.g-model-status-body dl { margin: 0; }
+.g-model-status-body dl > div + div { margin-top: 0.6rem; }
+.g-model-status-body dt { color: var(--g-ink-2); font-weight: 600; }
+.g-model-status-body dd { margin: 0.15rem 0 0; overflow-wrap: anywhere; }
+.g-model-status-body dd p { margin: 0.25rem 0 0; line-height: 1.5; }
+
 /* Plot card: view tabs + caption + tools, then the figure. */
 .st-key-gabes_plotcard {
   background: var(--g-surface);

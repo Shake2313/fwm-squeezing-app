@@ -265,7 +265,8 @@ if metrics:
         metrics, hero_count=view.get("hero_count") or 2)
     with st.container(horizontal=True, vertical_alignment="center", gap="small",
                       key="gabes_readout"):
-        st.markdown(strip_html(heroes, secondary, statuses), unsafe_allow_html=True)
+        st.markdown(strip_html(heroes, secondary, statuses,
+                               compact_statuses=scheme.name == "magneto"), unsafe_allow_html=True)
         if overflow:
             with st.popover(f"+{len(overflow)} more", type="tertiary"):
                 st.markdown(metrics_table_markdown(metrics))

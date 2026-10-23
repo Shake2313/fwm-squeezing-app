@@ -179,6 +179,12 @@ withholds numeric heroes. This local check does not certify a whole B scan or
 experimental visibility. Literature sign/trend and quantitative-width agreement
 are reported separately.
 
+The top readout groups numerical checks, absolute-scale validation and model
+scope into one **Model estimate** disclosure. Click it (or use the keyboard)
+to read all details. Conditions requiring action instead show a compact
+warning such as **Check resolution**, **Check polarization** or **Check field
+range**. The full statuses remain in exported results.
+
 **Ground pure dephasing** damps ground-state coherences and preserves ground
 populations. Its saved API key `collisional_depol_khz` is retained. The selected
 closed hyperfine pair omits leakage to other ground hyperfine levels, repumping,
