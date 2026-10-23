@@ -11,6 +11,7 @@ that holds.
 """
 import math
 import sys
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 
@@ -26,6 +27,31 @@ from sabes.beamline import SetupSettings, build_source_chain  # noqa: E402
 from sabes.calibration import default_calibration  # noqa: E402
 from sabes.detection import DetectionSettings  # noqa: E402
 from sabes.layout import parts as layout_parts  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def detector_ultra_scheme():
+    """One real Ultra solve for detector-only cases with identical full inputs.
+
+    Keep every bridge/geometry/readout call real. Unlike a production cache key,
+    compare the entire parameter dict, so a newly coupled detector control fails
+    explicitly instead of silently reusing an inappropriate atomic result.
+    Copies isolate consumers from mutations by other tests or readouts.
+    """
+    class DetectorReference(fwm.FWMScheme):
+        reference_params = None
+        reference_raw = None
+
+        def compute(self, params):
+            if self.reference_params is None:
+                self.reference_params = deepcopy(params)
+                self.reference_raw = super().compute(params)
+            else:
+                assert params == self.reference_params, (
+                    "Detector-only fixture inputs changed; use an independent solve")
+            return deepcopy(self.reference_raw)
+
+    return DetectorReference()
 
 
 def _reference_overrides():
@@ -254,7 +280,7 @@ def test_power_for_clearance_inverts_the_clearance_formula():
     assert got == pytest.approx(target, abs=1e-9)
 
 
-def test_corrected_absolute_normalization_exposes_paper_power_mismatch():
+def test_corrected_absolute_normalization_exposes_paper_power_mismatch(detector_ultra_scheme):
     """Do not silently retune the inherited 0.74 scale to the paper power.
 
     Removing the duplicate ground-manifold population factor raises the current
@@ -262,7 +288,7 @@ def test_corrected_absolute_normalization_exposes_paper_power_mismatch():
     Until the remaining microscopic response is rebuilt, this disagreement is a
     model diagnostic rather than detector-clearance evidence for the experiment.
     """
-    result = bridge.run(resolution=fwm.FIDELITY_ULTRA)
+    result = bridge.run(resolution=fwm.FIDELITY_ULTRA, scheme=detector_ultra_scheme)
     assert result.readout.total_power_w > 1.0e-3
     assert result.readout.clearance_db > 15.0
     assert result.readout.margin_above_electronic_db(
@@ -288,21 +314,22 @@ def test_more_seed_power_buys_clearance_the_atoms_do_not_notice():
     assert read.measurable
 
 
-def test_hard_focus_onto_the_diode_breaks_the_linearity_limit():
+def test_hard_focus_onto_the_diode_breaks_the_linearity_limit(detector_ultra_scheme):
     """f=75/100 mm puts the twins far inside the Thorlabs 4 W/cm^2 limit."""
-    result = bridge.run(resolution=fwm.FIDELITY_ULTRA)
+    result = bridge.run(resolution=fwm.FIDELITY_ULTRA, scheme=detector_ultra_scheme)
     probe = result.readout.arms[0]
     assert probe.spot_radius_m < 50e-6
     assert probe.power_density_w_per_cm2 > 4.0
     assert any("linearity limit" in w for w in result.warnings)
 
 
-def test_a_longer_focal_length_relieves_the_density_limit():
+def test_a_longer_focal_length_relieves_the_density_limit(detector_ultra_scheme):
     # The corrected, still-uncalibrated absolute model predicts much more power
     # than the paper; 600 mm is the first standard-scale choice below the limit.
     gentle = DetectionSettings(probe_lens_focal_mm=600.0,
                                conjugate_lens_focal_mm=600.0)
-    result = bridge.run(detection=gentle, resolution=fwm.FIDELITY_ULTRA)
+    result = bridge.run(detection=gentle, resolution=fwm.FIDELITY_ULTRA,
+                        scheme=detector_ultra_scheme)
     assert result.readout.arms[0].power_density_w_per_cm2 < 4.0
     assert not any("linearity limit" in w for w in result.warnings)
     # And the spot still fits the S3883 active area comfortably.
@@ -310,9 +337,9 @@ def test_a_longer_focal_length_relieves_the_density_limit():
     assert result.readout.arms[0].spot_radius_m < active
 
 
-def test_defocus_also_relieves_the_density_limit():
+def test_defocus_also_relieves_the_density_limit(detector_ultra_scheme):
     result = bridge.run(detection=DetectionSettings(pd_defocus_mm=40.0),
-                        resolution=fwm.FIDELITY_ULTRA)
+                        resolution=fwm.FIDELITY_ULTRA, scheme=detector_ultra_scheme)
     assert result.readout.arms[0].power_density_w_per_cm2 < 4.0
 
 

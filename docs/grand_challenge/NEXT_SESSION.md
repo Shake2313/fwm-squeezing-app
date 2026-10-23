@@ -1,5 +1,9 @@
 # Next session
 
+## ⟦AI⟧ 검사 비용 개선, 2026-10-23
+
+[검사 속도 개선](test_performance_2026_10_23/README.md) 완료: 동일입력 Ultra fixture와 정확한 source bytes 검증재사용, 집중155통과·3기존skip. 실제파일읽기·독립검증 유지. 전체검사 의무는 루트 `AGENTS.md`의 변경영향별 정책 적용. 기존 과학·다른 유지보수 상태는 아래 기록 보존.
+
 ## ⟦AI⟧ 유지보수 현황 — 2026-10-23
 
 [10/19 daily review](../daily_report/reconciliation_2026-10-19/README.md)의 1회 재검수·registry 반영,

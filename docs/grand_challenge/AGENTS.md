@@ -12,7 +12,10 @@ Follow repository `AGENTS.md` and `CLAUDE.md`. After repository orientation:
 - Audit success, path accuracy, ensemble convergence, optical validity, and experimental validation are separate claims.
 - Before publication work, read [publication_policy.md](publication_policy.md); current editions live in [current_publications.json](current_publications.json).
 - Agent notes: compact English; user summaries: concise Korean. Preserve equations, assumptions, units, tolerances, counterexamples, and provenance. Compression must not change claims.
-- Code changes: run repository-required `python -m pytest -q`. Documentation-only navigation: verify links, status sources, and preservation.
+- Validation follows root `AGENTS.md` → **Change-scoped validation**, including
+  focused checks, unrelated-GC omissions and one final full run only when warranted.
+  GC milestone acceptance and sealed evidence contracts retain their own scope.
+  Documentation-only navigation: verify links, status sources, and preservation.
 
 ## Research-turn contract
 

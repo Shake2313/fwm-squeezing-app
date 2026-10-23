@@ -47,5 +47,7 @@ Orientation for AI assistants working in this repo.
 - UI labels, units and markdown tables use unicode (°C, µT, µW, Γ, Ω, 2π).
   Matplotlib axis strings stay ASCII (mathtext layout-lock guard — see
   `streamlit_app.py` plot lock).
-- Run `python -m pytest -q` before declaring done; `test_regression.py` pins the
-  FWM baseline (`tests/baseline_focused.npz`).
+- Follow `AGENTS.md` → **Change-scoped validation**: focused checks by default;
+  full validation only for the listed broad-impact/release cases, consolidated
+  at the end of a work package. `test_regression.py` pins the FWM compatibility
+  baseline (`tests/baseline_focused.npz`); it is not required for every patch.

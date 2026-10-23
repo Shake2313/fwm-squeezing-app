@@ -4,6 +4,7 @@ import builtins
 from copy import deepcopy
 import hashlib
 import json
+import os
 from pathlib import Path
 import runpy
 
@@ -253,6 +254,35 @@ def test_capture_compiles_without_executing_or_importing_sources(tmp_path):
     write_source(tmp_path, raw=b'import nonexistent_module\nraise RuntimeError("never run")\n')
     manifest = capture_sources(tmp_path, [PATH])
     assert require_sources(tmp_path, manifest) == manifest
+
+
+def test_byte_cache_reuses_compilation_but_detects_same_metadata_edit(tmp_path, monkeypatch):
+    path = write_source(tmp_path, raw=b'value = 1\n')
+    provenance._validated_source.cache_clear()
+    original_compile = builtins.compile
+    calls = []
+    def counted(*args, **kwargs):
+        calls.append(args[0])
+        return original_compile(*args, **kwargs)
+    monkeypatch.setattr(builtins, 'compile', counted)
+    first = capture_sources(tmp_path, [PATH])
+    assert len(calls) == 2
+    assert require_sources(tmp_path, first) == first
+    assert len(calls) == 2
+    stat = path.stat()
+    path.write_bytes(b'value = 2\n')
+    os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+    with pytest.raises(ValueError, match='Python source changed'):
+        require_sources(tmp_path, first)
+    assert len(calls) == 4
+
+
+def test_byte_cache_does_not_share_mutable_manifest_rows(tmp_path):
+    write_source(tmp_path)
+    first = capture_sources(tmp_path, [PATH])
+    expected = deepcopy(first)
+    first['files'][0]['normalized_sha256'] = '0'*64
+    assert capture_sources(tmp_path, [PATH]) == expected
 
 
 def test_module_loads_independently_of_gabes_imports(monkeypatch):

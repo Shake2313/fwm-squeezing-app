@@ -16,6 +16,7 @@ Snapshots do not lock files against concurrent edits during or after capture.
 """
 
 import codecs
+from functools import lru_cache
 import hashlib
 import json
 from pathlib import Path
@@ -124,6 +125,30 @@ def source_identity(manifest) -> str:
     return manifest['source_sha256']
 
 
+@lru_cache(maxsize=256)
+def _validated_source(raw, name):
+    """Memoize only pure byte validation, never filesystem state or manifests.
+
+    Exact bytes are the key (not timestamps or hashes). Each capture still
+    resolves, checks aliases and reads every source, detecting same-size edits.
+    Immutable return values cannot be poisoned by caller manifest mutation.
+    """
+    try:
+        lines = iter(raw.splitlines(keepends=True))
+        encoding, _ = tokenize.detect_encoding(lambda: next(lines, b''))
+        decoded = raw.decode(encoding)
+        if decoded.encode(encoding) != raw:
+            raise ValueError('source encoding does not round-trip losslessly')
+        normalized = decoded.replace('\r\n', '\n').replace('\r', '\n')
+        compile(raw, name, 'exec', dont_inherit=True, optimize=0)
+        compile(normalized, name, 'exec', dont_inherit=True, optimize=0)
+        normalized_bytes = normalized.encode('utf-8')
+    except (SyntaxError, UnicodeError, LookupError, ValueError) as exc:
+        raise ValueError(f'invalid Python source or encoding: {name}') from exc
+    return (encoding, hashlib.sha256(raw).hexdigest(), len(raw),
+            hashlib.sha256(normalized_bytes).hexdigest(), len(normalized_bytes))
+
+
 def capture_sources(root, paths) -> dict:
     """Capture explicit Python sources below root without importing/executing them.
 
@@ -156,29 +181,11 @@ def capture_sources(root, paths) -> dict:
             raw = path.read_bytes()
         except (OSError, RuntimeError) as exc:
             raise ValueError(f'cannot read source file: {name}') from exc
-        try:
-            # bytes.splitlines recognizes only CR, LF and CRLF. Detection must
-            # inspect physical lines even in a CR-only Python source file.
-            lines = iter(raw.splitlines(keepends=True))
-            encoding, _ = tokenize.detect_encoding(lambda: next(lines, b''))
-            decoded = raw.decode(encoding)
-            # A codec must not collapse distinct byte spellings of source text.
-            if decoded.encode(encoding) != raw:
-                raise ValueError('source encoding does not round-trip losslessly')
-            # EOL equivalence is Python universal newline semantics only.
-            # There is no reduction of numerical/physical validation.
-            # Preserve all strings, comments and whitespace; never compare ASTs.
-            normalized = decoded.replace('\r\n', '\n').replace('\r', '\n')
-            compile(raw, name, 'exec', dont_inherit=True, optimize=0)
-            compile(normalized, name, 'exec', dont_inherit=True, optimize=0)
-            normalized_bytes = normalized.encode('utf-8')
-        except (SyntaxError, UnicodeError, LookupError, ValueError) as exc:
-            raise ValueError(f'invalid Python source or encoding: {name}') from exc
+        encoding, raw_sha, raw_size, normalized_sha, normalized_size = _validated_source(raw, name)
         files.append({'path': name, 'encoding': encoding,
-                      'raw_sha256': hashlib.sha256(raw).hexdigest(),
-                      'raw_bytes': len(raw),
-                      'normalized_sha256': hashlib.sha256(normalized_bytes).hexdigest(),
-                      'normalized_bytes': len(normalized_bytes)})
+                      'raw_sha256': raw_sha, 'raw_bytes': raw_size,
+                      'normalized_sha256': normalized_sha,
+                      'normalized_bytes': normalized_size})
     manifest = {'schema': SCHEMA, 'files': files}
     manifest['source_sha256'] = _source_digest(manifest)
     manifest['manifest_sha256'] = _manifest_digest(manifest)

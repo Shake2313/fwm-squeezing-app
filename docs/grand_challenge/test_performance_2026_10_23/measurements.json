@@ -1,0 +1,145 @@
+{
+  "marker": "⟦AI⟧",
+  "date": "2026-10-23",
+  "scope": "Targeted validation performance; not whole-suite timing",
+  "sabes": {
+    "before": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 379.149,
+      "cases": {
+        "test_bridge_derives_every_knob_it_claims_to_own": 0.678,
+        "test_reference_geometry_reproduces_the_gabes_default_diagnostic": 23.259,
+        "test_native_geometry_differs_only_through_qe_and_waists": 11.252,
+        "test_two_photon_detuning_needs_no_calibration_coefficient": 0.087,
+        "test_crossing_angle_comes_from_millimetres_at_the_mirrors": 0.026,
+        "test_geometry_is_computable_without_the_solve": 0.024,
+        "test_loss_pct_is_the_per_optic_product_times_the_measured_residual": 0.032,
+        "test_dirtying_one_post_cell_optic_shows_up_in_the_loss": 0.034,
+        "test_detector_power_uses_each_arms_own_post_cell_transmission": 0.679,
+        "test_separation_margin_saturates_with_distance": 1.716,
+        "test_a_much_larger_waist_breaks_the_pump_separation": 1.383,
+        "test_pump_leakage_is_observed_rather_than_derived": 1.415,
+        "test_clearance_matches_the_closed_form_and_scales_with_power": 0.163,
+        "test_power_for_clearance_inverts_the_clearance_formula": 0.017,
+        "test_corrected_absolute_normalization_exposes_paper_power_mismatch": 62.157,
+        "test_more_seed_power_buys_clearance_the_atoms_do_not_notice": 3.406,
+        "test_hard_focus_onto_the_diode_breaks_the_linearity_limit": 64.388,
+        "test_a_longer_focal_length_relieves_the_density_limit": 39.081,
+        "test_defocus_also_relieves_the_density_limit": 41.13,
+        "test_focal_length_helper_hits_the_requested_density": 0.002,
+        "test_derived_table_pairs_every_setting_with_its_gabes_quantity": 0.05,
+        "test_warnings_aggregate_from_every_stage": 41.187
+      }
+    },
+    "after": {
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 105.162,
+      "cases": {
+        "test_bridge_derives_every_knob_it_claims_to_own": 0.035,
+        "test_reference_geometry_reproduces_the_gabes_default_diagnostic": 3.793,
+        "test_native_geometry_differs_only_through_qe_and_waists": 2.404,
+        "test_two_photon_detuning_needs_no_calibration_coefficient": 0.016,
+        "test_crossing_angle_comes_from_millimetres_at_the_mirrors": 0.006,
+        "test_geometry_is_computable_without_the_solve": 0.022,
+        "test_loss_pct_is_the_per_optic_product_times_the_measured_residual": 0.011,
+        "test_dirtying_one_post_cell_optic_shows_up_in_the_loss": 0.02,
+        "test_detector_power_uses_each_arms_own_post_cell_transmission": 0.449,
+        "test_separation_margin_saturates_with_distance": 0.036,
+        "test_a_much_larger_waist_breaks_the_pump_separation": 0.016,
+        "test_pump_leakage_is_observed_rather_than_derived": 0.014,
+        "test_clearance_matches_the_closed_form_and_scales_with_power": 0.019,
+        "test_power_for_clearance_inverts_the_clearance_formula": 0.006,
+        "test_corrected_absolute_normalization_exposes_paper_power_mismatch": 42.369,
+        "test_more_seed_power_buys_clearance_the_atoms_do_not_notice": 0.095,
+        "test_hard_focus_onto_the_diode_breaks_the_linearity_limit": 0.06,
+        "test_a_longer_focal_length_relieves_the_density_limit": 0.092,
+        "test_defocus_also_relieves_the_density_limit": 0.053,
+        "test_focal_length_helper_hits_the_requested_density": 0.001,
+        "test_derived_table_pairs_every_setting_with_its_gabes_quantity": 0.007,
+        "test_warnings_aggregate_from_every_stage": 46.098
+      }
+    },
+    "assertions": {
+      "test_names_and_assertions_identical": true,
+      "cases": 22,
+      "before_test_sha256": "739ecd0d4d876cb0ee89824a7ccb32bb2df996208ffbd4b4db13fae55ed8338d",
+      "after_test_sha256": "c036b49b7d3736cd3b88877420aae218273b93377000a14f7247f0fc5a7fb357"
+    }
+  },
+  "source_validation": {
+    "before": {
+      "first_seconds": 15.923703399981605,
+      "repeat_seconds": [
+        3.8116715000069235,
+        4.44389220001176,
+        4.113709199998993,
+        2.932027700007893,
+        2.9940211000212003
+      ],
+      "median_seconds": 3.8116715000069235
+    },
+    "after": {
+      "first_seconds": 3.146390200010501,
+      "repeat_seconds": [
+        0.15679460001410916,
+        0.14508369998657145,
+        0.09823669999605045,
+        0.2333257999853231,
+        0.5090180999832228
+      ],
+      "median_seconds": 0.15679460001410916
+    },
+    "file_count": 123,
+    "identical_manifest_sha256": "eece8c8340bb91638c459adaa29241a0850edf23bc1248d9b12b29bdd68aa0ca"
+  },
+  "filesystem_comparison": {
+    "returncode": 0,
+    "stdout": "C 0.33454320000601\nG 32.14403070000117\nC 0.08951089999754913\nG 4.068652800022392\nC 0.1743047000200022\nG 3.7910298999922816\n{\"source_manifest\": \"eece8c8340bb91638c459adaa29241a0850edf23bc1248d9b12b29bdd68aa0ca\", \"rounds\": [{\"C\": 0.33454320000601, \"G\": 32.14403070000117}, {\"C\": 0.08951089999754913, \"G\": 4.068652800022392}, {\"C\": 0.1743047000200022, \"G\": 3.7910298999922816}]}\n",
+    "stderr": ""
+  },
+  "gc_checks": {
+    "source_tests": {
+      "command": "python -m pytest -q tests/quantum/test_source_provenance.py --durations=5",
+      "working_directory": "C:/Temp/gabes-gc-speed-20261023/repo",
+      "passed": 96,
+      "skipped": 3,
+      "seconds": 7.31,
+      "skip_scope": "Existing Windows symlink/hardlink availability tests"
+    },
+    "transfer_before": {
+      "command": "python -u -c \"import importlib.util; import pytest; from analysis.grand_challenge import source_provenance as p; s=importlib.util.spec_from_file_location('before', '../source_provenance_before.py'); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); p.capture_sources=m.capture_sources; p.require_sources=m.require_sources; raise SystemExit(pytest.main(['-q','tests/quantum/test_thermal_campaign_extend.py::test_exact_transfer_preserves_parent_bytes_and_rebinds_only_new_declaration[native]','--durations=5']))\"",
+      "passed": 1,
+      "seconds": 122.78,
+      "setup_seconds": 22.64,
+      "call_seconds": 92.62
+    },
+    "conditions": "Other chat's long pytest and FWM test concurrently running; warm repeat timings, not isolated wall clock or cold-start speed guarantees. Original and optimized provenance functions run against identical C snapshot. Full source manifests identical. No sealed evidence modified.",
+    "transfer_after": {
+      "command": "python -m pytest -q tests/quantum/test_thermal_campaign_extend.py --durations=10",
+      "passed": 37,
+      "seconds": 230.77,
+      "matched_native_transfer_setup_seconds": 10.48,
+      "matched_native_transfer_call_seconds": 16.08,
+      "coverage": "Exact bytes, resealed tampering, missing records, link-count semantics, destination races, two real fresh verifier capsules, synthetic evidence rejection"
+    },
+    "source_copy": {
+      "file_count": 123,
+      "seconds": 118.9981364
+    }
+  },
+  "original_root_source_tests": {
+    "passed": 96,
+    "skipped": 3,
+    "seconds": 5.82
+  },
+  "implementation_sha256": {
+    "tests/test_sabes_bridge.py": "c036b49b7d3736cd3b88877420aae218273b93377000a14f7247f0fc5a7fb357",
+    "analysis/grand_challenge/source_provenance.py": "869a770a1d403814b616d1c7d47503490aae99fed3fbb1b4fe1ed7040d6f0e24",
+    "tests/quantum/test_source_provenance.py": "84c6accb54aac17ddc7a72785224dab01e32802e20d33adfefa99b088fdb830f"
+  },
+  "caveat": "Single FWM before/after runs; other validation workloads and warm caches affect wall times. Transfer before uses old host provenance injected into same snapshot; after is within full transfer module. No whole-suite speedup claim."
+}
