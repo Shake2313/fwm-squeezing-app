@@ -192,6 +192,16 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   text-transform: uppercase;
 }
 
+/* Named-default actions stay on one line in the narrow control rail. */
+.st-key-gabes_defaults_actions [data-testid="stPopover"] button {
+  padding-inline: 0.5rem;
+  gap: 0.25rem;
+}
+.st-key-gabes_defaults_actions [data-testid="stPopover"] button p {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
 .gabes-endpoints {
   display: flex;
   justify-content: space-between;

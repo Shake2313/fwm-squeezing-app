@@ -17,6 +17,7 @@ def reference_params():
     scheme = fwm.FWMScheme()
     params = dict(scheme.defaults(), **scheme.presets()[0].values)
     params["noise_model"] = fwm.NOISE_PASSIVE_L1
+    params["experimental_gain_calibration"] = False
     params["measured_gain_calibration"] = True
     return params
 
@@ -59,6 +60,7 @@ def test_preset_explicit_proxy_and_default_off_preserve_full_view_identity():
     specs = {sp.name: sp for sp in scheme.param_schema()}
     assert scheme.defaults()["measured_gain_calibration"] is False
     assert specs["measured_gain_calibration"].recompute is False
+    assert specs["measured_gain_calibration"].hidden is True
     assert specs["seed_input_assumption"].recompute is False
     assert {"measured_gain_calibration", "seed_input_assumption"}.isdisjoint(scheme.recompute_keys())
     preset = scheme.presets()[0]
@@ -68,7 +70,21 @@ def test_preset_explicit_proxy_and_default_off_preserve_full_view_identity():
         (35*20/228.5)*1e-6/(0.8046*0.9709), rel=1e-14)
     assert preset.values["tpd"] == pytest.approx(1.732439, abs=1e-9)
     assert scheme.extra_views()[0].key == "Full probe scan (−8 to 12 GHz, slow)"
-    assert scheme.extra_views()[1].key == "2026-10-13 measured gain comparison"
+    assert [p.name for p in scheme.presets()] == [
+        "2026-10-13 experiment", "Sim Gold Reference"]
+    assert all(view.key != "2026-10-13 measured gain comparison"
+               for view in scheme.extra_views())
+    assert scheme.internal_measured_gain_comparison().key == "2026-10-13 measured gain comparison"
+    assert specs["experimental_gain_calibration"].label == "Empirical gain calibration"
+    gold = scheme.presets()[1].values
+    assert set(gold) == set(scheme.defaults())
+    assert set(preset.values) == set(gold)
+    assert gold["mode"] == fwm.MODE_SEEDED
+    assert gold["experimental_gain_calibration"] is False
+    assert gold["measured_gain_calibration"] is False
+    assert gold["seed_input_assumption"] == ""
+    assert gold["opd"] == 0.9 and gold["temp_c"] == 121.0
+    assert gold["pump_mw"] == 600.0 and gold["probe_uw"] == 8.0
 
 
 def test_reference_selector_and_proxy_adoption_do_not_enter_cached_atomic_calls(monkeypatch):
@@ -240,7 +256,7 @@ def test_full_api_forwards_reference_flag_but_plus_branch_fails_context(monkeypa
 
 def test_comparison_view_has_only_23_measured_ratios_and_reference_interpolation():
     import matplotlib.pyplot as plt
-    extra = fwm.FWMScheme().extra_views()[1]
+    extra = fwm.FWMScheme().internal_measured_gain_comparison()
     data = extra.compute(reference_params())
     figure = extra.render(data, reference_params())
     try:
@@ -279,18 +295,20 @@ def test_strict_json_exports_current_reference_profile_status_domain_and_raw_arr
         assert reference["status"]
 
 
-def test_actual_streamlit_preset_checkbox_and_context_readout():
+def test_actual_streamlit_preset_calibration_and_hidden_reference():
     from streamlit.testing.v1 import AppTest
     app = AppTest.from_string(
         "import streamlit as st\n"
         "from gabes.schemes.fwm import FWMScheme\n"
         "from gabes_ui.controls import render_rail, render_derived_params, skey\n"
+        "from gabes_ui.defaults import render_defaults\n"
         "from tests.test_fwm_measured_gain_integration import reference_raw\n"
         "scheme=FWMScheme()\n"
         "st.session_state[skey(scheme.name,'_show_advanced')]=True\n"
         "for key,value in scheme.defaults().items():\n"
         "    sk=skey(scheme.name,key)\n"
         "    st.session_state[sk]=st.session_state.get(sk,value)\n"
+        "render_defaults(st,scheme)\n"
         "slots={}\n"
         # Streamlit AppTest cannot serialize its preexisting formatted segmented
         # mode widget on rerun. Keep the squeezing mode in state and exercise
@@ -306,22 +324,19 @@ def test_actual_streamlit_preset_checkbox_and_context_readout():
         default_timeout=30,
     ).run()
     assert not app.exception
-    assert app.checkbox(key="fwm__measured_gain_calibration").value is False
-    app.checkbox(key="fwm__measured_gain_calibration").check().run()
+    assert "fwm__measured_gain_calibration" not in [item.key for item in app.checkbox]
+    assert app.checkbox(key="fwm__experimental_gain_calibration").label == "Empirical gain calibration"
+    app.selectbox(key="fwm___named_default").select("builtin:0").run()
     assert not app.exception
-    assert not app.session_state["view"]["measured_gain_reference"]["selected_point"]["available"]
-    assert app.button[0].label == "2026-10-13 lab reference (conditional)"
-    app.button[0].click().run()
+    assert app.session_state["view"]["experimental_gain_calibration"]["applied"]
+    app.checkbox(key="fwm__experimental_gain_calibration").uncheck().run()
+    app.selectbox(key="fwm__noise_model").select(fwm.NOISE_PASSIVE_L1).run()
     assert not app.exception
-    assert app.checkbox(key="fwm__measured_gain_calibration").value is False
-    app.checkbox(key="fwm__measured_gain_calibration").check().run()
-    assert not app.exception
+    assert "fwm__measured_gain_calibration" not in [item.key for item in app.checkbox]
+    assert not app.session_state["view"]["measured_gain_reference"]["requested"]
     assert app.slider(key="fwm__probe_uw").value == pytest.approx(
         measured.nominal_context()["P_probe"]*1e6, rel=1e-14)
-    assert app.session_state["view"]["measured_gain_reference"]["context_applied"]
     labels = [metric.label for metric in app.metric]
-    assert "Probe gain, pump-off reference" in labels
-    assert "Conjugate gain, pump-off reference" in labels
-    assert "Atomic probe gain G_s" in labels
+    assert "Seed gain G_s" in labels
+    assert "Conjugate gain G_c" in labels
     assert "Squeezing Degree [dB]" in labels
-    assert any("not independent validation" in block.value for block in app.markdown)

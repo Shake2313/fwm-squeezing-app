@@ -82,13 +82,22 @@ def test_operating_condition_changes_keep_correction_active_and_model_responsive
                            changed["experimental_gain_calibration"]["G_s"])
 
 
-def test_focused_plot_marker_headless_and_strict_export_agree(experimental_case):
+@pytest.mark.parametrize("calibrated", [False, True])
+def test_focused_plot_marker_headless_and_strict_export_agree(experimental_case, calibrated):
     import matplotlib.pyplot as plt
     scheme, params, raw = experimental_case
+    params = dict(params, experimental_gain_calibration=calibrated)
     rendered = scheme.observables(raw, params)
     headless = scheme.headless_observables(raw, params)
     try:
         assert rendered["metrics"] == headless["metrics"]
+        gain_axis = rendered["figure"].axes[0]
+        labels = [line.get_label() for line in gain_axis.lines]
+        conjugate_label = "Calibrated conjugate" if calibrated else "Conjugate"
+        conjugate = gain_axis.lines[labels.index(conjugate_label)]
+        assert conjugate_label in gain_axis.get_legend_handles_labels()[1]
+        if not calibrated:
+            np.testing.assert_array_equal(conjugate.get_ydata(), raw["G_c"])
         point = rendered["noise_operating_point"]
         axis = rendered["figure"].axes[1]
         assert float(axis.collections[0].get_offsets()[0, 1]) == pytest.approx(point["NF_dB"])
@@ -98,7 +107,7 @@ def test_focused_plot_marker_headless_and_strict_export_agree(experimental_case)
             plot_payloads=[], comparison_payload=None,
             cache_version=scheme.cache_version, readout_cache_version="experiment-test")
         decoded = json.loads(json.dumps(payload, allow_nan=False))
-        assert decoded["view"]["experimental_gain_calibration"]["applied"]
+        assert decoded["view"]["experimental_gain_calibration"]["applied"] is calibrated
         assert decoded["view"]["experimental_jasperse_readout"] is not None
         assert decoded["view"]["noise_operating_point"]["NF"] == pytest.approx(point["NF"])
     finally:

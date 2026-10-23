@@ -1,0 +1,31 @@
+{
+  "full_pytest": {
+    "passed": 2707,
+    "skipped": 3,
+    "warnings": 13,
+    "seconds": 1174.02,
+    "log": "full_pytest.log"
+  },
+  "focused_regression": {
+    "passed": 47,
+    "warnings": 3,
+    "seconds": 15.38,
+    "modules": [
+      "test_fwm_measured_gain_integration",
+      "test_fwm_experiment_integration",
+      "test_liveplot",
+      "test_regression"
+    ]
+  },
+  "changed_task_sources_during_full": [],
+  "browser": {
+    "viewports": [
+      "1440x900",
+      "390x844"
+    ],
+    "legacy_reference_toggle_hidden_even_in_advanced": true,
+    "both_gain_curves_with_calibration_on_and_off": true,
+    "exceptions": 0
+  },
+  "cache_version": "fwm-experimental-jasperse-gain-v22"
+}

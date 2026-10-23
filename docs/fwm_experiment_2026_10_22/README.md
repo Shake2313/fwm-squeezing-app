@@ -6,8 +6,11 @@
 
 ## 사용
 
-FWM → **2026-10-13 experiment (calibrated Jasperse)** preset. 또는 **2026-10-13 gain calibration** 토글ON + **Noise model → Experimental Jasperse**.
-보정은OFF가기본, 잡음은Experimental Jasperse가기본. 기존 **Passive L1**은선택가능. 옛측정보간은Advanced의 **Measured-data reference only**로보존.
+FWM → **DEFAULTS → 2026-10-13 experiment**. 또는 **Empirical gain calibration** 토글ON + **Noise model → Experimental Jasperse**.
+**Sim Gold Reference**는시뮬레이션기준설정전체복원. **Save as default**에서이름을붙여브라우저저장또는로컬JSON다운로드.
+**Import**에서로컬JSON불러오기. 브라우저저장은해당사이트·브라우저에종속되며사이트데이터삭제시사라질수있음.
+보정은OFF가기본, 잡음은Experimental Jasperse가기본. 기존 **Passive L1**은선택가능.
+Probe·conjugate gain은보정ON/OFF모두표시. 옛측정보간토글은화면에서제거하고내부분석에만보존.
 Advanced의 **Jasperse common cell loss**는양팔gain에서남는공통손실가정을조절. 기본0%는최소비대칭손실폐쇄.
 보정ON상태로detuning·온도·pump/seed·waist·길이·교차각·OPD변경가능. 측정밖과기준조건변경은상태표시만변경,토글차단없음.
 

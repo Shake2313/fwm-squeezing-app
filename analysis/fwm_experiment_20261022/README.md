@@ -34,3 +34,14 @@ C_j(\delta_i)=R_{j,i}^{measured}/G_j^{nominal}(x_{j,i}).
 - [재현script](fit_gain_profile.py), [전체fit기록·명목모델](gain_profile.json).
   `python analysis/fwm_experiment_20261022/fit_gain_profile.py`로기록재생성.
 - embedded런타임계수는`gabes/fwm_experiment_gain.py`에저장. 실제운전중refit·분석폴더파일읽기없음.
+
+
+## ⟦AI⟧ 이전 측정비교 보관
+
+이전 `2026-10-13 measured gain comparison`은 전면 UI에서 제거. 측정23점과
+log-PCHIP 보간의 기준면·provenance 회귀검증용으로만 보존.
+현재 empirical 보정의 외삽·운전조건 반응을 검증하는 자료와는 구분.
+
+`FWMScheme().internal_measured_gain_comparison()`으로 내부 분석 호출 가능.
+그림 재생성: `python analysis/fwm_experiment_20261022/measured_reference_comparison.py`.
+출력 기본값: `output/fwm_experiment_20261022/measured_reference_comparison.png`.

@@ -7,10 +7,14 @@ double-Λ four-wave-mixing model (now one scheme among several).
 
 ## Experimental FWM (2026-10-13 calibration)
 
-Restart the app and choose **2026-10-13 experiment (calibrated Jasperse)**.
+Choose **DEFAULTS → 2026-10-13 experiment**. **Sim Gold Reference** restores
+the simulation reference settings. **Save as default** names the current settings:
+save in this browser or download a local JSON file; **Import** restores a JSON file.
+Browser defaults are stored per site and can disappear when browser data is cleared.
 The gain toggle corrects peak position, width and both arm gains using the 23
 measured points. It continues the current model outside the measured interval
 and after changing operating conditions; extrapolation is labelled.
+Both probe and conjugate gain curves are shown with calibration on or off.
 **Experimental Jasperse** includes both distributed vacuum-loss reservoirs with
 an explicit common-loss assumption. **Passive L1** remains selectable.
 These practical approximations are separate from Grand Challenge acceptance.

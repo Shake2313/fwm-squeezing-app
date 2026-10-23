@@ -177,3 +177,27 @@
 - [SABES 디자인 규칙](../SABES/design_rules.md)에 glyph·광로 anchor·라벨 간격/잘림·대비·선택·좁은 화면 검수 기준 정리. 수치·검수 세부는 AI 구현 기준으로 구분.
 - `*`는 부품 상세 모델 미완. 기존 투과율·기하·이상적 분기가 있어도 상세 부품 모델 완료를 뜻하지 않음. 기종 미상·클릭 가능 여부와 구분.
 - 기존 광학 테이블 계획의 반복 `(lumped)`·선 굵기 범례 문구는 이 결정으로 대체. 계산·실측 기준면·광선 식별색 유지.
+
+## D14 · 이름 붙인 DEFAULTS — 2026-10-22
+
+직접 사용자 요청: 중복 lab reference 제거. DEFAULTS 드롭다운에 `2026-10-13 experiment`·`Sim Gold Reference` 배치.
+현재 설정에 이름을 붙여 브라우저·로컬 저장, 로컬 가져오기 지원. 보정 토글명은 `Empirical gain calibration`.
+이전 측정비교는 프론트엔드에서 제거하고 필요한 내부 분석만 보존.
+
+### ⟦AI⟧ 구현 판단
+
+- 동일 scheme 입력 전체를 저장·복원. 모드·숨김 provenance까지 포함, 파생 결과는 제외.
+- 브라우저는 origin별 localStorage, 로컬은 버전·scheme 포함 JSON 다운로드. 파일시스템 직접 쓰기 권한 불필요.
+- 불러온 파일은 이름·스키마·타입·유한값·범위 검증 후 한 번에 적용. 다른 scheme·알 수 없는 입력은 거절.
+- 설정이 바뀌면 현재값과 일치하지 않는 프리셋 표시 해제. 같은 값의 사용자 기본값은 선택 이름 유지.
+- 이전 비교는 [내부 분석](../../analysis/fwm_experiment_20261022/README.md)에 보관. 현재 물리 계산식 변경 없음.
+
+## D15 · Conjugate gain 기본 표시 — 2026-10-22
+
+직접 사용자 요청: `Measured-data reference only` 토글 제거. Gain calibration OFF에서도 conjugate gain 기본 표시.
+
+### ⟦AI⟧ 구현 판단
+
+- 이전 토글은 Advanced에서도 숨김. 저장 JSON·내부 분석 호환용 파라미터는 유지.
+- 주 그래프에 probe·conjugate와 범례 상시 표시. 보정 OFF의 conjugate는 주황색 점선, ON은 기존 보정 곡선.
+- 커서·선택점의 기존 line 순서 유지. Gain·NF 계산식 변경 없음.

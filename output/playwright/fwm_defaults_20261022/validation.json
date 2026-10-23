@@ -1,0 +1,43 @@
+{
+  "full_pytest": {
+    "passed": 2704,
+    "skipped": 3,
+    "warnings": 12,
+    "seconds": 1188.18,
+    "log": "full_pytest_final.log",
+    "source_changes_after_collection": [
+      "gabes_ui\\defaults.py",
+      "sabes\\layout\\parts.py",
+      "tests\\test_sabes_layout.py",
+      "tests\\test_ui_defaults.py"
+    ]
+  },
+  "final_ui_regression": {
+    "passed": 97,
+    "warnings": 2,
+    "seconds": 22.63,
+    "log": "final_ui_pytest.log"
+  },
+  "browser": {
+    "viewports": [
+      "1440x900",
+      "390x844"
+    ],
+    "browser_save_reload_and_restore": true,
+    "local_json_download_and_import": true,
+    "saved_selection_survives_stale_client_response": true,
+    "legacy_comparison_hidden": true,
+    "legacy_preset_hidden": true,
+    "final_browser_exceptions": 0
+  },
+  "ui_audit": "../../../docs/ui_redesign/audit/fwm_defaults_20261022/summary.md",
+  "physics_source_changes_after_collection": [],
+  "unrelated_worktree_changes_during_full": [
+    "sabes/layout/parts.py",
+    "tests/test_sabes_layout.py"
+  ],
+  "final_ui_source_changes_after_collection": [
+    "gabes_ui/defaults.py",
+    "tests/test_ui_defaults.py"
+  ]
+}

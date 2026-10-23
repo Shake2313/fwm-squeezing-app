@@ -26,6 +26,7 @@ from gabes_ui import theme as ui_theme
 from gabes_ui.controls import (
     current_params, param_visible, render_derived_params, render_rail, skey,
 )
+from gabes_ui.defaults import render_defaults
 from gabes_ui.guide import guide_button
 from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_section
 from gabes_ui.readout import (
@@ -178,6 +179,9 @@ else:
         # Preserve hidden controls through widget cleanup and send their saved
         # values to the browser when they become visible again.
         st.session_state[key] = st.session_state.get(key, sp.default)
+
+# Load named defaults before registering the top-bar mode and rail controls.
+render_defaults(st.sidebar, scheme)
 
 # The regime/mode switch moves to the top bar: the first segmented control that
 # applies a recommended default set (FWM Mode, Λ/Rydberg/magneto Regime).

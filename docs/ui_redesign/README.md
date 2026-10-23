@@ -7,6 +7,7 @@ SABES에도 같은 시각 규약 적용. 광학 테이블의 glyph·광로·라�
 
 ## 현재 상태
 - 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
+- 이름 붙인 설정: **DEFAULTS** 드롭다운·브라우저/로컬 저장·가져오기 반영 (`decisions.md` D14, 2026-10-22).
 - 진행 단계: P0 · P1(`4cb011f`) · P2 셸(`7a95e9e`) · P3 ScrubField 완료. 다음: **P4 readout 계약**.
 - 푸시: P0–P3 네 커밋 `origin/main`에 반영 (2026-09-23, 사용자 승인). 이후에도 단계마다 승인 받고 커밋·푸시.
 - 시안 canvas (비공개): https://claude.ai/artifact/C8d3dLBYDjH3ZJm84FPEQw

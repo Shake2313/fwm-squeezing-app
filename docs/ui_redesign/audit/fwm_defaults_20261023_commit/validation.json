@@ -1,0 +1,25 @@
+{
+  "provenance": "⟦AI⟧ Isolated commit validation; existing full-run records describe their historical whole working checkout.",
+  "tested_tree": "35123956bba677a1049561593104c119eb98533c",
+  "final_parent": "8c46ee001325aa45da15dbe5a8d0592a92d63e24",
+  "passed": 134,
+  "warnings": 4,
+  "seconds": 33.29,
+  "command": "python -m pytest -q --durations=10 tests/test_defaults_store.py tests/test_defaults_browser.py tests/test_ui_defaults.py tests/test_fwm_measured_gain_integration.py tests/test_fwm_experiment_integration.py tests/test_liveplot.py tests/test_ui_derived_controls.py tests/test_regression.py",
+  "scope": "Named defaults, browser/file storage, FWM gain plot states, cursor/export and FWM baseline.",
+  "omissions": "Unchanged shared engine, unrelated GC campaigns and scientific-publication audits; no new full run needed under change-scoped validation.",
+  "intervening_parent_changes": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "analysis/grand_challenge/source_provenance.py",
+    "docs/grand_challenge/AGENTS.md",
+    "docs/grand_challenge/NEXT_SESSION.md",
+    "docs/grand_challenge/blueprint.md",
+    "docs/grand_challenge/head_manager/decisions.jsonl",
+    "docs/grand_challenge/test_performance_2026_10_23/README.md",
+    "docs/grand_challenge/test_performance_2026_10_23/measurements.json",
+    "tests/quantum/test_source_provenance.py",
+    "tests/test_sabes_bridge.py"
+  ],
+  "rebase_scope": "Intervening commit changes validation policy/GC provenance and unrelated SABES tests; none of the validated UI runtime or selected tests changed."
+}

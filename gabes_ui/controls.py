@@ -155,7 +155,7 @@ def param_visible(scheme_name, sp):
 
 
 def render_rail(container, scheme, specs, skip=(), derived_slots=None):
-    """Presets, then grouped knobs. Returns the full parameter dict.
+    """Grouped knobs. Returns the full parameter dict.
 
     "Show advanced" reveals advanced knobs inside the group they belong to (a
     pump waist next to the pump power); advanced-only groups follow, folded
@@ -170,16 +170,6 @@ def render_rail(container, scheme, specs, skip=(), derived_slots=None):
             derived_slots[sp.name] = (sp, box.empty(), scheme.name)
         else:
             params[sp.name] = render_param(box, scheme.name, sp, scheme)
-
-    scheme_presets = scheme.presets()
-    if scheme_presets and getattr(scheme, "presets_group", None):
-        render_group_header(container, scheme.presets_group)
-    for preset in scheme_presets:
-        def _apply(p=preset, sname=scheme.name):
-            for k, v in p.values.items():
-                st.session_state[skey(sname, k)] = v
-        container.button(preset.name, on_click=_apply,
-                         use_container_width=True, help=preset.help)
 
     visible = [sp for sp in specs
                if param_visible(scheme.name, sp)

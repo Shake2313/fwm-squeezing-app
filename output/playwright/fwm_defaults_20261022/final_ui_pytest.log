@@ -1,0 +1,10 @@
+........................................................................ [ 74%]
+.........................                                                [100%]
+============================== warnings summary ===============================
+tests/test_fwm_measured_gain_integration.py::test_strict_json_exports_current_reference_profile_status_domain_and_raw_arrays
+tests/test_ui_derived_controls.py::test_export_preserves_display_values_and_unavailable_status
+  G:\�� ����̺�\Coding\GABES - Generic Atomic Bloch Equation Solver\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+97 passed, 2 warnings in 22.63s

@@ -3925,7 +3925,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-experimental-jasperse-gain-v20"
+    cache_version = "fwm-experimental-jasperse-gain-v22"
     defaults_version = "fwm-experimental-jasperse-v4"
     cache_observables = True
     supports_headless_observables = True
@@ -4015,7 +4015,7 @@ class FWMScheme(Scheme):
                       SEEDED_PHASE_ANGLE_DEG, 0.0, 2.0, 0.05, "°",
                       visible_if=seeded,
                       help="Crossing angle used in the longitudinal phase mismatch."),
-            ParamSpec("experimental_gain_calibration", "2026-10-13 gain calibration",
+            ParamSpec("experimental_gain_calibration", "Empirical gain calibration",
                       "Detection & scaling", False, control="checkbox", recompute=False,
                       visible_if=seeded,
                       help="Correct the model's peak position, width and arm gains using the 10/13 measurements. "
@@ -4032,7 +4032,7 @@ class FWMScheme(Scheme):
                            "minimum asymmetric loss; this is an effective model assumption."),
             ParamSpec("measured_gain_calibration", "Measured-data reference only",
                       "Detection & scaling", False, control="checkbox", recompute=False,
-                      visible_if=seeded, advanced=True,
+                      visible_if=seeded, hidden=True,
                       help="Show a separate measured-data interpolation at the matching 2026-10-13 lab preset. "
                            "Agreement at the 23 measured nodes is by construction, not independent validation. "
                            "Atomic gains and NF are unchanged; this is not a squeezing calibration."),
@@ -4214,7 +4214,10 @@ class FWMScheme(Scheme):
 
     def presets(self):
         context = fwm_measured_gain.nominal_context()
-        values = self._squeezing_defaults()
+        # A default is a complete input snapshot: switching back to the Sim
+        # reference also clears experiment-specific calibration and provenance.
+        gold = dict(self.defaults(), **self._squeezing_defaults())
+        values = dict(gold)
         values.update(
             opd=context["D_GHz"], temp_c=context["T"]-273.15,
             pump_mw=context["P_pump"]*1e3, probe_uw=context["P_probe"]*1e6,
@@ -4228,15 +4231,16 @@ class FWMScheme(Scheme):
         )
         practical = dict(values, experimental_gain_calibration=True,
                          noise_model=NOISE_EXPERIMENTAL_JASPERSE, jasperse_loss_pct=0.0)
-        return [Preset(
-            "2026-10-13 lab reference (conditional)", values,
-            help="113 °C, nominal blue OPD ≈1 GHz, pump 294.804 mW. Seed power is an "
-                 "external pre-window incident proxy P_off/(0.8046×0.9709), assumed "
-                 "as atomic input; it is not independently measured vapor input. "
-                 "Enable measured-reference gains separately."),
-                Preset("2026-10-13 experiment (calibrated Jasperse)", practical,
-                       help="Peak/width/gain correction with experimental Jasperse noise. "
-                            "Correction remains active outside the measured range and at changed conditions.")]
+        return [
+            Preset("2026-10-13 experiment", practical,
+                   help="113 °C, nominal blue OPD ≈1 GHz, pump 294.804 mW. "
+                        "Experimental Jasperse noise with empirical peak/width/gain correction. "
+                        "Correction continues outside the measured range and at changed conditions. "
+                        "Seed power uses the pre-window incident proxy P_off/(0.8046×0.9709)."),
+            Preset("Sim Gold Reference", gold,
+                   help="Sim reference: 121 °C, OPD 0.9 GHz, pump 600 mW and seed 8 µW. "
+                        "Resets empirical calibration and measured-reference provenance."),
+        ]
 
     def recommended_defaults(self, params):
         return {
@@ -4556,21 +4560,24 @@ class FWMScheme(Scheme):
                      label="Calibrated probe" if gain_active else "Probe")
             axG.axvline(tpd, color="crimson", ls="--", lw=1.2)
             axG.axhline(1.0, color="black", lw=0.6)
+            axG.plot(gain_axis, displayed_gc, color="#ff7f0e", lw=1.4,
+                     ls="-" if gain_active else "--",
+                     label="Calibrated conjugate" if gain_active else "Conjugate")
             if gain_active:
-                axG.plot(gain_axis, displayed_gc, color="#ff7f0e", lw=1.4, label="Calibrated conjugate")
                 bounds = sorted(fwm_measured_gain.internal_delta_mhz_from_eom(
                     np.array(fwm_measured_gain.EOM_SUPPORT_MHZ)))
                 for ax in (axG, axS):
                     ax.axvspan(*bounds, color="#ffbf47", alpha=.12)
-                axG.legend(fontsize=8)
+            axG.legend(fontsize=8)
             axG.scatter([tpd], [displayed_point["G_s"]], color="crimson", zorder=5)
             axG.set_ylabel("Calibrated pump-off-reference gain" if gain_active else
-                           "Atomic probe gain G_s" if measured_reference["requested"] else "Seed gain G_s")
+                           "Atomic probe / conjugate gain" if measured_reference["requested"] else
+                           "Probe / conjugate gain")
             axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
                           f"T = {params['temp_c']:.0f} C,  eta_ext = {_detection_efficiency_from_params(params):.3f},  "
                           f"{_seeded_noise_caption(params)}"
-                          + (",  10/13 gain calibration" if gain_active else ""))
-            if np.nanmax(displayed_gs) > 50:
+                          + (",  empirical gain calibration" if gain_active else ""))
+            if max(np.nanmax(displayed_gs), np.nanmax(displayed_gc)) > 50:
                 axG.set_yscale("log")
             noise_axis = gain_axis if experimental_noise is not None else d_axis
             plot_noise = noise_db
@@ -5437,6 +5444,20 @@ class FWMScheme(Scheme):
             figF._gabes_experimental_jasperse_readout = experimental_noises
             return figF
 
+        return [ExtraView(
+            key="Full probe scan (−8 to 12 GHz, slow)",
+            description="Runs both Raman branches using the selected geometry and "
+                        "solver detail.",
+            compute=_compute_full, render=_render_full,
+            render_with_params=True,
+        )]
+
+    def internal_measured_gain_comparison(self):
+        """Historical bounded interpolation diagnostic, excluded from the UI.
+
+        The current empirical gain correction has its own fit/evidence record.
+        This comparison remains available for internal provenance checks only.
+        """
         def _compute_measured_comparison(params):
             observations = fwm_measured_gain.observations()
             profile = fwm_measured_gain.profile()
@@ -5487,13 +5508,7 @@ class FWMScheme(Scheme):
             figure._gabes_measured_gain_reference = data
             return figure
 
-        return [ExtraView(
-            key="Full probe scan (−8 to 12 GHz, slow)",
-            description="Runs both Raman branches using the selected geometry and "
-                        "solver detail.",
-            compute=_compute_full, render=_render_full,
-            render_with_params=True,
-        ), ExtraView(
+        return ExtraView(
             key="2026-10-13 measured gain comparison",
             description="23 measured pump-off detector-reference ratios and their log-PCHIP interpolation, "
                         "3022–3044 MHz only. Reference apparatus: 113 °C, nominal blue OPD ≈1 GHz, "
@@ -5501,7 +5516,7 @@ class FWMScheme(Scheme):
             compute=_compute_measured_comparison, render=_render_measured_comparison,
             param_keys=("measured_gain_calibration", "seed_input_assumption"),
             render_with_params=True,
-        )]
+        )
 
 
 def full_spectrum(D_GHz, T_K, P_pump_mW, P_probe_uW, line_strength, loss_pct,

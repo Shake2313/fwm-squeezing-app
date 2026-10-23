@@ -2,6 +2,38 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-22 · 기본 conjugate gain·이전 토글 제거
+
+직접 사용자 요청: `Measured-data reference only` 토글 제거. Gain calibration OFF에서도 conjugate gain 기본 표시.
+
+### ⟦AI⟧ 구현·검증
+
+- Advanced에서도 이전 토글 숨김. 내부 분석·저장 파일 호환용 입력은 유지.
+- Probe·conjugate와 범례 상시 표시. OFF conjugate는 주황색 점선. 기존 커서·선택점 순서 유지, gain·NF 계산식 보존.
+- 관련47개 통과. 전체 `python -m pytest -q`: **2707 통과·3 skip**, 1174.02s. 기존 UTC 경고13개.
+  작업 소스3개 전후SHA 동일. [검증 receipt](../../output/playwright/fwm_conjugate_20261022/validation.json).
+- [UI audit](audit/fwm_conjugate_20261022/summary.md): desktop/phone 정상, FWM Advanced 높이1652→1588px.
+  [Calibration OFF 화면](../../output/playwright/fwm_conjugate_20261022/calibration_off.png)에서 두 곡선·범례 확인, 실제 브라우저 오류0.
+
+## 2026-10-22 · DEFAULTS·설정 저장
+
+직접 사용자 요청: 중복 lab reference 제거, 두 기본값 드롭다운 전환, 이름 붙인 브라우저·로컬 저장/가져오기.
+보정명 `Empirical gain calibration`, 이전 측정비교는 화면에서 제거.
+
+### ⟦AI⟧ 구현·검증
+
+- `DEFAULTS`에 `2026-10-13 experiment`·`Sim Gold Reference`. 모드·숨김 입력까지 전체 복원.
+- `Save as default`: 이름 지정 → 브라우저 localStorage 또는 로컬 JSON 다운로드. `Import`: JSON 검증 후 복원.
+- 저장소 오류·잘못된 파일은 현재 설정 보존. 저장 응답 유실은 재전송, 이전 선택 응답은 새 드롭다운에 적용되지 않도록 분리.
+- 이전 비교는 [내부 분석 CLI](../../analysis/fwm_experiment_20261022/measured_reference_comparison.py)로 보존. 물리 계산식·GC 변경 없음.
+- [UI audit](audit/fwm_defaults_20261022/summary.md): 5개 스킴 desktop/phone 사이드바 왕복 정상, desktop 플롯 5/5 첫 화면 유지.
+  FWM 플롯 상단 desktop 260→253px·phone 407→368px. 저장 메뉴 조건부 표시, 좁은 rail 줄바꿈 확인.
+- 전체 `python -m pytest -q`: **2704 통과·3 skip**, 1188.18s. 수집 후 최종 이름 선택 동기화 수정은 UI 두 파일에 한정;
+  최종 관련 **97 통과**, 22.63s. 기존 UTC 경고. 다른 세션의 SABES 두 파일 변경은 receipt에 별도 기록.
+  임시 검증 복사본 중복 수집은 `pytest.ini`의 output 제외로 해결.
+- 실제 브라우저: 저장·새로고침 후 목록 복원·선택·로컬 다운로드·가져오기·같은 수치의 사용자 이름 유지 확인.
+  [검증 receipt](../../output/playwright/fwm_defaults_20261022/validation.json), [저장 메뉴](../../output/playwright/fwm_defaults_20261022/save_options.png).
+
 ## 2026-10-22 · SABES 디자인 규약·모델 별표
 
 직접 사용자 요청: 기존 디자인 규약 동일 적용, 광학 테이블 표현 기준 강화.
