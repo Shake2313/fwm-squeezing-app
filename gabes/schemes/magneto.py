@@ -12,6 +12,8 @@ import re
 import numpy as np
 
 from .. import constants, core, kernels, observables, pole_doppler, species, zeeman
+from ..magneto_noise import (DEFAULT_BEAM_DIAMETER_MM, DEFAULT_DETECTION_EFFICIENCY,
+                             DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference)
 from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
 
@@ -404,6 +406,28 @@ class MagnetoScheme(Scheme):
                       help="Calibration knob for effective optical depth (not a "
                            "physical experimental variable).",
                       advanced_group="Calibration"),
+            ParamSpec("show_shot_noise", "Show shot noise", "Detection & scaling", True,
+                      control="checkbox", recompute=False,
+                      help="Overlay a simulated photon-shot-noise trace and its ±1σ band "
+                           "in the plotted y-axis units. Transmission fluctuates around "
+                           "the wing background; rotation fluctuates around zero."),
+            ParamSpec("beam_diameter_mm", "Effective beam diameter", "Detection & scaling",
+                      DEFAULT_BEAM_DIAMETER_MM, 0.1, 20.0, 0.1, "mm",
+                      recompute=False, advanced=True, advanced_group="Shot noise",
+                      help="Uniform effective illuminated/collected diameter. Incident "
+                           "power = beam intensity × π(d/2)². This sets the photon budget "
+                           "only; atomic transit rates remain separately specified."),
+            ParamSpec("detection_efficiency", "Detection efficiency", "Detection & scaling",
+                      DEFAULT_DETECTION_EFFICIENCY, 0.01, 1.0, 0.01, "",
+                      recompute=False, advanced=True, advanced_group="Shot noise",
+                      help="After-cell optical throughput × detector quantum efficiency. "
+                           "Cell transmission is calculated and applied separately once."),
+            ParamSpec("noise_bandwidth_hz", "Noise bandwidth (ENBW)", "Detection & scaling",
+                      DEFAULT_NOISE_BANDWIDTH_HZ, 0.1, 1e6, 0.1, "Hz",
+                      recompute=False, advanced=True, advanced_group="Shot noise",
+                      help="One-sided electrical equivalent noise bandwidth. Shot-noise "
+                           "RMS scales as √ENBW; 1 kHz is an assumed acquisition setting, "
+                           "not a measured detector bandwidth."),
             ParamSpec("doppler", "Doppler averaging", "Numerics", "on",
                       choices=("on", "off"), advanced=True,
                       help="On: exact Maxwell-Boltzmann average of the light-region "
@@ -978,6 +1002,51 @@ class MagnetoScheme(Scheme):
             key: None if isinstance(value, (float, np.floating)) and not np.isfinite(value)
             else value for key, value in magneto_readout.items()}
 
+        # Use symmetric physical-field wings where available, matching the
+        # central-feature reference even when command zero has a bias offset.
+        wing_radius = min(-float(physical_x[0]), float(physical_x[-1]))
+        if physical_zero_available and wing_radius > 0:
+            transmission_background = float(np.mean(
+                np.interp([-wing_radius, wing_radius], physical_x, T_trans)))
+            background_reference = "symmetric physical-field wings"
+        else:
+            transmission_background = float(0.5 * (T_trans[0] + T_trans[-1]))
+            background_reference = "scan-edge mean; physical zero not bracketed"
+        noise = shot_noise_reference(
+            T_trans, reference_transmission=transmission_background,
+            frequency_hz=raw["k_vec"] * constants.C_LIGHT / (2 * np.pi),
+            intensity_mw_cm2=params["intensity_mw_cm2"],
+            beam_diameter_mm=params.get("beam_diameter_mm", DEFAULT_BEAM_DIAMETER_MM),
+            efficiency=params.get("detection_efficiency", DEFAULT_DETECTION_EFFICIENCY),
+            bandwidth_hz=params.get("noise_bandwidth_hz", DEFAULT_NOISE_BANDWIDTH_HZ),
+            linear_input=linear_input)
+        noise.update(enabled=bool(params.get("show_shot_noise", True)),
+                     background_reference=background_reference,
+                     command_field_ut=x.tolist())
+        magneto_readout["shot_noise"] = noise
+
+        def plot_shot_noise(ax, rotation_view=False):
+            if not noise["enabled"]:
+                return
+            trace_key = "rotation_reference_trace_rad" if rotation_view else "transmission_reference_trace"
+            trace = np.asarray(noise[trace_key], dtype=float)
+            if not np.any(np.isfinite(trace)):
+                return
+            sigma = (np.asarray(noise["rotation_rms_rad"], dtype=float) * 1e3 if rotation_view
+                     else np.full(x.shape, noise["transmission_reference_rms"]))
+            center = 0.0 if rotation_view else transmission_background
+            line, = ax.plot(x, trace * (1e3 if rotation_view else 1),
+                            color="#d97706", lw=1.0, alpha=0.85, zorder=2,
+                            label="Shot noise (simulated)")
+            line._gabes_export_metadata = dict(
+                quantity="simulated_photon_shot_noise_reference",
+                y_unit="mrad" if rotation_view else "1", seed=noise["seed"],
+                bandwidth_hz=noise["bandwidth_hz"],
+                reference_level=center, rms=sigma.tolist())
+            ax.fill_between(x, center - sigma, center + sigma,
+                            color="#d97706", alpha=0.12, zorder=1,
+                            label=f"+/-1 sigma ({noise['bandwidth_hz']:g} Hz ENBW)")
+
         def mark_field_references(ax):
             ax.axvline(0.0, color="gray", ls=":", lw=0.8,
                        label="Command zero")
@@ -994,9 +1063,6 @@ class MagnetoScheme(Scheme):
                 dict(label="Rotation at physical B=0",
                      value=(f"{physical_rotation*1e3:.2f} mrad"
                             if physical_zero_available else "unavailable")),
-                dict(label="Rotation at command B=0",
-                     value=f"{command_rotation*1e3:.2f} mrad",
-                     help="Secondary reference at the center of the commanded scan."),
                 dict(label="Slope dtheta/dB",
                      value=(f"{diagnostic['slope']*1e3:.2f} mrad/µT"
                             if slope_ok else "unavailable"),
@@ -1035,9 +1101,12 @@ class MagnetoScheme(Scheme):
                 import matplotlib.pyplot as plt
 
                 fig, ax = plt.subplots(figsize=(8.5, 4.6))
-                ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8)
+                ax.plot(x, rotation * 1e3, color="#7c3aed", lw=1.8,
+                        label="NMOR rotation" if linear_input else "Birefringence diagnostic")
                 ax.axhline(0, color="black", lw=0.6)
+                plot_shot_noise(ax, rotation_view=True)
                 mark_field_references(ax)
+                ax.legend(fontsize=8)
                 ax.set_ylabel("Polarization rotation  [mrad]" if linear_input else
                               "Circular-birefringence diagnostic  [mrad]")
                 ax.set_xlabel("Commanded magnetic field B  [uT]")
@@ -1048,8 +1117,6 @@ class MagnetoScheme(Scheme):
                 dict(label="Transmission at physical B=0",
                      value=f"{physical_T:.3f}" if physical_zero_available else "unavailable",
                      **({"tier": "hero"} if not width_ok else {})),
-                dict(label="Transmission at command B=0", value=f"{command_T:.3f}",
-                     help="Secondary reference at the center of the commanded scan."),
                 dict(label="Zero-field feature", value=feature,
                      **({"tier": "hero"} if width_ok else {})),
                 dict(label="Central width", value=central_str,
@@ -1076,17 +1143,99 @@ class MagnetoScheme(Scheme):
                 import matplotlib.pyplot as plt
 
                 fig, axT = plt.subplots(figsize=(8.5, 4.6))
-                axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
+                axT.plot(x, T_trans, color="#1f77b4", lw=1.8, label="Transmission")
+                plot_shot_noise(axT)
                 mark_field_references(axT)
+                axT.legend(fontsize=8)
                 axT.set_ylabel("Transmission")
                 axT.set_xlabel("Commanded magnetic field B  [uT]")
                 axT.set_title(title)
                 fig.tight_layout()
 
+        rotation_view = params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR
+        signal_amplitude = (np.abs(rotation) if rotation_view else
+                            np.abs(T_trans - transmission_background))
+        snr_rms = (np.asarray(noise["rotation_rms_rad"], dtype=float) if rotation_view else
+                   np.full(x.shape, noise["transmission_reference_rms"]
+                           if noise["transmission_status"] == "available" else np.nan))
+        snr_values = np.full(x.shape, np.nan)
+        np.divide(signal_amplitude, snr_rms, out=snr_values,
+                  where=np.isfinite(snr_rms) & (snr_rms > 0))
+        peak_index = int(np.nanargmax(snr_values)) if np.any(np.isfinite(snr_values)) else None
+        peak_snr = float(snr_values[peak_index]) if peak_index is not None else None
+        visibility = ("Unavailable" if peak_snr is None else
+                      "Above shot noise" if peak_snr > 1 else
+                      "At shot noise" if peak_snr == 1 else "Below shot noise")
+        snr_formula = ("max_B |theta(B)| / sigma_theta(B)" if rotation_view else
+                       "max_B |T(B) - T_background| / sigma_T_background")
+        magneto_readout["shot_noise_snr"] = dict(
+            signal_type=params.get("signal_type", SIGNAL_TRANSMISSION),
+            convention="sampled signal amplitude / photon-shot-noise RMS; not a power ratio or dB",
+            formula=snr_formula, scope="largest ratio in the displayed scan; photon shot noise only",
+            reference_level=0.0 if rotation_view else transmission_background,
+            signal_unit="rad" if rotation_view else "1",
+            amplitude_ratio=[float(v) if np.isfinite(v) else None for v in snr_values],
+            peak_amplitude_ratio=peak_snr,
+            peak_command_field_ut=float(x[peak_index]) if peak_index is not None else None,
+            peak_physical_field_ut=float(physical_x[peak_index]) if peak_index is not None else None,
+            peak_signal_amplitude=float(signal_amplitude[peak_index]) if peak_index is not None else None,
+            peak_noise_rms=float(snr_rms[peak_index]) if peak_index is not None else None,
+            valid_samples=int(np.count_nonzero(np.isfinite(snr_values))),
+            bandwidth_hz=noise["bandwidth_hz"], visibility=visibility,
+            noise_status=noise["rotation_status"] if rotation_view else noise["transmission_status"],
+        )
+        snr_help = (f"Largest sampled signal amplitude / shot-noise RMS in this scan: {snr_formula}. "
+                    f"ENBW = {noise['bandwidth_hz']:g} Hz. "
+                    "1× means signal amplitude equals one noise RMS; it is not a hard detection threshold. "
+                    "The ratio uses theoretical signals and RMS, independent of the simulated zigzag. "
+                    "Electronics, technical and atomic spin noise are omitted.")
+        if peak_index is not None:
+            snr_help += (f" Maximum at commanded B = {x[peak_index]:.4g} µT "
+                         f"(physical B = {physical_x[peak_index]:.4g} µT).")
+        else:
+            snr_help += f" Unavailable: {magneto_readout['shot_noise_snr']['noise_status']}."
+        # Replace the secondary command-zero value in the strip, preserving
+        # that reference in the structured readout and derived table.
+        metrics.insert(1, dict(label="Peak shot-noise SNR",
+                               value=f"{peak_snr:.4g} ×" if peak_snr is not None else "unavailable",
+                               delta=visibility, help=snr_help))
+        rms_values = np.asarray(noise["rotation_rms_rad"], dtype=float) * 1e3
+        finite_rms = rms_values[np.isfinite(rms_values)]
+        if rotation_view:
+            rms_text = (f"{finite_rms.min():.2e}–{finite_rms.max():.2e} mrad"
+                        if finite_rms.size else "unavailable")
+            noise_status = noise["rotation_status"]
+        else:
+            rms_text = (f"{noise['transmission_reference_rms']:.2e} (T)"
+                        if noise["transmission_status"] == "available" else "unavailable")
+            noise_status = noise["transmission_status"]
+        metrics.append(dict(label="Shot noise RMS", value=rms_text,
+                            help="Photon shot noise integrated over the selected ENBW. "
+                                 "Transmission uses the background; rotation lists the "
+                                 "range across B. Detection settings are under Advanced."))
+        note += (f"\n\nShot-noise reference: {noise['bandwidth_hz']:g} Hz ENBW, "
+                 f"effective uniform beam diameter {noise['beam_diameter_mm']:g} mm, "
+                 f"incident power {noise['incident_power_w'] * 1e6:.3g} µW, "
+                 f"detection efficiency {noise['efficiency']:.0%}. "
+                 "The orange zigzag is a fixed-seed simulated realization; the shaded "
+                 "band is ±1σ, not a hard detection threshold. Transmission noise is "
+                 f"centered on the {background_reference}; compare signal departures "
+                 "from that background. Rotation noise is centered on zero and uses "
+                 "the transmitted photon flux at each B. No visual amplification is "
+                 "applied. The reference assumes a noiseless incident-power normalization "
+                 "and omits technical, electronics and atomic spin noise. "
+                 f"Readout status: {noise_status}. Peak shot-noise SNR uses {snr_formula}; "
+                 "it describes the largest sampled ratio in this scan, not the value at B=0 "
+                 "or a magnetic-field sensitivity.")
         metrics.append(dict(label="Model scope", value=MODEL_SCOPE_STATUS, kind="status",
                             help="Only one ground/excited hyperfine pair is retained. "
                                  "Other ground-F leakage, repumping and interference "
                                  "with the other excited hyperfine manifold are omitted."))
+        # The shared strip reserves numeric cells for values; otherwise a
+        # status-only hero would fall back to a large unavailable SNR/angle.
+        for metric in metrics:
+            if metric["value"] == "unavailable":
+                metric["kind"] = "status"
         larmor_hz_per_g = constants.MU_B * abs(raw["gFg"]) / (2 * np.pi * constants.HBAR) * 1e-4
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         elastic_mhz = raw.get("gamma_elastic", 0.0) / (2 * np.pi) / 1e6
@@ -1110,6 +1259,9 @@ class MagnetoScheme(Scheme):
             ("I_sat (D1 scale)", f"{raw['isat']:.4f} mW/cm²"),
             ("Longitudinal B0 offset", f"{raw['b_offset_ut']:.4f} µT"),
             ("Physical zero on command axis", f"{-raw['b_offset_ut']:.4f} µT"),
+            ("Transmission at command B=0", f"{command_T:.6g}"),
+            ("Rotation at command B=0",
+             f"{command_rotation * 1e3:.6g} mrad" if linear_input else rotation_scope),
             ("Width sampled-grid change",
              f"{diagnostic['width_relative_change']:.2%}" if np.isfinite(
                  diagnostic['width_relative_change']) else "unavailable"),

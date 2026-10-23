@@ -2,6 +2,50 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-23 · 자기광학 코드 리뷰·수정
+
+직접 사용자 요청: 자기광학만 코드 리뷰, 발견 사항1회 수정 후 문제 없으면 현재 브랜치 커밋·푸시.
+
+### ⟦AI⟧ 검토·조치
+
+- 검토 범위: Hanle/EIA/NMOR의 field reference·광학 readout·샷 노이즈/SNR·캐시·export·관련 검사. 공유 solver·타 스킴·GC 변경 제외.
+- [P2] `magneto_noise.py`의 양수 광량 검사 때문에 기존0-drive 계산의 readout이 ValueError. 광량/효율0을 검출 photon budget0으로 처리하고 noise/SNR을 unavailable로 반환하도록 수정. 음수·비유한 입력은 계속 거절.
+- [P2] SNR·각도 등을 정의할 수 없을 때 상태 hero의 대체값으로 `unavailable` 숫자 카드가 표시됨. 자기광학의 unavailable metric을 status로 지정해 chip으로 표시. 타원/원편광·physical zero 밖·광량0 경계 검사 추가.
+- 한 차례 수정 후 `python -m pytest -q tests/test_magneto_noise.py tests/test_magneto_readout.py tests/test_magneto.py tests/test_magneto_doppler.py tests/test_ui_readout.py --durations=10`: **82 통과**, 9.55s. 기존 export UTC 경고2건. 추가 미해결 결함 없음.
+- 다른 미커밋 변경을 제외한 커밋 후보에서도 위82개 **14.44s 통과**, `python -m pytest -q tests/test_schemes_render.py -k 'Magneto or magneto' --durations=5` **7개·2.63s 통과**. 최종 관련89개. 이후 문서에 결과만 보충, 검증된 코드 보존. [검증 receipt](../../output/magneto_review_20261023/validated.json).
+- 전체 suite·GC campaign 생략: 국소 자기광학 readout 수정, 공유 수치 엔진·GC 계약 무변경. 커밋에는 자기광학 코드/검사·readout cache 버전·관련 문서 부분만 포함.
+
+## 2026-10-23 · 자기광학 상단 SNR
+
+직접 사용자 요청: Transmission/rotation에서 신호가 샷 노이즈보다 몇 배 큰지 SNR 표시. 상단 관측량 중 덜 유의미한 값 하나 교체.
+
+### ⟦AI⟧ 구현·검증
+
+- 중복도가 높은 `command B=0` 값을 상단에서 빼고 `Peak shot-noise SNR`로 교체. 기존 command-zero 값은 Derived quantities·JSON 보존. 관측량 셀 수 유지.
+- 표시 기준으로 **스캔 내 최대 진폭/RMS 비율** 채택: Transmission `max |T−T_bg|/σ_T,bg`, rotation `max |θ|/σ_θ(B)`. 같은 B의 신호·잡음 대응. `×` 값·Above/At/Below shot noise 표시. 1×는 1 RMS 비교이며 검출 보장 임계값 아님.
+- 모의 지그재그·표시 토글과 독립. ENBW·검출효율·광량 변경에 갱신. 타원/원편광 rotation·검출광량0은 unavailable. 식·최대 지점·각 B의 비율·범위·조건 JSON 보존. Readout cache만 갱신; 원자 solve 경로 무변경.
+- `python -m pytest -q tests/test_magneto_noise.py tests/test_magneto_readout.py tests/test_magneto.py tests/test_ui_readout.py --durations=10`: **69 통과**, 7.09s. 기존 export UTC 경고2건. 배경 DC 배제·B별 잡음·0/저/고 SNR 표시·ENBW 역제곱근·토글 독립·export·기존 field-reference 확인.
+- `python -m pytest -q tests/test_schemes_render.py -k 'Magneto or magneto' --durations=5`: **7 통과**, 2.66s. 공용 readout·자기광학5 regime/offset 계약 유지. `git diff --check` 대상 파일 오류0.
+- 검출광량0 SNR 보류 추가 확인: `python -m pytest -q tests/test_magneto_noise.py -k no_detected_light_has_unavailable_snr` **2 통과**, 2.99s. 총 관련78개 통과; 소스 무변경 상태에 검증 추가.
+- 실제 Chrome: 기본 Transmission **1172×**, rotation **2245×** 확인. 이전 답변의 636×는 Transmission의 **B=0** 값; 새 표시는 스캔 최대값. 1440×900·390×844 SNR/상태 표시 정상, 모바일 가로 overflow0·앱 예외0·브라우저 error0. 기존 theme warning 존재.
+- [Transmission](../../output/playwright/magneto_snr_20261023_transmission.png) · [rotation](../../output/playwright/magneto_snr_20261023_rotation.png) · [모바일](../../output/playwright/magneto_snr_20261023_mobile.png).
+- 전체 suite·GC campaign 생략: 자기광학 readout·캐시 표시 변경에 한정. 공유 solver·GC 모델·입력·검증 계약 무변경. 필수 검증 이월 없음.
+
+## 2026-10-23 · 자기광학 샷 노이즈 오버레이
+
+직접 사용자 요청: Transmission/rotation의 y축 단위로 noisy한 샷 노이즈 기준선 동시 표시. 신호 관측 가능 수준 판단 지원.
+
+### ⟦AI⟧ 구현·검증
+
+- `Show shot noise` 기본 ON. 주황색 고정 seed 모의선·±1σ 음영·RMS 값 표시. Transmission 기준은 대칭 physical-field wing 배경, rotation은 0 mrad·각 B의 투과 광량. 시각적 진폭 확대 없음.
+- Advanced → Shot noise: 유효 균일 빔 지름2 mm·검출효율0.8·ENBW1 kHz를 가정 기본값으로 채택. 광세기×면적으로 입사파워 산출. 모두 `recompute=False`; 원자 계산·기존 신호 보존.
+- 단측 전기 ENBW의 coherent-light 광자 샷 노이즈. 고정 무잡음 입사 기준 정규화·균형 편광계 가정. 타원/원편광 rotation과 저광자수 Gaussian 샘플은 표시 보류. 전자·기술·원자 spin 잡음 제외. 조건·seed·곡선·RMS export 보존.
+- `python -m pytest -q tests/test_magneto_noise.py tests/test_magneto_readout.py tests/test_magneto.py tests/test_magneto_doppler.py --durations=10`: **59 통과**, 9.96s. 기존 export UTC 경고2건. 독립 Poisson 계수 유도·전력/효율/ENBW 스케일·mrad 변환·토글·export·불투명 극한·UI 입력 확인.
+- `python -m pytest -q tests/test_schemes_render.py -k 'Magneto or magneto' --durations=5`: 자기광학5 regime·offset 화면 계약 **7 통과**, 2.93s. `git diff --check` 대상 파일 오류0.
+- 실제 Chrome: ON/OFF·rotation 전환·ENBW1→4 kHz에서 RMS4.43e-6→8.87e-6 확인. 1440×900·390×844 표시 확인, 모바일 가로 overflow0·앱 예외0·브라우저 error0. 기존 theme 빈 색상 warning 존재.
+- [Transmission 화면](../../output/playwright/magneto_snl_20261023_transmission.png) · [rotation 4 kHz 화면](../../output/playwright/magneto_snl_20261023_rotation.png) · [모바일](../../output/playwright/magneto_snl_20261023_mobile.png).
+- 전체 suite·GC campaign 생략: 자기광학 readout/표시 추가에 한정, 공유 solver·GC 모델/입력/검증 계약 무변경. 필수 검증 이월 없음.
+
 ## 2026-10-22 · 기본 conjugate gain·이전 토글 제거
 
 직접 사용자 요청: `Measured-data reference only` 토글 제거. Gain calibration OFF에서도 conjugate gain 기본 표시.

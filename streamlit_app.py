@@ -70,7 +70,7 @@ st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
 
 
-READOUT_CACHE_VERSION = "hero-ribbon-v6-rydberg-opacity-20261023"
+READOUT_CACHE_VERSION = "hero-ribbon-v8-magneto-noise-guards-20261023"
 
 
 def _inject_css():

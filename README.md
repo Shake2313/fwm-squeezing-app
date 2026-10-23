@@ -184,6 +184,43 @@ populations. Its saved API key `collisional_depol_khz` is retained. The selected
 closed hyperfine pair omits leakage to other ground hyperfine levels, repumping,
 and excited-hyperfine interference; it is a conditional model scope.
 
+**Show shot noise** overlays an orange, reproducible simulated noise trace and
+a ±1σ band in the current y-axis units. Transmission uses the symmetric-wing
+background as its baseline (scan-edge mean when physical zero is not bracketed);
+compare departures from that background. Linear-input rotation uses zero mrad,
+with noise set by the transmitted photon flux at each B. The trace is drawn at
+its physical amplitude, so a small noise floor can appear flat on a large signal.
+The **Shot noise RMS** readout gives its size even when the zigzag is unresolved.
+
+**Peak shot-noise SNR** replaces the command-zero value in the top readout;
+command-zero transmission/rotation remain in Derived quantities and JSON.
+This is the largest **amplitude/RMS** ratio among the displayed B samples:
+`max_B |T(B) − T_background| / σ_T_background` for Transmission and
+`max_B |θ(B)| / σ_θ(B)` for linear-input rotation. The multiplier and
+Above/At/Below shot noise indication compare that sampled signal with one
+photon-noise RMS at the selected ENBW. They use theoretical signals and RMS,
+independent of the simulated zigzag and its visibility toggle. The tooltip and
+JSON identify the formula, bandwidth and field of the maximum. This is a
+shot-noise-only scan comparison, not a hard detection threshold, a B=0 readout,
+or a magnetic-field sensitivity; technical/electronic noise is omitted.
+
+Advanced **Shot noise** sets effective collected beam diameter (default 2 mm),
+after-cell optical throughput × detector QE (0.8), and one-sided electrical ENBW
+(1 kHz, an assumed setting). The uniform-intensity model uses
+`P_in = I π(d/2)²`, `σ_T = sqrt(2 hν B T / (η P_in))` and
+`σ_θ = sqrt(hν B / (2 η P_in T))` rad. The transmission reference trace uses the
+background value of T; the rotation band uses T(B). Transmission normalization
+assumes a noiseless incident-power reference. The ideal balanced-polarimeter
+rotation estimate is withheld for elliptical/circular input, and Gaussian
+samples are withheld below ten detected photons per equivalent averaging
+interval `1/(2 ENBW)`. This photon-only reference omits electronics, technical
+and atomic spin noise; ±1σ is not a hard detection threshold. Zero incident
+power or detection efficiency makes the noise/SNR readout unavailable. Detection controls
+reuse the atomic scan. JSON includes the budget, conditions, seed and traces;
+plotted CSV curves include the displayed noise and its RMS metadata.
+See the [photodetector shot-noise measurement](https://www.koheron.com/blog/2018/01/22/measuring-photodetector-noise-equivalent-power/)
+and [shot-noise-limited optical magnetometry](https://arxiv.org/abs/1403.7796).
+
 ### Rydberg finite-IF electrometry and cell heating
 
 The Rydberg scheme separates heater setpoint, effective vapor temperature, and

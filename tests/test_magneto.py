@@ -315,8 +315,9 @@ def test_nmor_plane_rotation_requires_linear_input():
         view = sc.headless_observables(raw, p)
         metrics = {metric["label"]: metric for metric in view["metrics"]}
         assert metrics["Rotation readout status"]["value"] == expected
-        rotation_labels = {"Rotation at physical B=0", "Rotation at command B=0",
+        rotation_labels = {"Rotation at physical B=0",
                            "Slope dtheta/dB", "Peak |rotation|"}
+        assert "Rotation at command B=0" not in metrics
         if angle == 0.0:
             assert rotation_labels <= metrics.keys()
             if metrics["Slope dtheta/dB"]["value"] == "unavailable":

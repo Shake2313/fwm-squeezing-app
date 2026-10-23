@@ -8,6 +8,7 @@ import pytest
 
 from gabes import observables, schemes
 from gabes.schemes import magneto
+from gabes_ui.readout import partition_readout
 
 
 @pytest.fixture(scope="module")
@@ -52,7 +53,11 @@ def test_physical_zero_and_command_zero_are_distinct(template):
     assert data["slope_status"] == "sample-grid consistent"
     metrics = {m["label"]: m for m in view["metrics"]}
     assert "Transmission at physical B=0" in metrics
-    assert "tier" not in metrics["Transmission at command B=0"]
+    assert "Transmission at command B=0" not in metrics
+    assert "Peak shot-noise SNR" in metrics
+    derived = next(table["markdown"] for table in view["tables"]
+                   if table["title"] == "Derived quantities")
+    assert "Transmission at command B=0" in derived
     assert "closed hyperfine pair" in metrics["Model scope"]["value"]
     assert "repump omitted" in metrics["Model scope"]["value"]
 
@@ -73,6 +78,8 @@ def test_physical_zero_outside_scan_is_unavailable(template, signal):
     heroes = [m for m in view["metrics"] if m.get("tier") == "hero"]
     assert heroes and all(m.get("kind") == "status" or m["value"] == "unavailable"
                           for m in heroes)
+    displayed_heroes, secondary, _, _ = partition_readout(view["metrics"], view["hero_count"])
+    assert all(m["value"] != "unavailable" for m in displayed_heroes + secondary)
 
 
 def test_central_width_uses_both_asymmetric_crossings():
