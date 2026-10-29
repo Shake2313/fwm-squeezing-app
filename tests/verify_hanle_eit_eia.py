@@ -1,5 +1,5 @@
 """
-Theoretical cross-check: does the GABES magneto (Hanle) scheme reproduce the
+Historical unregistered single-pair reference: does the Hanle model reproduce the
 EIT/CPT -> EIA/MIA polarization switch and the sub-milligauss feature widths
 reported by the Moon group for a paraffin-coated 87Rb cell?
 
@@ -25,7 +25,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import observables, schemes  # noqa: E402
+from gabes import observables  # noqa: E402
+from gabes.schemes.magneto import SinglePairMagnetoReference  # noqa: E402
 
 UT_PER_MG = 0.1  # 1 mG = 0.1 uT
 # Explicit screening rule for this unmatched-apparatus comparison. Agreement
@@ -98,7 +99,7 @@ def central_fwhm_ut(x, alpha):
 
 def run(qwp, b_max_ut, b_perp_ut, wall_ms=3.0, transit_khz=80.0,
         points=601, intensity=0.8):
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = sc.defaults()
     p.update(cell_type="Paraffin coated cell", Fg=2.0, Fe=1.0,
              intensity_mw_cm2=intensity, qwp_deg=qwp,
@@ -125,7 +126,7 @@ def transmission_contrast(raw, p, x, alpha):
 
 def run_transition(Fg, Fe, qwp, b_perp_ut, b_max_ut=0.5, **kw):
     from gabes.schemes.magneto import _transition_strength
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = sc.defaults()
     p.update(cell_type="Paraffin coated cell", Fg=float(Fg), Fe=float(Fe),
              intensity_mw_cm2=0.8, qwp_deg=qwp, b_max_ut=b_max_ut,
@@ -182,7 +183,7 @@ def transition_dependence():
     print(f"    {'Fg->Fe':>7} {'dF':>3} | {'sign':>14} {'|dT|':>10}")
     for Fg in (1, 2):
         for Fe in (1, 2):
-            sc = schemes.get("magneto")
+            sc = SinglePairMagnetoReference()
             p = sc.defaults()
             p.update(cell_type="Buffer gas cell", Fg=float(Fg), Fe=float(Fe),
                      intensity_mw_cm2=0.8, qwp_deg=0.0, b_max_ut=0.5,
@@ -205,7 +206,7 @@ def transition_dependence():
     print("    it into a B=0 level-crossing ABSORPTION peak. Reference width 2.4 mG.")
     print(f"    {'I[mW/cm2]':>10} {'B_perp[mG]':>11} | {'sign':>10} {'FWHM[mG]':>9}")
     for I, bperp_mg, relax in [(0.8, 0.0, 5.0), (0.2, 3.0, 5.0), (0.02, 1.0, 0.5)]:
-        sc = schemes.get("magneto")
+        sc = SinglePairMagnetoReference()
         p = sc.defaults()
         p.update(cell_type="Buffer gas cell", Fg=2.0, Fe=2.0, intensity_mw_cm2=I,
                  qwp_deg=45.0, b_max_ut=1.0, ne_pressure_torr=20.0,
@@ -239,7 +240,7 @@ def transition_dependence():
 
 def main():
     print("=" * 74)
-    print("GABES Hanle vs Moon-group paraffin-cell references (87Rb, F=2->F'=1)")
+    print("Historical single-pair Hanle vs Moon-group references (87Rb, F=2->F'=1)")
     print("=" * 74)
     print("Scope: one closed 87Rb D1 hyperfine pair; other ground-F leakage,")
     print("repump and the other excited hyperfine manifold are omitted.")

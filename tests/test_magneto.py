@@ -1,5 +1,5 @@
 """
-Phase-4 checks for Zeeman magneto-optics.
+Unregistered single-pair reference: Zeeman magneto-optics checks.
 
   CG / manifold     : angular-momentum plumbing stays normalized.
   Polarized Hanle   : QWP angle switches a paraffin-cell dip into a peak.
@@ -18,9 +18,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import atoms, constants, core, observables, schemes, zeeman  # noqa: E402
+from gabes import atoms, constants, core, observables, zeeman  # noqa: E402
 from gabes.constants import GAMMA  # noqa: E402
-from gabes.schemes.magneto import MagnetoScheme  # noqa: E402
+from gabes.schemes.magneto import SinglePairMagnetoReference  # noqa: E402
 
 cg = zeeman.clebsch_gordan
 
@@ -205,8 +205,8 @@ def _central_halfwidth(x, alpha):
     return abs((x[i] + t * (x[j] - x[i])) - x[ic])
 
 
-def test_default_is_87rb_d1_paraffin_polarized_hanle():
-    sc = schemes.get("magneto")
+def test_reference_default_is_87rb_d1_paraffin_polarized_hanle():
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     raw = sc.compute(p)
     assert raw["isotope"] == "87Rb"
@@ -234,7 +234,7 @@ def test_two_region_returns_conditional_state_and_separate_occupation():
     atom, light, dark = _two_level_region_fixture()
     gamma_out = 2 * np.pi * 80e3
     gamma_in = 2 * np.pi * 1e3
-    rho, occupation = MagnetoScheme._steady_state_two_region(
+    rho, occupation = SinglePairMagnetoReference._steady_state_two_region(
         light, dark, np.array([0.0, 2 * np.pi * 0.2e6]), atom.S_v,
         atom.n_levels, gamma_out, gamma_in)
 
@@ -247,10 +247,10 @@ def test_two_region_returns_conditional_state_and_separate_occupation():
 def test_zero_light_exit_recovers_one_region_light_state():
     atom, light, dark = _two_level_region_fixture()
     deff = np.array([0.0, 2 * np.pi * 0.2e6])
-    rho_two, occupation = MagnetoScheme._steady_state_two_region(
+    rho_two, occupation = SinglePairMagnetoReference._steady_state_two_region(
         light, dark, deff, atom.S_v, atom.n_levels,
         gamma_out=0.0, gamma_in=2 * np.pi * 1e3)
-    rho_one = MagnetoScheme._steady_state_buffer(
+    rho_one = SinglePairMagnetoReference._steady_state_buffer(
         light, deff, atom.S_v, atom.n_levels)
 
     scale = max(float(np.max(np.abs(rho_one))), 1e-300)
@@ -259,7 +259,7 @@ def test_zero_light_exit_recovers_one_region_light_state():
 
 
 def test_local_density_enters_susceptibility_exactly_once():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(scan_points=3)
     density = 2.5e15
@@ -280,7 +280,7 @@ def test_local_density_enters_susceptibility_exactly_once():
 
 
 def test_normalization_convention_and_absolute_scale_status_are_reported():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     raw = sc.compute(p)
     view = sc.headless_observables(raw, p)
@@ -303,7 +303,7 @@ def test_normalization_convention_and_absolute_scale_status_are_reported():
 
 
 def test_nmor_plane_rotation_requires_linear_input():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(signal_type="NMOR rotation", scan_points=21)
     for angle, expected in ((0.0, "linear-input approximation"),
@@ -331,7 +331,7 @@ def test_nmor_plane_rotation_requires_linear_input():
 
 
 def test_circular_nmor_figure_labels_birefringence_as_diagnostic():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(signal_type="NMOR rotation", qwp_deg=45.0, scan_points=21)
     view = sc.observables(sc.compute(p), p)
@@ -342,7 +342,7 @@ def test_circular_nmor_figure_labels_birefringence_as_diagnostic():
 
 
 def test_paraffin_linear_qwp_gives_zero_field_dip():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(cell_type="Paraffin coated cell", qwp_deg=0.0,
              residual_transverse_b_ut=0.05)
@@ -351,7 +351,7 @@ def test_paraffin_linear_qwp_gives_zero_field_dip():
 
 
 def test_paraffin_circular_qwp_gives_zero_field_peak():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(cell_type="Paraffin coated cell", qwp_deg=45.0,
              residual_transverse_b_ut=0.08)
@@ -360,7 +360,7 @@ def test_paraffin_circular_qwp_gives_zero_field_peak():
 
 
 def test_paraffin_wall_coherence_narrows_central_feature():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     base = _fast_defaults(sc)
     base.update(cell_type="Paraffin coated cell", qwp_deg=0.0,
                 residual_transverse_b_ut=0.05, b_max_ut=0.8, scan_points=201)
@@ -373,7 +373,7 @@ def test_paraffin_wall_coherence_narrows_central_feature():
 
 
 def test_buffer_mode_has_single_broad_hanle_and_ground_relaxation_broadens():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     base = _fast_defaults(sc)
     base.update(cell_type="Buffer gas cell", qwp_deg=0.0, b_max_ut=120.0,
                 ne_pressure_torr=20.0, collisional_depol_khz=0.0)
@@ -389,7 +389,7 @@ def test_buffer_mode_has_single_broad_hanle_and_ground_relaxation_broadens():
 
 
 def test_buffer_rate_swap_changes_susceptibility_and_reports_split_rates():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     base = _fast_defaults(sc)
     base.update(cell_type="Buffer gas cell", qwp_deg=0.0, b_max_ut=80.0,
                 scan_points=41, ne_pressure_torr=20.0,
@@ -420,7 +420,7 @@ def test_buffer_rate_swap_changes_susceptibility_and_reports_split_rates():
 def test_buffer_steady_states_remain_trace_one_hermitian_and_positive():
     gamma_natural = 2 * np.pi * 5.746e6
     gamma_elastic = 2 * np.pi * 39.1e6
-    scheme = MagnetoScheme()
+    scheme = SinglePairMagnetoReference()
     drive = {+1: 1.0, -1: 1.0}
 
     for transit_khz, depol_khz in ((20.0, 2.0), (2.0, 20.0)):
@@ -449,7 +449,7 @@ def test_buffer_steady_states_remain_trace_one_hermitian_and_positive():
 
 
 def test_extreme_ui_dephasing_counterexample_remains_positive():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     params = _fast_defaults(sc)
     params.update(
         cell_type="Buffer gas cell", Fg=2.0, Fe=1.0,
@@ -460,14 +460,14 @@ def test_extreme_ui_dephasing_counterexample_remains_positive():
         scan_points=3, velocity_classes=1, doppler="off")
 
     captured = {}
-    steady_state = MagnetoScheme._steady_state_buffer
+    steady_state = SinglePairMagnetoReference._steady_state_buffer
 
     def capture_steady_state(*args, **kwargs):
         rho = steady_state(*args, **kwargs)
         captured["rho"] = rho
         return rho
 
-    with patch.object(MagnetoScheme, "_steady_state_buffer",
+    with patch.object(SinglePairMagnetoReference, "_steady_state_buffer",
                       new=staticmethod(capture_steady_state)):
         raw = sc.compute(params)
 
@@ -486,7 +486,7 @@ def test_extreme_ui_dephasing_counterexample_remains_positive():
 
 
 def test_longitudinal_b_offset_shifts_physical_field_axis():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(b_offset_ut=0.25)
     raw = sc.compute(p)
@@ -498,7 +498,7 @@ def test_intrinsic_eia_on_cycling_transition():
     # With transfer of coherence (grouped Σ_q emission), the open Fg=1->Fe=2
     # (Fe=Fg+1) transition is EIA at linear pol / zero residual field, while the
     # Fe<=Fg transitions stay EIT. (Lezama; arXiv physics/0512199.)
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     base = _fast_defaults(sc)
     base.update(cell_type="Paraffin coated cell", qwp_deg=0.0,
                 residual_transverse_b_ut=0.0, b_max_ut=0.5, scan_points=201)
@@ -515,7 +515,7 @@ def test_buffer_circular_lca_needs_transverse_field():
     # longitudinal B scan -> flat (no feature) without a transverse field. A small
     # transverse residual field makes the orientation precess and gives a B=0
     # level-crossing ABSORPTION peak (Yu, PRA 81, 023416).
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     base = _fast_defaults(sc)
     base.update(cell_type="Buffer gas cell", Fg=2.0, Fe=2.0, qwp_deg=45.0,
                 b_max_ut=1.0, scan_points=201, ne_pressure_torr=20.0,
@@ -530,7 +530,7 @@ def test_buffer_circular_lca_needs_transverse_field():
 
 
 def test_nmor_zero_crossing():
-    sc = schemes.get("nmor")
+    sc = SinglePairMagnetoReference("nmor")
     p = _fast_defaults(sc)
     p.update(signal_type="NMOR rotation", qwp_deg=0.0)
     x, _, rot = _alpha_rot(sc.compute(p), p)
@@ -542,15 +542,18 @@ def test_nmor_zero_crossing():
 
 
 def test_cell_type_controls_visibility_metadata():
-    specs = schemes.get("magneto").param_schema()
+    from gabes.schemes.magneto_budker import LEGACY
+    specs = SinglePairMagnetoReference().param_schema()
     by_name = {s.name: s for s in specs}
     assert by_name["cell_type"].control == "segmented"
-    assert by_name["transit_relax_khz"].visible_if == {"cell_type": "Paraffin coated cell"}
-    assert by_name["ne_pressure_torr"].visible_if == {"cell_type": "Buffer gas cell"}
+    assert by_name["transit_relax_khz"].visible_if == {
+        "cell_type": "Paraffin coated cell", "calculation": LEGACY}
+    assert by_name["ne_pressure_torr"].visible_if == {
+        "cell_type": "Buffer gas cell", "calculation": LEGACY}
 
 
 def test_invalid_transition_handled():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(Fg=1.0, Fe=3.0)
     raw = sc.compute(p)
@@ -563,7 +566,7 @@ def test_invalid_transition_handled():
 
 
 def test_unresolved_central_width_uses_status_hero():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     p = _fast_defaults(sc)
     p.update(b_offset_ut=50.0)
     view = sc.headless_observables(sc.compute(p), p)
@@ -581,7 +584,7 @@ if __name__ == "__main__":
     test_manifold_emission_normalised()
     test_manifold_emission_transfers_ground_coherence()
     test_angular_momentum_commutator()
-    test_default_is_87rb_d1_paraffin_polarized_hanle()
+    test_reference_default_is_87rb_d1_paraffin_polarized_hanle()
     test_paraffin_linear_qwp_gives_zero_field_dip()
     test_paraffin_circular_qwp_gives_zero_field_peak()
     test_paraffin_wall_coherence_narrows_central_feature()
@@ -590,4 +593,4 @@ if __name__ == "__main__":
     test_nmor_zero_crossing()
     test_cell_type_controls_visibility_metadata()
     test_invalid_transition_handled()
-    print("Phase-4 magneto OK (polarized Hanle, two-region paraffin, buffer cell, NMOR).")
+    print("Unregistered single-pair reference OK (Hanle, paraffin, buffer cell, NMOR).")

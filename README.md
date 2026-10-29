@@ -169,63 +169,64 @@ strip and exports; the preview interpolates canonical NF before taking its dB lo
 
 ### Hanle / EIA / NMOR readouts
 
-The command field and physical field satisfy
-`B_physical = B_command + B_zero_offset`. Central transmission, feature width
-and linear-polarization rotation/slope use physical zero; command zero is a
-separate readout. A scan that misses physical zero reports it as unavailable.
-Widths use both interpolated half-height crossings. Local higher-order slopes
-and widths carry a sampled-grid consistency status; an unresolved default grid
-withholds numeric heroes. This local check does not certify a whole B scan or
-experimental visibility. Literature sign/trend and quantitative-width agreement
-are reported separately.
+Magneto-optics uses the **Budker-based multihyperfine model throughout**.
+The initial view is a magnetic-field scan. **Scan axis** changes between
+**Magnetic field** and **Optical detuning** while retaining the same isotope,
+line, intensity, cell, relaxation and polarization conditions.
+The sidebar **Defaults** menu contains two built-in configurations:
+**Hanle** for transmission/absorption and **NMOR** for polarization rotation.
+Selecting one loads the magnetic-field scan, signal, cell and polarization
+together. In this scheme, EIT/EIA/LCA describe Hanle-configuration features;
+polarization, cell and relaxation controls determine the calculated feature.
+Both presets use the same atomic model and are available in Defaults only.
+All registered Hanle/EIA/NMOR aliases use this same engine. The historical
+single-pair solver remains an unregistered numerical reference.
 
-The top readout groups numerical checks, absolute-scale validation and model
-scope into one **Model estimate** disclosure. Click it (or use the keyboard)
-to read all details. Conditions requiring action instead show a compact
-warning such as **Check resolution**, **Check polarization** or **Check field
-range**. The full statuses remain in exported results.
+The model includes all ground/excited hyperfine magnetic-sublevel dipole
+channels, open hyperfine pumping and coherent light shifts, with optical
+excitation eliminated in the weak-excitation approximation. Coated cells
+share a dark reservoir between velocity classes. Exit, return, isotropic
+population reset and pure dephasing are independent rates in s⁻¹. The
+buffer/transit option uses a single-region effective ground reset; optical
+pressure broadening and diffusion are not included in that approximation.
 
-**Ground pure dephasing** damps ground-state coherences and preserves ground
-populations. Its saved API key `collisional_depol_khz` is retained. The selected
-closed hyperfine pair omits leakage to other ground hyperfine levels, repumping,
-and excited-hyperfine interference; it is a conditional model scope.
+`B_physical = B_command + B_zero_offset`. The magnetic scan reports the
+rotation or transmission at the declared physical bias. Optical scans show
+local magnetic responsivity, transmission and photon-limited field ASD.
+Detuning zero is the selected ground-F component's **line-strength centroid**;
+all hyperfine manifolds are still included. This reference need not equal
+the absorption-profile center used in the paper.
 
-**Show shot noise** overlays an orange, reproducible simulated noise trace and
-a ±1σ band in the current y-axis units. Transmission uses the symmetric-wing
-background as its baseline (scan-edge mean when physical zero is not bracketed);
-compare departures from that background. Linear-input rotation uses zero mrad,
-with noise set by the transmitted photon flux at each B. The trace is drawn at
-its physical amplitude, so a small noise floor can appear flat on a large signal.
-The **Shot noise RMS** readout gives its size even when the zigzag is unresolved.
+Magnetic slopes come from differentiating the coupled steady-state equations,
+including the dark-reservoir response. The graph therefore does not omit
+points because two finite-difference steps disagree. A true zero response has
+unbounded equivalent field noise; invalid samples are explicitly marked.
+Velocity quadrature and optical-grid convergence remain separate checks.
 
-**Peak shot-noise SNR** replaces the command-zero value in the top readout;
-command-zero transmission/rotation remain in Derived quantities and JSON.
-This is the largest **amplitude/RMS** ratio among the displayed B samples:
-`max_B |T(B) − T_background| / σ_T_background` for Transmission and
-`max_B |θ(B)| / σ_θ(B)` for linear-input rotation. The multiplier and
-Above/At/Below shot noise indication compare that sampled signal with one
-photon-noise RMS at the selected ENBW. They use theoretical signals and RMS,
-independent of the simulated zigzag and its visibility toggle. The tooltip and
-JSON identify the formula, bandwidth and field of the maximum. This is a
-shot-noise-only scan comparison, not a hard detection threshold, a B=0 readout,
-or a magnetic-field sensitivity; technical/electronic noise is omitted.
+Rotation sensitivity uses an ideal balanced polarimeter. Transmission uses a
+fixed noiseless incident-power reference and its corresponding photocurrent
+noise. Both use the same local atomic state and detected photon budget:
+`P_in = I π(d/2)²`, `σ_T = sqrt(2 hν ENBW T / (η P_in))`, and
+`σ_θ = sqrt(hν ENBW / (2 η P_in T))` rad. Field ASD is signal-noise ASD divided
+by the local magnetic response in SI units. Small-field SNR uses the declared
+RMS field and ENBW; a separate ±1 pT excursion check qualifies finite-amplitude
+linearity without hiding the analytic sensitivity curve. Larger declared
+signals have SNR withheld. Detector controls reuse the atomic result.
 
-Advanced **Shot noise** sets effective collected beam diameter (default 2 mm),
-after-cell optical throughput × detector QE (0.8), and one-sided electrical ENBW
-(1 kHz, an assumed setting). The uniform-intensity model uses
-`P_in = I π(d/2)²`, `σ_T = sqrt(2 hν B T / (η P_in))` and
-`σ_θ = sqrt(hν B / (2 η P_in T))` rad. The transmission reference trace uses the
-background value of T; the rotation band uses T(B). Transmission normalization
-assumes a noiseless incident-power reference. The ideal balanced-polarimeter
-rotation estimate is withheld for elliptical/circular input, and Gaussian
-samples are withheld below ten detected photons per equivalent averaging
-interval `1/(2 ENBW)`. This photon-only reference omits electronics, technical
-and atomic spin noise; ±1σ is not a hard detection threshold. Zero incident
-power or detection efficiency makes the noise/SNR readout unavailable. Detection controls
-reuse the atomic scan. JSON includes the budget, conditions, seed and traces;
-plotted CSV curves include the displayed noise and its RMS metadata.
-See the [photodetector shot-noise measurement](https://www.koheron.com/blog/2018/01/22/measuring-photodetector-noise-equivalent-power/)
-and [shot-noise-limited optical magnetometry](https://arxiv.org/abs/1403.7796).
+**Show shot noise** overlays a reproducible simulated reference on magnetic
+scans. The effective collected beam defaults to 3 mm, detection efficiency
+to 0.8 and one-sided ENBW to 1 Hz; these are assumed settings. Rotation is
+supported for linear input; elliptical/circular input retains transmission
+and its magnetic response. JSON/CSV preserve the common model, conditions,
+frequency reference, derivative method, curves and validation statuses.
+
+These are conditional photon-noise predictions. Full optical saturation,
+self-consistent longitudinal propagation, optical Zeeman shifts/linear Faraday
+background, and technical/electronic/atomic noise require further validation.
+The UI identifies high optical depth and excitation outside the conservative
+weak-coupling range. The paper's sensitivity and optimum detuning are not
+calibration inputs.
+[References, implementation scope and checks](docs/magneto_budker_20261030/README.md).
 
 ### Rydberg finite-IF electrometry and cell heating
 

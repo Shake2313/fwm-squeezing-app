@@ -1,0 +1,107 @@
+{
+  "source_sha256": {
+    "gabes/magneto_multilevel.py": "7465cc072dd152d5885b141822de68fd7acebf799dfe8e2385618ca66bbd38b0",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+    "gabes/schemes/magneto_budker.py": "948738c4a52a36d50d3476cbe72c7457f4f0cb635979da26dfaa4ace29a8f347",
+    "gabes/schemes/magneto.py": "bd8cce288e276aa8b1379cb8604f6ad609e6b7a1c649744703e1999b8aa28e60",
+    "gabes_ui/readout.py": "821db435fc02291e85cea7eb9d577e500a72b2323f5faa123b15255aa4e3ad9a"
+  },
+  "validation_scope": "magneto model/readout/noise, UI/defaults/export, selected independent weak-drive OBE; no full suite or GC campaign",
+  "focused_tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "217",
+    "time": "14.336",
+    "timestamp": "2026-10-30T02:21:08.529999+09:00",
+    "hostname": "DESKTOP-9LTDUVT"
+  },
+  "obe_reference_tests": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "2",
+    "time": "0.987",
+    "timestamp": "2026-10-30T02:22:25.895012+09:00",
+    "hostname": "DESKTOP-9LTDUVT"
+  },
+  "scientific_cases": {
+    "d1": {
+      "source_matches": true,
+      "assessment": {
+        "status": "conditional model and numerical checks; not quantitative paper reproduction",
+        "shared_detuning_samples_compared": 22,
+        "shared_detuning_slope_max_error_over_peak": 0.004099720113783825,
+        "optimum_shift_mhz": 0.0,
+        "optimum_asd_relative_change": -0.0007269345520347636,
+        "off_centroid_minimum": true,
+        "centroid_snr_improvement": 15.392990836470847,
+        "attenuation_scenario": {
+          "scope": "uniform atomic intensity lowered by minimum T; sensitivity check, not a spatial solution or error bound",
+          "intensity_factor": 0.962017717643679,
+          "detunings_mhz": [
+            0.0,
+            -300.0
+          ],
+          "field_asd_t_per_sqrt_hz": [
+            8.11218533025038e-15,
+            5.605845031509825e-16
+          ],
+          "nominal_field_asd_t_per_sqrt_hz": [
+            8.728239448293357e-15,
+            5.670268722315748e-16
+          ]
+        }
+      }
+    },
+    "d2": {
+      "source_matches": true,
+      "assessment": {
+        "status": "conditional model and numerical checks; not quantitative paper reproduction",
+        "shared_detuning_samples_compared": 25,
+        "shared_detuning_slope_max_error_over_peak": 0.0033338548109938097,
+        "optimum_shift_mhz": 0.0,
+        "optimum_asd_relative_change": -0.002855760175335731,
+        "off_centroid_minimum": true,
+        "centroid_snr_improvement": 2.088611837526244,
+        "attenuation_scenario": {
+          "scope": "uniform atomic intensity lowered by minimum T; sensitivity check, not a spatial solution or error bound",
+          "intensity_factor": 0.6828163991174558,
+          "detunings_mhz": [
+            0.0,
+            300.0
+          ],
+          "field_asd_t_per_sqrt_hz": [
+            2.68205331788276e-16,
+            1.5183233911990981e-16
+          ],
+          "nominal_field_asd_t_per_sqrt_hz": [
+            3.498420134460605e-16,
+            1.6749977528635195e-16
+          ]
+        }
+      }
+    }
+  },
+  "browser_smoke": {
+    "status": "passed",
+    "mode": "Budker D1 conditions (model)",
+    "browser": "Playwright Chromium real browser",
+    "app_url": "http://127.0.0.1:8513/?scheme=magneto",
+    "console_errors": 0,
+    "console_warnings": "existing empty sidebar theme colors",
+    "observed": {
+      "calculation": "Budker NMOR detuning scan",
+      "optimum_detuning_mhz": -300.0,
+      "field_asd_t_per_sqrt_hz": 5.674393635110957e-16,
+      "compact_status": "Check model range",
+      "three_panels_visible": true,
+      "export_json_download_and_parse": true,
+      "plot_traces": 9
+    },
+    "screenshot": "output/playwright/magneto_budker.png",
+    "note": "Read-only UI exercise in owned local server/browser; no production changes."
+  }
+}

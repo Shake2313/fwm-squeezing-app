@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "mode": "Budker D1 conditions (model)",
+  "browser": "Playwright Chromium real browser",
+  "app_url": "http://127.0.0.1:8513/?scheme=magneto",
+  "console_errors": 0,
+  "console_warnings": "existing empty sidebar theme colors",
+  "observed": {
+    "calculation": "Budker NMOR detuning scan",
+    "optimum_detuning_mhz": -300.0,
+    "field_asd_t_per_sqrt_hz": 5.674393635110957e-16,
+    "compact_status": "Check model range",
+    "three_panels_visible": true,
+    "export_json_download_and_parse": true,
+    "plot_traces": 9
+  },
+  "screenshot": "output/playwright/magneto_budker.png",
+  "note": "Read-only UI exercise in owned local server/browser; no production changes."
+}

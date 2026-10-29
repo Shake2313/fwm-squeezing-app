@@ -2969,6 +2969,25 @@
   ],
   "items": [
     {
+      "id": "magneto-budker-quantitative-regime",
+      "area": "gabes/magneto_multilevel.py + gabes/schemes/magneto_budker.py",
+      "title": "⟦AI⟧ Budker 조건부 NMOR 모델의 정량 적용 범위 확장",
+      "origin": "ai_execution_of_human_request",
+      "priority": "P2",
+      "effort": "research",
+      "status": "ready",
+      "source_reports": ["docs/magneto_budker_20261030/README.md"],
+      "problem": "⟦AI⟧ 다중 초미세 전이·속도 재분배·PSN 자기장 감도 구현으로 비공진 개선을 계산하지만, 약한 광학 여기·균일 세기 근사의 결과. 광학 포화, 종방향 공통 dark reservoir, 실제 셀 이완과 논문의 흡수 주파수 영점 정렬을 검증하기 전 절대 감도 재현으로 사용 불가.",
+      "acceptance": [
+        "⟦AI⟧ 동일 조건의 full excited-state OBE와 광세기/디튜닝 범위별 비교; 보수적 가상 여기 bound와 실제 오차 구분.",
+        "⟦AI⟧ 필요 광학 깊이에서 종방향 세기/편광 전파와 공통 dark 상태의 자기일관 해 검증.",
+        "⟦AI⟧ 측정 또는 명시한 가정의 이완율·동위원소 밀도·검출 효율 및 흡수 기준 주파수로 Budker 그림 4–6과 비교.",
+        "⟦AI⟧ 유한 주파수 응답·기술/전자/원자 잡음 추가 시 각각 전달함수·PSD와 실측 근거 보존. 정적 PSN 예측을 전체 검출 감도로 승격하지 않음."
+      ],
+      "depends_on": [],
+      "last_reviewed_at": "2026-10-30"
+    },
+    {
       "id": "fwm-measured-gain-reference-20261013",
       "title": "Two-arm sampled gain calibration at the measured pump-off detector reference",
       "area": "gabes/fwm_measured_gain.py + gabes/schemes/fwm.py + gabes_ui/export.py",

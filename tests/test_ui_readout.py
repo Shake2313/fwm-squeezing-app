@@ -49,6 +49,12 @@ def test_magneto_statuses_become_one_closed_disclosure_without_losing_details():
     ({"label": "Width status", "value": "physical zero outside scan"}, "Check field range"),
     ({"label": "Slope status", "value": "nonconverged on sampled grid"}, "Check resolution"),
     ({"label": "Peak shot-noise SNR", "value": "unavailable"}, "Check detection"),
+    ({"label": "Atomic solver", "value": "steady-state validation failed"}, "Check atomic solve"),
+    ({"label": "Optimum status", "value": "no valid sensitivity samples"}, "Check sensitivity"),
+    ({"label": "Optimum status", "value": "sampled model minimum at scan edge; expand optical scan"}, "Expand optical scan"),
+    ({"label": "Signal linearity", "value": "signal peak exceeds tested local field interval"}, "Reduce field signal"),
+    ({"label": "Optical excitation", "value": "optical elimination requires full-OBE validation"}, "Check model range"),
+    ({"label": "Propagation scope", "value": "OD > 0.1: homogeneous intensity"}, "Check propagation"),
 ])
 def test_compact_summary_surfaces_actionable_conditions(status, label):
     assert magneto_status_summary([status]) == (label, "warn")

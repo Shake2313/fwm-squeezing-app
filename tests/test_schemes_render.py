@@ -117,9 +117,17 @@ def _internal_mode_cases():
 
     magneto = schemes.get("magneto")
     defaults = magneto.defaults()
-    for index, params in enumerate(magneto.recommended_defaults(defaults).values()):
-        cases.append((f"Magneto / regime {index + 1}", magneto,
-                      _fast(dict(defaults, **params))))
+    for preset in magneto.presets():
+        cases.append((f"Magneto / {preset.name}", magneto,
+                      _fast(dict(defaults, **preset.values))))
+    for axis in ("Magnetic field", "Optical detuning"):
+        cases.append((f"Magneto / {axis}", magneto,
+                      _fast(dict(defaults, scan_axis=axis, detuning_points=9))))
+    cases.append(("Magneto / circular transmission", magneto,
+                  _fast(dict(defaults, signal_type="Transmission", qwp_deg=45.,
+                             residual_transverse_b_ut=.0001))))
+    cases.append(("Magneto / effective buffer", magneto,
+                  _fast(dict(defaults, cell_type="Buffer gas cell", ground_relaxation_hz=1000.))))
     for offset in (2.0, 50.0):
         shifted = _fast(dict(defaults, b_offset_ut=offset))
         cases.append((f"Magneto / B offset {offset:g} uT", magneto, shifted))

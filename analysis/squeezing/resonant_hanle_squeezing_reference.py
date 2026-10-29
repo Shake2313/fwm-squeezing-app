@@ -411,7 +411,7 @@ def _hanle_readout(raw: dict, params: dict) -> dict:
 def compute_hanle(detuning_mhz: float, args: argparse.Namespace,
                   probe_power_w: float | None = None) -> dict:
     params = hanle_params(detuning_mhz, args, probe_power_w)
-    raw = magneto.MagnetoScheme().compute(params)
+    raw = magneto.SinglePairMagnetoReference().compute(params)
     return _hanle_readout(raw, params)
 
 
@@ -917,7 +917,7 @@ def hanle_operating_scan(source: dict, args: argparse.Namespace) -> dict:
     usable = np.zeros(shape, dtype=bool)
     best = None
     probe_power_w = arm_input_power_w(source, "probe", args)
-    scheme = magneto.MagnetoScheme()
+    scheme = magneto.SinglePairMagnetoReference()
 
     for ti, temp_c in enumerate(temp_axis):
         for ii, intensity in enumerate(intensity_axis):

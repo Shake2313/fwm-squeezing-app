@@ -108,6 +108,15 @@ def magneto_status_summary(statuses):
     by_label = {str(m.get("label", "")): str(m.get("value", "")) for m in statuses}
     if "invalid" in by_label.get("Status", "").lower():
         return "Check transition", "warn"
+    if "failed" in by_label.get("Atomic solver", "").lower():
+        return "Check atomic solve", "warn"
+    optimum = by_label.get("Optimum status", "")
+    if "no valid sensitivity" in optimum:
+        return "Check sensitivity", "warn"
+    if "scan edge" in optimum:
+        return "Expand optical scan", "warn"
+    if "exceeds tested" in by_label.get("Signal linearity", ""):
+        return "Reduce field signal", "warn"
     rotation = by_label.get("Rotation readout status", "")
     if "unsupported" in rotation or "undefined" in rotation:
         return "Check polarization", "warn"
@@ -118,6 +127,10 @@ def magneto_status_summary(statuses):
         return "Check resolution", "warn"
     if any(by_label.get(label) == "unavailable" for label in ("Peak shot-noise SNR", "Shot noise RMS")):
         return "Check detection", "warn"
+    if "OD >" in by_label.get("Propagation scope", ""):
+        return "Check propagation", "warn"
+    if "requires full-OBE validation" in by_label.get("Optical excitation", ""):
+        return "Check model range", "warn"
     return "Model estimate", "neutral"
 
 

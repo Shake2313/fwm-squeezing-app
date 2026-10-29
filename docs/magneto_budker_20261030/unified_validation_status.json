@@ -1,0 +1,126 @@
+{
+  "status": "passed within focused scope",
+  "current_source_sha256": {
+    "gabes/magneto_multilevel.py": "c4c647b0792ef9dd58a8f2dfc8c1402c77bc57242fdbb00f59b3c26e2b2bc6d8",
+    "gabes/schemes/magneto.py": "dba1c65560aae58c69b634c36305ed33fb77384dc7175b696f1651a59ad51724",
+    "gabes/schemes/magneto_unified.py": "daf78ed35abd91fdef78b312ea04028ae1e526de19f9479e9d313cde61518859",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+    "gabes/schemes/__init__.py": "5ae65927cd9a59322fbb3c715d96dd1337121ffd17f3efc5a211bb96b5de264f"
+  },
+  "numeric_run_source_sha256": {
+    "gabes/magneto_multilevel.py": "c4c647b0792ef9dd58a8f2dfc8c1402c77bc57242fdbb00f59b3c26e2b2bc6d8",
+    "gabes/schemes/magneto.py": "dba1c65560aae58c69b634c36305ed33fb77384dc7175b696f1651a59ad51724",
+    "gabes/schemes/magneto_unified.py": "89b3b895b207dc32e1e119a9781c91ba1a9bf917538dac1631276bcb166da5c0",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4"
+  },
+  "text_edits_after_numeric_run": {
+    "files": [
+      "gabes/schemes/magneto_unified.py"
+    ],
+    "scope": "Two SNR help strings updated to describe existing finite-amplitude check; calculation unchanged; three relevant tests passed again."
+  },
+  "test_suites": {
+    "unified_tests.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "249",
+      "time": "18.769",
+      "timestamp": "2026-10-30T02:41:51.374006+09:00",
+      "hostname": "DESKTOP-9LTDUVT"
+    },
+    "unified_render_tests.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "8",
+      "time": "2.934",
+      "timestamp": "2026-10-30T02:43:12.713141+09:00",
+      "hostname": "DESKTOP-9LTDUVT"
+    },
+    "reference_kernel_tests.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "6",
+      "time": "2.967",
+      "timestamp": "2026-10-30T02:43:16.901731+09:00",
+      "hostname": "DESKTOP-9LTDUVT"
+    }
+  },
+  "unique_tests_passed": 263,
+  "scientific_assessment": {
+    "all_registered_aliases_same_multihyperfine_engine": true,
+    "default_B_scan_uses_Budker_engine": true,
+    "no_model_selection_control": true,
+    "scan_axes_agree_at_same_physical_conditions": true,
+    "former_gap_detunings_mhz": [
+      0.0,
+      300.0,
+      400.0
+    ],
+    "former_gaps_all_have_finite_valid_analytic_slope_and_asd": true,
+    "optical_finite_asd_samples": 49,
+    "slope_max_relative_residual": 5.4158893071994346e-12,
+    "shared_delta_slope_error_over_peak": 5.557591916444182e-07,
+    "optimum_detuning_mhz": -300.0,
+    "optimum_asd_t_per_sqrt_hz": 5.668906032350483e-16,
+    "optimum_relative_change": 3.106427521881727e-07,
+    "status": "conditional effective model; not quantitative paper reproduction"
+  },
+  "browser_smoke": {
+    "status": "passed",
+    "browser": "Playwright Chromium real browser",
+    "url": "http://127.0.0.1:8513/?scheme=magneto",
+    "preset_selection_performed": false,
+    "default_view": {
+      "model": "Budker multihyperfine",
+      "scan_axis": "Magnetic field",
+      "valid_analytic_responses": 83,
+      "sample_count": 83,
+      "export_json_download_and_parse": true
+    },
+    "axis_switch_only": {
+      "model": "Budker multihyperfine",
+      "scan_axis": "Optical detuning",
+      "model_selector_absent": true,
+      "all_finite_analytic_slopes": true,
+      "all_finite_field_asd": true,
+      "optical_samples": 49,
+      "formerly_missing_points": [
+        {
+          "detuning_mhz": 0.0,
+          "slope_valid": true,
+          "slope_rad_per_t": -5460413.651538793,
+          "field_asd_t_per_sqrt_hz": 8.776337264363882e-15
+        },
+        {
+          "detuning_mhz": 300.0,
+          "slope_valid": true,
+          "slope_rad_per_t": -22607134.98975232,
+          "field_asd_t_per_sqrt_hz": 2.1051649830563784e-15
+        },
+        {
+          "detuning_mhz": 400.0,
+          "slope_valid": true,
+          "slope_rad_per_t": -33760157.73200666,
+          "field_asd_t_per_sqrt_hz": 1.405066678962534e-15
+        }
+      ],
+      "optimum_detuning_mhz": -300.0,
+      "field_asd_t_per_sqrt_hz": 5.668904271346458e-16,
+      "export_json_download_and_parse": true
+    },
+    "console_errors": 0,
+    "console_warnings": "existing empty sidebar theme colors",
+    "screenshots": [
+      "output/playwright/magneto_unified_default.png",
+      "output/playwright/magneto_unified_optical.png"
+    ],
+    "note": "Loaded fresh default page and changed Scan axis only; no named preset selected. Captures visually inspected: continuous optical curves at former gap points. Owned server/browser closed after verification."
+  },
+  "omitted": "Full suite and unrelated GC campaigns; magneto-local engine and explicit old-reference caller migration only."
+}

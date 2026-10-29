@@ -1,4 +1,4 @@
-"""Physical-field readout and sampled-grid trust, independent of atomic dynamics."""
+"""Unregistered single-pair reference: physical-field readout and grid trust."""
 import importlib.util
 from pathlib import Path
 from unittest.mock import patch
@@ -6,14 +6,15 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from gabes import observables, schemes
+from gabes import observables
 from gabes.schemes import magneto
+from gabes.schemes.magneto import SinglePairMagnetoReference
 from gabes_ui.readout import partition_readout
 
 
 @pytest.fixture(scope="module")
 def template():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     params = dict(sc.defaults(), doppler="off", scan_points=21)
     return sc, params, sc.compute(params)
 
@@ -101,6 +102,23 @@ def test_local_derivative_handles_zero_between_samples():
     assert magneto._local_derivative(x, rotation, stride=2) == pytest.approx(.2, abs=1e-12)
 
 
+def test_field_asd_uses_physical_zero_slope_and_local_photon_flux(template):
+    sc, params, raw, _, _ = _synthetic_raw(template)
+    params["signal_type"] = magneto.SIGNAL_NMOR
+    view = sc.headless_observables(raw, params)["magneto_readout"]
+    budget = view["magnetic_sensitivity"]
+    assert budget["slope_rad_per_t"] == pytest.approx(1e4)
+    assert budget["transmission"] == view["physical_zero_transmission"]
+    assert budget["field_asd_t_per_sqrt_hz"] == pytest.approx(
+        budget["rotation_asd_rad_per_sqrt_hz"] / 1e4)
+    assert budget["valid"]
+    # The detector-only rerender must not change infinitesimal sensitivity.
+    large = sc.headless_observables(raw, dict(params, magnetic_signal_ft=1e15))[
+        "magneto_readout"]["magnetic_sensitivity"]
+    assert large["field_asd_t_per_sqrt_hz"] == budget["field_asd_t_per_sqrt_hz"]
+    assert large["signal_to_noise_ratio"] is None
+
+
 def test_readout_never_solves_or_mutates_raw_and_render_matches(template):
     sc, params, raw, _, _ = _synthetic_raw(template)
     saved = {k: v.copy() for k, v in raw.items() if isinstance(v, np.ndarray)}
@@ -126,7 +144,7 @@ def test_readout_never_solves_or_mutates_raw_and_render_matches(template):
 
 @pytest.fixture(scope="module")
 def preset_schedule():
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     results = {}
     for name, preset in sc.recommended_defaults(sc.defaults()).items():
         if "EIT dip" not in name and "NMOR" not in name:
@@ -160,7 +178,7 @@ def test_default_nmor_slope_is_withheld_when_nested_stencils_disagree(preset_sch
     current = preset_schedule["NMOR"][121]
     assert current["slope_status"] == "nonconverged on sampled grid"
     assert current["slope_relative_change"] > .3
-    sc = schemes.get("magneto")
+    sc = SinglePairMagnetoReference()
     params = next(dict(sc.defaults(), **preset) for name, preset in
                   sc.recommended_defaults(sc.defaults()).items() if "NMOR" in name)
     view = sc.headless_observables(sc.compute(params), params)

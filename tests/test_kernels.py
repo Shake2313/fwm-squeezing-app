@@ -6,6 +6,8 @@ implementation of the FWM χ̄ table.
 
 The compiled LU uses LAPACK's pivot rule, so agreement is expected at the
 ~1e-13 relative level — far inside the 1e-9 regression tolerance.
+Magneto cases exercise the unregistered single-pair reference, not the active
+multihyperfine scheme.
 """
 import sys
 from pathlib import Path
@@ -59,8 +61,8 @@ def test_kernel_matches_reference(branch):
         assert worst < 1e-10, f"branch {branch} {name}: rel diff {worst:.3e}"
 
 
-# --- magneto (P2): the kernel path must match the NumPy solver path ----------
-from gabes.schemes.magneto import MagnetoScheme  # noqa: E402
+# --- unregistered single-pair reference: compiled/NumPy kernel parity -------
+from gabes.schemes.magneto import SinglePairMagnetoReference  # noqa: E402
 
 _MAG_BASE = dict(
     signal_type="Transmission", cell_type="Paraffin coated cell",
@@ -83,7 +85,7 @@ def _magneto_with(numba_on, params):
     orig = kernels.NUMBA_AVAILABLE
     kernels.NUMBA_AVAILABLE = numba_on
     try:
-        return MagnetoScheme().compute(params)
+        return SinglePairMagnetoReference().compute(params)
     finally:
         kernels.NUMBA_AVAILABLE = orig
 
@@ -109,7 +111,7 @@ def test_magneto_velocity_grid_kernels_match_numpy(cell):
     transit = 0.0 if cell == "two-region" else 2 * np.pi * 3e3
     light = zeeman.zeeman_manifold(2, 1, gamma=gamma, gamma_gg=2 * np.pi * 80e3,
                                    transit_rate=transit)
-    scheme = MagnetoScheme()
+    scheme = SinglePairMagnetoReference()
     b = np.array([-2e-7, 0.0, 3e-7])
     no_drive = {+1: 0.0, -1: 0.0}
     C_z = core.comm_super(scheme._hamiltonian(light, (0.0, 0.0, 1.0), 0.5, -1 / 6, 0.0,
@@ -124,14 +126,14 @@ def test_magneto_velocity_grid_kernels_match_numpy(cell):
         kernels.NUMBA_AVAILABLE = numba_on
         try:
             if cell == "buffer":
-                return MagnetoScheme._steady_state_buffer(
+                return SinglePairMagnetoReference._steady_state_buffer(
                     L_light, deff, light.S_v, light.n_levels)
             dark = zeeman.zeeman_manifold(2, 1, gamma=gamma, gamma_gg=2 * np.pi * 333.0,
                                           transit_rate=0.0)
             L_dark = (core.build_liouvillian(scheme._hamiltonian(
                 dark, (5e-8, 0.0, 0.0), 0.5, -1 / 6, 0.0, no_drive), dark)[None]
                 + b[:, None, None] * C_z[None])
-            return MagnetoScheme._steady_state_two_region(
+            return SinglePairMagnetoReference._steady_state_two_region(
                 L_light, L_dark, deff, light.S_v, light.n_levels,
                 2 * np.pi * 80e3, 2 * np.pi * 1e3)[0]
         finally:

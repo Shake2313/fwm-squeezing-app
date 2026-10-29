@@ -1,5 +1,5 @@
 """
-Cluster C - 87Rb D1 magneto-optics.
+Unregistered 87Rb D1 single-pair reference and public unified scheme export.
 
 One Hanle-configuration transmission engine now covers EIT-like dips and
 EIA/MIA-like peaks.  The zero-field feature sign is a result, not a readout
@@ -8,12 +8,14 @@ the addressed Zeeman manifold decide the line shape.
 """
 import math
 import re
+from dataclasses import replace
 
 import numpy as np
 
 from .. import constants, core, kernels, observables, pole_doppler, species, zeeman
 from ..magneto_noise import (DEFAULT_BEAM_DIAMETER_MM, DEFAULT_DETECTION_EFFICIENCY,
-                             DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference)
+                             DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference,
+                             magnetic_sensitivity)
 from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
 
@@ -241,10 +243,15 @@ def _zero_field_diagnostics(x, alpha, rotation):
                 slope=slope, slope_status=slope_status, slope_relative_change=slope_change)
 
 
-class MagnetoScheme(Scheme):
+class SinglePairMagnetoReference(Scheme):
+    """Historical single-pair solver for independent regression references.
+
+    Never registered as an application scheme; public MagnetoScheme below
+    uses the multihyperfine Budker engine for both scan axes.
+    """
     cluster = "C - Magneto-optics"
     presets_group = "Default"
-    cache_version = "polarized-two-region-v6-exact-doppler"
+    cache_version = "polarized-two-region-v7-budker-sensitivity"
     defaults_version = "polarized-two-region-v4"
     supports_headless_observables = True
 
@@ -276,7 +283,9 @@ class MagnetoScheme(Scheme):
         if mode is None:
             self.name = "magneto"
             self.title = "Magneto-optics (Hanle/MOR)"
-            self.caption = ("87Rb D1 near-zero-field readouts of the ground-state "
+            self.caption = ("87Rb D1 magnetic-field scans and an optional Rb D1/D2 "
+                            "multihyperfine detuning-sensitivity calculation. The field "
+                            "scans resolve the ground-state "
                             "Zeeman manifold. Two distinct effects: the Hanle effect "
                             "(zero-field transmission resonance from ground-state "
                             "coherence) and magneto-optical rotation (MOR/NMOR, "
@@ -327,7 +336,7 @@ class MagnetoScheme(Scheme):
                            "(all four satisfy |F'_e − F_g| ≤ 1)."),
             ParamSpec("intensity_mw_cm2", "Beam intensity", "Fields", d["intensity"],
                       0.01, 20.0, 0.05, "mW/cm²",
-                      help=f"Converted with Steck D1 I_sat = {D1_ISAT_MW_CM2:.4f} mW/cm²."),
+                      help="Uniform incident optical intensity before the vapor cell."),
             ParamSpec("qwp_deg", "Probe polarization (QWP angle)", "Fields", d["qwp"],
                       0.0, 45.0, 0.5, "deg", endpoints=("linear", "circular"),
                       help="0 deg is linear; 45 deg is circular. Absolute handedness is hidden."),
@@ -346,7 +355,7 @@ class MagnetoScheme(Scheme):
                       advanced_group="Systematics"),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 25.0,
                       20.0, 120.0, 1.0, "°C",
-                      help="Sets 87Rb vapor density and Doppler width."),
+                      help="Sets Doppler width and the vapor-pressure density when selected."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 10.0,
                       0.5, 200.0, 0.5, "mm", recompute=False,
                       advanced=True, advanced_group="Cell geometry",
@@ -437,7 +446,25 @@ class MagnetoScheme(Scheme):
             ParamSpec("scan_points", "B scan points", "Numerics", 121,
                       51, 401, 10, "", advanced=True, advanced_group="Numerics"),
         ]
-        return specs
+        from . import magneto_budker
+        common = {"intensity_mw_cm2", "temp_c", "beam_diameter_mm",
+                  "detection_efficiency", "noise_bandwidth_hz"}
+        specs = [replace(s, visible_if={**(s.visible_if or {}),
+                                       "calculation": magneto_budker.LEGACY})
+                 if s.name not in common else s for s in specs]
+        specs.insert(0, ParamSpec(
+            "calculation", "Calculation", "Model", magneto_budker.LEGACY,
+            choices=(magneto_budker.LEGACY, magneto_budker.BUDKER),
+            help="Choose a magnetic-field scan or a multihyperfine optical-detuning "
+                 "scan of photon-shot-noise-limited magnetic sensitivity."))
+        specs += [ParamSpec(
+            "magnetic_signal_ft", "Small magnetic signal (RMS)", "Detection & scaling",
+            1.0, 0.0, 1e6, 1.0, "fT", recompute=False, advanced=True,
+            advanced_group="Shot noise",
+            help="Small-signal amplitude for local, quasistatic magnetic SNR. "
+                 "Sinusoidal peak = √2 × RMS must fit inside the tested local "
+                 "field interval. The atomic frequency response is not included.")]
+        return specs + magneto_budker.param_schema()
 
     # Regime parameter sets, grouped by readout. The merged entry renders these as
     # readout-contextual one-click default buttons (recommended_defaults).
@@ -484,7 +511,27 @@ class MagnetoScheme(Scheme):
         # (recommended_defaults) instead of a flat preset wall; single-mode aliases
         # keep one labelled preset for tests / direct use.
         if self.mode is None:
-            return []
+            from . import magneto_budker
+            reference = dict(
+                calculation=magneto_budker.BUDKER, budker_isotope="Rb85",
+                budker_ground_center="upper", temp_c=20.0,
+                budker_density_mode="manual", budker_density_cm3=4.5e9,
+                budker_cell_mm=100.0, beam_diameter_mm=3.0,
+                budker_bias_ut=0.0, budker_velocity_mixing="complete",
+                budker_doppler="on", noise_bandwidth_hz=1.0,
+                detection_efficiency=0.8,
+            )
+            return [
+                Preset("Magnetic-field scan", dict(calculation=magneto_budker.LEGACY)),
+                Preset("Budker D1 conditions (model)",
+                       dict(reference, budker_line="D1", intensity_mw_cm2=1.0),
+                       help="Paper optical conditions with assumed effective relaxation and "
+                            "detection efficiency; conditional model, not a calibrated reproduction."),
+                Preset("Budker D2 conditions (model)",
+                       dict(reference, budker_line="D2", intensity_mw_cm2=4.5),
+                       help="Paper optical conditions; check weak-excitation validity before "
+                            "interpreting this higher-intensity prediction."),
+            ]
         d = self._DEF[self.mode]
         return [Preset(f"D1 {self.mode.upper()} default", icon=self.mode.upper(),
                        values=dict(signal_type=d["signal"], cell_type=d["cell"],
@@ -507,7 +554,14 @@ class MagnetoScheme(Scheme):
 
     def info(self):
         return (
-            "**87Rb D1 Hanle / magneto-optical-rotation model.** These are two "
+            "**Hanle / magneto-optical rotation and magnetic sensitivity.** "
+            "The magnetic-field scan uses the 87Rb D1 single-pair model. "
+            "The optional Budker detuning calculation includes multiple Rb "
+            "hyperfine manifolds and velocity redistribution in a coated cell, "
+            "using a conditional weak-optical-excitation effective model. "
+            "Its photon-shot-noise magnetic sensitivity is noise ASD divided by "
+            "the local rotation slope, distinct from scan-peak amplitude SNR. "
+            "These are two "
             "distinct effects of the ground-state Zeeman manifold near zero field: "
             "the Hanle effect is a transmission resonance from ground-state "
             "coherence, while magneto-optical rotation (MOR/NMOR) is a rotation of "
@@ -517,6 +571,17 @@ class MagnetoScheme(Scheme):
             "light/dark OBE exchange model so wall-preserved ground coherence can "
             "create a narrow Ramsey feature on a broad transit pedestal.\n\n"
             "**References**\n"
+            "- D. Budker et al., sensitive magnetometry based on nonlinear "
+            "magneto-optical rotation, *Phys. Rev. A* **62**, 043403 (2000), "
+            "https://doi.org/10.1103/PhysRevA.62.043403.\n"
+            "- D. Budker et al., resonant nonlinear magneto-optical effects in atoms, "
+            "*Rev. Mod. Phys.* **74**, 1153 (2002), https://arxiv.org/abs/physics/0203077.\n"
+            "- Yu. P. Malakyan et al., velocity mixing in low-power FM-NMOR, "
+            "*Phys. Rev. A* **69**, 013817 (2004), https://arxiv.org/abs/physics/0309061.\n"
+            "- S. M. Rochester and D. Budker, NMOR in optically thick media, "
+            "*J. Mod. Opt.* **49**, 2543 (2002), https://arxiv.org/abs/physics/0202071.\n"
+            "- M. Fleischhauer et al., quantum limit with ac Stark shifts, "
+            "*Phys. Rev. A* **62**, 013808 (2000), https://arxiv.org/abs/quant-ph/0001072.\n"
             "- D. A. Steck, *Rubidium 87 D Line Data*, http://steck.us/alkalidata.\n"
             "- H. J. Lee and H. S. Moon, magnetic-field-induced absorption in a "
             "paraffin-coated rubidium vapor cell, *JOSA B* **30**, 2301 (2013).\n"
@@ -530,6 +595,9 @@ class MagnetoScheme(Scheme):
         )
 
     def compute(self, params):
+        from . import magneto_budker
+        if params.get("calculation") == magneto_budker.BUDKER:
+            return magneto_budker.compute(params)
         # The UI exposes a single transition dropdown; tests/aliases may still
         # pass explicit Fg/Fe, which take priority.
         if "Fg" in params and "Fe" in params:
@@ -753,7 +821,7 @@ class MagnetoScheme(Scheme):
                     np.ascontiguousarray(deff, dtype=float),
                     np.ascontiguousarray(S_v),
                     float(gamma_out), float(gamma_in), n_levels)
-            return MagnetoScheme._conditional_light_state(rho_l)
+            return SinglePairMagnetoReference._conditional_light_state(rho_l)
         nB = L_light0.shape[0]
         nv = deff.size
         M = n_levels * n_levels
@@ -780,7 +848,7 @@ class MagnetoScheme(Scheme):
             rhs[..., 0, 0] = 1
             sol = np.linalg.solve(A, rhs)[..., 0]
             rho_l[sl] = sol[..., :M].reshape(nb, nv, n_levels, n_levels)
-        return MagnetoScheme._conditional_light_state(rho_l)
+        return SinglePairMagnetoReference._conditional_light_state(rho_l)
 
     @staticmethod
     def _steady_state_buffer(L0_all, deff, S_v, n_levels):
@@ -912,6 +980,9 @@ class MagnetoScheme(Scheme):
         return cp, cm, cprobe
 
     def observables(self, raw, params, include_figures=True):
+        if raw.get("budker_scan"):
+            from . import magneto_budker
+            return magneto_budker.observables(raw, params, include_figures=include_figures)
 
         if not raw["valid"]:
             fig = None
@@ -1024,6 +1095,24 @@ class MagnetoScheme(Scheme):
                      background_reference=background_reference,
                      command_field_ut=x.tolist())
         magneto_readout["shot_noise"] = noise
+        local_peak_limit_t = None
+        if slope_ok:
+            ic = int(np.argmin(np.abs(physical_x)))
+            local_peak_limit_t = max(0.0, min(-physical_x[ic-2], physical_x[ic+2])) * 1e-6
+        sensitivity = magnetic_sensitivity(
+            physical_T, diagnostic["slope"] * 1e6,
+            frequency_hz=raw["k_vec"] * constants.C_LIGHT / (2 * np.pi),
+            intensity_mw_cm2=params["intensity_mw_cm2"],
+            beam_diameter_mm=params.get("beam_diameter_mm", DEFAULT_BEAM_DIAMETER_MM),
+            efficiency=params.get("detection_efficiency", DEFAULT_DETECTION_EFFICIENCY),
+            bandwidth_hz=params.get("noise_bandwidth_hz", DEFAULT_NOISE_BANDWIDTH_HZ),
+            signal_rms_t=params.get("magnetic_signal_ft", 1.0) * 1e-15,
+            signal_peak_limit_t=local_peak_limit_t,
+            linear_input=linear_input, slope_valid=slope_ok)
+        sensitivity.update(physical_bias_ut=0.0, response="quasistatic local rotation slope",
+                           model_scope=MODEL_SCOPE_STATUS,
+                           absolute_scale_status=raw["absolute_scale_status"])
+        magneto_readout["magnetic_sensitivity"] = sensitivity
 
         def plot_shot_noise(ax, rotation_view=False):
             if not noise["enabled"]:
@@ -1206,6 +1295,20 @@ class MagnetoScheme(Scheme):
         metrics.insert(1, dict(label="Peak shot-noise SNR",
                                value=f"{peak_snr:.4g} ×" if peak_snr is not None else "unavailable",
                                delta=visibility, help=snr_help))
+        if rotation_view:
+            field_asd = sensitivity["field_asd_t_per_sqrt_hz"]
+            magnetic_snr = sensitivity["signal_to_noise_ratio"]
+            metrics.extend([
+                dict(label="Signal linearity", value=sensitivity["signal_linearity_status"], kind="status"),
+                dict(label="PSN magnetic sensitivity",
+                     value=f"{field_asd * 1e15:.4g} fT/√Hz" if field_asd is not None else "unavailable",
+                     help="Rotation noise ASD divided by the local dtheta/dB at physical B=0. "
+                          "Conditional photon-shot-noise estimate; no atomic bandwidth or total-noise claim."),
+                dict(label="Small-field SNR",
+                     value=f"{magnetic_snr:.4g} ×" if magnetic_snr is not None else "unavailable",
+                     help="Declared RMS magnetic signal / (field-noise ASD × √ENBW), "
+                          "using the quasistatic slope at physical B=0."),
+            ])
         rms_values = np.asarray(noise["rotation_rms_rad"], dtype=float) * 1e3
         finite_rms = rms_values[np.isfinite(rms_values)]
         if rotation_view:
@@ -1298,3 +1401,7 @@ class MagnetoScheme(Scheme):
             {"title": "Notes", "markdown": note},
             derived,
         ])
+
+
+# One public model for every registered magneto readout, axis and alias.
+from .magneto_unified import UnifiedMagnetoScheme as MagnetoScheme

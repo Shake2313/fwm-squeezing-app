@@ -1,0 +1,51 @@
+{
+  "status": "passed",
+  "browser": "Playwright Chromium real browser",
+  "url": "http://127.0.0.1:8513/?scheme=magneto",
+  "preset_selection_performed": false,
+  "default_view": {
+    "model": "Budker multihyperfine",
+    "scan_axis": "Magnetic field",
+    "valid_analytic_responses": 83,
+    "sample_count": 83,
+    "export_json_download_and_parse": true
+  },
+  "axis_switch_only": {
+    "model": "Budker multihyperfine",
+    "scan_axis": "Optical detuning",
+    "model_selector_absent": true,
+    "all_finite_analytic_slopes": true,
+    "all_finite_field_asd": true,
+    "optical_samples": 49,
+    "formerly_missing_points": [
+      {
+        "detuning_mhz": 0.0,
+        "slope_valid": true,
+        "slope_rad_per_t": -5460413.651538793,
+        "field_asd_t_per_sqrt_hz": 8.776337264363882e-15
+      },
+      {
+        "detuning_mhz": 300.0,
+        "slope_valid": true,
+        "slope_rad_per_t": -22607134.98975232,
+        "field_asd_t_per_sqrt_hz": 2.1051649830563784e-15
+      },
+      {
+        "detuning_mhz": 400.0,
+        "slope_valid": true,
+        "slope_rad_per_t": -33760157.73200666,
+        "field_asd_t_per_sqrt_hz": 1.405066678962534e-15
+      }
+    ],
+    "optimum_detuning_mhz": -300.0,
+    "field_asd_t_per_sqrt_hz": 5.668904271346458e-16,
+    "export_json_download_and_parse": true
+  },
+  "console_errors": 0,
+  "console_warnings": "existing empty sidebar theme colors",
+  "screenshots": [
+    "output/playwright/magneto_unified_default.png",
+    "output/playwright/magneto_unified_optical.png"
+  ],
+  "note": "Loaded fresh default page and changed Scan axis only; no named preset selected. Captures visually inspected: continuous optical curves at former gap points. Owned server/browser closed after verification."
+}

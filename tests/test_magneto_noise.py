@@ -1,4 +1,5 @@
-"""Photon counting normalization and integration of the magneto noise overlay."""
+"""Photon noise, public controls and unregistered single-pair reference overlays."""
+import json
 from unittest.mock import patch
 
 import matplotlib
@@ -8,10 +9,130 @@ import numpy as np
 import pytest
 
 from gabes import constants, observables, schemes
-from gabes.magneto_noise import shot_noise_reference
-from gabes.schemes.magneto import SIGNAL_NMOR, SIGNAL_TRANSMISSION
+from gabes.magneto_noise import magnetic_sensitivity, shot_noise_reference
+from gabes.schemes.magneto import SIGNAL_NMOR, SIGNAL_TRANSMISSION, SinglePairMagnetoReference
 from gabes_ui.export import build_export_payload, collect_view_plot_payloads
 from gabes_ui.readout import partition_readout, strip_html
+
+
+def _magnetic_sensitivity(transmission=0.5, slope_rad_per_t=2.0e5, **changes):
+    settings = dict(frequency_hz=377e12, intensity_mw_cm2=0.8,
+                    beam_diameter_mm=2.0, efficiency=0.8,
+                    bandwidth_hz=1000.0, signal_rms_t=1.0e-9)
+    settings.update(changes)
+    return magnetic_sensitivity(transmission, slope_rad_per_t, **settings)
+
+
+def test_magnetic_sensitivity_matches_schottky_polarimeter_and_tesla_units():
+    data = _magnetic_sensitivity()
+    # Independent current-domain derivation: two equal polarization ports,
+    # S_i = 2 e I_total, d(I_+ - I_-)/dtheta = 2 I_total.
+    energy = 2 * np.pi * constants.HBAR * 377e12
+    power = 0.8e-3 * np.pi * 0.1 ** 2
+    detected_current = constants.ELEMENTARY_CHARGE * 0.8 * power * 0.5 / energy
+    current_asd = np.sqrt(2 * constants.ELEMENTARY_CHARGE * detected_current)
+    rotation_asd = current_asd / (2 * detected_current)
+    # 0.2 rad/uT = 2e5 rad/T, so this checks the SI slope contract.
+    field_asd = rotation_asd / 2.0e5
+    assert data["valid"] is True
+    assert data["status"] == "available"
+    assert data["rotation_asd_rad_per_sqrt_hz"] == pytest.approx(rotation_asd)
+    assert data["field_asd_t_per_sqrt_hz"] == pytest.approx(field_asd)
+    assert data["field_rms_t"] == pytest.approx(field_asd * np.sqrt(1000.0))
+    assert data["signal_to_noise_ratio"] == pytest.approx(1.0e-9 / data["field_rms_t"])
+    json.dumps(data, allow_nan=False)
+
+
+def test_magnetic_sensitivity_enbw_changes_rms_and_snr_but_not_asd():
+    base = _magnetic_sensitivity()
+    wider = _magnetic_sensitivity(bandwidth_hz=4000.0)
+    for key in ("rotation_asd_rad_per_sqrt_hz", "field_asd_t_per_sqrt_hz", "valid", "status"):
+        assert wider[key] == base[key]
+    assert wider["field_rms_t"] == pytest.approx(2 * base["field_rms_t"])
+    assert wider["signal_to_noise_ratio"] == pytest.approx(base["signal_to_noise_ratio"] / 2)
+
+
+@pytest.mark.parametrize("change, factor", [
+    ({"efficiency": 0.2}, 2.0),
+    ({"intensity_mw_cm2": 3.2}, 0.5),
+    ({"beam_diameter_mm": 4.0}, 0.5),
+])
+def test_magnetic_sensitivity_detected_power_scaling(change, factor):
+    base, changed = _magnetic_sensitivity(), _magnetic_sensitivity(**change)
+    assert changed["field_asd_t_per_sqrt_hz"] == pytest.approx(
+        factor * base["field_asd_t_per_sqrt_hz"])
+    assert changed["signal_to_noise_ratio"] == pytest.approx(
+        base["signal_to_noise_ratio"] / factor)
+
+
+def test_magnetic_sensitivity_uses_same_point_flux_and_broadcasts_slopes():
+    data = _magnetic_sensitivity(transmission=[[0.25], [1.0]],
+                                 slope_rad_per_t=[2.0e5, -4.0e5])
+    field = np.asarray(data["field_asd_t_per_sqrt_hz"])
+    assert field.shape == (2, 2)
+    np.testing.assert_allclose(field[0], 2 * field[1])
+    np.testing.assert_allclose(field[:, 0], 2 * field[:, 1])
+    assert data["valid"] == [[True, True], [True, True]]
+    json.dumps(data, allow_nan=False)
+
+
+def test_magnetic_sensitivity_asd_does_not_require_gaussian_counts():
+    settings = dict(frequency_hz=377e12, intensity_mw_cm2=1e-14,
+                    beam_diameter_mm=2.0, efficiency=0.8, bandwidth_hz=1000.0)
+    overlay = shot_noise_reference(np.array([0.5]), reference_transmission=0.5, **settings)
+    data = magnetic_sensitivity(0.5, 2e5, **settings)
+    assert overlay["rotation_rms_rad"] == [None]
+    assert data["valid"] is True
+    assert data["rotation_asd_rad_per_sqrt_hz"] > 0
+    changed_bandwidth = magnetic_sensitivity(0.5, 2e5, **dict(settings, bandwidth_hz=1e9))
+    assert changed_bandwidth["valid"] is True
+    assert changed_bandwidth["field_asd_t_per_sqrt_hz"] == data["field_asd_t_per_sqrt_hz"]
+
+
+@pytest.mark.parametrize("changes, expected_status", [
+    ({"linear_input": False}, "unsupported polarization"),
+    ({"efficiency": 0.0}, "no detected photon flux"),
+    ({"intensity_mw_cm2": 0.0}, "no detected photon flux"),
+    ({"transmission": 0.0}, "no detected photon flux"),
+    ({"slope_rad_per_t": 0.0}, "zero magnetic slope; unbounded field noise"),
+    ({"slope_rad_per_t": np.nan}, "nonfinite magnetic slope"),
+    ({"slope_valid": False}, "slope not validated"),
+    ({"transmission": np.nan}, "transmission must be finite and within [0, 1]"),
+    ({"transmission": -0.1}, "transmission must be finite and within [0, 1]"),
+    ({"transmission": 1.01}, "transmission must be finite and within [0, 1]"),
+])
+def test_magnetic_sensitivity_invalid_samples_are_explicit_json_null(changes, expected_status):
+    with np.errstate(all="raise"):
+        data = _magnetic_sensitivity(**changes)
+    assert data["valid"] is False
+    assert data["status"] == expected_status
+    assert data["field_asd_t_per_sqrt_hz"] is None
+    assert data["field_rms_t"] is None
+    assert data["signal_to_noise_ratio"] is None
+    if "slope" in expected_status:
+        assert data["rotation_asd_rad_per_sqrt_hz"] > 0
+    json.dumps(data, allow_nan=False)
+
+
+def test_magnetic_sensitivity_per_point_validity_and_zero_signal():
+    data = _magnetic_sensitivity(transmission=[0.5, 0.5, 0.5, 0],
+                                 slope_rad_per_t=[2e5, 2e5, 0, 2e5],
+                                 slope_valid=[True, False, True, True], signal_rms_t=0.0)
+    assert data["valid"] == [True, False, False, False]
+    assert data["signal_to_noise_ratio"] == [0.0, None, None, None]
+    assert data["rotation_valid"] == [True, True, True, False]
+    json.dumps(data, allow_nan=False)
+
+
+@pytest.mark.parametrize("changes", [
+    {"frequency_hz": 0}, {"frequency_hz": np.inf},
+    {"beam_diameter_mm": 0}, {"bandwidth_hz": 0},
+    {"bandwidth_hz": np.nan}, {"intensity_mw_cm2": -1},
+    {"efficiency": -0.1}, {"efficiency": 1.1}, {"signal_rms_t": -1},
+])
+def test_magnetic_sensitivity_rejects_invalid_scalar_conditions(changes):
+    with pytest.raises(ValueError):
+        _magnetic_sensitivity(**changes)
 
 
 def _reference(**changes):
@@ -103,7 +224,7 @@ def test_opaque_scan_samples_are_gaps_without_overflow():
 
 @pytest.fixture(scope="module")
 def magneto_result():
-    scheme = schemes.get("magneto")
+    scheme = SinglePairMagnetoReference()
     params = dict(scheme.defaults(), doppler="off", scan_points=21)
     return scheme, params, scheme.compute(params)
 

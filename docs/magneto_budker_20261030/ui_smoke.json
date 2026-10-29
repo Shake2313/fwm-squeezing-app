@@ -1,0 +1,12 @@
+{
+  "mode": "Budker NMOR detuning scan",
+  "exceptions": [
+    "bad argument type for built-in operation"
+  ],
+  "selectboxes": [
+    "Scheme",
+    "Defaults"
+  ],
+  "sample_count": 5,
+  "doppler": "off"
+}

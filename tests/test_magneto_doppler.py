@@ -1,5 +1,5 @@
 """
-Exact Maxwell average of the magneto light region (pole–residue form).
+Unregistered single-pair reference: exact Maxwell light-region average.
 
   Exactness : the closed-form average matches a converged velocity grid solved
               by the unchanged steady-state kernels (forced guard fallback).
@@ -21,14 +21,14 @@ sys.path.insert(0, str(ROOT))
 
 from gabes import constants, doppler, pole_doppler  # noqa: E402
 from gabes.schemes import magneto  # noqa: E402
-from gabes.schemes.magneto import MagnetoScheme  # noqa: E402
+from gabes.schemes.magneto import SinglePairMagnetoReference  # noqa: E402
 
 FIELDS = ("chi_probe", "chi_p", "chi_m")
 
 
 def _params(regime, **over):
-    params = MagnetoScheme().defaults()
-    for regimes in MagnetoScheme._REGIMES.values():
+    params = SinglePairMagnetoReference().defaults()
+    for regimes in SinglePairMagnetoReference._REGIMES.values():
         if regime in regimes:
             params.update(regimes[regime])
     params.update(over)
@@ -54,9 +54,9 @@ def _relative(a, b):
 @pytest.mark.parametrize("name", list(CASES))
 def test_exact_average_matches_a_converged_velocity_grid(name):
     params = CASES[name]
-    exact = MagnetoScheme().compute(params)
+    exact = SinglePairMagnetoReference().compute(params)
     with patch.object(magneto, "POLE_GUARD_RTOL", -1.0):
-        grid = MagnetoScheme().compute(params)
+        grid = SinglePairMagnetoReference().compute(params)
 
     assert exact["doppler_method"] == magneto.DOPPLER_EXACT
     assert exact["doppler_fallback_rows"] == 0
@@ -74,7 +74,7 @@ def test_doppler_off_never_builds_a_pole_system():
                       side_effect=AssertionError("pole path used")), \
             patch.object(pole_doppler, "AffineShiftSystem",
                          side_effect=AssertionError("pole path used")):
-        raw = MagnetoScheme().compute(params)
+        raw = SinglePairMagnetoReference().compute(params)
     assert raw["doppler_method"] == magneto.DOPPLER_OFF
     assert raw["doppler_guard_max_relative"] is None
     assert raw["doppler_fallback_rows"] == 0
@@ -103,7 +103,7 @@ def test_fallback_grid_resolves_the_homogeneous_lorentzian():
 
 def test_exact_average_is_reported_and_replaces_the_class_knob():
     params = _params("EIT dip", scan_points=5)
-    scheme = MagnetoScheme()
+    scheme = SinglePairMagnetoReference()
     raw = scheme.compute(params)
     view = scheme.headless_observables(raw, params)
     derived = next(table["markdown"] for table in view["tables"]
