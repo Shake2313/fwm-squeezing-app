@@ -77,7 +77,46 @@ def _is_integer_knob(sp):
     return bool(numbers) and all(isinstance(v, int) for v in numbers)
 
 
+def _render_absorption_atom(container, sp):
+    """Present element/isotope separately, retaining legacy solver/preset values."""
+    species_key = skey("sas", "species")
+    composition_key = skey("sas", "rb_composition")
+    atom = st.session_state.get(species_key, "Rb (natural)")
+    composition = st.session_state.get(composition_key, "Natural")
+    pure = {"85": "⁸⁵Rb", "87": "⁸⁷Rb"}
+    if sp.name == "species":
+        key = skey("sas", "_atom_selector")
+        st.session_state[key] = "Cs" if atom == "¹³³Cs" else "Rb"
+
+        def change_atom():
+            st.session_state[species_key] = (
+                "¹³³Cs" if st.session_state[key] == "Cs" else "Rb (natural)")
+
+        _hover_label(container, "Atom", "Choose the element; select Rb isotopes below.")
+        container.selectbox("Atom", ("Rb", "Cs"), key=key,
+                            label_visibility="collapsed", on_change=change_atom)
+        return st.session_state.get(species_key, "Rb (natural)")
+
+    key = skey("sas", "_isotope_selector")
+    selected = next((label for label, value in pure.items() if atom == value),
+                    "Custom" if composition == "Custom" else "Nat")
+    st.session_state[key] = selected
+
+    def change_isotope():
+        value = st.session_state[key]
+        st.session_state[species_key] = pure.get(value, "Rb (natural)")
+        st.session_state[composition_key] = "Custom" if value == "Custom" else "Natural"
+
+    _hover_label(container, "Isotope",
+                 "Nat: 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb. Custom sets the ⁸⁵Rb fraction.")
+    container.selectbox("Isotope", ("Nat", "85", "87", "Custom"), key=key,
+                        label_visibility="collapsed", on_change=change_isotope)
+    return st.session_state.get(composition_key, "Natural")
+
+
 def render_param(container, scheme_name, sp, scheme_obj=None):
+    if scheme_name == "sas" and sp.name in ("species", "rb_composition"):
+        return _render_absorption_atom(container, sp)
     key = skey(scheme_name, sp.name)
     help_ = sp.help or None
     has_state = key in st.session_state

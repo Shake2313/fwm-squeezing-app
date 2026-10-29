@@ -2,6 +2,47 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-30 · UI 배포 후보 검수
+
+직접 사용자 요청: 내장 브라우저 재검수 후 UI 변경 커밋·푸시·공개 사이트 반영.
+
+### ⟦AI⟧ 검증
+
+- 기존 HEAD에서 UI 변경 19개 파일만 구성한 독립 후보 검증. 다른 staged/물리 모델 변경 제외.
+- 관련 pytest 161개 통과(22.60s): liveplot, scrub, focus, alignment, status, atom/isotope, isotope ratio, UI readout/design, CSV, Magneto noise. 전체 suite·GC는 범위 밖으로 생략.
+- 내장 브라우저: Rb/87 선택·SAS 공명 확대, FWM 연속 드래그 마지막 33.6165 MHz 확정, 완료 문구 숨김, Magneto 범례 검수.
+
+## 2026-10-30 · Magneto 범례·완료 상태 감량
+
+직접 사용자 의견: ±1σ·command zero는 그래프 표현으로 충분하며, 동기화 완료 문구는 불필요.
+
+### ⟦AI⟧ 구현·검증
+
+- Magneto 범례에서 ±1σ·Command zero 제외. 음영·기준선·원래 artist/export 라벨 유지. offset이 있는 Physical zero는 구별을 위해 범례 유지. Ready 문구 비움; 갱신·미리보기·오류와 고정 상태 영역 높이 유지.
+- `python -m pytest -q tests/test_update_status.py tests/test_magneto_noise.py -k 'browser_update or removed_plot or overlay_uses_axis_units or readout_controls_reuse_atomic_scan' --durations=3`: **5 통과**, 3.61s. 현재 범례 함수의 독립 렌더 확인 통과(두 항목 제외, 원래 artist 보존). 초기 import 누락은 해당 진행 중 모듈 추가 후 해소되어 재검사 완료. 계산 엔진 무변경, 전체 suite·GC 생략.
+
+## 2026-10-30 · OD/SAS 원자·동위원소 선택 분리
+
+직접 사용자 요청: Atom의 Rb 표기를 통일하고 아래 Isotope에서 Nat / 85 / 87 / Custom 선택.
+
+### ⟦AI⟧ 구현·검증
+
+- Atom: Rb / Cs. Rb Isotope: Nat / 85 / 87 / Custom. Custom에서만 혼합비 표시. 기존 저장 설정·순수 동위원소의 계산 입력·주파수 기준 유지하는 UI 매핑 적용.
+- `python -m pytest -q tests/test_ui_atom_isotope.py tests/test_od_isotope_ratio.py --durations=3`: **21 통과**, 7.55s. AppTest 선택 전환·기존 87Rb 설정 복원 및 기존 isotope 수치 검사 확인. 계산 엔진 무변경으로 전체 suite·GC 생략.
+
+## 2026-10-29 · 연속 입력·갱신 상태·그래프 배치·공명 확대
+
+직접 사용자 요청: 네 가지 UX 개선을 구현하되 물리 계산을 유지하고, 적용 후 브라우저에서 다시 조작해 확인.
+
+### ⟦AI⟧ 구현·검증
+
+- 그래프 요청은 하나씩 전송하고 대기 중에는 마지막 입력을 보존. FWM의 선택 위치 삽입 샘플을 새 물리 조건으로 오인하던 문제 수정. 숫자 입력 초안·커서·드래그도 컴포넌트 재생성에 보존하며, 늦은 그래프 응답이 더 최근의 직접 입력을 덮지 않도록 순서 검사.
+- Preview / Updating / Ready 상태를 구분하고 이전 결과임을 명시. 모드 전환으로 그래프가 제거돼도 Updating에 남지 않음. 캡션·확대 안내 공간을 예약하고 그래프 높이를 화면에 맞춤.
+- SAS·Λ coherence·seeded FWM에 기존 샘플 기반 Resonance zoom. 축 범위·표식만 임시 변경하고 복원하며, 전체 범위 export·원본 배열·물리 계산 경로 보존. 성긴 샘플은 점으로 표시하고 확대가 해상도를 높이지 않음을 안내.
+- `python -m pytest -q tests/test_liveplot.py tests/test_plot_focus.py tests/test_plotcard_alignment.py tests/test_ui_scrub.py tests/test_update_status.py tests/test_ui_readout.py tests/test_ui_design_feedback.py tests/test_experimental_csv.py --durations=10`: **112 통과**, 13.82s. 마지막 그래프/입력창 상태 이벤트·교체된 DOM 정리 순서 보완 후 `tests/test_liveplot.py tests/test_ui_scrub.py tests/test_plot_focus.py` 재검사 **49 통과**, 8.04s(회귀 검사 1개 추가).
+- 내장 브라우저의 로컬 앱: 응답 전 두 번 드래그 후 마지막 값 확정, 갱신 중 Biphoton 전환 후 Ready, 직접 숫자 편집, EIT/SAS 공명 확대 확인. EIT 투과율 0.014·FWHM 0.46 MHz, SAS FWHM 18.87 MHz 유지. SAS 확대 전후 plot stage의 Y=387.55 px·높이=366.20 px 동일(1122×884 화면).
+- 계산 시간 단축 배율은 측정하지 않음. 이번 검증은 입력 연속성·표시·export 보존 범위이며, 전체 수치 회귀·GC campaign은 변경 범위 밖이라 생략. 공개 서버 배포·커밋·푸시는 수행하지 않음.
+
 ## 2026-10-23 · 자기광학 상태 배지 감량
 
 직접 사용자 요청: `sample-grid consistent`·`external validation required`·긴 hyperfine 제한 세 배지 과밀 해소. 삭제 또는 디자인으로 정리.

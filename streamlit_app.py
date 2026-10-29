@@ -23,6 +23,7 @@ from gabes.core import blas_single_thread
 
 from gabes_ui import plotcard
 from gabes_ui import theme as ui_theme
+from gabes_ui.update_status import render_update_status
 from gabes_ui.controls import (
     current_params, param_visible, render_derived_params, render_rail, skey,
 )
@@ -241,8 +242,8 @@ params = render_rail(
 # ----------------------------------------------------------------------
 recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
 cache_version = getattr(scheme, "cache_version", "1")
-with st.spinner("Solving Bloch equations…"):
-    raw = _cached_compute(scheme.name, recompute_items, cache_version)
+render_update_status(scheme.name)
+raw = _cached_compute(scheme.name, recompute_items, cache_version)
 param_items = tuple(sorted(params.items()))
 if getattr(scheme, "cache_observables", False):
     view = _cached_observables(

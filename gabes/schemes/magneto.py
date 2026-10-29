@@ -1053,7 +1053,14 @@ class MagnetoScheme(Scheme):
             if physical_zero_available and abs(raw["b_offset_ut"]) > 1e-14:
                 ax.axvline(-raw["b_offset_ut"], color="black", ls="--", lw=0.8,
                            label="Physical zero")
-                ax.legend(fontsize=8)
+
+        def plot_legend(ax):
+            # Keep reference artists and their export labels, but avoid
+            # repeating the zero guide and noise envelope in the legend.
+            handles, labels = ax.get_legend_handles_labels()
+            entries = [(h, label) for h, label in zip(handles, labels)
+                       if label != "Command zero" and not label.startswith("+/-1 sigma")]
+            ax.legend([h for h, _ in entries], [label for _, label in entries], fontsize=8)
 
         title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
                  f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
@@ -1106,7 +1113,7 @@ class MagnetoScheme(Scheme):
                 ax.axhline(0, color="black", lw=0.6)
                 plot_shot_noise(ax, rotation_view=True)
                 mark_field_references(ax)
-                ax.legend(fontsize=8)
+                plot_legend(ax)
                 ax.set_ylabel("Polarization rotation  [mrad]" if linear_input else
                               "Circular-birefringence diagnostic  [mrad]")
                 ax.set_xlabel("Commanded magnetic field B  [uT]")
@@ -1146,7 +1153,7 @@ class MagnetoScheme(Scheme):
                 axT.plot(x, T_trans, color="#1f77b4", lw=1.8, label="Transmission")
                 plot_shot_noise(axT)
                 mark_field_references(axT)
-                axT.legend(fontsize=8)
+                plot_legend(axT)
                 axT.set_ylabel("Transmission")
                 axT.set_xlabel("Commanded magnetic field B  [uT]")
                 axT.set_title(title)

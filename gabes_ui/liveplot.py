@@ -6,6 +6,7 @@ before returning, so exported arrays and figures retain the committed state.
 from __future__ import annotations
 
 import base64
+import hashlib
 from io import BytesIO
 import json
 import logging
@@ -22,9 +23,10 @@ from .component_runtime import missing_apptest_component
 _ASSETS = Path(__file__).resolve().parents[1] / "assets" / "ui"
 _COMPONENT = st.components.v2.component(
     "gabes_live_plot",
-    html='<div class="lp"><div class="lp-stage"><img alt="Spectrum" />'
+    html='<div class="lp"><output class="lp-status" aria-live="polite"></output>'
+         '<div class="lp-stage"><img alt="Spectrum" />'
          '<svg aria-label="Interactive spectrum"></svg></div>'
-         '<div class="lp-controls"></div><output class="lp-status" aria-live="polite"></output></div>',
+         '<div class="lp-controls"></div></div>',
     css="""
     .lp{width:100%;font:13px var(--g-font-sans,sans-serif);color:var(--g-ink-2,#334155)}
     .lp-stage{position:relative;line-height:0;margin-inline:auto}.lp-stage img{width:100%;display:block}
@@ -34,7 +36,9 @@ _COMPONENT = st.components.v2.component(
     .lp-controls input[type=range]{grid-column:1/-1;width:100%;accent-color:#0284c7;margin:0}
     .lp-controls input[type=number]{min-width:0;width:100%;box-sizing:border-box;color:inherit;
       border:1px solid #cbd5e1;border-radius:4px;background:transparent;padding:3px;font:inherit}
-    .lp-status{display:block;min-height:1.2em;margin-top:6px;font-variant-numeric:tabular-nums}
+    .lp-status{display:block;min-height:2.6em;margin:0 0 6px;line-height:1.3;
+      font-variant-numeric:tabular-nums;color:var(--g-ink-2,#334155)}
+    .lp[aria-busy=true] .lp-status{color:var(--g-accent,#0284c7)}
     @media(max-width:600px){.lp-controls{grid-template-columns:1fr}}
     """,
     js=(_ASSETS / "liveplot.js").read_text(encoding="utf-8"),
@@ -122,11 +126,36 @@ def _commit(component_key, scheme_name, context):
         payload = json.loads(payload)
         if payload["context"] != context:
             return
+        sequence = payload.get("n", 0)
+        if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
+            return
+        previous = st.session_state.get(component_key + "-ack", {})
+        if previous.get("context") == context and sequence <= previous.get("n", -1):
+            return
         values = {k: float(v) for k, v in payload["values"].items()}
         if not all(np.isfinite(v) for v in values.values()):
             return
     except (ValueError, TypeError, KeyError, AttributeError):
         return
+    if scheme_name == "sas" and any(st.session_state.get(f"sas__{name}", False)
+                                    for name in ("_csv_apply", "_csv_frame", "_csv_reset", "_csv_fit")):
+        # Native explicit alignment actions win if Streamlit receives their
+        # widget states in the same rerun as an older live gesture.
+        st.session_state[component_key + "-ack"] = {"context": context, "n": sequence}
+        return
+    if scheme_name == "fwm":
+        if "tpd" not in values:
+            return
+        intent = payload.get("intent", 0)
+        if isinstance(intent, bool) or not isinstance(intent, int) or intent < 0:
+            return
+        intent_key = "fwm__tpd-input-intent"
+        if intent < st.session_state.get(intent_key, 0):
+            # A newer explicit knob edit wins, regardless of callback order.
+            # Acknowledge the discarded request so the browser can drain it.
+            st.session_state[component_key + "-ack"] = {"context": context, "n": sequence}
+            return
+        st.session_state[intent_key] = intent
     if scheme_name == "sas":
         names = dict(shift="_csv_x_shift", multiplier="_csv_x_multiplier",
                      signal_scale="_csv_y_scale", signal_offset="_csv_y_offset")
@@ -139,9 +168,37 @@ def _commit(component_key, scheme_name, context):
     elif scheme_name == "fwm" and "tpd" in values:
         from gabes.schemes.fwm import TPD_LIMIT_MHZ
         st.session_state["fwm__tpd"] = float(np.clip(values["tpd"], -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ))
+    else:
+        return
+    st.session_state[component_key + "-ack"] = {"context": context, "n": sequence}
 
 
-def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False, gain_digits=6):
+def _preview_context(data, comparison, interaction_context=None):
+    """Identity of the data being edited, independent of cursor and viewport.
+
+    An acknowledgement for one spectrum/file must not replay queued gestures
+    onto a different spectrum or a differently calibrated import.
+    """
+    if comparison:
+        alignment = comparison.get("alignment", {})
+        identity = dict(source=comparison["source_fingerprint_sha256"],
+                        revision=comparison.get("alignment_revision", 0),
+                        calibration=comparison.get("calibration_mode"),
+                        inputs=comparison.get("calibration_inputs"),
+                        descriptor=comparison.get("descriptor"),
+                        fixed_alignment={k: alignment.get(k) for k in
+                                         ("base_scale", "reverse", "invert")})
+    elif interaction_context is not None:
+        # FWM figures insert the exact selected point into their sampled
+        # curves. Identify the physical settings, not that display-only knot.
+        identity = dict(settings=interaction_context, linear_noise=data.get("linear_noise"))
+    else:
+        identity = dict(curves=data.get("curves"), linear_noise=data.get("linear_noise"))
+    return hashlib.sha256(json.dumps(identity, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
+def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False, gain_digits=6,
+                     interaction_context=None):
     global _MOUNTABLE
     if not _MOUNTABLE:
         return False
@@ -165,10 +222,14 @@ def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False
     data.update(image="data:image/png;base64," + base64.b64encode(stream.getvalue()).decode(),
                 width=float(width), height=float(height),
                 axes=[_axis_data(fig.axes[i], width, height) for i in data.pop("axis_indices")])
-    context = (comparison["source_fingerprint_sha256"] if comparison else "seeded-fwm")
+    context = _preview_context(data, comparison, interaction_context)
     data["context"] = context
     data["gain_digits"] = gain_digits
     component_key = f"live-plot-{scheme_name}"
+    acknowledgement = st.session_state.get(component_key + "-ack", {})
+    data["ack"] = (acknowledgement.get("n", 0)
+                   if acknowledgement.get("context") == context else 0)
+    data["scheme"] = scheme_name
     try:
         _COMPONENT(key=component_key, data=data, default={"gesture": None}, width="stretch",
                    on_gesture_change=lambda: _commit(component_key, scheme_name, context))

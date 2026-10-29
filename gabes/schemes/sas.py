@@ -243,16 +243,16 @@ class SASScheme(Scheme):
                            "the Gaussian beam self-consistently through the cell. "
                            "Rb D2 is reference-scope; D1 and Cs are explicitly "
                            "labelled generalized estimates."),
-            ParamSpec("species", "Atom / isotope", "Atomic", "Rb (natural)",
+            ParamSpec("species", "Atom", "Atomic", "Rb (natural)",
                       choices=tuple(species.SPECIES_ORDER),
                       help="Natural Rb overlays ⁸⁵Rb+⁸⁷Rb by abundance."),
-            ParamSpec("rb_composition", "Rb isotope composition", "Atomic",
+            ParamSpec("rb_composition", "Isotope", "Atomic",
                       RB_COMPOSITION_NATURAL,
                       choices=(RB_COMPOSITION_NATURAL, RB_COMPOSITION_CUSTOM),
-                      visible_if={"species": "Rb (natural)"},
+                      visible_if={"species": ("Rb (natural)", "⁸⁵Rb", "⁸⁷Rb")},
                       help="Natural uses 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb. Custom "
                            "sets their complementary shares of the same total Rb "
-                           "vapor density. Pure isotope choices remain available above."),
+                           "vapor density. 85 and 87 select a pure isotope."),
             ParamSpec("rb85_fraction", "⁸⁵Rb fraction", "Atomic",
                       species.RB85.abundance, 0.0, 1.0, 0.0001,
                       visible_if={"species": "Rb (natural)",

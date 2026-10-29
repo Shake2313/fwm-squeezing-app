@@ -65,6 +65,7 @@ _CSS = """
   padding:0 .2rem;border-radius:4px;cursor:ew-resize;touch-action:none;
   user-select:none;-webkit-user-select:none;white-space:nowrap;}
 .sf-value:hover{background:var(--g-fill-soft,#EDF1F5);}
+.sf [hidden]{display:none!important;}
 .sf-value:focus-visible{outline:2px solid var(--g-accent,#0284C7);outline-offset:1px;}
 .sf-unit{font-size:.72rem;color:var(--g-muted,#5B6B80);}
 .sf-input{flex:0 0 7.5rem;width:7.5rem;box-sizing:border-box;
@@ -103,6 +104,18 @@ _CSS = """
 """
 
 _JS = r"""
+// Streamlit can replace a component's HTML while a response is arriving.
+// Keep unfinished input on its component key, independently of that HTML.
+const interactions = new Map();
+
+export function scrubStateForComponent(key, data) {
+  const state = interactions.get(key) || { seq: 0, editing: false };
+  state.seq = Math.max(state.seq, data.ack || 0);
+  if (state.pending && (data.ack || 0) >= state.pending) state.pending = 0;
+  interactions.set(key, state);
+  return state;
+}
+
 export default function (component) {
   const { parentElement, data, setStateValue } = component;
   const root = parentElement.querySelector(".sf");
@@ -115,7 +128,11 @@ export default function (component) {
     endL: q(".sf-end-l"), endR: q(".sf-end-r"), note: q(".sf-note"),
     help: q(".sf-help"),
   };
-  const S = root._sf || (root._sf = { seq: 0, editing: false });
+  const S = scrubStateForComponent(component.key, data);
+  S.cleanup?.();
+  clearTimeout(S.retireTimer);
+  S.root = root;
+  root._sf = S;
   const min = data.min, max = data.max, step = data.step || 0;
   const span = (min != null && max != null) ? max - min : 0;
   const hasRange = span > 0;
@@ -152,10 +169,27 @@ export default function (component) {
   }
 
   function send(payload) {
+    clearTimeout(S.keyTimer);
+    S.keyDeadline = 0;
+    if (data.previewKey) {
+      const detail = {key: data.previewKey, value: payload.v, commit: true, handled: false};
+      if (typeof payload.v === 'number') {
+        window.dispatchEvent(new CustomEvent('gabes-preview', {detail}));
+        if (detail.handled) return;
+      } else {
+        window.dispatchEvent(new CustomEvent('gabes-preview', {
+          detail: {key: data.previewKey, discard: true}
+        }));
+      }
+    }
+    window.dispatchEvent(new CustomEvent('gabes-input-commit'));
+    const intent = window.__gabesInputIntent = Math.max(
+      (window.__gabesInputIntent || 0) + 1, Date.now());
     // A JSON string, not an object: the sequence number makes two identical
     // gestures two distinct values, so neither is swallowed as "no change".
     S.seq += 1;
-    setStateValue("value", JSON.stringify(Object.assign({ n: S.seq }, payload)));
+    S.pending = S.seq;
+    setStateValue("value", JSON.stringify(Object.assign({ n: S.seq, intent }, payload)));
   }
   function stream(v) {           // navigate-only knobs follow the drag
     if (data.previewKey) {
@@ -164,11 +198,8 @@ export default function (component) {
       }));
       return; // Browser-local preview; pointer-up sends the only Python update.
     }
-    if (!data.live) return;
-    const now = Date.now();
-    if (S.sentAt && now - S.sentAt < 125) return;
-    S.sentAt = now;
-    send({ v: v });
+    // Keep all other controls local during a gesture. Even navigate-only
+    // values can rebuild expensive observables/figures; release commits once.
   }
 
   el.label.textContent = data.label || "";
@@ -194,12 +225,19 @@ export default function (component) {
   el.reset.setAttribute("aria-label", el.reset.title);
   el.note.textContent = data.note || "";
   el.note.hidden = !data.note;
-  paint(data.value, data.text);
+  if (!(S.drag || S.track || S.editing || S.pending || S.previewPending || S.keyDeadline)) {
+    paint(data.value, data.text);
+  } else {
+    paint(S.shown ?? data.value);
+  }
+  root.classList.toggle("is-dragging", !!(S.drag || S.track));
 
   // ---- typing ---------------------------------------------------------
   function beginEdit() {
+    if (S.keyDeadline) send({ v: S.shown });
     S.editing = true;
-    el.input.value = el.num.textContent;
+    S.draft = el.num.textContent;
+    el.input.value = S.draft;
     el.value.hidden = true;
     el.input.hidden = false;
     el.input.focus();
@@ -210,18 +248,39 @@ export default function (component) {
     S.editing = false;
     el.input.hidden = true;
     el.value.hidden = false;
-    if (commit) send({ t: el.input.value });
-    else el.value.focus();
+    S.draft = el.input.value;
+    if (commit) send({ t: S.draft });
+    else { paint(data.value, data.text); el.value.focus(); }
   }
+  const saveDraft = () => {
+    S.draft = el.input.value;
+    S.selection = [el.input.selectionStart, el.input.selectionEnd];
+  };
+  el.input.oninput = saveDraft;
+  el.input.onselect = saveDraft;
   el.input.onkeydown = (e) => {
     if (e.key === "Enter") { e.preventDefault(); endEdit(true); }
     else if (e.key === "Escape") { e.preventDefault(); endEdit(false); }
   };
-  el.input.onblur = () => endEdit(true);
+  el.input.onblur = () => {
+    // Removing HTML is not the user's request to commit an unfinished draft.
+    if (!root.isConnected) { saveDraft(); return; }
+    endEdit(true);
+  };
+  el.value.hidden = S.editing;
+  el.input.hidden = !S.editing;
+  if (S.editing) {
+    el.input.value = S.draft ?? "";
+    queueMicrotask(() => {
+      if (S.root !== root || !root.isConnected || !S.editing) return;
+      el.input.focus({ preventScroll: true });
+      if (S.selection) el.input.setSelectionRange(...S.selection);
+    });
+  }
 
   // ---- dragging -------------------------------------------------------
   function fromTrack(clientX) {
-    const r = el.track.getBoundingClientRect();
+    const r = S.track || el.track.getBoundingClientRect();
     if (!r.width || !hasRange) return S.shown;
     return bound(snap(min + ((clientX - r.left) / r.width) * span));
   }
@@ -229,10 +288,10 @@ export default function (component) {
     if (S.editing || e.button !== 0) return;
     e.preventDefault();
     el.value.setPointerCapture(e.pointerId);
-    S.drag = { x: e.clientX, v: S.shown, moved: false };
+    S.drag = { x: e.clientX, v: S.shown, moved: false, pointerId: e.pointerId };
     root.classList.add("is-dragging");
   };
-  el.value.onpointermove = (e) => {
+  function moveValue(e) {
     const d = S.drag;
     if (!d) return;
     const dx = e.clientX - d.x;
@@ -243,8 +302,9 @@ export default function (component) {
     const v = bound(snap(d.v + dx * per));
     paint(v);
     stream(v);
-  };
-  el.value.onpointerup = (e) => {
+  }
+  function releaseValue(e) {
+    moveValue(e);
     const d = S.drag;
     S.drag = null;
     root.classList.remove("is-dragging");
@@ -252,41 +312,58 @@ export default function (component) {
     if (!d) return;
     if (!d.moved) beginEdit();
     else if (S.shown !== d.v) send({ v: S.shown });
-  };
+  }
   function cancelPreview() {
+    paint(data.value, data.text);
     if (data.previewKey) {
-      paint(data.value, data.text);
       window.dispatchEvent(new CustomEvent("gabes-preview", {
         detail: { key: data.previewKey, value: data.value, cancel: true }
       }));
     }
   }
-  el.value.onpointercancel = () => { S.drag = null; root.classList.remove("is-dragging"); cancelPreview(); };
-
   el.track.onpointerdown = (e) => {
     if (!hasRange || e.button !== 0) return;
     e.preventDefault();
     el.track.setPointerCapture(e.pointerId);
-    S.track = { v: S.shown };
+    const r = el.track.getBoundingClientRect();
+    S.track = { v: S.shown, pointerId: e.pointerId, left: r.left, width: r.width };
     root.classList.add("is-dragging");
     const v = fromTrack(e.clientX);
     paint(v);
     stream(v);
   };
-  el.track.onpointermove = (e) => {
+  function moveTrack(e) {
     if (!S.track) return;
     const v = fromTrack(e.clientX);
     paint(v);
     stream(v);
-  };
-  el.track.onpointerup = (e) => {
+  }
+  function releaseTrack(e) {
+    moveTrack(e);
     const t = S.track;
     S.track = null;
     root.classList.remove("is-dragging");
     if (el.track.hasPointerCapture(e.pointerId)) el.track.releasePointerCapture(e.pointerId);
     if (t && S.shown !== t.v) send({ v: S.shown });
+  }
+  // Pointer capture belongs to the old HTML after a remount. Window handlers
+  // continue the same gesture and deliver its release to the current render.
+  const onMove = e => {
+    if (S.drag?.pointerId === e.pointerId) moveValue(e);
+    if (S.track?.pointerId === e.pointerId) moveTrack(e);
   };
-  el.track.onpointercancel = () => { S.track = null; root.classList.remove("is-dragging"); cancelPreview(); };
+  const onUp = e => {
+    if (S.drag?.pointerId === e.pointerId) releaseValue(e);
+    if (S.track?.pointerId === e.pointerId) releaseTrack(e);
+  };
+  const onCancel = e => {
+    if ((S.drag || S.track)?.pointerId !== e.pointerId) return;
+    S.drag = null; S.track = null;
+    root.classList.remove("is-dragging"); cancelPreview();
+  };
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+  window.addEventListener("pointercancel", onCancel);
 
   // ---- keyboard -------------------------------------------------------
   el.value.onkeydown = (e) => {
@@ -305,10 +382,58 @@ export default function (component) {
     paint(bound(tidy(v)));
     if (data.previewKey) stream(S.shown);
     clearTimeout(S.keyTimer);            // a key repeat is one gesture
+    S.keyDeadline = Date.now() + 160;
     S.keyTimer = setTimeout(() => send({ v: S.shown }), 160);
   };
 
   el.reset.onclick = (e) => { e.preventDefault(); send({ r: true }); };
+  const onPlot = e => {
+    if (!data.previewKey || e.detail?.eventKey !== data.previewKey) return;
+    S.previewOwner = e.detail.owner;
+    S.previewPending = e.detail.phase !== "ready";
+    const value = e.detail.values?.tpd;
+    if (Number.isFinite(value) && !(S.editing || S.drag || S.track || S.pending || S.keyDeadline))
+      paint(value);
+  };
+  window.addEventListener("gabes-plot-status", onPlot);
+  const app = data.previewKey ? document.querySelector('[data-testid="stApp"]') : null;
+  const observer = app ? new MutationObserver(() => {
+    if (app.getAttribute("data-test-script-state") === "running") return;
+    if (S.previewOwner && !S.previewOwner.isConnected) {
+      S.previewPending = false;
+      if (!(S.editing || S.drag || S.track || S.pending || S.keyDeadline)) paint(data.value, data.text);
+    }
+  }) : null;
+  observer?.observe(app, {attributes:true, attributeFilter:["data-test-script-state"]});
+  if (S.keyDeadline) {
+    S.keyTimer = setTimeout(() => send({ v: S.shown }), Math.max(0, S.keyDeadline - Date.now()));
+  }
+  let attached = true;
+  const cleanup = () => {
+    if (!attached) return;
+    attached = false;
+    if (S.editing) saveDraft();
+    clearTimeout(S.keyTimer);
+    observer?.disconnect();
+    window.removeEventListener("gabes-plot-status", onPlot);
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onCancel);
+    for (const element of [el.input, el.value, el.track, el.reset]) {
+      for (const name of ["oninput", "onselect", "onkeydown", "onblur", "onpointerdown", "onclick"])
+        element[name] = null;
+    }
+  };
+  S.cleanup = cleanup;
+  return () => {
+    cleanup();
+    // A replacement render reclaims this state immediately. True removals
+    // retire drafts and gestures, so returning to a hidden control is fresh.
+    S.retireTimer = setTimeout(() => {
+      if (S.root === root && !root.isConnected && interactions.get(component.key) === S)
+        interactions.delete(component.key);
+    }, 100);
+  };
 }
 """
 
@@ -387,6 +512,18 @@ def _commit(key, comp_key, unit, vmin, vmax, integer, default, on_change):
     payload = decode_gesture(raw)
     if payload is None:
         return
+    sequence = payload.get("n")
+    ack_key = comp_key + "-ack"
+    if isinstance(sequence, int):
+        if sequence <= st.session_state.get(ack_key, 0):
+            return
+        st.session_state[ack_key] = sequence
+    intent = payload.get("intent")
+    if isinstance(intent, int) and not isinstance(intent, bool):
+        intent_key = key + "-input-intent"
+        if intent < st.session_state.get(intent_key, 0):
+            return
+        st.session_state[intent_key] = intent
     value, note = resolve_gesture(payload, unit=unit, vmin=vmin, vmax=vmax,
                                   integer=integer, default=default)
     if value is None:
@@ -450,6 +587,7 @@ def scrub_field(container, *, key, label, value, vmin, vmax, step, unit="",
         "live": bool(live),
         "previewKey": preview_key,
         "note": note,
+        "ack": st.session_state.get(state_key(key) + "-ack", 0),
     }
     comp_key = state_key(key)
     try:

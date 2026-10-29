@@ -14,6 +14,7 @@
 
 [data-testid="stAppViewContainer"] {
   background: var(--g-ground);
+  --g-plot-height: clamp(220px, calc(100dvh - 26rem), 900px);
 }
 
 /* The element that injects this stylesheet takes no slot in the layout. */
@@ -578,6 +579,7 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 }
 
 .g-plot-caption {
+  min-height: 1.1rem;
   overflow: hidden;
   color: var(--g-muted);
   font-size: 0.75rem;
@@ -617,9 +619,17 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 .st-key-gabes_plotcard [data-testid="stImage"] img {
   width: auto !important;
   max-width: 100% !important;
-  max-height: calc(100vh - 17rem);
+  max-height: var(--g-plot-height);
   object-fit: contain;
 }
+
+/* Update feedback occupies one stable slot; retained results remain legible. */
+.st-key-gabes_readout [data-stale="true"],
+.st-key-gabes_plotcard [data-stale="true"] {
+  opacity: 1;
+}
+.st-key-gabes_plotstage { min-height: 220px; }
+.st-key-gabes_plotfocus_note { min-height: 1.4rem; }
 
 /* Phone: the top bar is two short rows and scrolls away; the plot head keeps
    tabs and tools, drops the caption. */
@@ -707,14 +717,14 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   }
 
   .g-plot-caption {
-    overflow: visible;
-    white-space: normal;
+    overflow: hidden;
+    white-space: nowrap;
   }
 }
 
 /* Keep the two-mode instrument bar together in a half-width desktop window.
    Compact text visually while preserving each button's accessible name. */
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   .st-key-gabes_topbar { gap: 0.35rem; }
   .st-key-gabes_topbar > [data-testid="stElementContainer"]:has([data-testid="stSelectbox"]) {
     flex: 1 1 7.5rem;

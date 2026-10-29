@@ -27,6 +27,7 @@ from gabes.experimental_alignment import AxisAlignment, frame_alignment, fit_tra
 from gabes.plot_style import PALETTE, apply_gabes_plot_style
 from gabes_ui import export as ui_export
 from gabes_ui.controls import render_param, skey
+from gabes_ui.plot_focus import focused_axes, focus_signature, resonance_window
 from gabes_ui.readout import caption_html
 
 PLOT_LOCK = RLock()
@@ -258,6 +259,8 @@ def _render_experimental_comparison(view, scheme_name, panel):
         framed_scale, framed_shift = framed.scale, framed.shift
 
         def set_alignment(alignment, *, invert=False):
+            revision_key = skey(scheme_name, "_csv_alignment_revision")
+            st.session_state[revision_key] = st.session_state.get(revision_key, 0) + 1
             st.session_state[scale_key] = float(alignment.scale)
             st.session_state[multiplier_key] = 1.0
             st.session_state[shift_key] = float(alignment.shift)
@@ -384,8 +387,13 @@ def _render_experimental_comparison(view, scheme_name, panel):
                 "Y offset", step=0.01, key=signal_offset_key,
                 disabled=trace.is_absolute_transmission,
             )
-            applied = st.form_submit_button("Apply alignment", use_container_width=True)
+            applied = st.form_submit_button(
+                "Apply alignment", key=skey(scheme_name, "_csv_apply"),
+                use_container_width=True,
+            )
         if applied:
+            revision_key = skey(scheme_name, "_csv_alignment_revision")
+            st.session_state[revision_key] = st.session_state.get(revision_key, 0) + 1
             st.session_state.pop(fit_key, None)
         x_scale = float(base_scale) * float(multiplier)
         try:
@@ -507,6 +515,8 @@ def _render_experimental_comparison(view, scheme_name, panel):
             "kind": "experimental_csv_overlay",
             "overlay_filename": uploaded.name,
             "source_fingerprint_sha256": fingerprint,
+            "alignment_revision": st.session_state.get(
+                skey(scheme_name, "_csv_alignment_revision"), 0),
             "descriptor": {
                 "label": descriptor.get("label"),
                 "axis_index": int(axis_index),
@@ -564,23 +574,25 @@ def _render_experimental_comparison(view, scheme_name, panel):
         }
 
 
-def _pop_figure_title(fig):
+def _pop_figure_title(fig, *, clear=True):
     """Take the title text off the image; the plot card shows it as a caption."""
     parts = []
     suptitle = getattr(fig, "_suptitle", None)
     if suptitle is not None and suptitle.get_text().strip():
         parts.append(suptitle.get_text())
-        suptitle.set_text("")
+        if clear:
+            suptitle.set_text("")
     for ax in fig.axes:
         for loc in ("left", "center", "right"):
             text = ax.get_title(loc=loc)
             if text.strip():
                 parts.append(text)
-                ax.set_title("", loc=loc)
+                if clear:
+                    ax.set_title("", loc=loc)
     return "  ·  ".join(parts)
 
 
-def render_plot_card(view, scheme, spec_by_name, raw=None):
+def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
     """Plot views as tabs, overlay/export tools, figure. Returns (comparison
     payload, plot payloads, export popover) for the export step."""
     fig = view.get("figure")
@@ -602,6 +614,11 @@ def render_plot_card(view, scheme, spec_by_name, raw=None):
 
     labels = [label for label, _ in pages]
     selected = labels[0]
+    interaction_context = None
+    if scheme.name == "fwm" and params is not None:
+        interaction_context = dict(
+            params=ui_export.to_json_primitive({k: v for k, v in params.items() if k != "tpd"}),
+            cache_version=getattr(scheme, "cache_version", "1"))
     card = st.container(border=True, key="gabes_plotcard")
     with card:
         head = st.container(horizontal=True, vertical_alignment="center",
@@ -623,11 +640,39 @@ def render_plot_card(view, scheme, spec_by_name, raw=None):
                 "Plot view", labels, key=view_key, on_change=_keep_view,
                 label_visibility="collapsed") or labels[0]
             st.session_state[last_key] = selected
-        caption_slot = st.empty()
+        page_fig = dict(pages)[selected]
+        caption = _pop_figure_title(page_fig, clear=False)
+        # Mount the caption before the image; never leave an empty placeholder
+        # while a new figure is rendered and sent to the browser.
+        st.markdown(
+            f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
+            f"{caption_html(caption)}</div>", unsafe_allow_html=True)
         tools = st.container(horizontal=True, horizontal_alignment="right",
                              vertical_alignment="center", gap="small",
                              key="gabes_plottools")
     with tools:
+        focus_key = skey(scheme.name, f"_resonance_zoom_{selected}")
+        window_key = f"{focus_key}_window"
+        candidate = resonance_window(page_fig, scheme.name, raw, view)
+        focus_unavailable = candidate is None and st.session_state.get(focus_key, False)
+        if candidate is None:
+            st.session_state[focus_key] = False
+        focus_on = st.toggle(
+            "Resonance zoom", key=focus_key, disabled=candidate is None,
+            help="Focus the existing samples and scale the visible Y range. "
+                 "No physics recalculation or extra sampling. Turn off for the full range.")
+        window = None
+        if focus_on:
+            # Calibrated FWM curves insert a knot at the selected point. That
+            # display-only change must not move the focused viewing window.
+            signature = interaction_context if interaction_context is not None else focus_signature(page_fig)
+            saved = st.session_state.get(window_key)
+            if saved is None or saved[0] != signature:
+                saved = (signature, candidate)
+                st.session_state[window_key] = saved
+            window = saved[1]
+        else:
+            st.session_state.pop(window_key, None)
         overlay_on = bool(view.get("comparison")) and st.toggle(
             "Overlay data", key=skey(scheme.name, "_overlay"))
         export_box = st.popover("Export", icon=":material/download:", type="tertiary")
@@ -641,28 +686,33 @@ def render_plot_card(view, scheme, spec_by_name, raw=None):
             comparison_payload = None
 
     plot_payloads = ui_export.collect_view_plot_payloads(view, fig)
-    page_fig = dict(pages)[selected]
-    caption = _pop_figure_title(page_fig)
+    _pop_figure_title(page_fig)
     with plot_area:
+        # Keep this row mounted in both modes so toggling zoom does not move the
+        # plot, associated controls or side-by-side diagram.
+        focus_note = "\u00a0"
+        if focus_unavailable:
+            focus_note = "No focusable sampled resonance in this view; showing the full range."
+        elif window is not None:
+            focus_note = f"{window.description} · Original samples; zoom does not improve resolution."
+        with st.container(key="gabes_plotfocus_note"):
+            st.caption(focus_note)
         for control_name in view.get("figure_controls", []):
             control_spec = spec_by_name.get(control_name)
             if control_spec is not None:
                 render_param(st, scheme.name, control_spec, scheme)
         from gabes_ui.liveplot import render_live_plot
-        with PLOT_LOCK:
+        with st.container(key="gabes_plotstage"), PLOT_LOCK, focused_axes(page_fig, window):
             live = False
             if not (scheme.name == "fwm" and raw and raw.get("kind") == "biphoton"):
                 live = render_live_plot(page_fig, scheme.name, comparison_payload,
                                         canonical_noise=bool(raw and "T_canonical_small_signal" in raw),
-                                        gain_digits=6 if (raw or {}).get("claim_gate", {}).get("quantitative_gain_supported") else 3)
-        if live:
-            _close_fig(page_fig)
-        else:
-            render_fig(page_fig)
-    if caption:
-        caption_slot.markdown(
-            f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
-            f"{caption_html(caption)}</div>", unsafe_allow_html=True)
+                                        gain_digits=6 if (raw or {}).get("claim_gate", {}).get("quantitative_gain_supported") else 3,
+                                        interaction_context=interaction_context)
+            if live:
+                _close_fig(page_fig)
+            else:
+                render_fig(page_fig)
     for _label, other in pages:
         if other is not page_fig:
             _close_fig(other)
@@ -674,7 +724,7 @@ def render_plot_card(view, scheme, spec_by_name, raw=None):
 
 def _render_plot_and_export(view, scheme, spec_by_name, raw, params,
                             cache_version, readout_cache_version):
-    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw)
+    comparison, plots, export_box = render_plot_card(view, scheme, spec_by_name, raw, params)
     if export_box is not None:
         ui_export.render_export(
             export_box, scheme=scheme, raw=raw, params=params, view=view,
