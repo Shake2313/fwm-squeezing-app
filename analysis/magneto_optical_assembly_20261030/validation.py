@@ -42,12 +42,18 @@ _REFERENCE = None
 def _load(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    missing = object()
+    previous = sys.modules.get(name, missing)
     sys.modules[name] = module
     try:
         spec.loader.exec_module(module)
-    except BaseException:
-        sys.modules.pop(name, None)
-        raise
+    finally:
+        # Dataclasses need the entry during execution, not for the lifetime of
+        # this privately cached reference module.
+        if previous is missing:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = previous
     return module
 
 

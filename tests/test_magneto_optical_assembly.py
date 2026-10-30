@@ -19,8 +19,16 @@ def _reference():
     name = "gabes._optical_assembly_reference"
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
+    missing = object()
+    previous = sys.modules.get(name, missing)
     sys.modules[name] = module
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if previous is missing:
+            sys.modules.pop(name, None)
+        else:
+            sys.modules[name] = previous
     return module
 
 
