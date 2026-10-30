@@ -93,13 +93,6 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
             couplings[q].append((ig, eidx, cg))          # drive ground→excited, pol q
     emission_ops = tuple(emission[q] for q in (-1, 0, 1))
 
-    decay = []   # incoherent population reload only (transit through the beam)
-    if transit_rate and transit_rate > 0:
-        p_ground = 1.0 / ng
-        for src in range(n):
-            for ig in ground:
-                decay.append((src, ig, transit_rate * p_ground))
-
     collapse_ops = []
     if gamma_gg and gamma_gg > 0:
         # Projective ground-state phase randomization is completely positive:
@@ -123,9 +116,12 @@ def zeeman_manifold(Fg, Fe, gamma=None, gamma_gg=None, g_ratio=1.0,
         name=f"zeeman_{Fg}_{Fe}", n_levels=n,
         labels=tuple(f"g{m:+d}" for m in mg) + tuple(f"e{m:+d}" for m in me),
         ground=ground, excited=excited,
-        decay=tuple(decay), dephasing=(), doppler_levels=excited,
+        decay=(), dephasing=(), doppler_levels=excited,
         emission_ops=emission_ops, collapse_ops=tuple(collapse_ops),
     )
+    if transit_rate and transit_rate > 0:
+        # Incoherent, isotropic population reload (transit through the beam).
+        atom = atom.with_reset(transit_rate, [1.0 / ng] * ng)
     atom.m_ground = np.array(mg, dtype=float)
     atom.m_excited = np.array(me, dtype=float)
     atom.g_ratio = g_ratio

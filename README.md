@@ -39,14 +39,16 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
 
 - `gabes/` — the package:
   - `constants.py` — physical constants + 85Rb D1 line data + `rabi_freq`.
-  - `core.py` — physics-agnostic engine: super-operators, Liouvillian, general
+  - `core.py` — physics-agnostic engine: super-operators (−i[H,·] and the one
+    D[L] dissipator), Liouvillian, general
     finite-order Floquet continued fractions plus an independent dense-block
     reference, the single-mode steady-state solver, projected trace-zero
     Liouvillian response and pole-residue checks, and 2×2 matrix exp.
   - `doppler.py` — Maxwell velocity grids, Δ_eff axis, one-dimensional Doppler
     average, and the opt-in two-dimensional non-collinear Raman-Doppler reference
     quadrature.
-  - `atoms.py` — `AtomModel` (level scheme as data) + factories
+  - `atoms.py` — `AtomModel` (level scheme as data; `with_reset` adds the
+    transit/thermal reset γ(ρ_th·Trρ − ρ)) + factories
     (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`).
   - `angular.py` — hand-rolled (Racah) Clebsch-Gordan and Wigner 3j/6j; a
     stdlib-only leaf shared by `species`, `zeeman` and the multilevel builders.

@@ -113,6 +113,16 @@ def comm_super(H):
     return -1j * (np.kron(H, eye) - np.kron(eye, H.T))
 
 
+def dissipator(L):
+    """vec rule (row-major):  D[L]ρ = LρL† − ½{L†L, ρ}, rate folded into L."""
+    n = L.shape[0]
+    eye = _eye(n)
+    LdL = L.conj().T @ L
+    return (np.kron(L, L.conj())
+            - 0.5 * np.kron(LdL, eye)
+            - 0.5 * np.kron(eye, LdL.T))
+
+
 def build_liouvillian(H, atom):
     """L₀ = −i[H,·] + (Lindblad dissipator + dephasing) for the given AtomModel.
 

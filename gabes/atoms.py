@@ -11,12 +11,12 @@ The registry contains the default 85Rb D1 double-Λ model. Factory functions als
 construct two-level, three-level Λ, and saturated-absorption models; the SAS
 species builder supplies isotope-specific hyperfine manifolds.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 import numpy as np
 
 from . import constants, hyperfine, species
-from .core import comm_super
+from .core import comm_super, dissipator
 
 
 @dataclass
@@ -58,34 +58,44 @@ class AtomModel:
     def rho_index(self, row, col):
         return row * self.n_levels + col
 
+    def with_reset(self, rate, populations, name=None):
+        """Copy with a transit/thermal reset ρ̇ += rate·(ρ_th·Trρ − ρ).
+
+        ρ_th = Σ_g p_g|g⟩⟨g| with `populations` aligned to `self.ground`. Every
+        state s gets a rate channel s → g at rate·p_g (zero weights skipped),
+        appended after the existing `decay`. Attributes a builder attached after
+        construction (`couplings`, `m_ground`, …) are carried over.
+        """
+        if len(populations) != len(self.ground):
+            raise ValueError("reset populations must align with `ground`")
+        reset = tuple((s, g, rate * p) for s in range(self.n_levels)
+                      for g, p in zip(self.ground, populations) if p)
+        kwargs = {f.name: getattr(self, f.name) for f in fields(self) if f.init}
+        kwargs["decay"] = self.decay + reset
+        if name is not None:
+            kwargs["name"] = name
+        clone = type(self)(**kwargs)
+        declared = {f.name for f in fields(self)}
+        for key, value in vars(self).items():
+            if key not in declared:
+                setattr(clone, key, value)
+        return clone
+
     def _build_lindblad(self):
         """Dissipator from rate channels, full collapse ops, and dephasing.
 
         Reproduces the original `_build_lindblad_fixed` for the 4-level model.
         """
         n = self.n_levels
-        eye = np.eye(n, dtype=complex)
         kets = np.eye(n, dtype=complex)
         D = np.zeros((n * n, n * n), dtype=complex)
 
         for (i, j, rate) in self.decay:                  # decay i -> j
-            L = np.sqrt(rate) * np.outer(kets[j], kets[i])   # |j⟩⟨i|
-            LdL = L.conj().T @ L
-            D += (np.kron(L, L.conj())
-                  - 0.5 * np.kron(LdL, eye)
-                  - 0.5 * np.kron(eye, LdL.T))
-
+            D += dissipator(np.sqrt(rate) * np.outer(kets[j], kets[i]))  # |j⟩⟨i|
         for L in self.emission_ops:                      # full jump operator L
-            LdL = L.conj().T @ L
-            D += (np.kron(L, L.conj())
-                  - 0.5 * np.kron(LdL, eye)
-                  - 0.5 * np.kron(eye, LdL.T))
-
+            D += dissipator(L)
         for L in self.collapse_ops:                       # non-emission jump L
-            LdL = L.conj().T @ L
-            D += (np.kron(L, L.conj())
-                  - 0.5 * np.kron(LdL, eye)
-                  - 0.5 * np.kron(eye, LdL.T))
+            D += dissipator(L)
 
         for (i, j, rate) in self.dephasing:
             idx = self.rho_index(i, j)

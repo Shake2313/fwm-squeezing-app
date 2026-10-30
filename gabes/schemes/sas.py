@@ -1144,25 +1144,10 @@ def _basis_reset_atom(atom, transit_rate, source_ground):
     The basis-reset steady states span the response to any incoherent incoming
     ground-hyperfine distribution. The uncoated path does not call this helper.
     """
-    reset = tuple(
-        (state, source_ground, float(transit_rate))
-        for state in range(atom.n_levels)
-    )
-    atom_kwargs = dict(
-        name=f"{atom.name}_reset_g{source_ground}",
-        n_levels=atom.n_levels,
-        labels=atom.labels,
-        ground=atom.ground,
-        excited=atom.excited,
-        decay=atom.decay + reset,
-        dephasing=atom.dephasing,
-        doppler_levels=atom.doppler_levels,
-        doppler_ratios=atom.doppler_ratios,
-        emission_ops=atom.emission_ops,
-    )
-    if hasattr(atom, "collapse_ops"):
-        atom_kwargs["collapse_ops"] = atom.collapse_ops
-    return atoms.AtomModel(**atom_kwargs)
+    return atom.with_reset(
+        float(transit_rate),
+        [1.0 if g == source_ground else 0.0 for g in atom.ground],
+        name=f"{atom.name}_reset_g{source_ground}")
 
 
 def _basis_reset_pump_pops(man, pump_hamiltonian, deff_axis, transit_rate):

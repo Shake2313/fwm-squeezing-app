@@ -8068,6 +8068,30 @@
         "gabes/species.py",
         "tests/test_atomic_data.py"
       ]
+    },
+    {
+      "id": "level-builder-unification-phase-2b",
+      "area": "magneto_multilevel.py + zeeman.py + species.py + atoms.py + schemes/fwm.py + quantum/reservoirs.py",
+      "title": "Unify the level builders and the remaining reset/dissipator copies",
+      "origin": "ai_execution_of_human_request",
+      "priority": "P3",
+      "effort": "large",
+      "status": "ready",
+      "problem": "⟦AI⟧ Phase 2a (2026-10-30) added core.dissipator and AtomModel.with_reset and routed atoms, species.build_manifold, zeeman.zeeman_manifold and sas._basis_reset_atom through them bit-identically (1,688-leaf snapshot). Still separate: magneto_multilevel._landeg keeps its own g_J/g_I table (its Cs branch is unreachable) and its own Zeeman generator; four level builders (species.build_manifold F-resolved, zeeman.zeeman_manifold for one Fg↔Fe pair, zeeman.rb85_d1_double_lambda_zeeman, atoms.double_lambda_rb85) sit beside magneto_multilevel.build_multilevel_atom, which FWM imports directly; fwm.thermal_transit_reset_superoperator; quantum.reservoirs ExplicitReservoirs.dissipator and thermal_reset_channels, whose real-identity kron can differ from core.dissipator in signed zeros. The magneto speed patch these steps waited on landed in 695311b.",
+      "acceptance_criteria": [
+        "g_J, g_I and Landé g_F come from species.Isotope through one Zeeman-Hamiltonian helper, with Rb85/Rb87 magneto outputs bit-identical.",
+        "build_multilevel_atom keeps its outputs, level order, signed dipoles, normalization and read-only cached arrays for FWM.",
+        "Every step is a snapshot-verified bit-identical refactor; value changes are separate decisions, and moved source-hash receipts are reported, not resealed.",
+        "quantum.reservoirs either keeps byte parity with its sealed records or stays a documented independent assembly.",
+        "fwm.thermal_transit_reset_superoperator joins only once `git status` shows gabes/schemes/fwm.py clean; another session's edits there are in flight."
+      ],
+      "source_documents": [
+        "gabes/atoms.py",
+        "gabes/core.py",
+        "gabes/magneto_multilevel.py",
+        "gabes/zeeman.py",
+        "tests/test_level_structure.py"
+      ]
     }
   ],
   "_daily_report_sync_history": [

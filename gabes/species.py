@@ -354,19 +354,16 @@ def build_manifold(iso, line, transit_rate=0.0):
             if col[ig] > 0:
                 decay.append((ng + ie, ig, gamma * col[ig] / tot))
 
-    # Transit-time relaxation toward the thermal ground distribution: every state
-    # s → ground g at rate γ_t·p(g) (drives ρ → Σ_g p_g|g⟩⟨g| with the laser off).
-    if transit_rate > 0:
-        for s in range(n):
-            for ig in range(ng):
-                decay.append((s, ig, transit_rate * p_ground[ig]))
-
     atom = AtomModel(
         name=f"sas_{iso.name}_{line}", n_levels=n,
         labels=tuple(f"g{F:g}" for F in Fg) + tuple(f"e{F:g}" for F in Fe),
         ground=ground, excited=excited,
         decay=tuple(decay), dephasing=(), doppler_levels=excited,
     )
+    # Transit-time relaxation toward the thermal ground distribution
+    # (drives ρ → Σ_g p_g|g⟩⟨g| with the laser off).
+    if transit_rate > 0:
+        atom = atom.with_reset(transit_rate, p_ground)
 
     # Transition table (every allowed Fg→Fe).
     g_idx, e_idx, omega, S_abs, rabi_rel, H_couplings = [], [], [], [], [], []
