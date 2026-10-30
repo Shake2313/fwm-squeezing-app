@@ -12,10 +12,12 @@ What it provides
   * The Casimir hyperfine-energy formula → every F level placed exactly from A, B
     (no per-line hard-coded tables; self-validating against the known Rb ground /
     excited splittings already in `constants`/`hyperfine`).
-  * Relative hyperfine line strengths S(Fg→Fe) from a Wigner-6j (Racah formula),
-    which set (i) the weak-probe line weights, (ii) the relative pump Rabi
-    frequencies and (iii) the spontaneous-emission branching ratios — the last
-    being what drives hyperfine optical pumping (the inverted crossovers).
+  * Relative hyperfine line strengths S(Fg→Fe) from a Wigner-6j (Racah formula,
+    `angular`), which set (i) the weak-probe line weights, (ii) the relative pump
+    Rabi frequencies and (iii) the spontaneous-emission branching ratios — the
+    last being what drives hyperfine optical pumping (the inverted crossovers).
+  * Vapor-pressure densities and the Rb self-broadening coefficient. This is the
+    single source: `hyperfine` (the ⁸⁵Rb D1 AutoOD view) and `atoms` re-use it.
   * `build_manifold(isotope, line)` → an `atoms.AtomModel` carrying the full
     {Fg}×{Fe} level scheme with CG-branched decay *and* a transit-time relaxation
     toward the thermal ground distribution (regularises the pumping), plus the
@@ -38,59 +40,19 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from . import constants
-from .atoms import AtomModel
-from .zeeman import clebsch_gordan
+from .angular import wigner3j, wigner6j
 
 MHZ = 2 * np.pi * 1e6          # MHz → rad/s
 _AMU = 1.660_539_066_60e-27    # kg
 _LG, _LE, _SE = 0, 1, 0.5      # alkali D line: nS → nP orbital, electron spin ½
 
-# Self-broadening coefficient β/2π = 0.69e-7 Hz·cm³ (Rb; AutoOD / hyperfine.py).
+# Self-broadening coefficient β/2π = 0.69e-7 Hz·cm³ (Rb; AutoOD).
 BETA_SELF = 2 * np.pi * 0.69e-7 * 1e-6        # rad·s⁻¹·m³
 
 
 # =====================================================================
-# Angular-momentum algebra (Wigner 6j via the Racah formula)
+# Hyperfine line strengths
 # =====================================================================
-def _fac(n):
-    return math.factorial(int(round(n)))
-
-
-def _is_int(x):
-    return abs(x - round(x)) < 1e-9
-
-
-def _tri_ok(a, b, c):
-    """Triangle condition |a−b| ≤ c ≤ a+b with integer perimeter."""
-    return (c >= abs(a - b) - 1e-9 and c <= a + b + 1e-9
-            and _is_int(a + b + c))
-
-
-def _delta(a, b, c):
-    return math.sqrt(_fac(a + b - c) * _fac(a - b + c) * _fac(-a + b + c)
-                     / _fac(a + b + c + 1))
-
-
-def wigner6j(j1, j2, j3, j4, j5, j6):
-    """{j1 j2 j3 ; j4 j5 j6} via the Racah W-coefficient sum. 0 if non-physical."""
-    for (a, b, c) in ((j1, j2, j3), (j1, j5, j6), (j4, j2, j6), (j4, j5, j3)):
-        if not _tri_ok(a, b, c):
-            return 0.0
-    pref = _delta(j1, j2, j3) * _delta(j1, j5, j6) * _delta(j4, j2, j6) * _delta(j4, j5, j3)
-    t_lo = max(j1 + j2 + j3, j1 + j5 + j6, j4 + j2 + j6, j4 + j5 + j3)
-    t_hi = min(j1 + j2 + j4 + j5, j2 + j3 + j5 + j6, j3 + j1 + j6 + j4)
-    s = 0.0
-    t = int(math.ceil(t_lo - 1e-9))
-    while t <= int(math.floor(t_hi + 1e-9)):
-        denom = (_fac(t - j1 - j2 - j3) * _fac(t - j1 - j5 - j6)
-                 * _fac(t - j4 - j2 - j6) * _fac(t - j4 - j5 - j3)
-                 * _fac(j1 + j2 + j4 + j5 - t) * _fac(j2 + j3 + j5 + j6 - t)
-                 * _fac(j3 + j1 + j6 + j4 - t))
-        s += (-1) ** t * _fac(t + 1) / denom
-        t += 1
-    return pref * s
-
-
 def line_strength(Fg, Fe, I, Jg, Je):
     """
     Relative hyperfine transition strength S(Fg→Fe) (summed over m sublevels):
@@ -182,11 +144,18 @@ SPECIES_ORDER = ["Rb (natural)", "⁸⁵Rb", "⁸⁷Rb", "¹³³Cs"]
 
 
 # =====================================================================
-# Number density (Steck vapor-pressure fits; liquid phase, warm cell)
+# Number density (CRC / Steck vapor-pressure fits)
 # =====================================================================
 def _density_from_logP(log10_P_torr, T):
     P_pa = 10 ** log10_P_torr * 133.322_387_415
     return P_pa / (constants.KB * T)
+
+
+def rb_vapor_pressure_pa(T):
+    """Rb vapor pressure [Pa] (CRC): solid below 39.30 °C, liquid above (AutoOD)."""
+    if T < 273.15 + 39.30:
+        return 10 ** (9.863 - 4215.0 / T)
+    return 10 ** (9.318 - 4040.0 / T)
 
 
 def number_density(iso, T):
@@ -200,28 +169,31 @@ def number_density(iso, T):
     tool's absolute scale. Cs uses the Steck liquid-phase fit.
     """
     if iso.name.startswith("Rb"):
-        P_pa = (10 ** (9.863 - 4215.0 / T) if T < 273.15 + 39.30
-                else 10 ** (9.318 - 4040.0 / T))
-        return P_pa / (constants.KB * T)
+        return rb_vapor_pressure_pa(T) / (constants.KB * T)
     logP = 8.22127 - 4006.048 / T - 0.00060194 * T - 0.19623 * np.log10(T)
     return _density_from_logP(logP, T)
 
 
-def self_broadened_gamma(iso, N):
-    """Self-broadened optical linewidth Γ_eff = Γ_nat + β·N [rad/s] (β: Rb value)."""
+def rb85_steck_density(T):
+    """
+    ⁸⁵Rb number density [/m³] from the Steck Rb liquid-phase vapor-pressure fit
+    (T > 312.46 K) times the natural ⁸⁵Rb abundance. A second, older convention:
+    0.50–0.59 × `number_density(RB85, T)` over 313–393 K. Kept for the Λ/Rydberg
+    Generic medium, OD single-line and SAS Generic paths (checklist
+    `atomic-data-legacy-value-unification`).
+    """
+    logP = 15.88253 - 4529.635 / T + 0.00058663 * T - 2.99138 * np.log10(T)
+    return RB85.abundance * _density_from_logP(logP, T)
+
+
+def self_broadening(iso, N):
+    """Collisional self-broadening β·N added to Γ_nat [rad/s] (Rb β for every isotope)."""
     return BETA_SELF * N
 
 
 # =====================================================================
 # Absolute line strengths (AutoOD convention) and the pump-power map
 # =====================================================================
-def _wigner3j(j1, j2, j3, m1, m2, m3):
-    if abs(m1 + m2 + m3) > 1e-9:
-        return 0.0
-    return ((-1) ** int(round(j1 - j2 - m3)) / math.sqrt(2 * j3 + 1)
-            * clebsch_gordan(j1, m1, j2, m2, j3, -m3))
-
-
 def cf2(Fg, Fe, I, Jg, Je):
     """
     Relative hyperfine line strength C_F² in the AutoOD convention (validated:
@@ -229,7 +201,7 @@ def cf2(Fg, Fe, I, Jg, Je):
     but computed the lab tool's way for exact absolute-scale agreement.
     """
     m_max = int(min(Fg, Fe))
-    cfsq = sum(_wigner3j(Fe, 1, Fg, m, 0, -m) ** 2 for m in range(-m_max, m_max + 1))
+    cfsq = sum(wigner3j(Fe, 1, Fg, m, 0, -m) ** 2 for m in range(-m_max, m_max + 1))
     six1 = abs(wigner6j(Jg, Je, 1, Fe, Fg, I))
     six2 = abs(wigner6j(_LG, _LE, 1, Je, Jg, _SE))
     pref = (2 * Fg + 1) * (2 * Fe + 1) * (2 * Jg + 1) * (2 * Je + 1) * (2 * _LG + 1)
@@ -310,7 +282,7 @@ class Manifold:
     """A built (isotope, line) saturated-absorption level scheme + transition table."""
     iso: Isotope
     line: str
-    atom: AtomModel
+    atom: "AtomModel"
     Jg: float
     Je: float
     Fg: list                         # ground F values (index order)
@@ -345,6 +317,9 @@ def build_manifold(iso, line, transit_rate=0.0):
     distribution at `transit_rate` [rad/s] (atoms leaving/entering the beam),
     which regularises the otherwise-runaway optical pumping.
     """
+    # Imported here so the data layer stays a leaf: atoms → hyperfine → species.
+    from .atoms import AtomModel
+
     Je, nu0, gamma_mhz, A_e, B_e = iso.line(line)
     I, Jg = iso.I, iso.Jg
     gamma = gamma_mhz * MHZ

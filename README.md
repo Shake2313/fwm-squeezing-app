@@ -47,17 +47,21 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     average, and the opt-in two-dimensional non-collinear Raman-Doppler reference
     quadrature.
   - `atoms.py` — `AtomModel` (level scheme as data) + factories
-    (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`) + Rb85 vapor density.
-  - `hyperfine.py` — 85Rb D1 hyperfine line table (4 transitions + shifts), CG
-    line strengths C_F², ground populations p_F, self-broadening Γ(N), and the
-    pure-85Rb CRC density — the data/scaling for the AutoOD-validated full-D1 OD.
-  - `zeeman.py` — hand-rolled Clebsch-Gordan + `zeeman_manifold(F_g, F_e)` builder
-    (σ±/π couplings, CG-branched decay) for the magneto-optics schemes.
+    (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`).
+  - `angular.py` — hand-rolled (Racah) Clebsch-Gordan and Wigner 3j/6j; a
+    stdlib-only leaf shared by `species`, `zeeman` and the multilevel builders.
+  - `hyperfine.py` — 85Rb D1 view of `species` for the AutoOD-validated full-D1
+    OD: line table (4 transitions + shifts), exact C_F², ground populations p_F,
+    self-broadening Γ(N) on the legacy `constants.GAMMA`, and the pure-85Rb CRC
+    density.
+  - `zeeman.py` — `zeeman_manifold(F_g, F_e)` builder (σ±/π couplings,
+    CG-branched decay) for the magneto-optics schemes.
   - `species.py` — alkali D-line data (⁸⁵Rb/⁸⁷Rb/¹³³Cs hyperfine A/B constants,
-    line-centre frequencies, masses, linewidths, abundances; Steck), Wigner-6j
-    (Racah) line strengths, Casimir hyperfine energies, Steck vapor density, and
-    the SAS hyperfine-manifold builder `build_manifold(iso, line)` (CG-branched
-    decay + transit-time relaxation).
+    line-centre frequencies, masses, linewidths, abundances; Steck), line
+    strengths, Casimir hyperfine energies, and the single source of the vapor
+    pressure, densities (CRC; legacy Steck × abundance) and self-broadening β;
+    plus the SAS hyperfine-manifold builder `build_manifold(iso, line)`
+    (CG-branched decay + transit-time relaxation).
   - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
   - `plot_style.py` — the shared figure palette plus `apply_gabes_plot_style`,
     which pins its own font stack on every figure it styles. Figure text carries

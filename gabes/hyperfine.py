@@ -14,18 +14,20 @@ validation. Ported pieces:
   * self-broadening  Γ_eff = Γ_nat + β·N;
   * a pure-85Rb cell density (f85 = 1) from the CRC vapor pressure.
 
-This module is *data only*. The Voigt lineshape itself is still produced by
-the OBE Doppler kernel in `schemes/absorption.py` (a genuine OBE solve, no
-analytic wofz / scipy); hyperfine.py supplies the validated line table, the
-relative/absolute strengths, the self-broadened width, and the density.
+This module is *data only* and is the ⁸⁵Rb D1 view of `species`, which is
+the single source of the vapor pressure, density and β. Kept here: the exact
+rational C_F² table, the AutoOD-origin line shifts, and Γ from the legacy
+`constants.GAMMA` (5.746 MHz, not the species record's 5.750 MHz).
+The Voigt lineshape itself is still produced by the OBE Doppler kernel in
+`schemes/absorption.py` (a genuine OBE solve, no analytic wofz / scipy);
+hyperfine.py supplies the validated line table, the relative/absolute
+strengths, the self-broadened width, and the density.
 
 Reference
   [1] AutoOD lab calculator (rb_od_calculator_optimized_final.py).
   [2] Daniel A. Steck, "Rubidium 85 D Line Data," http://steck.us/alkalidata.
 """
-import numpy as np
-
-from . import constants
+from . import constants, species
 
 # ---- Clebsch-Gordan line-strength factors C_F²  (5S1/2 Fg → 5P1/2 Fe) ----
 # Exact rationals from the Wigner 3j/6j sum AutoOD evaluates with sympy
@@ -65,26 +67,22 @@ TRANSITIONS = ((3, 2), (3, 3), (2, 2), (2, 3))
 DIPOLE_SQ = 3.0 * constants.DIPOLE_D1 ** 2
 
 # ---- Self-broadening:  Γ_eff = Γ_nat + β·N,  β/2π = 0.69e-7 Hz·cm³ ----
-BETA_SELF = 2 * np.pi * 0.69e-7 * 1e-6        # rad·s⁻¹·m³  (Hz·cm³ → rad·s⁻¹·m³)
+BETA_SELF = species.BETA_SELF                 # rad·s⁻¹·m³
 
-
-def vapor_pressure_pa(T):
-    """Rb vapor pressure [Pa] (CRC): solid below 39.30 °C, liquid above (AutoOD)."""
-    if T < 273.15 + 39.30:
-        return 10 ** (9.863 - 4215.0 / T)
-    return 10 ** (9.318 - 4040.0 / T)
+vapor_pressure_pa = species.rb_vapor_pressure_pa
 
 
 def number_density(T):
     """
     85Rb number density [/m³] for a *pure-85Rb* cell (f85 = 1), from the CRC
     vapor pressure — matches the AutoOD absolute scale. (Distinct from
-    atoms.rb85_density, which is the Steck liquid-phase fit at natural
-    abundance used by the other schemes.)
+    species.rb85_steck_density, the Steck liquid-phase fit at natural
+    abundance used by the Λ/Rydberg Generic medium, OD single-line and SAS
+    Generic paths.)
     """
-    return vapor_pressure_pa(T) / (constants.KB * T)
+    return species.number_density(species.RB85, T)
 
 
 def self_broadened_gamma(N):
     """Self-broadened optical linewidth  Γ_eff = Γ_nat + β·N  [rad/s]."""
-    return constants.GAMMA + BETA_SELF * N
+    return constants.GAMMA + species.self_broadening(species.RB85, N)

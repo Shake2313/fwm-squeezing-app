@@ -453,7 +453,7 @@ class SASScheme(Scheme):
             dopp_fwhm = max(dopp_fwhm, np.sqrt(8 * np.log(2)) * man.k_vec * sigma_v)
             N = species.number_density(iso, T_density) * weight
             Op = species.pump_rabi_from_power(power, waist, man.gamma)
-            gamma_eff = man.gamma + species.self_broadened_gamma(iso, N) + buffer_gamma
+            gamma_eff = man.gamma + species.self_broadening(iso, N) + buffer_gamma
             saturation_intensity = (
                 probe_saturation.closed_two_level_saturation_intensity(
                     man.nu0, man.gamma))
@@ -734,7 +734,7 @@ class SASScheme(Scheme):
         dopp_fwhm = np.sqrt(8 * np.log(2)) * K_VEC * sigma_v
         v, wt = doppler.velocity_grid(T_doppler, dv=3.0, cutoff_sigma=3.5)
         kv = K_VEC * v
-        N = atoms.rb85_density(T_density)
+        N = species.rb85_steck_density(T_density)
 
         off_span = float(np.abs(offsets).max())
         half = max(3.5 * dopp_fwhm, off_span + 0.4 * dopp_fwhm, 10 * gamma_eff)

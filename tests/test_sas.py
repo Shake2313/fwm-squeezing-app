@@ -580,7 +580,7 @@ def _voigt_reference(scan, iso, line, T_density, T_doppler):
     N = species.number_density(iso, T_density)
     man = species.build_manifold(iso, line)
     k = man.k_vec
-    hwhm = (man.gamma + species.self_broadened_gamma(iso, N)) / 2.0
+    hwhm = (man.gamma + species.self_broadening(iso, N)) / 2.0
     sigma = k * np.sqrt(constants.KB * T_doppler / iso.mass)
     A = species.line_integrated_alpha(iso, line=line, N=N)
     ng = len(man.Fg)

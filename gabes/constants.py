@@ -19,7 +19,14 @@ EPS_0 = 8.8541878128e-12
 ELEMENTARY_CHARGE = 1.602176634e-19
 MU_B = 9.2740100783e-24
 
-# ---- 85Rb D1 atomic data ----
+# ---- 85Rb D1 atomic data (legacy FWM/Λ/OD operating values) ----
+# The per-isotope reference record is `species.RB85`. These values stay
+# verbatim because the FWM baseline is bit-locked to them; known deviations
+# from that record (pinned in tests/test_atomic_data.py):
+#   GAMMA_2PI 5.746 MHz vs 5.750 MHz; MASS_85RB vs 84.911789738 u (+4.7e-6);
+#   NU_EXCITED_HF_D1 361.58 MHz vs 3·A(5P1/2) = 361.581 MHz.
+# Unifying them is a physics decision: checklist
+# `atomic-data-legacy-value-unification`.
 NU_D1_85RB = 377.107_385_690e12
 WAVELENGTH_D1_85RB = C_LIGHT / NU_D1_85RB
 GAMMA_2PI = 5.746e6

@@ -8043,6 +8043,31 @@
         "current_cache_version": "fwm-experimental-jasperse-gain-v22"
       },
       "remaining_scope": "⟦AI⟧ General covariance/weighting, microscopic GC acceptance, held-out empirical accuracy, dense Fast certificate and SABES selected-model integration remain owned by their existing items."
+    },
+    {
+      "id": "atomic-data-legacy-value-unification",
+      "area": "constants.py + species.py + hyperfine.py",
+      "title": "Decide whether the legacy 85Rb D1 constants and the Steck density convention adopt the species record",
+      "origin": "ai_execution_of_human_request",
+      "priority": "P2",
+      "effort": "medium",
+      "status": "needs_decision",
+      "problem": "⟦AI⟧ The 2026-10-30 atomic-data single-source refactor (angular.py leaf; hyperfine as the 85Rb D1 view of species) kept every value bit-identical, so these value splits remain: constants.GAMMA_2PI 5.746 MHz (FWM/Λ/OD and the hyperfine view) vs species RB85/RB87 gamma_D1 5.750 MHz (SAS/magneto); MASS_85RB 1.4100e-25 kg vs 84.911789738 u (+4.7e-6); NU_EXCITED_HF_D1 361.58 MHz vs 3·A(5P1/2) = 361.581 MHz; species.rb85_steck_density (Steck liquid fit × natural abundance; Λ/Rydberg Generic medium, OD single-line, SAS Generic) is 0.50–0.59 × number_density(RB85) (CRC, every other path) over 313–393 K; species.self_broadening applies the Rb β to Cs.",
+      "decision_required": [
+        "Adopt the Steck record (Γ/2π 5.750 MHz, isotope mass, 3·A excited splitting) in constants, or keep the legacy values as a documented FWM calibration.",
+        "Choose one density convention for the Generic and single-line paths (CRC pure isotope vs Steck liquid × abundance).",
+        "Source a Cs self-broadening coefficient or label Cs self-broadening unsupported."
+      ],
+      "acceptance_criteria": [
+        "Each adopted value change lands as its own commit, with tests/baseline_focused.npz recaptured and the FWM/OD/SAS shifts quantified.",
+        "The legacy-deviation pins in tests/test_atomic_data.py follow the decision.",
+        "The pump-off Rb-85 D1 AutoOD anchor stays within its documented 0.1% tolerance."
+      ],
+      "source_documents": [
+        "gabes/constants.py",
+        "gabes/species.py",
+        "tests/test_atomic_data.py"
+      ]
     }
   ],
   "_daily_report_sync_history": [

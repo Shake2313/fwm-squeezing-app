@@ -1,9 +1,10 @@
 """
 Zeeman manifold support for the magneto-optics schemes (Hanle / EIA / NMOR).
 
-Hand-rolled Clebsch-Gordan (Racah formula — no sympy dependency) and a builder
-that turns (F_g, F_e) into an `AtomModel` plus the polarization-resolved dipole
-couplings (σ⁺, σ⁻, π) and CG-branched spontaneous emission.
+A builder that turns (F_g, F_e) into an `AtomModel` plus the
+polarization-resolved dipole couplings (σ⁺, σ⁻, π) and CG-branched spontaneous
+emission. Clebsch-Gordan coefficients come from `angular` (re-exported here as
+`zeeman.clebsch_gordan`).
 """
 import functools
 import math
@@ -11,38 +12,8 @@ import math
 import numpy as np
 
 from . import constants, hyperfine
+from .angular import clebsch_gordan
 from .atoms import AtomModel
-
-
-def clebsch_gordan(j1, m1, j2, m2, J, M):
-    """⟨j1 m1 j2 m2 | J M⟩ via the Racah formula. Works for integer/half-integer."""
-    if m1 + m2 != M:
-        return 0.0
-    if J < abs(j1 - j2) or J > j1 + j2:
-        return 0.0
-    if abs(m1) > j1 or abs(m2) > j2 or abs(M) > J:
-        return 0.0
-
-    f = math.factorial
-    pref = math.sqrt(
-        (2 * J + 1)
-        * f(int(j1 + j2 - J)) * f(int(j1 - j2 + J)) * f(int(-j1 + j2 + J))
-        / f(int(j1 + j2 + J + 1))
-    )
-    pref *= math.sqrt(
-        f(int(J + M)) * f(int(J - M))
-        * f(int(j1 - m1)) * f(int(j1 + m1))
-        * f(int(j2 - m2)) * f(int(j2 + m2))
-    )
-
-    kmin = int(max(0, j2 - m1 - J, j1 + m2 - J))
-    kmax = int(min(j1 + j2 - J, j1 - m1, j2 + m2))
-    s = 0.0
-    for k in range(kmin, kmax + 1):
-        denom = (f(k) * f(int(j1 + j2 - J - k)) * f(int(j1 - m1 - k))
-                 * f(int(j2 + m2 - k)) * f(int(J - j2 + m1 + k)) * f(int(J - j1 - m2 + k)))
-        s += (-1) ** k / denom
-    return pref * s
 
 
 def angular_momentum_matrices(F):

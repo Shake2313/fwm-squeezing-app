@@ -356,7 +356,7 @@ class ODScheme(Scheme):
             return H
 
         chi_bar = _solve_chi_avg(atom, build_H0, (1, 0), scan, params, h_dep=False)
-        N = atoms.rb85_density(T)
+        N = species.rb85_steck_density(T)
         return dict(model="single", scan=scan, chi_bar=chi_bar, N=N, T=T,
                     L=params.get("cell_mm", 10.0) * 1e-3, ls=1.0,
                     sigma_v=sigma_v, dopp_fwhm=dopp_fwhm,
@@ -431,7 +431,7 @@ def _medium_from_params(params, default_temp_c=50.0):
     key = params.get("species", "Rb (natural)")
     if key == LAMBDA_GENERIC:
         return dict(
-            key=key, label=key, line=line, T=T, N=atoms.rb85_density(T),
+            key=key, label=key, line=line, T=T, N=species.rb85_steck_density(T),
             gamma=GAMMA, gamma_mhz=GAMMA_MHZ, k_vec=K_VEC, omega0=OMEGA_D1,
             dipole=constants.DIPOLE_D1, mass=constants.MASS_85RB,
         )

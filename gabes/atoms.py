@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from . import constants, hyperfine
+from . import constants, hyperfine, species
 from .core import comm_super
 
 
@@ -217,13 +217,5 @@ def get(name):
     return REGISTRY[name]
 
 
-def rb85_density(T):
-    """
-    Rb-85 atomic number density [/m³] from Steck Rb vapor pressure
-    (liquid phase, T > 312.46 K). 85-Rb isotopic abundance applied.
-    """
-    log10_P_torr = (15.88253 - 4529.635 / T
-                    + 0.00058663 * T - 2.99138 * np.log10(T))
-    P_pa = 10 ** log10_P_torr * 133.322387415
-    N_total = P_pa / (constants.KB * T)
-    return constants.RB85_ABUNDANCE * N_total
+# Back-compat name (archive/fwm_obe.py, older scripts); defined in `species`.
+rb85_density = species.rb85_steck_density
