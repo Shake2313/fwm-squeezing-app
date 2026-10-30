@@ -32,10 +32,6 @@ K_D1_RB87 = 2 * np.pi * NU_D1_RB87 / constants.C_LIGHT
 # so this is an intensity scale rather than a per-subtransition statement.
 D1_ISAT_MW_CM2 = 4.4876
 
-GJ_5S12 = 2.002_331_070
-GJ_5P12 = 0.666
-GI_RB87 = -0.000_995_141_4
-
 CELL_BUFFER = "Buffer gas cell"
 CELL_PARAFFIN = "Paraffin coated cell"
 SIGNAL_TRANSMISSION = "Transmission"
@@ -70,17 +66,6 @@ def _parse_transition(label):
     """(Fg, Fe) from a transition label, or None if it can't be parsed."""
     nums = re.findall(r"\d+", str(label))
     return (int(nums[0]), int(nums[1])) if len(nums) >= 2 else None
-
-
-def _hyperfine_gf(I, J, F, gJ):
-    """Low-field hyperfine Lande g_F in Bohr-magneton units."""
-    F = float(F)
-    if F == 0:
-        return 0.0
-    ff = F * (F + 1)
-    electronic = gJ * (ff + J * (J + 1) - I * (I + 1)) / (2 * ff)
-    nuclear = GI_RB87 * (ff + I * (I + 1) - J * (J + 1)) / (2 * ff)
-    return electronic + nuclear
 
 
 def _maxwell_fallback_grid(T, mass, k_vec, gamma_hwhm):
@@ -611,8 +596,10 @@ class SinglePairMagnetoReference(Scheme):
         valid = (Fg in Fg_allowed and Fe in Fe_allowed and abs(Fe - Fg) <= 1
                  and strength > 1e-12 and (2 * Fg + 1) + (2 * Fe + 1) <= MAX_LEVELS)
 
-        gFg = _hyperfine_gf(RB87.I, RB87.Jg, Fg, GJ_5S12) if Fg in Fg_allowed else 0.0
-        gFe = _hyperfine_gf(RB87.I, JE_D1, Fe, GJ_5P12) if Fe in Fe_allowed else 0.0
+        gFg = (species.lande_gf(species.GJ_S12_LEGACY, RB87.g_I, RB87.I, RB87.Jg, Fg)
+               if Fg in Fg_allowed else 0.0)
+        gFe = (species.lande_gf(RB87.gJ_P12, RB87.g_I, RB87.I, JE_D1, Fe)
+               if Fe in Fe_allowed else 0.0)
 
         cell_type = params.get("cell_type", CELL_PARAFFIN)
         buffer_gamma = (constants.neon_buffer_broadening(

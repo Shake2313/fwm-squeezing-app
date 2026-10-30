@@ -7,8 +7,9 @@ the SAS model is in `schemes/sas.py`.
 What it provides
   * Per-isotope hyperfine constants (magnetic-dipole A, electric-quadrupole B)
     for the 5S/6S ground and the nP_{1/2} (D1) / nP_{3/2} (D2) excited states,
-    optical line-centre (centroid) frequencies, masses, natural linewidths and
-    isotopic abundances — for ⁸⁵Rb, ⁸⁷Rb and ¹³³Cs.
+    optical line-centre (centroid) frequencies, masses, natural linewidths,
+    isotopic abundances and electronic/nuclear g-factors (`lande_gf` → g_F) —
+    for ⁸⁵Rb, ⁸⁷Rb and ¹³³Cs.
   * The Casimir hyperfine-energy formula → every F level placed exactly from A, B
     (no per-line hard-coded tables; self-validating against the known Rb ground /
     excited splittings already in `constants`/`hyperfine`).
@@ -49,6 +50,11 @@ _LG, _LE, _SE = 0, 1, 0.5      # alkali D line: nS → nP orbital, electron spin
 # Self-broadening coefficient β/2π = 0.69e-7 Hz·cm³ (Rb; AutoOD).
 BETA_SELF = 2 * np.pi * 0.69e-7 * 1e-6        # rad·s⁻¹·m³
 
+# Legacy ground g_J used by the magneto schemes; the Steck record `gJ_S` is
+# 2.00233113 for Rb (−3.0e-8 relative). Kept so magneto outputs stay
+# bit-identical (docs/checklist.json atomic-data-legacy-value-unification).
+GJ_S12_LEGACY = 2.002_331_070
+
 
 # =====================================================================
 # Hyperfine line strengths
@@ -85,6 +91,15 @@ def f_values(I, J):
     return [lo + k for k in range(n + 1)]
 
 
+def lande_gf(g_J, g_I, I, J, F):
+    """Low-field hyperfine Landé g_F in Bohr-magneton units (0 for F = 0)."""
+    if not F:
+        return 0.0
+    ff = F * (F + 1)
+    return (g_J * (ff + J * (J + 1) - I * (I + 1))
+            + g_I * (ff + I * (I + 1) - J * (J + 1))) / (2 * ff)
+
+
 # =====================================================================
 # Isotope data (Steck D-line data sheets)
 # =====================================================================
@@ -103,6 +118,10 @@ class Isotope:
     nu_D2: float          # D2 line-centre (centroid) frequency [Hz]
     gamma_D1_mhz: float   # natural linewidth Γ/2π on D1 [MHz]
     gamma_D2_mhz: float   # natural linewidth Γ/2π on D2 [MHz]
+    gJ_S: float           # electronic g_J of nS_{1/2}
+    gJ_P12: float         # electronic g_J of nP_{1/2}
+    gJ_P32: float         # electronic g_J of nP_{3/2}
+    g_I: float            # nuclear g_I (Bohr-magneton units, sign included)
     Jg: float = 0.5
 
     def line(self, which):
@@ -116,19 +135,22 @@ RB85 = Isotope(
     name="Rb85", label="⁸⁵Rb", I=2.5, mass=84.911_789_738 * _AMU, abundance=0.7217,
     A_S=1011.910_813, A_P12=120.527, A_P32=25.0020, B_P32=25.790,
     nu_D1=377.107_385_690e12, nu_D2=384.230_406_373e12,
-    gamma_D1_mhz=5.7500, gamma_D2_mhz=6.0666)
+    gamma_D1_mhz=5.7500, gamma_D2_mhz=6.0666,
+    gJ_S=2.002_331_13, gJ_P12=0.666, gJ_P32=1.3362, g_I=-0.000_293_640_00)
 
 RB87 = Isotope(
     name="Rb87", label="⁸⁷Rb", I=1.5, mass=86.909_180_527 * _AMU, abundance=0.2783,
     A_S=3417.341_306, A_P12=407.24, A_P32=84.7185, B_P32=12.4965,
     nu_D1=377.107_463_380e12, nu_D2=384.230_484_468e12,
-    gamma_D1_mhz=5.7500, gamma_D2_mhz=6.0666)
+    gamma_D1_mhz=5.7500, gamma_D2_mhz=6.0666,
+    gJ_S=2.002_331_13, gJ_P12=0.666, gJ_P32=1.3362, g_I=-0.000_995_141_4)
 
 CS133 = Isotope(
     name="Cs133", label="¹³³Cs", I=3.5, mass=132.905_451_961 * _AMU, abundance=1.0,
     A_S=2298.157_943, A_P12=291.9201, A_P32=50.275, B_P32=-0.53,
     nu_D1=335.116_048_807e12, nu_D2=351.725_718_501e12,
-    gamma_D1_mhz=4.5612, gamma_D2_mhz=5.2227)
+    gamma_D1_mhz=4.5612, gamma_D2_mhz=5.2227,
+    gJ_S=2.002_540_32, gJ_P12=0.665_90, gJ_P32=1.334_00, g_I=-0.000_398_853_95)
 
 ISOTOPES = {iso.name: iso for iso in (RB85, RB87, CS133)}
 

@@ -59,8 +59,8 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
   - `zeeman.py` — `zeeman_manifold(F_g, F_e)` builder (σ±/π couplings,
     CG-branched decay) for the magneto-optics schemes.
   - `species.py` — alkali D-line data (⁸⁵Rb/⁸⁷Rb/¹³³Cs hyperfine A/B constants,
-    line-centre frequencies, masses, linewidths, abundances; Steck), line
-    strengths, Casimir hyperfine energies, and the single source of the vapor
+    line-centre frequencies, masses, linewidths, abundances, g_J/g_I; Steck),
+    line strengths, Casimir hyperfine energies, Landé g_F, and the single source of the vapor
     pressure, densities (CRC; legacy Steck × abundance) and self-broadening β;
     plus the SAS hyperfine-manifold builder `build_manifold(iso, line)`
     (CG-branched decay + transit-time relaxation).

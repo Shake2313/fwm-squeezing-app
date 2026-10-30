@@ -61,16 +61,6 @@ class MultilevelAtom:
         return self.thermal.size
 
 
-def _landeg(iso, F):
-    if not F:
-        return 0.0
-    J, I = iso.Jg, iso.I
-    gi = -0.0002936400 if iso.name == "Rb85" else -0.0009951414
-    ff = F * (F + 1)
-    return (2.002331070 * (ff + J*(J+1) - I*(I+1))
-            + gi * (ff + I*(I+1) - J*(J+1))) / (2*ff)
-
-
 @lru_cache(maxsize=4)
 def build_multilevel_atom(isotope="Rb85", line="D1"):
     """Full angular dipoles plus secular ground-density coordinates.
@@ -116,7 +106,8 @@ def build_multilevel_atom(isotope="Rb85", line="D1"):
         np.array([species.hf_energy_mhz(iso.A_S, 0, iso.I, iso.Jg, f) for f in fs]),
         np.array([species.hf_energy_mhz(Ae, Be, iso.I, Je, f) for f, _ in excited]),
         gamma, nu, d2, iso.mass, thermal, trace,
-        tuple(_landeg(iso, f) for f in fs))
+        tuple(species.lande_gf(species.GJ_S12_LEGACY, iso.g_I, iso.I, iso.Jg, f)
+              for f in fs))
 
 
 def component_centroid_mhz(atom, ground_f=None):

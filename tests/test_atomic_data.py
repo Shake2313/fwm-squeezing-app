@@ -65,9 +65,20 @@ def test_steck_density_is_the_second_convention():
     (constants.NU_GROUND_HF, 3.0 * species.RB85.A_S * 1e6, 0.0),
     (constants.NU_D1_85RB, species.RB85.nu_D1, 0.0),
     (constants.RB85_ABUNDANCE, species.RB85.abundance, 0.0),
+    (species.GJ_S12_LEGACY, species.RB87.gJ_S, -2.996507376e-8),
 ])
 def test_legacy_constants_deviate_only_as_documented(legacy, record, deviation):
     assert legacy / record - 1.0 == pytest.approx(deviation, rel=1e-6, abs=1e-15)
+
+
+@pytest.mark.parametrize("iso", [species.RB85, species.RB87, species.CS133])
+def test_lande_gf_matches_the_j_half_closed_form(iso):
+    I, gJ, gI = iso.I, iso.gJ_S, iso.g_I
+    upper = species.lande_gf(gJ, gI, I, 0.5, I + 0.5)
+    lower = species.lande_gf(gJ, gI, I, 0.5, I - 0.5)
+    assert upper == pytest.approx((gJ + 2 * I * gI) / (2 * I + 1), rel=1e-14)
+    assert lower == pytest.approx((-gJ + (2 * I + 2) * gI) / (2 * I + 1), rel=1e-14)
+    assert species.lande_gf(gJ, gI, I, 0.5, 0) == 0.0
 
 
 if __name__ == "__main__":
