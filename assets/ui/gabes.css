@@ -408,11 +408,11 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 }
 
 .g-cell-label {
-  overflow: hidden;
-  color: var(--g-muted);
-  font-size: 0.75rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  color: var(--g-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .g-cell-value {

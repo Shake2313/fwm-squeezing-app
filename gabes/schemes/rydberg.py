@@ -1352,10 +1352,6 @@ class RydbergEITScheme(Scheme):
                 axT.set_ylabel("Transmission")
                 axT.axvline(0.0, color="gray", ls=":", lw=0.8)
                 axT.legend(fontsize=9, loc="upper right")
-                axT.set_title(
-                    f"85Rb Rydberg-EIT: "
-                    f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-                    f"probe = {raw['probe_power_uw']:.1f} uW")
                 xlim = max(2.5, 2.5 * width)
                 axT.set_xlim(-xlim, xlim)
             else:
@@ -1364,10 +1360,6 @@ class RydbergEITScheme(Scheme):
                 axT.plot(x, T_trans, color="#0f766e", lw=1.8)
                 axT.set_ylabel("Transmission")
                 axT.set_ylim(-0.02, 1.04)
-                axT.set_title(
-                    f"85Rb Rydberg {view}: "
-                    f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-                    f"Omega_LO = {raw['lo_rabi_mhz']:.2f} MHz")
                 response_x = (superhet["response_detuning_mhz"]
                               if superhet is not None else np.array([]))
                 response_per_khz = (

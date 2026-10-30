@@ -133,10 +133,11 @@ export default function(component) {
         c.point.setAttribute('cx',x);c.point.setAttribute('cy',Number.isFinite(y)?y:0);
         c.point.style.display=Number.isFinite(y)?'':'none';
       });
-      text=`δ ${fmt(values.tpd)} MHz · Gain ${d.gain_digits===3?'≈ ':''}${fmt(ys[0],d.gain_digits||6)} · Noise ${fmt(ys[1])} dB`;
+      text=`δ ${fmt(values.tpd)} MHz · Gain ${d.gain_digits===3?'≈ ':''}${fmt(ys[0],d.gain_digits||6)} · Squeezing ${fmt(ys[1])} dB`;
     }
     const prefix=phase==='preview'?'Preview · ':phase==='syncing'?'Updating · ':'';
-    status.textContent=prefix+text+(phase!=='ready'?' · Result cards show the last confirmed values.':'');
+    status.textContent=d.kind==='cursor'&&phase==='ready'?'':
+      prefix+text+(phase!=='ready'?' · Result cards show the last confirmed values.':'');
     root.setAttribute('aria-busy',String(phase==='syncing'));
     root.dataset.phase=phase;
     window.dispatchEvent(new CustomEvent('gabes-plot-status',{

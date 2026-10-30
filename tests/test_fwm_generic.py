@@ -447,7 +447,7 @@ def test_fwm_ui_uses_short_labels_without_changing_stored_values():
 
     assert specs["probe_uw"].label == "Seed power"
     assert specs["opd"].label == "One-photon detuning Δ"
-    assert specs["tpd"].label == "Two-photon detuning δ"
+    assert specs["tpd"].label == "Two-photon Detuning"
     assert specs["after_cell_eff_pct"].label == "After-cell optical efficiency η_after cell"
     assert specs["qe_pct"].label == "Detector quantum efficiency η_QE"
     assert "detection_eff_pct" not in specs
@@ -680,7 +680,7 @@ def test_fwm_info_keeps_zeeman_diagnostic_scope_explicit():
     scheme = fwm.FWMScheme()
     info = scheme.info()
     assert "Linear noise figure NF" in info
-    assert "Squeezing Degree [dB]" in info
+    assert "Squeezing [dB]" in info
     assert "calculated shot RIN" in info
     assert "not a physical squeezing spectrum" in info
     assert "Reduced model" in info
@@ -922,7 +922,7 @@ def test_full_scan_plot_uses_display_solver_detail():
     fig = fwm.FWMScheme().extra_views()[0].render(full)
     assert fig.axes[0].get_title().startswith("Solver detail: Fast")
     assert "seed RIN a = 0 /Hz" in fig.axes[0].get_title()
-    assert fig.axes[1].get_ylabel() == "Squeezing Degree [dB]"
+    assert fig.axes[1].get_ylabel() == "Squeezing [dB]"
     assert "internal propagation token" not in fig.axes[0].get_title()
 
     import matplotlib.pyplot as plt

@@ -339,4 +339,4 @@ def test_actual_streamlit_preset_calibration_and_hidden_reference():
     labels = [metric.label for metric in app.metric]
     assert "Seed gain G_s" in labels
     assert "Conjugate gain G_c" in labels
-    assert "Squeezing Degree [dB]" in labels
+    assert "Squeezing [dB]" in labels

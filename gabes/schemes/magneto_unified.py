@@ -478,6 +478,5 @@ class UnifiedMagnetoScheme(Scheme):
                 axes[0].legend(loc="best", fontsize=8)
         axes[-1].set_xlabel("Optical detuning from ground-component centroid [MHz]" if optical else
                             "Commanded magnetic field B [uT]")
-        axes[0].set_title(f"{raw['backend']['isotope']} {raw['backend']['line']} multihyperfine magneto-optics")
         fig.tight_layout()
         return apply_gabes_plot_style(fig)

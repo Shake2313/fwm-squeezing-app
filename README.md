@@ -170,7 +170,7 @@ CSV comparison is on Transmission. Comparison and
 export controls rerun only their plot section, reuse the cached theory, and
 export the same aligned data shown on the graph with correction provenance.
 
-In seeded FWM, dragging **Two-photon detuning δ** previews the cursor and selected
+In seeded FWM, dragging **Two-photon Detuning** previews the cursor and selected
 gain/noise locally on the cached curves. Clicking or dragging directly on the
 plot also selects δ. Release commits the operating point and updates the result
 strip and exports; the preview interpolates canonical NF before taking its dB log.

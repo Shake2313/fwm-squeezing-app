@@ -47,7 +47,7 @@ def test_absorption_efficiencies_use_positive_loss_not_net_gain_or_repeated_nf_l
         assert rates["in_cell_absorption_transmission"] == pytest.approx(transmission)
         assert view["sidebar_readouts"][f"eta_{arm}_pct"]["value"] == pytest.approx(100*.3*transmission)
         assert rates["alpha_abs_per_m"] >= 0 and rates["alpha_em_per_m"] >= 0
-    assert view["metrics"][0]["label"] == "Squeezing Degree [dB]"
+    assert view["metrics"][0]["label"] == "Squeezing [dB]"
 
 
 def test_classical_seed_and_external_efficiencies_do_not_change_absorption_or_cached_mean(physical_view):

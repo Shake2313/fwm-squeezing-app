@@ -71,7 +71,7 @@ def test_focused_headless_current_nf_mask_nonpassive_points_without_cache_mutati
         np.testing.assert_allclose(np.interp(delta, line.get_xdata(), curve),
                                    expected["NF_dB"], equal_nan=True)
         assert np.isnan(np.interp(0.0, line.get_xdata(), curve))
-        assert rendered["metrics"][0]["label"] == "Squeezing Degree [dB]"
+        assert rendered["metrics"][0]["label"] == "Squeezing [dB]"
         assert rendered["metrics"][0]["value"] == f"{expected['NF_dB'][0]:.2f} dB"
         current = rendered["jasperse_readout"]
         np.testing.assert_allclose(current["seed_fano_input"],

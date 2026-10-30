@@ -830,25 +830,13 @@ class SASScheme(Scheme):
         buffer_mhz = raw.get("buffer_gamma", 0.0) / (2 * np.pi) / 1e6
         pump = params["pump_power_mw"]
         pump_on = pump > 0
-        probe_power = float(raw.get("probe_power_mw", _probe_power_mw(params)))
-        regime = "OD (pump off)" if pump <= 0 else f"SAS, P = {pump:.2f} mW"
-        if finite_probe:
-            regime += f", probe = {probe_power * 1e3:.1f} µW"
 
         fig = None
         figure_views = []
         if include_figures:
             import matplotlib.pyplot as plt
 
-            title = (f"{raw['species']} {raw['line']} — {regime}:  "
-                     f"{_temperature_title(raw, params)}, "
-                     f"L = {params['cell_mm']:.0f} mm")
-            if raw.get("rb_composition") == RB_COMPOSITION_CUSTOM:
-                fraction = float(raw["rb85_fraction"])
-                title = (f"Rb {raw['line']} — {fraction * 100:.2f}% Rb85 / "
-                         f"{(1.0 - fraction) * 100:.2f}% Rb87 — {regime}:  "
-                         f"{_temperature_title(raw, params)}, "
-                         f"L = {params['cell_mm']:.0f} mm")
+            title = ""
             xlabel = "Relative frequency  [GHz]  (ref: line centroid)"
             marker_x = [gx for gx, _lbl in raw["markers"]]
             fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
@@ -960,8 +948,7 @@ class SASScheme(Scheme):
         if include_figures:
             import matplotlib.pyplot as plt
 
-            title = (f"Generic SAS: P = {params['pump_power_mw']:.2f} mW, "
-                     f"{_temperature_title(raw, params)}")
+            title = ""
             xlabel = "Probe detuning  [MHz]"
             fig, axT = plt.subplots(1, 1, figsize=(8.5, 4.35))
             axT.plot(x, T_trans, color="#0284C7", lw=1.6)

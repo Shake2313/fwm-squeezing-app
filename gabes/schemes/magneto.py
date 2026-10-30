@@ -1138,8 +1138,6 @@ class SinglePairMagnetoReference(Scheme):
                        if label != "Command zero" and not label.startswith("+/-1 sigma")]
             ax.legend([h for h, _ in entries], [label for _, label in entries], fontsize=8)
 
-        title = (f"87Rb D1 {raw['cell_type']}  F={raw['Fg']} -> F'={raw['Fe']},  "
-                 f"QWP={raw['qwp_deg']:.1f} deg, I={params['intensity_mw_cm2']:.2f} mW/cm^2")
         fig = None
         if params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR:
             metrics = [
@@ -1193,7 +1191,6 @@ class SinglePairMagnetoReference(Scheme):
                 ax.set_ylabel("Polarization rotation  [mrad]" if linear_input else
                               "Circular-birefringence diagnostic  [mrad]")
                 ax.set_xlabel("Commanded magnetic field B  [uT]")
-                ax.set_title(title)
                 fig.tight_layout()
         else:
             metrics = [
@@ -1232,7 +1229,6 @@ class SinglePairMagnetoReference(Scheme):
                 plot_legend(axT)
                 axT.set_ylabel("Transmission")
                 axT.set_xlabel("Commanded magnetic field B  [uT]")
-                axT.set_title(title)
                 fig.tight_layout()
 
         rotation_view = params.get("signal_type", SIGNAL_TRANSMISSION) == SIGNAL_NMOR

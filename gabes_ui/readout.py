@@ -25,7 +25,7 @@ def present_metrics(metrics, *, scheme_name, raw=None):
         return items
     gain_supported = bool((raw or {}).get("claim_gate", {}).get("quantitative_gain_supported"))
     for metric in items:
-        if metric.get("label") == "Squeezing Degree [dB]" and metric.get("delta"):
+        if metric.get("label") in {"Squeezing [dB]", "Squeezing Degree [dB]"} and metric.get("delta"):
             note = str(metric.pop("delta"))
             if "physical squeezing unavailable" in note:
                 scope = ("Conditional NF" if "conditional passive completion" in note else

@@ -3969,7 +3969,7 @@ class FWMScheme(Scheme):
                       -3.0, 3.0, 0.1, "GHz",
                       visible_if=seeded,
                       help="Pump detuning from the F=2→F′=3 transition."),
-            ParamSpec("tpd", "Two-photon detuning δ", "Detunings", -8.0,
+            ParamSpec("tpd", "Two-photon Detuning", "Detunings", -8.0,
                       -TPD_LIMIT_MHZ, TPD_LIMIT_MHZ, 1.0, "MHz", recompute=False,
                       visible_if=seeded,
                       help="Selects the operating point on the cached curve."),
@@ -4351,7 +4351,7 @@ class FWMScheme(Scheme):
             "common-loss assumption to match the displayed gain pair. "
             "Linear noise figure NF is "
             "Var(N_probe−N_conjugate)/mean(N_probe+N_conjugate); "
-            "Squeezing Degree [dB] is 10 log₁₀(NF). The alternative Passive L1 readout uses the canonical "
+            "Squeezing [dB] is 10 log₁₀(NF). The alternative Passive L1 readout uses the canonical "
             "transfer before the pump-energy cap. It assumes a static annihilation-only "
             "vacuum completion and a bright seed. Points without this completion are "
             "unavailable. Without atomic Langevin covariance it is not a physical "
@@ -4498,7 +4498,7 @@ class FWMScheme(Scheme):
         passive_readout = None
         passive_op = None
         selected_noise_db = op["gain_referred_noise_dB"]
-        noise_label = "Squeezing Degree [dB]"
+        noise_label = "Squeezing [dB]"
         noise_help = (
             "10 log10(NF), where NF=Var(N_probe-N_conjugate)/mean(N_probe+N_conjugate). "
             "Legacy data without a canonical map retain only their gain approximation.")
@@ -4572,11 +4572,7 @@ class FWMScheme(Scheme):
             axG.scatter([tpd], [displayed_point["G_s"]], color="crimson", zorder=5)
             axG.set_ylabel("Calibrated pump-off-reference gain" if gain_active else
                            "Atomic probe / conjugate gain" if measured_reference["requested"] else
-                           "Probe / conjugate gain")
-            axG.set_title(f"Delta = {params['opd']:.1f} GHz,  "
-                          f"T = {params['temp_c']:.0f} C,  eta_ext = {_detection_efficiency_from_params(params):.3f},  "
-                          f"{_seeded_noise_caption(params)}"
-                          + (",  empirical gain calibration" if gain_active else ""))
+                           "Gain")
             if max(np.nanmax(displayed_gs), np.nanmax(displayed_gc)) > 50:
                 axG.set_yscale("log")
             noise_axis = gain_axis if experimental_noise is not None else d_axis
@@ -4593,9 +4589,8 @@ class FWMScheme(Scheme):
             axS.axhline(0.0, color="black", lw=0.6)
             axS.scatter([tpd], [selected_noise_db],
                         color="crimson", zorder=5)
-            axS.set_ylabel("Squeezing Degree [dB]")
-            axS.set_xlabel(
-                "Two-photon detuning delta [MHz]   (probe on the - Raman branch)")
+            axS.set_ylabel("Squeezing [dB]")
+            axS.set_xlabel("Two-photon Detuning [MHz]")
             axS.set_xlim(-TPD_LIMIT_MHZ, TPD_LIMIT_MHZ)
             fig.tight_layout()
 
@@ -4729,7 +4724,7 @@ class FWMScheme(Scheme):
             noise_rows += (
                 f"| Noise model | {noise_model} |\n"
                 f"| NF | {noise_point['NF']:.6g} |\n"
-                f"| Squeezing Degree [dB] = 10 log10(NF) | {selected_noise_db:.6g} |\n"
+                f"| Squeezing [dB] = 10 log10(NF) | {selected_noise_db:.6g} |\n"
                 f"| Seed classical RIN a | {at_point(seed['classical_rin_per_Hz']):.6g} Hz⁻¹ |\n"
                 f"| Seed shot RIN b = 2ℏω/P | {at_point(seed['shot_rin_per_Hz']):.6g} Hz⁻¹ |\n"
                 f"| Input seed Fano factor = 1+a/b | {at_point(seed['seed_fano']):.6g} |\n"
@@ -5430,7 +5425,7 @@ class FWMScheme(Scheme):
             if max(np.nanmax(full[key]["G_s"]) for key in styles) > 50:
                 aG.set_yscale("log")
             aS.axhline(0.0, color="black", lw=0.6)
-            aS.set_ylabel("Squeezing Degree [dB]")
+            aS.set_ylabel("Squeezing [dB]")
             aS.set_xlabel("Probe detuning from F=2 -> F'=3 [GHz]")
             for a in (aG, aS):
                 a.axvline(full["D_GHz"], color="gray", ls=":", lw=0.8)

@@ -9,7 +9,7 @@ from gabes_ui.shell import apply_scheme_link
 
 
 def test_noise_scope_is_attached_and_numeric_units_are_not_duplicated():
-    metrics = [dict(label="Squeezing Degree [dB]", value="-8.19 dB", tier="hero",
+    metrics = [dict(label="Squeezing [dB]", value="-8.19 dB", tier="hero",
                     delta="conditional passive completion; physical squeezing unavailable"),
                dict(label="Seed gain G_s", value="394.88", tier="hero"),
                dict(label="Conjugate gain G_c", value="397.11")]
@@ -17,8 +17,8 @@ def test_noise_scope_is_attached_and_numeric_units_are_not_duplicated():
     presented = present_metrics(metrics, scheme_name="fwm", raw={"claim_gate": {"quantitative_gain_supported": False}})
     h, s, status, _ = partition_readout(presented)
     html = strip_html(h, s, status)
-    assert "Squeezing Degree [dB]" not in html
-    assert "Squeezing Degree</div>" in html and ">dB</span>" in html
+    assert "Squeezing [dB]" not in html
+    assert "Squeezing</div>" in html and ">dB</span>" in html
     assert re.sub(r"<[^>]+>", "", html).count("physical squeezing unavailable") == 1
     assert "g-cell-status" in html and "g-chip--warn" in html
     assert "Seed gain G<sub>s</sub>" in html

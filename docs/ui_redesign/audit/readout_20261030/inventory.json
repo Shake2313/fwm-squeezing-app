@@ -1,0 +1,1446 @@
+[
+  {
+    "mode": "OD",
+    "heroes": [
+      "Peak absorbance A10"
+    ],
+    "secondary": [
+      "Peak optical depth tau",
+      "Gaussian Doppler FWHM",
+      "Peak phase shift"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Peak absorbance A10",
+        "value": "0.98",
+        "help": "Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. Uniform Beer-Lambert intensity attenuation.",
+        "tier": "hero"
+      },
+      {
+        "label": "Peak optical depth tau",
+        "value": "2.25",
+        "help": "Optical depth τ = −ln(T) = α_eff L, dimensionless. Uniform Beer-Lambert intensity attenuation."
+      },
+      {
+        "label": "Gaussian Doppler FWHM",
+        "value": "518.7 MHz",
+        "help": "Calculated thermal Gaussian FWHM for one optical line, from the cell temperature. It is not a measured Voigt or multi-line envelope FWHM."
+      },
+      {
+        "label": "Peak phase shift",
+        "value": "710.2 mrad",
+        "help": "Largest single-pass |φ| = k·(n−1)·L from the dispersive (real) part of the same susceptibility that gives the absorption, with n = 1 + Re χ/2. A phase quantity — not a group delay. It is the medium's phase alone: a deeply absorbed spectral region can carry a large phase with almost no light left to measure it."
+      }
+    ]
+  },
+  {
+    "mode": "SAS default",
+    "heroes": [
+      "Sub-Doppler FWHM"
+    ],
+    "secondary": [
+      "Half-height edges",
+      "Samples / FWHM",
+      "Scan-edge distance",
+      "Peak absorbance A10"
+    ],
+    "statuses": [
+      "SAS resolution"
+    ],
+    "overflow": [
+      "Peak optical depth tau",
+      "Gaussian Doppler FWHM",
+      "Peak phase shift"
+    ],
+    "metrics": [
+      {
+        "label": "SAS resolution",
+        "value": "resolution-limited",
+        "kind": "status",
+        "help": "Fewer than six sample intervals span the interpolated feature FWHM.",
+        "tier": "hero"
+      },
+      {
+        "label": "Sub-Doppler FWHM",
+        "value": "18.87 MHz",
+        "help": "Interpolated residual half-height width near -1296.9 MHz; report the linewidth only when the SAS resolution status is resolved."
+      },
+      {
+        "label": "Half-height edges",
+        "value": "-1304.16 to -1285.29 MHz",
+        "help": "Linear interpolation between the samples bracketing each half-height crossing."
+      },
+      {
+        "label": "Samples / FWHM",
+        "value": "2.3",
+        "help": "Interpolated FWHM divided by the local median sample spacing; at least 6 is required for resolved status."
+      },
+      {
+        "label": "Scan-edge distance",
+        "value": "3505.6 MHz",
+        "help": "Nearest distance from either interpolated half-height edge to the displayed scan boundary; at least one FWHM is required."
+      },
+      {
+        "label": "Peak absorbance A10",
+        "value": "0.93",
+        "help": "Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. Uniform Beer-Lambert intensity attenuation."
+      },
+      {
+        "label": "Peak optical depth tau",
+        "value": "2.14",
+        "help": "Optical depth τ = −ln(T) = α_eff L, dimensionless. Uniform Beer-Lambert intensity attenuation."
+      },
+      {
+        "label": "Gaussian Doppler FWHM",
+        "value": "518.7 MHz",
+        "help": "Calculated thermal Gaussian FWHM for one optical line, from the cell temperature. It is not a measured Voigt or multi-line envelope FWHM."
+      },
+      {
+        "label": "Peak phase shift",
+        "value": "688.3 mrad",
+        "help": "Largest single-pass |φ| = k·(n−1)·L from the dispersive (real) part of the same susceptibility that gives the absorption, with n = 1 + Re χ/2. A phase quantity — not a group delay. It is the medium's phase alone: a deeply absorbed spectral region can carry a large phase with almost no light left to measure it."
+      }
+    ]
+  },
+  {
+    "mode": "SAS coarse grid",
+    "heroes": [
+      "Sub-Doppler FWHM"
+    ],
+    "secondary": [
+      "Half-height edges",
+      "Samples / FWHM",
+      "Scan-edge distance",
+      "Peak absorbance A10"
+    ],
+    "statuses": [
+      "SAS resolution"
+    ],
+    "overflow": [
+      "Peak optical depth tau",
+      "Gaussian Doppler FWHM",
+      "Peak phase shift"
+    ],
+    "metrics": [
+      {
+        "label": "SAS resolution",
+        "value": "resolution-limited",
+        "kind": "status",
+        "help": "Fewer than six sample intervals span the interpolated feature FWHM.",
+        "tier": "hero"
+      },
+      {
+        "label": "Sub-Doppler FWHM",
+        "value": "306.51 MHz",
+        "help": "Interpolated residual half-height width near +1958.2 MHz; report the linewidth only when the SAS resolution status is resolved."
+      },
+      {
+        "label": "Half-height edges",
+        "value": "+1806.58 to +2113.09 MHz",
+        "help": "Linear interpolation between the samples bracketing each half-height crossing."
+      },
+      {
+        "label": "Samples / FWHM",
+        "value": "1.4",
+        "help": "Interpolated FWHM divided by the local median sample spacing; at least 6 is required for resolved status."
+      },
+      {
+        "label": "Scan-edge distance",
+        "value": "4357.1 MHz",
+        "help": "Nearest distance from either interpolated half-height edge to the displayed scan boundary; at least one FWHM is required."
+      },
+      {
+        "label": "Peak absorbance A10",
+        "value": "0.90",
+        "help": "Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. Uniform Beer-Lambert intensity attenuation."
+      },
+      {
+        "label": "Peak optical depth tau",
+        "value": "2.07",
+        "help": "Optical depth τ = −ln(T) = α_eff L, dimensionless. Uniform Beer-Lambert intensity attenuation."
+      },
+      {
+        "label": "Gaussian Doppler FWHM",
+        "value": "518.7 MHz",
+        "help": "Calculated thermal Gaussian FWHM for one optical line, from the cell temperature. It is not a measured Voigt or multi-line envelope FWHM."
+      },
+      {
+        "label": "Peak phase shift",
+        "value": "603.4 mrad",
+        "help": "Largest single-pass |φ| = k·(n−1)·L from the dispersive (real) part of the same susceptibility that gives the absorption, with n = 1 + Re χ/2. A phase quantity — not a group delay. It is the medium's phase alone: a deeply absorbed spectral region can carry a large phase with almost no light left to measure it."
+      }
+    ]
+  },
+  {
+    "mode": "OD finite probe",
+    "heroes": [
+      "Effective peak absorbance A10"
+    ],
+    "secondary": [
+      "Effective peak optical depth tau",
+      "Gaussian Doppler FWHM",
+      "Peak probe saturation",
+      "Probe model scope"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Effective peak absorbance A10",
+        "value": "0.94",
+        "help": "Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. Collected Gaussian power transmission; alpha_eff = -ln(T) / L.",
+        "tier": "hero"
+      },
+      {
+        "label": "Effective peak optical depth tau",
+        "value": "2.17",
+        "help": "Optical depth τ = −ln(T) = α_eff L, dimensionless. Collected Gaussian power transmission; alpha_eff = -ln(T) / L."
+      },
+      {
+        "label": "Gaussian Doppler FWHM",
+        "value": "518.7 MHz",
+        "help": "Calculated thermal Gaussian FWHM for one optical line, from the cell temperature. It is not a measured Voigt or multi-line envelope FWHM."
+      },
+      {
+        "label": "Peak probe saturation",
+        "value": "0.43",
+        "help": "Strongest-transition on-axis resonant s₀ before propagation; Gaussian peak intensity 6.37 W/m². The selected line's ν and Γ set I_sat = πhcΓ/(3λ³). Hyperfine transitions use the AutoOD-style s_t = s₀·C_F²/C_F,max² scale and local intensity depletion."
+      },
+      {
+        "label": "Probe model scope",
+        "value": "Generalized estimate",
+        "help": "Rb (natural) D1 uses line-specific two-level scaling without a matching finite-power reference."
+      }
+    ]
+  },
+  {
+    "mode": "Lambda EIT",
+    "heroes": [
+      "Transmission at resonance",
+      "Window FWHM"
+    ],
+    "secondary": [
+      "Group index n_g"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Transmission at resonance",
+        "value": "0.012",
+        "help": "Probe transmission at two-photon resonance (transparency).",
+        "tier": "hero"
+      },
+      {
+        "label": "Window FWHM",
+        "value": "1.38 MHz",
+        "help": "Width of the transparency feature.",
+        "tier": "hero"
+      },
+      {
+        "label": "Group index n_g",
+        "value": "1.222e+05",
+        "help": "n_g = n + ω dn/dω at resonance (slow light when ≫ 1)."
+      }
+    ]
+  },
+  {
+    "mode": "Lambda AT",
+    "heroes": [
+      "AT splitting",
+      "Transmission at center"
+    ],
+    "secondary": [
+      "Expected ≈ Ω_c"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "AT splitting",
+        "value": "46.0 MHz",
+        "help": "Separation of the two absorption maxima.",
+        "tier": "hero"
+      },
+      {
+        "label": "Expected ≈ Ω_c",
+        "value": "46.0 MHz",
+        "help": "Coupling Rabi frequency Ω_c/2π."
+      },
+      {
+        "label": "Transmission at center",
+        "value": "0.989",
+        "tier": "hero"
+      }
+    ]
+  },
+  {
+    "mode": "Lambda CPT",
+    "heroes": [
+      "Transmission at resonance",
+      "Window FWHM"
+    ],
+    "secondary": [
+      "Group index n_g"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Transmission at resonance",
+        "value": "0.706",
+        "help": "Probe transmission at two-photon resonance (transparency).",
+        "tier": "hero"
+      },
+      {
+        "label": "Window FWHM",
+        "value": "923.32 kHz",
+        "help": "Width of the transparency feature.",
+        "tier": "hero"
+      },
+      {
+        "label": "Group index n_g",
+        "value": "9.525e+04",
+        "help": "n_g = n + ω dn/dω at resonance (slow light when ≫ 1)."
+      }
+    ]
+  },
+  {
+    "mode": "Rydberg EIT",
+    "heroes": [
+      "EIT linewidth",
+      "Transmission at resonance"
+    ],
+    "secondary": [
+      "Max spectral slope",
+      "IF discriminator",
+      "IF optimum detuning"
+    ],
+    "statuses": [
+      "Prediction scope"
+    ],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "EIT linewidth",
+        "value": "1.61 MHz",
+        "help": "FWHM of the central transparency feature.",
+        "tier": "hero"
+      },
+      {
+        "label": "Transmission at resonance",
+        "value": "0.940",
+        "tier": "hero"
+      },
+      {
+        "label": "Max spectral slope",
+        "value": "0.122 /MHz",
+        "help": "Largest static dT/dnu; used internally for electrometry tests."
+      },
+      {
+        "label": "IF discriminator",
+        "value": "0.122 /MHz",
+        "help": "Finite-difference transmission discriminator at the selected IF offset; a static proxy for a lock-in/superhet readout."
+      },
+      {
+        "label": "IF optimum detuning",
+        "value": "-0.72 MHz",
+        "help": "Probe detuning where the finite-IF discriminator is largest."
+      },
+      {
+        "label": "Prediction scope",
+        "value": "PREDICTED · opacity uncalibrated",
+        "kind": "status",
+        "help": "The opacity and its scenario range are assumed; absolute sensitivity and sweep optima lack held-out validation."
+      }
+    ]
+  },
+  {
+    "mode": "Rydberg AT electrometry",
+    "heroes": [
+      "Total sensitivity",
+      "PSN-limited sensitivity"
+    ],
+    "secondary": [
+      "RF field from fitted Ω_RF",
+      "RF AT splitting",
+      "AT split field estimate",
+      "AT center shift"
+    ],
+    "statuses": [
+      "Prediction scope"
+    ],
+    "overflow": [
+      "Max spectral slope",
+      "IF discriminator",
+      "IF optimum detuning",
+      "Transmission at resonance",
+      "Technical field noise",
+      "Superhet optimum detuning",
+      "Superhet response phase",
+      "RMS noise in ENBW",
+      "Detector shot-current ASD"
+    ],
+    "metrics": [
+      {
+        "label": "Total sensitivity",
+        "value": "6.08 nV/cm/√Hz",
+        "help": "Finite-IF weak-SIG OBE response divided into the total balanced-detector ASD (PSN + RIN + electronics). This is a conditional model prediction, not the paper's 12.5 value injected as an anchor.",
+        "tier": "hero"
+      },
+      {
+        "label": "PSN-limited sensitivity",
+        "value": "6.08 nV/cm/√Hz",
+        "help": "Probe photon-shot-noise contribution only, using the declared detector QE, optical path, reference arm, RF dipole, and RMS/peak convention.",
+        "tier": "hero"
+      },
+      {
+        "label": "RF field from fitted Ω_RF",
+        "value": "154.171 mV/m RMS",
+        "help": "Absolute field converted from the RF Rabi parameter used in the full optical-spectrum model. For experimental data, fit Ω_RF to the spectrum before using this value."
+      },
+      {
+        "label": "RF AT splitting",
+        "value": "3.50 MHz",
+        "help": "Separation of the two tallest dressed peaks."
+      },
+      {
+        "label": "AT split field estimate",
+        "value": "145.692 mV/m RMS",
+        "help": "Ideal two-level sqrt(split²-detuning²) estimate. Optical line pulling and multilevel effects are not corrected; the full-spectrum fitted Ω_RF field is preferred."
+      },
+      {
+        "label": "AT center shift",
+        "value": "+0.00 MHz",
+        "help": "Height-weighted centre of the dressed transparency peaks; nonzero when the microwave is detuned off the 40D–39F resonance."
+      },
+      {
+        "label": "Max spectral slope",
+        "value": "0.104 /MHz",
+        "help": "Largest static dT/dnu; used internally for electrometry tests."
+      },
+      {
+        "label": "IF discriminator",
+        "value": "0.103 /MHz",
+        "help": "Finite-difference transmission discriminator at the selected IF offset; a static proxy for a lock-in/superhet readout."
+      },
+      {
+        "label": "IF optimum detuning",
+        "value": "-2.19 MHz",
+        "help": "Probe detuning where the finite-IF discriminator is largest."
+      },
+      {
+        "label": "Transmission at resonance",
+        "value": "0.806"
+      },
+      {
+        "label": "Technical field noise",
+        "value": "0.00 nV/cm/√Hz",
+        "help": "Quadrature sum of residual RIN and detector electronics, referred back to the RF field."
+      },
+      {
+        "label": "Superhet optimum detuning",
+        "value": "-2.22 MHz",
+        "help": "Probe detuning minimizing total noise-equivalent field, including transmission-dependent shot noise (full probe-detuning scan)."
+      },
+      {
+        "label": "Superhet response phase",
+        "value": "+4.9°",
+        "help": "Photocurrent phasor phase relative to exp(-i omega_IF t)."
+      },
+      {
+        "label": "RMS noise in ENBW",
+        "value": "6.08 nV/cm",
+        "help": "Total white-noise ASD integrated over 1 Hz ENBW."
+      },
+      {
+        "label": "Detector shot-current ASD",
+        "value": "1.006 pA/√Hz",
+        "help": "One-sided Schottky ASD of the signal and weighted reference photodiodes, including dark current if supplied."
+      },
+      {
+        "label": "Prediction scope",
+        "value": "PREDICTED · opacity uncalibrated",
+        "kind": "status",
+        "help": "The opacity and its scenario range are assumed; absolute sensitivity and sweep optima lack held-out validation."
+      }
+    ]
+  },
+  {
+    "mode": "Rydberg detuned AT",
+    "heroes": [
+      "Total sensitivity",
+      "AT center shift"
+    ],
+    "secondary": [
+      "RF field from fitted Ω_RF",
+      "RF AT splitting",
+      "AT split field estimate",
+      "Max spectral slope"
+    ],
+    "statuses": [
+      "Prediction scope"
+    ],
+    "overflow": [
+      "IF discriminator",
+      "IF optimum detuning",
+      "Transmission at resonance",
+      "PSN-limited sensitivity",
+      "Technical field noise",
+      "Superhet optimum detuning",
+      "Superhet response phase",
+      "RMS noise in ENBW",
+      "Detector shot-current ASD"
+    ],
+    "metrics": [
+      {
+        "label": "Total sensitivity",
+        "value": "9.10 nV/cm/√Hz",
+        "help": "Finite-IF weak-SIG OBE response divided into the total balanced-detector ASD (PSN + RIN + electronics). This is a conditional model prediction, not the paper's 12.5 value injected as an anchor.",
+        "tier": "hero"
+      },
+      {
+        "label": "AT center shift",
+        "value": "-1.88 MHz",
+        "help": "Height-weighted centre of the dressed transparency peaks; nonzero when the microwave is detuned off the 40D–39F resonance.",
+        "tier": "hero"
+      },
+      {
+        "label": "RF field from fitted Ω_RF",
+        "value": "154.171 mV/m RMS",
+        "help": "Absolute field converted from the RF Rabi parameter used in the full optical-spectrum model. For experimental data, fit Ω_RF to the spectrum before using this value."
+      },
+      {
+        "label": "RF AT splitting",
+        "value": "5.22 MHz",
+        "help": "Separation of the two tallest dressed peaks."
+      },
+      {
+        "label": "AT split field estimate",
+        "value": "139.554 mV/m RMS",
+        "help": "Ideal two-level sqrt(split²-detuning²) estimate. Optical line pulling and multilevel effects are not corrected; the full-spectrum fitted Ω_RF field is preferred."
+      },
+      {
+        "label": "Max spectral slope",
+        "value": "0.120 /MHz",
+        "help": "Largest static dT/dnu; used internally for electrometry tests."
+      },
+      {
+        "label": "IF discriminator",
+        "value": "0.120 /MHz",
+        "help": "Finite-difference transmission discriminator at the selected IF offset; a static proxy for a lock-in/superhet readout."
+      },
+      {
+        "label": "IF optimum detuning",
+        "value": "+1.36 MHz",
+        "help": "Probe detuning where the finite-IF discriminator is largest."
+      },
+      {
+        "label": "Transmission at resonance",
+        "value": "0.895"
+      },
+      {
+        "label": "PSN-limited sensitivity",
+        "value": "9.10 nV/cm/√Hz",
+        "help": "Probe photon-shot-noise contribution only, using the declared detector QE, optical path, reference arm, RF dipole, and RMS/peak convention."
+      },
+      {
+        "label": "Technical field noise",
+        "value": "0.00 nV/cm/√Hz",
+        "help": "Quadrature sum of residual RIN and detector electronics, referred back to the RF field."
+      },
+      {
+        "label": "Superhet optimum detuning",
+        "value": "+1.39 MHz",
+        "help": "Probe detuning minimizing total noise-equivalent field, including transmission-dependent shot noise (full probe-detuning scan)."
+      },
+      {
+        "label": "Superhet response phase",
+        "value": "+4.3°",
+        "help": "Photocurrent phasor phase relative to exp(-i omega_IF t)."
+      },
+      {
+        "label": "RMS noise in ENBW",
+        "value": "9.10 nV/cm",
+        "help": "Total white-noise ASD integrated over 1 Hz ENBW."
+      },
+      {
+        "label": "Detector shot-current ASD",
+        "value": "1.011 pA/√Hz",
+        "help": "One-sided Schottky ASD of the signal and weighted reference photodiodes, including dark current if supplied."
+      },
+      {
+        "label": "Prediction scope",
+        "value": "PREDICTED · opacity uncalibrated",
+        "kind": "status",
+        "help": "The opacity and its scenario range are assumed; absolute sensitivity and sweep optima lack held-out validation."
+      }
+    ]
+  },
+  {
+    "mode": "Magneto Magnetic field / Transmission",
+    "heroes": [
+      "Transmission at declared bias"
+    ],
+    "secondary": [],
+    "statuses": [
+      "PSN magnetic sensitivity",
+      "Model scope",
+      "Atomic solver",
+      "Magnetic response",
+      "Optimum status",
+      "Optical excitation",
+      "Propagation scope",
+      "Velocity convergence",
+      "Cell approximation",
+      "Signal linearity",
+      "Rotation readout status"
+    ],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Transmission at declared bias",
+        "value": "0.9933",
+        "tier": "hero"
+      },
+      {
+        "label": "PSN magnetic sensitivity",
+        "value": "unavailable",
+        "tier": "hero",
+        "kind": "status"
+      },
+      {
+        "label": "Model scope",
+        "value": "weak-optical-excitation effective-operator model; all F,m dipole channels; ground-F secular approximation; coherent light shifts; conditional local uniform-intensity response; optical Zeeman shifts and linear Faraday background omitted; no spin-exchange, radiation trapping or propagation",
+        "kind": "status"
+      },
+      {
+        "label": "Atomic solver",
+        "value": "physical steady state",
+        "kind": "status"
+      },
+      {
+        "label": "Magnetic response",
+        "value": "analytic coupled-reservoir response validated",
+        "kind": "status"
+      },
+      {
+        "label": "Optimum status",
+        "value": "local response at declared physical bias",
+        "kind": "status"
+      },
+      {
+        "label": "Optical excitation",
+        "value": "weak excitation",
+        "kind": "status"
+      },
+      {
+        "label": "Propagation scope",
+        "value": "homogeneous intensity; longitudinal depletion omitted",
+        "kind": "status"
+      },
+      {
+        "label": "Velocity convergence",
+        "value": "not assessed; compare interval orders",
+        "kind": "status"
+      },
+      {
+        "label": "Cell approximation",
+        "value": "coated-cell common dark reservoir",
+        "kind": "status"
+      },
+      {
+        "label": "Signal linearity",
+        "value": "finite-amplitude check at declared bias; see per-sample status",
+        "kind": "status"
+      },
+      {
+        "label": "Rotation readout status",
+        "value": "linear-input circular-birefringence approximation",
+        "kind": "status"
+      }
+    ]
+  },
+  {
+    "mode": "Magneto Magnetic field / NMOR rotation",
+    "heroes": [
+      "Rotation at declared bias",
+      "PSN magnetic sensitivity"
+    ],
+    "secondary": [
+      "Small-field SNR"
+    ],
+    "statuses": [
+      "Model scope",
+      "Atomic solver",
+      "Magnetic response",
+      "Optimum status",
+      "Optical excitation",
+      "Propagation scope",
+      "Velocity convergence",
+      "Cell approximation",
+      "Signal linearity",
+      "Rotation readout status"
+    ],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Rotation at declared bias",
+        "value": "6.015e-14 mrad",
+        "tier": "hero"
+      },
+      {
+        "label": "PSN magnetic sensitivity",
+        "value": "2.93 fT/√Hz",
+        "tier": "hero"
+      },
+      {
+        "label": "Model scope",
+        "value": "weak-optical-excitation effective-operator model; all F,m dipole channels; ground-F secular approximation; coherent light shifts; conditional local uniform-intensity response; optical Zeeman shifts and linear Faraday background omitted; no spin-exchange, radiation trapping or propagation",
+        "kind": "status"
+      },
+      {
+        "label": "Atomic solver",
+        "value": "physical steady state",
+        "kind": "status"
+      },
+      {
+        "label": "Magnetic response",
+        "value": "analytic coupled-reservoir response validated",
+        "kind": "status"
+      },
+      {
+        "label": "Optimum status",
+        "value": "local response at declared physical bias",
+        "kind": "status"
+      },
+      {
+        "label": "Optical excitation",
+        "value": "weak excitation",
+        "kind": "status"
+      },
+      {
+        "label": "Propagation scope",
+        "value": "homogeneous intensity; longitudinal depletion omitted",
+        "kind": "status"
+      },
+      {
+        "label": "Velocity convergence",
+        "value": "not assessed; compare interval orders",
+        "kind": "status"
+      },
+      {
+        "label": "Cell approximation",
+        "value": "coated-cell common dark reservoir",
+        "kind": "status"
+      },
+      {
+        "label": "Signal linearity",
+        "value": "finite-amplitude check at declared bias; see per-sample status",
+        "kind": "status"
+      },
+      {
+        "label": "Rotation readout status",
+        "value": "linear-input circular-birefringence approximation",
+        "kind": "status"
+      },
+      {
+        "label": "Small-field SNR",
+        "value": "0.341 ×",
+        "help": "Quasistatic estimate for the declared RMS field, shown only when the finite-amplitude check passes at the declared bias; atomic bandwidth is not validated."
+      }
+    ]
+  },
+  {
+    "mode": "Magneto Optical detuning / Transmission",
+    "heroes": [],
+    "secondary": [],
+    "statuses": [
+      "Best photon-limited sensitivity",
+      "Best optical detuning",
+      "Model scope",
+      "Atomic solver",
+      "Magnetic response",
+      "Optimum status",
+      "Optical excitation",
+      "Propagation scope",
+      "Velocity convergence",
+      "Cell approximation",
+      "Signal linearity",
+      "Rotation readout status"
+    ],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Best photon-limited sensitivity",
+        "value": "unavailable",
+        "tier": "hero",
+        "kind": "status"
+      },
+      {
+        "label": "Best optical detuning",
+        "value": "unavailable",
+        "tier": "hero",
+        "kind": "status"
+      },
+      {
+        "label": "Model scope",
+        "value": "weak-optical-excitation effective-operator model; all F,m dipole channels; ground-F secular approximation; coherent light shifts; conditional local uniform-intensity response; optical Zeeman shifts and linear Faraday background omitted; no spin-exchange, radiation trapping or propagation",
+        "kind": "status"
+      },
+      {
+        "label": "Atomic solver",
+        "value": "physical steady state",
+        "kind": "status"
+      },
+      {
+        "label": "Magnetic response",
+        "value": "analytic coupled-reservoir response validated",
+        "kind": "status"
+      },
+      {
+        "label": "Optimum status",
+        "value": "no valid sensitivity samples",
+        "kind": "status"
+      },
+      {
+        "label": "Optical excitation",
+        "value": "weak excitation",
+        "kind": "status"
+      },
+      {
+        "label": "Propagation scope",
+        "value": "homogeneous intensity; longitudinal depletion omitted",
+        "kind": "status"
+      },
+      {
+        "label": "Velocity convergence",
+        "value": "not assessed; compare interval orders",
+        "kind": "status"
+      },
+      {
+        "label": "Cell approximation",
+        "value": "coated-cell common dark reservoir",
+        "kind": "status"
+      },
+      {
+        "label": "Signal linearity",
+        "value": "finite-amplitude check at declared bias; see per-sample status",
+        "kind": "status"
+      },
+      {
+        "label": "Rotation readout status",
+        "value": "linear-input circular-birefringence approximation",
+        "kind": "status"
+      }
+    ]
+  },
+  {
+    "mode": "Magneto Optical detuning / NMOR rotation",
+    "heroes": [
+      "Best photon-limited sensitivity",
+      "Best optical detuning"
+    ],
+    "secondary": [
+      "Small-field SNR",
+      "SNR relative to centroid"
+    ],
+    "statuses": [
+      "Model scope",
+      "Atomic solver",
+      "Magnetic response",
+      "Optimum status",
+      "Optical excitation",
+      "Propagation scope",
+      "Velocity convergence",
+      "Cell approximation",
+      "Signal linearity",
+      "Rotation readout status"
+    ],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Best photon-limited sensitivity",
+        "value": "1.02 fT/√Hz",
+        "tier": "hero"
+      },
+      {
+        "label": "Best optical detuning",
+        "value": "+300 MHz",
+        "tier": "hero"
+      },
+      {
+        "label": "Model scope",
+        "value": "weak-optical-excitation effective-operator model; all F,m dipole channels; ground-F secular approximation; coherent light shifts; conditional local uniform-intensity response; optical Zeeman shifts and linear Faraday background omitted; no spin-exchange, radiation trapping or propagation",
+        "kind": "status"
+      },
+      {
+        "label": "Atomic solver",
+        "value": "physical steady state",
+        "kind": "status"
+      },
+      {
+        "label": "Magnetic response",
+        "value": "analytic coupled-reservoir response validated",
+        "kind": "status"
+      },
+      {
+        "label": "Optimum status",
+        "value": "sampled model minimum; optical-grid convergence not assessed",
+        "kind": "status"
+      },
+      {
+        "label": "Optical excitation",
+        "value": "weak excitation",
+        "kind": "status"
+      },
+      {
+        "label": "Propagation scope",
+        "value": "homogeneous intensity; longitudinal depletion omitted",
+        "kind": "status"
+      },
+      {
+        "label": "Velocity convergence",
+        "value": "not assessed; compare interval orders",
+        "kind": "status"
+      },
+      {
+        "label": "Cell approximation",
+        "value": "coated-cell common dark reservoir",
+        "kind": "status"
+      },
+      {
+        "label": "Signal linearity",
+        "value": "finite-amplitude check at declared bias; see per-sample status",
+        "kind": "status"
+      },
+      {
+        "label": "Rotation readout status",
+        "value": "linear-input circular-birefringence approximation",
+        "kind": "status"
+      },
+      {
+        "label": "Small-field SNR",
+        "value": "0.977 ×",
+        "help": "Quasistatic estimate for the declared RMS field, shown only when the finite-amplitude check passes at the declared bias; atomic bandwidth is not validated."
+      },
+      {
+        "label": "SNR relative to centroid",
+        "value": "2.86 ×"
+      }
+    ]
+  },
+  {
+    "mode": "FWM intensity",
+    "heroes": [
+      "Squeezing [dB]",
+      "Seed gain G_s"
+    ],
+    "secondary": [
+      "Conjugate gain G_c"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Squeezing [dB]",
+        "value": "-8.22 dB",
+        "help": "10 log10(NF) from an effective Jasperse distributed gain/loss model with both vacuum reservoirs. The two gains and assumed common cell loss set the effective parameters. This experimental approximation is separate from microscopic atomic-noise theory.",
+        "tier": "hero",
+        "delta": "effective Jasperse model"
+      },
+      {
+        "label": "Seed gain G_s",
+        "value": "395",
+        "delta": null,
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. Probe power at the atomic-medium exit / seed power at its entrance. The retired empirical gain correction is disabled in current runs.",
+        "tier": "hero",
+        "approximate": true
+      },
+      {
+        "label": "Conjugate gain G_c",
+        "value": "397",
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. Generated conjugate power gain at the selected detuning.",
+        "approximate": true
+      }
+    ]
+  },
+  {
+    "mode": "FWM calibrated gain",
+    "heroes": [
+      "Squeezing [dB]",
+      "Calibrated probe gain"
+    ],
+    "secondary": [
+      "Calibrated conjugate gain",
+      "Atomic probe gain G_s",
+      "Atomic conjugate gain G_c"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Squeezing [dB]",
+        "value": "2.43 dB",
+        "help": "10 log10(NF) from an effective Jasperse distributed gain/loss model with both vacuum reservoirs. The two gains and assumed common cell loss set the effective parameters. This experimental approximation is separate from microscopic atomic-noise theory.",
+        "tier": "hero",
+        "delta": "effective Jasperse model; calibrated-gain approximation"
+      },
+      {
+        "label": "Calibrated probe gain",
+        "value": "104.50",
+        "approximate": true,
+        "tier": "hero",
+        "delta": "Measured RF range · changed conditions",
+        "help": "Empirically corrected pump-on output / pump-off seed reference. The model continues beyond the 10/13 measured interval."
+      },
+      {
+        "label": "Calibrated conjugate gain",
+        "value": "90.77",
+        "approximate": true,
+        "tier": "secondary",
+        "delta": "Measured RF range · changed conditions",
+        "help": "Empirically corrected pump-on output / pump-off seed reference. The model continues beyond the 10/13 measured interval."
+      },
+      {
+        "label": "Atomic probe gain G_s",
+        "value": "395",
+        "approximate": true,
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. "
+      },
+      {
+        "label": "Atomic conjugate gain G_c",
+        "value": "397",
+        "approximate": true,
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. "
+      }
+    ]
+  },
+  {
+    "mode": "FWM quadrature",
+    "heroes": [
+      "Minimum quadrature noise",
+      "Maximum quadrature noise"
+    ],
+    "secondary": [
+      "Seed gain G_s",
+      "Conjugate gain G_c",
+      "Operating detuning"
+    ],
+    "statuses": [],
+    "overflow": [],
+    "metrics": [
+      {
+        "label": "Minimum quadrature noise",
+        "value": "-8.53 dB",
+        "tier": "hero",
+        "approximate": true,
+        "delta": "effective Jasperse model",
+        "help": "Equal-weight collective difference mode (probe minus conjugate). Both LO phases rotate together; B is A rotated by 90 degrees. 0 dB is shot noise; negative values indicate squeezing. Static effective covariance, not a microscopic finite-RF prediction."
+      },
+      {
+        "label": "Maximum quadrature noise",
+        "value": "31.43 dB",
+        "tier": "hero",
+        "approximate": true,
+        "delta": "Shot-noise seed phase assumed",
+        "help": "Equal-weight collective difference mode (probe minus conjugate). Both LO phases rotate together; B is A rotated by 90 degrees. 0 dB is shot noise; negative values indicate squeezing. Static effective covariance, not a microscopic finite-RF prediction."
+      },
+      {
+        "label": "Seed gain G_s",
+        "value": "395",
+        "delta": null,
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. Probe power at the atomic-medium exit / seed power at its entrance. The retired empirical gain correction is disabled in current runs.",
+        "tier": "secondary",
+        "approximate": true
+      },
+      {
+        "label": "Conjugate gain G_c",
+        "value": "397",
+        "help": "Qualitative model estimate; quantitative gain claim unsupported. Generated conjugate power gain at the selected detuning.",
+        "tier": "secondary",
+        "approximate": true
+      },
+      {
+        "label": "Operating detuning",
+        "value": "-8.000 MHz",
+        "tier": "secondary",
+        "help": "Fixed two-photon detuning during the common LO phase scan."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton cascade_rb87_telecom / Calibrated (reference)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Reference model",
+        "help": "Reproduces stored calibration values; it is not an independent prediction."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "44.00",
+        "help": "Peak normalized signal–idler correlation from the stored reference calibration.",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "26.1",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "380.0 cps",
+        "help": "Pair rate from the stored reference calibration.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "0.18 ns",
+        "help": "Intrinsic FWHM of the modeled |ψ(τ)|² source waveform before detector timing response. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "0.55 ns",
+        "help": "FWHM after convolution with the net Gaussian signal-idler timing-difference response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "300 MHz",
+        "help": "Reference or assumed source bandwidth."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton cascade_rb87_telecom / Predictive (first-principles)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Reduced model · group-delay",
+        "help": "Calculates the Doppler waveform and vector phase matching; the pair-rate scale remains reference-anchored."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "430.30",
+        "help": "Peak signal-idler cross-correlation from the computed delay density and accidental rate density; independent of coincidence gate width (not forced).",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "258.4",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "124.6 cps",
+        "help": "Reference-anchored pair rate after pump, coupling, density, and phase-matching scaling.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "0.17 ns",
+        "help": "Intrinsic |ψ(τ)|² FWHM on an auto-refined velocity grid. The absolute width remains approximate. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "0.51 ns",
+        "help": "Intrinsic waveform convolved with the signal–idler timing response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "915 MHz",
+        "help": "Spectral FWHM from the reduced waveform; spectral/time-grid convergence has not been certified."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton cascade_cs_btw / Calibrated (reference)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Reference model",
+        "help": "Reproduces stored calibration values; it is not an independent prediction."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "18.00",
+        "help": "Peak normalized signal–idler correlation from the stored reference calibration.",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "10.3",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "240.0 cps",
+        "help": "Pair rate from the stored reference calibration.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "0.22 ns",
+        "help": "Intrinsic FWHM of the modeled |ψ(τ)|² source waveform before detector timing response. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "0.57 ns",
+        "help": "FWHM after convolution with the net Gaussian signal-idler timing-difference response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "300 MHz",
+        "help": "Reference or assumed source bandwidth."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton cascade_cs_btw / Predictive (first-principles)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Reduced model · group-delay",
+        "help": "Calculates the Doppler waveform and vector phase matching; the pair-rate scale remains reference-anchored."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "336.02",
+        "help": "Peak signal-idler cross-correlation from the computed delay density and accidental rate density; independent of coincidence gate width (not forced).",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "202.4",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "108.2 cps",
+        "help": "Reference-anchored pair rate after pump, coupling, density, and phase-matching scaling.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "0.24 ns",
+        "help": "Intrinsic |ψ(τ)|² FWHM on an auto-refined velocity grid. The absolute width remains approximate. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "0.59 ns",
+        "help": "Intrinsic waveform convolved with the signal–idler timing response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "665 MHz",
+        "help": "Spectral FWHM from the reduced waveform; spectral/time-grid convergence has not been certified."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton diamond_generic / Calibrated (reference)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Assumed diamond template",
+        "help": "Generic template parameters are assumed; no validated diamond preset."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "57.95",
+        "help": "Peak normalized signal–idler correlation from the stored reference calibration.",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "31.4",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "100.0 cps",
+        "help": "Assumed template pair-rate coefficient; no literature rate anchor or held-out validation. Scalar filter throughput applied.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "2.16 ns",
+        "help": "Intrinsic FWHM of the modeled |ψ(τ)|² source waveform before detector timing response. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "3.22 ns",
+        "help": "FWHM after convolution with the net Gaussian signal-idler timing-difference response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "300 MHz",
+        "help": "Reference or assumed source bandwidth."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  },
+  {
+    "mode": "Biphoton diamond_generic / Predictive (first-principles)",
+    "heroes": [
+      "Peak signal–idler correlation",
+      "Pair rate"
+    ],
+    "secondary": [
+      "Model status",
+      "CAR",
+      "Intrinsic biphoton width",
+      "Detected biphoton width"
+    ],
+    "statuses": [],
+    "overflow": [
+      "Source bandwidth",
+      "Phase-matching efficiency"
+    ],
+    "metrics": [
+      {
+        "label": "Model status",
+        "value": "Assumed diamond template",
+        "help": "Generic template parameters are assumed; no validated diamond preset."
+      },
+      {
+        "label": "Peak signal–idler correlation",
+        "value": "118.95",
+        "help": "Peak signal-idler cross-correlation from the computed delay density and accidental rate density; independent of coincidence gate width (not forced).",
+        "tier": "hero"
+      },
+      {
+        "label": "CAR",
+        "value": "71.1",
+        "help": "Captured true coincidences divided by accidentals in the symmetric gate [-W/2, W/2] about zero delay."
+      },
+      {
+        "label": "Pair rate",
+        "value": "34.4 cps",
+        "help": "Assumed template pair-rate coefficient; no literature rate anchor or held-out validation. Scalar filter throughput applied.",
+        "tier": "hero"
+      },
+      {
+        "label": "Intrinsic biphoton width",
+        "value": "0.18 ns",
+        "help": "Intrinsic |ψ(τ)|² FWHM on an auto-refined velocity grid. The absolute width remains approximate. Velocity refinement tests FWHM only; it is not experimental validation."
+      },
+      {
+        "label": "Detected biphoton width",
+        "value": "0.52 ns",
+        "help": "Intrinsic waveform convolved with the signal–idler timing response. Timing-response reuse is not independent width validation."
+      },
+      {
+        "label": "Source bandwidth",
+        "value": "873 MHz",
+        "help": "Spectral FWHM from the reduced waveform; spectral/time-grid convergence has not been certified."
+      },
+      {
+        "label": "Phase-matching efficiency",
+        "value": "1.000",
+        "help": "Vector sinc^2 phase-matching collection weight."
+      }
+    ]
+  }
+]

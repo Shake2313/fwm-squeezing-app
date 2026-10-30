@@ -703,12 +703,6 @@ class LambdaScheme(Scheme):
             axT.plot(x, T_trans, color="#1f77b4", lw=1.8)
             axT.set_ylabel("Transmission")
             axT.set_ylim(-0.02, 1.02)
-            axT.set_title(
-                f"{self._TITLE[m].split('(')[0].strip()}: "
-                f"{raw.get('medium_label', '85Rb')} {raw.get('line', 'D1')}, "
-                f"Omega_c = {raw['coupling_rabi_mhz']:.2f} MHz, "
-                f"buffer relax = {raw['buffer_ground_relax_khz']:.1f} kHz, "
-                f"Doppler {params.get('doppler', 'off')}")
             axD.plot(x, np.real(xphys), color="#9467bd", lw=1.6)
             axD.set_ylabel("Re chi  (dispersion)")
             axD.set_xlabel("Probe detuning  [MHz]")

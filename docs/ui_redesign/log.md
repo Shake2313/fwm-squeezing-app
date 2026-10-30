@@ -2,6 +2,42 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-30 · 상단 관측값 조사·이름 가독성 개선
+
+직접 사용자 요청: OD는 Peak OD 중심, SAS는 선폭보다 주파수 간격을 중시한다는 의견과 함께 모든 스킴의 과밀한 표시줄 조사. 작고 회색인 관측값 이름 개선.
+
+### ⟦AI⟧ 구현·검증
+
+- [조사·모드별 권고](audit/readout_20261030/summary.md), [23개 조합 표시 목록](audit/readout_20261030/inventory.json). 공통 자동 배치가 보조 4개를 노출하며, 상태 제외 후 SAS의 resolution-limited FWHM까지 주요값으로 승격함을 확인. 표시 항목 감량·SAS 두 공명 간격 구현은 권고이며 미적용.
+- 공통 이름 스타일: 12→14.4px, 굵기600, 본문색, 줄바꿈 허용. 계산·결과·표시 항목 목록 무변경.
+- readout/design 관련 pytest **29 통과**, 1.46s. 실제 FWM 데스크톱/모바일 및 23개 표시줄·102개 이름 모음의 두 화면 폭 검수: 잘림0·가로 overflow0. 전체 수치 회귀·GC 생략.
+- 커밋 직전 이번 변경만 포함한 후보 디렉터리 검증: 기존 93개 표시·상호작용 검사 + Magneto/Rydberg readout-render 2개, **95 통과**, 17.13s. 다른 작업의 원자 모델·UI 확장 없이 통과.
+
+## 2026-10-30 · 다른 스킴 상단 중복 문구 제거
+
+직접 사용자 요청: 앞서 확인한 다른 스킴의 중복 문구도 제거.
+
+### ⟦AI⟧ 구현·검증
+
+- OD/SAS(원자종·Generic·보조 광학 뷰), Lambda(EIT/AT/CPT), Rydberg(EIT/AT), Magneto(현재 통합 모델·이전 단일 전이 참조)의 설정 반복 제목 제거. 축·단위·범례·결과값 유지. finite-IF 설명·PREDICTED 가정·Biphoton 출처/수렴 상태 무변경.
+- `python -m pytest -q tests/test_ui_readout.py tests/test_ui_design_feedback.py tests/test_magneto_readout.py::test_readout_never_solves_or_mutates_raw_and_render_matches tests/test_rydberg_opacity.py::test_headless_and_figure_readouts_share_explicit_prediction_boundary --durations=3`: **31 통과**, 7.19s.
+- 12개 선택 뷰의 제목·렌더 확인. 최초 확인에서 현재 Magneto가 별도 통합 renderer를 사용함을 확인하고 해당 제목도 제거; 앞서 통과한 8개 렌더 재사용, Magneto 4개 확인 완료. [검수 그림](../../output/playwright/scheme_headers_20261030/overview.png)의 바깥 제목은 검수용 구분명. 앱 캡션에는 없음.
+- 표시 문구만 변경. 전체 수치 회귀·GC campaign 생략. 필수 검증 이월 없음.
+
+## 2026-10-30 · FWM 라벨·그래프 상단 중복 문구 감량
+
+직접 사용자 요청: Probe / conjugate gain → Gain, Squeezing Degree → Squeezing, Two-photon detuning delta → Two-photon Detuning. 그래프 위 설정·선택점 요약 제거. 다른 스킴 상단 과다 문구 점검.
+
+### ⟦AI⟧ 구현·검증
+
+- 기본 FWM 축·detuning 입력·Squeezing readout/표/설명 통일. 단위·Probe/Conjugate 범례·보정 모델별 gain 표기 유지. 새/이전 Squeezing 라벨 모두 기존 상태 안내 처리.
+- 주 그림의 Δ/T/η/RIN 제목 제거. 빈 캡션 미생성. 확정 상태의 δ/Gain/Noise 반복문 제거; 드래그·갱신 중 미리보기 유지, Noise 표기는 Squeezing으로 통일.
+- 다른 스킴 점검만 수행. OD/SAS의 원자·파워·온도·셀 길이, Lambda의 모드·Ω·완충기체·Doppler, Rydberg의 Ω·probe/LO, legacy Magneto의 셀·전이·QWP·광세기 제목은 설정과 중복. 감량 후보. Biphoton의 rate 출처/수렴 실패, Rydberg의 finite-IF·PREDICTED/가정 범위, Budker의 conditional DC 문구는 해석에 필요. 일괄 제거 부적절.
+- 표시·상호작용 관련 pytest **93 통과**, 12.49s: `test_fwm_excess_noise`, `test_ui_design_feedback`, `test_ui_readout`, `test_plotcard_alignment`, `test_liveplot`, `test_update_status` 및 `test_fwm_generic`의 short-label/info/full-scan-render 3개. 최초 검사에서 새 라벨의 상태 안내 누락 발견·수정 후 통과.
+- Chrome 1440×1000: 새 축/입력/readout 라벨·상단 캡션0·드래그 preview→ready 확인. 확정 후 요약문 공백, 앱 예외0·브라우저 오류0. 기존 Streamlit theme 경고 존재. [화면](../../output/playwright/fwm_labels_20261030.png).
+- 계산식·엔진 무변경. 전체 수치 회귀·GC campaign 생략. 다른 스킴 감량 후보는 미수정.
+
+
 ## 2026-10-30 · UI 배포 후보 검수
 
 직접 사용자 요청: 내장 브라우저 재검수 후 UI 변경 커밋·푸시·공개 사이트 반영.

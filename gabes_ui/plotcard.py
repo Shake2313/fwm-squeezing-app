@@ -644,9 +644,10 @@ def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
         caption = _pop_figure_title(page_fig, clear=False)
         # Mount the caption before the image; never leave an empty placeholder
         # while a new figure is rendered and sent to the browser.
-        st.markdown(
-            f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
-            f"{caption_html(caption)}</div>", unsafe_allow_html=True)
+        if caption:
+            st.markdown(
+                f"<div class='g-plot-caption' title='{escape(caption, quote=True)}'>"
+                f"{caption_html(caption)}</div>", unsafe_allow_html=True)
         tools = st.container(horizontal=True, horizontal_alignment="right",
                              vertical_alignment="center", gap="small",
                              key="gabes_plottools")
