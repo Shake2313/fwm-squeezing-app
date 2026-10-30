@@ -1,0 +1,38 @@
+backend Rb85_D1_doppler_False: True
+backend Rb85_D1_doppler_True: True
+backend Rb85_D2_doppler_False: True
+backend Rb85_D2_doppler_True: True
+backend Rb87_D1_doppler_False: True
+backend Rb87_D1_doppler_True: True
+backend Rb87_D2_doppler_False: True
+backend Rb87_D2_doppler_True: True
+backend gamma_out_zero: True
+backend gamma_in_zero: True
+backend independent_velocities: True
+backend transverse_xy: True
+backend elliptical: True
+backend circular: True
+backend nonzero_bias: True
+backend lower_ground: True
+backend derivative_off: True
+backend zero_intensity: True
+scheme optical_linear: True
+scheme optical_elliptical: True
+scheme biased_transverse: True
+assembly Rb85_D1_qwp0: True
+assembly Rb85_D1_qwp17: True
+assembly Rb85_D1_qwp45: True
+assembly Rb85_D2_qwp0: True
+assembly Rb85_D2_qwp17: True
+assembly Rb85_D2_qwp45: True
+assembly Rb87_D1_qwp0: True
+assembly Rb87_D1_qwp17: True
+assembly Rb87_D1_qwp45: True
+assembly Rb87_D2_qwp0: True
+assembly Rb87_D2_qwp17: True
+assembly Rb87_D2_qwp45: True
+main optical49x3: True; speedup=1.987
+main refined97x3_order10: True; speedup=2.035
+main Rb87D2_optical25x3: True; speedup=1.861
+main baseB83: True; speedup=1.085
+PASS=True; report=G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation Solver\analysis\magneto_optical_assembly_20261030\validation.json

@@ -1,0 +1,16 @@
+{
+  "protected_count": 405,
+  "changed_since_start": [
+    "docs/checklist.json"
+  ],
+  "old_evidence_count": 392,
+  "old_evidence_changed": [],
+  "owned_changes": [
+    "gabes/magneto_multilevel.py",
+    "gabes/magneto_optical.py",
+    "gabes/schemes/magneto_unified.py",
+    "tests/test_magneto_optical_assembly.py",
+    "analysis/magneto_optical_assembly_20261030/"
+  ],
+  "observation": "docs/checklist.json changed in the concurrent work; this patch never writes it; original before hash retained"
+}

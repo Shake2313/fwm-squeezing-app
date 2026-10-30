@@ -149,7 +149,7 @@ class UnifiedMagnetoScheme(Scheme):
     caption = ("Rb D1/D2 Hanle transmission and nonlinear magneto-optical rotation, "
                "using a shared multihyperfine Budker-based model for magnetic-field "
                "and optical-detuning scans.")
-    cache_version = "budker-unified-v2-density-length-readout"
+    cache_version = "budker-unified-v3-optical-operators"
     defaults_version = "budker-unified-v1"
     supports_headless_observables = True
 

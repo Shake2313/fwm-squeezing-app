@@ -26,6 +26,7 @@ from numpy.polynomial.legendre import leggauss
 
 from . import constants, core, species, zeeman
 from .magneto_coordinates import ground_coordinates
+from .magneto_optical import assemble_optical_generator
 
 
 MODEL_SCOPE = (
@@ -184,8 +185,6 @@ def _left_right(K):
 
 
 def _optical_terms(atom, laser_eff_mhz, intensity_mw_cm2, polarization):
-    nv, M = len(laser_eff_mhz), atom.dimension
-    L = np.zeros((nv, M, M), dtype=complex)
     field = math.sqrt(2*intensity_mw_cm2*10/(constants.EPS_0*constants.C_LIGHT))
     omega_scale = math.sqrt(atom.dipole_sq)*field/constants.HBAR
     excitation = sum(polarization[q]*atom.dipoles[q].T for q in (-1, 1))
@@ -197,21 +196,9 @@ def _optical_terms(atom, laser_eff_mhz, intensity_mw_cm2, polarization):
                - atom.ground_energy_mhz[bi]))*species.MHZ
         R = 1/(-det-0.5j*atom.gamma)
         Y = R[:, :, None]*V[None, :, gs]
-        K = np.zeros((nv, gs.stop-gs.start, gs.stop-gs.start), complex)
-        for target_gs, target_rs in zip(atom.ground_slices, atom.reduced_slices):
-            for q in (-1, 0, 1):
-                J = math.sqrt(atom.gamma)*np.einsum("ae,vei->vai", atom.dipoles[q][target_gs], Y)
-                gain = np.einsum("vai,vbj->vabij", J, J.conj()).reshape(nv, target_rs.stop-target_rs.start, rs.stop-rs.start)
-                L[:, target_rs, rs] += gain
-                K += np.einsum("vai,vaj->vij", J.conj(), J)
-        H = -0.5*(np.einsum("ie,vej->vij", V[:, gs].conj().T, Y)
-                  + np.einsum("vei,ej->vij", Y.conj(), V[:, gs]))
-        left, right = _left_right(H)
-        L[:, rs, rs] += -1j*(left-right)
-        left, right = _left_right(K)
-        L[:, rs, rs] -= 0.5*(left+right)
         eliminated.append(Y)
         resolvents.append(R)
+    L = assemble_optical_generator(atom, resolvents, polarization, omega_scale**2)
     return L, eliminated, resolvents, excitation
 
 

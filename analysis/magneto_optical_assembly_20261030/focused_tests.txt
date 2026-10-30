@@ -1,0 +1,15 @@
+........................................................................ [ 45%]
+........................................................................ [ 91%]
+.............                                                            [100%]
+============================ slowest 10 durations =============================
+1.03s call     tests/test_magneto_unified.py::test_optical_axis_uses_analytic_slopes_without_finite_difference_gaps
+0.51s call     tests/test_magneto_multilevel.py::test_resonance_quadrature_refines_and_captures_maxwell_measure
+0.33s call     tests/test_magneto_multilevel.py::test_analytic_coupled_derivative_matches_refined_field_differences[none]
+0.31s call     tests/test_atomic_data.py::test_data_layer_imports_without_level_schemes
+0.27s call     tests/test_magneto_multilevel.py::test_analytic_coupled_derivative_matches_refined_field_differences[complete]
+0.22s call     tests/test_fwm_zeeman_response.py::test_pump_zero_matches_independent_hyperfine_lorentz_susceptibility
+0.20s call     tests/test_fwm_zeeman_response.py::test_secular_emission_does_not_feed_hyperfine_ground_coherence
+0.18s call     tests/test_fwm_zeeman_response.py::test_signed_dipoles_emission_and_actual_sublevel_normalization
+0.18s call     tests/test_fwm_zeeman_response.py::test_hyperfine_collision_projectors_preserve_within_F_coherence
+0.16s call     tests/test_magneto_fast_solver.py::test_fast_solver_matches_independent_frozen_complex_reference[Rb85_D2_doppler_True-kwargs3]
+157 passed in 11.28s

@@ -1,0 +1,9 @@
+.......................................................                  [100%]
+============================= slowest 6 durations =============================
+0.09s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / Hanle]
+0.08s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / circular transmission]
+0.07s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / Magnetic field]
+0.07s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / B offset 2 uT]
+0.06s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / B offset 50 uT]
+0.06s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / NMOR]
+55 passed, 15 deselected in 3.69s
