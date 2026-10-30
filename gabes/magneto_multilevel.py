@@ -65,29 +65,15 @@ class MultilevelAtom:
 def build_multilevel_atom(isotope="Rb85", line="D1"):
     """Full angular dipoles plus secular ground-density coordinates.
 
-    Dipole matrices map excited to ground states and satisfy
-    sum_q C_q^dagger C_q = I_excited. Thus sqrt(Gamma)*C_q are normalized
-    emission jumps and d0*C_q are physical dipoles, with
-    d0^2=3*pi*epsilon0*hbar*c^3*Gamma/omega^3.
+    Sublevels, signed dipoles C_q (sum_q C_q^dagger C_q = I_excited), energies,
+    Gamma and d0^2 are `species.level_structure`, whose arrays are read-only.
+    This adds the per-F ground blocks, the trace/thermal vectors and g_F.
     """
     if isotope not in ("Rb85", "Rb87") or line not in ("D1", "D2"):
         raise ValueError("multilevel NMOR supports Rb85/Rb87 and D1/D2")
     iso = species.ISOTOPES[isotope]
-    Je, nu, width, Ae, Be = iso.line(line)
+    structure = species.level_structure(isotope, line)
     fs = tuple(int(f) for f in species.f_values(iso.I, iso.Jg))
-    fes = tuple(int(f) for f in species.f_values(iso.I, Je))
-    ground = tuple((f, m) for f in fs for m in range(-f, f+1))
-    excited = tuple((f, m) for f in fes for m in range(-f, f+1))
-    dipoles = {q: np.zeros((len(ground), len(excited))) for q in (-1, 0, 1)}
-    for g, (f, m) in enumerate(ground):
-        for e, (fe, me) in enumerate(excited):
-            q = me-m
-            if q not in dipoles:
-                continue
-            reduced = ((-1)**int(round(Je+iso.I+f+1))
-                       * math.sqrt((2*Je+1)*(2*f+1))
-                       * species.wigner6j(Je, fe, iso.I, f, iso.Jg, 1))
-            dipoles[q][g, e] = reduced * zeeman.clebsch_gordan(f, m, 1, q, fe, me)
     gs, rs, i, j = [], [], 0, 0
     for f in fs:
         n = 2*f+1
@@ -97,15 +83,12 @@ def build_multilevel_atom(isotope="Rb85", line="D1"):
     for f, block in zip(fs, rs):
         n = 2*f+1
         trace[block] = np.eye(n).ravel()
-    thermal = trace / len(ground)
-    gamma = width * species.MHZ
-    omega = 2*np.pi*nu
-    d2 = 3*np.pi*constants.EPS_0*constants.HBAR*constants.C_LIGHT**3*gamma/omega**3
+    thermal = trace / len(structure.ground)
     return MultilevelAtom(
-        isotope, line, ground, excited, tuple(gs), tuple(rs), dipoles,
-        np.array([species.hf_energy_mhz(iso.A_S, 0, iso.I, iso.Jg, f) for f in fs]),
-        np.array([species.hf_energy_mhz(Ae, Be, iso.I, Je, f) for f, _ in excited]),
-        gamma, nu, d2, iso.mass, thermal, trace,
+        isotope, line, structure.ground, structure.excited, tuple(gs), tuple(rs),
+        dict(structure.dipoles), structure.ground_energy_mhz,
+        structure.excited_energy_mhz, structure.gamma, structure.frequency_hz,
+        structure.dipole_sq, structure.mass, thermal, trace,
         tuple(species.lande_gf(species.GJ_S12_LEGACY, iso.g_I, iso.I, iso.Jg, f)
               for f in fs))
 

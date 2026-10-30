@@ -63,7 +63,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     line strengths, Casimir hyperfine energies, Landé g_F, and the single source of the vapor
     pressure, densities (CRC; legacy Steck × abundance) and self-broadening β;
     plus the SAS hyperfine-manifold builder `build_manifold(iso, line)`
-    (CG-branched decay + transit-time relaxation).
+    (CG-branched decay + transit-time relaxation) and the Zeeman-resolved
+    `level_structure(isotope, line)` (signed dipoles C_q, Σ_q C_q†C_q = I) that
+    `magneto_multilevel` builds on.
   - `observables.py` — gain, squeezing, legacy twin-beam coincidence, calibrated biphoton statistics, absorption / OD / dispersion.
   - `plot_style.py` — the shared figure palette plus `apply_gabes_plot_style`,
     which pins its own font stack on every figure it styles. Figure text carries

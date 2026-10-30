@@ -19,6 +19,9 @@ What it provides
     last being what drives hyperfine optical pumping (the inverted crossovers).
   * Vapor-pressure densities and the Rb self-broadening coefficient. This is the
     single source: `hyperfine` (the ⁸⁵Rb D1 AutoOD view) and `atoms` re-use it.
+  * `level_structure(isotope, line)` → the Zeeman-resolved |F, m⟩ sublevels and
+    signed dipoles C_q (Σ_q C_q†C_q = I_excited) that `magneto_multilevel`
+    builds on.
   * `build_manifold(isotope, line)` → an `atoms.AtomModel` carrying the full
     {Fg}×{Fe} level scheme with CG-branched decay *and* a transit-time relaxation
     toward the thermal ground distribution (regularises the pumping), plus the
@@ -41,7 +44,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from . import constants
-from .angular import wigner3j, wigner6j
+from .angular import clebsch_gordan, wigner3j, wigner6j
 
 MHZ = 2 * np.pi * 1e6          # MHz → rad/s
 _AMU = 1.660_539_066_60e-27    # kg
@@ -294,6 +297,70 @@ def recommended(species_key, line):
     """Recommended (temp_c, cell_mm, pump_power_mw) for a species/line, or a default."""
     return _RECOMMENDED.get((species_key, line),
                             dict(temp_c=30.0, cell_mm=50.0, pump_power_mw=0.5))
+
+
+# =====================================================================
+# Zeeman-resolved level structure (the one signed-dipole source)
+# =====================================================================
+def sublevels(fs):
+    """|F, m⟩ labels for integer F values `fs`: F in the given order, m = −F … F."""
+    return tuple((f, m) for f in fs for m in range(-f, f + 1))
+
+
+def _read_only(array):
+    array.flags.writeable = False
+    return array
+
+
+@dataclass(frozen=True)
+class LevelStructure:
+    """Zeeman-resolved hyperfine structure of one isotope's D line.
+
+    `dipoles[q]` maps excited to ground sublevels with the signed Wigner–Eckart
+    amplitudes and satisfies Σ_q C_q†C_q = I_excited, so √Γ·C_q are normalized
+    emission jumps and d0·C_q physical dipoles, d0² = 3π ε₀ħc³Γ/ω³. Arrays are
+    read-only: every caller of `level_structure` shares them.
+    """
+    isotope: str
+    line: str
+    ground: tuple                    # ((F, m), …) ground sublevels
+    excited: tuple                   # ((F, m), …) excited sublevels
+    dipoles: dict                    # q ∈ {−1, 0, 1} → (n_ground, n_excited) C_q
+    ground_energy_mhz: np.ndarray    # per ground F level
+    excited_energy_mhz: np.ndarray   # per excited sublevel
+    gamma: float                     # Γ [rad/s]
+    frequency_hz: float              # centroid ν [Hz]
+    dipole_sq: float                 # d0² [C²m²]
+    mass: float                      # kg
+
+
+@functools.lru_cache(maxsize=8)
+def level_structure(isotope, line):
+    """Signed (F, m) dipoles C_q, energies, Γ and d0² for `isotope` ('Rb85', …) on 'D1'/'D2'."""
+    iso = ISOTOPES[isotope]
+    Je, nu, width, Ae, Be = iso.line(line)
+    fs = tuple(int(f) for f in f_values(iso.I, iso.Jg))
+    fes = tuple(int(f) for f in f_values(iso.I, Je))
+    ground, excited = sublevels(fs), sublevels(fes)
+    dipoles = {q: np.zeros((len(ground), len(excited))) for q in (-1, 0, 1)}
+    for g, (f, m) in enumerate(ground):
+        for e, (fe, me) in enumerate(excited):
+            q = me-m
+            if q not in dipoles:
+                continue
+            reduced = ((-1)**int(round(Je+iso.I+f+1))
+                       * math.sqrt((2*Je+1)*(2*f+1))
+                       * wigner6j(Je, fe, iso.I, f, iso.Jg, 1))
+            dipoles[q][g, e] = reduced * clebsch_gordan(f, m, 1, q, fe, me)
+    gamma = width * MHZ
+    omega = 2*np.pi*nu
+    d2 = 3*np.pi*constants.EPS_0*constants.HBAR*constants.C_LIGHT**3*gamma/omega**3
+    return LevelStructure(
+        isotope, line, ground, excited,
+        {q: _read_only(value) for q, value in dipoles.items()},
+        _read_only(np.array([hf_energy_mhz(iso.A_S, 0, iso.I, iso.Jg, f) for f in fs])),
+        _read_only(np.array([hf_energy_mhz(Ae, Be, iso.I, Je, f) for f, _ in excited])),
+        gamma, nu, d2, iso.mass)
 
 
 # =====================================================================

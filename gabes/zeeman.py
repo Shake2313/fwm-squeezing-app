@@ -11,7 +11,7 @@ import math
 
 import numpy as np
 
-from . import constants, hyperfine
+from . import constants, hyperfine, species
 from .angular import clebsch_gordan
 from .atoms import AtomModel
 
@@ -139,31 +139,20 @@ def rb85_d1_double_lambda_zeeman(gamma=None, gamma_gg=None):
     gamma = constants.GAMMA if gamma is None else gamma
     gamma_gg = constants.GAMMA_GG if gamma_gg is None else gamma_gg
 
-    ground_blocks = [(2, list(range(-2, 3))), (3, list(range(-3, 4)))]
-    excited_blocks = [(2, list(range(-2, 3))), (3, list(range(-3, 4)))]
-    labels = []
-    level_F = []
-    level_m = []
-    ground = []
-    for F, mvals in ground_blocks:
-        for m in mvals:
-            ground.append(len(labels))
-            labels.append(f"gF{F}m{m:+d}")
-            level_F.append(F)
-            level_m.append(m)
-    excited = []
-    for F, mvals in excited_blocks:
-        for m in mvals:
-            excited.append(len(labels))
-            labels.append(f"eF{F}m{m:+d}")
-            level_F.append(F)
-            level_m.append(m)
+    ground_F = excited_F = (2, 3)
+    sub_g, sub_e = species.sublevels(ground_F), species.sublevels(excited_F)
+    labels = ([f"gF{F}m{m:+d}" for F, m in sub_g]
+              + [f"eF{F}m{m:+d}" for F, m in sub_e])
+    level_F = [F for F, _ in sub_g + sub_e]
+    level_m = [m for _, m in sub_g + sub_e]
+    ground = list(range(len(sub_g)))
+    excited = list(range(len(sub_g), len(labels)))
 
     n = len(labels)
     couplings = {-1: [], 0: [], +1: []}
     block_sum = {}
-    for Fg, _ in ground_blocks:
-        for Fe, _ in excited_blocks:
+    for Fg in ground_F:
+        for Fe in excited_F:
             raw = []
             for gi in ground:
                 if level_F[gi] != Fg:
@@ -186,13 +175,13 @@ def rb85_d1_double_lambda_zeeman(gamma=None, gamma_gg=None):
             block_sum[(Fg, Fe)] = avg
 
     emission = {q: np.zeros((n, n), dtype=complex) for q in (-1, 0, 1)}
-    for Fe, _ in excited_blocks:
-        weights = {Fg: hyperfine.CF2[(Fg, Fe)] for Fg, _ in ground_blocks}
+    for Fe in excited_F:
+        weights = {Fg: hyperfine.CF2[(Fg, Fe)] for Fg in ground_F}
         total_w = sum(weights.values())
         for ei in excited:
             if level_F[ei] != Fe:
                 continue
-            for Fg, _ in ground_blocks:
+            for Fg in ground_F:
                 branch = weights[Fg] / total_w
                 raw = []
                 for gi in ground:
