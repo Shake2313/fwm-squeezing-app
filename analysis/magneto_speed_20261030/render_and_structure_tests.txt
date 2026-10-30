@@ -1,0 +1,11 @@
+........................................                                 [100%]
+============================= slowest 8 durations =============================
+0.24s call     tests/test_magneto_fast_solver.py::test_fast_solver_matches_independent_frozen_complex_reference[Rb85_D2_doppler_True-kwargs3]
+0.19s call     tests/test_magneto_fast_solver.py::test_fast_solver_matches_independent_frozen_complex_reference[Rb85_D1_doppler_True-kwargs1]
+0.08s call     tests/test_magneto_fast_solver.py::test_physical_readout_snr_masks_and_best_detuning_match_frozen_scheme[optical_linear-params0]
+0.08s call     tests/test_magneto_fast_solver.py::test_fast_solver_matches_independent_frozen_complex_reference[independent_velocities-kwargs10]
+0.08s call     tests/test_magneto_fast_solver.py::test_physical_readout_snr_masks_and_best_detuning_match_frozen_scheme[optical_elliptical-params1]
+0.07s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / circular transmission]
+0.07s call     tests/test_magneto_fast_solver.py::test_fast_solver_matches_independent_frozen_complex_reference[Rb85_D1_doppler_False-kwargs0]
+0.06s call     tests/test_schemes_render.py::test_internal_modes_have_useful_heroes[Magneto / Magnetic field]
+40 passed, 15 deselected in 5.20s

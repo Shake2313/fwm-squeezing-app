@@ -1,0 +1,4 @@
+# Preserve frozen baseline bytes and their recorded SHA-256 evidence.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Keep pytest's literal "E     " separator lines in captured failure output.
+receipt_tests_*.txt -whitespace

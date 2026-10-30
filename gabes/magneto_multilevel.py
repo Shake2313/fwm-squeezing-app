@@ -21,10 +21,11 @@ from functools import lru_cache
 import math
 
 import numpy as np
-from scipy.linalg import solve
+from scipy.linalg.lapack import get_lapack_funcs
 from numpy.polynomial.legendre import leggauss
 
 from . import constants, core, species, zeeman
+from .magneto_coordinates import ground_coordinates
 
 
 MODEL_SCOPE = (
@@ -244,23 +245,58 @@ def _ground_generator(atom, b_ut, reset_rate, pure_dephasing_rate,
     return L
 
 
+@lru_cache(maxsize=2)
+def _normalization_lapack(dtype):
+    return get_lapack_funcs(("getrf", "getrs"), dtype=np.dtype(dtype))
+
+
+def _stationary_factored(generator, trace):
+    """Normalized states and reusable LU, with any leading velocity batch."""
+    A = np.array(generator, dtype=np.result_type(generator, np.float64), copy=True)
+    scale = np.maximum(np.max(np.abs(A), axis=(-2, -1)), 1.)
+    A[..., 0, :] = trace*scale[..., None]
+    rhs = np.zeros(A.shape[:-1] + (1,), dtype=A.dtype)
+    rhs[..., 0, 0] = scale
+    # Low-level LAPACK keeps the same LU reusable on SciPy>=1.14, including
+    # versions predating scipy.linalg's batched LU wrappers.
+    matrices = A.reshape(-1, A.shape[-1], A.shape[-1])
+    sources = rhs.reshape(-1, A.shape[-1], 1)
+    lu = np.empty_like(matrices)
+    pivots = np.empty(matrices.shape[:-1], dtype=np.intc)
+    state = np.empty_like(sources)
+    getrf, getrs = _normalization_lapack(A.dtype.str)
+    for i, (matrix, source) in enumerate(zip(matrices, sources)):
+        lu[i], pivots[i], info = getrf(matrix, overwrite_a=True)
+        if info:
+            raise np.linalg.LinAlgError("singular normalized steady-state generator")
+        state[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
+        if info:
+            raise np.linalg.LinAlgError("normalized steady-state solve failed")
+    return state.reshape(A.shape[:-1]), (lu, pivots, A.shape[:-2])
+
+
 def _stationary(L, trace):
-    A = np.array(L, dtype=complex, copy=True)
-    rhs = np.zeros(A.shape[0], complex)
-    scale = max(float(np.max(np.abs(A))), 1.0)
-    A[0] = trace*scale
-    rhs[0] = scale
-    return solve(A, rhs, assume_a="gen", check_finite=False)
+    return _stationary_factored(L, trace)[0]
+
+
+def _response_from_factor(factors, forcing):
+    lu, pivots, batch_shape = factors
+    rhs = -np.array(forcing, dtype=lu.dtype, copy=True)[..., None]
+    rhs[..., 0, 0] = 0.
+    sources = rhs.reshape(-1, rhs.shape[-2], 1)
+    result = np.empty_like(sources)
+    _, getrs = _normalization_lapack(lu.dtype.str)
+    for i, source in enumerate(sources):
+        result[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
+        if info:
+            raise np.linalg.LinAlgError("normalized magnetic-response solve failed")
+    return result.reshape(batch_shape + (rhs.shape[-2],))
 
 
 def _trace_zero_response(generator, forcing, trace):
     """Differentiate a normalized steady state: L rho' = -forcing, tr rho'=0."""
-    A = np.array(generator, dtype=complex, copy=True)
-    rhs = -np.array(forcing, dtype=complex, copy=True)
-    scale = max(float(np.max(np.abs(A))), 1.0)
-    A[0] = trace*scale
-    rhs[0] = 0.0
-    return solve(A, rhs, assume_a="gen", check_finite=False)
+    _, factors = _stationary_factored(generator, trace)
+    return _response_from_factor(factors, forcing)
 
 
 def _reservoir_states(light, dark, weights, gamma_out, gamma_in, mixing, trace, thermal):
@@ -280,31 +316,31 @@ def _reservoir_solution(light, dark, weights, gamma_out, gamma_in, mixing,
     nv, M, _ = light.shape
     eye = np.eye(M)
     if gamma_out == 0:
-        states = np.array([_stationary(L, trace) for L in light])
-        response = (None if magnetic_generator is None else np.array([
-            _trace_zero_response(L, magnetic_generator@rho, trace)
-            for L, rho in zip(light, states)]))
+        states, factors = _stationary_factored(light, trace)
+        response = (None if magnetic_generator is None else
+                    _response_from_factor(factors, states@magnetic_generator.T))
         return states, None, response, None
     if gamma_in == 0:
         # Conditional gamma_in -> 0+ limit: the reset dark reservoir is
         # thermal. It supplies a transit-reset source at gamma_out. Absolute
         # light-region occupation is not inferred from this conditional limit.
         refill = gamma_out*(np.outer(thermal, trace)-eye)
-        states = np.array([_stationary(L+refill, trace) for L in light])
-        response = (None if magnetic_generator is None else np.array([
-            _trace_zero_response(L+refill, magnetic_generator@rho, trace)
-            for L, rho in zip(light, states)]))
-        return states, thermal, response, np.zeros(M, complex) if response is not None else None
-    maps = np.array([solve(gamma_out*eye-L, gamma_out*eye,
-                          check_finite=False) for L in light])
+        states, factors = _stationary_factored(light+refill, trace)
+        response = (None if magnetic_generator is None else
+                    _response_from_factor(factors, states@magnetic_generator.T))
+        return states, thermal, response, np.zeros(M, dtype=light.dtype) if response is not None else None
+    # NumPy handles the velocity batch within its solve instead of one Python
+    # scipy.solve call per class. Keep the complete matrix maps: the shared
+    # reservoir is unknown until their weighted matrix average is assembled.
+    maps = np.linalg.solve(gamma_out*eye-light, np.broadcast_to(gamma_out*eye, light.shape))
     if mixing == "complete":
         mean_map = np.einsum("v,vij->ij", weights, maps)
         dark_generator = dark + gamma_in*(mean_map-eye)
-        dark_state = _stationary(dark_generator, trace)
+        dark_state, factors = _stationary_factored(dark_generator, trace)
         states = maps @ dark_state
     else:
         dark_generators = dark[None]+gamma_in*(maps-eye)
-        dark_state = np.array([_stationary(L, trace) for L in dark_generators])
+        dark_state, factors = _stationary_factored(dark_generators, trace)
         states = np.einsum("vij,vj->vi", maps, dark_state)
     if magnetic_generator is None:
         return states, dark_state, None, None
@@ -313,12 +349,11 @@ def _reservoir_solution(light, dark, weights, gamma_out, gamma_in, mixing,
     local_response = np.einsum("vij,vj->vi", maps, forcing)/gamma_out
     if mixing == "complete":
         source = magnetic_generator@dark_state + gamma_in*(weights@local_response)
-        dark_response = _trace_zero_response(dark_generator, source, trace)
+        dark_response = _response_from_factor(factors, source)
         response = local_response + maps@dark_response
     else:
         source = dark_state@magnetic_generator.T + gamma_in*local_response
-        dark_response = np.array([_trace_zero_response(L, s, trace)
-                                  for L, s in zip(dark_generators, source)])
+        dark_response = _response_from_factor(factors, source)
         response = local_response + np.einsum("vij,vj->vi", maps, dark_response)
     return states, dark_state, response, dark_response
 
@@ -382,6 +417,62 @@ def _magnetic_response_error(light, dark, states, reservoir, response,
     return residual, trace_error
 
 
+def rescale_readout(result, *, density_m3, cell_length_m):
+    """Re-evaluate the homogeneous-path readout without another atomic solve.
+
+    Density and path length do not enter this local uniform-intensity model's
+    light/dark equations. Keep the solved-state diagnostics and analytic-slope
+    validity; only susceptibility scaling and optical readout change. A cached
+    positive reference density retains the response even for a requested vacuum.
+    """
+    density, length = float(density_m3), float(cell_length_m)
+    reference_density = float(result["density_m3"])
+    reference_length = float(result["cell_length_m"])
+    if not np.all(np.isfinite([density, length])) or min(density, length) < 0:
+        raise ValueError("finite nonnegative density and cell length required")
+    if reference_density == 0 and density > 0:
+        raise ValueError("positive reference density needed to restore a nonzero-density readout")
+    ratio = density/reference_density if reference_density else 0.
+    scaled = dict(result, density_m3=density, cell_length_m=length)
+    for name in ("chi_plus", "chi_minus", "chi_probe", "chi_plus_slope_per_t",
+                 "chi_minus_slope_per_t", "chi_probe_slope_per_t"):
+        if name in result:
+            scaled[name] = np.asarray(result[name])*ratio
+    if "chi_probe" in scaled:
+        k = 2*np.pi*float(result["frequency_hz"])/constants.C_LIGHT
+        scaled["optical_depth"] = k*length*scaled["chi_probe"].imag
+        scaled["transmission"] = np.exp(-scaled["optical_depth"])
+        if "chi_probe_slope_per_t" in scaled:
+            scaled["transmission_slope_per_t"] = (
+                -scaled["transmission"]*k*length*scaled["chi_probe_slope_per_t"].imag)
+        linear = result.get("rotation_status", "").startswith("linear-input")
+        if linear:
+            scaled["rotation_rad"] = 0.25*k*length*(scaled["chi_plus"]-scaled["chi_minus"]).real
+            if "chi_plus_slope_per_t" in scaled:
+                scaled["rotation_slope_rad_per_t"] = (
+                    0.25*k*length*(scaled["chi_plus_slope_per_t"]
+                                      -scaled["chi_minus_slope_per_t"]).real)
+        return scaled
+    # Compatibility for saved/mock readouts lacking susceptibility arrays.
+    # Production caches retain χ, which also handles underflowed transmission.
+    if reference_length == 0 and length > 0:
+        raise ValueError("positive reference length or susceptibility arrays required")
+    path_ratio = ratio*length/reference_length if reference_length else 0.
+    old_t = np.asarray(result["transmission"])
+    with np.errstate(divide="ignore"):
+        old_depth = np.asarray(result.get("optical_depth", -np.log(old_t)))
+    scaled["optical_depth"] = old_depth*path_ratio if path_ratio else np.zeros_like(old_depth)
+    scaled["transmission"] = np.exp(-scaled["optical_depth"])
+    for name in ("rotation_rad", "rotation_slope_rad_per_t"):
+        if name in result:
+            scaled[name] = np.asarray(result[name])*path_ratio
+    if "transmission_slope_per_t" in result:
+        normalized_slope = np.divide(np.asarray(result["transmission_slope_per_t"]),
+                                     old_t, out=np.zeros_like(old_t, dtype=float), where=old_t > 0)
+        scaled["transmission_slope_per_t"] = scaled["transmission"]*path_ratio*normalized_slope
+    return scaled
+
+
 def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=None,
                         intensity_mw_cm2=1.0, temp_c=20.0, b_ut=0.0,
                         b_x_ut=0.0, b_y_ut=0.0, magnetic_derivative=True,
@@ -389,7 +480,7 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
                         ground_relaxation_hz=1.0, wall_relaxation_hz=1.0,
                         pure_dephasing_hz=0.0, velocity_mixing="complete",
                         velocity_points=6, doppler=True, qwp_deg=0.0,
-                        density_m3=None, density_scale=1.0):
+                        density_m3=None, density_scale=1.0, solver_basis="auto"):
     """Return local susceptibilities and homogeneous-path transmission/rotation.
 
     Every numerical output curve has shape (len(b_ut), len(detunings_mhz)),
@@ -404,6 +495,11 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
     ``magnetic_derivative`` differentiates the entire normalized light/dark
     steady-state problem analytically in longitudinal SI Tesla, including
     the common reservoir response. No finite B stencil is needed for slope.
+
+    ``solver_basis='auto'`` uses real Hermitian coordinates and, for exactly
+    zero transverse field, the invariant even-Δm sector. ``'complex'`` retains
+    every original density coordinate as a numerical reference. Both restore
+    the full states for the same readout and physical residual diagnostics.
     """
     delta = np.atleast_1d(np.asarray(detunings_mhz, dtype=float))
     fields = np.atleast_1d(np.asarray(b_ut, dtype=float))
@@ -422,9 +518,17 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
         raise ValueError("positive population-reset rates are needed for a unique steady state")
     if velocity_mixing not in ("complete", "none"):
         raise ValueError("velocity_mixing must be complete or none")
+    if solver_basis not in ("auto", "complex"):
+        raise ValueError("solver_basis must be auto or complex")
     if int(velocity_points) != velocity_points or not 2 <= velocity_points <= 20:
         raise ValueError("velocity_points is quadrature order per interval, 2..20")
     atom = build_multilevel_atom(isotope, line)
+    even_coherences = float(b_x_ut) == 0. and float(b_y_ut) == 0.
+    coordinates = (ground_coordinates(tuple(atom.ground[s.start][0]
+                    for s in atom.ground_slices), even_coherences)
+                   if solver_basis == "auto" else None)
+    solve_trace = atom.trace if coordinates is None else coordinates.pack(atom.trace)
+    solve_thermal = atom.thermal if coordinates is None else coordinates.pack(atom.thermal)
     centroid = component_centroid_mhz(atom, ground_f)
     temp_k = temp_c+273.15
     density = species.number_density(species.ISOTOPES[isotope], temp_k) if density_m3 is None else float(density_m3)
@@ -439,6 +543,8 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
     slope_valid = np.zeros(shape, bool)
     derivative = (_magnetic_generator(isotope, line, "z")
                   if magnetic_derivative else None)
+    solve_derivative = (derivative if coordinates is None or derivative is None
+                        else coordinates.generator(derivative))
     diagnostics = []
     counts = []
     with core.blas_single_thread():
@@ -448,16 +554,25 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
             counts.append(shifts.size)
             optical, eliminated, resolvents, excitation = _optical_terms(
                 atom, centroid+detuning-shifts, intensity_mw_cm2, polarization)
+            solve_optical = optical if coordinates is None else coordinates.generator(optical)
             virtual_bound = max(float(np.max(np.linalg.eigvalsh(
                 np.einsum("vei,vej->vij", Y.conj(), Y)))) for Y in eliminated)
             for bi, field in enumerate(fields):
-                light = optical + _ground_generator(atom, field, ground_relaxation_hz,
+                ground = _ground_generator(atom, field, ground_relaxation_hz,
                     pure_dephasing_hz, b_x_ut, b_y_ut)
+                light = optical + ground
                 dark = _ground_generator(atom, field, wall_relaxation_hz,
                     pure_dephasing_hz, b_x_ut, b_y_ut)
+                solve_light = (light if coordinates is None else
+                               solve_optical+coordinates.generator(ground))
+                solve_dark = dark if coordinates is None else coordinates.generator(dark)
                 states, dark_state, state_response, dark_response = _reservoir_solution(
-                    light, dark, weights, gamma_out_hz, gamma_in_hz,
-                    velocity_mixing, atom.trace, atom.thermal, derivative)
+                    solve_light, solve_dark, weights, gamma_out_hz, gamma_in_hz,
+                    velocity_mixing, solve_trace, solve_thermal, solve_derivative)
+                if coordinates is not None:
+                    states, dark_state, state_response, dark_response = (
+                        coordinates.expand(value) for value in
+                        (states, dark_state, state_response, dark_response))
                 components, response, diagnostic = _readout(atom, states, resolvents,
                     excitation, eliminated, weights, polarization, density)
                 cp[bi, di], cm[bi, di], probe[bi, di] = components[1], components[-1], response
@@ -538,7 +653,8 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
         slope_valid=slope_valid, slope_relative_residual=slope_residual,
         slope_method="analytic normalized steady-state response; light and dark states differentiated",
         transverse_field_ut=dict(x=float(b_x_ut), y=float(b_y_ut)),
-        density_m3=density, isotope=isotope, line=line, frequency_hz=atom.frequency_hz,
+        density_m3=density, cell_length_m=float(cell_length_m),
+        isotope=isotope, line=line, frequency_hz=atom.frequency_hz,
         ground_f=max(f for f, _ in atom.ground) if ground_f is None else int(ground_f),
         reference_centroid_mhz=centroid,
         detuning_reference="line-strength centroid of selected ground-F optical component",
@@ -552,6 +668,13 @@ def multilevel_response(detunings_mhz, *, isotope="Rb85", line="D1", ground_f=No
             convergence_status="not assessed; compare interval orders"),
         level_counts=dict(ground=len(atom.ground), excited=len(atom.excited),
                           retained_ground_density=atom.dimension),
+        numerical_solver=dict(
+            basis="complex density" if coordinates is None else "real Hermitian density",
+            coherence_sector=("even delta-m" if coordinates is not None and even_coherences
+                              else "all delta-m"),
+            full_density_dimension=atom.dimension,
+            solve_dimension=atom.dimension if coordinates is None else coordinates.dimension,
+            method="batched local maps; normalized state/response share LU"),
         rate_convention="all _hz arguments are exponential rates in s^-1; no 2pi conversion",
         rotation_status="linear-input circular-birefringence approximation" if linear else "unsupported polarization",
     )

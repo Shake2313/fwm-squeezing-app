@@ -3,7 +3,7 @@ import math
 
 import numpy as np
 
-from .. import magneto_multilevel
+from .. import magneto_multilevel, species
 from ..magneto_noise import magnetic_sensitivity, shot_noise_reference
 from ..plot_style import apply_gabes_plot_style
 from ..report import derived_table
@@ -17,6 +17,50 @@ ROTATION = "NMOR rotation"
 PARAFFIN = "Paraffin coated cell"
 BUFFER = "Buffer gas cell"
 LINEARITY_STEP_UT = 1e-6
+RESPONSE_DENSITY_M3 = 1e16
+RESPONSE_LENGTH_M = .1
+
+
+def _finite_amplitude_linearity(backend, fields, bias, axis):
+    """Qualify the displayed response over the existing +/-1 pT interval."""
+    center = int(np.argmin(np.abs(fields-bias)))
+    left = int(np.argmin(np.abs(fields-(bias-LINEARITY_STEP_UT))))
+    right = int(np.argmin(np.abs(fields-(bias+LINEARITY_STEP_UT))))
+    h_t = LINEARITY_STEP_UT*1e-6
+    linearity = {}
+    for quantity, derivative in (("rotation", "rotation_slope_rad_per_t"),
+                                  ("transmission", "transmission_slope_per_t")):
+        values = np.asarray(backend["rotation_rad" if quantity == "rotation" else "transmission"], float)
+        prediction = np.asarray(backend[derivative], float)[center]*h_t
+        error = np.maximum(np.abs(values[right]-values[center]-prediction),
+                           np.abs(values[center]-values[left]-prediction))/np.maximum(np.abs(prediction), 1e-30)
+        passed = np.isfinite(error) & (error <= .05) & np.asarray(backend["slope_valid"], bool)[center]
+        if axis == FIELD_SCAN:
+            all_passed, all_error = np.zeros(fields.size, bool), np.full(fields.size, np.nan)
+            all_passed[center], all_error[center] = passed[0], error[0]
+            passed, error = all_passed, all_error
+        linearity[quantity] = dict(valid=passed, relative_error=error)
+    return center, linearity
+
+
+def _display_response(raw, params):
+    """Apply density and length after the density-independent atomic solve."""
+    mode = params["density_mode"]
+    if mode not in ("manual", "vapor"):
+        raise ValueError("invalid density mode")
+    length = float(params["cell_mm"])*1e-3
+    density = (float(params["density_cm3"])*1e6 if mode == "manual" else
+               species.number_density(species.ISOTOPES[raw["backend"]["isotope"]],
+                                      raw["conditions"]["temp_c"]+273.15))
+    if not np.isfinite(length) or length < 0 or not np.isfinite(density) or density < 0:
+        raise ValueError("density and cell length must be finite and nonnegative")
+    atomic = magneto_multilevel.rescale_readout(raw["backend"], density_m3=density,
+                                              cell_length_m=length)
+    conditions = dict(raw["conditions"], cell_length_m=length,
+                      density_m3=density if mode == "manual" else None)
+    _, linearity = _finite_amplitude_linearity(
+        atomic, raw["physical_b_ut"], float(params["b_offset_ut"]), raw["scan_axis"])
+    return atomic, conditions, linearity
 
 
 def _limit_snr(budget, passed, errors):
@@ -105,7 +149,7 @@ class UnifiedMagnetoScheme(Scheme):
     caption = ("Rb D1/D2 Hanle transmission and nonlinear magneto-optical rotation, "
                "using a shared multihyperfine Budker-based model for magnetic-field "
                "and optical-detuning scans.")
-    cache_version = "budker-unified-v1-analytic-response"
+    cache_version = "budker-unified-v2-density-length-readout"
     defaults_version = "budker-unified-v1"
     supports_headless_observables = True
 
@@ -148,10 +192,11 @@ class UnifiedMagnetoScheme(Scheme):
                       0., 5., .00001, "µT", advanced=True, format="%.5f"),
             ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0., 0., 180., 1., "deg", advanced=True),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 20., 0., 120., 1., "°C"),
-            ParamSpec("cell_mm", "Cell length", "Cell & beams", 100., .5, 200., .5, "mm"),
-            ParamSpec("density_mode", "Vapor density", "Cell & beams", "manual", choices=("manual", "vapor")),
+            ParamSpec("cell_mm", "Cell length", "Cell & beams", 100., .5, 200., .5, "mm", recompute=False),
+            ParamSpec("density_mode", "Vapor density", "Cell & beams", "manual", choices=("manual", "vapor"), recompute=False),
             ParamSpec("density_cm3", "Manual isotope density", "Cell & beams", 4.5e9, 0., 1e12, 1e8, "cm⁻³",
-                      visible_if={"density_mode": "manual"}, help="Selected isotope density; abundance is not applied again."),
+                      visible_if={"density_mode": "manual"}, recompute=False,
+                      help="Selected isotope density; abundance is not applied again."),
             ParamSpec("gamma_out_hz", "Light-region exit rate", "Atomic", 5e4, 0., 2e5, 100., "s⁻¹", advanced=True, visible_if=paraffin),
             ParamSpec("gamma_in_hz", "Dark-region return rate", "Atomic", 20., 0., 1000., 1., "s⁻¹", advanced=True, visible_if=paraffin),
             ParamSpec("wall_relaxation_hz", "Wall population-reset rate", "Atomic", 3., .01, 1000., .01, "s⁻¹", advanced=True, visible_if=paraffin),
@@ -244,7 +289,7 @@ class UnifiedMagnetoScheme(Scheme):
         conditions = dict(
             isotope=p["isotope"], line=p["line"], ground_f=int(ground_f),
             intensity_mw_cm2=float(p["intensity_mw_cm2"]), temp_c=float(p["temp_c"]),
-            cell_length_m=float(p["cell_mm"])*1e-3,
+            cell_length_m=RESPONSE_LENGTH_M,
             gamma_out_hz=float(p["gamma_out_hz"]) if p["cell_type"] == PARAFFIN else 0.,
             gamma_in_hz=float(p["gamma_in_hz"]) if p["cell_type"] == PARAFFIN else 0.,
             ground_relaxation_hz=float(p["ground_relaxation_hz"]),
@@ -252,40 +297,27 @@ class UnifiedMagnetoScheme(Scheme):
             pure_dephasing_hz=float(p["pure_dephasing_hz"]),
             velocity_mixing=p["velocity_mixing"], velocity_points=p["velocity_points"],
             doppler=p["doppler"] == "on", qwp_deg=float(p["qwp_deg"]),
-            density_m3=float(p["density_cm3"])*1e6 if p["density_mode"] == "manual" else None,
+            density_m3=RESPONSE_DENSITY_M3,
             b_x_ut=transverse*math.cos(phi), b_y_ut=transverse*math.sin(phi),
             magnetic_derivative=True,
         )
-        backend = magneto_multilevel.multilevel_response(delta, b_ut=fields, **conditions)
+        backend = dict(magneto_multilevel.multilevel_response(delta, b_ut=fields, **conditions))
+        backend.setdefault("cell_length_m", RESPONSE_LENGTH_M)
         expected = (fields.size, delta.size)
         for name in ("transmission", "rotation_rad", "rotation_slope_rad_per_t", "transmission_slope_per_t", "slope_valid"):
             if np.asarray(backend[name]).shape != expected:
                 raise ValueError(f"multihyperfine backend {name} must have shape {expected}")
-        center = int(np.argmin(np.abs(fields-bias)))
-        left = int(np.argmin(np.abs(fields-(bias-LINEARITY_STEP_UT))))
-        right = int(np.argmin(np.abs(fields-(bias+LINEARITY_STEP_UT))))
-        h_t = LINEARITY_STEP_UT*1e-6
-        linearity = {}
-        for quantity, derivative in (("rotation", "rotation_slope_rad_per_t"),
-                                      ("transmission", "transmission_slope_per_t")):
-            values = np.asarray(backend["rotation_rad" if quantity == "rotation" else "transmission"], float)
-            prediction = np.asarray(backend[derivative], float)[center]*h_t
-            error = np.maximum(np.abs(values[right]-values[center]-prediction),
-                               np.abs(values[center]-values[left]-prediction))/np.maximum(np.abs(prediction), 1e-30)
-            passed = np.isfinite(error) & (error <= .05) & np.asarray(backend["slope_valid"], bool)[center]
-            if axis == FIELD_SCAN:
-                all_passed, all_error = np.zeros(fields.size, bool), np.full(fields.size, np.nan)
-                all_passed[center], all_error[center] = passed[0], error[0]
-                passed, error = all_passed, all_error
-            linearity[quantity] = dict(valid=passed, relative_error=error)
+        center, linearity = _finite_amplitude_linearity(backend, fields, bias, axis)
         return dict(valid=True, model="Budker multihyperfine", scan_axis=axis,
                     command_b_ut=command, physical_b_ut=fields, detunings_mhz=delta,
-                    conditions=conditions, density_mode=p["density_mode"], cell_type=p["cell_type"],
+                    conditions=conditions, density_mode="manual", cell_type=p["cell_type"],
+                    response_reference=dict(density_m3=RESPONSE_DENSITY_M3,
+                                            cell_length_m=RESPONSE_LENGTH_M),
                     operating_field_index=center, linearity=linearity, backend=backend)
 
     def observables(self, raw, params, include_figures=True):
         p = dict(self.defaults(), **params)
-        atomic = raw["backend"]
+        atomic, conditions, linearity = _display_response(raw, p)
         optical = raw["scan_axis"] == OPTICAL_SCAN
         select = (raw["operating_field_index"], slice(None)) if optical else (slice(None), 0)
         x = np.asarray(raw["detunings_mhz"] if optical else raw["command_b_ut"], float)
@@ -304,10 +336,10 @@ class UnifiedMagnetoScheme(Scheme):
             bandwidth_hz=float(p["noise_bandwidth_hz"]), signal_rms_t=float(p["magnetic_signal_ft"])*1e-15)
         rotation_budget = magnetic_sensitivity(T, slope_theta, **settings, linear_input=linear, slope_valid=valid)
         transmission_budget = _transmission_sensitivity(T, slope_t, **settings, slope_valid=valid)
-        rotation_budget = _limit_snr(rotation_budget, raw["linearity"]["rotation"]["valid"],
-                                     raw["linearity"]["rotation"]["relative_error"])
-        transmission_budget = _limit_snr(transmission_budget, raw["linearity"]["transmission"]["valid"],
-                                         raw["linearity"]["transmission"]["relative_error"])
+        rotation_budget = _limit_snr(rotation_budget, linearity["rotation"]["valid"],
+                                     linearity["rotation"]["relative_error"])
+        transmission_budget = _limit_snr(transmission_budget, linearity["transmission"]["valid"],
+                                         linearity["transmission"]["relative_error"])
         sensitivity = rotation_budget if rotation_view else transmission_budget
         asd = np.asarray(sensitivity["field_asd_t_per_sqrt_hz"], float)
         available = np.asarray(sensitivity["valid"], bool)
@@ -339,7 +371,7 @@ class UnifiedMagnetoScheme(Scheme):
             physical_bias_ut=float(p["b_offset_ut"]), detuning_reference=reference,
             reference_centroid_mhz=atomic["reference_centroid_mhz"], isotope=atomic["isotope"],
             line=atomic["line"], ground_f=atomic["ground_f"], density_m3=atomic["density_m3"],
-            density_mode=raw["density_mode"], conditions=raw["conditions"],
+            density_mode=p["density_mode"], conditions=conditions,
             transmission=T, rotation_rad=theta, rotation_slope_rad_per_t=slope_theta,
             transmission_slope_per_t=slope_t, slope_valid=valid,
             slope_method="analytic derivative of the coupled steady-state equations",

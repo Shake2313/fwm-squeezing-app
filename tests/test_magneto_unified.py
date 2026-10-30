@@ -57,7 +57,8 @@ def test_unified_schema_has_no_model_switch_and_only_physical_condition_presets(
     assert sc.defaults()["isotope"] == "Rb85"
     assert specs["scan_axis"].choices == (FIELD_SCAN, OPTICAL_SCAN)
     assert {"signal_type", "detection_efficiency", "beam_diameter_mm", "noise_bandwidth_hz", "show_shot_noise"}.isdisjoint(sc.recompute_keys())
-    assert {"cell_mm", "isotope", "line", "qwp_deg", "b_offset_ut", "laser_detuning_mhz"}.issubset(sc.recompute_keys())
+    assert {"cell_mm", "density_mode", "density_cm3"}.isdisjoint(sc.recompute_keys())
+    assert {"isotope", "line", "qwp_deg", "b_offset_ut", "laser_detuning_mhz"}.issubset(sc.recompute_keys())
     for preset in sc.presets():
         assert not {"calculation", "model"}.intersection(preset.values)
         assert preset.values.get("scan_axis", FIELD_SCAN) == FIELD_SCAN
@@ -217,7 +218,8 @@ def test_large_signal_and_local_nonlinearity_never_mask_analytic_asd(backend, mo
 
     def curved(delta, *, b_ut, **conditions):
         result = fake_response(delta, b_ut=b_ut, **conditions)
-        result["rotation_rad"] += 1e30*(np.asarray(b_ut)[:, None]*1e-6)**3
+        # Keep this deliberately outside the 5% boundary under readout scaling.
+        result["rotation_rad"] += 1.1e30*(np.asarray(b_ut)[:, None]*1e-6)**3
         return result
     monkeypatch.setattr(unified.magneto_multilevel, "multilevel_response", curved)
     curved_raw = sc.compute(p)

@@ -1,0 +1,28 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+___________ test_final_stark_profile_and_crossfit_receipt_reconcile ___________
+tests\test_fwm_stark_validation.py:95: in test_final_stark_profile_and_crossfit_receipt_reconcile
+    assert digest == report["numeric_atomic_source_hash"]
+E   AssertionError: assert '8af7631e490f...209da7ef9ef99' == '86189ca7324d...ec7cabe795c57'
+E     
+E     - 86189ca7324d224daf79d2a7fcd8feaee0dadd31768e4ce9d1cec7cabe795c57
+E     + 8af7631e490f970093a93d6a255979be5b6c5e38fc73b4e8912209da7ef9ef99
+____ test_stage1_archived_receipt_profile_target_scope_and_crossfit_scores ____
+tests\test_fwm_zeeman_validation.py:108: in test_stage1_archived_receipt_profile_target_scope_and_crossfit_scores
+    assert source_hash == report["numeric_atomic_source_hash"]
+E   AssertionError: assert '2bbe149b430d...16c2b14e388a4' == '40ac892e2f00...7928f63f8575f'
+E     
+E     - 40ac892e2f009110074ba7970fc3710db0c7487f943c466a08d7928f63f8575f
+E     + 2bbe149b430d02f7fe05412be50b96446fe4f304ed555161e6616c2b14e388a4
+_____ test_stage2_same_family_receipt_sources_metrics_splits_and_profile ______
+tests\test_fwm_zeeman_validation.py:167: in test_stage2_same_family_receipt_sources_metrics_splits_and_profile
+    assert digest == report["numeric_atomic_source_hash"]
+E   AssertionError: assert '207176dc20fe...1ed9163f3415c' == '9888fbdd79d7...8447ddb7395eb'
+E     
+E     - 9888fbdd79d71b88521874e5eefda0c79db39cf1c211b1d72718447ddb7395eb
+E     + 207176dc20fe989be9fead0f1707bd5fe50d6ee3cd2c5e5b0731ed9163f3415c
+=========================== short test summary info ===========================
+FAILED tests/test_fwm_stark_validation.py::test_final_stark_profile_and_crossfit_receipt_reconcile
+FAILED tests/test_fwm_zeeman_validation.py::test_stage1_archived_receipt_profile_target_scope_and_crossfit_scores
+FAILED tests/test_fwm_zeeman_validation.py::test_stage2_same_family_receipt_sources_metrics_splits_and_profile
+3 failed in 7.33s

@@ -1,0 +1,25 @@
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+........................................................................ [ 90%]
+......................                                                   [100%]
+============================== warnings summary ===============================
+tests/test_magneto_noise.py::test_overlay_uses_axis_units_and_exports_the_displayed_trace[Transmission]
+tests/test_magneto_noise.py::test_overlay_uses_axis_units_and_exports_the_displayed_trace[NMOR rotation]
+  G:\�� ����̺�\Coding\GABES - Generic Atomic Bloch Equation Solver\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================ slowest 12 durations =============================
+1.01s call     tests/test_magneto_doppler.py::test_exact_average_matches_a_converged_velocity_grid[paraffin EIT dip]
+1.00s call     tests/test_magneto_doppler.py::test_exact_average_matches_a_converged_velocity_grid[paraffin detuned]
+0.99s call     tests/test_magneto_doppler.py::test_exact_average_matches_a_converged_velocity_grid[paraffin F1-F2 no transverse field]
+0.96s call     tests/test_magneto_multilevel.py::test_resonance_quadrature_refines_and_captures_maxwell_measure
+0.94s call     tests/test_magneto_noise.py::test_noise_controls_render_toggle_and_advanced_settings
+0.87s setup    tests/test_magneto_readout.py::test_deterministic_preset_schedule_preserves_sign_width_and_slope[EIT]
+0.66s call     tests/test_magneto_multilevel.py::test_analytic_coupled_derivative_matches_refined_field_differences[complete]
+0.64s call     tests/test_magneto_multilevel.py::test_analytic_coupled_derivative_matches_refined_field_differences[none]
+0.35s call     tests/test_magneto_noise.py::test_gaussian_reference_has_declared_rms_and_is_reproducible
+0.33s setup    tests/test_magneto_noise.py::test_transmission_snr_is_contrast_over_background_noise
+0.28s call     tests/test_atomic_data.py::test_data_layer_imports_without_level_schemes
+0.25s call     tests/test_magneto_unified.py::test_optical_axis_uses_analytic_slopes_without_finite_difference_gaps
+238 passed, 2 warnings in 20.09s
