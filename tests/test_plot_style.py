@@ -104,8 +104,12 @@ def test_a_styled_scheme_figure_renders_isotope_labels_under_a_hostile_font():
         warnings.simplefilter("ignore")
         view = sas.observables(raw, params)
         figures = [item["figure"] for item in view["figure_views"]]
-        assert any("⁸⁵Rb" in fig.axes[0].get_title() for fig in figures)
+        assert raw["species"] == "⁸⁵Rb"
         for fig in figures:
+            # Scheme figures no longer carry a settings title; put the scheme's
+            # own isotope label back on the laid-out figure, as an exported
+            # figure with a caption title would show it.
+            fig.axes[0].set_title(f"{raw['species']} {raw['line']}")
             assert _glyph_warnings(fig), "styling has not been applied yet"
             apply_gabes_plot_style(fig)
             assert _glyph_warnings(fig) == []
