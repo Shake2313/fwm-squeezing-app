@@ -28,6 +28,7 @@ These practical approximations are separate from Grand Challenge acceptance.
 | A | **Lambda coherence (EIT / AT / CPT)** | one 3-level Lambda engine with regime-driven defaults, physical MHz/kHz controls, Rb/Cs D-line media, EIT transparency, AT splitting, and CPT dark resonance |
 | A | **Rydberg-EIT electrometry** | 85Rb cascade EIT / microwave AT spectrum for the 5S-5P-40D ladder and 37 GHz 40D-39F RF leg; first-order finite-IF weak-SIG response, AT→field calibration, balanced-detector PSN/RIN/electronics budget, temperature/cold-spot sweep, and conditional absolute sensitivity |
 | C — Magneto-optics | **Hanle / EIA / NMOR** | two distinct effects vs B: the **Hanle** effect (zero-field transmission dip/peak, EIA variant) from ground-state coherence, and **magneto-optical rotation** (MOR/NMOR, polarization-plane rotation) — both over the Zeeman manifold |
+| C | **Polarization squeezing (PSR)** | Rb85/Rb87 D1/D2 atomic self-rotation slope with conditional Gaussian polarization noise; phase and optical-detuning scans, distributed absorption, detector loss and explicit assumed atomic excess noise. [Model and applicability](docs/psr/README.md) |
 | D — Wave mixing | **FWM** | seeded 85Rb D1 double-Λ Squeezing indicator (mean-field only; physical squeezing unavailable), plus generic SFWM biphoton source estimates (`g²_SI(τ)`, CAR, rates, phase matching, velocity-class waveform) |
 
 Roadmap (parking lot): group-index / slow-light readout (OD/SAS now returns the
@@ -174,6 +175,23 @@ In seeded FWM, dragging **Two-photon Detuning** previews the cursor and selected
 gain/noise locally on the cached curves. Clicking or dragging directly on the
 plot also selects δ. Release commits the operating point and updates the result
 strip and exports; the preview interpolates canonical NF before taking its dB log.
+
+**Squeezing view → Quadrature phase scan** holds the selected two-photon detuning
+fixed and rotates both homodyne local-oscillator phases together from 0 to 180°.
+Quadrature A measures the equal-weight probe-minus-conjugate collective mode;
+B is its orthogonal quadrature, shifted by 90°. Their noise traces exchange
+minima/maxima around the 0 dB shot-noise reference. Gain is shown as the current
+operating-point value and does not change with detection phase. The dB curves
+are periodic, not exact sine waves; their crossing need not lie at 0 dB.
+
+This view uses an effective Jasperse covariance with both distributed vacuum-loss
+reservoirs, the current amplitude RIN, and **shot-noise seed phase** with no input
+amplitude–phase correlation. Phase zero is the real-coupling model reference,
+not a measured apparatus phase. It is a static approximation, not a microscopic
+or finite-RF noise prediction. Gain calibration remains active under its existing
+scope and does not calibrate phase noise. Returning to **Intensity difference**
+restores its selected noise model. JSON exports retain the covariance, phase
+convention, operating-point gains and assumptions; plotted CSVs use degrees.
 
 ### Hanle / EIA / NMOR readouts
 

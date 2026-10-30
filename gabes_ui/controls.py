@@ -26,10 +26,29 @@ def skey(scheme_name, pname):
 def current_params(scheme_name, scheme_obj):
     """Live value of every param knob from session_state, falling back to defaults."""
     return {
-        sp.name: st.session_state.get(skey(scheme_name, sp.name), sp.default)
+        sp.name: (_required_selection(scheme_name, sp)
+                  if sp.control == "required_segmented" else
+                  st.session_state.get(skey(scheme_name, sp.name), sp.default))
         for sp in scheme_obj.param_schema()
         if sp.control != "derived_slider"
     }
+
+
+def _required_selection(scheme_name, sp):
+    """Keep a mode selected, including after Streamlit's deselect event."""
+    key = skey(scheme_name, sp.name)
+    last_key = skey(scheme_name, f"_{sp.name}_last_valid")
+    options = tuple(sp.choices or ())
+    if not options:
+        raise ValueError("required_segmented needs at least one choice")
+    value = st.session_state.get(key)
+    if value not in options:
+        previous = st.session_state.get(last_key)
+        value = (previous if previous in options else
+                 sp.default if sp.default in options else options[0])
+        st.session_state[key] = value
+    st.session_state[last_key] = value
+    return value
 
 
 def render_group_header(container, group):
@@ -130,6 +149,9 @@ def _render_atom_menu(container, scheme_name, sp, scheme_obj=None):
 def render_param(container, scheme_name, sp, scheme_obj=None):
     if getattr(sp, "atom_menu", None):
         return _render_atom_menu(container, scheme_name, sp, scheme_obj)
+    control = getattr(sp, "control", "auto")
+    if control == "required_segmented":
+        _required_selection(scheme_name, sp)
     key = skey(scheme_name, sp.name)
     help_ = sp.help or None
     has_state = key in st.session_state
@@ -142,7 +164,6 @@ def render_param(container, scheme_name, sp, scheme_obj=None):
     on_change = None
     if getattr(sp, "applies_defaults", False) and scheme_obj is not None:
         on_change = lambda: apply_recommended_defaults(scheme_name, scheme_obj, key)
-    control = getattr(sp, "control", "auto")
     # A ScrubField shows its unit beside the value; the other widgets have
     # nowhere to put it, so they keep it in the label.
     label = sp.label + (f"  [{sp.unit}]" if sp.unit else "")
@@ -152,8 +173,20 @@ def render_param(container, scheme_name, sp, scheme_obj=None):
                                       on_change=on_change)
         return container.checkbox(label, value=bool(current), key=key,
                                   help=help_, on_change=on_change)
-    if control == "segmented":
+    if control in ("segmented", "required_segmented"):
         options = list(sp.choices or ())
+        if control == "required_segmented":
+            original_on_change = on_change
+
+            def keep_selection():
+                selected = st.session_state.get(key)
+                _required_selection(scheme_name, sp)
+                # Clearing the selected toggle restores it without reapplying
+                # a regime's defaults or altering the user's other controls.
+                if selected in options and original_on_change is not None:
+                    original_on_change()
+
+            on_change = keep_selection
         _hover_label(container, label, help_)
         choice_kwargs["label_visibility"] = "collapsed"
         if hasattr(container, "segmented_control"):
@@ -214,6 +247,11 @@ def render_rail(container, scheme, specs, skip=(), derived_slots=None):
     when long.
     """
     derived_slots = {} if derived_slots is None else derived_slots
+    # Normalize before visible_if is evaluated, even if an older session left
+    # a cleared selector behind. Otherwise dependent controls can disappear.
+    for sp in specs:
+        if sp.control == "required_segmented":
+            _required_selection(scheme.name, sp)
 
     def render_control(box, sp):
         if sp.control == "derived_slider":

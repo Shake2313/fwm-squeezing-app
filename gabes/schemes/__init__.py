@@ -8,6 +8,7 @@ from .rydberg import RydbergEITScheme
 from .sas import SASScheme
 from .magneto import MagnetoScheme
 from .fwm import FWMScheme
+from .psr import PSRScheme
 
 # Each dropdown entry is one engine cluster; same-engine schemes are merged behind
 # a single entry that carries an in-panel `view` selector + per-regime presets:
@@ -22,6 +23,7 @@ _SCHEMES = [
     RydbergEITScheme(),
     MagnetoScheme(),
     FWMScheme(),
+    PSRScheme(),
 ]
 
 # Single-regime instances, resolvable by name for the physics tests and direct use,

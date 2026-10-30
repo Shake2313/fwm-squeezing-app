@@ -144,6 +144,11 @@ def _commit(component_key, scheme_name, context):
         st.session_state[component_key + "-ack"] = {"context": context, "n": sequence}
         return
     if scheme_name == "fwm":
+        if st.session_state.get("fwm__squeezing_view") == "Quadrature phase scan":
+            # A detuning gesture may arrive while its plot is being unmounted.
+            # The phase view retains its selected operating point.
+            st.session_state[component_key + "-ack"] = {"context": context, "n": sequence}
+            return
         if "tpd" not in values:
             return
         intent = payload.get("intent", 0)

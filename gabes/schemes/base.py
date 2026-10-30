@@ -58,7 +58,7 @@ class ParamSpec:
     advanced: bool = False        # render inside an "Advanced" expander
     endpoints: Optional[tuple] = None   # (left, right) caption under a slider
     hidden: bool = False          # keep in params/session state, but do not render
-    control: str = "auto"         # auto / segmented / checkbox / derived_slider
+    control: str = "auto"         # auto / segmented / required_segmented / checkbox / derived_slider
     visible_if: Optional[dict] = None   # {param_name: allowed value(s)}
     applies_defaults: bool = False      # choosing a value applies the scheme's
                                         # recommended_defaults[value] set, and

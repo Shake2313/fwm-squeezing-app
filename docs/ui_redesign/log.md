@@ -2,6 +2,52 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-30 · FWM·PSR 리뷰 수정
+
+직접 사용자 요청: P2 두 건 수정·회귀 테스트, 재검증·코드 리뷰 통과 후 FWM·PSR 패치 커밋.
+
+### ⟦AI⟧ 구현·검증
+
+- PSR 운전점은 raw 원자 조건에 따른 직접 계산·캐시로 변경. Quick/Balanced/Fine의 Rb85 D1 +200 MHz 재현점 모두 −1.237066 dB·49.852°. 지점별 진단·실패 gap·검출 설정 변경 시 캐시 재사용 검사.
+- `required_segmented`를 두 모드에만 적용. 재클릭 시 이전 선택 복원, 과거 `None`은 defaults 패널 렌더 전 정규화. 실제 widget event로 선택·저장·내보내기·Passive L1 복원 검사.
+- 다른 미커밋 gain 모델을 제외한 HEAD 기반 후보에서 focused **313 passed**, 50.06s. 후속 defaults 렌더 순서 수정 후 해당 **70 passed**, 4.27s. 기존 `datetime.utcnow()` 경고만 남음. 공유 물리 엔진 무변경으로 전체 수치 회귀·GC 생략.
+- 독립 PSR 수치/캐시 리뷰, UI 상태·저장 순서 재리뷰, 커밋 범위 리뷰 모두 추가 조치 항목 없음. 다른 staged 변경은 별도 인덱스로 보존.
+
+
+## 2026-10-30 · PSR polarization squeezing 별도 스킴
+
+직접 사용자 요청: 기존 원자·편광 계산을 재사용하여 PSR 편광 스퀴징을 별도 스킴으로 구현하고 근사·유효 범위를 명시.
+
+### ⟦AI⟧ 구현·검증
+
+- `psr` 등록: Rb85/87 D1/D2 다준위 PSR 기울기 + 조건부 Gaussian shear/분포 손실. 위상/광학 디튜닝 전환, 직교 Stokes 잡음·0 dB, 흡수·검출 효율·가정한 원자 초과잡음 조절.
+- 원자 초과잡음 기본값 0은 생략으로 표시. 근사 범위 밖 구간 음영·운전점 상태, 실패값 비표시, 모델/유효 범위 JSON 포함. [수식·범위·검증](../psr/README.md).
+- focused 184 passed; 마지막 음영 경계 수정 후 해당 스킴 18 passed. Edge 두 모드·초과잡음 조절·범위 경고 확인, 콘솔 오류 0. 공유 물리 엔진 수정 없음; 전체 회귀·GC 생략.
+
+
+## 2026-10-30 · FWM quadrature phase scan
+
+직접 사용자 요청: Intensity difference / Quadrature phase scan 전환, 운전점 gain 수치,
+직교 quadrature 교차 곡선·0 dB 기준선 구현. PSR은 후속 작업.
+
+### ⟦AI⟧ 구현·검증
+
+- 표시 전환·detuning 선택은 원자 결과 재사용. phase view는 실수 위상정합 Jasperse의
+  4×4 공분산, 기존 amplitude RIN, shot-noise seed phase·입력 XP 상관 0 가정.
+  두 LO 공동 회전 0–180°, B=A+90°. 외부 손실 1회, 공분산 선형 보간, 범위 밖 unavailable.
+  Gain은 운전점 수치로 표시. 기존 IDS noise model 선택 복원. JSON에 공분산·정의·가정 보존.
+- 위상축의 detuning 확대·늦은 그래프 드래그 차단. 검수에서 발견한 MHz 경계 roundoff는
+  기존 IDS와 같은 1e−9 MHz 허용오차로 수정. phase curve·범례에 동일 팔레트 사용.
+- `python -m pytest -q tests/test_fwm_quadrature.py tests/test_fwm_phase_integration.py tests/test_fwm_phase_ui.py tests/test_fwm_measured_gain_integration.py tests/test_fwm_passive_l1_integration.py tests/test_fwm_experiment_integration.py tests/test_jasperse_integration.py tests/test_plot_focus.py tests/test_liveplot.py --durations=10`: **116 통과**, 25.83s.
+  기존 `datetime.utcnow` 경고 7건. 초기 AppTest segmented-control 직렬화 실패는 기존 우회 범위를
+  새 선택기까지 확장해 해결; 실제 선택기 전환은 브라우저 검수.
+- 실제 Edge: phase/IDS 왕복·Passive L1 복원, −8→−10 MHz 운전점 변경,
+  gain·extrema 갱신, 교차 곡선·0 dB·범례 확인. 브라우저 오류 0.
+  [화면](../../output/playwright/fwm_quadrature_phase_20261030.png).
+- 원자 solver·공유 quantum engine 무변경. 전체 suite·GC campaign은 범위 밖으로 생략.
+  유효모델 확장이며 미시적·유한 RF squeezing 인증 아님. 필수 검증 이월 없음.
+
+
 ## 2026-10-30 · Atomic 표시 통일 (D16)
 
 직접 사용자 요청: 스킴별 Atomic 표시를 OD/SAS Atom / Isotope / Transition line 구조로 통일, `Nat` → `Natural`.

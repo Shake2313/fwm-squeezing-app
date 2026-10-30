@@ -310,11 +310,11 @@ def test_actual_streamlit_preset_calibration_and_hidden_reference():
         "    st.session_state[sk]=st.session_state.get(sk,value)\n"
         "render_defaults(st,scheme)\n"
         "slots={}\n"
-        # Streamlit AppTest cannot serialize its preexisting formatted segmented
-        # mode widget on rerun. Keep the squeezing mode in state and exercise
+        # Streamlit AppTest cannot serialize formatted segmented controls on
+        # rerun. Keep mode/readout in state and exercise
         # the real preset, new checkbox and all remaining generic rail controls.
         "specs=scheme.param_schema()\n"
-        "params=render_rail(st,scheme,specs,skip=[sp for sp in specs if sp.name=='mode'],derived_slots=slots)\n"
+        "params=render_rail(st,scheme,specs,skip=[sp for sp in specs if sp.name in ('mode','squeezing_view')],derived_slots=slots)\n"
         "view=scheme.headless_observables(reference_raw(params),params)\n"
         "render_derived_params(slots,view['sidebar_readouts'])\n"
         "for metric in view['metrics']:\n"

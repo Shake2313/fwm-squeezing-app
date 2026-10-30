@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import streamlit as st
 
+from gabes_ui.controls import current_params
 from gabes_ui.defaults_browser import render_browser_store
 from gabes_ui.defaults_store import (
     DefaultValidationError, create_default, default_filename, dump_default,
@@ -15,8 +16,9 @@ def _key(scheme, name):
 
 
 def _params(scheme):
-    return {sp.name: st.session_state.get(f"{scheme.name}__{sp.name}", sp.default)
-            for sp in scheme.param_schema() if sp.control != "derived_slider"}
+    # Defaults render before the rail. Required modes must already be restored
+    # here so the first save/download snapshot cannot retain a stale None.
+    return current_params(scheme.name, scheme)
 
 
 def builtin_defaults(scheme):

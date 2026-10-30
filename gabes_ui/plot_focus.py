@@ -50,7 +50,9 @@ def resonance_window(fig, scheme_name, raw=None, view=None):
     raw, view = raw or {}, view or {}
     if scheme_name not in {"sas", "lambda", "fwm"} or not fig.axes:
         return None
-    if scheme_name == "fwm" and raw.get("kind") == "biphoton":
+    if scheme_name == "fwm" and (
+            raw.get("kind") == "biphoton"
+            or view.get("squeezing_view") == "Quadrature phase scan"):
         return None
     curve = next(_sampled_lines(fig.axes[0]), None)
     if curve is None:

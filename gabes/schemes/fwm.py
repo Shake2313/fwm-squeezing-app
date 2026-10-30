@@ -42,6 +42,7 @@ from ..jasperse import seed_noise_components
 from ..fwm_experiment_gain import calibrate_spectrum as calibrate_experimental_gain
 from ..fwm_experiment_gain import evaluate as evaluate_experimental_gain
 from ..fwm_experiment_noise import experimental_jasperse_readout
+from ..fwm_quadrature import experimental_quadrature_phase_scan
 from ..fwm_efficiency import dressed_cell_transmission
 from ..dressed_cell_absorption import selected_dressed_cell_absorption
 from .base import ExtraView, ParamSpec, Preset, Scheme
@@ -3897,6 +3898,8 @@ def _passive_l1_selected(readout, raw, probe_GHz):
 
 NOISE_PASSIVE_L1 = "Passive L1"
 NOISE_EXPERIMENTAL_JASPERSE = "Experimental Jasperse"
+SQUEEZING_INTENSITY_DIFFERENCE = "Intensity difference"
+SQUEEZING_QUADRATURE_PHASE = "Quadrature phase scan"
 
 
 def _experimental_noise_selected(readout, raw, delta_mhz):
@@ -3925,7 +3928,7 @@ class FWMScheme(Scheme):
     name = "fwm"
     cluster = "D — Wave mixing"
     title = "Four-wave mixing (Squeezing / Biphoton)"
-    cache_version = "fwm-experimental-jasperse-gain-v22"
+    cache_version = "fwm-experimental-jasperse-gain-v23-quadrature-phase"
     defaults_version = "fwm-experimental-jasperse-v4"
     cache_observables = True
     supports_headless_observables = True
@@ -3948,6 +3951,13 @@ class FWMScheme(Scheme):
                       control="segmented", applies_defaults=True,
                       help="Switches between seeded squeezing and a biphoton "
                            "source model, then loads that mode's defaults."),
+            ParamSpec("squeezing_view", "Squeezing view", "Readout",
+                      SQUEEZING_INTENSITY_DIFFERENCE,
+                      choices=(SQUEEZING_INTENSITY_DIFFERENCE, SQUEEZING_QUADRATURE_PHASE),
+                      control="required_segmented", recompute=False, visible_if=seeded,
+                      help="Intensity difference scans detuning. Quadrature phase scan rotates "
+                           "both homodyne LO phases together at the selected detuning, using "
+                           "the effective Jasperse model with shot-noise seed phase. Gain stays fixed."),
             ParamSpec("topology", "Topology", "Model", TOPOLOGY_RB87_TELECOM,
                       choices=(TOPOLOGY_RB87_TELECOM, TOPOLOGY_CS_BTW, TOPOLOGY_DIAMOND),
                       choice_labels=TOPOLOGY_LABELS,
@@ -4022,7 +4032,7 @@ class FWMScheme(Scheme):
                            "Continues outside the measured interval and after changing operating conditions."),
             ParamSpec("noise_model", "Noise model", "Detection & scaling", NOISE_EXPERIMENTAL_JASPERSE,
                       choices=(NOISE_EXPERIMENTAL_JASPERSE, NOISE_PASSIVE_L1), recompute=False,
-                      visible_if=seeded,
+                      visible_if=dict(seeded, squeezing_view=SQUEEZING_INTENSITY_DIFFERENCE),
                       help="Experimental Jasperse includes both distributed loss reservoirs using effective parameters. "
                            "Passive L1 retains the restricted canonical-transfer diagnostic."),
             ParamSpec("jasperse_loss_pct", "Jasperse common cell loss", "Detection & scaling",
@@ -4465,6 +4475,8 @@ class FWMScheme(Scheme):
 
     def _seeded_observables(self, raw, params, include_figures=True):
         tpd = params["tpd"]
+        squeezing_view = params.get("squeezing_view", SQUEEZING_INTENSITY_DIFFERENCE)
+        phase_view = squeezing_view == SQUEEZING_QUADRATURE_PHASE
         noise_db = np.asarray(raw["gain_referred_noise_dB"])
         op = operating_point(raw, tpd, branch=-1)
         measured_reference = _measured_gain_reference_readout(
@@ -4493,7 +4505,8 @@ class FWMScheme(Scheme):
         displayed_gs = displayed_gain["G_s"] if gain_active else raw["G_s"]
         displayed_gc = displayed_gain["G_c"] if gain_active else raw["G_c"]
         displayed_point = experimental_gain["selected_point"] if gain_active else op
-        noise_model = params.get("noise_model", NOISE_PASSIVE_L1)
+        noise_model = (NOISE_EXPERIMENTAL_JASPERSE if phase_view else
+                       params.get("noise_model", NOISE_PASSIVE_L1))
         experimental_noise = None
         passive_readout = None
         passive_op = None
@@ -4549,8 +4562,41 @@ class FWMScheme(Scheme):
         if measured_reference["requested"]:
             noise_delta += "; measured gain interpolation does not recalibrate squeezing"
 
+        phase_scan = (experimental_quadrature_phase_scan(experimental_noise, gain_axis, tpd)
+                      if phase_view else None)
+        gain_point = {
+            "G_s": float(displayed_point["G_s"]),
+            "G_c": float(displayed_point["G_c"]),
+            "two_photon_detuning_mhz": float(tpd),
+            "gain_basis": (experimental_gain.get("gain_quantity", "effective source power gain")
+                           if gain_active else "atomic-medium power gain"),
+            "phase_independent": True,
+        }
+        if phase_view and not gain_axis[0]-1e-9 <= tpd <= gain_axis[-1]+1e-9:
+            gain_point.update(G_s=float("nan"), G_c=float("nan"))
+
         fig = None
-        if include_figures:
+        if include_figures and phase_view:
+            import matplotlib.pyplot as plt
+            from ..plot_style import PALETTE
+
+            fig, ax = plt.subplots(figsize=(8.5, 5.2))
+            ax.plot(phase_scan["phase_degrees"], phase_scan["noise_a_db"],
+                    color=PALETTE["cyan"], lw=1.8, label="Quadrature A")
+            ax.plot(phase_scan["phase_degrees"], phase_scan["noise_b_db"],
+                    color=PALETTE["rose"], lw=1.8, ls="--", label="Quadrature B (+90 deg)")
+            ax.axhline(0.0, color="black", ls="--", lw=1.0, label="Shot noise (0 dB)")
+            ax.set_xlabel("Common LO phase [deg]")
+            ax.set_ylabel("Quadrature noise / shot noise [dB]")
+            ax.set_xlim(0.0, 180.0)
+            ax.set_xticks(np.arange(0.0, 181.0, 30.0))
+            ax.grid(alpha=0.3)
+            ax.legend(fontsize=9)
+            if not phase_scan["available"]:
+                ax.text(.5, .5, "Quadrature estimate unavailable at this operating point",
+                        ha="center", va="center", transform=ax.transAxes, wrap=True)
+            fig.tight_layout()
+        elif include_figures:
             import matplotlib.pyplot as plt
 
             fig, (axG, axS) = plt.subplots(2, 1, figsize=(8.5, 6.4), sharex=True)
@@ -4678,6 +4724,35 @@ class FWMScheme(Scheme):
                 "| Calibrated gain basis | Pump-on arm output / measured pump-off seed output |\n"
                 "| Continuation | Applied outside measurement support and across changed operating conditions |\n"
             )
+        if phase_view:
+            def quadrature_metric(label, key):
+                value = phase_scan[key]
+                return dict(
+                    label=label,
+                    value=f"{value:.2f} dB" if np.isfinite(value) else "unavailable",
+                    tier="hero", approximate=True,
+                    delta=(noise_delta if key == "minimum_db" else "Shot-noise seed phase assumed"),
+                    help="Equal-weight collective difference mode (probe minus conjugate). "
+                         "Both LO phases rotate together; B is A rotated by 90 degrees. "
+                         "0 dB is shot noise; negative values indicate squeezing. "
+                         "Static effective covariance, not a microscopic finite-RF prediction.")
+
+            gain_metrics = [dict(metric, tier="secondary") for metric in metrics[1:3]]
+            for metric, key, arm in zip(gain_metrics, ("G_s", "G_c"), ("Probe", "Conjugate")):
+                value = gain_point[key]
+                metric["value"] = f"{value:.2f}" if np.isfinite(value) else "unavailable"
+                if measured_reference["requested"] and not gain_active:
+                    metric.update(label=f"{arm} gain {key}",
+                                  delta="Current operating point",
+                                  help="Atomic-medium power gain; independent of homodyne LO phase.")
+            metrics = [
+                quadrature_metric("Minimum quadrature noise", "minimum_db"),
+                quadrature_metric("Maximum quadrature noise", "maximum_db"),
+                *gain_metrics,
+                dict(label="Operating detuning", value=f"{tpd:.3f} MHz", tier="secondary",
+                     help="Fixed two-photon detuning during the common LO phase scan."),
+                *[dict(metric, tier="secondary") for metric in metrics[3:]],
+            ]
         cap = raw.get("pump_depletion_cap", float("inf"))
         small_signal = raw.get("G_s_smallsignal_peak", op["G_s"])
         depletion_limited = small_signal > 1.1 * cap
@@ -4724,7 +4799,7 @@ class FWMScheme(Scheme):
             noise_rows += (
                 f"| Noise model | {noise_model} |\n"
                 f"| NF | {noise_point['NF']:.6g} |\n"
-                f"| Squeezing [dB] = 10 log10(NF) | {selected_noise_db:.6g} |\n"
+                f"| {'Intensity-difference squeezing' if phase_view else 'Squeezing'} [dB] = 10 log10(NF) | {selected_noise_db:.6g} |\n"
                 f"| Seed classical RIN a | {at_point(seed['classical_rin_per_Hz']):.6g} Hz⁻¹ |\n"
                 f"| Seed shot RIN b = 2ℏω/P | {at_point(seed['shot_rin_per_Hz']):.6g} Hz⁻¹ |\n"
                 f"| Input seed Fano factor = 1+a/b | {at_point(seed['seed_fano']):.6g} |\n"
@@ -4766,6 +4841,20 @@ class FWMScheme(Scheme):
                     f"| Effective model probe / conjugate gain | {noise_point['G_s']:.6g} / {noise_point['G_c']:.6g} |\n"
                     "| Experimental noise scope | Effective uniform distributed mixing and two-arm vacuum loss; "
                     "not a microscopic RF atomic-noise calculation |\n")
+        if phase_view:
+            noise_rows += (
+                f"| Squeezing view | {squeezing_view} |\n"
+                f"| Quadrature status | {phase_scan['status']} |\n"
+                "| Phase axis | Common homodyne LO rotation, 0–180°; B is A + 90° |\n"
+                "| Collective mode | Q=(X_probe−X_conjugate)/√2; P=(P_probe−P_conjugate)/√2 |\n"
+                "| Phase zero | Real phase-matched effective-model reference; not a measured optical phase |\n"
+                f"| Seed phase noise | {phase_scan['seed_phase_assumption']} |\n"
+                f"| Minimum / maximum quadrature noise | {phase_scan['minimum_db']:.6g} / {phase_scan['maximum_db']:.6g} dB |\n"
+                f"| Orthogonal-curve crossing | {phase_scan['crossing_db']:.6g} dB at 45° and 135° |\n"
+                "| Shot-noise normalization | Vacuum covariance I; 10 log10(V), 0 dB reference |\n"
+                "| Gain during phase scan | Current operating-point values; independent of LO phase |\n"
+                f"| Quadrature model scope | {phase_scan['scope']} |\n"
+            )
         operating_table = (
             f"| Quantity | Value |\n|---|---|\n"
             f"| ⁸⁵Rb density | {raw['N_atoms']:.3e} /m³ |\n"
@@ -4865,6 +4954,9 @@ class FWMScheme(Scheme):
         return {
             "metrics": metrics,
             "figure": fig,
+            "squeezing_view": squeezing_view,
+            "quadrature_phase_scan": phase_scan,
+            "gain_operating_point": gain_point,
             "passive_l1_readout": passive_readout,
             "passive_l1_operating_point": passive_op,
             "jasperse_readout": active_noise,
