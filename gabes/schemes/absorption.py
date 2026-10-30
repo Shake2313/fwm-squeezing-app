@@ -422,6 +422,14 @@ class ODScheme(Scheme):
             raw, params, include_figures=include_figures)
 
 LAMBDA_GENERIC = "Generic"
+# Atom / Isotope rows of the Λ species knob (rendered as two selectors).
+LAMBDA_ATOM_MENU = (
+    ("Rb", "Natural", "Rb (natural)", {}),
+    ("Rb", "85", "⁸⁵Rb", {}),
+    ("Rb", "87", "⁸⁷Rb", {}),
+    ("Cs", "133", "¹³³Cs", {}),
+    (LAMBDA_GENERIC, LAMBDA_GENERIC, LAMBDA_GENERIC, {}),
+)
 
 
 def _medium_from_params(params, default_temp_c=50.0):
@@ -527,8 +535,9 @@ class LambdaScheme(Scheme):
                      "doublet (split ≈ Ω_c). CPT: narrow two-photon dark resonance. "
                      "One Λ engine — the presets set textbook values for each."))
         specs += [
-            ParamSpec("species", "Atom / isotope", "Atomic", "Rb (natural)",
+            ParamSpec("species", "Atom", "Atomic", "Rb (natural)",
                       choices=tuple(species.SPECIES_ORDER) + (LAMBDA_GENERIC,),
+                      atom_menu=LAMBDA_ATOM_MENU,
                       help="Scalar D-line medium. Natural Rb uses abundance-weighted density."),
             ParamSpec("line", "Transition line", "Atomic", "D1",
                       choices=("D1", "D2"),

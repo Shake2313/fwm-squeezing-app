@@ -77,46 +77,59 @@ def _is_integer_knob(sp):
     return bool(numbers) and all(isinstance(v, int) for v in numbers)
 
 
-def _render_absorption_atom(container, sp):
-    """Present element/isotope separately, retaining legacy solver/preset values."""
-    species_key = skey("sas", "species")
-    composition_key = skey("sas", "rb_composition")
-    atom = st.session_state.get(species_key, "Rb (natural)")
-    composition = st.session_state.get(composition_key, "Natural")
-    pure = {"85": "⁸⁵Rb", "87": "⁸⁷Rb"}
-    if sp.name == "species":
-        key = skey("sas", "_atom_selector")
-        st.session_state[key] = "Cs" if atom == "¹³³Cs" else "Rb"
+def _render_atom_menu(container, scheme_name, sp, scheme_obj=None):
+    """Atom and Isotope selectors for one stored choice (`ParamSpec.atom_menu`).
 
-        def change_atom():
-            st.session_state[species_key] = (
-                "¹³³Cs" if st.session_state[key] == "Cs" else "Rb (natural)")
+    Each menu row is (atom, isotope, stored value, companion values). The row
+    whose value and companions match session state is shown; choosing an atom
+    or isotope writes its row back, so solves, presets and saved settings keep
+    the stored parameter contract. The Isotope selector appears only when the
+    atom has more than one row; a single atom is shown, disabled.
+    """
+    rows = sp.atom_menu
+    key = skey(scheme_name, sp.name)
+    defaults = scheme_obj.defaults() if scheme_obj is not None else {}
 
-        _hover_label(container, "Atom", "Choose the element; select Rb isotopes below.")
-        container.selectbox("Atom", ("Rb", "Cs"), key=key,
-                            label_visibility="collapsed", on_change=change_atom)
-        return st.session_state.get(species_key, "Rb (natural)")
+    def state(name):
+        return st.session_state.get(skey(scheme_name, name), defaults.get(name))
 
-    key = skey("sas", "_isotope_selector")
-    selected = next((label for label, value in pure.items() if atom == value),
-                    "Custom" if composition == "Custom" else "Nat")
-    st.session_state[key] = selected
+    value = st.session_state.get(key, sp.default)
+    current = next(
+        (row for row in rows if row[2] == value
+         and all(state(name) == v for name, v in row[3].items())),
+        next((row for row in rows if row[2] == value), rows[0]))
 
-    def change_isotope():
-        value = st.session_state[key]
-        st.session_state[species_key] = pure.get(value, "Rb (natural)")
-        st.session_state[composition_key] = "Custom" if value == "Custom" else "Natural"
+    def write(row):
+        st.session_state[key] = row[2]
+        for name, v in row[3].items():
+            st.session_state[skey(scheme_name, name)] = v
 
-    _hover_label(container, "Isotope",
-                 "Nat: 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb. Custom sets the ⁸⁵Rb fraction.")
-    container.selectbox("Isotope", ("Nat", "85", "87", "Custom"), key=key,
-                        label_visibility="collapsed", on_change=change_isotope)
-    return st.session_state.get(composition_key, "Natural")
+    atoms = tuple(dict.fromkeys(row[0] for row in rows))
+    atom_key = skey(scheme_name, f"_{sp.name}_atom")
+    st.session_state[atom_key] = current[0]
+    _hover_label(container, "Atom", "Element; its isotopes, if more than one, follow.")
+    container.selectbox(
+        "Atom", atoms, key=atom_key, label_visibility="collapsed",
+        disabled=len(atoms) == 1,
+        on_change=lambda: write(next(
+            row for row in rows if row[0] == st.session_state[atom_key])))
+
+    isotopes = [row for row in rows if row[0] == current[0]]
+    if len(isotopes) > 1:
+        isotope_key = skey(scheme_name, f"_{sp.name}_isotope")
+        st.session_state[isotope_key] = current[1]
+        _hover_label(container, "Isotope", sp.help or None)
+        container.selectbox(
+            "Isotope", [row[1] for row in isotopes], key=isotope_key,
+            label_visibility="collapsed",
+            on_change=lambda: write(next(
+                row for row in isotopes if row[1] == st.session_state[isotope_key])))
+    return st.session_state.get(key, sp.default)
 
 
 def render_param(container, scheme_name, sp, scheme_obj=None):
-    if scheme_name == "sas" and sp.name in ("species", "rb_composition"):
-        return _render_absorption_atom(container, sp)
+    if getattr(sp, "atom_menu", None):
+        return _render_atom_menu(container, scheme_name, sp, scheme_obj)
     key = skey(scheme_name, sp.name)
     help_ = sp.help or None
     has_state = key in st.session_state

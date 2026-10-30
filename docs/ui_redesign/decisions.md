@@ -201,3 +201,16 @@
 - 이전 토글은 Advanced에서도 숨김. 저장 JSON·내부 분석 호환용 파라미터는 유지.
 - 주 그래프에 probe·conjugate와 범례 상시 표시. 보정 OFF의 conjugate는 주황색 점선, ON은 기존 보정 곡선.
 - 커서·선택점의 기존 line 순서 유지. Gain·NF 계산식 변경 없음.
+
+## D16 · Atomic 표시 통일 — 2026-10-30
+
+직접 사용자 요청: 스킴마다 다른 Atomic 표시를 OD/SAS의 Atom / Isotope / Transition line 구조로 통일. `Nat` → `Natural`.
+
+### ⟦AI⟧ 구현 판단
+
+- 스킴이 `ParamSpec.atom_menu` 행(원자, 동위원소, 저장값, 동반 파라미터)을 선언하고 `gabes_ui.controls`가 Atom·Isotope 두 선택기로 그림. SAS 전용 하드코딩 렌더러 제거, 프론트엔드는 물리 모름 유지.
+- 저장 파라미터 계약 불변: SAS `species`+`rb_composition`, Λ `species`, Magneto `isotope`. 프리셋·저장 설정·export·계산 무변경.
+- Isotope는 원자에 행이 2개 이상일 때만 표시(Cs·Generic은 숨김 = 기존 SAS 동작). 원자가 1개면 Atom 비활성 표시(Magneto `Rb`).
+- 라벨 통일: Λ `Atom / isotope`·Magneto `Optical line` → `Atom`·`Transition line`. Isotope 옵션 `Natural`·`85`·`87`(SAS만 `Custom`).
+- D4 감량: 행 증가(Λ·Magneto 각 1)는 기존 한 선택기 정보의 분리 표시. 새 정보 없음.
+- 원자 선택기가 없는 Rydberg(⁸⁵Rb 고정)·FWM은 범위 밖. FWM은 다른 세션의 `fwm.py` 수정 진행 중.

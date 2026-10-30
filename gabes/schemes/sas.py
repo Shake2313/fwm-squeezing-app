@@ -49,6 +49,14 @@ PROBE_PASSIVITY_INTERIOR = 1e-8         # avoid an artificial exact-zero fixed p
 PROBE_REFERENCE_RB_D2_ISOTOPES = frozenset(("Rb85", "Rb87"))
 RB_COMPOSITION_NATURAL = "Natural"
 RB_COMPOSITION_CUSTOM = "Custom"
+# Atom / Isotope rows of the species knob (rendered as two selectors).
+ATOM_MENU = (
+    ("Rb", "Natural", "Rb (natural)", {"rb_composition": RB_COMPOSITION_NATURAL}),
+    ("Rb", "85", "⁸⁵Rb", {"rb_composition": RB_COMPOSITION_NATURAL}),
+    ("Rb", "87", "⁸⁷Rb", {"rb_composition": RB_COMPOSITION_NATURAL}),
+    ("Rb", "Custom", "Rb (natural)", {"rb_composition": RB_COMPOSITION_CUSTOM}),
+    ("Cs", "133", "¹³³Cs", {}),
+)
 GAMMA_MHZ = GAMMA / (2 * np.pi) / 1e6
 GENERIC = "Generic (Γ units)"
 PARAFFIN_REFERENCE_T1_S = 25.1e-3   # 87Rb population T1 at 300 K (Bandi et al.)
@@ -244,12 +252,13 @@ class SASScheme(Scheme):
                            "Rb D2 is reference-scope; D1 and Cs are explicitly "
                            "labelled generalized estimates."),
             ParamSpec("species", "Atom", "Atomic", "Rb (natural)",
-                      choices=tuple(species.SPECIES_ORDER),
-                      help="Natural Rb overlays ⁸⁵Rb+⁸⁷Rb by abundance."),
+                      choices=tuple(species.SPECIES_ORDER), atom_menu=ATOM_MENU,
+                      help="Natural: 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb by abundance. "
+                           "Custom sets the ⁸⁵Rb fraction."),
             ParamSpec("rb_composition", "Isotope", "Atomic",
                       RB_COMPOSITION_NATURAL,
                       choices=(RB_COMPOSITION_NATURAL, RB_COMPOSITION_CUSTOM),
-                      visible_if={"species": ("Rb (natural)", "⁸⁵Rb", "⁸⁷Rb")},
+                      hidden=True,   # set by the species Atom / Isotope menu
                       help="Natural uses 72.17% ⁸⁵Rb and 27.83% ⁸⁷Rb. Custom "
                            "sets their complementary shares of the same total Rb "
                            "vapor density. 85 and 87 select a pure isotope."),

@@ -2,6 +2,17 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-10-30 · Atomic 표시 통일 (D16)
+
+직접 사용자 요청: 스킴별 Atomic 표시를 OD/SAS Atom / Isotope / Transition line 구조로 통일, `Nat` → `Natural`.
+
+### ⟦AI⟧ 구현·검증
+
+- `ParamSpec.atom_menu` + `controls._render_atom_menu`; SAS·Λ·Magneto가 선언. 저장 파라미터·계산 경로 무변경. 결정 [D16](decisions.md).
+- `tests/test_ui_atom_isotope.py` 9 passed(SAS 기존 2 + Λ·Magneto·메뉴 도달성). UI·스킴 focused 18파일 347 passed.
+- 내장 브라우저: SAS Rb/Natural/D1, Λ Rb/Natural/D1, Magneto Rb(비활성)/85/D1. Magneto 87 전환 시 재계산(PSN 감도 8.78→14.9 fT/√Hz). 콘솔·서버 오류 0.
+- `ui_audit` 미실행: rail 행 수만 Λ·Magneto 각 +1, 측정 지표 변화 범위 밖.
+
 ## 2026-10-30 · 상단 관측값 조사·이름 가독성 개선
 
 직접 사용자 요청: OD는 Peak OD 중심, SAS는 선폭보다 주파수 간격을 중시한다는 의견과 함께 모든 스킴의 과밀한 표시줄 조사. 작고 회색인 관측값 이름 개선.
