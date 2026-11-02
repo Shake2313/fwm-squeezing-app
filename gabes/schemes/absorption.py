@@ -88,13 +88,12 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         table = rho[:, e, g] / om_p
         return doppler.doppler_average_1d(table, deff, scan, v, w, k_vec=k_vec)
 
-    # Scan-dependent H (Λ): solve the optical background and any optional residual
-    # two-photon Doppler at the Maxwell classes per scan point — this path
-    # is solve-bound (scan_points × velocity classes linear solves). The Doppler-
-    # free feature is insensitive to velocity sampling and the broad optical
-    # background is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1)
-    # ~halves the solves while keeping transmission < 0.02% and the Re χ / group-
-    # index readout < 1% against the fine grid.
+    # Scan-dependent H (Λ): the optical background and any optional residual
+    # two-photon Doppler at the Maxwell classes per scan point. The Doppler-free
+    # feature is insensitive to velocity sampling and the broad optical background
+    # is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1) keeps
+    # transmission < 0.02% and the Re χ / group-index readout < 1% against the
+    # fine grid.
     kv, w = affine_doppler.maxwell_shift_classes(T, mass, k_vec, True)
     return affine_doppler.AffineScan(
         atom, build_H0, probe_coh, om_p, scan_shift).grid_mean(scan, kv, w)

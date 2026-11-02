@@ -389,8 +389,8 @@ def test_doppler_cache_tracks_the_selected_static_slope_point():
     params = dict(doppler="on", if_khz=40.0, mw_detuning_mhz=0.0,
                   cell_mm=50.0)
 
-    def response(raw, params, x, transmission, static_index=None):
-        return (np.array([static_index]), np.array([1.0 + 0.0j]), "test")
+    def response(raw, params, x, transmission, static_indices=None):
+        return (static_indices, np.ones(static_indices.size, dtype=complex), "test")
 
     first = np.array([0.0, 0.0, 1.0, 1.0, 1.0])
     second = np.array([0.0, 0.0, 0.0, 1.0, 1.0])
@@ -403,6 +403,48 @@ def test_doppler_cache_tracks_the_selected_static_slope_point():
 
     assert solve.call_count == 2
     assert first_result[0][0] != second_result[0][0]
+
+
+def test_static_slope_keeps_both_mirror_points_of_a_symmetric_line():
+    x = np.linspace(-5.0, 5.0, 201)
+    line = np.exp(-x ** 2)
+    indices = RydbergEITScheme._static_slope_indices(x, line)
+    assert indices.size == 2
+    assert indices.sum() == x.size - 1
+    noisy = line * (1.0 + 1e-9 * np.sin(37.0 * x))
+    np.testing.assert_array_equal(RydbergEITScheme._static_slope_indices(x, noisy), indices)
+
+
+def test_static_slope_has_one_point_without_a_tie():
+    x = np.linspace(-5.0, 5.0, 201)
+    skewed = np.exp(-x ** 2) * (1.0 + 0.05 * x)
+    assert RydbergEITScheme._static_slope_indices(x, skewed).size == 1
+    assert RydbergEITScheme._static_slope_indices(x, np.ones(x.size)).size == 1
+
+
+def test_doppler_superhet_keeps_the_more_sensitive_mirror_point():
+    sc = RydbergEITScheme()
+    params = dict(sc.recommended_defaults(sc.defaults())["AT electrometry"], doppler="on")
+    raw = sc.compute(params)
+    superhet = sc._readout(raw, params)["superhet"]
+    detunings = superhet["response_detuning_mhz"]
+    assert detunings.size == 2
+    np.testing.assert_allclose(detunings, -detunings[::-1])
+    assert superhet["optimum_detuning_mhz"] == detunings[
+        int(np.argmin(superhet["total_field_asd_v_m_per_sqrt_hz"]))]
+
+
+def test_if_optimum_of_a_symmetric_line_does_not_depend_on_rounding():
+    sc = RydbergEITScheme()
+    params = dict(sc.recommended_defaults(sc.defaults())["AT electrometry"], doppler="on")
+    raw = sc.compute(params)
+    readout = sc._readout(raw, params)
+    jitter = 1.0 + 1e-10 * np.sin(np.arange(raw["chi_bar"].size))
+    jittered = sc._readout(dict(raw, chi_bar=raw["chi_bar"] * jitter), params)
+    assert (jittered["rydberg_readout"]["if_optimum_detuning_mhz"]
+            == readout["rydberg_readout"]["if_optimum_detuning_mhz"] < 0.0)
+    assert (jittered["superhet"]["optimum_detuning_mhz"]
+            == readout["superhet"]["optimum_detuning_mhz"])
 
 
 def test_atomic_phasor_cache_retains_sweep_points_and_ignores_cell_length():

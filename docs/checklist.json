@@ -4794,7 +4794,7 @@
       "id": "pole-residue-doppler-reuse",
       "area": "gabes/pole_doppler.py + gabes/adaptive_scan.py",
       "title": "Apply the pole-residue Maxwell average and adaptive scan to other slow paths",
-      "problem": "Done on 2026-09-14 for the FWM full-scan extra view (analysis/fwm_lite/DEVLOG.md), the analysis/squeezing scanners (same velocity measure, GABES_FWM_RESPONSE=maxwell_grid restores the grid) and the magneto Doppler average (analysis/pole_reuse/DEVLOG.md). scan_squeezing_tpd_angle_detail.py stays on the grid: another session has its deletion staged and its per-angle chi-table cache is keyed by Floquet order only, which would answer the pole guard's single-node table calls. The remaining ports are separate items: sas-od-dense-velocity-arithmetic, lambda-pole-residue-doppler, rydberg-doppler-on-pole-residue.",
+      "problem": "Done on 2026-09-14 for the FWM full-scan extra view (analysis/fwm_lite/DEVLOG.md), the analysis/squeezing scanners (same velocity measure, GABES_FWM_RESPONSE=maxwell_grid restores the grid) and the magneto Doppler average (analysis/pole_reuse/DEVLOG.md). scan_squeezing_tpd_angle_detail.py stays on the grid: another session has its deletion staged and its per-angle chi-table cache is keyed by Floquet order only, which would answer the pole guard's single-node table calls. The remaining port is the separate item sas-od-dense-velocity-arithmetic; ⟦AI⟧ lambda-pole-residue-doppler and rydberg-doppler-on-pole-residue landed on 2026-11-02.",
       "source_documents": [
         "analysis/fwm_lite/DEVLOG.md",
         "analysis/pole_reuse/DEVLOG.md",
@@ -4964,7 +4964,7 @@
     },
     {
       "id": "lambda-pole-residue-doppler",
-      "area": "affine_doppler.py (AffineScan) + schemes/absorption.py (_solve_chi_avg)",
+      "area": "affine_doppler.py (AffineScan._pole_mean) + schemes/absorption.py (_solve_chi_avg)",
       "title": "Port the Doppler-on Lambda (EIT/AT/CPT) scan to the pole-residue average",
       "problem": "Lambda Doppler-on scans solve every scan point at every 2 m/s Maxwell class (default EIT view 39 ms; 5 ms with Doppler off). affine_doppler.AffineScan (shared with Rydberg since 2026-10-30) already yields base + s*A + kv*S_v, the form the pole engine needs, but the absolute saving is small. ⟦AI⟧ Probe (2026-10-30): pole_doppler.AffineShiftSystem fails here because the ground populations relax only through the optical coherences (singular Doppler-free block); ShiftInvertSystem about D0 = -σ matched the 2 m/s grid to ≤3e-12 relative (v=0 guard 1e-12) and took 13–15 ms against 24–34 ms for the EIT/AT/CPT views. The untruncated Gaussian mean differs from the 4σ grid at the ~0.2 % level (σ estimated from the truncated grid), which is a separate value decision.",
       "source_documents": [
@@ -4972,15 +4972,28 @@
       ],
       "priority": "P3",
       "effort": "small",
-      "status": "ready",
-      "depends_on": [
-        "lambda-spectrum-validity"
+      "status": "done",
+      "completed_at": "2026-11-02",
+      "related_items": [
+        "lambda-spectrum-validity",
+        "rydberg-doppler-on-pole-residue"
       ],
       "why": "Worth doing when Doppler-on Lambda work becomes heavy (finer scans, sweeps, extra views) or together with lambda-spectrum-validity, which already revisits the scan and velocity operators.",
       "acceptance_criteria": [
         "Doppler-on chi_bar matches the current 2 m/s grid to 1e-6 relative with a per-row guard, or an exact untruncated average is adopted with the difference documented.",
         "Doppler-off results stay bitwise."
       ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "cases": "Every recompute knob at both slider ends and every choice for Lambda EIT/AT/CPT and Rydberg EIT/AT electrometry, Doppler on, with and without Numba.",
+        "doppler_calls": 132,
+        "rows": 92532,
+        "fallback_rows": 0,
+        "worst_row_relative_error": 9.7e-09,
+        "doppler_off": "bitwise"
+      },
+      "review_note": "⟦AI⟧ AffineScan.grid_mean evaluates every Doppler-on row by its pole form (ShiftInvertSystem about kv = +σ, pole_limit 1e8 σ) on the same 2 m/s grid; a row that misses the per-row 1e-6 guard against a direct v = 0 solve or has an undamped pole inside the grid is summed class by class, and a LinAlgError sends the whole scan there. Doppler-on compute 27 → 13 ms. The depends_on on lambda-spectrum-validity is dropped: this port keeps the grid measure and the operators, so that item stays open and unchanged.",
+      "remaining_scope": "⟦AI⟧ The untruncated Maxwell average (~0.2 % from the 4σ grid, σ taken from the truncated grid) is a separate value decision.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
         "status": "triaged",
@@ -5008,7 +5021,7 @@
     },
     {
       "id": "rydberg-doppler-on-pole-residue",
-      "area": "schemes/rydberg.py (_scan_chi, extra views)",
+      "area": "affine_doppler.py (AffineScan._pole_mean) + schemes/rydberg.py (_scan_chi, _mirror_maxima, extra views)",
       "title": "Port the Doppler-on Rydberg ladder average to the pole-residue form",
       "problem": "Rydberg Doppler is off by default (5.7 ms). With Doppler on the 801-point scan solves every 2 m/s class (119 ms); the probe-power and cell-heating extra views take 0.12 s and 0.90 s with the default Doppler-off setting. ⟦AI⟧ Since 2026-10-30 _scan_chi runs through affine_doppler.AffineScan. Probe: ShiftInvertSystem about D0 = -σ matched the grid to ≤5e-11 relative (v=0 guard 1e-10) in 19–20 ms against 107–111 ms; the untruncated Gaussian mean differs by up to ~1.6 % (σ from the truncated grid), a separate value decision.",
       "source_documents": [
@@ -5016,12 +5029,27 @@
       ],
       "priority": "P3",
       "effort": "small",
-      "status": "ready",
+      "status": "done",
+      "completed_at": "2026-11-02",
+      "related_items": [
+        "lambda-pole-residue-doppler"
+      ],
       "why": "The ladder Liouvillian is affine in the residual two-photon Doppler shift (per-level k ratios in atom.S_v), so each scan point needs one small eigendecomposition. Low value until Doppler-on becomes a default or a sweep.",
       "acceptance_criteria": [
         "Doppler-on chi_bar matches the current grid to 1e-6 relative with a per-row guard.",
         "The superheterodyne coherent Doppler average either reuses the pole rows or keeps its current path with the reason stated."
       ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "cases": "Every recompute knob at both slider ends and every choice for Lambda EIT/AT/CPT and Rydberg EIT/AT electrometry, Doppler on, with and without Numba.",
+        "doppler_calls": 132,
+        "rows": 92532,
+        "fallback_rows": 0,
+        "worst_row_relative_error": 9.7e-09,
+        "doppler_off": "bitwise"
+      },
+      "review_note": "⟦AI⟧ Same AffineScan path. With Doppler on at the electrometry defaults: compute 91 → 19 ms, Fig. 2(b) sweep 1.49 → 0.30 s, cell-heating sweep 1.96 → 0.39 s. The superheterodyne coherent Doppler average keeps its per-class path: its finite-IF response solves a complex (L − iω_IF) system outside ShiftInvertSystem's real form, and only the steepest slope points are solved, so there is no scan to reduce. Finding: the Doppler-on static-slope point and the IF optimum came from argmax over mirror maxima that only rounding separates (asymmetry ≤4e-13 on the grid), so the old side mixed with temperature while the two sides differ by 0.9 % in sensitivity. _mirror_maxima keeps both within MIRROR_TIE_RTOL = 1e-5: the superheterodyne readout takes the more sensitive one, the IF optimum the lower detuning. Against 8876b23 this moves only the Doppler-on cell-heating finite-IF sensitivity at 50/53/55 °C (57.95 → 57.43, 45.68 → 45.27, 39.15 → 38.80 nV/cm/√Hz), where rounding had kept the worse side; the default readout 1007.28 nV/cm/√Hz and the 55 °C best temperature stand. Every other Doppler-on value moves ≤5.3e-9 relative.",
+      "remaining_scope": "⟦AI⟧ The untruncated Maxwell average (up to ~1.6 % from the 4σ grid, σ taken from the truncated grid) is a separate value decision.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
         "status": "triaged",

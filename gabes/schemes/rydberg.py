@@ -55,6 +55,7 @@ TRANSIT_FACTOR = 0.6
 # probe power).
 PROBE_RABI_REF_MHZ = 2.0
 SUPERHET_ATOMIC_CACHE_SIZE = 16
+MIRROR_TIE_RTOL = 1e-5           # mirror slope maxima of a symmetric line are one tie
 
 
 def _finite_scenario_envelope(curves):
@@ -790,7 +791,7 @@ class RydbergEITScheme(Scheme):
         return H
 
     def _superheterodyne_atomic_phasors(
-            self, raw, params, x, transmission, static_index=None):
+            self, raw, params, x, transmission, static_indices=None):
         """Finite-IF atomic response before RF and detector calibration."""
         ground_dephasing = (
             raw["rydberg_dephasing_mhz"]
@@ -804,25 +805,25 @@ class RydbergEITScheme(Scheme):
         operator = self._absorption_quadrature_operator()
 
         if params.get("doppler", self._REF["doppler"]) == "on":
-            if static_index is None:
-                static_index = int(np.nanargmax(
-                    np.abs(np.gradient(transmission, x))))
-            indices = np.array([static_index], dtype=int)
-            H = self._hamiltonian_at_probe_detuning(
-                raw, params, raw["scan"][static_index])
-            base = core.build_liouvillian(H, atom)
+            if static_indices is None:
+                static_indices = self._static_slope_indices(x, transmission)
+            indices = np.asarray(static_indices, dtype=int)
             velocity, weights = doppler.velocity_grid(
                 raw["T"], mass=constants.MASS_85RB, dv=2.0, cutoff_sigma=4.0)
             kv = raw["k_vec"] * velocity
-            liouvillian = base[None, :, :] + kv[:, None, None] * atom.S_v[None, :, :]
-            response = electrometry.weak_signal_response_from_liouvillian(
-                liouvillian, 4, omega_if, signal_transition=(2, 3))
-            class_phasors = response.real_observable_phasor_per_angular_rabi(
-                operator)
-            absorption_phasor = electrometry.coherent_weighted_average(
-                class_phasors, weights)
-            absorption_phasors = np.array([absorption_phasor], dtype=complex)
-            optimization_scope = "static-slope point; coherent Doppler average"
+            absorption_phasors = np.empty(indices.size, dtype=complex)
+            for slot, index in enumerate(indices):
+                H = self._hamiltonian_at_probe_detuning(
+                    raw, params, raw["scan"][index])
+                base = core.build_liouvillian(H, atom)
+                liouvillian = base[None, :, :] + kv[:, None, None] * atom.S_v[None, :, :]
+                response = electrometry.weak_signal_response_from_liouvillian(
+                    liouvillian, 4, omega_if, signal_transition=(2, 3))
+                class_phasors = response.real_observable_phasor_per_angular_rabi(
+                    operator)
+                absorption_phasors[slot] = electrometry.coherent_weighted_average(
+                    class_phasors, weights)
+            optimization_scope = "static-slope points; coherent Doppler average"
         else:
             indices = np.arange(raw["scan"].size, dtype=int)
             liouvillian = np.asarray([
@@ -837,16 +838,32 @@ class RydbergEITScheme(Scheme):
             optimization_scope = "full probe-detuning scan"
         return indices, absorption_phasors, optimization_scope
 
+    @staticmethod
+    def _mirror_maxima(values):
+        """Indices of the largest `values`, ascending. A symmetric line has two mirror
+        maxima that only rounding separates; keeping both stops rounding from picking
+        a side of the line."""
+        top = int(np.nanargmax(values))
+        if values[top] <= 0.0:
+            return np.array([top])
+        return np.flatnonzero(values >= (1.0 - MIRROR_TIE_RTOL) * values[top])
+
+    @classmethod
+    def _static_slope_indices(cls, x, transmission):
+        """Scan points of the steepest static slope; the readout keeps the most
+        sensitive of them."""
+        return cls._mirror_maxima(np.abs(np.gradient(transmission, x)))
+
     def _cached_superheterodyne_atomic_phasors(
             self, raw, params, x, transmission):
         doppler_mode = str(params.get("doppler", self._REF["doppler"]))
-        static_index = (
-            int(np.nanargmax(np.abs(np.gradient(transmission, x))))
+        static_indices = (
+            self._static_slope_indices(x, transmission)
             if doppler_mode == "on" else None
         )
         key = (
             doppler_mode,
-            static_index,
+            None if static_indices is None else tuple(static_indices.tolist()),
             float(params.get("if_khz", self._REF["if_khz"])),
             float(params.get("mw_detuning_mhz", self._REF["mw_detuning_mhz"])),
             float(raw["probe_rabi_mhz"]), float(raw["coupling_rabi_mhz"]),
@@ -870,7 +887,7 @@ class RydbergEITScheme(Scheme):
                 cached.move_to_end(key)
                 return result
         result = self._superheterodyne_atomic_phasors(
-            raw, params, x, transmission, static_index=static_index)
+            raw, params, x, transmission, static_indices=static_indices)
         with self._superhet_atomic_cache_lock:
             cached = self._superhet_atomic_cache
             try:
@@ -1046,8 +1063,8 @@ class RydbergEITScheme(Scheme):
             if_readout = (t_hi - t_lo) / (2.0 * if_delta)
             finite_response = np.isfinite(if_readout)
             if finite_response.any():
-                i_if = int(np.argmax(np.where(
-                    finite_response, np.abs(if_readout), -np.inf)))
+                i_if = int(self._mirror_maxima(np.where(
+                    finite_response, np.abs(if_readout), -np.inf))[0])
                 if_disc = float(abs(if_readout[i_if]))
                 if_detuning = (float(x[if_valid][i_if]) if if_disc > 0.0
                                else float("nan"))
@@ -1346,12 +1363,12 @@ class RydbergEITScheme(Scheme):
                     np.abs(superhet["transmission_phasor_per_angular_rabi"])
                     * 2.0 * np.pi * 1.0e3
                     if superhet is not None else np.array([]))
-                if response_x.size > 1:
-                    axR.plot(response_x, response_per_khz,
-                             color="#dc2626", lw=1.6)
-                else:
+                if params.get("doppler", self._REF["doppler"]) == "on":
                     axR.plot(response_x, response_per_khz, "o",
                              color="#dc2626")
+                else:
+                    axR.plot(response_x, response_per_khz,
+                             color="#dc2626", lw=1.6)
                 if superhet is not None:
                     axR.axvline(superhet["optimum_detuning_mhz"], color="gray",
                                 ls=":", lw=0.8)
