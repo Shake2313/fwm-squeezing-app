@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from .. import atoms, beam, constants, core, doppler, kernels, observables, species
+from .. import affine_doppler, atoms, beam, constants, core, doppler, observables, species
 from .. import rydberg_electrometry as electrometry
 from .. import rydberg_experiment as rydberg_experiment
 from .. import rydberg_opacity as opacity
@@ -534,26 +534,10 @@ class RydbergEITScheme(Scheme):
             T, d, mass=constants.MASS_85RB, factor=TRANSIT_FACTOR)
 
     def _scan_chi(self, atom, h_of, scan, probe, kv, w):
-        """χ̄(scan) for one dephasing configuration via the affine kernel
-        (Doppler-off kv=[0]; Doppler-on Maxwell grid). Shared by the compensated /
+        """χ̄(scan) for one dephasing configuration (Doppler-off kv=[0]; Doppler-on
+        Maxwell grid); the probe detuning lives in H. Shared by the compensated /
         uncompensated solves and the Fig. 2(b) probe-power sweep."""
-        n = atom.n_levels
-        if kernels.available():
-            base = core.build_liouvillian(h_of(0.0), atom)
-            A_coef = core.build_liouvillian(h_of(1.0), atom) - base
-            with core.blas_single_thread():
-                return kernels.affine_scan_chi(
-                    base, A_coef, atom.S_v,
-                    np.ascontiguousarray(scan, dtype=float),
-                    np.ascontiguousarray(kv, dtype=float),
-                    np.ascontiguousarray(w, dtype=float), 1 * n + 0, n) / probe
-        chi = np.zeros(scan.size, dtype=complex)
-        for i, s in enumerate(scan):
-            L0 = core.build_liouvillian(h_of(s), atom)
-            # delta = -kv reproduces the kernel's +kv·S_v velocity shift.
-            rho = core.steady_state_batched(L0, -kv, atom.S_v, n)
-            chi[i] = ((rho[:, 1, 0] / probe) * w).sum()
-        return chi
+        return affine_doppler.AffineScan(atom, h_of, (1, 0), probe).grid_mean(scan, kv, w)
 
     @staticmethod
     def _inhomogeneous(chi, scan, fwhm_mhz):
@@ -640,12 +624,8 @@ class RydbergEITScheme(Scheme):
         # Doppler off (default): single static class (kv = 0) — the suppressed-
         # residual, transit-limited regime. Doppler on: Maxwell-average the
         # residual two-photon shift carried by atom.S_v (per-level k ratios).
-        if params.get("doppler", "off") == "on":
-            v, w = doppler.velocity_grid(
-                T, mass=constants.MASS_85RB, dv=2.0, cutoff_sigma=4.0)
-            kv = k_vec * v
-        else:
-            w, kv = np.ones(1), np.zeros(1)
+        kv, w = affine_doppler.maxwell_shift_classes(
+            T, constants.MASS_85RB, k_vec, params.get("doppler", "off") == "on")
 
         # Compensated EIT: one solve. Uncompensated: residual Zeeman scatters the
         # m-sublevel shifts, so the EIT line is INHOMOGENEOUSLY broadened — model

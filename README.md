@@ -48,6 +48,9 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
   - `doppler.py` — Maxwell velocity grids, Δ_eff axis, one-dimensional Doppler
     average, and the opt-in two-dimensional non-collinear Raman-Doppler reference
     quadrature.
+  - `affine_doppler.py` — `AffineScan`, the Doppler average of a Λ/Rydberg scan
+    whose Liouvillian is base + s·A + kv·S_v (affine kernel or batched fallback),
+    and its Maxwell velocity classes.
   - `atoms.py` — `AtomModel` (level scheme as data; `with_reset` adds the
     transit/thermal reset γ(ρ_th·Trρ − ρ)) + factories
     (`two_level`, `lambda3`, `sas_atom`, `double_lambda_rb85`).

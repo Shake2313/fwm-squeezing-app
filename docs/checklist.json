@@ -4964,9 +4964,9 @@
     },
     {
       "id": "lambda-pole-residue-doppler",
-      "area": "schemes/absorption.py (_solve_chi_avg, _affine_scan_coeffs)",
+      "area": "affine_doppler.py (AffineScan) + schemes/absorption.py (_solve_chi_avg)",
       "title": "Port the Doppler-on Lambda (EIT/AT/CPT) scan to the pole-residue average",
-      "problem": "Lambda Doppler-on scans solve every scan point at every 2 m/s Maxwell class (default EIT view 39 ms; 5 ms with Doppler off). _affine_scan_coeffs already yields base + s*A + kv*B, the form the pole engine needs, but the absolute saving is small.",
+      "problem": "Lambda Doppler-on scans solve every scan point at every 2 m/s Maxwell class (default EIT view 39 ms; 5 ms with Doppler off). affine_doppler.AffineScan (shared with Rydberg since 2026-10-30) already yields base + s*A + kv*S_v, the form the pole engine needs, but the absolute saving is small. ⟦AI⟧ Probe (2026-10-30): pole_doppler.AffineShiftSystem fails here because the ground populations relax only through the optical coherences (singular Doppler-free block); ShiftInvertSystem about D0 = -σ matched the 2 m/s grid to ≤3e-12 relative (v=0 guard 1e-12) and took 13–15 ms against 24–34 ms for the EIT/AT/CPT views. The untruncated Gaussian mean differs from the 4σ grid at the ~0.2 % level (σ estimated from the truncated grid), which is a separate value decision.",
       "source_documents": [
         "analysis/pole_reuse/DEVLOG.md"
       ],
@@ -5010,7 +5010,7 @@
       "id": "rydberg-doppler-on-pole-residue",
       "area": "schemes/rydberg.py (_scan_chi, extra views)",
       "title": "Port the Doppler-on Rydberg ladder average to the pole-residue form",
-      "problem": "Rydberg Doppler is off by default (5.7 ms). With Doppler on the 801-point scan solves every 2 m/s class (119 ms); the probe-power and cell-heating extra views take 0.12 s and 0.90 s with the default Doppler-off setting.",
+      "problem": "Rydberg Doppler is off by default (5.7 ms). With Doppler on the 801-point scan solves every 2 m/s class (119 ms); the probe-power and cell-heating extra views take 0.12 s and 0.90 s with the default Doppler-off setting. ⟦AI⟧ Since 2026-10-30 _scan_chi runs through affine_doppler.AffineScan. Probe: ShiftInvertSystem about D0 = -σ matched the grid to ≤5e-11 relative (v=0 guard 1e-10) in 19–20 ms against 107–111 ms; the untruncated Gaussian mean differs by up to ~1.6 % (σ from the truncated grid), a separate value decision.",
       "source_documents": [
         "analysis/pole_reuse/DEVLOG.md"
       ],

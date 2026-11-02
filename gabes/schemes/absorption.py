@@ -21,7 +21,7 @@ import numpy as np
 
 from .. import atoms, beam, constants, doppler, hyperfine, observables, species
 from ..constants import GAMMA, K_VEC, OMEGA_D1
-from .. import core, kernels
+from .. import affine_doppler, core
 from ..lineshape import fwhm_halfmax, window_fwhm
 from ..report import derived_table
 from .base import ParamSpec, Preset, Scheme
@@ -40,23 +40,6 @@ _TABLE_STEP = GAMMA / 30.0          # Δ_eff sampling for the Doppler χ̄ table
 
 def _ne_buffer_gamma(params):
     return constants.neon_buffer_broadening(params.get("ne_pressure_torr", 0.0))
-
-
-def _affine_scan_coeffs(atom, build_H0, scan_shift=None):
-    """Constant pieces of L(s, kv) = base + s·A_coef + kv·B_coef.
-
-    Valid only when `build_H0(s)` is affine in the scan variable s — true for
-    the Λ (two-photon detuning) and Rydberg ladders. The s-independent drive
-    entries are bit-identical between build_H0(0) and build_H0(1), so the
-    difference isolates dL/ds exactly with no cancellation. The optical Doppler
-    shift enters as −s·scan_shift + kv·S_v.  These operators coincide for
-    the legacy optical-only shift, but a residual Raman Doppler term belongs
-    only in S_v and must not change a stationary atom's scan Hamiltonian.
-    """
-    base = core.build_liouvillian(build_H0(0.0), atom)
-    dL_ds = core.build_liouvillian(build_H0(1.0), atom) - base
-    scan_shift = atom.S_v if scan_shift is None else scan_shift
-    return base, dL_ds - scan_shift, atom.S_v
 
 
 def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
@@ -86,23 +69,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
             L0 = core.build_liouvillian(build_H0(0.0), atom)
             rho = core.steady_state_batched(L0, scan, atom.S_v, n)
             return rho[:, e, g] / om_p
-        # Scan-dependent H, single (v = 0) class: Δ_eff = s. Fold the scan loop
-        # into the affine kernel (kv = 0, unit weight) when available.
-        if kernels.available():
-            base, A_coef, B_coef = _affine_scan_coeffs(
-                atom, build_H0, scan_shift=scan_shift)
-            with core.blas_single_thread():
-                out = kernels.affine_scan_chi(
-                    base, A_coef, B_coef,
-                    np.ascontiguousarray(scan, dtype=float),
-                    np.zeros(1), np.ones(1), e * n + g, n)
-            return out / om_p
-        out = np.zeros(scan.size, dtype=complex)
-        for i, s in enumerate(scan):
-            L0 = core.build_liouvillian(build_H0(s), atom)
-            rho = core.steady_state_batched(L0, np.array([s]), scan_shift, n)
-            out[i] = rho[0, e, g] / om_p
-        return out
+        # Scan-dependent H, single (v = 0) class: Δ_eff = s.
+        return affine_doppler.AffineScan(
+            atom, build_H0, probe_coh, om_p, scan_shift).stationary(scan)
 
     T = params["temp_c"] + 273.15
 
@@ -126,24 +95,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     # background is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1)
     # ~halves the solves while keeping transmission < 0.02% and the Re χ / group-
     # index readout < 1% against the fine grid.
-    v, w = doppler.velocity_grid(T, mass=mass, dv=2.0, cutoff_sigma=4.0)
-    kv = k_vec * v
-    if kernels.available():
-        base, A_coef, B_coef = _affine_scan_coeffs(
-            atom, build_H0, scan_shift=scan_shift)
-        with core.blas_single_thread():
-            out = kernels.affine_scan_chi(
-                base, A_coef, B_coef,
-                np.ascontiguousarray(scan, dtype=float),
-                np.ascontiguousarray(kv, dtype=float),
-                np.ascontiguousarray(w, dtype=float), e * n + g, n)
-        return out / om_p
-    out = np.zeros(scan.size, dtype=complex)
-    for i, s in enumerate(scan):
-        L0 = core.build_liouvillian(build_H0(s), atom) - s * scan_shift
-        rho = core.steady_state_batched(L0, -kv, atom.S_v, n)
-        out[i] = ((rho[:, e, g] / om_p) * w).sum()
-    return out
+    kv, w = affine_doppler.maxwell_shift_classes(T, mass, k_vec, True)
+    return affine_doppler.AffineScan(
+        atom, build_H0, probe_coh, om_p, scan_shift).grid_mean(scan, kv, w)
 
 
 def _hyperfine_alpha(scan, params, line_strength=None):
