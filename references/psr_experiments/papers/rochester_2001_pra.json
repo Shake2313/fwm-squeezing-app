@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "paper_id": "rochester_2001_pra",
+  "title": "Self-rotation of resonant elliptically polarized light in collision-free rubidium vapor",
+  "authors": [
+    "S. M. Rochester",
+    "D. S. Hsiung",
+    "D. Budker",
+    "R. Y. Chiao",
+    "D. F. Kimball",
+    "V. V. Yashchuk"
+  ],
+  "year": 2001,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "63",
+    "issue": "",
+    "pages": "043814",
+    "doi": "10.1103/PhysRevA.63.043814",
+    "arxiv_id": null,
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "mixed",
+  "topics": [
+    "classical_self_rotation",
+    "hyperfine_structure",
+    "optical_pumping",
+    "propagation",
+    "Doppler"
+  ],
+  "scope": {
+    "species": "natural_Rb",
+    "line": "D1/D2",
+    "configuration": "single_pass_psr",
+    "measurement": "classical_rotation_and_absorption",
+    "seed_mode": "elliptically_polarized_classical_field",
+    "inclusion": "primary",
+    "reason": "Classical atomic response foundation; no optical squeezing measurement.",
+    "isotope_composition": "natural_abundance"
+  },
+  "sources": [
+    {
+      "url": "https://journals.aps.org/pra/pdf/10.1103/PhysRevA.63.043814",
+      "path": "sources/rochester_2001_pra.pdf",
+      "pages": 10,
+      "sha256": "952e69727631331eb428788998947044bd5beada44c9b5192c2a76577f2318ff",
+      "access_method": "browser",
+      "source_id": "main",
+      "access": "full_text",
+      "version": "published",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "classical_apparatus",
+      "label": "Collision-free classical rotation apparatus",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Sec. IV",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_diameter",
+          "value": 2.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Sec. IV",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "residual_magnetic_field",
+          "value": 0.1,
+          "unit": "mG",
+          "value_type": "upper_bound",
+          "basis": "approximate bound in every direction",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Sec. IV",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "hyperfine",
+      "claim": "Doppler broadening suppresses isolated-transition effects, allowing multiple-transition mechanisms to dominate.",
+      "source_id": "main",
+      "locator": "PDF pp. 4-5, Secs. II.D-II.E",
+      "category": "atomic_structure",
+      "model_implication": "⟦AI⟧ Retain excited hyperfine manifolds when validating the reused classical response."
+    },
+    {
+      "finding_id": "slices",
+      "claim": "Significant absorption is handled by integrating intensity, rotation and ellipticity through thin slices.",
+      "source_id": "main",
+      "locator": "PDF pp. 6-7, Sec. III",
+      "category": "propagation",
+      "model_implication": "⟦AI⟧ An incremental extension can reuse the atomic solve along a longitudinal intensity trajectory."
+    }
+  ],
+  "ai_notes": []
+}

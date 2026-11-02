@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "paper_id": "lanning_2017_pra",
+  "title": "Gaussian-beam-propagation theory for nonlinear optics involving an analytical treatment of orbital-angular-momentum transfer",
+  "authors": [
+    "R. Nicholas Lanning",
+    "Zhihao Xiao",
+    "Mi Zhang",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov",
+    "Jonathan P. Dowling"
+  ],
+  "year": 2017,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "96",
+    "issue": "",
+    "pages": "013830",
+    "doi": "10.1103/PhysRevA.96.013830",
+    "arxiv_id": "1702.01095",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "theory",
+  "topics": [
+    "spatial_modes",
+    "paraxial_propagation",
+    "Born_approximation",
+    "OAM"
+  ],
+  "scope": {
+    "species": "general_nonlinear_medium",
+    "line": "not_applicable",
+    "configuration": "paraxial_nonlinear_propagation",
+    "measurement": "classical_spatial_mode_structure",
+    "seed_mode": "varies",
+    "inclusion": "context_only",
+    "reason": "Reusable propagation method; not a complete PSR quantum-noise theory.",
+    "isotope_composition": "not_reported"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/1702.01095",
+      "path": "sources/lanning_2017_pra.pdf",
+      "pages": 10,
+      "sha256": "34db4e3b559a0468db69e454bc3b040a58270bcfe7d78aa1d7c464f514500161",
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v2_2017-04-25",
+      "accessed_on": "2026-10-30",
+      "title_in_source": "Gaussian Beam-Propagation Theory for Nonlinear Optics - Featuring an Exact Treatment of Orbital Angular Momentum Transfer"
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "finding_id": "born",
+      "claim": "The Green-function mode expansion uses a first-order Born approximation and a weakly modified pump.",
+      "source_id": "main",
+      "locator": "PDF p. 2, Sec. II.A, Eqs. (2)-(3); p. 7, conclusion",
+      "category": "spatial_modes",
+      "model_implication": "⟦AI⟧ A candidate spatial propagation layer must retain its perturbative limit."
+    },
+    {
+      "finding_id": "classical",
+      "claim": "The developed propagation treatment is classical and uses an idealized lossless, dispersionless medium.",
+      "source_id": "main",
+      "locator": "PDF p. 2, Sec. II.A",
+      "category": "approximation",
+      "model_implication": "⟦AI⟧ Do not use this alone as a Langevin covariance or strong-absorption model."
+    }
+  ],
+  "ai_notes": []
+}

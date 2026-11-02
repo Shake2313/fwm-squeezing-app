@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "paper_id": "wang_2026_lsa",
+  "title": "Large-scale array of squeezed light and synchronization using atomic vapor",
+  "authors": [
+    "Lin Wang",
+    "Xichang Zhang",
+    "Konstantin Manannikov",
+    "Nir Davidson",
+    "Ying Hu",
+    "Dongdong Hao",
+    "Yanhong Xiao"
+  ],
+  "year": 2026,
+  "publication": {
+    "journal": "Light: Science & Applications",
+    "volume": "15",
+    "issue": "",
+    "pages": "365",
+    "doi": "10.1038/s41377-026-02428-w",
+    "arxiv_id": "2605.28316",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "experiment",
+  "topics": [
+    "spatial_array",
+    "coherence_diffusion",
+    "wall_coating",
+    "synchronization",
+    "anti_squeezing"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "coated_cell_collective_coherence_array",
+    "measurement": "polarization_quadrature_and_array_response",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "context_only",
+    "reason": "Related coherence-enhanced polarization squeezing; requires atomic transport between beams beyond independent-velocity PSR.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "url": "https://www.nature.com/articles/s41377-026-02428-w.pdf",
+      "path": "sources/wang_2026_lsa.pdf",
+      "pages": 10,
+      "sha256": "ef870537d6f250d2d959b8680b6ca616e4b999a839e0988d7acb614d3f8d4635",
+      "source_id": "main",
+      "access": "full_text",
+      "version": "published",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "array30_fig2",
+      "label": "30-beam array, Fig. 2",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "channel_count",
+          "value": 30,
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Materials and methods",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 2,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "per optical channel",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 9, Materials and methods",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.505,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "1/e2 waist radius at cell center",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Materials and methods",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 63.7,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Materials and methods",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Materials and methods",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 180,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2 caption",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 10,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2 caption",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.03,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF pp. 3-4, Fig. 2; p. 1 abstract",
+          "evidence": "Reported for this configuration.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.02,
+            "unit": "dB",
+            "kind": "reported",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "shared_coherence",
+      "claim": "Moving atoms share ground-state coherence between channels in a paraffin-coated cell.",
+      "source_id": "main",
+      "locator": "PDF pp. 2-3, principle; p. 9, methods",
+      "category": "transport",
+      "model_implication": "⟦AI⟧ Model inter-beam transport and wall memory before applying this array result."
+    },
+    {
+      "finding_id": "scope",
+      "claim": "Squeezing-level synchronization is measured; direct dynamic phase-locking evidence is not established.",
+      "source_id": "main",
+      "locator": "PDF pp. 5-6, Synchronization section",
+      "category": "scope",
+      "model_implication": "⟦AI⟧ Keep phase locking and shared noise extrema separate in validation claims."
+    }
+  ],
+  "ai_notes": []
+}

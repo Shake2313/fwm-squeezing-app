@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "paper_id": "ries_2003_pra",
+  "title": "Experimental vacuum squeezing in rubidium vapor via self-rotation",
+  "authors": [
+    "J. Ries",
+    "B. Brezger",
+    "A. I. Lvovsky"
+  ],
+  "year": 2003,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "68",
+    "issue": "",
+    "pages": "025801",
+    "doi": "10.1103/PhysRevA.68.025801",
+    "arxiv_id": "quant-ph/0303109",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "experiment",
+  "topics": [
+    "early_demonstration",
+    "D2",
+    "homodyne",
+    "excess_noise",
+    "spatial_mode"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D2",
+    "configuration": "single_pass_psr",
+    "measurement": "orthogonal_vacuum_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Direct PSR mechanism, noise or generation evidence.",
+    "isotope_composition": "nearly_pure_87Rb_with_85Rb_residue"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/quant-ph/0303109",
+      "path": "sources/ries_2003_pra.pdf",
+      "sha256": "5df8295dd264d932aade37f3b0c78fcc56f7f595830f1f469ac07b649cc74e89",
+      "pages": 4,
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v1_2003-03-18",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "fig4_phase_scan",
+      "label": "Phase scan at 5 MHz",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 70,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Experimental apparatus",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 600,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "focal diameter; intensity convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Experimental apparatus",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 5,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_detuning",
+          "value": 0.35,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "zero is maximum absorption; no hyperfine-reference conversion",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 91,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "nominal diode QE",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, detection paragraph",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 0.85,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.05,
+            "unit": "dB",
+            "kind": "reported",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 1.23,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction; optical loss, diode inefficiency and electronic noise corrected",
+          "reference": null,
+          "plane": "cell_output_inferred",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 4 and Results and discussion",
+          "evidence": "Reported for this configuration.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.07,
+            "unit": "dB",
+            "kind": "reported",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "nonminimum",
+      "claim": "Noise exceeds a minimum-uncertainty description; absorption alone cannot explain the excess.",
+      "source_id": "main",
+      "locator": "PDF p. 3, Results and discussion",
+      "category": "noise",
+      "model_implication": "⟦AI⟧ Include atomic excess noise separately from detector loss."
+    },
+    {
+      "finding_id": "frequency",
+      "claim": "Best noise suppression occurs around 5-10 MHz; lower-frequency fluorescence degrades it.",
+      "source_id": "main",
+      "locator": "PDF pp. 3-4, Figs. 5-6",
+      "category": "detection",
+      "model_implication": "⟦AI⟧ Add analysis frequency before comparing a phase-only model to this measurement."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ The stated 35 mW is laser output, not an independently established cell-input operating-point power."
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "paper_id": "agha_2010_oe",
+  "title": "Generation of pulsed and continuous-wave squeezed light with 87Rb vapor",
+  "authors": [
+    "Imad H. Agha",
+    "Gaétan Messin",
+    "Philippe Grangier"
+  ],
+  "year": 2010,
+  "publication": {
+    "journal": "Optics Express",
+    "volume": "18",
+    "issue": "5",
+    "pages": "4198-4205",
+    "doi": "10.1364/OE.18.004198",
+    "arxiv_id": "0911.2918",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "institut_optique_grangier",
+  "study_type": "experiment",
+  "topics": [
+    "cw",
+    "pulsed",
+    "D1_D2_comparison",
+    "isotope_contamination",
+    "atomic_noise"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1_and_D2",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/0911.2918",
+      "path": "sources/agha_2010_oe.pdf",
+      "access": "full_text",
+      "version": "arxiv_v4_2010-02-03",
+      "sha256": "85736d6e98483e2b6eaf081f3dc6c5d42da776ad015cd107ef3cfdc29b33886e",
+      "pages": 9,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "cw_fig2",
+      "label": "Fig. 2 continuous-wave optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. 2",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 400,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "reported waist; intensity convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. 2",
+          "evidence": "pump beam size",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 108,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 140,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2",
+          "evidence": "pump power",
+          "notes": ""
+        },
+        {
+          "quantity": "detuning_reported",
+          "value": 600,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "blue detuning",
+          "reference": "87Rb D1 F=2 to Fprime=2",
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2",
+          "evidence": "detuning reported",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 3,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2",
+          "evidence": "analysis frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.4,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 4, text above Fig. 2",
+          "evidence": "squeezing measured",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 2,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "inferred_before_losses",
+          "source_id": "main",
+          "locator": "PDF p. 4, text above Fig. 2",
+          "evidence": "squeezing loss corrected",
+          "notes": ""
+        },
+        {
+          "quantity": "anti_squeezing_reported_text",
+          "value": 5.2,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "excess above SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 4, text above Fig. 2",
+          "evidence": "anti squeezing reported text",
+          "notes": "Fig. 2 caption instead states 6.0 dB; unresolved source inconsistency.",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "anti_squeezing_reported_caption",
+          "value": 6.0,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "excess above SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 2 caption",
+          "evidence": "anti squeezing reported caption",
+          "notes": "Conflicts with 5.2 ± 0.1 dB in body text."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "pulsed_fig5",
+      "label": "Fig. 5 pulsed pump",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_peak_power",
+          "value": 40,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, pulse experiment",
+          "evidence": "pump peak power",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_pulse_duration",
+          "value": 200,
+          "unit": "ns",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, pulse experiment",
+          "evidence": "pump pulse duration",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_repetition_rate",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, pulse experiment",
+          "evidence": "pump repetition rate",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 2.7,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, pulse experiment",
+          "evidence": "analysis frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 6, pulse experiment",
+          "evidence": "squeezing measured",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "d2_null",
+      "claim": "The scanned D2 conditions yielded excess noise without squeezing.",
+      "source_id": "main",
+      "locator": "PDF p. 3, Sec. 2",
+      "category": "null_result",
+      "model_implication": "⟦AI⟧ Preserve D-line-specific null tests."
+    },
+    {
+      "finding_id": "isotope_noise",
+      "claim": "Residual 85Rb limits the high-detuning squeezing region.",
+      "source_id": "main",
+      "locator": "PDF pp. 4-5",
+      "category": "medium",
+      "model_implication": "⟦AI⟧ Include measured isotope composition when comparing high-power data."
+    }
+  ],
+  "ai_notes": []
+}

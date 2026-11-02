@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Manual browser validation of the generated PSR literature viewer",
+  "status": "PASS",
+  "browser": "Codex in-app browser",
+  "target": "index.html",
+  "checks": [
+    {
+      "id": "initial_dataset",
+      "status": "PASS",
+      "observed": {
+        "papers": 27,
+        "full_text_papers": 27,
+        "findings": 53,
+        "quantities": 249
+      }
+    },
+    {
+      "id": "search_and_evidence",
+      "status": "PASS",
+      "observed": "zhang_2013_ol returns one paper; expanded Gaussian and vortex records preserve different beam-size evidence. Vortex width displays 미보고."
+    },
+    {
+      "id": "study_filter",
+      "status": "PASS",
+      "observed": "theory: 4 papers"
+    },
+    {
+      "id": "topic_filter",
+      "status": "PASS",
+      "observed": "spatial_modes: 5 papers"
+    },
+    {
+      "id": "combined_filters",
+      "status": "PASS",
+      "observed": "spatial_modes + context_only: Lanning 2017 only"
+    },
+    {
+      "id": "scope_filter",
+      "status": "PASS",
+      "observed": "context_only: 5 papers"
+    },
+    {
+      "id": "empty_search",
+      "status": "PASS",
+      "observed": "0 / 27 and 검색 결과가 없습니다."
+    },
+    {
+      "id": "reset_and_collapse",
+      "status": "PASS",
+      "observed": "All 27 papers restored; evidence sections collapsed."
+    },
+    {
+      "id": "scope_metadata",
+      "status": "PASS",
+      "observed": "Seed mode and apparatus group visible in card summaries."
+    },
+    {
+      "id": "local_links",
+      "status": "PASS",
+      "observed": "367 local hrefs, referencing 65 unique files; local PDF page anchors and canonical JSON links present. All 65 files and 52 relative Markdown links were checked against the filesystem; none missing."
+    },
+    {
+      "id": "visual_narrow_viewport",
+      "status": "PASS",
+      "observed": "Screenshot reviewed at the browser's default 324px viewport; filters and downloads wrap; document scrollWidth equals clientWidth (324px). No desktop viewport override was tested."
+    },
+    {
+      "id": "local_console_errors",
+      "status": "PASS",
+      "observed": "No error entries for the local viewer. Earlier publisher Cloudflare errors are unrelated to this page."
+    }
+  ],
+  "scope": "Search, filtering, evidence display, links and visual layout only. Browser review does not certify scientific predictions."
+}

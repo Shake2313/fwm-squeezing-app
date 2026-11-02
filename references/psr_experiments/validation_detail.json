@@ -1,0 +1,250 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Focused PSR DB verification",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "schema_evidence_source_hashes_pdf_pages",
+      "status": "PASS",
+      "detail": {
+        "schema_version": 1,
+        "validation_date": "2026-10-30",
+        "status": "PASS",
+        "paper_count": 27,
+        "experiment_count": 42,
+        "quantity_count": 249,
+        "finding_count": 53,
+        "source_count": 29,
+        "study_type_counts": {
+          "experiment": 12,
+          "mixed": 11,
+          "theory": 4
+        },
+        "full_text_paper_count": 27,
+        "errors": [],
+        "warnings": [
+          "zhao_2025_sciadv/browser: full text inspected online; no local snapshot"
+        ],
+        "scope": "Structure, evidence links, source bytes and page counts; scientific interpretation requires source review."
+      }
+    },
+    {
+      "id": "combined_json_lossless",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "all_generated_views_and_manifest_fresh",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "id": "papers.csv_encoding_and_row_count",
+      "status": "PASS",
+      "detail": {
+        "expected": 27,
+        "actual": 27
+      }
+    },
+    {
+      "id": "experiments.csv_encoding_and_row_count",
+      "status": "PASS",
+      "detail": {
+        "expected": 42,
+        "actual": 42
+      }
+    },
+    {
+      "id": "observations.csv_encoding_and_row_count",
+      "status": "PASS",
+      "detail": {
+        "expected": 249,
+        "actual": 249
+      }
+    },
+    {
+      "id": "findings.csv_encoding_and_row_count",
+      "status": "PASS",
+      "detail": {
+        "expected": 53,
+        "actual": 53
+      }
+    },
+    {
+      "id": "observations_all_fields_roundtrip",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "id": "findings_all_fields_and_verification_roundtrip",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "id": "stale_html_detected",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "check_command_read_only",
+      "status": "PASS",
+      "detail": {
+        "returncode": 0,
+        "output_files_untouched": true
+      }
+    },
+    {
+      "id": "minimal_fixture_valid",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "experiment_metadata_inheritance_and_overrides",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "duplicate_papers_rejected",
+      "status": "PASS",
+      "detail": [
+        "duplicate paper_id validation_fixture",
+        "duplicate experiment_id validation_fixture/case",
+        "duplicate finding_id validation_fixture/result"
+      ]
+    },
+    {
+      "id": "duplicate_experiments_rejected",
+      "status": "PASS",
+      "detail": [
+        "duplicate experiment_id validation_fixture/case"
+      ]
+    },
+    {
+      "id": "duplicate_findings_rejected",
+      "status": "PASS",
+      "detail": [
+        "duplicate finding_id validation_fixture/result"
+      ]
+    },
+    {
+      "id": "duplicate_sources_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture: duplicate source_id"
+      ]
+    },
+    {
+      "id": "unknown_quantity_source_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/case/conditions/0 pump_power: unknown source"
+      ]
+    },
+    {
+      "id": "unknown_finding_source_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/result: unknown source"
+      ]
+    },
+    {
+      "id": "absent_value_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/experiments.0.conditions.0.value: None is not of type 'number', 'string', 'boolean'"
+      ]
+    },
+    {
+      "id": "missing_is_not_zero",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/experiments.0.conditions.0.value: 0 is not of type 'null'"
+      ]
+    },
+    {
+      "id": "derived_formula_required",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/experiments.0.conditions.0.derivation: 'formula' is a required property"
+      ]
+    },
+    {
+      "id": "reversed_interval_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/case/conditions/0 pump_power: reversed interval"
+      ]
+    },
+    {
+      "id": "nonfinite_value_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture: nonfinite numeric value"
+      ]
+    },
+    {
+      "id": "empty_locator_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/experiments.0.conditions.0.locator: '' should be non-empty"
+      ]
+    },
+    {
+      "id": "negative_squeezing_reduction_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/case/conditions/0 squeezing_measured: squeezing reduction must be nonnegative dB below SQL"
+      ]
+    },
+    {
+      "id": "nonnumeric_squeezing_reduction_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/case/conditions/0 squeezing_measured: squeezing reduction must be nonnegative dB below SQL"
+      ]
+    },
+    {
+      "id": "repository_escape_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/main: source path outside repository"
+      ]
+    },
+    {
+      "id": "abstract_not_fulltext_rejected",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/case/conditions/0 pump_power: non-full-text evidence requires explicit metadata_only verification",
+        "validation_fixture/result: non-full-text evidence requires explicit metadata_only verification"
+      ]
+    },
+    {
+      "id": "online_fulltext_audit_required",
+      "status": "PASS",
+      "detail": [
+        "validation_fixture/main: online full text needs access_method and access_note"
+      ]
+    },
+    {
+      "id": "explicit_metadata_only_supported",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "metadata_only_visible_in_experiment_summary",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "theory_without_experiments_supported",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "source_checksum_corruption_rejected",
+      "status": "PASS",
+      "detail": null
+    }
+  ],
+  "scope": "Data structure, evidence provenance and exports only; no solver, fit or scientific acceptance test."
+}

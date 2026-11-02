@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "paper_id": "zhang_2016_pra",
+  "title": "Spatial multimode structure of atom-generated squeezed light",
+  "authors": [
+    "Mi Zhang",
+    "R. Nicholas Lanning",
+    "Zhihao Xiao",
+    "Jonathan P. Dowling",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2016,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "93",
+    "issue": "1",
+    "pages": "013853",
+    "doi": "10.1103/PhysRevA.93.013853",
+    "arxiv_id": "1507.02247",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "mixed",
+  "topics": [
+    "spatial_modes",
+    "gouy_phase",
+    "homodyne_detection"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2016.PhysRevA.93.013853.pdf",
+      "path": "sources/zhang_2016_pra.pdf",
+      "access": "full_text",
+      "version": "published",
+      "sha256": "431a6c31d347ba54418e5c9fad549f6b7098be27602aa446071753d370c20f97",
+      "pages": 8,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "unmasked",
+      "label": "Unmasked beam, Fig.2 at unity transmission",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 66,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 540000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "1/e2 intensity diameter",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "focus_from_entrance",
+          "value": 6.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_detuning",
+          "value": -100,
+          "unit": "MHz",
+          "value_type": "approximate",
+          "basis": "laser minus 87Rb D1 F=2 to Fprime=2",
+          "reference": "87Rb D1 F=2 to Fprime=2",
+          "plane": "laser",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": "Source says approximately 100 MHz red."
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 30,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.9,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.2,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "anti_squeezing",
+          "value": 11,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive excess above shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "mask_nonuniform",
+      "claim": "Spatial masks produce noise incompatible with uniform single-mode attenuation.",
+      "source_id": "main",
+      "locator": "PDF p.2, Sec.III/Fig.2",
+      "category": "spatial_modes",
+      "model_implication": "⟦AI⟧ Use modal covariance and local-oscillator projection for aperture changes."
+    },
+    {
+      "finding_id": "gouy_angles",
+      "claim": "Different Gouy phases and squeezing angles can reduce the detected modal sum.",
+      "source_id": "main",
+      "locator": "PDF pp.5-7, Eqs.20-28/Table I",
+      "category": "theory",
+      "model_implication": "⟦AI⟧ Preserve phase and spatial geometry in propagation."
+    },
+    {
+      "finding_id": "model_not_forecast",
+      "claim": "Illustrative modal squeezing is rescaled to measured suppression and omits atomic excess noise.",
+      "source_id": "main",
+      "locator": "PDF pp.6-7, Sec.VI",
+      "category": "validity",
+      "model_implication": "⟦AI⟧ Do not treat the illustrative 11 dB fundamental mode as a measured result."
+    }
+  ],
+  "ai_notes": []
+}

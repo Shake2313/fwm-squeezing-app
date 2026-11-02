@@ -166,6 +166,12 @@ certifying velocity convergence throughout the controls' ranges.
 
 ## References
 
+The [PSR literature database](../../references/psr_experiments/README.md) collects
+27 full-text-checked theory, experiment, noise, spatial-mode and sensing papers,
+with source files, version-specific evidence and a
+[searchable comparison view](../../references/psr_experiments/index.html).
+Its proposed improvements are separate from the implemented model above.
+
 - [Matsko et al., *Vacuum squeezing in atomic media via self-rotation*, PRA 66,
   043815 (2002)](https://arxiv.org/abs/quant-ph/0112072): PSR mechanism and its
   connection to vacuum squeezing.

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "origin": "⟦AI⟧ Execution record for user-authorized legacy CSV archive",
+  "date": "2026-10-30",
+  "confirmed_root": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "operation": "move",
+  "recursive": false,
+  "classification": "Retired legacy FWM CSV; current literature DB is references/fwm_experiments",
+  "affected_file_count": 1,
+  "files": [
+    {
+      "from": "references/fwm_squeezing_paper_parameters.csv",
+      "to": "archive/fwm_squeezing_paper_parameters.csv",
+      "bytes": 13536,
+      "sha256": "028bd42e3d04f9811594312a24abe1fdeac67562f4a2e3f378f4a6a1731315b1",
+      "content_changed": false
+    }
+  ],
+  "restore": "Move archive/fwm_squeezing_paper_parameters.csv back to references/fwm_squeezing_paper_parameters.csv only if the original path is absent; reverse accompanying live path edits.",
+  "historical_paths": "Frozen source manifests, generated PDFs and proofread snapshots retain their original path keys. Resolve the old path using this manifest without rewriting the historical bytes."
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "paper_id": "mikhailov_2008_ol",
+    "url": "https://arxiv.org/pdf/0802.1558",
+    "path": "sources/mikhailov_2008_ol.pdf",
+    "sha256": "924dbca45f4031007837622d6e237dc8ce8ec4b4bb0c6ccaf58b5560b3f560c9",
+    "pages": 4,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "agha_2010_oe",
+    "url": "https://arxiv.org/pdf/0911.2918",
+    "path": "sources/agha_2010_oe.pdf",
+    "sha256": "85736d6e98483e2b6eaf081f3dc6c5d42da776ad015cd107ef3cfdc29b33886e",
+    "pages": 9,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "barreiro_2011_pra",
+    "url": "https://arxiv.org/pdf/1107.3158",
+    "path": "sources/barreiro_2011_pra.pdf",
+    "sha256": "4559cf5335c724982411e9f606ff24b92bf6dac4814e0c1681b7897e494510e7",
+    "pages": 4,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "horrom_2011_pra",
+    "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2011.PhysRevA.83.053850.pdf",
+    "path": "sources/horrom_2011_pra.pdf",
+    "sha256": "9ba0e36b57124767893cfaf7429b97b1d7bd654e18a540c10310df8f14a7c5f3",
+    "pages": 9,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "horrom_2011_jmo",
+    "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2011.JMO.21.58.1936.pdf",
+    "path": "sources/horrom_2011_jmo.pdf",
+    "sha256": "e5a02316f083c99c67602bf320358ac93501a2556b63a9e07090594cfd18036c",
+    "pages": 7,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "horrom_2012_jpb",
+    "url": "https://arxiv.org/pdf/1201.4372",
+    "path": "sources/horrom_2012_jpb.pdf",
+    "sha256": "4d1611a661978de381973475ecc09e7f9e965f507550ad4b7d2586860c22e4e4",
+    "pages": 12,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "hsu_2006_pra",
+    "url": "https://harvest.aps.org/v2/journals/articles/10.1103/PhysRevA.73.023806/fulltext",
+    "status": "failed",
+    "error": "401 Client Error: Unauthorized for url: https://harvest.aps.org/v2/journals/articles/10.1103/PhysRevA.73.023806/fulltext"
+  },
+  {
+    "paper_id": "lima_2024_pra",
+    "url": "https://repositorio.usp.br/bitstreams/5ab74ca9-3054-48a1-9307-1b9e1becaefc",
+    "path": "sources/lima_2024_pra.pdf",
+    "sha256": "b04c6c9412ede9ba4e4664aa86bfe224b498a7968092ce1b4e37b87d8bff68ea",
+    "pages": 7,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "zhao_2025_sciadv",
+    "url": "https://www.science.org/doi/pdf/10.1126/sciadv.adu4888",
+    "status": "failed",
+    "error": "403 Client Error: Forbidden for url: https://www.science.org/doi/pdf/10.1126/sciadv.adu4888"
+  },
+  {
+    "paper_id": "hsu_2006_pra",
+    "url": "https://arxiv.org/pdf/quant-ph/0510165",
+    "path": "sources/hsu_2006_pra.pdf",
+    "sha256": "fc61ab7a8aa04fea83736813bd06367fb775cb6cbc478c4653a0da83b74da6bc",
+    "pages": 10,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "zhao_2025_sciadv",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12047443/pdf/sciadv.adu4888.pdf",
+    "status": "failed",
+    "error": "b'\\n\\n\\n\\n<html>\\n  <head>\\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\\n    <'"
+  },
+  {
+    "paper_id": "zhao_2025_sciadv",
+    "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12047443/fullTextXML",
+    "path": "sources/zhao_2025_sciadv.xml",
+    "sha256": "e885ad02e87cdbd4997dc41c7f49b1c6ca34b93c75808e74335a0b71f16f38cf",
+    "pages": null,
+    "status": "downloaded",
+    "access_method": "public_EuropePMC_fullTextXML_after_browser_verification"
+  }
+]

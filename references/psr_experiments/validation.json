@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "validation_date": "2026-10-30",
+  "status": "PASS",
+  "paper_count": 27,
+  "experiment_count": 42,
+  "quantity_count": 249,
+  "finding_count": 53,
+  "source_count": 29,
+  "study_type_counts": {
+    "experiment": 12,
+    "mixed": 11,
+    "theory": 4
+  },
+  "full_text_paper_count": 27,
+  "errors": [],
+  "warnings": [
+    "zhao_2025_sciadv/browser: full text inspected online; no local snapshot"
+  ],
+  "scope": "Structure, evidence links, source bytes and page counts; scientific interpretation requires source review."
+}

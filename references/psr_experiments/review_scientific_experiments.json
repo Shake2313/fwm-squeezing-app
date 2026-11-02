@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-30",
+  "reviewer": "independent_psr_modes_noise_agent",
+  "provenance": "⟦AI⟧ Independent selected scientific source-to-record review.",
+  "status": "PASS",
+  "scope": "Nine experimental records: physical scope, selected operating conditions and reported results, correction conventions, source version and bibliographic identity.",
+  "coverage": [
+    {
+      "paper_id": "mikhailov_2008_ol",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        2,
+        3
+      ],
+      "checks": [
+        "best versus low-frequency operating points",
+        "beam-width convention",
+        "detector quantum efficiency"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "agha_2010_oe",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        3,
+        4,
+        6
+      ],
+      "checks": [
+        "continuous versus pulsed results",
+        "D2 null result",
+        "text/caption antisqueezing discrepancy retained"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "barreiro_2011_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        2,
+        3
+      ],
+      "checks": [
+        "joint optimum",
+        "measured versus loss-corrected squeezing",
+        "beam-size convention"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "horrom_2011_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        3,
+        8
+      ],
+      "checks": [
+        "classical-only context",
+        "cold-cloud parameters",
+        "motion and magnetic-field limitations"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "horrom_2011_jmo",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "checks": [
+        "no compelling sub-SQL result",
+        "finite-frequency detection",
+        "population/coherence reset model"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "horrom_2012_jpb",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "checks": [
+        "separate source and magnetic scans",
+        "shot-reference and efficiency correction",
+        "magnetic response scope"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "hsu_2006_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        1,
+        4,
+        6,
+        7,
+        9
+      ],
+      "checks": [
+        "published/preprint title distinction",
+        "null result and dark-noise-subtracted spectra",
+        "separate powers/frequencies"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "lima_2024_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "checks": [
+        "weak orthogonal seed scope",
+        "detector correction discrepancy flagged",
+        "separate seed scan"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "zhao_2025_sciadv",
+      "source_id": "main",
+      "pdf_pages_reviewed": [],
+      "checks": [
+        "published JATS setup and figure captions",
+        "optimized result versus single-control sweeps",
+        "propagation/detection loss and stability"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "findings": [],
+  "retained_source_caveats": [
+    {
+      "paper_id": "agha_2010_oe",
+      "note": "Text/caption antisqueezing disagreement remains explicit."
+    },
+    {
+      "paper_id": "lima_2024_pra",
+      "note": "Author correction inconsistency remains explicit; no calibration endorsement."
+    },
+    {
+      "paper_id": "hsu_2006_pra",
+      "note": "Historic null result is limited to tested regimes, not a present general impossibility."
+    }
+  ],
+  "bibliographic_crosschecks": [
+    {
+      "paper_id": "hsu_2006_pra",
+      "url": "https://journals.aps.org/pra/abstract/10.1103/PhysRevA.73.023806",
+      "checked": "Published title and 2006 year match; preprint title differs."
+    }
+  ],
+  "limits": [
+    "Selected semantic checks; not an independent experiment, plot digitization, or numerical reimplementation.",
+    "Source electronic-noise correction is not inferred where unspecified.",
+    "JSON/schema/source-integrity checks are recorded by the database validator separately."
+  ]
+}

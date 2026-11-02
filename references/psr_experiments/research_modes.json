@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Primary-source curation and full-text inspection",
+  "paper_ids": [
+    "zhang_2013_ol",
+    "zhang_2016_pra",
+    "zhang_2017_pra",
+    "horrom_2012_pra",
+    "li_2022_josab",
+    "valente_2015_pra",
+    "horrom_2013_jmo",
+    "romanov_2014_ol",
+    "monsa_2026_prapplied"
+  ],
+  "scope": [
+    "spatial modes",
+    "multipass geometry",
+    "technical noise",
+    "Stokes tomography",
+    "entanglement",
+    "EIT filtering",
+    "dispersive propagation",
+    "magnetometry"
+  ],
+  "search_queries": [
+    "polarization self rotation squeezing spatial modes magnetic field noise self defocusing arxiv",
+    "polarization self rotation squeezed light magnetometry multimode",
+    "polarization self-rotation squeezing entanglement",
+    "Multi-pass configuration Improved Squeezed Vacuum Generation",
+    "Experimental characterization Gaussian state squeezed light atomic vapor",
+    "Vacuum squeezing enhanced micrometer scale vapor cell magnetometer"
+  ],
+  "method": "Primary author-hosted PDFs or versioned arXiv sources downloaded, parsed pagewise and inspected. Numeric records use text-reported values, not plot digitization. Published metadata cross-checked with publisher or arXiv journal references.",
+  "browser_requests": [
+    {
+      "paper_id": "monsa_2026_prapplied",
+      "url": "https://journals.aps.org/prapplied/abstract/10.1103/t8d7-cqk2",
+      "reason": "Version-of-record differs numerically from accessible preprint; direct full text returned HTTP401.",
+      "outcome": "Resolved: parent used browser institutional access and supplied final PDF, 6 pages; curated final values and retained earlier preprint separately.",
+      "download_url": "https://journals.aps.org/prapplied/pdf/10.1103/t8d7-cqk2"
+    }
+  ],
+  "limitations": [
+    "No exhaustive search or systematic-review completeness claim.",
+    "Scientific claims are source reports, not independently reproduced experiments.",
+    "New model implications are AI proposals; no physics implementation changed."
+  ]
+}

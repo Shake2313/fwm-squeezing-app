@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "paper_id": "horrom_2012_jpb",
+  "title": "All-atomic source of squeezed vacuum with full pulse-shape control",
+  "authors": [
+    "Travis Horrom",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2012,
+  "publication": {
+    "journal": "Journal of Physics B: Atomic, Molecular and Optical Physics",
+    "volume": "45",
+    "issue": "12",
+    "pages": "124015",
+    "doi": "10.1088/0953-4075/45/12/124015",
+    "arxiv_id": "1201.4372",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "pulse_shaping",
+    "magnetic_field",
+    "low_frequency",
+    "common_path_homodyne"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1201.4372",
+      "path": "sources/horrom_2012_jpb.pdf",
+      "access": "full_text",
+      "version": "arxiv_v1_2012-01-20",
+      "sha256": "4d1611a661978de381973475ecc09e7f9e965f507550ad4b7d2586860c22e4e4",
+      "pages": 12,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "source_characterization",
+      "label": "Source performance and loss budget",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 66,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. 1",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. 1",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "reported waist; intensity convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. 1",
+          "evidence": "pump beam size",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_loss",
+          "value": 10,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 1",
+          "evidence": "optical loss",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 95,
+          "unit": "percent",
+          "value_type": "approximate",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 1",
+          "evidence": "detector qe",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.3,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 1",
+          "evidence": "squeezing measured",
+          "notes": ""
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 3.6,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "includes shot-noise calibration and optical/detector losses",
+          "reference": null,
+          "plane": "inferred_before_losses",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 1",
+          "evidence": "squeezing loss corrected",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "Maximum performance is not assigned a pump power or analysis frequency absent an explicit association."
+      ]
+    },
+    {
+      "experiment_id": "fig2_spectrum",
+      "label": "Fig. 2 typical noise spectrum",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 7,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, Fig. 2 caption",
+          "evidence": "pump power",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 10,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, Fig. 2 caption",
+          "evidence": "resolution bandwidth",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    },
+    {
+      "experiment_id": "fig3_magnetic",
+      "label": "Fig. 3 longitudinal magnetic-field scan",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "analysis_frequency",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Fig. 3 caption",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Fig. 3 caption",
+          "evidence": "resolution bandwidth",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "phase_preserved",
+      "claim": "Longitudinal magnetic-field modulation controls noise-envelope shape without shifting its measured minimum phase.",
+      "source_id": "main",
+      "locator": "PDF pp. 6-8",
+      "category": "control",
+      "model_implication": "⟦AI⟧ A future magnetic scan needs noise dynamics beyond a constant shear coefficient."
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gabes.local/schemas/psr-literature-paper-v1.json",
+  "title": "GABES PSR literature evidence record",
+  "type": "object",
+  "required": ["schema_version", "paper_id", "title", "authors", "year", "publication", "scope", "study_type", "topics", "sources", "experiments", "findings"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "paper_id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "authors": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "year": {"type": "integer", "minimum": 1900, "maximum": 2100},
+    "study_type": {"enum": ["experiment", "theory", "mixed", "review"]},
+    "topics": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "publication": {
+      "type": "object", "required": ["status"],
+      "properties": {"status": {"type": "string", "minLength": 1}, "doi": {"type": ["string", "null"]}, "arxiv_id": {"type": ["string", "null"]}}
+    },
+    "scope": {
+      "type": "object", "required": ["species", "line", "configuration", "measurement", "inclusion", "reason"],
+      "properties": {"inclusion": {"enum": ["primary", "context_only", "excluded"]}, "reason": {"type": "string"}}
+    },
+    "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}},
+    "experiments": {"type": "array", "items": {"$ref": "#/$defs/experiment"}},
+    "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "ai_notes": {"type": "array"}
+  },
+  "$defs": {
+    "source": {
+      "type": "object", "required": ["source_id", "url", "access", "version"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "pattern": "^https?://"},
+        "path": {"type": ["string", "null"]},
+        "sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "access": {"enum": ["full_text", "metadata_only", "abstract_only", "unavailable"]},
+        "version": {"type": "string", "minLength": 1},
+        "pages": {"type": ["integer", "null"], "minimum": 1},
+        "access_method": {"type": "string"},
+        "access_note": {"type": "string"}
+      }
+    },
+    "experiment": {
+      "type": "object", "required": ["experiment_id", "label", "kind", "conditions", "results"],
+      "properties": {
+        "experiment_id": {"type": "string", "minLength": 1},
+        "label": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "conditions": {"type": "array", "items": {"$ref": "#/$defs/quantity"}},
+        "results": {"type": "array", "items": {"$ref": "#/$defs/quantity"}},
+        "notes": {"type": "array"}
+      }
+    },
+    "quantity": {
+      "type": "object", "required": ["quantity", "value", "unit", "value_type"],
+      "properties": {
+        "quantity": {"type": "string", "minLength": 1},
+        "value": {"type": ["number", "string", "boolean", "null"]},
+        "lower": {"type": "number"}, "upper": {"type": "number"},
+        "unit": {"type": "string"},
+        "value_type": {"enum": ["reported", "approximate", "range", "lower_bound", "upper_bound", "derived", "digitized", "not_reported"]},
+        "basis": {"type": ["string", "null"]},
+        "reference": {"type": ["string", "null"]},
+        "plane": {"type": ["string", "null"]},
+        "source_id": {"type": "string", "minLength": 1},
+        "locator": {"type": "string", "minLength": 1},
+        "verification": {"enum": ["full_text_checked", "metadata_only"]},
+        "derivation": {"type": "object", "required": ["formula"], "properties": {"formula": {"type": "string", "minLength": 1}}}
+      },
+      "allOf": [
+        {"if": {"properties": {"value_type": {"const": "not_reported"}}}, "then": {"properties": {"value": {"type": "null"}}}, "else": {"required": ["source_id", "locator"]}},
+        {"if": {"properties": {"value_type": {"const": "range"}}}, "then": {"required": ["lower", "upper"], "properties": {"value": {"type": "null"}}}},
+        {"if": {"properties": {"value_type": {"enum": ["reported", "approximate", "lower_bound", "upper_bound", "derived", "digitized"]}}}, "then": {"properties": {"value": {"type": ["number", "string", "boolean"]}}}},
+        {"if": {"properties": {"value_type": {"const": "derived"}}}, "then": {"required": ["derivation"]}}
+      ]
+    },
+    "finding": {
+      "type": "object", "required": ["finding_id", "claim", "source_id", "locator", "category", "model_implication"],
+      "properties": {
+        "finding_id": {"type": "string", "minLength": 1},
+        "claim": {"type": "string", "minLength": 1},
+        "source_id": {"type": "string", "minLength": 1},
+        "locator": {"type": "string", "minLength": 1},
+        "category": {"type": "string", "minLength": 1},
+        "model_implication": {"type": "string"},
+        "verification": {"enum": ["full_text_checked", "metadata_only"]}
+      }
+    }
+  }
+}

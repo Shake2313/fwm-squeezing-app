@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "paper_id": "novikova_2015_pra",
+  "title": "Excess optical quantum noise in atomic sensors",
+  "authors": [
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov",
+    "Yanhong Xiao"
+  ],
+  "year": 2015,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "91",
+    "issue": "",
+    "pages": "051804(R)",
+    "doi": "10.1103/PhysRevA.91.051804",
+    "arxiv_id": "1410.3810",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "mixed",
+  "topics": [
+    "magnetometry",
+    "atomic_excess_noise",
+    "readout_quadrature",
+    "wall_coating"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "coated_cell_nmor_with_psr",
+    "measurement": "polarization_rotation_noise_and_sensitivity",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "context_only",
+    "reason": "Noise/readout tradeoff in a sensor; not an independent optimized PSR source benchmark.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/1410.3810",
+      "path": "sources/novikova_2015_pra.pdf",
+      "pages": 4,
+      "sha256": "c327ea266408f4832a621db0e5512023c69b1d6eac61e84b503960cc6270242d",
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v1_2014-10-14",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "coated_cell",
+      "label": "Paraffin-coated NMOR apparatus",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus paragraph",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_diameter",
+          "value": 25,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus paragraph",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "noise_vs_signal",
+      "claim": "Off-resonant coupling alters polarization noise even when its mean rotation contribution is negligible.",
+      "source_id": "main",
+      "locator": "PDF pp. 2-3, Figs. 2-4",
+      "category": "noise",
+      "model_implication": "⟦AI⟧ Fit or validate mean signal and covariance as distinct observables."
+    },
+    {
+      "finding_id": "sensitivity",
+      "claim": "Rotating detection toward the squeezed quadrature reduces the magnetometric response as well.",
+      "source_id": "main",
+      "locator": "PDF pp. 3-4, Figs. 4-5",
+      "category": "readout",
+      "model_implication": "⟦AI⟧ Optimize signal-to-noise, rather than squeezing alone, for a future sensor mode."
+    }
+  ],
+  "ai_notes": []
+}

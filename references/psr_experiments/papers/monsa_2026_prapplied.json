@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "paper_id": "monsa_2026_prapplied",
+  "title": "Vacuum-squeezing-enhanced micrometer-scale vapor-cell magnetometer",
+  "authors": [
+    "Shahar Monsa",
+    "Yair Chasid",
+    "Michael Shuldiner",
+    "Shmuel Sternklar",
+    "Eliran Talker"
+  ],
+  "year": 2026,
+  "publication": {
+    "journal": "Physical Review Applied",
+    "volume": "25",
+    "issue": "4",
+    "pages": "044014",
+    "doi": "10.1103/t8d7-cqk2",
+    "arxiv_id": "2507.07672",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "ariel_talker_psr",
+  "study_type": "experiment",
+  "topics": [
+    "microcell",
+    "magnetometry",
+    "version_discrepancy"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "not_reported"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://journals.aps.org/prapplied/pdf/10.1103/t8d7-cqk2",
+      "path": "sources/monsa_2026_prapplied.pdf",
+      "access": "full_text",
+      "version": "published_2026-04-06",
+      "sha256": "e1bb231e08dbaffb0fa5e4c9992f82f801cbe987f5483fc611ed35bdc9733039",
+      "pages": 6,
+      "accessed_on": "2026-10-30",
+      "access_method": "browser",
+      "notes": "Retrieved through the user-requested browser after direct download returned HTTP401."
+    },
+    {
+      "source_id": "preprint",
+      "url": "https://arxiv.org/pdf/2507.07672v1",
+      "path": "sources/monsa_2026_prapplied_preprint.pdf",
+      "access": "full_text",
+      "version": "arxiv_v1_2025-07-10",
+      "sha256": "8555a97c23b4abf4341641a197a41a5c220deaff4b14177da2421c62fdfabfa4",
+      "pages": 11,
+      "accessed_on": "2026-10-30",
+      "notes": "Earlier version, retained to document changed results; not used for final operating-point values."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "published_psr_source",
+      "label": "Published source characterization, Sec.III.A/Fig.3",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 10,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 50,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_detuning",
+          "value": -350,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "laser minus 87Rb D1 F=2 to Fprime=2",
+          "reference": "87Rb D1 F=2 to Fprime=2",
+          "plane": "laser",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": "Published setup specifies 350 MHz red detuning."
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 10,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 4,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.3, Sec.III.A",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.25,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 4.5,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction; optical/electronic corrections included",
+          "reference": null,
+          "plane": "inferred_before_losses",
+          "source_id": "main",
+          "locator": "PDF p.3, Sec.III.A",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.35,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": [
+        "Use the final published values; earlier preprint is retained as a separate source."
+      ]
+    },
+    {
+      "experiment_id": "published_microcell",
+      "label": "Published sensing cell; separate from the PSR source",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 100,
+          "unit": "um",
+          "value_type": "approximate",
+          "basis": "microcell optical length",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, abstract/introduction",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 100,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.3, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "buffer_gas_n2_pressure",
+          "value": 250,
+          "unit": "Torr",
+          "value_type": "reported",
+          "basis": "nitrogen",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "buffer_gas_he_pressure",
+          "value": 350,
+          "unit": "Torr",
+          "value_type": "reported",
+          "basis": "helium",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "magnetic_sensitivity",
+          "value": 1,
+          "unit": "pT/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "claimed amplitude spectral sensitivity",
+          "reference": null,
+          "plane": "magnetometer_readout",
+          "source_id": "main",
+          "locator": "PDF p.5, Sec.III.C/Fig.5",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "revision_mismatch",
+      "claim": "Published measured/corrected squeezing is 4/4.5 dB; earlier preprint body gives 3/3.5 dB.",
+      "source_id": "main",
+      "locator": "Published PDF p.3, Sec.III.A; preprint PDF p.4",
+      "category": "source_version",
+      "model_implication": "⟦AI⟧ Use final values and preserve the distinct source versions."
+    },
+    {
+      "finding_id": "two_cell_geometry",
+      "claim": "The 75 mm PSR source and approximately 100 um sensor have different temperatures and buffer-gas conditions.",
+      "source_id": "main",
+      "locator": "PDF pp.1-3, Sec.II",
+      "category": "application",
+      "model_implication": "⟦AI⟧ Keep generation and sensing propagation as separate stages."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Numeric records use the final full text. Its room-temperature wording conflicts with the explicit 50 C source setting; the apparatus setting is preserved. The inferred correction includes electronics and optical losses.",
+    "⟦AI⟧ Earlier preprint also differs internally (3.5 dB corrected in body versus 4 dB in conclusion); it is retained for provenance, not independent experimental counting."
+  ]
+}

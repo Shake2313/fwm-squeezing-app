@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Focused archive migration checks",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "csv_byte_identity_and_original_absent",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "legacy_csv_ten_paper_header",
+      "status": "PASS",
+      "detail": {
+        "papers": 10,
+        "data_rows": 59
+      }
+    },
+    {
+      "id": "legacy_variable_audit_reader",
+      "status": "PASS",
+      "detail": {
+        "papers": 10,
+        "summary_fields": 15
+      }
+    },
+    {
+      "id": "report_csv_checksum_reader",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "gain_reference_source_path",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "checklist_valid_json",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "updated_csv_and_manifest_links_resolve",
+      "status": "PASS",
+      "detail": []
+    },
+    {
+      "id": "modified_python_sources_compile",
+      "status": "PASS",
+      "detail": null
+    }
+  ],
+  "scope": "Archive byte identity and legacy-only readers/links; no numerical simulation or historical campaign rerun."
+}

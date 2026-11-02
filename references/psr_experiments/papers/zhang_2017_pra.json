@@ -1,0 +1,485 @@
+{
+  "schema_version": 1,
+  "paper_id": "zhang_2017_pra",
+  "title": "Multipass configuration for improved squeezed vacuum generation in hot Rb vapor",
+  "authors": [
+    "Mi Zhang",
+    "Melissa A. Guidry",
+    "R. Nicholas Lanning",
+    "Zhihao Xiao",
+    "Jonathan P. Dowling",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2017,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "96",
+    "issue": "1",
+    "pages": "013835",
+    "doi": "10.1103/PhysRevA.96.013835",
+    "arxiv_id": "1705.02914",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "mixed",
+  "topics": [
+    "multipass",
+    "spatial_modes",
+    "density_length_scaling"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1705.02914v2",
+      "path": "sources/zhang_2017_pra.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2017-05-10",
+      "sha256": "dac3c525b9aa7049279ee7a23f049ed826bd67a1b7d73385e4d09319b2ebd758",
+      "pages": 7,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "single_pass_optimum",
+      "label": "Single-pass optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "physical cell length, before pass multiplier",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 11,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "common comparison pump power",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "1/e2 intensity diameter",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 800,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 30,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pass_count",
+          "value": 1,
+          "unit": "dimensionless",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 930000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.0,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "double_pass_optimum",
+      "label": "Double-pass optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "physical cell length, before pass multiplier",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 11,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "common comparison pump power",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "1/e2 intensity diameter",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 800,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 30,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pass_count",
+          "value": 2,
+          "unit": "dimensionless",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 430000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.6,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "quadruple_pass_optimum",
+      "label": "Quadruple-pass optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "physical cell length, before pass multiplier",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 11,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "common comparison pump power",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "1/e2 intensity diameter",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 800,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 30,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pass_count",
+          "value": 4,
+          "unit": "dimensionless",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 240000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.2,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "two_cells_first_vacuum_filtered",
+      "label": "Two cells; first-cell squeezed field removed",
+      "kind": "operating_point",
+      "conditions": [],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.8,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.5, Sec.III/Fig.7",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "The first cell modifies the pump; its orthogonal squeezed field is replaced with vacuum. This is not the folded double-pass optimum."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "non_od_scaling",
+      "claim": "Equal nominal optical depth does not make increased density and increased path length equivalent.",
+      "source_id": "main",
+      "locator": "PDF pp.2-4, Figs.3-5",
+      "category": "geometry",
+      "model_implication": "⟦AI⟧ Keep density and geometry independent."
+    },
+    {
+      "finding_id": "pump_preparation",
+      "claim": "Filtering first-cell squeezing while retaining its modified pump can improve second-cell output.",
+      "source_id": "main",
+      "locator": "PDF p.5, Sec.III/Fig.7",
+      "category": "spatial_modes",
+      "model_implication": "⟦AI⟧ Model pump spatial preparation separately from inherited covariance."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ The PDF compilation date is later than its arXiv submission; source version is fixed by the v2 identifier and SHA-256."
+  ],
+  "metadata_sources": [
+    "https://journals.aps.org/pra/abstract/10.1103/PhysRevA.96.013835"
+  ]
+}

@@ -17,7 +17,8 @@ st.log
 .venv/
 .claude/
 references/*
-!references/fwm_squeezing_paper_parameters.csv
+!references/psr_experiments/
+references/psr_experiments/sources/
 
 # Local reversible backups created by scoped repository cleanups.
 archive/.cleanup/

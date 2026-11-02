@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "paper_id": "horrom_2011_pra",
+  "title": "Polarization self-rotation in ultracold atomic 87Rb",
+  "authors": [
+    "Travis Horrom",
+    "Salim Balik",
+    "Arturo Lezama",
+    "Mark D. Havey",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2011,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "83",
+    "issue": "5",
+    "pages": "053850",
+    "doi": "10.1103/PhysRevA.83.053850",
+    "arxiv_id": "1102.4041",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_odu_cold_atoms",
+  "study_type": "mixed",
+  "topics": [
+    "cold_atoms",
+    "classical_rotation",
+    "magnetic_field",
+    "radiation_pressure",
+    "optical_bloch"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "classical_polarization_rotation",
+    "seed_mode": "elliptical_probe",
+    "inclusion": "context_only",
+    "reason": "Classical PSR characterization; this article does not establish squeezed-noise performance.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2011.PhysRevA.83.053850.pdf",
+      "path": "sources/horrom_2011_pra.pdf",
+      "access": "full_text",
+      "version": "published_author_hosted",
+      "sha256": "9ba0e36b57124767893cfaf7429b97b1d7bd654e18a540c10310df8f14a7c5f3",
+      "pages": 9,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "mot_apparatus",
+      "label": "Cold-atom rotation apparatus",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "atomic_temperature",
+          "value": 300,
+          "unit": "uK",
+          "value_type": "approximate",
+          "basis": "ballistic expansion",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "atomic temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "cloud_atom_number",
+          "value": 70000000.0,
+          "unit": "atoms",
+          "value_type": "approximate",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "cloud atom number",
+          "notes": ""
+        },
+        {
+          "quantity": "peak_atomic_density",
+          "value": 7000000000.0,
+          "unit": "cm^-3",
+          "value_type": "approximate",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "peak atomic density",
+          "notes": ""
+        },
+        {
+          "quantity": "resonant_optical_depth",
+          "value": 2,
+          "unit": "dimensionless",
+          "value_type": "approximate",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "resonant optical depth",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_size",
+          "value": 250,
+          "unit": "um",
+          "value_type": "approximate",
+          "basis": "1/e2 intensity diameter",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "probe beam size",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "psr_faraday",
+      "claim": "Residual magnetic fields break the opposite-ellipticity symmetry of cold-atom rotation.",
+      "source_id": "main",
+      "locator": "PDF pp. 2, 8",
+      "category": "classical_rotation",
+      "model_implication": "⟦AI⟧ Separate self-rotation from Faraday rotation in slope validation."
+    },
+    {
+      "finding_id": "motion_limit",
+      "claim": "Cloud expansion and probe radiation pressure limit comparison with a static homogeneous model.",
+      "source_id": "main",
+      "locator": "PDF pp. 3, 8",
+      "category": "model_validity",
+      "model_implication": "⟦AI⟧ Do not infer cold-atom noise performance from rotation alone."
+    }
+  ],
+  "ai_notes": []
+}

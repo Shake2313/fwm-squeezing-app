@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Primary-source experimental literature curation",
+  "paper_ids": [
+    "mikhailov_2008_ol",
+    "agha_2010_oe",
+    "barreiro_2011_pra",
+    "horrom_2011_pra",
+    "horrom_2011_jmo",
+    "horrom_2012_jpb",
+    "hsu_2006_pra",
+    "lima_2024_pra",
+    "zhao_2025_sciadv"
+  ],
+  "full_text_papers": 9,
+  "source_access_log": "research_experiments_downloads.json",
+  "queries": [
+    "polarization self rotation squeezed vacuum rubidium experiment low frequency pulsed cold atoms",
+    "atomic noise PSR Hsu2006",
+    "Role of seeding polarization squeezed light 2024",
+    "Ultra-stable high-performance squeezed vacuum 2025"
+  ],
+  "checks": [
+    "Downloaded PDF signatures, SHA256 and page counts",
+    "Read cited apparatus, results, captions and conclusions",
+    "Separated corrected/measured noise and joint operating points",
+    "Retained Agha2010 conflicting anti-squeezing text/caption",
+    "Classical cold PSR and inconclusive noise measurements not called squeezing demonstrations",
+    "Zhao2025 publisher HTML checked through requested browser; full JATS XML archived from Europe PMC with SHA256",
+    "Formal JSON schema: all nine owned records pass",
+    "PDF result pages visually checked: Mikhailov2008 p3; Barreiro2011 p3; Agha2010 p4; Lima2024 p5",
+    "Lima2024 detector correction retained as reported but flagged against the standard linear vacuum-loss relation"
+  ],
+  "pending": [],
+  "screened_context": [
+    {
+      "title": "Polarization squeezing at the audio frequency band for the Rubidium D1 line",
+      "reason": "OPO-generated vacuum combined with coherent light, not PSR generation; possible readout context."
+    }
+  ],
+  "counts": {
+    "papers": 9,
+    "experiments": 16,
+    "quantities": 96
+  }
+}

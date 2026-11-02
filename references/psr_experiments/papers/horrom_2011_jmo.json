@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "paper_id": "horrom_2011_jmo",
+  "title": "Quadrature noise in light propagating through a cold 87Rb atomic gas",
+  "authors": [
+    "Travis Horrom",
+    "Arturo Lezama",
+    "Salim Balik",
+    "Mark D. Havey",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2011,
+  "publication": {
+    "journal": "Journal of Modern Optics",
+    "volume": "58",
+    "issue": "21",
+    "pages": "1936-1941",
+    "doi": "10.1080/09500340.2011.594181",
+    "arxiv_id": "1103.1546",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_odu_cold_atoms",
+  "study_type": "mixed",
+  "topics": [
+    "cold_atoms",
+    "atomic_noise",
+    "finite_RF_spectrum",
+    "null_result",
+    "transit_relaxation"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2011.JMO.21.58.1936.pdf",
+      "path": "sources/horrom_2011_jmo.pdf",
+      "access": "full_text",
+      "version": "published_ifirst_author_hosted",
+      "sha256": "e5a02316f083c99c67602bf320358ac93501a2556b63a9e07090594cfd18036c",
+      "pages": 7,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "cold_noise",
+      "label": "Cold-atom quadrature-noise measurement",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "resonant_optical_depth",
+          "value": 2,
+          "unit": "dimensionless",
+          "value_type": "approximate",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, Sec. 4",
+          "evidence": "resonant optical depth",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1.4,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 3 and Fig. 3 caption",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Fig. 3 caption",
+          "evidence": "resolution bandwidth",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 93,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 3",
+          "evidence": "detector qe",
+          "notes": ""
+        },
+        {
+          "quantity": "homodyne_visibility",
+          "value": 95,
+          "unit": "percent",
+          "value_type": "lower_bound",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. 3",
+          "evidence": "homodyne visibility",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": null,
+          "unit": "dB",
+          "value_type": "not_reported",
+          "basis": "No compelling below-SQL measurement",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 7, Sec. 5",
+          "evidence": "squeezing measured",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "no_compelling_squeezing",
+      "claim": "Phase-dependent noise is resolved, but sub-SQL squeezing is not established.",
+      "source_id": "main",
+      "locator": "PDF p. 7, Sec. 5",
+      "category": "null_result",
+      "model_implication": "⟦AI⟧ Use a null-result target rather than a positive cold-atom benchmark."
+    },
+    {
+      "finding_id": "reset_tradeoff",
+      "claim": "The numerical noise optimum occurs at finite population/coherence reset.",
+      "source_id": "main",
+      "locator": "PDF pp. 3-4, Sec. 2",
+      "category": "atomic_noise",
+      "model_implication": "⟦AI⟧ Test replenishment and decoherence jointly, not monotonic coherence-time improvement."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Source has a publisher cover page; locators count it. This and Horrom2011PRA share apparatus, not independent platforms."
+  ]
+}

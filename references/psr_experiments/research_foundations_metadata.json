@@ -1,0 +1,532 @@
+{
+  "matsko_2002_pra": {
+    "title": [
+      "Vacuum squeezing in atomic media via self-rotation"
+    ],
+    "author": [
+      {
+        "given": "A. B.",
+        "family": "Matsko",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "I.",
+        "family": "Novikova",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "G. R.",
+        "family": "Welch",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "D.",
+        "family": "Budker",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "D. F.",
+        "family": "Kimball",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "S. M.",
+        "family": "Rochester",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2002,
+          10,
+          30
+        ]
+      ]
+    },
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "66",
+    "issue": "4",
+    "page": null,
+    "article-number": "043815",
+    "DOI": "10.1103/physreva.66.043815"
+  },
+  "ries_2003_pra": {
+    "title": [
+      "Experimental vacuum squeezing in rubidium vapor via self-rotation"
+    ],
+    "author": [
+      {
+        "given": "J.",
+        "family": "Ries",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "B.",
+        "family": "Brezger",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "A. I.",
+        "family": "Lvovsky",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2003,
+          8,
+          11
+        ]
+      ]
+    },
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "68",
+    "issue": "2",
+    "page": null,
+    "article-number": "025801",
+    "DOI": "10.1103/physreva.68.025801"
+  },
+  "josse_2003_job": {
+    "title": [
+      "Polarization squeezing in a four-level system"
+    ],
+    "author": [
+      {
+        "given": "V",
+        "family": "Josse",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "A",
+        "family": "Dantan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "A",
+        "family": "Bramati",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "M",
+        "family": "Pinard",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "E",
+        "family": "Giacobino",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2003,
+          8,
+          1
+        ]
+      ]
+    },
+    "container-title": [
+      "Journal of Optics B: Quantum and Semiclassical Optics"
+    ],
+    "volume": "5",
+    "issue": "4",
+    "page": "S513-S522",
+    "article-number": null,
+    "DOI": "10.1088/1464-4266/5/4/358"
+  },
+  "lezama_2008_pra": {
+    "title": [
+      "Numerical investigation of the quantum fluctuations of optical fields transmitted through an atomic medium"
+    ],
+    "author": [
+      {
+        "given": "A.",
+        "family": "Lezama",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "P.",
+        "family": "Valente",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "H.",
+        "family": "Failache",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "M.",
+        "family": "Martinelli",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "P.",
+        "family": "Nussenzveig",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2008,
+          1,
+          11
+        ]
+      ]
+    },
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "77",
+    "issue": "1",
+    "page": null,
+    "article-number": "013806",
+    "DOI": "10.1103/physreva.77.013806"
+  },
+  "lanning_2017_pra": {
+    "title": [
+      "Gaussian-beam-propagation theory for nonlinear optics involving an analytical treatment of orbital-angular-momentum transfer"
+    ],
+    "author": [
+      {
+        "given": "R. Nicholas",
+        "family": "Lanning",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zhihao",
+        "family": "Xiao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mi",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Irina",
+        "family": "Novikova",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Eugeniy E.",
+        "family": "Mikhailov",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jonathan P.",
+        "family": "Dowling",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2017,
+          7,
+          17
+        ]
+      ]
+    },
+    "container-title": [
+      "Physical Review A"
+    ],
+    "volume": "96",
+    "issue": "1",
+    "page": null,
+    "article-number": "013830",
+    "DOI": "10.1103/physreva.96.013830"
+  },
+  "wang_2026_lsa": {
+    "title": [
+      "Large-scale array of squeezed light and synchronization using atomic vapor"
+    ],
+    "author": [
+      {
+        "given": "Lin",
+        "family": "Wang",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Xichang",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Konstantin",
+        "family": "Manannikov",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Nir",
+        "family": "Davidson",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ying",
+        "family": "Hu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Dongdong",
+        "family": "Hao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-0981-9429",
+        "authenticated-orcid": false,
+        "given": "Yanhong",
+        "family": "Xiao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2026,
+          8,
+          26
+        ]
+      ]
+    },
+    "container-title": [
+      "Light: Science &amp; Applications"
+    ],
+    "volume": "15",
+    "issue": "1",
+    "page": null,
+    "article-number": "365",
+    "DOI": "10.1038/s41377-026-02428-w"
+  }
+}

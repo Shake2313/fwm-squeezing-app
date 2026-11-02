@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "paper_id": "li_2022_josab",
+  "title": "Improving sensitivity of an amplitude-modulated magneto-optical atomic magnetometer using squeezed light",
+  "authors": [
+    "Jiahui Li",
+    "Irina Novikova"
+  ],
+  "year": 2022,
+  "publication": {
+    "journal": "Journal of the Optical Society of America B",
+    "volume": "39",
+    "issue": "11",
+    "pages": "2998-3003",
+    "doi": "10.1364/JOSAB.471677",
+    "arxiv_id": "2207.12962",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "magnetometry",
+    "modulation",
+    "technical_noise"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2207.12962",
+      "path": "sources/li_2022_josab.pdf",
+      "access": "full_text",
+      "version": "arxiv_v1_2022-07-26",
+      "sha256": "ac23ce02235bf1afaa879c63b966830a61d85334b2f6e6772f836e92ec00e2f4",
+      "pages": 7,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "amor_operating_point",
+      "label": "AMOR sensing cell and transmitted PSR probe",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 6.5,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "PSR output used as probe",
+          "reference": null,
+          "plane": "magnetometer_input",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "magnetometer_pump_power",
+          "value": 5.6,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "separate amplitude-modulated laser",
+          "reference": null,
+          "plane": "magnetometer_input",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, last paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 40.3,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.3, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "buffer_gas_pressure",
+          "value": 2.5,
+          "unit": "Torr",
+          "value_type": "reported",
+          "basis": "Ne",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, last paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_modulation_frequency",
+          "value": 580,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_pump",
+          "source_id": "main",
+          "locator": "PDF pp.3-4, Figs.3-4",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_before_sensor",
+          "value": 1.9,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below shot noise",
+          "reference": null,
+          "plane": "magnetometer_input",
+          "source_id": "main",
+          "locator": "PDF p.4, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.6,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.4, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "sensitivity_improvement",
+          "value": 15,
+          "unit": "percent",
+          "value_type": "approximate",
+          "basis": "relative sensitivity improvement with squeezed probe",
+          "reference": null,
+          "plane": "magnetometer_readout",
+          "source_id": "main",
+          "locator": "PDF p.5, conclusion",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "sensor_loss",
+      "claim": "Resonant sensor absorption attenuates squeezing; technical noise dominates low-frequency lock-in readout.",
+      "source_id": "main",
+      "locator": "PDF p.4, Fig.4 discussion",
+      "category": "application",
+      "model_implication": "⟦AI⟧ Include sensing-cell loss and measurement-band filtering."
+    },
+    {
+      "finding_id": "density_noise",
+      "claim": "Higher sensor temperature increases excess noise and eventually removes squeezing.",
+      "source_id": "main",
+      "locator": "PDF pp.4-5, Fig.5",
+      "category": "atomic_noise",
+      "model_implication": "⟦AI⟧ Do not equate stronger magnetic response with better noise sensitivity."
+    }
+  ],
+  "ai_notes": []
+}

@@ -3,7 +3,7 @@ Operating-variable audit for the 85Rb D1 double-Lambda FWM mean-field gain and
 gain-referred ideal-law noise diagnostic.  It checks an experimentalist's field
 intuitions against (a) the engine, (b) docs/squeezing_report/
 squeezing_report_v6.tex, and (c) the 10-paper reference DB
-references/fwm_squeezing_paper_parameters.csv.
+archive/fwm_squeezing_paper_parameters.csv (archived legacy snapshot).
 
 CLAIM GATE.  The engine quantity is ``gain_referred_noise_dB``.  ``S_dB`` and
 the ``xi_*`` fields retained below are compatibility aliases, not physical
@@ -150,7 +150,7 @@ def promote_gain_referred_schema(value):
             promote_gain_referred_schema(child)
     return value
 
-# Sim et al. gold reference (references/fwm_squeezing_paper_parameters.csv,
+# Sim et al. gold reference (archive/fwm_squeezing_paper_parameters.csv,
 # is_gold_reference = 1).  This is the closest published point to the user's lab.
 GOLD = dict(D_GHz=0.9, T=394.15, P_pump=0.600, P_probe=8e-6,
             w_pump=530e-6, w_probe=330e-6, L=12.5e-3, angle=0.32,
@@ -689,7 +689,7 @@ def sec_stray():
 # Reference DB
 # ==========================================================================
 def sec_paper_db():
-    path = REPO / "references" / "fwm_squeezing_paper_parameters.csv"
+    path = REPO / "archive" / "fwm_squeezing_paper_parameters.csv"
     with open(path, encoding="utf-8-sig", newline="") as fh:
         rows = list(csv.reader(fh))
     head, body = rows[0], rows[1:]

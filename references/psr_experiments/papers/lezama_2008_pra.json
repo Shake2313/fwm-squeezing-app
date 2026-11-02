@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "paper_id": "lezama_2008_pra",
+  "title": "Numerical investigation of the quantum fluctuations of optical fields transmitted through an atomic medium",
+  "authors": [
+    "A. Lezama",
+    "P. Valente",
+    "H. Failache",
+    "M. Martinelli",
+    "P. Nussenzveig"
+  ],
+  "year": 2008,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "77",
+    "issue": "",
+    "pages": "013806",
+    "doi": "10.1103/PhysRevA.77.013806",
+    "arxiv_id": "0710.0609",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "theory",
+  "topics": [
+    "heisenberg_langevin",
+    "diffusion_matrix",
+    "Zeeman",
+    "Doppler",
+    "noise_spectrum",
+    "entanglement"
+  ],
+  "scope": {
+    "species": "angular_momentum_transition_models",
+    "line": "model_transition",
+    "configuration": "single_pass_psr",
+    "measurement": "orthogonal_vacuum_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Direct PSR mechanism, noise or generation evidence.",
+    "isotope_composition": "not_reported"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/0710.0609",
+      "path": "sources/lezama_2008_pra.pdf",
+      "sha256": "87d91f12e3d49d772feb056706297ef0c44c8003aeb2cf580152df95d1c9ee36",
+      "pages": 12,
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v1_2007-10-02",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "finding_id": "langevin",
+      "claim": "Two-polarization propagation includes Zeeman-resolved atomic Langevin diffusion and field spectra.",
+      "source_id": "main",
+      "locator": "PDF pp. 3-5, Sec. II, Eqs. (1)-(20); Appendix",
+      "category": "noise_model",
+      "model_implication": "⟦AI⟧ Reuse atomic operators while deriving a consistent frequency-dependent diffusion matrix."
+    },
+    {
+      "finding_id": "doppler",
+      "claim": "Velocity classes enter both response and noise propagation.",
+      "source_id": "main",
+      "locator": "PDF pp. 5-6, Sec. II.A, Eqs. (21)-(29)",
+      "category": "Doppler",
+      "model_implication": "⟦AI⟧ Average the response and noise kernels before propagation; do not average squeezing in dB."
+    },
+    {
+      "finding_id": "pump",
+      "claim": "Mean-field depletion is neglected despite propagation of quantum fluctuations.",
+      "source_id": "main",
+      "locator": "PDF p. 4, Sec. II, paragraph after Eqs. (5)-(6)",
+      "category": "approximation",
+      "model_implication": "⟦AI⟧ Add pump evolution separately when extending to appreciable absorption."
+    }
+  ],
+  "ai_notes": []
+}

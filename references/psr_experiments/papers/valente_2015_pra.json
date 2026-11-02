@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "paper_id": "valente_2015_pra",
+  "title": "Experimental characterization of the Gaussian state of squeezed light obtained via single passage through an atomic vapor",
+  "authors": [
+    "P. Valente",
+    "A. Auyuanet",
+    "S. Barreiro",
+    "H. Failache",
+    "A. Lezama"
+  ],
+  "year": 2015,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "91",
+    "issue": "5",
+    "pages": "053848",
+    "doi": "10.1103/PhysRevA.91.053848",
+    "arxiv_id": "1504.03904",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "uruguay_lezama_psr",
+  "study_type": "mixed",
+  "topics": [
+    "stokes_covariance",
+    "gaussianity",
+    "entanglement",
+    "quadrature_angle"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_pure"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1504.03904v2",
+      "path": "sources/valente_2015_pra.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2015-05-06",
+      "sha256": "a1acf891168a42a335c98f914f62c69f32c0924eb1c87ade3396f1eff96461e4",
+      "pages": 8,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "gaussianity_test",
+      "label": "Filtered Stokes fluctuations, Fig.3",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 40,
+          "unit": "mW",
+          "value_type": "approximate",
+          "basis": "total laser power",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.4, Sec.III",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 5.0,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.4, Sec.III",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 50,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.4, Sec.III",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 3,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "digital band-pass center",
+          "reference": null,
+          "plane": "analysis",
+          "source_id": "main",
+          "locator": "PDF p.5, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_bandwidth",
+          "value": 400,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "digital band-pass width",
+          "reference": null,
+          "plane": "analysis",
+          "source_id": "main",
+          "locator": "PDF p.5, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.6,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.4, Sec.IV.A",
+          "evidence": "Value stated at the cited location.",
+          "notes": "No correction for optical losses."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "detuning_covariance_scan",
+      "label": "Covariance and squeezing angle versus detuning, Fig.6",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "analysis_frequency",
+          "value": 2.7,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.5, Sec.IV.C",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.5, Sec.IV.C",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "stokes_tomography",
+      "claim": "Four Stokes variance measurements reconstruct the covariance and its principal axes.",
+      "source_id": "main",
+      "locator": "PDF pp.2-4, Eqs.3-12",
+      "category": "detection",
+      "model_implication": "⟦AI⟧ Use the measured Stokes normalization and covariance rotation as validation targets."
+    },
+    {
+      "finding_id": "gaussian_empirical",
+      "claim": "Gaussian statistics receive empirical support in the measured band, not universal proof.",
+      "source_id": "main",
+      "locator": "PDF pp.4-5, Figs.3-4",
+      "category": "validity",
+      "model_implication": "⟦AI⟧ State the frequency band when applying a Gaussian approximation."
+    },
+    {
+      "finding_id": "two_beam_entanglement",
+      "claim": "Splitting the PSR output permits covariance-based entanglement and discord characterization.",
+      "source_id": "main",
+      "locator": "PDF p.6, Sec.IV.D/Fig.7",
+      "category": "application",
+      "model_implication": "⟦AI⟧ Retain cross-covariances for future two-output calculations."
+    }
+  ],
+  "ai_notes": []
+}

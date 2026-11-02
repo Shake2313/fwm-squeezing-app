@@ -1,0 +1,271 @@
+{
+  "schema_version": 1,
+  "paper_id": "lima_2024_pra",
+  "title": "Role of seeding in the generation of polarization squeezed light by an atomic Kerr medium",
+  "authors": [
+    "Eduardo C. Lima",
+    "Breno Marques",
+    "Marcelo Martinelli",
+    "Luciano S. Cruz"
+  ],
+  "year": 2024,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "110",
+    "issue": "2",
+    "pages": "023704",
+    "doi": "10.1103/PhysRevA.110.023704",
+    "arxiv_id": "",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "ufabc_usp_cruz",
+  "study_type": "mixed",
+  "topics": [
+    "orthogonal_seeding",
+    "stokes_readout",
+    "Kerr_model",
+    "laser_noise",
+    "saturation"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "stokes_polarization",
+    "seed_mode": "weak_orthogonal_seed",
+    "inclusion": "primary",
+    "reason": "PSR-related seeded atomic Kerr polarization squeezing; distinguish from vacuum-input sources.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://repositorio.usp.br/bitstreams/5ab74ca9-3054-48a1-9307-1b9e1becaefc",
+      "path": "sources/lima_2024_pra.pdf",
+      "access": "full_text",
+      "version": "published_institutional_repository",
+      "sha256": "b04c6c9412ede9ba4e4664aa86bfe224b498a7968092ce1b4e37b87d8bff68ea",
+      "pages": 7,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "best_fig5",
+      "label": "Fig. 5 optimized weakly seeded polarization squeezing",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.9,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "reported waist; convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Sec. III",
+          "evidence": "pump beam size",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 91,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. IV",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 11,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Fig. 5 caption",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "detuning_reported",
+          "value": -0.35,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "reported frequency offset",
+          "reference": "87Rb D1 F=2 to Fprime=2",
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Fig. 5 caption",
+          "evidence": "detuning reported",
+          "notes": ""
+        },
+        {
+          "quantity": "quarter_wave_plate_tilt",
+          "value": -18,
+          "unit": "deg",
+          "value_type": "reported",
+          "basis": "mechanical tilt, not quadrature phase",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Fig. 5 caption",
+          "evidence": "quarter wave plate tilt",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 81,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. III",
+          "evidence": "detector qe",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 15,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "blue-square series containing the reported optimum",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 5, Fig. 5 legend and Sec. IV",
+          "evidence": "Series label visually verified.",
+          "notes": "Power label read from legend; no numerical curve digitization."
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 5.2,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. IV",
+          "evidence": "squeezing measured",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.5,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "squeezing_detection_corrected",
+          "value": 6.4,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction; detector quantum-efficiency correction",
+          "reference": null,
+          "plane": "inferred_cell_output_as_reported",
+          "source_id": "main",
+          "locator": "PDF p. 5, Sec. IV",
+          "evidence": "squeezing detection corrected",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.6,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": [
+        "The 15 mW series is identified visually in Fig. 5; optimum temperature and reduction are stated in Sec. IV."
+      ]
+    },
+    {
+      "experiment_id": "seed_fig6",
+      "label": "Fig. 6 controlled seed scan",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "total_input_power",
+          "value": 15,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Seeding",
+          "evidence": "total input power",
+          "notes": ""
+        },
+        {
+          "quantity": "seed_power_ratio_at_plateau",
+          "value": 0.25,
+          "unit": "percent",
+          "value_type": "approximate",
+          "basis": "vertical/horizontal",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5, Seeding",
+          "evidence": "seed power ratio at plateau",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "noise_ratio_at_plateau",
+          "value": 0.41,
+          "unit": "dimensionless",
+          "value_type": "approximate",
+          "basis": "variance/SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 5, Seeding",
+          "evidence": "noise ratio at plateau",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "seed_matters",
+      "claim": "Controlled orthogonal seeding improves measured compression, followed by saturation absent from the simple Kerr model.",
+      "source_id": "main",
+      "locator": "PDF pp. 5-6, Seeding and conclusion",
+      "category": "seeding",
+      "model_implication": "⟦AI⟧ Benchmark seeded data separately from vacuum-input PSR; seed necessity is model-specific."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ The reported 6.4 dB correction is preserved as an author claim; it does not follow Vmeasured = eta*Vout + 1-eta using the stated 81% detector efficiency and 5.2 dB measured reduction. Clarification is needed before calibration use."
+  ]
+}

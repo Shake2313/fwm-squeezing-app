@@ -1,0 +1,83 @@
+[
+  {
+    "paper_id": "zhang_2013_ol",
+    "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2013.ol.38.22.4833.pdf",
+    "path": "sources/zhang_2013_ol.pdf",
+    "sha256": "7244989329fa2bb0dc4b3ed4c09d662088bc4ce079bdb83be3dc49a454db23db",
+    "pages": 4,
+    "bytes": 349168,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "zhang_2016_pra",
+    "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2016.PhysRevA.93.013853.pdf",
+    "path": "sources/zhang_2016_pra.pdf",
+    "sha256": "431a6c31d347ba54418e5c9fad549f6b7098be27602aa446071753d370c20f97",
+    "pages": 8,
+    "bytes": 1257504,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "zhang_2017_pra",
+    "url": "https://arxiv.org/pdf/1705.02914v2",
+    "path": "sources/zhang_2017_pra.pdf",
+    "sha256": "dac3c525b9aa7049279ee7a23f049ed826bd67a1b7d73385e4d09319b2ebd758",
+    "pages": 7,
+    "bytes": 2494743,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "horrom_2012_pra",
+    "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2012.PhysRevA.86.023803.pdf",
+    "path": "sources/horrom_2012_pra.pdf",
+    "sha256": "5dd292e458b2a7d605f1b7508d0677ddc807672dbb3313c3f15df0189f4814d5",
+    "pages": 5,
+    "bytes": 2794919,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "li_2022_josab",
+    "url": "https://arxiv.org/pdf/2207.12962",
+    "path": "sources/li_2022_josab.pdf",
+    "sha256": "ac23ce02235bf1afaa879c63b966830a61d85334b2f6e6772f836e92ec00e2f4",
+    "pages": 7,
+    "bytes": 579871,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "valente_2015_pra",
+    "url": "https://arxiv.org/pdf/1504.03904v2",
+    "path": "sources/valente_2015_pra.pdf",
+    "sha256": "a1acf891168a42a335c98f914f62c69f32c0924eb1c87ade3396f1eff96461e4",
+    "pages": 8,
+    "bytes": 610519,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "horrom_2013_jmo",
+    "url": "https://arxiv.org/pdf/1204.3967",
+    "path": "sources/horrom_2013_jmo.pdf",
+    "sha256": "c881b49db7ba35c3d4bb8dcd4e3b1a267fd2e84ee6f98cd6e1234342f774c351",
+    "pages": 7,
+    "bytes": 317700,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "romanov_2014_pra",
+    "url": "https://arxiv.org/pdf/1310.4815",
+    "path": "sources/romanov_2014_pra.pdf",
+    "sha256": "c830099d80bc2f26a0de124235ee3fb5ee279b0a8ec338611ec976437274b97d",
+    "pages": 5,
+    "bytes": 289955,
+    "status": "downloaded"
+  },
+  {
+    "paper_id": "monsa_2026_prapplied_preprint",
+    "url": "https://arxiv.org/pdf/2507.07672",
+    "path": "sources/monsa_2026_prapplied_preprint.pdf",
+    "sha256": "8555a97c23b4abf4341641a197a41a5c220deaff4b14177da2421c62fdfabfa4",
+    "pages": 11,
+    "bytes": 708889,
+    "status": "downloaded"
+  }
+]

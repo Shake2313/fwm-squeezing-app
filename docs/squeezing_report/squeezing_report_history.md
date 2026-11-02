@@ -134,7 +134,7 @@ v6의 NPZ와 그림에는 full Git SHA·전체 소스 hash가 모두 포함되�
 
 ## Reference CSV의 정정·출처 쟁점
 
-검토 대상은 `references/fwm_squeezing_paper_parameters.csv`의 10개 논문이다. Gold와 Allen은 저장소의 로컬 최종 PDF를 읽었고, 나머지는 공개 원문 또는 저자 공개본으로 대조했다. 원자료의 미확인 항목을 0 또는 독립적으로 측정된 파라미터로 채우지 않는다.
+검토 대상은 [레거시 CSV](../../archive/fwm_squeezing_paper_parameters.csv)의 10개 논문이다. Gold와 Allen은 저장소의 로컬 최종 PDF를 읽었고, 나머지는 공개 원문 또는 저자 공개본으로 대조했다. 원자료의 미확인 항목을 0 또는 독립적으로 측정된 파라미터로 채우지 않는다.
 
 1. **Gold beam-size convention.** 최종 논문은 530/330 µm를 명시적으로 **1/e² radius**라 부른다. CSV의 “README treats ... despite paper wording”이라는 유보는 최종본 문구와 맞지 않는다. 보고서는 반경으로 사용한다. [Sim 최종 원문, Experimental schematic](https://doi.org/10.1038/s41598-025-86479-w).
 

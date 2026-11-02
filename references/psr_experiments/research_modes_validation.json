@@ -1,0 +1,18 @@
+{
+  "origin": "⟦AI⟧ Curator source and record check",
+  "date": "2026-10-30",
+  "status": "PASS",
+  "papers": 9,
+  "source_files": 10,
+  "quantities": 114,
+  "findings": 19,
+  "checks": [
+    "All owned PDF headers/pages/checksums",
+    "All owned observation/findings source IDs and locators",
+    "Range ordering",
+    "Distinct published and preprint Monsa source versions",
+    "Visual inspection: Monsa published p.3; Zhang2013 p.3; Zhang2016 p.1",
+    "Cross-review repair: Zhang2013 vortex beam width left unreported instead of inheriting Gaussian FWHM"
+  ],
+  "errors": []
+}

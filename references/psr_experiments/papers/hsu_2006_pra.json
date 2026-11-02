@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "paper_id": "hsu_2006_pra",
+  "title": "Effect of atomic noise on optical squeezing via polarization self-rotation in a thermal vapor cell",
+  "authors": [
+    "M. T. L. Hsu",
+    "G. Hétet",
+    "A. Peng",
+    "C. C. Harb",
+    "H.-A. Bachor",
+    "M. T. Johnsson",
+    "J. J. Hope",
+    "P. K. Lam",
+    "A. Dantan",
+    "J. Cviklinski",
+    "A. Bramati",
+    "M. Pinard"
+  ],
+  "year": 2006,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "73",
+    "issue": "2",
+    "pages": "023806",
+    "doi": "10.1103/PhysRevA.73.023806",
+    "arxiv_id": "quant-ph/0510165",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "anu_lkb_hsu",
+  "study_type": "mixed",
+  "topics": [
+    "null_result",
+    "atomic_noise",
+    "saturation",
+    "D1_D2_comparison",
+    "spatial_modes"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1_and_D2",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/quant-ph/0510165",
+      "path": "sources/hsu_2006_pra.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2005-10-24",
+      "sha256": "fc61ab7a8aa04fea83736813bd06367fb775cb6cbc478c4653a0da83b74da6bc",
+      "pages": 10,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "anu_noise_scan",
+      "label": "ANU vapor noise measurements",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 72,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. III",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. III",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 425,
+          "unit": "um",
+          "value_type": "approximate",
+          "basis": "reported waist; convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Sec. III",
+          "evidence": "pump beam size",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 94.6,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, Sec. III.B",
+          "evidence": "detector qe",
+          "notes": ""
+        },
+        {
+          "quantity": "homodyne_visibility",
+          "value": 99,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6, Sec. III.B",
+          "evidence": "homodyne visibility",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Figs. 9-11",
+          "evidence": "resolution bandwidth",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 30,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Figs. 9-11",
+          "evidence": "video bandwidth",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": null,
+          "unit": "dB",
+          "value_type": "not_reported",
+          "basis": "No squeezing observed in tested conditions",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF pp. 7, 9, conclusions",
+          "evidence": "squeezing measured",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "Separate scans use 21 or 35 mW and 3 or 6 MHz; these are not a single optimum."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "noise_overwhelms",
+      "claim": "Atomic excess noise prevents squeezing in the tested regimes despite strong classical self-rotation.",
+      "source_id": "main",
+      "locator": "PDF pp. 6-9",
+      "category": "null_result",
+      "model_implication": "⟦AI⟧ Do not validate noise predictions from a measured rotation slope alone."
+    },
+    {
+      "finding_id": "langevin_needed",
+      "claim": "Four-level Langevin analysis contrasts cross-Kerr coupling with optical-pumping and emission noise.",
+      "source_id": "main",
+      "locator": "PDF pp. 7-9",
+      "category": "atomic_noise",
+      "model_implication": "⟦AI⟧ Use this as a failure-case check for a microscopic noise extension."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Numeric locators refer to the ten-page preprint titled Can optical squeezing be generated via polarization self-rotation in a thermal vapour cell?; published title differs. Later positive hot-vapor results restrict the scope of its broad conclusion."
+  ]
+}

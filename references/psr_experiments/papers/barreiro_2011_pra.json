@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "paper_id": "barreiro_2011_pra",
+  "title": "Polarization squeezing of light by single passage through an atomic vapor",
+  "authors": [
+    "S. Barreiro",
+    "P. Valente",
+    "H. Failache",
+    "A. Lezama"
+  ],
+  "year": 2011,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "84",
+    "issue": "3",
+    "pages": "033851",
+    "doi": "10.1103/PhysRevA.84.033851",
+    "arxiv_id": "1107.3158",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "uruguay_lezama",
+  "study_type": "experiment",
+  "topics": [
+    "stokes_readout",
+    "common_path_homodyne",
+    "phase_scan",
+    "saturation"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "stokes_polarization",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1107.3158",
+      "path": "sources/barreiro_2011_pra.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2011-08-31",
+      "sha256": "4559cf5335c724982411e9f606ff24b92bf6dac4814e0c1681b7897e494510e7",
+      "pages": 4,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "best_fig3",
+      "label": "Fig. 3 strongest measured reduction",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 50,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 200,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "waist at 1/e maximum intensity; retained literally",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "pump beam size",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 73,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 30,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3",
+          "evidence": "pump power",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 2.7,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3 caption",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "quadrature_phase",
+          "value": 73,
+          "unit": "deg",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3 caption",
+          "evidence": "quadrature phase",
+          "notes": "",
+          "uncertainty": {
+            "value": 2,
+            "unit": "deg",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "optical_loss",
+          "value": 16,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, loss correction",
+          "evidence": "optical loss",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_loss",
+          "value": 10,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, loss correction",
+          "evidence": "detector loss",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2.9,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 3, text after Fig. 3",
+          "evidence": "squeezing measured",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 4.7,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "inferred_before_losses",
+          "source_id": "main",
+          "locator": "PDF p. 3, loss correction",
+          "evidence": "squeezing loss corrected",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.2,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "common_path",
+      "claim": "A tilted retarder selects generalized Stokes noise in a common optical path.",
+      "source_id": "main",
+      "locator": "PDF pp. 1-2",
+      "category": "readout",
+      "model_implication": "⟦AI⟧ Map the UI phase to S2 cos(theta)+S3 sin(theta)."
+    },
+    {
+      "finding_id": "transition_phase",
+      "claim": "The minimum-noise phase differs among hyperfine transitions.",
+      "source_id": "main",
+      "locator": "PDF p. 3, Fig. 2 discussion",
+      "category": "phase",
+      "model_implication": "⟦AI⟧ Compute squeezing-axis rotation instead of fixing it across detuning."
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,106 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Independent scientific record review by experimental-reference agent",
+  "status": "PASS",
+  "reviewed_paper_ids": [
+    "zhang_2013_ol",
+    "zhang_2016_pra",
+    "zhang_2017_pra",
+    "horrom_2012_pra",
+    "li_2022_josab",
+    "valente_2015_pra",
+    "horrom_2013_jmo",
+    "romanov_2014_ol",
+    "monsa_2026_prapplied"
+  ],
+  "record_sha256": {
+    "zhang_2013_ol": "6d8a17cce716d3a1fd0218f684b2bc5e9023ff8946710b0cfadfcab053a39589",
+    "zhang_2016_pra": "839987549edf6bd8dda88713f929e400a59fc8cd11bcf9813a52d34fc79a1d84",
+    "zhang_2017_pra": "2adbe8a910c2016f60744d6d19ecc7dae7a7cb2124138cafefeb23ab0e095b7a",
+    "horrom_2012_pra": "7f6b0bc90e96a63ca0da317cf08e2ea11054ff56cd953f7a88b50d198c4f75ac",
+    "li_2022_josab": "372f710eb41f3333441283e470233172b3b998bdea30e591bb907904a1003af3",
+    "valente_2015_pra": "41cfbc9e34d5053a0e74dee2b30a142cb5817227c1c8ef9ef9bf34f084a4a0db",
+    "horrom_2013_jmo": "c0de5862c70c04c327f4c1f4ca295ea83985926a1a28154f5950847237b95afd",
+    "romanov_2014_ol": "a7abf916a4718dd238add06765991ec5dbc32a175c0ceb74dfdfdeb7c469ca4f",
+    "monsa_2026_prapplied": "2393a5f6d8dfc835fedce15b93139a353558f28c9c43d78073e87797d90ae735"
+  },
+  "checks": [
+    {
+      "paper_id": "zhang_2013_ol",
+      "detail": "PDF pp.1-3: separate Gaussian and vortex power/density/squeezing optima; detected OAM is matched to the pump/LO; Gaussian FWHM cannot become vortex FWHM."
+    },
+    {
+      "paper_id": "zhang_2016_pra",
+      "detail": "PDF p.1: diameter100um at1/e2, focus6.5cm,66C,-100MHz,1.9dB/11dB, analysis settings matched."
+    },
+    {
+      "paper_id": "zhang_2017_pra",
+      "detail": "PDF pp.2,5: pass counts1/2/4 map to2.0/2.6/2.2dB and distinct densities;2.8dB belongs to two-cell first-vacuum-filtered branch."
+    },
+    {
+      "paper_id": "horrom_2012_pra",
+      "detail": "PDF pp.1-2,5:7mW source vs6mW sensor input, source66C vsNe-buffered sensor separated;500kHz sensitivity condition retained."
+    },
+    {
+      "paper_id": "li_2022_josab",
+      "detail": "PDF pp.2-5:6.5mW probe and5.6mW separate AM pump,40.3C sensor,580kHz modulation,1.9/1.6dB before/after and15% sensitivity improvement matched."
+    },
+    {
+      "paper_id": "valente_2015_pra",
+      "detail": "PDF pp.4-6: Gaussianity test3MHz/400kHz and covariance scan2.7MHz/100kHz separated;1.6dB measured without loss correction; pump40mW explicitly approximate."
+    },
+    {
+      "paper_id": "horrom_2013_jmo",
+      "detail": "PDF pp.2,4-5: two75mmcells distinguished; Fig3=13mW/57C source and3.8mW/50C EIT,50%transmission2MHzFWHM; Fig4 no surviving sub-SQL output."
+    },
+    {
+      "paper_id": "romanov_2014_ol",
+      "detail": "PDF pp.2-4: source10mW/66C and interaction50C separated;3kHz envelope vs500kHz analysis;11±1us advance and loss claim matched."
+    },
+    {
+      "paper_id": "monsa_2026_prapplied",
+      "detail": "Final PDF pp.1-3,5: title/DOI/year checked;75mm50C PSR source distinct from100um100C sensor with250TorrN2+350TorrHe;4±.25/4.5±.35dB and1pT/sqrtHz match publication."
+    }
+  ],
+  "bibliography": "Local PDF title/author/DOI checks and seven successful Crossref metadata checks; two API errors did not affect local-source inspection.",
+  "findings": [
+    {
+      "finding_id": "mode_width_transfer",
+      "priority": 2,
+      "paper_id": "zhang_2013_ol",
+      "record": "vortex_optimum.conditions.pump_beam_size",
+      "status": "resolved",
+      "issue": "0.13±0.01mm FWHM is described for the initial Gaussian beam, then a phase mask changes the profile. Source does not report that same vortex FWHM.",
+      "requested_change": "Mark vortex width not_reported or remove it; retain Gaussian width only as apparatus context.",
+      "source_locator": "PDF p.1 apparatus, p.2 mask/LG distribution, p.3 optimal modes",
+      "resolution": "Vortex width is now null/not_reported with no transferred Gaussian uncertainty; Gaussian geometry remains explicit context.",
+      "resolved_on": "2026-10-30"
+    },
+    {
+      "finding_id": "approximate_power",
+      "priority": 3,
+      "paper_id": "valente_2015_pra",
+      "record": "gaussianity_test.conditions.pump_power",
+      "status": "resolved",
+      "issue": "Source explicitly says approximately40mW, record currently uses reported.",
+      "requested_change": "Set value_type approximate.",
+      "source_locator": "PDF p.4 Sec.III",
+      "resolution": "Final record explicitly sets approximately 40 mW to value_type approximate.",
+      "resolved_on": "2026-10-30"
+    },
+    {
+      "finding_id": "shared_apparatus_group",
+      "priority": 3,
+      "paper_id": "horrom_2012_pra",
+      "record": "apparatus_group",
+      "status": "resolved",
+      "issue": "Horrom2012PRA explicitly reuses Horrom2012JPB source, but cross-batch labels differ william_mary_psr vswilliam_mary_mikhailov.",
+      "requested_change": "Normalize related hot-WM apparatus labels or explicitly link identical source apparatus.",
+      "source_locator": "PDF p.1 Sec.II, Ref.21",
+      "resolution": "Hot William & Mary source records now use william_mary_psr; cold-atom apparatus remains distinct.",
+      "resolved_on": "2026-10-30"
+    }
+  ],
+  "limits": "Targeted original-text and selected numeric/definition review, not exhaustive digitization or experimental reproducibility validation.",
+  "final_check": "All requested corrections verified in canonical records after owner updates; no unresolved scientific record findings in the reviewed scope."
+}

@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "paper_id": "romanov_2014_ol",
+  "title": "Propagation of a squeezed optical field in a medium with superluminal group velocity",
+  "authors": [
+    "Gleb Romanov",
+    "Travis Horrom",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2014,
+  "publication": {
+    "journal": "Optics Letters",
+    "volume": "39",
+    "issue": "4",
+    "pages": "1093-1096",
+    "doi": "10.1364/OL.39.001093",
+    "arxiv_id": "1310.4815",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "propagation",
+    "temporal_modulation",
+    "dispersion",
+    "loss"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1310.4815",
+      "path": "sources/romanov_2014_pra.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2014-01-06",
+      "sha256": "c830099d80bc2f26a0de124235ee3fb5ee279b0a8ec338611ec976437274b97d",
+      "pages": 5,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "psr_source",
+      "label": "Magnetically modulated squeezed source",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 10,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 7.5,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "each of two cells",
+          "reference": null,
+          "plane": "squeezing_and_interaction_cells",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 66,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "degC",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "minimum beam diameter; width convention not stated",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.6,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "maximum_advance",
+      "label": "Maximum modulation advance, Fig.1",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "interaction_temperature",
+          "value": 50,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "interaction_cell",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.1 discussion",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "degC",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "modulation_frequency",
+          "value": 3,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "source_magnetic_field",
+          "source_id": "main",
+          "locator": "PDF p.2, modulation paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 500,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, detection paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 30,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "spectrum_analyzer",
+          "source_id": "main",
+          "locator": "PDF p.2, detection paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "modulation_advance",
+          "value": 11,
+          "unit": "us",
+          "value_type": "reported",
+          "basis": "relative to free-space bypass",
+          "reference": null,
+          "plane": "interaction_output",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.1 discussion",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 1,
+            "unit": "us",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "advance_loss",
+      "claim": "Increasing atomic density advances the noise modulation while reducing squeezing through loss.",
+      "source_id": "main",
+      "locator": "PDF pp.3-4, Figs.5-6",
+      "category": "propagation",
+      "model_implication": "⟦AI⟧ Couple temporal response and noise degradation; this is not superluminal information transfer."
+    }
+  ],
+  "ai_notes": []
+}

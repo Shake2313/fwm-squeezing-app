@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "paper_id": "josse_2003_job",
+  "title": "Polarization squeezing in a four-level system",
+  "authors": [
+    "V. Josse",
+    "A. Dantan",
+    "A. Bramati",
+    "M. Pinard",
+    "E. Giacobino"
+  ],
+  "year": 2003,
+  "publication": {
+    "journal": "Journal of Optics B: Quantum and Semiclassical Optics",
+    "volume": "5",
+    "issue": "",
+    "pages": "S513-S522",
+    "doi": "10.1088/1464-4266/5/4/358",
+    "arxiv_id": "quant-ph/0302142",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "theory",
+  "topics": [
+    "cavity",
+    "cross_kerr",
+    "atomic_noise",
+    "stokes"
+  ],
+  "scope": {
+    "species": "four_level_X_model",
+    "line": "model_transition",
+    "configuration": "cavity_X_system",
+    "measurement": "orthogonal_vacuum_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "context_only",
+    "reason": "Cavity mechanism comparison; not a free-space warm-Rb PSR operating point.",
+    "isotope_composition": "not_reported"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/quant-ph/0302142",
+      "path": "sources/josse_2003_pra.pdf",
+      "sha256": "632207005134c59dc17f7ffcb297b52618293b6229b3909fd7f7fec83e7a9439",
+      "pages": 21,
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v1_2003-02-19",
+      "accessed_on": "2026-10-30",
+      "title_in_source": "Polarization squeezing in a 4-level system"
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "finding_id": "mechanism",
+      "claim": "Optical-pumping self-rotation adds low-frequency noise; crossed Kerr coupling enables higher-frequency vacuum squeezing.",
+      "source_id": "main",
+      "locator": "PDF pp. 12-16, Secs. 5.1-5.3",
+      "category": "noise",
+      "model_implication": "⟦AI⟧ Do not infer quantum-noise suppression from static rotation alone."
+    },
+    {
+      "finding_id": "cavity",
+      "claim": "The calculation includes cavity feedback and polarization-switching thresholds.",
+      "source_id": "main",
+      "locator": "PDF pp. 5-7, Secs. 3.3-3.4; pp. 17-18, Sec. 6",
+      "category": "scope",
+      "model_implication": "⟦AI⟧ Use as a mechanism reference, not a numerical benchmark for single-pass vapor."
+    }
+  ],
+  "ai_notes": []
+}

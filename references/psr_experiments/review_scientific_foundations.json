@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-30",
+  "origin": "⟦AI⟧ Independent targeted scientific review by experimental-reference agent",
+  "status": "PASS",
+  "reviewed_paper_ids": [
+    "matsko_2002_pra",
+    "ries_2003_pra",
+    "josse_2003_job",
+    "lezama_2008_pra",
+    "rochester_2001_pra"
+  ],
+  "record_sha256": {
+    "matsko_2002_pra": "4b4b9b02d65956971ab862901a83c85a836cb437d3a7f6db702fd2d3dbc5e2dd",
+    "ries_2003_pra": "223a8440a0c1dc620afcc7154404fe576f38cb36c0fe1ff1b13948c26f995a98",
+    "josse_2003_job": "1c333a1ae9ad7ecd651dd616878abc9310a1c72f81eef075a6b709bc4e5a578b",
+    "lezama_2008_pra": "443f780638c5ddcefff8a473687d1cdc7de6ca18844f00a43b5822426a029a9a",
+    "rochester_2001_pra": "06b5c0e38f253fce256738db2f6e02b740487fcb37244162bfbd7af028a39078"
+  },
+  "checks": [
+    {
+      "paper_id": "matsko_2002_pra",
+      "source_locators": [
+        "PDF pp. 2-4, Eqs. (1), (12)-(17), (25), (29)",
+        "PDF pp. 7-8, Sec. VI, Figs. 4-5"
+      ],
+      "checks": "Small-ellipticity shear and optimized-model assumptions match. D1/D2 cases retain separate densities and stated 10 mW, 0.03 cm diameter, 10 cm length. Author-specific dB convention is now explicit."
+    },
+    {
+      "paper_id": "ries_2003_pra",
+      "source_locators": [
+        "PDF pp. 2-4, Figs. 3-4"
+      ],
+      "checks": "Measured 0.85±0.05 dB and corrected 1.23±0.07 dB are distinct. Fig. 4 phase scan, absorption-maximum detuning reference, 5 MHz analysis and loss corrections match; 35 mW laser specification is not assigned as cell input power."
+    },
+    {
+      "paper_id": "josse_2003_job",
+      "source_locators": [
+        "PDF pp. 5-7, Secs. 3.3-3.4",
+        "PDF pp. 12-18, Secs. 5.1-6"
+      ],
+      "checks": "Cavity feedback/threshold and low-frequency optical-pumping noise versus higher-frequency crossed-Kerr mechanism match. Stokes-quadrature relation is first order around bright linear polarization. Retained as cavity context, with no free-space numerical benchmark."
+    },
+    {
+      "paper_id": "lezama_2008_pra",
+      "source_locators": [
+        "PDF pp. 3-5, Sec. II, Eqs. (1)-(20)",
+        "PDF pp. 5-6, Sec. II.A, Eqs. (21)-(29)"
+      ],
+      "checks": "Zeeman-resolved two-polarization Langevin propagation, diffusion contribution, independent velocity-class noise and undepleted mean field match. Corrected archived-version section/page locators."
+    },
+    {
+      "paper_id": "rochester_2001_pra",
+      "source_locators": [
+        "PDF pp. 4-5, Sec. II.E",
+        "PDF pp. 6-7, Secs. III-IV"
+      ],
+      "checks": "Multiple-transition Doppler mechanism and longitudinal slice propagation match. Classical apparatus is natural Rb, 7.5 cm × 2.5 cm, residual field <approximately 0.1 mG per direction; no squeezing measurement is inferred."
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "author_specific_db",
+      "priority": 3,
+      "paper_id": "matsko_2002_pra",
+      "status": "resolved",
+      "issue": "Eq. (29) defines an amplitude suppression s, but following text uses 10 log10(s).",
+      "resolution": "Added explicit convention note and removed numeric dB comparison from AI implication in canonical JSON and one-time generator."
+    },
+    {
+      "finding_id": "lezama_version_locators",
+      "priority": 3,
+      "paper_id": "lezama_2008_pra",
+      "status": "resolved",
+      "issue": "Section numbers and undepleted-field page did not match archived arXiv v1.",
+      "resolution": "Changed main theory to Sec. II, velocity subsection to II.A and undepleted-field proof to p. 4 in record and generator."
+    },
+    {
+      "finding_id": "josse_threshold_locator",
+      "priority": 3,
+      "paper_id": "josse_2003_job",
+      "status": "resolved",
+      "issue": "Threshold section heading did not match archived PDF page range.",
+      "resolution": "Changed to pp. 5-7, Secs. 3.3-3.4, retaining Stokes Sec. 6 pointer in record and generator."
+    }
+  ],
+  "source_and_schema_checks": {
+    "matsko_2002_pra": {
+      "sha256": "PASS",
+      "page_count": "PASS",
+      "schema": "PASS"
+    },
+    "ries_2003_pra": {
+      "sha256": "PASS",
+      "page_count": "PASS",
+      "schema": "PASS"
+    },
+    "josse_2003_job": {
+      "sha256": "PASS",
+      "page_count": "PASS",
+      "schema": "PASS"
+    },
+    "lezama_2008_pra": {
+      "sha256": "PASS",
+      "page_count": "PASS",
+      "schema": "PASS"
+    },
+    "rochester_2001_pra": {
+      "sha256": "PASS",
+      "page_count": "PASS",
+      "schema": "PASS"
+    }
+  },
+  "bibliography": "Titles and listed author initials checked against local original first pages; publication metadata retains published year separately from archived arXiv version. Josse archived title uses 4-level while published metadata uses four-level.",
+  "limits": "Targeted source-to-record checks; no claim of reproducing calculations or implementing AI model proposals."
+}

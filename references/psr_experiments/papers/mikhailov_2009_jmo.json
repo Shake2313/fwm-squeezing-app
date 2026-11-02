@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "paper_id": "mikhailov_2009_jmo",
+  "title": "Vacuum squeezing via polarization self-rotation and excess noise in hot Rb vapors",
+  "authors": [
+    "Eugeniy E. Mikhailov",
+    "Arturo Lezama",
+    "Thomas W. Noel",
+    "Irina Novikova"
+  ],
+  "year": 2009,
+  "publication": {
+    "journal": "Journal of Modern Optics",
+    "volume": "56",
+    "issue": "18-19",
+    "pages": "1985-1992",
+    "doi": "10.1080/09500340903159503",
+    "arxiv_id": "0903.3156",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "mixed",
+  "topics": [
+    "atomic_excess_noise",
+    "excited_hyperfine",
+    "Doppler",
+    "frequency",
+    "density_power_map"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "single_pass_psr",
+    "measurement": "orthogonal_vacuum_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Direct PSR mechanism, noise or generation evidence.",
+    "isotope_composition": "isotopically_enriched_87Rb"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/0903.3156",
+      "path": "sources/mikhailov_2009_jmo.pdf",
+      "sha256": "62475e734560295e2f2b5b119dfd997fe9cd79605d20c45b7f3836cfaba2a284",
+      "pages": 6,
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v1_2009-03-18",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "fig1_phase_scan",
+      "label": "Figure 1(c) phase scan",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Experimental Setup",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 59,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1(c)",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_density",
+          "value": 230000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1(c)",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1.36,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1(c)",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 100,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1(c)",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 30,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1(c)",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.175,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "FWHM diameter",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Experimental Setup",
+          "evidence": "Reported for this configuration.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.015,
+            "unit": "mm",
+            "kind": "reported",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "results": [],
+      "notes": []
+    },
+    {
+      "experiment_id": "fig3_density_power",
+      "label": "Joint density/power sweep at F=2 to F-prime=2",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "analysis_frequency",
+          "value": 1.2,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "island",
+      "claim": "Squeezing occupies a small region in density and power; excess noise dominates outside it.",
+      "source_id": "main",
+      "locator": "PDF p. 3, Fig. 3 and discussion",
+      "category": "noise",
+      "model_implication": "⟦AI⟧ Use null-squeezing regions as constraints, alongside extrema."
+    },
+    {
+      "finding_id": "hyperfine",
+      "claim": "Including both excited hyperfine levels changes the predicted squeezing qualitatively.",
+      "source_id": "main",
+      "locator": "PDF p. 4, Fig. 4 and Numerical simulations",
+      "category": "atomic_structure",
+      "model_implication": "⟦AI⟧ Keep off-resonant excited levels in response and Langevin calculations."
+    },
+    {
+      "finding_id": "velocity",
+      "claim": "Far-detuned velocity groups substantially affect low-frequency noise.",
+      "source_id": "main",
+      "locator": "PDF pp. 4-5, Fig. 5 and Doppler discussion",
+      "category": "Doppler",
+      "model_implication": "⟦AI⟧ Check velocity convergence for noise independently of classical rotation."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Figure 3 is retained as a joint sweep; no artificial Cartesian samples or digitized extrema."
+  ]
+}

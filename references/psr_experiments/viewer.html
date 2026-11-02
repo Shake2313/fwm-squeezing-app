@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PSR · Polarization Squeezing 문헌 DB</title>
+<style>
+:root{--ink:#18313d;--muted:#57707d;--line:#d9e3e7;--accent:#21656b;--bg:#f3f6f6}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "Segoe UI","Malgun Gothic",sans-serif}header{background:#183d4a;color:white;padding:34px max(24px,calc((100vw - 1240px)/2));border-bottom:5px solid #79b6b0}header small{color:#b6d9d6;letter-spacing:.1em}h1{font-size:29px;line-height:1.35;margin:9px 0}header p{max-width:920px;color:#d8e7eb;margin-bottom:0}main{max-width:1288px;margin:auto;padding:24px 24px 50px}.stats{display:flex;gap:12px;flex-wrap:wrap}.stat{background:white;border:1px solid var(--line);border-radius:7px;padding:12px 18px;min-width:155px}.stat b{font-size:24px;margin-right:9px}.stat span,.meta,.note{color:var(--muted)}.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:22px 0 12px}input,select,button{font:inherit;padding:9px 11px;border:1px solid #bfd0d8;border-radius:5px;background:white;color:var(--ink)}input{flex:1;min-width:240px}button,summary{cursor:pointer}button:hover{border-color:var(--accent)}a{color:var(--accent);text-underline-offset:3px}.downloads{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;margin-bottom:17px}.notice{border-left:3px solid #90b1ba;padding:8px 13px;font-size:13px;color:var(--muted)}#count{font-size:13px;color:var(--muted);margin:18px 0 9px}.paper{background:white;border:1px solid var(--line);border-radius:9px;margin-bottom:15px;overflow:hidden}.paper-head{padding:20px 23px}h2{font-size:19px;line-height:1.45;margin:9px 0}.meta,.scope{font-size:13px}.scope{margin:7px 0;color:var(--muted)}.badges{display:flex;gap:6px;flex-wrap:wrap}.badge{font-size:11px;background:#edf2f4;border-radius:4px;padding:2px 7px}.primary{background:#e0efec;color:#23665d}.context{background:#f6edda;color:#8d681f}.source-links{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-top:10px}.paper>details{border-top:1px solid var(--line)}summary{padding:12px 23px;font-size:14px;font-weight:600;color:var(--accent)}.detail-body{padding:0 23px 22px}h3{font-size:15px;margin:20px 0 8px}h4{font-size:14px;margin:0 0 7px}.finding{border-left:3px solid #c3d9df;padding:8px 13px;margin:12px 0}.finding p{margin:3px 0;font-size:13px}.finding .implication{color:#385e74}.note{font-size:12px;margin:7px 0}.id{font:11px/1.5 monospace;color:#6d8590;overflow-wrap:anywhere}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:5px}table{border-collapse:collapse;width:100%;min-width:760px;font-size:12px}th{text-align:left;background:#edf3f4;color:#42606b}td,th{padding:8px 10px;vertical-align:top;border-bottom:1px solid #e3ebee}tr:last-child td{border-bottom:0}td:nth-child(1){width:19%}td:nth-child(2){width:15%}td:nth-child(3){width:13%}td:nth-child(4){width:23%}.role{display:block;font-size:10px;color:#7b919c}.source{padding:11px 0;border-bottom:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}.empty{padding:24px;background:white;border:1px solid var(--line)}footer{font-size:12px;color:var(--muted);margin-top:25px}@media(max-width:720px){header{padding:24px 18px}h1{font-size:24px}main{padding:18px 14px}.stat{flex:1;min-width:130px;padding:10px 12px}.paper-head{padding:17px}.detail-body{padding:0 16px 18px}summary{padding:12px 17px}.toolbar input{flex-basis:100%}.toolbar select{max-width:100%}}@media print{header{background:white;color:var(--ink);padding:0}header p{color:var(--muted)}main{padding:0}.toolbar,.downloads{display:none}.paper{break-inside:avoid}.table-wrap{overflow:visible}table{min-width:0}}
+</style>
+</head>
+<body>
+<header><small>POLARIZATION SELF-ROTATION · LITERATURE EVIDENCE</small><h1>PSR · Polarization Squeezing 문헌 DB</h1><p>실험, 미시적 잡음 이론, 검출, 매질 조건과 공간 모드. 논문별 조건·수치·주요 결과를 원문 위치에 연결합니다.</p></header>
+<main>
+<div class="stats" id="stats"></div>
+<div class="toolbar">
+<input id="search" type="search" aria-label="논문 검색" placeholder="제목, 저자, 연도, 실험 조건, 주요 결과 검색">
+<select id="study" aria-label="연구 유형"><option value="all">연구 유형 전체</option><option value="experiment">실험</option><option value="theory">이론</option><option value="mixed">이론·실험</option><option value="review">리뷰</option></select>
+<select id="topic" aria-label="주제"><option value="all">주제 전체</option></select>
+<select id="inclusion" aria-label="포함 범위"><option value="all">포함 범위 전체</option><option value="primary">PSR 핵심 문헌</option><option value="context_only">관련·문맥 문헌</option><option value="excluded">제외 문헌</option></select>
+<button id="expand" type="button">근거 모두 펼치기</button>
+</div>
+<nav class="downloads" aria-label="데이터 다운로드"><a href="papers.csv">논문 CSV</a><a href="experiments.csv">실험·계산 조건 CSV</a><a href="observations.csv">수치·출처 CSV</a><a href="findings.csv">주요 결과 CSV</a><a href="database.json">전체 JSON</a><a href="README.md">자료 안내</a><a href="SCHEMA.md">구조·규약</a><a href="SEARCH.md">검색 기록</a><a href="REVIEW.md">검수 기록</a><a href="validation.json">검증 결과</a></nav>
+<p class="notice">Squeezing은 SQL 아래 감소량을 양수 dB로 기록합니다. 직접 측정·전자잡음 차감·손실 보정은 별도 항목입니다. 원문 미확보 근거는 metadata_only로 표시합니다. ⟦AI⟧ 모델 제안은 논문의 관측과 구분합니다.</p>
+<div id="count" role="status" aria-live="polite"></div><div id="papers"></div>
+<footer>원본 JSON → CSV·검색 HTML 자동 생성. 원문 판본·측정 기준면·수치 유형을 함께 확인하세요.</footer>
+</main>
+<script id="data" type="application/json">__DB_DATA__</script>
+<script id="receipt" type="application/json">__DB_RECEIPT__</script>
+<script>
+'use strict';
+const db=JSON.parse(document.getElementById('data').textContent);
+const receipt=JSON.parse(document.getElementById('receipt').textContent);
+const $=id=>document.getElementById(id);
+const studyLabels={experiment:'실험',theory:'이론',mixed:'이론·실험',review:'리뷰'};
+const typeLabels={reported:'보고값',approximate:'근삿값',range:'구간',lower_bound:'하한',upper_bound:'상한',derived:'환산값',digitized:'그림 추출',not_reported:'미보고'};
+const quantityLabels={squeezing_measured:'측정 squeezing',squeezing_electronic_noise_subtracted:'전자잡음 차감 squeezing',squeezing_loss_corrected:'손실 보정 squeezing',antisqueezing_measured:'측정 anti-squeezing',temperature:'셀 온도',cell_length:'셀 길이',pump_power:'펌프 파워',analysis_frequency:'분석 주파수',resolution_bandwidth:'RBW',video_bandwidth:'VBW',detector_qe:'검출기 QE',detection_efficiency:'검출 효율',optical_transmission:'광학 투과율'};
+function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
+function link(text,url){const a=node('a',text);if(/^(https?:\/\/|\.\.?\/|sources\/|papers\/)/.test(url||'')){a.href=url;a.target='_blank';a.rel='noopener'}return a}
+function notes(parent,items){for(const item of items||[]){parent.append(node('p',typeof item==='string'?item:JSON.stringify(item),'note'))}}
+function verification(item,source){return item.verification||(source&&source.access==='full_text'?'full_text_checked':'metadata_only')}
+function sourceLink(source,locator){let url=source.path||source.url;const page=(locator||'').match(/(?:PDF\s*)?p(?:age)?\.?\s*(\d+)/i);if(page&&source.path&&source.path.toLowerCase().endsWith('.pdf'))url+='#page='+page[1];return link(locator||source.source_id,url)}
+function fmt(q){if(q.value_type==='not_reported')return '미보고';const value=q.value_type==='range'?`${q.lower} … ${q.upper}`:q.value;const unit={degC:'°C',um:'µm',uW:'µW',percent:'%','1':''}[q.unit]??q.unit??'';let text=({approximate:'≈',lower_bound:'≥',upper_bound:'≤'}[q.value_type]||'')+value+' '+unit;if(q.uncertainty&&q.uncertainty.value!==undefined)text+=` ± ${q.uncertainty.value} ${q.uncertainty.unit||q.unit||''}`;return text.trim()}
+function quantityTable(p,exp){
+  const wrap=node('div',undefined,'table-wrap'),table=node('table'),head=node('thead'),tr=node('tr');
+  for(const label of ['항목','값','유형·검수','정의·기준면','원문 위치·근거'])tr.append(node('th',label));head.append(tr);table.append(head);
+  const body=node('tbody'),sources=new Map(p.sources.map(s=>[s.source_id,s]));
+  for(const role of ['conditions','results'])for(const q of exp[role]||[]){
+    const row=node('tr'),name=node('td');name.append(node('span',role==='conditions'?'조건':'결과','role'),node('span',quantityLabels[q.quantity]||q.quantity));row.append(name,node('td',fmt(q)));
+    const source=sources.get(q.source_id),type=node('td',typeLabels[q.value_type]||q.value_type);if(q.value_type!=='not_reported')type.append(node('div',verification(q,source),'note'));row.append(type);
+    const basis=node('td',[q.basis,q.reference,q.plane].filter(Boolean).join(' · '));if(q.derivation)basis.append(node('div',q.derivation.formula,'note'));row.append(basis);
+    const evidence=node('td');if(source)evidence.append(sourceLink(source,q.locator));if(q.evidence)evidence.append(node('p',q.evidence,'note'));if(q.notes)notes(evidence,Array.isArray(q.notes)?q.notes:[q.notes]);row.append(evidence);body.append(row);
+  }
+  table.append(body);wrap.append(table);return wrap;
+}
+function paperCard(p){
+  const card=node('article',undefined,'paper');card.dataset.paperId=p.paper_id;
+  const head=node('div',undefined,'paper-head'),badges=node('div',undefined,'badges'),scope=p.scope;
+  for(const text of [p.year,studyLabels[p.study_type]||p.study_type,...p.topics])badges.append(node('span',text,'badge'));
+  badges.append(node('span',scope.inclusion==='primary'?'PSR 핵심':scope.inclusion==='context_only'?'관련·문맥':'제외','badge '+(scope.inclusion==='primary'?'primary':'context')));
+  if(!p.sources.some(s=>s.access==='full_text'))badges.append(node('span','원문 미확보','badge context'));
+  head.append(badges,node('h2',p.title),node('div',p.authors.join(', ')+' · '+[p.publication.journal,p.publication.volume,p.publication.pages,p.publication.status].filter(Boolean).join(' '),'meta'));
+  head.append(node('p',[scope.species,scope.line,scope.configuration,scope.measurement,scope.seed_mode?'입력 모드: '+scope.seed_mode:'',p.apparatus_group?'장치 그룹: '+p.apparatus_group:''].filter(Boolean).join(' · '),'scope'),node('p',scope.reason,'scope'));
+  const links=node('div',undefined,'source-links');if(p.publication.doi)links.append(link('DOI','https://doi.org/'+p.publication.doi.replace(/^https?:\/\/doi\.org\//,'')));
+  for(const source of p.sources)links.append(link(source.version+' · '+source.access,source.path||source.url));links.append(link('원본 JSON','papers/'+p.paper_id+'.json'));head.append(links);card.append(head);
+  const details=node('details');details.append(node('summary',`${p.findings.length}개 주요 결과 · ${p.experiments.length}개 실험·계산 조건`));const content=node('div',undefined,'detail-body'),sources=new Map(p.sources.map(s=>[s.source_id,s]));
+  if(p.findings.length)content.append(node('h3','주요 결과와 모델 관련성'));
+  for(const finding of p.findings){const block=node('section',undefined,'finding'),source=sources.get(finding.source_id);block.append(node('div',finding.category+' · '+verification(finding,source),'id'),node('p',finding.claim));if(source)block.append(sourceLink(source,finding.locator));if(finding.model_implication)block.append(node('p','⟦AI⟧ 모델 제안: '+finding.model_implication.replace(/^\s*⟦AI⟧\s*/,''),'implication'));content.append(block)}
+  const metadataLabels={species:'원자종',line:'전이선',configuration:'구성',measurement:'관측량',seed_mode:'입력 모드',apparatus_group:'장치 그룹'};
+  for(const exp of p.experiments){const block=node('section');block.append(node('h3',exp.label),node('p',exp.kind+' · '+exp.experiment_id,'id'));const overrides=Object.entries(metadataLabels).filter(([key])=>Object.prototype.hasOwnProperty.call(exp,key)).map(([key,label])=>label+': '+(exp[key]??'미지정'));if(overrides.length)block.append(node('p',overrides.join(' · '),'scope'));if((exp.conditions||[]).length+(exp.results||[]).length)block.append(quantityTable(p,exp));notes(block,exp.notes);content.append(block)}
+  if(p.ai_notes&&p.ai_notes.length){content.append(node('h3','⟦AI⟧ 자료 검토'));notes(content,p.ai_notes)}
+  const sourceDetails=node('details');sourceDetails.append(node('summary','원문 버전·로컬 파일·해시'));
+  for(const source of p.sources){const block=node('div',undefined,'source');block.append(link(source.url,source.url),node('div',[source.version,source.access,source.path||'로컬 snapshot 없음',source.pages?source.pages+' pages':'',source.accessed_on].filter(Boolean).join(' · ')),node('div','SHA-256 '+(source.sha256||'미저장'),'id'));if(source.access_note)block.append(node('p',source.access_note,'note'));if(source.notes)notes(block,Array.isArray(source.notes)?source.notes:[source.notes]);sourceDetails.append(block)}
+  content.append(sourceDetails);details.append(content);card.append(details);return card;
+}
+let expanded=false;
+function render(){const term=$('search').value.trim().toLowerCase(),study=$('study').value,topic=$('topic').value,inclusion=$('inclusion').value;const filtered=db.filter(p=>(study==='all'||p.study_type===study)&&(topic==='all'||p.topics.includes(topic))&&(inclusion==='all'||p.scope.inclusion===inclusion)&&(!term||JSON.stringify(p).toLowerCase().includes(term))).sort((a,b)=>b.year-a.year||a.paper_id.localeCompare(b.paper_id));$('papers').replaceChildren(...filtered.map(paperCard));if(!filtered.length)$('papers').append(node('div','검색 결과가 없습니다.','empty'));$('count').textContent=`${filtered.length} / ${db.length}편 표시 · 구조·출처 검증 ${receipt.status}`;document.querySelectorAll('.paper > details').forEach(d=>d.open=expanded)}
+for(const topic of [...new Set(db.flatMap(p=>p.topics))].sort()){$('topic').append(node('option',topic));$('topic').lastChild.value=topic}
+for(const [value,label]of [[db.length,'논문'],[receipt.full_text_paper_count,'원문 확인 논문'],[receipt.finding_count,'주요 결과'],[receipt.quantity_count,'수치·미보고 항목']]){const box=node('div',undefined,'stat');box.append(node('b',value),node('span',label));$('stats').append(box)}
+$('search').addEventListener('input',render);for(const id of ['study','topic','inclusion'])$(id).addEventListener('change',render);$('expand').addEventListener('click',()=>{expanded=!expanded;$('expand').textContent=expanded?'근거 모두 접기':'근거 모두 펼치기';document.querySelectorAll('.paper > details').forEach(d=>d.open=expanded)});render();
+</script>
+</body>
+</html>

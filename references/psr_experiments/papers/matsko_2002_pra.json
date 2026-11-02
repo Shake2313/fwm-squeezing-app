@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "paper_id": "matsko_2002_pra",
+  "title": "Vacuum squeezing in atomic media via self-rotation",
+  "authors": [
+    "A. B. Matsko",
+    "I. Novikova",
+    "G. R. Welch",
+    "D. Budker",
+    "D. F. Kimball",
+    "S. M. Rochester"
+  ],
+  "year": 2002,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "66",
+    "issue": "",
+    "pages": "043815",
+    "doi": "10.1103/PhysRevA.66.043815",
+    "arxiv_id": "quant-ph/0112072",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "study_type": "theory",
+  "topics": [
+    "foundational_theory",
+    "classical_shear",
+    "absorption",
+    "hyperfine_structure",
+    "Doppler",
+    "buffer_gas",
+    "wall_coating"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1/D2",
+    "configuration": "single_pass_psr",
+    "measurement": "orthogonal_vacuum_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Direct PSR mechanism, noise or generation evidence.",
+    "isotope_composition": "not_reported"
+  },
+  "sources": [
+    {
+      "url": "https://arxiv.org/pdf/quant-ph/0112072",
+      "path": "sources/matsko_2002_pra.pdf",
+      "sha256": "e00b40dea359f445fa423487e000406dc732730f5331bf915a927f5dea04c5ec",
+      "pages": 10,
+      "source_id": "main",
+      "access": "full_text",
+      "version": "arxiv_v2_2002-07-17",
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "model_d1",
+      "label": "D1 model example, Fig. 4",
+      "kind": "model_case",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 10,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_input",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 4 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.03,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "reported diameter; no radius convention inferred",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 4 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 10,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_medium",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 4 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_density",
+          "value": 1000000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_medium",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 4 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": [],
+      "line": "D1"
+    },
+    {
+      "experiment_id": "model_d2",
+      "label": "D2 model example, Fig. 5",
+      "kind": "model_case",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 10,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_input",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 5 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.03,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "reported diameter; no radius convention inferred",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 5 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 10,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_medium",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 5 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_density",
+          "value": 200000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "model_medium",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 5 and Sec. VI",
+          "evidence": "Reported for this configuration.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": [],
+      "line": "D2"
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "shear",
+      "claim": "Small-ellipticity rotation produces a phase-dependent vacuum variance through gL.",
+      "source_id": "main",
+      "locator": "PDF pp. 2-4, Eqs. (1), (12)-(17), (25)",
+      "category": "theory",
+      "model_implication": "⟦AI⟧ Retain the ellipticity and quadrature convention with the shear coefficient."
+    },
+    {
+      "finding_id": "validity",
+      "claim": "The optimized Rb estimate uses large gL, small absorption and separately treated ground hyperfine manifolds.",
+      "source_id": "main",
+      "locator": "PDF pp. 7-8, Sec. VI",
+      "category": "approximation",
+      "model_implication": "⟦AI⟧ Do not treat the optimized prediction as measured data or as a finite-frequency atomic-noise calculation."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Published metadata; evidence locators refer to the archived arXiv v2. Later noise-inclusive papers are required for comparison.",
+    "⟦AI⟧ Source PDF p. 4, Eq. (29) defines s = sqrt(Vvac/Vmin), while the subsequent text uses 10 log10(s). This author-specific dB convention is retained and is not imported as standard measured noise-power dB."
+  ]
+}

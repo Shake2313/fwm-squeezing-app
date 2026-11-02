@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "paper_id": "horrom_2012_pra",
+  "title": "Quantum-enhanced magnetometer with low-frequency squeezing",
+  "authors": [
+    "Travis Horrom",
+    "Robinjeet Singh",
+    "Jonathan P. Dowling",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2012,
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "86",
+    "issue": "2",
+    "pages": "023803",
+    "doi": "10.1103/PhysRevA.86.023803",
+    "arxiv_id": "1202.3831",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "magnetometry",
+    "technical_noise",
+    "low_frequency"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2012.PhysRevA.86.023803.pdf",
+      "path": "sources/horrom_2012_pra.pdf",
+      "access": "full_text",
+      "version": "published",
+      "sha256": "5dd292e458b2a7d605f1b7508d0677ddc807672dbb3313c3f15df0189f4814d5",
+      "pages": 5,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "squeezer",
+      "label": "PSR source before the separate magnetometer",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 7,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 66,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 540000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 100,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "reported waist, radius/diameter not specified",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_detuning",
+          "value": 0,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "laser minus 87Rb D1 Fg=2 to Fe=2",
+          "reference": "87Rb D1 Fg=2 to Fe=2",
+          "plane": "laser",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 2,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.1, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.35,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": [
+        "Lowest-frequency suppression requires accounting for detection noise."
+      ]
+    },
+    {
+      "experiment_id": "magnetometer_density_sweep",
+      "label": "Separate NMOR cell, Figs.4-8",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 6,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_input",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "buffer_gas_pressure",
+          "value": 2.5,
+          "unit": "Torr",
+          "value_type": "reported",
+          "basis": "Ne",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, Sec.II",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": null,
+          "unit": "degC",
+          "value_type": "range",
+          "basis": "",
+          "reference": null,
+          "plane": "magnetometer_cell",
+          "source_id": "main",
+          "locator": "PDF p.3, Fig.4 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "lower": 25,
+          "upper": 70
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 500,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "sensitivity comparison",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.5, Fig.8 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "rin_limit",
+      "claim": "Residual laser intensity noise prevents truly shot-noise-limited detection below approximately 200 kHz.",
+      "source_id": "main",
+      "locator": "PDF pp.2-3, Sec.II",
+      "category": "technical_noise",
+      "model_implication": "⟦AI⟧ Separate source covariance from detector and pump technical noise."
+    },
+    {
+      "finding_id": "density_limit",
+      "claim": "At high magnetometer density, squeezing advantage disappears and the squeezed probe can be noisier.",
+      "source_id": "main",
+      "locator": "PDF p.4, Figs.5-8",
+      "category": "application",
+      "model_implication": "⟦AI⟧ Propagate the quantum and technical noise through the sensing cell."
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "paper_id": "matsko_2002_pra",
+    "url": "https://arxiv.org/pdf/quant-ph/0112072",
+    "path": "sources/matsko_2002_pra.pdf",
+    "sha256": "e00b40dea359f445fa423487e000406dc732730f5331bf915a927f5dea04c5ec",
+    "pages": 10
+  },
+  {
+    "paper_id": "ries_2003_pra",
+    "url": "https://arxiv.org/pdf/quant-ph/0303109",
+    "path": "sources/ries_2003_pra.pdf",
+    "sha256": "5df8295dd264d932aade37f3b0c78fcc56f7f595830f1f469ac07b649cc74e89",
+    "pages": 4
+  },
+  {
+    "paper_id": "josse_2003_pra",
+    "url": "https://arxiv.org/pdf/quant-ph/0302142",
+    "path": "sources/josse_2003_pra.pdf",
+    "sha256": "632207005134c59dc17f7ffcb297b52618293b6229b3909fd7f7fec83e7a9439",
+    "pages": 21
+  },
+  {
+    "paper_id": "lezama_2008_pra",
+    "url": "https://arxiv.org/pdf/0710.0609",
+    "path": "sources/lezama_2008_pra.pdf",
+    "sha256": "87d91f12e3d49d772feb056706297ef0c44c8003aeb2cf580152df95d1c9ee36",
+    "pages": 12
+  },
+  {
+    "paper_id": "mikhailov_2009_jmo",
+    "url": "https://arxiv.org/pdf/0903.3156",
+    "path": "sources/mikhailov_2009_jmo.pdf",
+    "sha256": "62475e734560295e2f2b5b119dfd997fe9cd79605d20c45b7f3836cfaba2a284",
+    "pages": 6
+  },
+  {
+    "paper_id": "novikova_2015_pra",
+    "url": "https://arxiv.org/pdf/1410.3810",
+    "path": "sources/novikova_2015_pra.pdf",
+    "pages": 4,
+    "sha256": "c327ea266408f4832a621db0e5512023c69b1d6eac61e84b503960cc6270242d"
+  },
+  {
+    "paper_id": "lanning_2017_pra",
+    "url": "https://arxiv.org/pdf/1702.01095",
+    "path": "sources/lanning_2017_pra.pdf",
+    "pages": 10,
+    "sha256": "34db4e3b559a0468db69e454bc3b040a58270bcfe7d78aa1d7c464f514500161"
+  },
+  {
+    "paper_id": "wang_2026_lsa",
+    "url": "https://www.nature.com/articles/s41377-026-02428-w.pdf",
+    "path": "sources/wang_2026_lsa.pdf",
+    "pages": 10,
+    "sha256": "ef870537d6f250d2d959b8680b6ca616e4b999a839e0988d7acb614d3f8d4635"
+  },
+  {
+    "paper_id": "rochester_2001_pra",
+    "url": "https://journals.aps.org/pra/pdf/10.1103/PhysRevA.63.043814",
+    "path": "sources/rochester_2001_pra.pdf",
+    "pages": 10,
+    "sha256": "952e69727631331eb428788998947044bd5beada44c9b5192c2a76577f2318ff",
+    "access_method": "browser"
+  }
+]

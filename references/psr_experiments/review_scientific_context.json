@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-10-30",
+  "reviewer": "independent_psr_modes_noise_agent",
+  "provenance": "⟦AI⟧ Independent source-to-record scientific review.",
+  "status": "PASS",
+  "scope": "Three contextual records plus Mikhailov2009 physical conditions and findings.",
+  "coverage": [
+    {
+      "paper_id": "novikova_2015_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "checks": [
+        "coated-cell dimensions and isotope",
+        "noise/mean-response distinction",
+        "readout signal-to-noise tradeoff"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "lanning_2017_pra",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        1,
+        2,
+        7
+      ],
+      "checks": [
+        "first Born and weak-field assumptions",
+        "classical lossless/dispersionless scope",
+        "preprint title distinguished"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "wang_2026_lsa",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9
+      ],
+      "checks": [
+        "30-channel optimum and measurement bandwidth",
+        "atomic transport and wall coating",
+        "limited synchronization claim"
+      ],
+      "result": "PASS"
+    },
+    {
+      "paper_id": "mikhailov_2009_jmo",
+      "source_id": "main",
+      "pdf_pages_reviewed": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "checks": [
+        "Fig.1 phase-scan conditions",
+        "density/power squeezing region",
+        "excited hyperfine and Doppler noise findings"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "findings": [
+    {
+      "paper_id": "novikova_2015_pra",
+      "priority": "P3",
+      "issue": "Explicit enriched-isotope statement was recorded as not_reported.",
+      "locator": "PDF p.2, apparatus",
+      "resolution": "scope.isotope_composition set to enriched_87Rb.",
+      "status": "resolved"
+    },
+    {
+      "paper_id": "wang_2026_lsa",
+      "priority": "P3",
+      "issue": "Dynamic phase-locking limitation continues on the next page.",
+      "locator": "PDF pp.5-6",
+      "resolution": "Finding locator extended through p.6.",
+      "status": "resolved"
+    },
+    {
+      "paper_id": "mikhailov_2009_jmo",
+      "priority": "P3",
+      "issue": "Far-detuned-noise locator included an unrelated buffer-gas figure.",
+      "locator": "PDF pp.4-5, Fig.5",
+      "resolution": "Locator now points to Fig.5 and Doppler discussion.",
+      "status": "resolved"
+    }
+  ],
+  "checks": [
+    "All four local PDF hashes/page counts match source records.",
+    "Matching curator-script fields updated without executing the script."
+  ],
+  "limits": [
+    "Selected semantic review; no curve digitization or numerical reproduction.",
+    "Context-only classification is a database benchmarking boundary, not denial of PSR mechanism."
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "paper_id": "mikhailov_2008_ol",
+  "title": "Low-frequency vacuum squeezing via polarization self-rotation in Rb vapor",
+  "authors": [
+    "Eugeniy E. Mikhailov",
+    "Irina Novikova"
+  ],
+  "year": 2008,
+  "publication": {
+    "journal": "Optics Letters",
+    "volume": "33",
+    "issue": "11",
+    "pages": "1213-1215",
+    "doi": "10.1364/OL.33.001213",
+    "arxiv_id": "0802.1558",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "low_frequency",
+    "buffer_gas",
+    "homodyne",
+    "power_dependence"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR optical squeezing experiment.",
+    "isotope_composition": "enriched_87Rb"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/0802.1558",
+      "path": "sources/mikhailov_2008_ol.pdf",
+      "access": "full_text",
+      "version": "arxiv_v1_2008-02-12",
+      "sha256": "924dbca45f4031007837622d6e237dc8ce8ec4b4bb0c6ccaf58b5560b3f560c9",
+      "pages": 4,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "best_fig3",
+      "label": "Fig. 3 broadband optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 66,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "buffer_gas_pressure",
+          "value": 2.5,
+          "unit": "Torr",
+          "value_type": "reported",
+          "basis": "Ne",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "buffer gas pressure",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.175,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "FWHM diameter",
+          "reference": null,
+          "plane": "cell_center",
+          "source_id": "main",
+          "locator": "PDF p. 2, apparatus",
+          "evidence": "pump beam size",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.015,
+            "unit": "mm",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "pump_power",
+          "value": 4.15,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3(I) caption",
+          "evidence": "pump power",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 400,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, conclusion",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "detuning_reported",
+          "value": 100,
+          "unit": "MHz",
+          "value_type": "approximate",
+          "basis": "blue detuning",
+          "reference": "87Rb D1 Fg=2 to Fe=2",
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 2-3, Fig. 3 caption",
+          "evidence": "detuning reported",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 87,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, balanced detector",
+          "evidence": "detector qe",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 0.87,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p. 3, conclusion",
+          "evidence": "squeezing measured",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.02,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "low_frequency_fig3ii",
+      "label": "Fig. 3(II) low-frequency spectrum",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 1.54,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 3(II) caption",
+          "evidence": "pump power",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "lowest_squeezed_sideband_frequency",
+          "value": 30,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, low-frequency discussion",
+          "evidence": "lowest squeezed sideband frequency",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "buffer_lowfreq",
+      "claim": "Squeezing extends into low sideband frequencies with a Ne-buffered cell.",
+      "source_id": "main",
+      "locator": "PDF pp. 2-3",
+      "category": "medium",
+      "model_implication": "⟦AI⟧ Treat buffer-gas and frequency dependence as explicit model inputs."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ PDF carries a later compilation date; publication year and arXiv version follow bibliographic metadata."
+  ]
+}

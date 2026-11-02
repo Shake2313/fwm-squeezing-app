@@ -52,3 +52,7 @@ tools/thermal_campaign_*.py -text whitespace=blank-at-eol,blank-at-eof,space-bef
 "docs/squeezing_report/squeezing_report_v3.tex" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 "docs/squeezing_report/squeezing_report_v4.tex" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 "docs/squeezing_report/squeezing_report_v6.tex" -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Preserve literature evidence hashes and the archived CSV byte for byte.
+references/psr_experiments/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+archive/fwm_squeezing_paper_parameters.csv -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "paper_id": "zhang_2013_ol",
+  "title": "Generating squeezed vacuum field with nonzero orbital angular momentum with atomic ensembles",
+  "authors": [
+    "Mi Zhang",
+    "Joseph Soultanis",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2013,
+  "publication": {
+    "journal": "Optics Letters",
+    "volume": "38",
+    "issue": "22",
+    "pages": "4833-4836",
+    "doi": "10.1364/OL.38.004833",
+    "arxiv_id": "1310.5594",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "experiment",
+  "topics": [
+    "spatial_modes",
+    "orbital_angular_momentum",
+    "self_defocusing"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://physics.wm.edu/~evmik/cv_related/Mikhailov_pubs/2013.ol.38.22.4833.pdf",
+      "path": "sources/zhang_2013_ol.pdf",
+      "access": "full_text",
+      "version": "published",
+      "sha256": "7244989329fa2bb0dc4b3ed4c09d662088bc4ce079bdb83be3dc49a454db23db",
+      "pages": 4,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "gaussian_optimum",
+      "label": "Gaussian pump optimum, Fig.3(a)",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 10,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "cell length",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, apparatus",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": 0.13,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "FWHM; not a 1/e2 radius",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.1, focal spot",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.01,
+            "unit": "mm",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "noise sideband",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 10.5,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "Gaussian pump",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.2, optimum paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 2700000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.2, optimum paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.8,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, optimum paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.2,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "vortex_optimum",
+      "label": "First-order Laguerre-Gaussian pump optimum",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 10,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "cell length",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.1, apparatus",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_beam_size",
+          "value": null,
+          "unit": "mm",
+          "value_type": "not_reported",
+          "basis": "LG vortex width not independently reported",
+          "reference": null,
+          "plane": "cell_focus",
+          "source_id": "main",
+          "locator": "PDF p.1, Gaussian focal spot and vortex generation",
+          "evidence": "Reported FWHM belongs to the incident Gaussian geometry.",
+          "notes": "Do not transfer the Gaussian FWHM to the vortex intensity profile."
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "noise sideband",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.2, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 14.7,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "vortex pump",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p.3, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "atomic_number_density",
+          "value": 1800000000000.0,
+          "unit": "cm^-3",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "vapor_cell",
+          "source_id": "main",
+          "locator": "PDF p.3, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 300000000000.0,
+            "unit": "cm^-3",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 1.7,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive noise-power reduction below shot noise",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "PDF p.3, first paragraph",
+          "evidence": "Value stated at the cited location.",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.2,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "mode_matching",
+      "claim": "OAM-matched local oscillator detects comparable squeezing at different power/density optima.",
+      "source_id": "main",
+      "locator": "PDF pp.2-3, Figs.3-4",
+      "category": "spatial_modes",
+      "model_implication": "⟦AI⟧ Track pump profile and detection-mode overlap."
+    },
+    {
+      "finding_id": "defocusing_limit",
+      "claim": "Beam expansion alone did not explain squeezing deterioration; differential mode mismatch remained unresolved.",
+      "source_id": "main",
+      "locator": "PDF pp.3-4, discussion/conclusion",
+      "category": "validity",
+      "model_implication": "⟦AI⟧ Do not replace spatial dynamics with a beam-size loss rule."
+    }
+  ],
+  "ai_notes": []
+}

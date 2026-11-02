@@ -4,7 +4,7 @@
   "purpose": "Frozen source-gain calibration and conditional literature comparison for the Fast/Balanced temporary gain closure",
   "sources": {
     "canonical_csv": {
-      "path": "references/fwm_squeezing_paper_parameters.csv",
+      "path": "archive/fwm_squeezing_paper_parameters.csv",
       "role": "repository compilation; values can belong to different measurement groups"
     },
     "defaults": {

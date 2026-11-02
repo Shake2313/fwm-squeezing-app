@@ -11,7 +11,7 @@
 
 - 엔진 — GABES hardened Ultra (η = 0.8694, δ 격자 5 MHz, gap gate [0.5, 1.5])
 - 이론 — `docs/squeezing_report/squeezing_report_v6.tex` (특히 §tolerance)
-- 문헌 — `references/fwm_squeezing_paper_parameters.csv` (10편)
+- 문헌 — [레거시 CSV](../../../archive/fwm_squeezing_paper_parameters.csv) (과거 분석용 10편). 현재 문헌 자료는 [FWM DB](../../../references/fwm_experiments/README.md).
 
 ```bash
 python analysis/squeezing/variable_audit/scan_variable_audit.py

@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "paper_id": "zhao_2025_sciadv",
+  "title": "Ultra-stable and high-performance squeezed vacuum source enabled via artificial intelligence control",
+  "authors": [
+    "Jie Zhao",
+    "Zhifei Yu",
+    "Xin Chen",
+    "Yuan Wu",
+    "Xinyun Liang",
+    "Wenfeng Huang",
+    "Keye Zhang",
+    "Chun-Hua Yuan",
+    "L. Q. Chen"
+  ],
+  "year": 2025,
+  "publication": {
+    "journal": "Science Advances",
+    "volume": "11",
+    "issue": "18",
+    "pages": "eadu4888",
+    "doi": "10.1126/sciadv.adu4888",
+    "arxiv_id": "",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "ecnu_chen",
+  "study_type": "experiment",
+  "topics": [
+    "feedback_optimization",
+    "magnetic_field",
+    "nonlinear_response",
+    "stability",
+    "loss_budget"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "quadrature_vacuum",
+    "seed_mode": "vacuum",
+    "inclusion": "primary",
+    "reason": "PSR vacuum source with empirical multiparameter feedback.",
+    "isotope_composition": "87Rb_stated"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC12047443/fullTextXML",
+      "path": "sources/zhao_2025_sciadv.xml",
+      "access": "full_text",
+      "version": "published_JATS_XML",
+      "sha256": "e885ad02e87cdbd4997dc41c7f49b1c6ca34b93c75808e74335a0b71f16f38cf",
+      "pages": null,
+      "accessed_on": "2026-10-30",
+      "media_type": "application/xml",
+      "access_method": "public_EuropePMC_fullTextXML"
+    },
+    {
+      "source_id": "browser",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12047443/",
+      "path": null,
+      "access": "full_text",
+      "version": "published_HTML",
+      "sha256": null,
+      "pages": null,
+      "accessed_on": "2026-10-30",
+      "access_method": "browser",
+      "notes": "Parent agent read full article through requested browser fallback; PDF download timed out.",
+      "access_note": "Full PMC HTML inspected with in-app browser on 2026-10-30; PDF download timed out; full JATS snapshot stored as main."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "optimized_source",
+      "label": "Fig. 1D and optimized source",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Results / Experimental setup",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_diameter",
+          "value": 20,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Results / Experimental setup",
+          "evidence": "cell diameter",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 62,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Results / AIC operation and Fig. 2 caption",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "analysis_frequency",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 1D caption",
+          "evidence": "analysis frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 10,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 1D caption",
+          "evidence": "resolution bandwidth",
+          "notes": ""
+        },
+        {
+          "quantity": "video_bandwidth",
+          "value": 30,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 1D caption",
+          "evidence": "video bandwidth",
+          "notes": ""
+        },
+        {
+          "quantity": "local_oscillator_power",
+          "value": 1,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 1D caption",
+          "evidence": "local oscillator power",
+          "notes": ""
+        },
+        {
+          "quantity": "total_optical_and_detection_loss",
+          "value": 15.5,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Introduction, performance paragraph",
+          "evidence": "total optical and detection loss",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 4.3,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "Fig. 1D caption",
+          "evidence": "squeezing measured",
+          "notes": ""
+        },
+        {
+          "quantity": "squeezing_loss_corrected",
+          "value": 5.9,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "inferred_lossless",
+          "source_id": "main",
+          "locator": "Discussion, first paragraph",
+          "evidence": "squeezing loss corrected",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "Feedback varies pump power, detuning and transverse field; Fig. 3 nominal controls are not asserted as the unique Fig. 1D operating point."
+      ]
+    },
+    {
+      "experiment_id": "fig3_parameter_scans",
+      "label": "Fig. 3 one-variable scans around nominal controls",
+      "kind": "sweep",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 15,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "fixed baseline except power scan",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 3 caption",
+          "evidence": "pump power",
+          "notes": ""
+        },
+        {
+          "quantity": "detuning_reported",
+          "value": 100,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "reported offset; fixed except detuning scan",
+          "reference": "87Rb D1 F=2 to Fprime=2",
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 3 caption",
+          "evidence": "detuning reported",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 62,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "fixed baseline except temperature scan",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 3 caption",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "transverse_magnetic_field",
+          "value": 200,
+          "unit": "mG",
+          "value_type": "reported",
+          "basis": "Bx; fixed baseline except magnetic scan",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 3 caption",
+          "evidence": "transverse magnetic field",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": [
+        "Four separate one-parameter curves; no Cartesian grid or digitized points."
+      ]
+    },
+    {
+      "experiment_id": "stability",
+      "label": "Long-term controlled output",
+      "kind": "time_series",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 62,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Fig. 4 caption",
+          "evidence": "temperature",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_measured",
+          "value": 4.2,
+          "unit": "dB",
+          "value_type": "reported",
+          "basis": "positive reduction below SQL",
+          "reference": null,
+          "plane": "detector",
+          "source_id": "main",
+          "locator": "Discussion, first paragraph",
+          "evidence": "squeezing measured",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.1,
+            "unit": "dB",
+            "kind": "reported_plus_minus",
+            "confidence": "not_reported"
+          }
+        },
+        {
+          "quantity": "reported_stability_duration",
+          "value": 2,
+          "unit": "h",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "Discussion, first paragraph",
+          "evidence": "reported stability duration",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "coupled_controls",
+      "claim": "Measured squeezing depends nonmonotonically on temperature and transverse field, with power-dependent frequency shifts.",
+      "source_id": "main",
+      "locator": "Results / Multiparameter results and contributions, Fig. 3",
+      "category": "model_validity",
+      "model_implication": "⟦AI⟧ Validate coupled control responses before using an empirical optimizer as a physics model."
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ The paper reports a record within its comparison set; no global record claim is adopted here. Seeded polarization results such as Lima2024 use a different input/readout scope."
+  ]
+}

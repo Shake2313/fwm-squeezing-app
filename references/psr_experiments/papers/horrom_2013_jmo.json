@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "paper_id": "horrom_2013_jmo",
+  "title": "All-atomic generation and noise-quadrature filtering of squeezed vacuum in hot Rb vapor",
+  "authors": [
+    "Travis Horrom",
+    "Gleb Romanov",
+    "Irina Novikova",
+    "Eugeniy E. Mikhailov"
+  ],
+  "year": 2013,
+  "publication": {
+    "journal": "Journal of Modern Optics",
+    "volume": "60",
+    "issue": "1",
+    "pages": "43-49",
+    "doi": "10.1080/09500340.2012.732620",
+    "arxiv_id": "1204.3967",
+    "status": "published"
+  },
+  "legacy_column": null,
+  "apparatus_group": "william_mary_psr",
+  "study_type": "mixed",
+  "topics": [
+    "eit_filter",
+    "frequency_dependence",
+    "excess_noise"
+  ],
+  "scope": {
+    "species": "87Rb",
+    "line": "D1",
+    "configuration": "polarization_self_rotation",
+    "measurement": "polarization_quadrature",
+    "seed_mode": "orthogonal_vacuum",
+    "inclusion": "primary",
+    "reason": "Primary PSR generation, characterization or propagation experiment.",
+    "isotope_composition": "isotopically_enriched"
+  },
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1204.3967",
+      "path": "sources/horrom_2013_jmo.pdf",
+      "access": "full_text",
+      "version": "arxiv_v2_2012-08-02",
+      "sha256": "c881b49db7ba35c3d4bb8dcd4e3b1a267fd2e84ee6f98cd6e1234342f774c351",
+      "pages": 7,
+      "accessed_on": "2026-10-30"
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "narrow_eit_fig3",
+      "label": "Two-cell low-pass filtering, Fig.3",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "each of two cells",
+          "reference": null,
+          "plane": "squeezing_and_filter_cells",
+          "source_id": "main",
+          "locator": "PDF p.2, Experimental setup",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "pump_power",
+          "value": 13,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 57,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_control_power",
+          "value": 3.8,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "eit_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_temperature",
+          "value": 50,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "eit_cell",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "squeezing_before_filter",
+          "value": 2,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "positive reduction below shot noise",
+          "reference": null,
+          "plane": "eit_input",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 discussion",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "anti_squeezing_before_filter",
+          "value": 8,
+          "unit": "dB",
+          "value_type": "approximate",
+          "basis": "positive excess above shot noise",
+          "reference": null,
+          "plane": "eit_input",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 discussion",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_transmission",
+          "value": 50,
+          "unit": "percent",
+          "value_type": "reported",
+          "basis": "peak intensity transmission",
+          "reference": null,
+          "plane": "eit_output",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_fwhm",
+          "value": 2,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "transmission FWHM",
+          "reference": null,
+          "plane": "eit_cell",
+          "source_id": "main",
+          "locator": "PDF p.4, Fig.3 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "angle_rotation_fig4",
+      "label": "Asymmetric EIT filter, Fig.4",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "pump_power",
+          "value": 15,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "squeezing_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.5, Fig.4 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_control_power",
+          "value": 2.3,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "eit_cell_input",
+          "source_id": "main",
+          "locator": "PDF p.5, Fig.4 caption",
+          "evidence": "Value stated at the cited location.",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": [
+        "No surviving sub-shot-noise output in this angle-rotation demonstration."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "sideband_transfer",
+      "claim": "Asymmetric complex sideband transmission changes the optimum quadrature with analysis frequency.",
+      "source_id": "main",
+      "locator": "PDF p.2, Eqs.3-5; p.5, Fig.4",
+      "category": "frequency_dependence",
+      "model_implication": "⟦AI⟧ Retain both sideband phases and absorption in a spectral noise model."
+    },
+    {
+      "finding_id": "passive_filter_failure",
+      "claim": "Passive filtering alone does not explain all observed excess noise.",
+      "source_id": "main",
+      "locator": "PDF pp.4-6, discussion/conclusion",
+      "category": "validity",
+      "model_implication": "⟦AI⟧ Atomic and technical noise need separate treatment."
+    }
+  ],
+  "ai_notes": []
+}

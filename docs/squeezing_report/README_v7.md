@@ -7,7 +7,9 @@
 - squeezing_report_v7.pdf / squeezing_report_v7.tex: 과학 보고서.
 - squeezing_report_history.md: 2026-07-22 이후 26개 커밋, 코드 변화, 과거 분석 기록, 레퍼런스 CSV의 출처 정정.
 - v7_science/theory_notes.md: 분포 Gaussian 모형의 상세 수식과 가정.
-- 원본 v6 및 references/fwm_squeezing_paper_parameters.csv는 수정하지 않았다.
+- 원본 v6 및 [레거시 CSV](../../archive/fwm_squeezing_paper_parameters.csv)의 내용은 수정하지 않았다.
+
+⟦AI⟧ 2026-10-30: CSV는 사용자 요청으로 `archive/`로 이동. 과거 PDF·해시 manifest의 `references/fwm_squeezing_paper_parameters.csv`는 [이동 기록](../../archive/fwm_squeezing_csv_migration_2026-10-30.json)으로 현재 파일에 대응. 재현 스크립트는 보관 경로 사용.
 
 ## 새 계산과 해석
 

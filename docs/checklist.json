@@ -6360,13 +6360,14 @@
     },
     {
       "id": "fwm-reference-parameter-provenance",
-      "area": "references/fwm_squeezing_paper_parameters.csv + analysis/squeezing + sabes/calibration.py",
+      "area": "archive/fwm_squeezing_paper_parameters.csv + references/fwm_experiments + analysis/squeezing + sabes/calibration.py",
       "title": "Make squeezing reference parameters measurement- and source-specific",
       "problem": "The v7 primary-source comparison found mixed measurement classes, inconsistent loss conventions, rounded outputs combined with nominal gain, and a mismatched Wu output pair in the curated CSV. Treating every filled number as a same-condition measured input would make calibration and tolerance comparisons circular or incorrect.",
       "source_documents": [
         "docs/squeezing_report/squeezing_report_v7.tex",
         "docs/squeezing_report/squeezing_report_history.md",
-        "references/fwm_squeezing_paper_parameters.csv"
+        "archive/fwm_squeezing_paper_parameters.csv",
+        "references/fwm_experiments/README.md"
       ],
       "priority": "P1",
       "effort": "medium",
