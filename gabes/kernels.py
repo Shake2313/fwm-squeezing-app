@@ -829,3 +829,167 @@ def segmented_depletion_gain(M, dz, profile, P_pump, P_seed,
         G_s[i] = abs(a0) ** 2 / P_norm
         G_c[i] = abs(a1) ** 2 / P_norm
     return G_s, G_c
+
+
+# ---------------------------------------------------------------------------
+# OD/SAS velocity-correlated line sums (see gabes/schemes/sas.py).
+# ---------------------------------------------------------------------------
+@njit(cache=True)
+def _interp_bracket(axis, x, inv_step):
+    """np.interp's bracket on a uniform increasing axis: (k, node).
+
+    axis[k] <= x < axis[k+1]; `node` means the value is the table entry at k
+    (x on a node, at the last node, or outside the axis, which takes the edge).
+    """
+    n_axis = axis.size
+    if x < axis[0]:
+        return 0, True
+    if x > axis[n_axis - 1]:
+        return n_axis - 1, True
+    k = min(max(int((x - axis[0]) * inv_step), 0), n_axis - 1)
+    while k > 0 and axis[k] > x:
+        k -= 1
+    while k < n_axis - 1 and axis[k + 1] <= x:
+        k += 1
+    return k, k == n_axis - 1 or axis[k] == x
+
+
+def _interp_slopes(axis, tables):
+    """np.interp's precomputed slopes, (fp[k+1] − fp[k]) / (xp[k+1] − xp[k])."""
+    return np.ascontiguousarray(
+        (tables[..., 1:] - tables[..., :-1]) / (axis[1:] - axis[:-1]))
+
+
+@njit(cache=True, parallel=True)
+def _velocity_interp_mean(detuning, kv, weights, axis, tables, slopes):
+    ns = detuning.size
+    nv = kv.size
+    n_tab, n_axis = tables.shape
+    out = np.zeros((n_tab, ns))
+    inv_step = (n_axis - 1) / (axis[n_axis - 1] - axis[0])
+    for i in prange(ns):
+        acc = np.zeros(n_tab)
+        for j in range(nv):
+            x = detuning[i] + kv[j]
+            k, node = _interp_bracket(axis, x, inv_step)
+            for m in range(n_tab):
+                if node:
+                    value = tables[m, k]
+                else:
+                    value = slopes[m, k] * (x - axis[k]) + tables[m, k]
+                acc[m] += value * weights[j]
+        for m in range(n_tab):
+            out[m, i] = acc[m]
+    return out
+
+
+def velocity_interp_mean(detuning, kv, weights, axis, tables):
+    """``out[m, s] = Σ_v weights[v] · interp(detuning[s] + kv[v], axis, tables[m])``
+    with np.interp's bracket and edge values, without the (scan, velocity) grid."""
+    axis = np.ascontiguousarray(axis, dtype=np.float64)
+    tables = np.ascontiguousarray(tables, dtype=np.float64)
+    return _velocity_interp_mean(
+        np.ascontiguousarray(detuning, dtype=np.float64),
+        np.ascontiguousarray(kv, dtype=np.float64),
+        np.ascontiguousarray(weights, dtype=np.float64),
+        axis, tables, _interp_slopes(axis, tables))
+
+
+@njit(cache=True, parallel=True)
+def _sas_velocity_sums(detuning, kv, weights, omega, g_pos, e_pos, p_ground,
+                       lorentz_scale, hwhm_sq, axis, tables, slopes, reservoir,
+                       pumped, thermal_needed):
+    ns = detuning.size
+    nv = kv.size
+    nt = omega.size
+    n_source, n_lev, n_axis = tables.shape
+    absorptive = np.zeros((nt, ns))
+    dispersive = np.zeros((nt, ns))
+    thermal = np.zeros((nt, ns))
+    inv_step = (n_axis - 1) / (axis[n_axis - 1] - axis[0])
+    for i in prange(ns):
+        pop = np.empty(n_lev)
+        acc_a = np.zeros(nt)
+        acc_d = np.zeros(nt)
+        acc_t = np.zeros(nt)
+        d_i = detuning[i]
+        for j in range(nv):
+            wj = weights[j]
+            if pumped:
+                x = d_i + kv[j]
+                k, node = _interp_bracket(axis, x, inv_step)
+                for lv in range(n_lev):
+                    total = 0.0
+                    for s in range(n_source):
+                        if node:
+                            value = tables[s, lv, k]
+                        else:
+                            value = slopes[s, lv, k] * (x - axis[k]) + tables[s, lv, k]
+                        total += reservoir[i, s] * value
+                    pop[lv] = total
+            base = d_i - kv[j]
+            for t in range(nt):
+                arg = base - omega[t]
+                denom = arg * arg + hwhm_sq
+                lp = lorentz_scale / denom
+                dp = (arg / np.pi) / denom
+                if pumped:
+                    w = (pop[g_pos[t]] - pop[e_pos[t]]) / p_ground[t]
+                    acc_a[t] += (w * lp) * wj
+                    acc_d[t] += (w * dp) * wj
+                    if thermal_needed:
+                        acc_t[t] += lp * wj
+                else:
+                    acc_a[t] += lp * wj
+                    acc_d[t] += dp * wj
+        for t in range(nt):
+            absorptive[t, i] = acc_a[t]
+            dispersive[t, i] = acc_d[t]
+            thermal[t, i] = acc_t[t]
+    return absorptive, dispersive, thermal
+
+
+def sas_velocity_sums(detuning, kv, weights, omega, hwhm, g_pos, e_pos, p_ground,
+                      axis=None, tables=None, reservoir=None, thermal_needed=False):
+    """
+    Per-transition Doppler sums of the OD/SAS probe response, without the
+    (scan, velocity) temporaries:
+
+        absorptive[t, s] = Σ_v w_v · W_t(s, v) · L̂(Δ_s − kv − ω_t)
+        dispersive[t, s] = Σ_v w_v · W_t(s, v) · D̂(Δ_s − kv − ω_t)
+        thermal[t, s]    = Σ_v w_v · L̂(Δ_s − kv − ω_t)      (if thermal_needed)
+
+    with the unit-area Lorentzian L̂ = (hwhm/π)/(x² + hwhm²), its dispersive
+    partner D̂ = (x/π)/(x² + hwhm²) and the pump-prepared weight
+    W_t = (ρ_g − ρ_e)/p_g at the pump detuning Δ_s + kv. ρ_l is
+    Σ_source reservoir[s, source] · interp(axis, tables[source, l]) with
+    np.interp's bracket and edge values, so every factor is the elementwise
+    value of the NumPy path; only the order of the velocity sum differs.
+    `tables=None` is the pump-off case W = 1 (thermal is then `absorptive`).
+    `reservoir=None` is one unconditioned source.
+    """
+    detuning = np.ascontiguousarray(detuning, dtype=np.float64)
+    pumped = tables is not None
+    if pumped:
+        tables = np.ascontiguousarray(tables, dtype=np.float64)
+        axis = np.ascontiguousarray(axis, dtype=np.float64)
+        slopes = _interp_slopes(axis, tables)
+        if reservoir is None:
+            reservoir = np.ones((detuning.size, 1))
+        reservoir = np.ascontiguousarray(reservoir, dtype=np.float64)
+    else:
+        axis = np.array([0.0, 1.0])
+        tables = np.zeros((1, 1, 2))
+        slopes = np.zeros((1, 1, 1))
+        reservoir = np.ones((1, 1))
+    absorptive, dispersive, thermal = _sas_velocity_sums(
+        detuning,
+        np.ascontiguousarray(kv, dtype=np.float64),
+        np.ascontiguousarray(weights, dtype=np.float64),
+        np.ascontiguousarray(omega, dtype=np.float64),
+        np.ascontiguousarray(g_pos, dtype=np.int64),
+        np.ascontiguousarray(e_pos, dtype=np.int64),
+        np.ascontiguousarray(p_ground, dtype=np.float64),
+        hwhm / np.pi, hwhm ** 2, axis, tables, slopes, reservoir,
+        pumped, bool(thermal_needed and pumped))
+    return absorptive, dispersive, (thermal if pumped else absorptive)

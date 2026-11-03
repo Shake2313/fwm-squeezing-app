@@ -38,7 +38,7 @@ calculator (pump-off 85Rb D1 absolute scale).
 """
 import numpy as np
 
-from .. import atoms, constants, doppler, observables, probe_saturation, species
+from .. import atoms, constants, doppler, kernels, observables, probe_saturation, species
 from ..constants import GAMMA, K_VEC
 from .. import core
 from ..lineshape import subdoppler_feature
@@ -657,31 +657,25 @@ class SASScheme(Scheme):
         # Absolute per-line integrated absorption A_t (AutoOD normalisation, ls=1).
         Aline = species.line_integrated_alpha(iso, line=man.line, N=N)
 
-        probe_base = DS[:, None] - kv[None, :]               # probe arg base
-        pop_at = None
+        # Pump populations of the levels the lines connect, per reservoir source
+        # (one unconditioned source unless the coated-cell reservoir is on).
+        levels = sorted(set(man.g_idx.tolist()) | set(man.e_idx.tolist()))
+        tables = reservoir = None
         if not pump_off:
-            deff_grid = DS[:, None] + kv[None, :]            # pump Δ_eff (ns, nv)
-            levels = set(man.g_idx.tolist()) | set(man.e_idx.tolist())
             if b.get("paraffin_memory", False):
                 reservoir = _coated_ground_populations(
-                    man, basis_pops, deff, deff_grid, wt,
+                    man, basis_pops, deff, DS, kv, wt,
                     cycle_rate=b["transit_rate"])
-                pop_at = {}
-                flat_deff = deff_grid.ravel()
-                for lvl in levels:
-                    local = np.zeros_like(deff_grid)
-                    for source in range(ng):
-                        conditioned = np.interp(
-                            flat_deff, deff, basis_pops[source, :, lvl]
-                        ).reshape(deff_grid.shape)
-                        local += reservoir[:, source, None] * conditioned
-                    pop_at[lvl] = local
+                tables = basis_pops[:, :, levels].transpose(0, 2, 1)
             else:
-                pop_at = {
-                    lvl: np.interp(deff_grid.ravel(), deff, pops[:, lvl]).reshape(
-                        deff_grid.shape)
-                    for lvl in levels
-                }
+                tables = pops[:, levels].T[None]
+        finite_probe = b.get("probe_saturation_max", 0.0) > 0.0
+        sums = kernels.sas_velocity_sums if kernels.available() else _velocity_sums
+        absorptive, dispersive, thermal = sums(
+            DS, kv, wt, om, hwhm,
+            [levels.index(g) for g in man.g_idx], [levels.index(e) for e in man.e_idx],
+            np.asarray(man.p_ground)[man.g_idx], axis=None if pump_off else deff,
+            tables=tables, reservoir=reservoir, thermal_needed=finite_probe)
 
         alpha = np.zeros(scan.size)
         chi_real = np.zeros(scan.size)
@@ -690,25 +684,15 @@ class SASScheme(Scheme):
             g, e = man.g_idx[t], man.e_idx[t]
             fg, fe = man.Fg[g], man.Fe[e - ng]
             A_t = Aline[(fg, fe)]
-            w = (1.0 if pump_off else
-                 (pop_at[g] - pop_at[e]) / man.p_ground[g])
-            arg = probe_base - om[t]
-            denom = arg ** 2 + hwhm ** 2
-            Lp = (hwhm / np.pi) / denom                      # unit-area Lorentzian
-            Dp = (arg / np.pi) / denom                       # KK dispersive partner
-            transition_alpha = A_t * _velocity_correlated_average(w, Lp, wt)
+            transition_alpha = A_t * absorptive[t]
             alpha += transition_alpha
-            chi_real -= (A_t / k) * _velocity_correlated_average(w, Dp, wt)
-            if b.get("probe_saturation_max", 0.0) > 0.0:
-                thermal_alpha = A_t * (Lp @ wt)
-                # At pump=0 use the exact thermal profile in the finite-probe
-                # table rather than retaining solve/interpolation roundoff in a
-                # nominally zero pump-induced residual.
-                pumped_alpha = (thermal_alpha if Op <= 0.0
-                                else transition_alpha)
+            chi_real -= (A_t / k) * dispersive[t]
+            if finite_probe:
+                # At pump=0 the thermal sum is the pumped one, so the finite-probe
+                # pump-induced residual is exactly zero.
                 probe_profiles.append(dict(
-                    pumped=pumped_alpha,
-                    thermal=thermal_alpha,
+                    pumped=transition_alpha,
+                    thermal=A_t * thermal[t],
                     hwhm=hwhm,
                     rabi_rel=float(man.rabi_rel[t]),
                     saturation_max=float(b["probe_saturation_max"]),
@@ -1134,6 +1118,46 @@ def _velocity_correlated_average(prepared_population, probe_profile, weights):
     return (prepared_population * probe_profile) @ weights
 
 
+def _velocity_sums(detuning, kv, weights, omega, hwhm, g_pos, e_pos, p_ground,
+                   axis=None, tables=None, reservoir=None, thermal_needed=False):
+    """NumPy path of `kernels.sas_velocity_sums`: same arguments, same sums."""
+    probe_base = detuning[:, None] - kv[None, :]             # probe arg base
+    prepared = None
+    if tables is not None:
+        flat_deff = (detuning[:, None] + kv[None, :]).ravel()   # pump Δ_eff
+        if reservoir is None:
+            prepared = [np.interp(flat_deff, axis, table).reshape(probe_base.shape)
+                        for table in tables[0]]
+        else:
+            prepared = []
+            for level in range(tables.shape[1]):
+                local = np.zeros_like(probe_base)
+                for source in range(tables.shape[0]):
+                    conditioned = np.interp(
+                        flat_deff, axis, tables[source, level]
+                    ).reshape(probe_base.shape)
+                    local += reservoir[:, source, None] * conditioned
+                prepared.append(local)
+    absorptive = np.empty((omega.size, detuning.size))
+    dispersive = np.empty_like(absorptive)
+    thermal = absorptive if prepared is None else np.empty_like(absorptive)
+    for t in range(omega.size):
+        arg = probe_base - omega[t]
+        denom = arg ** 2 + hwhm ** 2
+        Lp = (hwhm / np.pi) / denom                          # unit-area Lorentzian
+        Dp = (arg / np.pi) / denom                           # KK dispersive partner
+        if prepared is None:                                 # pump off: weight 1
+            absorptive[t] = Lp @ weights
+            dispersive[t] = Dp @ weights
+            continue
+        w = (prepared[g_pos[t]] - prepared[e_pos[t]]) / p_ground[t]
+        absorptive[t] = _velocity_correlated_average(w, Lp, weights)
+        dispersive[t] = _velocity_correlated_average(w, Dp, weights)
+        if thermal_needed:
+            thermal[t] = Lp @ weights
+    return absorptive, dispersive, thermal
+
+
 def _basis_reset_atom(atom, transit_rate, source_ground):
     """Clone a species manifold atom with transit reload into one ground F.
 
@@ -1174,13 +1198,14 @@ def _ground_decay_branching(man):
     return branching / totals[None, :]
 
 
-def _coated_ground_transfer(man, basis_pops, deff_axis, deff_grid, weights):
+def _coated_ground_transfer(man, basis_pops, deff_axis, detuning, kv, weights):
     """Velocity-averaged ground-F transfer matrix for one pump scan.
 
     ``transfer[scan, destination, source]`` includes spontaneous decay of any
-    excited population after the atom exits the illuminated region. Velocity is
-    averaged only for this dark reservoir map; the absorption calculation keeps
-    each pump/probe velocity correlation intact.
+    excited population after the atom exits the illuminated region, for the pump
+    detuning ``detuning[scan] + kv[velocity]``. Velocity is averaged only for
+    this dark reservoir map; the absorption calculation keeps each pump/probe
+    velocity correlation intact.
     """
     grounds = np.asarray(man.atom.ground, dtype=int)
     excited = np.asarray(man.atom.excited, dtype=int)
@@ -1189,16 +1214,23 @@ def _coated_ground_transfer(man, basis_pops, deff_axis, deff_grid, weights):
     exit_pops += np.einsum(
         "sxe,ge->sxg", basis_pops[:, :, excited], branching)
 
-    n_scan = deff_grid.shape[0]
     n_ground = grounds.size
-    transfer = np.empty((n_scan, n_ground, n_ground))
-    flat_deff = deff_grid.ravel()
-    for source in range(n_ground):
-        for destination in range(n_ground):
-            local = np.interp(
-                flat_deff, deff_axis, exit_pops[source, :, destination]
-            ).reshape(deff_grid.shape)
-            transfer[:, destination, source] = local @ weights
+    if kernels.available():
+        # tables[source·n + destination] = exit_pops[source, :, destination]
+        means = kernels.velocity_interp_mean(
+            detuning, kv, weights, deff_axis,
+            exit_pops.transpose(0, 2, 1).reshape(n_ground * n_ground, -1))
+        transfer = means.reshape(n_ground, n_ground, -1).transpose(2, 1, 0).copy()
+    else:
+        deff_grid = detuning[:, None] + kv[None, :]
+        transfer = np.empty((detuning.size, n_ground, n_ground))
+        flat_deff = deff_grid.ravel()
+        for source in range(n_ground):
+            for destination in range(n_ground):
+                local = np.interp(
+                    flat_deff, deff_axis, exit_pops[source, :, destination]
+                ).reshape(deff_grid.shape)
+                transfer[:, destination, source] = local @ weights
 
     # Interpolation/linear-solve roundoff can make a probability about -1e-16.
     transfer = np.maximum(transfer, 0.0)
@@ -1234,9 +1266,9 @@ def _stationary_ground_populations(
 
 
 def _coated_ground_populations(
-        man, basis_pops, deff_axis, deff_grid, weights, cycle_rate):
+        man, basis_pops, deff_axis, detuning, kv, weights, cycle_rate):
     transfer = _coated_ground_transfer(
-        man, basis_pops, deff_axis, deff_grid, weights)
+        man, basis_pops, deff_axis, detuning, kv, weights)
     return _stationary_ground_populations(
         transfer, man.p_ground, cycle_rate=cycle_rate)
 

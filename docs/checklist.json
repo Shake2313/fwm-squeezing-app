@@ -4929,13 +4929,40 @@
       ],
       "priority": "P3",
       "effort": "medium",
-      "status": "ready",
+      "status": "done",
+      "completed_at": "2026-11-03",
       "why": "Cheapest first: a fused compiled loop without temporaries, or the analytic Voigt for the pump-off thermal term. The pole form also applies (pump populations are rational in Delta+kv, the probe Lorentzian in Delta-kv, so the product averages by partial fractions) but it replaces the Gamma/8 interpolation table of a validated reference path.",
       "acceptance_criteria": [
         "Default SAS compute at least 3x faster on the reference PC.",
         "Pump-off OD stays within the AutoOD validation tolerance and pumped SAS spectra match the current path within a documented tolerance, with any interpolation-table difference quantified.",
         "⟦AI⟧ Include exact scalar-1 pump-off bypass, duplicate finite-probe matvec reuse and, only where profiled, Legendre/inversion reuse; preserve the existing discrete1m/s,4sigma measure and interpolation, comparing named cold/warm/pumped/finite-probe arrays and readout metrics before claiming speedup."
       ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "cases": "75 settings: every species and line at pump 0/0.5/2 mW with probe 0/20 µW, every recompute slider end from the defaults, coated cell at pump 0/0.5/2 mW (Rb, Cs) and with finite probe, Ne buffer with finite probe, custom composition and the Generic path; raw outputs and displayed readouts, 6751 paths.",
+        "numpy_fallback": "bitwise",
+        "numba_displayed_text": "identical",
+        "numba_worst_relative_to_scale": {
+          "uncoated_spectra_and_readouts": 5.0e-15,
+          "uncoated_transmission": 2.0e-14,
+          "coated_spectra": 1.5e-12,
+          "coated_finite_probe_table": 7.1e-13,
+          "coated_finite_probe_optical_depth": 1.5e-11
+        },
+        "timings_s_before_after": {
+          "default_rb_natural_d1_0p5_mw": [0.392, 0.086],
+          "pump_off": [0.179, 0.009],
+          "rb_natural_d2": [0.669, 0.251],
+          "cs_d2": [0.408, 0.219],
+          "probe_20_uw": [0.557, 0.293],
+          "coated_cell": [1.081, 0.301],
+          "scan_4001_points": [1.113, 0.123],
+          "cell_200_c": [0.376, 0.044]
+        }
+      },
+      "review_note": "⟦AI⟧ kernels.sas_velocity_sums fuses the pump-population interpolation, the probe Lorentzian and its dispersive partner and the velocity-correlated sums into one parallel loop over the scan, with no (scan, velocity) array. It reproduces np.interp's bracket and edge values (bitwise on one velocity class) and evaluates every factor as the NumPy path does, so only the order of the velocity sum changes. Pump off skips the weight-1 products and reuses the absorptive sum as the finite-probe thermal sum, so that residual is exactly zero. kernels.velocity_interp_mean does the same for the coated-cell ground transfer. The 1 m/s, ±4σ velocity measure and the Γ/8 pump table are unchanged; without Numba the NumPy path is the previous code. The coated-cell differences are larger because the reservoir solve amplifies roundoff by about cycle/wall rate ≈ 1.6e4. First call with an empty Numba cache: 2.9 s (compile), 0.36 s with the cache.",
+      "measure_check": "⟦AI⟧ Against 0.0625 m/s, ±8σ at the pump-off defaults: the 1 m/s step aliases 8.3e-7 of the peak (k·1 m/s = 1.26 MHz against the 2.87 MHz natural HWHM), and the ±4σ cutoff leaves 1.9e-4 of the peak in the far wings, where the absorption is about 0.1 % of the peak. Changing the measure would be a value decision; this item keeps it.",
+      "remaining_scope": "⟦AI⟧ Not scan-by-velocity arithmetic, so outside this item: the pump-population solves now dominate D2 and Cs (0.21 s of 0.25 s for Rb natural D2), and the finite-probe FFT table dominates finite probe power (0.18 s of 0.29 s). The OpenMP worker spin after a parallel kernel slows the next LAPACK pump solve from 12 to 19 ms for about 0.2 s.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
         "status": "triaged",

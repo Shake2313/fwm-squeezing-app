@@ -17,9 +17,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import constants, doppler, kernels  # noqa: E402
+from gabes import constants, doppler, kernels, schemes  # noqa: E402
 from gabes.constants import rabi_freq  # noqa: E402
-from gabes.schemes import fwm  # noqa: E402
+from gabes.schemes import fwm, sas  # noqa: E402
 
 import pytest  # noqa: E402
 
@@ -179,6 +179,63 @@ def test_affine_scan_kernel_matches_reference(case):
     scale = max(np.abs(ref).max(), 1e-300)
     worst = np.abs(fast - ref).max() / scale
     assert worst < 1e-11, f"rel diff {worst:.3e}"
+
+
+# OD/SAS velocity sums: pump detunings on nodes, between nodes and outside the axis.
+_G = constants.GAMMA
+_SAS_AXIS = np.linspace(-20 * _G, 20 * _G, 321)
+_SAS_DETUNING = np.concatenate([[-45 * _G], _SAS_AXIS[::8], [45 * _G]])
+_SAS_KV = np.array([0.0, 0.37 * _G, -1.3 * _G, -30 * _G, 30 * _G, 7.25 * _G])
+
+
+def _sas_sum_inputs(n_source):
+    rng = np.random.default_rng(7)
+    weights = rng.uniform(0.5, 1.0, _SAS_KV.size)
+    args = (_SAS_DETUNING, _SAS_KV, weights / weights.sum(),
+            np.array([-3.0, 0.0, 2.0, 5.0]) * _G, 0.6 * _G,
+            [0, 0, 1, 1], [2, 3, 2, 3], np.array([0.4, 0.4, 0.6, 0.6]))
+    if n_source == 0:
+        return args, {}
+    reservoir = rng.uniform(0.0, 1.0, (_SAS_DETUNING.size, n_source)) if n_source > 1 else None
+    return args, dict(axis=_SAS_AXIS, reservoir=reservoir,
+                      tables=rng.uniform(0.0, 1.0, (n_source, 4, _SAS_AXIS.size)))
+
+
+@pytest.mark.parametrize("n_source", [0, 1, 2], ids=["pump-off", "pumped", "coated"])
+def test_sas_velocity_sums_match_numpy(n_source):
+    args, kw = _sas_sum_inputs(n_source)
+    fast = kernels.sas_velocity_sums(*args, **kw, thermal_needed=True)
+    ref = sas._velocity_sums(*args, **kw, thermal_needed=True)
+    for name, a, b in zip(("absorptive", "dispersive", "thermal"), fast, ref):
+        worst = np.abs(a - b).max() / np.abs(b).max()
+        assert worst < 1e-13, f"{name}: rel diff {worst:.3e}"
+
+
+def test_velocity_interp_mean_takes_np_interp_values():
+    tables = np.random.default_rng(3).uniform(0.0, 1.0, (3, _SAS_AXIS.size))
+    for j in range(_SAS_KV.size):
+        one_class = np.zeros(_SAS_KV.size)
+        one_class[j] = 1.0
+        got = kernels.velocity_interp_mean(_SAS_DETUNING, _SAS_KV, one_class, _SAS_AXIS, tables)
+        expected = [np.interp(_SAS_DETUNING + _SAS_KV[j], _SAS_AXIS, t) for t in tables]
+        np.testing.assert_array_equal(got, expected)
+
+
+@pytest.mark.parametrize("over", [
+    {}, {"pump_power_mw": 0.0}, {"paraffin_coated": True},
+    {"species": "¹³³Cs", "line": "D2", "probe_power_uw": 20.0},
+], ids=["sas", "od", "coated", "cs-d2-finite-probe"])
+def test_sas_kernel_matches_reference(over):
+    scheme = schemes.get("sas")
+    params = {**scheme.defaults(), "scan_points": 401, **over}
+    fast = _scheme_with(True, scheme, params)
+    ref = _scheme_with(False, scheme, params)
+    # The coated reservoir solve conditions roundoff by cycle/wall rate ~1.6e4.
+    for key in ("alpha_unit", "chi_real_unit", "probe_alpha_table_unit"):
+        if ref[key] is None:
+            continue
+        worst = np.abs(fast[key] - ref[key]).max() / np.abs(ref[key]).max()
+        assert worst < 1e-11, f"{key}: rel diff {worst:.3e}"
 
 
 if __name__ == "__main__":

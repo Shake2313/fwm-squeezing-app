@@ -175,7 +175,7 @@ def test_basis_resets_span_the_legacy_thermal_transit_state():
     np.testing.assert_allclose(mixed, expected, rtol=2e-11, atol=2e-12)
 
     transfer = _coated_ground_transfer(
-        bare, basis, deff, deff[None, :], np.full(deff.size, 1.0 / deff.size))
+        bare, basis, deff, np.zeros(1), deff, np.full(deff.size, 1.0 / deff.size))
     assert np.isfinite(transfer).all()
     assert np.all(transfer >= 0.0)
     np.testing.assert_allclose(transfer.sum(axis=1), 1.0,
@@ -209,7 +209,7 @@ def test_coated_pump_axis_far_wings_converge_without_edge_clamping():
     def reservoir(axis):
         basis = _basis_reset_pump_pops(man, pump, axis, gt)
         transfer = _coated_ground_transfer(
-            man, basis, axis, reached, weights)
+            man, basis, axis, scan_detuning, velocity_shift, weights)
         return _stationary_ground_populations(
             transfer, man.p_ground, cycle_rate=gt)
 
