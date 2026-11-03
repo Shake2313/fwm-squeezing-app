@@ -221,8 +221,9 @@ def test_lambda_angle_response_matches_explicit_stationary_hamiltonians(
         # Natural Rb's scalar medium uses abundance-weighted mass.
         from gabes.schemes.absorption import _medium_from_params
         medium = _medium_from_params(params)
+        # The step resolves the natural width; the mean is the exact Maxwell average.
         v, weights = doppler.velocity_grid(
-            raw["T"], mass=medium["mass"], dv=2.0, cutoff_sigma=4.0)
+            raw["T"], mass=medium["mass"], dv=0.5, cutoff_sigma=8.0)
     else:
         v, weights = np.zeros(1), np.ones(1)
     shifts = raw["k_vec"] * v

@@ -12,7 +12,7 @@ from dataclasses import replace
 
 import numpy as np
 
-from .. import constants, core, kernels, observables, pole_doppler, species, zeeman
+from .. import constants, core, doppler, kernels, observables, pole_doppler, species, zeeman
 from ..magneto_noise import (DEFAULT_BEAM_DIAMETER_MM, DEFAULT_DETECTION_EFFICIENCY,
                              DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference,
                              magnetic_sensitivity)
@@ -72,16 +72,10 @@ def _maxwell_fallback_grid(T, mass, k_vec, gamma_hwhm):
     """Uniform Maxwell velocity grid for B rows the pole form cannot certify.
 
     The optical response of one velocity class is analytic within the homogeneous
-    half-width ``gamma_hwhm`` [rad/s] of the real Δ_eff axis, so the trapezoid
-    error is ~exp(-2π·γ/h) for a detuning step h; h is chosen for
-    FALLBACK_QUADRATURE_ERROR and the grid spans ±FALLBACK_SIGMAS.
+    half-width ``gamma_hwhm`` [rad/s] of the real Δ_eff axis.
     """
-    sigma_v = math.sqrt(constants.KB * T / mass)
-    step = 2 * math.pi * gamma_hwhm / math.log(1.0 / FALLBACK_QUADRATURE_ERROR) / k_vec
-    half = math.ceil(FALLBACK_SIGMAS * sigma_v / step) * step
-    v = np.arange(-half, half + 0.5 * step, step)
-    wt = np.exp(-0.5 * (v / sigma_v) ** 2)
-    return v, wt / wt.sum()
+    return doppler.maxwell_strip_grid(T, mass, k_vec, gamma_hwhm,
+                                      FALLBACK_QUADRATURE_ERROR, FALLBACK_SIGMAS)
 
 
 def _transition_strength(Fg, Fe):

@@ -52,9 +52,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
     Doppler on, scan-independent H (OD): one fine χ̄(Δ_eff) table + interpolated
         Doppler average — decouples velocity sampling from the solve (accurate
         Voigt without millions of solves), mirroring the FWM Δ_eff trick.
-    Doppler on, scan-dependent H (Λ): per scan point, solve directly at the
-        Maxwell velocity classes. The Λ two-photon feature is Doppler-free unless
-        atom.S_v carries an optional residual two-photon k-ratio.
+    Doppler on, scan-dependent H (Λ): the exact Maxwell average of every scan
+        point (`AffineScan.maxwell_mean`). The Λ two-photon feature is Doppler-free
+        unless atom.S_v carries an optional residual two-photon k-ratio.
     """
     e, g = probe_coh
     om_p = PROBE_RABI * GAMMA if probe_omega is None else probe_omega
@@ -89,14 +89,9 @@ def _solve_chi_avg(atom, build_H0, probe_coh, scan, params, h_dep,
         return doppler.doppler_average_1d(table, deff, scan, v, w, k_vec=k_vec)
 
     # Scan-dependent H (Λ): the optical background and any optional residual
-    # two-photon Doppler at the Maxwell classes per scan point. The Doppler-free
-    # feature is insensitive to velocity sampling and the broad optical background
-    # is smooth, so a coarser Maxwell quadrature (dv = 2 m/s vs 1) keeps
-    # transmission < 0.02% and the Re χ / group-index readout < 1% against the
-    # fine grid.
-    kv, w = affine_doppler.maxwell_shift_classes(T, mass, k_vec, True)
+    # two-photon Doppler, per scan point.
     return affine_doppler.AffineScan(
-        atom, build_H0, probe_coh, om_p, scan_shift).grid_mean(scan, kv, w)
+        atom, build_H0, probe_coh, om_p, scan_shift).maxwell_mean(scan, T, mass, k_vec)
 
 
 def _hyperfine_alpha(scan, params, line_strength=None):
@@ -431,7 +426,7 @@ LAMBDA_COUPLING_DIAMETER_REF_MM = 1.0
 
 class LambdaScheme(Scheme):
     cluster = "A — Absorption"
-    cache_version = "physical-units-v4-independent-scan-shift"
+    cache_version = "physical-units-v5-exact-maxwell"
     defaults_version = "physical-units-v3"
     supports_headless_observables = True
 

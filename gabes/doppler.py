@@ -182,6 +182,22 @@ def velocity_grid(T, mass=constants.MASS_85RB, dv=1.0, cutoff_sigma=3.0):
     return v, w / w.sum()
 
 
+def maxwell_strip_grid(T, mass, k_vec, strip, error=1e-6, cutoff_sigma=6.0):
+    """Uniform Maxwell velocity grid for a response analytic within `strip` [rad/s]
+    of the real k·v axis.
+
+    The trapezoid error is ~exp(-2π·strip/h) for a k·v step h, so h is chosen for
+    `error`; a step that ignores the strip aliases the resonance instead of
+    averaging it. The grid spans ±cutoff_sigma.
+    """
+    sigma_v = math.sqrt(constants.KB * T / mass)
+    step = 2 * math.pi * strip / math.log(1.0 / error) / k_vec
+    half = math.ceil(cutoff_sigma * sigma_v / step) * step
+    v = np.arange(-half, half + 0.5 * step, step)
+    wt = np.exp(-0.5 * (v / sigma_v) ** 2)
+    return v, wt / wt.sum()
+
+
 def build_Delta_eff_axis(Delta_min, Delta_max, v_grid, k_vec=constants.K_VEC):
     """Δ_eff sample axis covering Δ ∈ [Delta_min, Delta_max] over all velocities."""
     dv = v_grid[1] - v_grid[0]

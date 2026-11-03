@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from gabes import constants, schemes  # noqa: E402
+from gabes import constants, doppler, schemes  # noqa: E402
 from gabes.schemes import rydberg as rydberg_scheme  # noqa: E402
 from gabes.schemes.rydberg import MHZ, RydbergEITScheme  # noqa: E402
 
@@ -432,6 +432,23 @@ def test_doppler_superhet_keeps_the_more_sensitive_mirror_point():
     np.testing.assert_allclose(detunings, -detunings[::-1])
     assert superhet["optimum_detuning_mhz"] == detunings[
         int(np.argmin(superhet["total_field_asd_v_m_per_sqrt_hz"]))]
+
+
+def test_doppler_finite_if_phasor_is_converged_in_velocity(monkeypatch):
+    sc = RydbergEITScheme()
+    params = dict(sc.recommended_defaults(sc.defaults())["AT electrometry"], doppler="on")
+    raw = sc.compute(params)
+    readout = sc._readout(raw, params)
+    x, transmission = readout["x"], readout["T_trans"]
+    _, phasors, _ = sc._superheterodyne_atomic_phasors(raw, params, x, transmission)
+    grid = doppler.maxwell_strip_grid
+
+    def finer(T, mass, k_vec, strip, error, cutoff_sigma):
+        return grid(T, mass, k_vec, strip, error=1e-11, cutoff_sigma=8.0)
+
+    monkeypatch.setattr(doppler, "maxwell_strip_grid", finer)
+    _, refined, _ = sc._superheterodyne_atomic_phasors(raw, params, x, transmission)
+    np.testing.assert_allclose(phasors, refined, rtol=1e-5, atol=0.0)
 
 
 def test_if_optimum_of_a_symmetric_line_does_not_depend_on_rounding():

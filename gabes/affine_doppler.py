@@ -5,28 +5,36 @@ Doppler averages of a scan whose Liouvillian is affine in scan and velocity:
 
 The Λ (two-photon detuning) and Rydberg ladder scans have this form whenever
 `build_H0(s)` is affine in the scan variable s. `AffineScan` builds the three
-constant operators once; `grid_mean` returns the probe coherence ρ_eg / Ω_p
-averaged over a discrete set of velocity classes. Every scan point is a rational
-function of kv (`pole_doppler`), so a Maxwell grid costs one small
-eigendecomposition per point; a point that misses the guard is summed class by
-class (the compiled affine kernel when Numba is available, a batched solve
-otherwise), as is the single stationary class. `maxwell_shift_classes` gives the
-classes for a Maxwell vapor, or kv = 0 with Doppler off.
+constant operators once. Every scan point is a rational function of kv
+(`pole_doppler`), so `maxwell_mean` returns the probe coherence ρ_eg / Ω_p averaged
+over the Maxwell distribution in closed form: one small eigendecomposition per
+point, no velocity grid and no cutoff. A point that misses the guard is summed on
+a grid fine enough for its poles (the compiled affine kernel when Numba is
+available, a batched solve otherwise). `stationary` is the single v = 0 class.
 """
+import math
+
 import numpy as np
 
-from . import core, doppler, kernels, pole_doppler
+from . import constants, core, doppler, kernels, pole_doppler
 
 POLE_GUARD_RTOL = 1e-6      # pole form vs a direct solve of the v = 0 class, every row
 POLE_LIMIT_SIGMAS = 1e8     # farther poles are rounding modes; 1e4 already cuts a real one
+BULK_SIGMAS = 6.0           # velocity span where a pole must be damped and a grid reaches
+STRIP_FLOOR_SIGMAS = 1e-4   # narrowest pole a grid resolves; real ones stay above 9e-4 σ
+QUADRATURE_ERROR = 1e-8     # nominal trapezoid error of a resolving grid
 
 
-def maxwell_shift_classes(T, mass, k_vec, doppler_on, dv=2.0, cutoff_sigma=4.0):
-    """(kv [rad/s], weights) of the Maxwell velocity classes; Doppler off → kv = 0."""
-    if not doppler_on:
-        return np.zeros(1), np.ones(1)
-    v, w = doppler.velocity_grid(T, mass=mass, dv=dv, cutoff_sigma=cutoff_sigma)
-    return k_vec * v, w
+def _shift_sigma(T, mass, k_vec):
+    """Maxwell standard deviation of kv [rad/s]."""
+    return k_vec * math.sqrt(constants.KB * T / mass)
+
+
+def _strip_classes(damping, T, mass, k_vec):
+    """Maxwell (v, weights) resolving the narrowest of the row `damping`s."""
+    sigma = _shift_sigma(T, mass, k_vec)
+    strip = float(np.clip(np.min(damping), STRIP_FLOOR_SIGMAS * sigma, sigma))
+    return doppler.maxwell_strip_grid(T, mass, k_vec, strip, QUADRATURE_ERROR, BULK_SIGMAS)
 
 
 class AffineScan:
@@ -62,26 +70,36 @@ class AffineScan:
                 np.ascontiguousarray(w, dtype=float), e * n + g, n)
         return out / self.probe_omega
 
-    def grid_mean(self, scan, kv, w):
-        """χ̄(scan) = Σ_j w_j ρ_eg(s, kv_j) / Ω_p over the given velocity classes."""
-        sigma = float(np.sqrt(np.sum(w * kv ** 2) / np.sum(w)))
-        if sigma == 0.0:
-            return self._class_sum(scan, kv, w)
+    def maxwell_mean(self, scan, T, mass, k_vec):
+        """χ̄(scan) = E[ρ_eg(s, kv)] / Ω_p for kv = k_vec·v of a Maxwell vapor."""
+        sigma = _shift_sigma(T, mass, k_vec)
         try:
-            out, failed = self._pole_mean(scan, kv, w, sigma)
+            poles, damping, failed = self._pole_rows(scan, sigma)
         except np.linalg.LinAlgError:
-            return self._class_sum(scan, kv, w)
+            out = np.empty(scan.size, dtype=complex)
+            damping = np.zeros(scan.size)
+            failed = np.ones(scan.size, dtype=bool)
+        else:
+            out = poles.gaussian_mean(0.0, sigma)[:, 0] / self.probe_omega
+            failed |= ~np.isfinite(out)
         if failed.any():
-            out[failed] = self._class_sum(scan[failed], kv, w)
+            v, w = _strip_classes(damping[failed], T, mass, k_vec)
+            out[failed] = self._class_sum(scan[failed], k_vec * v, w)
         return out
 
-    def _pole_mean(self, scan, kv, w, sigma):
-        """Pole-form `grid_mean` and the mask of rows its guard rejects.
+    def quadrature_classes(self, scan, T, mass, k_vec):
+        """Maxwell (v, weights) resolving the narrowest pole of these scan points, for
+        a response there with no closed form (the finite-IF phasor)."""
+        return _strip_classes(self._pole_rows(scan, _shift_sigma(T, mass, k_vec))[1],
+                              T, mass, k_vec)
+
+    def _pole_rows(self, scan, sigma):
+        """Pole rows of the coherence, their damping and the rows the guard rejects.
 
         With the trace row inserted a row is (A00 + s·A01 − D·S) x = e₀ in the real
         Hermitian-generator basis, with D = −kv. A row is kept if its pole form
         reproduces a direct solve of the v = 0 class to POLE_GUARD_RTOL and has no
-        undamped pole inside the velocity grid.
+        undamped pole inside the Maxwell bulk.
         """
         e, g = self.coherence
         n = self.atom.n_levels
@@ -100,15 +118,14 @@ class AffineScan:
             poles = system.residues(scan, -sigma, pole_limit=POLE_LIMIT_SIGMAS * sigma)
             at_rest = system.direct(scan, 0.0)[:, 0]
         rest = poles.value_at(0.0)[:, 0]
-        mean = poles.discrete_mean(-kv, w)[:, 0]
-        in_grid = np.abs(poles.lam.real) <= np.max(np.abs(kv))
-        damping = np.min(np.where(in_grid, np.abs(poles.lam.imag), np.inf), axis=1)
+        in_bulk = np.abs(poles.lam.real) <= BULK_SIGMAS * sigma
+        damping = np.min(np.where(in_bulk, np.abs(poles.lam.imag), np.inf), axis=1)
         failed = ~((np.abs(rest - at_rest) <= POLE_GUARD_RTOL * np.abs(at_rest))
-                   & (damping > 1e-9 * sigma) & np.isfinite(mean))
-        return mean / self.probe_omega, failed
+                   & (damping > 1e-9 * sigma))
+        return poles, damping, failed
 
     def _class_sum(self, scan, kv, w):
-        """`grid_mean` solved class by class."""
+        """χ̄(scan) = Σ_j w_j ρ_eg(s, kv_j) / Ω_p solved class by class."""
         if kernels.available():
             return self._kernel(scan, kv, w)
         e, g = self.coherence
@@ -124,9 +141,9 @@ class AffineScan:
         return out
 
     def stationary(self, scan):
-        """χ̄(scan) of the v = 0 class with the scan carried by `scan_shift`."""
-        if kernels.available():
-            return self._kernel(scan, np.zeros(1), np.ones(1))
+        """χ̄(scan) of the v = 0 class."""
+        if kernels.available() or self.scan_shift is None:
+            return self._class_sum(scan, np.zeros(1), np.ones(1))
         e, g = self.coherence
         n = self.atom.n_levels
         out = np.zeros(scan.size, dtype=complex)

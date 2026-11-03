@@ -4993,7 +4993,17 @@
         "doppler_off": "bitwise"
       },
       "review_note": "⟦AI⟧ AffineScan.grid_mean evaluates every Doppler-on row by its pole form (ShiftInvertSystem about kv = +σ, pole_limit 1e8 σ) on the same 2 m/s grid; a row that misses the per-row 1e-6 guard against a direct v = 0 solve or has an undamped pole inside the grid is summed class by class, and a LinAlgError sends the whole scan there. Doppler-on compute 27 → 13 ms. The depends_on on lambda-spectrum-validity is dropped: this port keeps the grid measure and the operators, so that item stays open and unchanged.",
-      "remaining_scope": "⟦AI⟧ The untruncated Maxwell average (~0.2 % from the 4σ grid, σ taken from the truncated grid) is a separate value decision.",
+      "exact_mean_validation": {
+        "origin": "ai_change_validation",
+        "cases": "Every recompute knob at both slider ends and every choice for Lambda EIT/AT/CPT and Rydberg EIT/AT electrometry, Doppler on.",
+        "doppler_calls": 132,
+        "rows": 92532,
+        "fallback_rows": 0,
+        "worst_row_relative_error_vs_resolving_grid": 6.2e-08,
+        "doppler_off": "bitwise"
+      },
+      "value_decision": "User decision 2026-11-02 (consolidation item 4c): adopt the exact Maxwell average. ⟦AI⟧ AffineScan.maxwell_mean evaluates the closed form with σ = k·sqrt(k_B T/m), which matches fine trapezoid grids to ≤2e-12 and takes the same 13 ms. The earlier note blamed the 4σ truncation for the difference; that was wrong. The 0.15 % it moves is the 2 m/s step aliasing the natural width (k·2 m/s = 2.56 MHz): widening to 8σ leaves it, 1 m/s takes it to 1e-6. Lambda displayed readouts at the regime defaults do not change at their display precision.",
+      "remaining_scope": "⟦AI⟧ None; lambda-spectrum-validity stays open as its own item.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
         "status": "triaged",
@@ -5049,7 +5059,17 @@
         "doppler_off": "bitwise"
       },
       "review_note": "⟦AI⟧ Same AffineScan path. With Doppler on at the electrometry defaults: compute 91 → 19 ms, Fig. 2(b) sweep 1.49 → 0.30 s, cell-heating sweep 1.96 → 0.39 s. The superheterodyne coherent Doppler average keeps its per-class path: its finite-IF response solves a complex (L − iω_IF) system outside ShiftInvertSystem's real form, and only the steepest slope points are solved, so there is no scan to reduce. Finding: the Doppler-on static-slope point and the IF optimum came from argmax over mirror maxima that only rounding separates (asymmetry ≤4e-13 on the grid), so the old side mixed with temperature while the two sides differ by 0.9 % in sensitivity. _mirror_maxima keeps both within MIRROR_TIE_RTOL = 1e-5: the superheterodyne readout takes the more sensitive one, the IF optimum the lower detuning. Against 8876b23 this moves only the Doppler-on cell-heating finite-IF sensitivity at 50/53/55 °C (57.95 → 57.43, 45.68 → 45.27, 39.15 → 38.80 nV/cm/√Hz), where rounding had kept the worse side; the default readout 1007.28 nV/cm/√Hz and the 55 °C best temperature stand. Every other Doppler-on value moves ≤5.3e-9 relative.",
-      "remaining_scope": "⟦AI⟧ The untruncated Maxwell average (up to ~1.6 % from the 4σ grid, σ taken from the truncated grid) is a separate value decision.",
+      "exact_mean_validation": {
+        "origin": "ai_change_validation",
+        "cases": "Every recompute knob at both slider ends and every choice for Lambda EIT/AT/CPT and Rydberg EIT/AT electrometry, Doppler on.",
+        "doppler_calls": 132,
+        "rows": 92532,
+        "fallback_rows": 0,
+        "worst_row_relative_error_vs_resolving_grid": 6.2e-08,
+        "doppler_off": "bitwise"
+      },
+      "value_decision": "User decision 2026-11-02 (consolidation item 4c): adopt the exact Maxwell average. ⟦AI⟧ The closed form matches fine trapezoid grids to ≤2.3e-9. As for Lambda the 1.6–2.0 % it moves is the 2 m/s step, not truncation. The superheterodyne response has no closed form, so it stays a class sum on a grid whose step comes from the rows' narrowest pole (doppler.maxwell_strip_grid, nominal error 1e-8, ±6σ; ≤6.1e-7 against a finer grid at every slider end, about 0.2 s per readout). The 2 m/s grid had that phasor 58 % off. Changes at the electrometry defaults with Doppler on: total sensitivity 1007.28 → 1557.57 nV/cm/√Hz, RF AT splitting 2.39 → 2.05 MHz, AT field estimate 99.44 → 85.57 mV/m RMS, superheterodyne optimum −2.16 → −2.28 MHz. Cell-heating sensitivities rise by about the same 54 %, with 55 °C still best (38.80 → 59.44 nV/cm/√Hz); Fig. 2(b) moves up to 7.5 % in amplitude and 2 % in width. Doppler-off results are bitwise.",
+      "remaining_scope": "⟦AI⟧ None.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
         "status": "triaged",

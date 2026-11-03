@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from .. import affine_doppler, atoms, beam, constants, core, doppler, observables, species
+from .. import affine_doppler, atoms, beam, constants, core, observables, species
 from .. import rydberg_electrometry as electrometry
 from .. import rydberg_experiment as rydberg_experiment
 from .. import rydberg_opacity as opacity
@@ -55,6 +55,7 @@ TRANSIT_FACTOR = 0.6
 # probe power).
 PROBE_RABI_REF_MHZ = 2.0
 SUPERHET_ATOMIC_CACHE_SIZE = 16
+SUPERHET_CLASS_CHUNK = 16384     # velocity classes per finite-IF batch solve
 MIRROR_TIE_RTOL = 1e-5           # mirror slope maxima of a symmetric line are one tie
 
 
@@ -111,7 +112,7 @@ class RydbergEITScheme(Scheme):
     caption = ("85Rb cascade EIT / microwave Autler-Townes electrometry. "
                "The static optical spectrum follows the 5S-5P-40D ladder; "
                "the 37 GHz RF leg dresses 40D-39F.")
-    cache_version = "rydberg-eit-v6"
+    cache_version = "rydberg-eit-v7-exact-maxwell"
     defaults_version = "rydberg-eit-v6"
     supports_headless_observables = True
     _superhet_atomic_cache_lock = threading.RLock()
@@ -425,7 +426,7 @@ class RydbergEITScheme(Scheme):
                       choices=("off", "on"), advanced=True,
                       help="off (default): the counter-propagating geometry suppresses "
                            "the two-photon Doppler — the transit-limited regime Ju et al. "
-                           "operate in (1.6 MHz). on: Maxwell-average the residual "
+                           "operate in (1.6 MHz). on: exact Maxwell average of the residual "
                            "(k_probe − k_coupling)·v; in this lumped 4-level model that "
                            "over-broadens the EIT (~2.5 MHz floor), so it is a "
                            "what-if, not the calibrated reference."),
@@ -534,11 +535,13 @@ class RydbergEITScheme(Scheme):
         return beam.transit_broadening_mhz(
             T, d, mass=constants.MASS_85RB, factor=TRANSIT_FACTOR)
 
-    def _scan_chi(self, atom, h_of, scan, probe, kv, w):
-        """χ̄(scan) for one dephasing configuration (Doppler-off kv=[0]; Doppler-on
-        Maxwell grid); the probe detuning lives in H. Shared by the compensated /
-        uncompensated solves and the Fig. 2(b) probe-power sweep."""
-        return affine_doppler.AffineScan(atom, h_of, (1, 0), probe).grid_mean(scan, kv, w)
+    def _scan_chi(self, atom, h_of, scan, probe, vapor):
+        """χ̄(scan) for one dephasing configuration: the v = 0 class when `vapor` is
+        None, else the exact Maxwell average for vapor = (T, mass, k_vec). The probe
+        detuning lives in H. Shared by the compensated / uncompensated solves and the
+        Fig. 2(b) probe-power sweep."""
+        affine = affine_doppler.AffineScan(atom, h_of, (1, 0), probe)
+        return affine.stationary(scan) if vapor is None else affine.maxwell_mean(scan, *vapor)
 
     @staticmethod
     def _inhomogeneous(chi, scan, fwhm_mhz):
@@ -625,15 +628,14 @@ class RydbergEITScheme(Scheme):
         # Doppler off (default): single static class (kv = 0) — the suppressed-
         # residual, transit-limited regime. Doppler on: Maxwell-average the
         # residual two-photon shift carried by atom.S_v (per-level k ratios).
-        kv, w = affine_doppler.maxwell_shift_classes(
-            T, constants.MASS_85RB, k_vec, params.get("doppler", "off") == "on")
+        vapor = (T, constants.MASS_85RB, k_vec) if params.get("doppler", "off") == "on" else None
 
         # Compensated EIT: one solve. Uncompensated: residual Zeeman scatters the
         # m-sublevel shifts, so the EIT line is INHOMOGENEOUSLY broadened — model
         # it as a Gaussian (FWHM = residual_zeeman) convolution of the compensated
         # susceptibility over the probe detuning. (A homogeneous dephasing knob
         # only lowers the peak in this Ω_c-limited regime; it does not widen it.)
-        chi = self._scan_chi(self._atom(gd, rf_deph), h_of, scan, probe, kv, w)
+        chi = self._scan_chi(self._atom(gd, rf_deph), h_of, scan, probe, vapor)
         chi_uncomp = self._inhomogeneous(chi, scan, zeeman)
 
         return dict(
@@ -808,19 +810,25 @@ class RydbergEITScheme(Scheme):
             if static_indices is None:
                 static_indices = self._static_slope_indices(x, transmission)
             indices = np.asarray(static_indices, dtype=int)
-            velocity, weights = doppler.velocity_grid(
-                raw["T"], mass=constants.MASS_85RB, dv=2.0, cutoff_sigma=4.0)
+            affine = affine_doppler.AffineScan(
+                atom, lambda s: self._hamiltonian_at_probe_detuning(raw, params, s),
+                (1, 0), raw["probe_rabi_mhz"] * MHZ)
+            velocity, weights = affine.quadrature_classes(
+                raw["scan"][indices], raw["T"], constants.MASS_85RB, raw["k_vec"])
             kv = raw["k_vec"] * velocity
             absorption_phasors = np.empty(indices.size, dtype=complex)
             for slot, index in enumerate(indices):
                 H = self._hamiltonian_at_probe_detuning(
                     raw, params, raw["scan"][index])
                 base = core.build_liouvillian(H, atom)
-                liouvillian = base[None, :, :] + kv[:, None, None] * atom.S_v[None, :, :]
-                response = electrometry.weak_signal_response_from_liouvillian(
-                    liouvillian, 4, omega_if, signal_transition=(2, 3))
-                class_phasors = response.real_observable_phasor_per_angular_rabi(
-                    operator)
+                class_phasors = np.empty(kv.size, dtype=complex)
+                for first in range(0, kv.size, SUPERHET_CLASS_CHUNK):
+                    part = slice(first, first + SUPERHET_CLASS_CHUNK)
+                    liouvillian = (base[None, :, :]
+                                   + kv[part, None, None] * atom.S_v[None, :, :])
+                    class_phasors[part] = electrometry.weak_signal_response_from_liouvillian(
+                        liouvillian, 4, omega_if, signal_transition=(2, 3)
+                    ).real_observable_phasor_per_angular_rabi(operator)
                 absorption_phasors[slot] = electrometry.coherent_weighted_average(
                     class_phasors, weights)
             optimization_scope = "static-slope points; coherent Doppler average"
