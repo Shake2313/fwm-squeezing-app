@@ -473,7 +473,8 @@ def _make_figures(
                     label=(f"{dataset['id']} normalized "
                            f"[{dataset['status']}]")
                 )
-        ax.set_xlabel("Probe detuning [MHz]")
+        scan_axis = points[0]["spectrum"].get("scan_axis", "Probe detuning")
+        ax.set_xlabel(f"{scan_axis} [MHz]")
         ax.set_ylabel("Transmission")
         ax.set_title(f"GABES {view}: temperature sweep [PREDICTED]")
         ax.grid(alpha=0.25)

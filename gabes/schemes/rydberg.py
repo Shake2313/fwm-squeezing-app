@@ -39,20 +39,14 @@ RF_DIPOLE_STRETCHED_EA0 = 1326.257_243_451_434_3
 # the counter-propagating geometry the static model assumes.
 COUPLING_WAVELENGTH_NM = 481.0
 
-# --- Calibration constants fitted to Ju et al. (arXiv:2606.04354) ---
+# --- Explicit compact-model optical/transit anchors ---
 # Transit-time broadening of the 5S-40D coherence: an atom crosses the beam in
-# ~d/v_mp, so the coherence decays at ~v_mp/d. The O(1) factor is fit with the
-# probe-power anchor so the reference (0.15 mm, 6 µW, 30 mW) lands on the paper's
-# 1.6 MHz EIT linewidth (the transit-time term is the zero-probe floor, ~1.4 MHz).
+# ~d/v_mp. This phenomenological factor is not an independently validated
+# conversion between the reported beam diameter and the measured EIT width.
 TRANSIT_FACTOR = 0.6
-# Weak-probe drive anchor: Ω_P/2π [MHz] at the reference 6 µW / 0.15 mm. A
-# first-principles Ω_P from the bare D2 dipole overestimates by ~100x (optical
-# pumping + Zeeman/hyperfine sub-structure are not in the lumped 2-level probe
-# leg), so the probe drive is anchored like the coupling. Finite Ω_P power-
-# broadens the EIT (Ju et al. Fig. 2b); fit so 6 µW sits at ~1.6 MHz. Because
-# 6 µW is pinned to the narrow operating point, the broadening over 0–10 µW is
-# milder than the paper's wide-range Fig. 2(b) (whose narrow point is at lower
-# probe power).
+# Ω_P/2π [MHz] at 6 µW / 0.15 mm. Kept as a live model/calibration input:
+# Ju Fig. 2(b)'s ~1.6 MHz point occurs at low probe power, not at 6 µW.
+# No claim that this default reproduces the full measured power dependence.
 PROBE_RABI_REF_MHZ = 2.0
 SUPERHET_ATOMIC_CACHE_SIZE = 16
 SUPERHET_CLASS_CHUNK = 16384     # velocity classes per finite-IF batch solve
@@ -112,8 +106,8 @@ class RydbergEITScheme(Scheme):
     caption = ("85Rb cascade EIT / microwave Autler-Townes electrometry. "
                "The static optical spectrum follows the 5S-5P-40D ladder; "
                "the 37 GHz RF leg dresses 40D-39F.")
-    cache_version = "rydberg-eit-v7-exact-maxwell"
-    defaults_version = "rydberg-eit-v6"
+    cache_version = "rydberg-eit-v8-cp-optical-detunings"
+    defaults_version = "rydberg-eit-v7-optical-detunings"
     supports_headless_observables = True
     _superhet_atomic_cache_lock = threading.RLock()
 
@@ -132,6 +126,10 @@ class RydbergEITScheme(Scheme):
         effective_temp_c=20.0,
         cold_spot_temp_c=20.0,
         coupling_rabi_mhz=3.0,
+        probe_rabi_ref_mhz=PROBE_RABI_REF_MHZ,
+        scan_axis="Probe detuning",
+        probe_detuning_mhz=0.0,
+        coupling_detuning_mhz=0.0,
         lo_rabi_mhz=3.7,
         mw_detuning_mhz=0.0,
         mw_frequency_ghz=37.0,
@@ -192,9 +190,10 @@ class RydbergEITScheme(Scheme):
                            "the reference power reproduces Coupling Rabi."),
             ParamSpec("beam_diameter_mm", "Beam diameter", "Cell & beams",
                       r["beam_diameter_mm"], 0.05, 1.0, 0.01, "mm",
-                      help="Beam 1/e² diameter. Sets Ω_c, Ω_P ∝ 1/d (intensity ∝ "
+                      help="Model beam diameter. Sets Ω_c, Ω_P ∝ 1/d (intensity ∝ "
                            "P/d²) AND the transit-time broadening ∝ v_thermal/d — "
-                           "a tighter beam is brighter but transit-broadens the EIT."),
+                           "a tighter beam is brighter but transit-broadens the EIT. "
+                           "The Gold source does not specify a 1/e²/FWHM convention."),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", r["cell_mm"],
                       1.0, 100.0, 0.5, "mm", recompute=False),
             ParamSpec(
@@ -234,11 +233,30 @@ class RydbergEITScheme(Scheme):
                       help="Anchor Ω_c/2π at the reference power & waist. The "
                            "Coupling power and Beam diameter sliders scale the "
                            "effective Ω_c around this value."),
+            ParamSpec("probe_rabi_ref_mhz", "Probe Rabi (anchor)", "Fields",
+                      r["probe_rabi_ref_mhz"], 0.01, 30.0, 0.01, "MHz", advanced=True,
+                      help="Model Ω_P/2π at 6 µW and 0.15 mm; scales as sqrt(P)/d. "
+                           "This is a calibration parameter, not a measured Gold Rabi rate."),
             ParamSpec("lo_rabi_mhz", "Microwave Rabi Ω_RF", "Fields",
                       r["lo_rabi_mhz"], 0.0, 20.0, 0.1, "MHz",
                       help="Rydberg 40D -> 39F dressing Rabi frequency Ω_RF/2π."),
             ParamSpec("mw_detuning_mhz", "Microwave detuning", "Detunings",
                       r["mw_detuning_mhz"], -20.0, 20.0, 0.1, "MHz"),
+            ParamSpec("scan_axis", "Optical scan", "Detunings", r["scan_axis"],
+                      choices=("Probe detuning", "Coupling detuning"), control="segmented",
+                      help="Selects the scanned laser frequency. The other laser's "
+                           "detuning is held fixed. The Gold source does not establish "
+                           "which optical frequency was scanned."),
+            ParamSpec("probe_detuning_mhz", "Fixed probe detuning", "Detunings",
+                      r["probe_detuning_mhz"], -100.0, 100.0, 0.1, "MHz",
+                      visible_if={"scan_axis": "Coupling detuning"},
+                      help="Δp held fixed during a coupling-frequency scan; ignored "
+                           "as a fixed value when the probe itself is scanned."),
+            ParamSpec("coupling_detuning_mhz", "Fixed coupling detuning", "Detunings",
+                      r["coupling_detuning_mhz"], -100.0, 100.0, 0.1, "MHz",
+                      visible_if={"scan_axis": "Probe detuning"},
+                      help="Δc held fixed during a probe-frequency scan. The bare "
+                           "two-photon resonance is Δp + Δc = 0."),
             ParamSpec("mw_frequency_ghz", "Microwave frequency (display only)", "Fields",
                       r["mw_frequency_ghz"], 1.0, 100.0, 0.1, "GHz", recompute=False,
                       help="Display-only metadata; not used in the solve."),
@@ -424,12 +442,10 @@ class RydbergEITScheme(Scheme):
                 help="Used with the microwave frequency to report r/(2D²/lambda)."),
             ParamSpec("doppler", "Doppler treatment", "Numerics", r["doppler"],
                       choices=("off", "on"), advanced=True,
-                      help="off (default): the counter-propagating geometry suppresses "
-                           "the two-photon Doppler — the transit-limited regime Ju et al. "
-                           "operate in (1.6 MHz). on: exact Maxwell average of the residual "
-                           "(k_probe − k_coupling)·v; in this lumped 4-level model that "
-                           "over-broadens the EIT (~2.5 MHz floor), so it is a "
-                           "what-if, not the calibrated reference."),
+                      help="off: a single velocity-class approximation. on: exact "
+                           "Maxwell average with the counter-propagating optical "
+                           "wave vectors. Neither mode is independently calibrated "
+                           "to the Gold experiment by selecting this control."),
         ]
 
     def _defaults(self, view):
@@ -446,15 +462,19 @@ class RydbergEITScheme(Scheme):
         }
 
     def _atom(self, ground_deph, rf_deph):
-        """4-level cascade with the constant topology from `_cascade_skeleton`;
-        only the two dephasing channels (5S–40D ground–Rydberg and 40D–39F
-        Rydberg–Rydberg) are injected per call."""
+        """Cascade with completely positive nested diagonal dephasing.
+
+        The optical-Rydberg projector gives gamma_02=ground_deph and the
+        additional RF projector gives gamma_23=rf_deph. Consequently the
+        0--3 coherence has their sum; independent pairwise damping would not
+        in general generate a completely positive map.
+        """
         sk = _cascade_skeleton()
-        deph = (
-            (0, 2, ground_deph), (2, 0, ground_deph),
-            (0, 3, ground_deph), (3, 0, ground_deph),
-            (2, 3, rf_deph), (3, 2, rf_deph),
-        )
+        ground_deph, rf_deph = float(ground_deph), float(rf_deph)
+        if not all(np.isfinite(rate) and rate >= 0 for rate in (ground_deph, rf_deph)):
+            raise ValueError("Dephasing rates must be finite and nonnegative")
+        optical = np.sqrt(2.0 * ground_deph) * np.diag([0., 0., 1., 1.])
+        rf = np.sqrt(2.0 * rf_deph) * np.diag([0., 0., 0., 1.])
         return atoms.AtomModel(
             name="rydberg_eit_85rb",
             n_levels=4,
@@ -462,7 +482,8 @@ class RydbergEITScheme(Scheme):
             ground=(0,),
             excited=(1, 2, 3),
             decay=sk["decay"],
-            dephasing=deph,
+            dephasing=(),
+            collapse_ops=(optical, rf),
             doppler_levels=sk["doppler_levels"],
             doppler_ratios=sk["doppler_ratios"],
         )
@@ -489,7 +510,41 @@ class RydbergEITScheme(Scheme):
         p_ref = self._REF["probe_power_uw"]
         d_ref = self._REF["beam_diameter_mm"]
         return beam.anchored_rabi_mhz(
-            PROBE_RABI_REF_MHZ, p, p_ref, diameter=d, ref_diameter=d_ref)
+            float(params.get("probe_rabi_ref_mhz", self._REF["probe_rabi_ref_mhz"])),
+            p, p_ref, diameter=d, ref_diameter=d_ref)
+
+    @classmethod
+    def _scan_axis(cls, params):
+        axis = str(params.get("scan_axis", cls._REF["scan_axis"]))
+        if axis not in ("Probe detuning", "Coupling detuning"):
+            raise ValueError("scan_axis must select Probe detuning or Coupling detuning")
+        return axis
+
+    @classmethod
+    def _optical_detunings_at_scan(cls, params, scan_rad_s):
+        """Physical (Delta_p, Delta_c) in rad/s for one optical scan coordinate."""
+        dp = float(params.get("probe_detuning_mhz", cls._REF["probe_detuning_mhz"])) * MHZ
+        dc = float(params.get("coupling_detuning_mhz", cls._REF["coupling_detuning_mhz"])) * MHZ
+        if cls._scan_axis(params) == "Probe detuning":
+            dp = float(scan_rad_s)
+        else:
+            dc = float(scan_rad_s)
+        if not np.isfinite(dp) or not np.isfinite(dc):
+            raise ValueError("Optical detunings must be finite")
+        return dp, dc
+
+    @classmethod
+    def _resonance_scan_mhz(cls, params):
+        fixed_key = ("coupling_detuning_mhz" if cls._scan_axis(params) == "Probe detuning"
+                     else "probe_detuning_mhz")
+        center = -float(params.get(fixed_key, cls._REF[fixed_key]))
+        if not np.isfinite(center):
+            raise ValueError("Fixed optical detuning must be finite")
+        return center
+
+    @classmethod
+    def _scan_label(cls, params):
+        return cls._scan_axis(params) + " [MHz]"
 
     def _temperature_state(self, params):
         """Return heater/effective/cold-spot temperatures without conflating them.
@@ -570,7 +625,8 @@ class RydbergEITScheme(Scheme):
             half = max(10.0, 3.0 * max(lo, oc))
         else:
             half = max(8.0, 3.0 * oc)
-        return np.linspace(-half, half, 801) * MHZ
+        center = self._resonance_scan_mhz(params)
+        return (np.linspace(-half, half, 801) + center) * MHZ
 
     def compute(self, params):
         line = _probe_line()
@@ -612,17 +668,11 @@ class RydbergEITScheme(Scheme):
         Olo = float(params.get("lo_rabi_mhz", self._REF["lo_rabi_mhz"])) * MHZ
         if params.get("view", "EIT") == "EIT":
             Olo = 0.0
-        Dmw = float(params.get("mw_detuning_mhz", self._REF["mw_detuning_mhz"])) * MHZ
+        h_fields = dict(probe_rabi_mhz=probe / MHZ, coupling_rabi_mhz=Oc / MHZ,
+                        lo_rabi_mhz=Olo / MHZ)
 
         def h_of(s):
-            H = np.zeros((4, 4), dtype=complex)
-            H[1, 1] = -s
-            H[2, 2] = -s
-            H[3, 3] = -s - Dmw
-            H[0, 1] = H[1, 0] = probe / 2
-            H[1, 2] = H[2, 1] = Oc / 2
-            H[2, 3] = H[3, 2] = Olo / 2
-            return H
+            return self._hamiltonian_at_scan_detuning(h_fields, params, s)
 
         scan = self._scan(params)
         # Doppler off (default): single static class (kv = 0) — the suppressed-
@@ -640,6 +690,13 @@ class RydbergEITScheme(Scheme):
 
         return dict(
             scan=scan,
+            scan_axis=self._scan_axis(params),
+            scan_axis_label=self._scan_label(params),
+            fixed_probe_detuning_mhz=float(params.get("probe_detuning_mhz", self._REF["probe_detuning_mhz"])),
+            fixed_coupling_detuning_mhz=float(params.get("coupling_detuning_mhz", self._REF["coupling_detuning_mhz"])),
+            two_photon_resonance_scan_mhz=self._resonance_scan_mhz(params),
+            scan_axis_source="model control; Gold scanned-laser identity not established",
+            dephasing_model="correlated_phase_lindblad",
             chi_bar=chi,
             chi_bar_uncomp=chi_uncomp,
             N=N,
@@ -662,6 +719,7 @@ class RydbergEITScheme(Scheme):
             gamma_mhz=line["gamma_mhz"],
             coupling_rabi_mhz=Oc / MHZ,
             probe_rabi_mhz=probe / MHZ,
+            probe_rabi_ref_mhz=float(params.get("probe_rabi_ref_mhz", self._REF["probe_rabi_ref_mhz"])),
             lo_rabi_mhz=Olo / MHZ,
             rydberg_dephasing_mhz=intrinsic_base,
             temperature_dephasing_mhz=temp_extra,
@@ -678,11 +736,11 @@ class RydbergEITScheme(Scheme):
         )
 
     @staticmethod
-    def _transparency_maxima(x, y, window_mhz):
+    def _transparency_maxima(x, y, window_mhz, center_mhz=0.0):
         """Local transmission maxima (pos [MHz], height) within ±window of line
         centre — the dressed AT/EIT transparency peaks."""
         return [(float(x[i]), float(y[i])) for i in range(1, y.size - 1)
-                if abs(x[i]) <= window_mhz and y[i] > y[i - 1] and y[i] >= y[i + 1]]
+                if abs(x[i] - center_mhz) <= window_mhz and y[i] > y[i - 1] and y[i] >= y[i + 1]]
 
     @staticmethod
     def _opacity_scale(raw, params):
@@ -779,18 +837,24 @@ class RydbergEITScheme(Scheme):
         operator[1, 0] = +0.5j
         return operator
 
-    @staticmethod
-    def _hamiltonian_at_probe_detuning(raw, params, detuning_rad_s):
-        """Rebuild the LO-dressed Hamiltonian at one probe detuning."""
+    @classmethod
+    def _hamiltonian_at_scan_detuning(cls, raw, params, detuning_rad_s):
+        """One shared optical/RF Hamiltonian for stationary and finite-IF paths."""
+        dp, dc = cls._optical_detunings_at_scan(params, detuning_rad_s)
         H = np.zeros((4, 4), dtype=complex)
-        H[1, 1] = -detuning_rad_s
-        H[2, 2] = -detuning_rad_s
-        H[3, 3] = -detuning_rad_s - float(params.get(
+        H[1, 1] = -dp
+        H[2, 2] = -(dp + dc)
+        H[3, 3] = -(dp + dc) - float(params.get(
             "mw_detuning_mhz", 0.0)) * MHZ
         H[0, 1] = H[1, 0] = raw["probe_rabi_mhz"] * MHZ / 2.0
         H[1, 2] = H[2, 1] = raw["coupling_rabi_mhz"] * MHZ / 2.0
         H[2, 3] = H[3, 2] = raw["lo_rabi_mhz"] * MHZ / 2.0
         return H
+
+    @classmethod
+    def _hamiltonian_at_probe_detuning(cls, raw, params, detuning_rad_s):
+        """Compatibility alias: argument follows the selected optical scan axis."""
+        return cls._hamiltonian_at_scan_detuning(raw, params, detuning_rad_s)
 
     def _superheterodyne_atomic_phasors(
             self, raw, params, x, transmission, static_indices=None):
@@ -811,14 +875,14 @@ class RydbergEITScheme(Scheme):
                 static_indices = self._static_slope_indices(x, transmission)
             indices = np.asarray(static_indices, dtype=int)
             affine = affine_doppler.AffineScan(
-                atom, lambda s: self._hamiltonian_at_probe_detuning(raw, params, s),
+                atom, lambda s: self._hamiltonian_at_scan_detuning(raw, params, s),
                 (1, 0), raw["probe_rabi_mhz"] * MHZ)
             velocity, weights = affine.quadrature_classes(
                 raw["scan"][indices], raw["T"], constants.MASS_85RB, raw["k_vec"])
             kv = raw["k_vec"] * velocity
             absorption_phasors = np.empty(indices.size, dtype=complex)
             for slot, index in enumerate(indices):
-                H = self._hamiltonian_at_probe_detuning(
+                H = self._hamiltonian_at_scan_detuning(
                     raw, params, raw["scan"][index])
                 base = core.build_liouvillian(H, atom)
                 class_phasors = np.empty(kv.size, dtype=complex)
@@ -836,14 +900,14 @@ class RydbergEITScheme(Scheme):
             indices = np.arange(raw["scan"].size, dtype=int)
             liouvillian = np.asarray([
                 core.build_liouvillian(
-                    self._hamiltonian_at_probe_detuning(raw, params, detuning), atom)
+                    self._hamiltonian_at_scan_detuning(raw, params, detuning), atom)
                 for detuning in raw["scan"]
             ])
             response = electrometry.weak_signal_response_from_liouvillian(
                 liouvillian, 4, omega_if, signal_transition=(2, 3))
             absorption_phasors = (
                 response.real_observable_phasor_per_angular_rabi(operator))
-            optimization_scope = "full probe-detuning scan"
+            optimization_scope = "full optical-detuning scan"
         return indices, absorption_phasors, optimization_scope
 
     @staticmethod
@@ -874,6 +938,9 @@ class RydbergEITScheme(Scheme):
             None if static_indices is None else tuple(static_indices.tolist()),
             float(params.get("if_khz", self._REF["if_khz"])),
             float(params.get("mw_detuning_mhz", self._REF["mw_detuning_mhz"])),
+            self._scan_axis(params),
+            float(params.get("probe_detuning_mhz", self._REF["probe_detuning_mhz"])),
+            float(params.get("coupling_detuning_mhz", self._REF["coupling_detuning_mhz"])),
             float(raw["probe_rabi_mhz"]), float(raw["coupling_rabi_mhz"]),
             float(raw["lo_rabi_mhz"]), float(raw["rydberg_dephasing_mhz"]),
             float(raw["temperature_dephasing_mhz"]),
@@ -1002,11 +1069,18 @@ class RydbergEITScheme(Scheme):
         current_phasor, signal_power_w, reference_channel, noise, sensitivity = best
         enbw_hz = float(params.get(
             "measurement_enbw_hz", self._REF["measurement_enbw_hz"]))
+        optimum_dp, optimum_dc = self._optical_detunings_at_scan(
+            params, float(raw["scan"][best_index]))
         return dict(
             response_detuning_mhz=x[indices],
+            scan_axis=self._scan_axis(params),
             transmission_phasor_per_angular_rabi=transmission_phasor_per_rabi,
             optimum_index=best_index,
             optimum_detuning_mhz=float(x[best_index]),
+            optimum_scan_detuning_mhz=float(x[best_index]),
+            optimum_probe_detuning_mhz=optimum_dp / MHZ,
+            optimum_coupling_detuning_mhz=optimum_dc / MHZ,
+            optimum_two_photon_detuning_mhz=(optimum_dp + optimum_dc) / MHZ,
             optimum_transmission=float(transmission[best_index]),
             response_phase_deg=float(np.angle(current_phasor, deg=True)),
             current_responsivity_a_per_v_m=float(abs(current_phasor)),
@@ -1027,7 +1101,7 @@ class RydbergEITScheme(Scheme):
         )
 
     @staticmethod
-    def _eit_features(x, T_trans):
+    def _eit_features(x, T_trans, center_mhz=0.0):
         """(FWHM [MHz], peak contrast) of the central EIT transparency feature.
 
         Contrast = T(centre) − absorptive floor in a ±5 MHz window. The FWHM is
@@ -1035,19 +1109,23 @@ class RydbergEITScheme(Scheme):
         crossings (sub-sample accurate — a bare grid walk stair-steps the
         probe-power sweep). The transmitted-signal amplitude in Fig. 2(b) scales
         as probe power × contrast."""
-        ic = int(np.argmin(np.abs(x)))
+        ic = int(np.argmin(np.abs(x - center_mhz)))
         peak = float(T_trans[ic])
-        win = np.abs(x) <= 5.0
+        win = np.abs(x - center_mhz) <= 5.0
         floor = float(np.min(T_trans[win])) if win.any() else float(np.min(T_trans))
         contrast = peak - floor
         if contrast <= 0:
             return float("nan"), 0.0
         half = floor + 0.5 * contrast
+        if ic == 0 or ic == x.size - 1:
+            return float("nan"), contrast
 
         def crossing(step):
             i = ic
             while 0 < i < x.size - 1 and T_trans[i] >= half:
                 i += step
+            if T_trans[i] >= half:
+                return float("nan")
             x0, y0, x1, y1 = x[i - step], T_trans[i - step], x[i], T_trans[i]
             return x1 if y1 == y0 else x0 + (half - y0) * (x1 - x0) / (y1 - y0)
 
@@ -1058,8 +1136,9 @@ class RydbergEITScheme(Scheme):
         matplotlib — the headless path tests and scans reuse without paying the
         figure-build cost. `observables` wraps this and draws the figure."""
         x, T_trans, xphys = self._transmission(raw["chi_bar"], raw, params)
-        ic = int(np.argmin(np.abs(x)))
-        width, _ = self._eit_features(x, T_trans)
+        center_mhz = float(raw.get("two_photon_resonance_scan_mhz", self._resonance_scan_mhz(params)))
+        ic = int(np.argmin(np.abs(x - center_mhz)))
+        width, _ = self._eit_features(x, T_trans, center_mhz=center_mhz)
         slope = (np.nanmax(np.abs(np.gradient(T_trans, x)))
                  if np.ptp(T_trans) > 0.0 else 0.0)
         if_delta = max(float(params.get("if_khz", self._REF["if_khz"])) / 1000.0,
@@ -1104,7 +1183,7 @@ class RydbergEITScheme(Scheme):
                      "the full optical-spectrum model. For experimental data, fit "
                      "Ω_RF to the spectrum before using this value."))
             window = max(8.0, 2.0 * raw["lo_rabi_mhz"] + dmw)
-            peaks = self._transparency_maxima(x, T_trans, window)
+            peaks = self._transparency_maxima(x, T_trans, window, center_mhz=center_mhz)
             at_resolved = len(peaks) >= 2
             if at_resolved:
                 xs = sorted(p[0] for p in sorted(peaks, key=lambda p: p[1])[-2:])
@@ -1126,14 +1205,15 @@ class RydbergEITScheme(Scheme):
                          "full-spectrum fitted Ω_RF field is preferred."))
             if peaks:
                 # Height-weighted centre of the transparency peaks: the symmetric
-                # doublet sits at 0; a detuned microwave pulls it toward the stronger
+                # doublet sits near the bare two-photon resonance; a detuned microwave pulls it toward the stronger
                 # dressed state, so the shift is readable even when one peak fades.
                 wsum = sum(h for _, h in peaks)
-                center = sum(px * h for px, h in peaks) / wsum
+                center = sum(px * h for px, h in peaks) / wsum - center_mhz
                 metrics.append(dict(label="AT center shift", value=f"{center:+.2f} MHz",
                                     help="Height-weighted centre of the dressed "
-                                         "transparency peaks; nonzero when the microwave "
-                                         "is detuned off the 40D–39F resonance."))
+                                         "transparency peaks relative to the bare "
+                                         "two-photon resonance. Optical line pulling "
+                                         "and RF detuning can both shift it."))
             if not at_resolved:
                 metrics.append(dict(
                     label="AT status", value="doublet unresolved", kind="status",
@@ -1159,7 +1239,7 @@ class RydbergEITScheme(Scheme):
                       "IF offset; a static proxy for a lock-in/superhet readout."),
             dict(label="IF optimum detuning",
                  value=(f"{if_detuning:+.2f} MHz" if np.isfinite(if_detuning) else "—"),
-                 help="Probe detuning where the finite-IF discriminator is largest."),
+                 help="Selected optical scan coordinate where the finite-IF discriminator is largest."),
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}"),
         ])
         if sam is not None:
@@ -1215,7 +1295,7 @@ class RydbergEITScheme(Scheme):
                 dict(
                     label="Superhet optimum detuning",
                     value=f"{superhet['optimum_detuning_mhz']:+.2f} MHz",
-                    help="Probe detuning minimizing total noise-equivalent field, "
+                    help="Selected optical scan coordinate minimizing total noise-equivalent field, "
                          "including transmission-dependent shot noise "
                          f"({superhet['optimization_scope']})."),
                 dict(
@@ -1286,6 +1366,11 @@ class RydbergEITScheme(Scheme):
             total_field_asd_nv_cm_per_sqrt_hz=None,
             psn_field_asd_nv_cm_per_sqrt_hz=None,
             optimum_detuning_mhz=None,
+            optimum_scan_detuning_mhz=None,
+            optimum_probe_detuning_mhz=None,
+            optimum_coupling_detuning_mhz=None,
+            optimum_two_photon_detuning_mhz=None,
+            scan_axis=self._scan_axis(params),
             optimization_scope=None,
         )
         if superhet is not None:
@@ -1296,6 +1381,10 @@ class RydbergEITScheme(Scheme):
                 psn_field_asd_nv_cm_per_sqrt_hz=float(
                     superhet["sensitivity"].psn_field_asd_nv_cm_per_sqrt_hz),
                 optimum_detuning_mhz=superhet["optimum_detuning_mhz"],
+                optimum_scan_detuning_mhz=superhet["optimum_scan_detuning_mhz"],
+                optimum_probe_detuning_mhz=superhet["optimum_probe_detuning_mhz"],
+                optimum_coupling_detuning_mhz=superhet["optimum_coupling_detuning_mhz"],
+                optimum_two_photon_detuning_mhz=superhet["optimum_two_photon_detuning_mhz"],
                 optimization_scope=superhet["optimization_scope"],
             )
         trust_readout = dict(
@@ -1312,6 +1401,11 @@ class RydbergEITScheme(Scheme):
                          "model; pointwise balanced detector; no held-out "
                          "experimental validation"),
             doppler_mode=str(params.get("doppler", self._REF["doppler"])),
+            scan_axis=self._scan_axis(params),
+            fixed_probe_detuning_mhz=float(params.get("probe_detuning_mhz", self._REF["probe_detuning_mhz"])),
+            fixed_coupling_detuning_mhz=float(params.get("coupling_detuning_mhz", self._REF["coupling_detuning_mhz"])),
+            two_photon_resonance_scan_mhz=center_mhz,
+            dephasing_model=raw.get("dephasing_model", "correlated_phase_lindblad"),
             eit_width_mhz=(float(width) if raw["lo_rabi_mhz"] <= 0
                            and np.isfinite(width) else None),
             at_split_mhz=at_split_mhz,
@@ -1324,6 +1418,7 @@ class RydbergEITScheme(Scheme):
         )
         return dict(
             x=x, T_trans=T_trans, xphys=xphys, width=width, metrics=metrics,
+            resonance_scan_mhz=center_mhz,
             max_slope_per_mhz=float(slope), if_discriminator_per_mhz=float(if_disc),
             rydberg_readout=trust_readout, effective_opacity=opacity_spec,
             prediction_status="PREDICTED",
@@ -1338,6 +1433,7 @@ class RydbergEITScheme(Scheme):
         effective_atoms = ro["effective_atoms"]
         sam = ro["sam"]
         view = params.get("view", "EIT")
+        center_mhz = ro["resonance_scan_mhz"]
 
         fig = None
         if include_figures:
@@ -1353,12 +1449,12 @@ class RydbergEITScheme(Scheme):
                          label="without B-field compensation")
                 axT.plot(x, T_trans, color="#d62728", lw=2.0,
                          label="with compensation")
-                axT.set_xlabel("Frequency [MHz]")
+                axT.set_xlabel(self._scan_label(params))
                 axT.set_ylabel("Transmission")
-                axT.axvline(0.0, color="gray", ls=":", lw=0.8)
+                axT.axvline(center_mhz, color="gray", ls=":", lw=0.8)
                 axT.legend(fontsize=9, loc="upper right")
                 xlim = max(2.5, 2.5 * width)
-                axT.set_xlim(-xlim, xlim)
+                axT.set_xlim(center_mhz - xlim, center_mhz + xlim)
             else:
                 fig, (axT, axR, axD) = plt.subplots(
                     3, 1, figsize=(8.5, 8.0), sharex=True)
@@ -1388,9 +1484,9 @@ class RydbergEITScheme(Scheme):
                     f"Finite-IF linear response ({float(params.get('if_khz', self._REF['if_khz'])):.0f} kHz IF)")
                 axD.plot(x, np.real(xphys), color="#7c3aed", lw=1.5)
                 axD.set_ylabel("Re chi")
-                axD.set_xlabel("Probe detuning [MHz]")
+                axD.set_xlabel(self._scan_label(params))
                 for a in (axT, axR, axD):
-                    a.axvline(0.0, color="gray", ls=":", lw=0.8)
+                    a.axvline(center_mhz, color="gray", ls=":", lw=0.8)
             fig.tight_layout()
 
         derived = derived_table([
@@ -1400,6 +1496,12 @@ class RydbergEITScheme(Scheme):
              f"{float(params.get('mw_frequency_ghz', self._REF['mw_frequency_ghz'])):.1f} GHz"),
             ("Coupling Rabi Ω_c / 2π", f"{raw['coupling_rabi_mhz']:.3f} MHz"),
             ("Probe Rabi Ω_P / 2π", f"{raw['probe_rabi_mhz']:.3f} MHz"),
+            ("Probe Rabi anchor / 2π", f"{raw['probe_rabi_ref_mhz']:.3f} MHz at 6 µW, 0.15 mm"),
+            ("Optical scan axis", self._scan_axis(params)),
+            ("Fixed probe detuning", f"{raw['fixed_probe_detuning_mhz']:+.3f} MHz (used for coupling scan)"),
+            ("Fixed coupling detuning", f"{raw['fixed_coupling_detuning_mhz']:+.3f} MHz (used for probe scan)"),
+            ("Bare two-photon resonance scan coordinate", f"{center_mhz:+.3f} MHz"),
+            ("Dephasing", "CP nested diagonal optical/RF projectors"),
             ("Beam diameter", f"{raw['beam_diameter_mm']:.3f} mm"),
             ("Probe power", f"{raw['probe_power_uw']:.2f} µW"),
             ("Temperature definition", raw["temperature_model"]),
@@ -1447,7 +1549,9 @@ class RydbergEITScheme(Scheme):
                 ("RF dipole", f"{float(params.get('rf_transition_dipole_ea0', self._REF['rf_transition_dipole_ea0'])):.3f} e a₀"),
                 ("RF angular/polarization factor", f"{rf_coupling.angular_factor:.4f}"),
                 ("Field convention", convention),
-                ("Optimum probe detuning", f"{superhet['optimum_detuning_mhz']:+.4f} MHz"),
+                ("Optimum scan detuning", f"{superhet['optimum_scan_detuning_mhz']:+.4f} MHz"),
+                ("Optimum physical probe detuning", f"{superhet['optimum_probe_detuning_mhz']:+.4f} MHz"),
+                ("Optimum physical coupling detuning", f"{superhet['optimum_coupling_detuning_mhz']:+.4f} MHz"),
                 ("Detector responsivity", f"{superhet['detector_responsivity_a_per_w']:.6f} A/W"),
                 ("Signal detector power", f"{superhet['signal_detector_power_w'] * 1e6:.4f} µW"),
                 ("Reference detector power", f"{superhet['reference_detector_power_w'] * 1e6:.4f} µW"),
@@ -1493,7 +1597,8 @@ class RydbergEITScheme(Scheme):
                                          ("uncomp", "chi_bar_uncomp")):
                         x, transmission, _ = self._transmission(
                             raw[chi_key], raw, scenario_params)
-                        width, contrast = self._eit_features(x, transmission)
+                        width, contrast = self._eit_features(
+                            x, transmission, center_mhz=self._resonance_scan_mhz(pr))
                         scenario[key]["width"].append(float(width))
                         scenario[key]["amp"].append(float(p_uw * contrast))
             for scenario in scenarios:
@@ -1514,6 +1619,8 @@ class RydbergEITScheme(Scheme):
             nominal = next(s for s in scenarios if s["value"] == spec["value"])
             return dict(
                 powers=powers.tolist(), comp=nominal["comp"],
+                scan_axis=self._scan_axis(params),
+                two_photon_resonance_scan_mhz=self._resonance_scan_mhz(params),
                 uncomp=nominal["uncomp"], opacity_scenarios=scenarios,
                 effective_opacity=spec, prediction_status="PREDICTED",
                 calibration_status="UNCALIBRATED",
@@ -1570,7 +1677,7 @@ class RydbergEITScheme(Scheme):
             doppler_on = str(params.get("doppler", self._REF["doppler"])) == "on"
             scenario_scope = (
                 "fixed nominal static-gradient sampled point at each temperature"
-                if doppler_on else "full probe-detuning scan at each temperature")
+                if doppler_on else "full optical-detuning scan at each temperature")
             scenarios = [dict(
                 sample, **{key: [] for key in scenario_fields},
                 prediction_status="PREDICTED", optimization_scope=scenario_scope,
@@ -1600,8 +1707,9 @@ class RydbergEITScheme(Scheme):
                         pr, effective_opacity_participation=scenario["value"])
                     ro = self._readout(raw, scenario_params)
                     x, transmission = ro["x"], ro["T_trans"]
-                    width, contrast = self._eit_features(x, transmission)
-                    ic = int(np.argmin(np.abs(x)))
+                    center_mhz = self._resonance_scan_mhz(pr)
+                    width, contrast = self._eit_features(x, transmission, center_mhz=center_mhz)
+                    ic = int(np.argmin(np.abs(x - center_mhz)))
                     scenario["spectra"].append(transmission.tolist())
                     scenario["widths_mhz"].append(float(width))
                     scenario["contrasts"].append(float(contrast))
@@ -1641,6 +1749,8 @@ class RydbergEITScheme(Scheme):
                 temperatures_c=temperatures.tolist(),
                 temperature_semantics="linked effective/cold-spot simulation temperature",
                 frequency_mhz=x.tolist(),
+                scan_axis=self._scan_axis(params),
+                two_photon_resonance_scan_mhz=self._resonance_scan_mhz(params),
                 density_m3=densities,
                 transit_mhz=transit,
                 effective_atoms=effective_atoms,
@@ -1667,7 +1777,7 @@ class RydbergEITScheme(Scheme):
                     temperatures, spectra, colors):
                 ax_spectrum.plot(x, transmission, color=color, lw=1.1,
                                  label=f"{temp_c:g} C")
-            ax_spectrum.set_xlabel("Probe detuning [MHz]")
+            ax_spectrum.set_xlabel(sweep["scan_axis"] + " [MHz]")
             ax_spectrum.set_ylabel("Transmission")
             ax_spectrum.set_title("Temperature-dependent EIT spectra")
             ax_spectrum.legend(ncol=2, fontsize=7)
@@ -1772,8 +1882,8 @@ class RydbergEITScheme(Scheme):
     def info(self):
         return (
             "**Rydberg-EIT electrometry.** 85Rb cascade-EIT / microwave Autler-Townes "
-            "model with optical linewidth/Rabi anchors from the vapor-cell experiment "
-            "of Ju et al. The EIT view models transmission with / without B-field "
+            "model with an explicit probe-Rabi calibration anchor and the reported "
+            "coupling-Rabi reference of Ju et al. The EIT view models transmission with / without B-field "
             "compensation; the probe-power panel models its power dependence. "
             "The effective optical opacity is an explicit uncalibrated input. "
             "Temperature/power sweeps and their sampled optima are PREDICTED; "
@@ -1785,10 +1895,13 @@ class RydbergEITScheme(Scheme):
             "full time-domain waveform/lock-in simulation.\n\n"
             "Probe (780 nm) and coupling (481 nm) powers drive Ω_P, Ω_c via √(P)/d "
             "intensity scaling (anchored), and the beam diameter also sets the "
-            "transit-time broadening that limits the EIT linewidth (≈1.6 MHz at the "
-            "reference). The counter-propagating geometry suppresses the two-photon "
-            "Doppler; an optional Doppler-on mode shows the residual "
-            "(k_probe − k_coupling)·v broadening.\n\n"
+            "transit-time broadening. The probe anchor and transit factor have not "
+            "been jointly validated against the measured power-dependent line shapes. "
+            "Doppler on averages the full residual counter-propagating velocity shifts; "
+            "off is a single-class approximation. Completely positive nested diagonal "
+            "collapse operators model optical/RF dephasing. Independent probe and "
+            "coupling detunings allow either laser to be scanned at a fixed detuning "
+            "of the other; the bare two-photon resonance is Δp+Δc=0.\n\n"
             "**Calibration scope.** The default 40D5/2→39F7/2 dipole is the ARC "
             "3.10.2 stretched-state σ+ value; the RF angular/polarization factor, "
             "detector throughput, reference-arm balance, RIN, and electronics noise "

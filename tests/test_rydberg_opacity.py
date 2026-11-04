@@ -61,7 +61,7 @@ def test_opacity_controls_are_navigate_only_and_invalidate_extra_views():
         assert all(name in view.param_keys for view in scheme.extra_views())
 
 
-def test_default_optical_arrays_and_finite_if_match_legacy_baseline(reference):
+def test_declared_opacity_preserves_propagation_contract_with_cp_physics(reference):
     scheme, params, raws = reference
     for mode, raw in raws.items():
         p = params[mode]
@@ -74,12 +74,15 @@ def test_default_optical_arrays_and_finite_if_match_legacy_baseline(reference):
         np.testing.assert_allclose(susceptibility, legacy_susceptibility, rtol=1e-12, atol=0)
     eit = scheme._readout(raws["EIT"], params["EIT"])
     at = scheme._readout(raws["AT electrometry"], params["AT electrometry"])
-    # Recorded from the current production implementation before this change.
-    assert eit["width"] == pytest.approx(1.6130585827288382, rel=1e-12)
-    assert eit["T_trans"][400] == pytest.approx(0.9400166150823321, rel=1e-12)
-    assert at["superhet"]["sensitivity"].total_field_asd_nv_cm_per_sqrt_hz == pytest.approx(
-        6.0823872151659275, rel=1e-12)
-    assert at["superhet"]["optimum_detuning_mhz"] == -2.2200000000000006
+    # The old v7 numerical pins used a non-CP generator and are retained in
+    # archived research data, not imposed on the corrected physical model.
+    assert np.isfinite(eit["width"]) and eit["width"] > 0
+    assert at["rydberg_readout"]["dephasing_model"] == "correlated_phase_lindblad"
+    sensitivity = at["superhet"]["sensitivity"]
+    assert np.isfinite(sensitivity.total_field_asd_nv_cm_per_sqrt_hz)
+    assert sensitivity.total_field_asd_nv_cm_per_sqrt_hz > 0
+    assert sensitivity.total_field_asd_nv_cm_per_sqrt_hz == pytest.approx(
+        sensitivity.psn_field_asd_nv_cm_per_sqrt_hz, rel=1e-12)
 
 
 def test_live_opacity_ignores_legacy_alias_and_atom_count_fraction(reference):

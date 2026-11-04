@@ -94,7 +94,9 @@ class StaticRydbergAdapter:
 
     def __init__(self) -> None:
         self.scheme = schemes.get("rydberg_eit")
-        required = ("compute", "recommended_defaults", "_readout", "_eit_features")
+        required = ("compute", "recommended_defaults", "_readout", "_eit_features",
+                    "_scan_axis", "_hamiltonian_at_scan_detuning",
+                    "_absorption_quadrature_operator")
         missing = [name for name in required if not hasattr(self.scheme, name)]
         if missing:
             raise RuntimeError(
@@ -122,6 +124,22 @@ class StaticRydbergAdapter:
         params.update(dict(overrides))
         params["view"] = view
         return params
+
+    def optical_detunings_mhz(self, params: Mapping[str, Any], scan_mhz: float) -> tuple[float, float]:
+        """Physical (Δp, Δc) [MHz] at one coordinate of the selected optical scan.
+
+        The scheme's ``_optical_detunings_at_scan`` in MHz: the scanned laser
+        takes the coordinate, the other keeps its fixed detuning.  Kept in MHz
+        so exported coordinates carry no rad/s round trip.
+        """
+        ref = self.scheme._REF
+        probe = float(params.get("probe_detuning_mhz", ref["probe_detuning_mhz"]))
+        coupling = float(params.get("coupling_detuning_mhz", ref["coupling_detuning_mhz"]))
+        if self.scheme._scan_axis(params) == "Probe detuning":
+            probe = float(scan_mhz)
+        else:
+            coupling = float(scan_mhz)
+        return probe, coupling
 
     def temperature_point(
         self,
@@ -155,13 +173,18 @@ class StaticRydbergAdapter:
         readout = self.scheme._readout(raw, params, atomic_response=atomic_response)
         x = np.asarray(readout["x"], dtype=float)
         transmission = np.asarray(readout["T_trans"], dtype=float)
-        width, contrast = self.scheme._eit_features(x, transmission)
+        # The bare two-photon resonance sits at minus the fixed counterpart
+        # detuning on the scan axis, not at scan coordinate 0.
+        center = float(readout["resonance_scan_mhz"])
+        width, contrast = self.scheme._eit_features(x, transmission, center_mhz=center)
         # np.gradient can leave roundoff-sized slopes for an exactly constant
         # curve on a floating-point grid. Such a curve has no discriminator.
         slope = (0.0 if np.ptp(transmission) == 0.0 else
                  float(np.nanmax(np.abs(np.gradient(transmission, x)))))
-        ic = int(np.argmin(np.abs(x)))
+        ic = int(np.argmin(np.abs(x - center)))
         metrics = readout.get("metrics", [])
+        scan_axis = self.scheme._scan_axis(params)
+        ref = self.scheme._REF
 
         result: dict[str, Any] = {
             "temperature_c": float(temperature_c),
@@ -169,6 +192,18 @@ class StaticRydbergAdapter:
             "status": "PREDICTED",
             "parameters": params,
             "effective_opacity": opacity_spec(params),
+            "optical_scan": {
+                "axis": scan_axis,
+                "fixed_probe_detuning_mhz": float(params.get(
+                    "probe_detuning_mhz", ref["probe_detuning_mhz"])),
+                "fixed_coupling_detuning_mhz": float(params.get(
+                    "coupling_detuning_mhz", ref["coupling_detuning_mhz"])),
+                "two_photon_resonance_scan_mhz": center,
+                "qualifier": (
+                    "spectrum and detuning metrics are coordinates of the scanned "
+                    "laser; the other laser keeps its fixed detuning"
+                ),
+            },
             "metrics": {
                 "number_density_m3": {
                     "value": _finite_or_none(raw.get("N")),
@@ -200,6 +235,7 @@ class StaticRydbergAdapter:
                     "value": _metric_number(metrics, "IF optimum detuning"),
                     "unit": "MHz",
                     "status": "PREDICTED",
+                    "qualifier": f"{scan_axis} scan coordinate",
                 },
                 "transmission_at_resonance": {
                     "value": _finite_or_none(transmission[ic]),
@@ -234,6 +270,7 @@ class StaticRydbergAdapter:
         }
         if include_spectrum:
             result["spectrum"] = {
+                "scan_axis": scan_axis,
                 "detuning_mhz": x.tolist(),
                 "transmission": transmission.tolist(),
                 "status": "PREDICTED",
@@ -249,7 +286,8 @@ class ElectrometryAdapter:
 
     No transition dipole or detector calibration is supplied implicitly.  A
     disabled/incomplete config therefore remains ``PENDING``.  When enabled,
-    the adapter searches probe detuning and reports the minimum predicted total
+    the adapter searches the selected optical scan (probe or coupling detuning,
+    the other held fixed) and reports the minimum predicted total
     noise-equivalent field together with PSN and technical contributions.
     """
 
@@ -364,7 +402,11 @@ class ElectrometryAdapter:
                     sensitivity.psn_field_asd_nv_cm_per_sqrt_hz),
                 "technical_limit_nv_cm_sqrt_hz": (
                     sensitivity.technical_field_asd_nv_cm_per_sqrt_hz),
-                "optimum_probe_detuning_mhz": superhet["optimum_detuning_mhz"],
+                "scan_axis": superhet["scan_axis"],
+                "optimum_scan_detuning_mhz": superhet["optimum_scan_detuning_mhz"],
+                "optimum_probe_detuning_mhz": superhet["optimum_probe_detuning_mhz"],
+                "optimum_coupling_detuning_mhz": superhet[
+                    "optimum_coupling_detuning_mhz"],
                 "optimization_scope": superhet["optimization_scope"],
                 "measurement_enbw_hz": superhet["enbw_hz"],
             }
@@ -391,8 +433,6 @@ class ElectrometryAdapter:
         ) * mhz
         atom = scheme._atom(ground_dephasing, raw["rf_dephasing_mhz"] * mhz)
         probe = raw["probe_rabi_mhz"] * mhz
-        coupling = raw["coupling_rabi_mhz"] * mhz
-        lo = raw["lo_rabi_mhz"] * mhz
         microwave_detuning = float(params.get("mw_detuning_mhz", 0.0)) * mhz
         if_omega = 2.0 * np.pi * float(params.get("if_khz", 40.0)) * 1.0e3
         rf_coupling = RFDipoleCoupling(
@@ -412,9 +452,7 @@ class ElectrometryAdapter:
         signal_power_scale = float(cfg["signal_probe_power_scale"])
 
         # Hermitian observable with Tr(O rho) = Im(rho_10).
-        absorption_operator = np.zeros((4, 4), dtype=complex)
-        absorption_operator[0, 1] = -0.5j
-        absorption_operator[1, 0] = +0.5j
+        absorption_operator = scheme._absorption_quadrature_operator()
         susceptibility_scale = (
             -2.0 * raw["N"] * scheme._opacity_scale(raw, params) * raw["dipole"] ** 2
             / (constants.EPS_0 * constants.HBAR)
@@ -425,21 +463,19 @@ class ElectrometryAdapter:
 
         records: list[dict[str, Any]] = []
         phase = float(cfg.get("signal_phase_rad", 0.0))
+        # Detunings index the selected optical scan; the physical (Δp, Δc) at
+        # each one fixes the Hamiltonian, so they key the cache.
+        physical = [self.static.optical_detunings_mhz(params, d) for d in detunings]
         # The cache belongs to one atomic state and is shared only with its
         # opacity scenarios. Detector/propagation changes reuse these phasors.
-        cache_key = ("configured", tuple(detunings), if_omega, phase,
+        cache_key = ("configured", tuple(physical), if_omega, phase,
                      microwave_detuning)
         cached_phasors = point.atomic_response_cache.get(cache_key)
         phasors = []
         for index, detuning_mhz in enumerate(detunings):
-            s = float(detuning_mhz) * mhz
-            hamiltonian = np.zeros((4, 4), dtype=complex)
-            hamiltonian[1, 1] = -s
-            hamiltonian[2, 2] = -s
-            hamiltonian[3, 3] = -s - microwave_detuning
-            hamiltonian[0, 1] = hamiltonian[1, 0] = probe / 2.0
-            hamiltonian[1, 2] = hamiltonian[2, 1] = coupling / 2.0
-            hamiltonian[2, 3] = hamiltonian[3, 2] = lo / 2.0
+            # The scheme's shared optical/RF Hamiltonian at this scan coordinate.
+            hamiltonian = scheme._hamiltonian_at_scan_detuning(
+                raw, params, float(detuning_mhz) * mhz)
             if cached_phasors is None:
                 response = weak_signal_response(
                     atom, hamiltonian, if_omega,
@@ -466,8 +502,11 @@ class ElectrometryAdapter:
                 continue
             noise = balanced_detector_noise(detector)
             sensitivity = electrometry_sensitivity(noise, responsivity)
+            probe_detuning, coupling_detuning = physical[index]
             records.append({
-                "probe_detuning_mhz": float(detuning_mhz),
+                "scan_detuning_mhz": float(detuning_mhz),
+                "probe_detuning_mhz": probe_detuning,
+                "coupling_detuning_mhz": coupling_detuning,
                 "transmission": t0,
                 "current_responsivity_a_per_v_m": sensitivity.current_responsivity_a_per_v_m,
                 "psn_field_asd_nv_cm_per_sqrt_hz": (
@@ -503,7 +542,10 @@ class ElectrometryAdapter:
                 "psn_field_asd_nv_cm_per_sqrt_hz"],
             "technical_limit_nv_cm_sqrt_hz": optimum[
                 "technical_field_asd_nv_cm_per_sqrt_hz"],
+            "scan_axis": scheme._scan_axis(params),
+            "optimum_scan_detuning_mhz": optimum["scan_detuning_mhz"],
             "optimum_probe_detuning_mhz": optimum["probe_detuning_mhz"],
+            "optimum_coupling_detuning_mhz": optimum["coupling_detuning_mhz"],
             "detuning_scan": records,
         }
 
