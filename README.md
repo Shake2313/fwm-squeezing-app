@@ -5,6 +5,28 @@ with a **scheme-driven** Streamlit front-end: pick a physics scheme in the
 top bar and it declares its own controls and plots. Started as a single 85Rb D1
 double-Λ four-wave-mixing model (now one scheme among several).
 
+## Development principle
+
+GABES exists to develop the many calculations of atomic optics in one
+integrated system, so that the code stays consistent across them. Absorption and
+saturated absorption, Λ coherence, Rydberg electrometry, Hanle/EIA/NMOR,
+polarization self-rotation and four-wave mixing are schemes of one engine, not
+separate programs.
+
+The design target is one implementation of each piece. Atomic data come from one
+record (`species`). Level structures and dissipators come from shared builders,
+solves from `core`, and velocity averages from the shared Doppler engines.
+Widths, propagation and detection come from shared readout helpers. A scheme
+declares only what is specific to it: its levels, fields, controls and
+observables. A fix or a better method then lands once and reaches every scheme,
+and two schemes cannot disagree because each implemented the same physics in its
+own way.
+
+Consolidating the remaining duplicates is the main line of development.
+Refactors keep results unchanged. Choosing between duplicated values, conventions
+or measures changes results, so each choice is a separate user decision recorded
+in `docs/checklist.json`. Working rules: [AGENTS.md → Unified engine](AGENTS.md#unified-engine-development-principle).
+
 ## Experimental FWM (2026-10-13 calibration)
 
 Choose **DEFAULTS → 2026-10-13 experiment**. **Sim Gold Reference** restores

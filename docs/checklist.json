@@ -4138,7 +4138,8 @@
       ],
       "priority": "P1",
       "effort": "medium",
-      "status": "needs_decision",
+      "status": "ready",
+      "user_decision": "User decision 2026-11-04: keep the numeric linewidth and sensitivity readouts and attach a validity status (for example unresolved, scan-edge-limited, low contrast, near-zero transmitted power), as the SAS sub-Doppler readout does; do not withhold values on an arbitrary transmission cutoff.",
       "decision_required": [
         "Choose the policy for minimum transmitted power/contrast: detector-noise-derived when calibration exists, and an explicit not-assessed state otherwise.",
         "Choose the minimum scan-edge margin and successive-refinement tolerance used to suppress hero values."
@@ -4764,7 +4765,8 @@
       ],
       "priority": "P2",
       "effort": "small",
-      "status": "needs_decision",
+      "status": "ready",
+      "value_decision": "User decision 2026-11-04: move Ultra from the 4σ-truncated Maxwell measure to the exact untruncated average (PoleResidues.gaussian_mean); Fast/Balanced follow it. Recorded reports keep their historical values, and the truncated measure stays available to reproduce them. ⟦AI⟧ Starts after the in-flight gabes/schemes/fwm.py work lands. Expected change: up to 0.11 dB in the S_dB tube at 150 C, Δ = 0.9 GHz, at most 0.035 dB (p95) in the other gate cases; baseline recapture.",
       "decision_required": "Is the 4-sigma truncation of the Maxwell distribution part of the Squeezing tier model (keep), or a numerical cutoff to be widened or replaced by the exact untruncated average (change Ultra and, through the shared tier settings, Fast/Balanced)?",
       "why": "A tier definition should state whether the cutoff is physics or numerics; the pole engine already evaluates either measure (PoleResidues.discrete_mean versus gaussian_mean).",
       "acceptance_criteria": [
@@ -4850,7 +4852,8 @@
       ],
       "priority": "P2",
       "effort": "small",
-      "status": "needs_decision",
+      "status": "ready",
+      "value_decision": "User decision 2026-11-04: move the analysis/squeezing scanners to a converged Maxwell measure; the historical 3–5 m/s, 3σ grids stay an explicit opt-in so recorded reports reproduce. ⟦AI⟧ Starts after the in-flight scanner edits land. At the v6 centre the change is up to 0.519 dB over the ±0.7 GHz window (0.002 dB at the minimum), at 0.18 versus 0.15 s per pole solve.",
       "decision_required": "Re-run the recorded squeezing analyses (v6 tolerance, variable audit, delta-T map, theory maximum, low-pump, resonant-Hanle reference) on 1 m/s, 4 sigma and update the reported numbers, or keep the historical measures as part of those reports?",
       "acceptance_criteria": [
         "The chosen measure is written next to each scanner's VELOCITY_STEP and in the affected report provenance.",
@@ -4886,7 +4889,8 @@
       ],
       "priority": "P2",
       "effort": "small",
-      "status": "needs_decision",
+      "status": "ready",
+      "value_decision": "User decision 2026-11-04: retune the EIT-dip preset to conditions where the exact Maxwell average shows a real EIT-like dip. ⟦AI⟧ If no physical regime in the model gives one, report that to the user and rename the preset after what it shows.",
       "depends_on": [
         "magneto-dynamics-semantics"
       ],
@@ -4962,6 +4966,7 @@
       },
       "review_note": "⟦AI⟧ kernels.sas_velocity_sums fuses the pump-population interpolation, the probe Lorentzian and its dispersive partner and the velocity-correlated sums into one parallel loop over the scan, with no (scan, velocity) array. It reproduces np.interp's bracket and edge values (bitwise on one velocity class) and evaluates every factor as the NumPy path does, so only the order of the velocity sum changes. Pump off skips the weight-1 products and reuses the absorptive sum as the finite-probe thermal sum, so that residual is exactly zero. kernels.velocity_interp_mean does the same for the coated-cell ground transfer. The 1 m/s, ±4σ velocity measure and the Γ/8 pump table are unchanged; without Numba the NumPy path is the previous code. The coated-cell differences are larger because the reservoir solve amplifies roundoff by about cycle/wall rate ≈ 1.6e4. First call with an empty Numba cache: 2.9 s (compile), 0.36 s with the cache.",
       "measure_check": "⟦AI⟧ Against 0.0625 m/s, ±8σ at the pump-off defaults: the 1 m/s step aliases 8.3e-7 of the peak (k·1 m/s = 1.26 MHz against the 2.87 MHz natural HWHM), and the ±4σ cutoff leaves 1.9e-4 of the peak in the far wings, where the absorption is about 0.1 % of the peak. Changing the measure would be a value decision; this item keeps it.",
+      "measure_decision": "User decision 2026-11-04: keep the 1 m/s, ±4σ measure (not chosen for the converged-measure change).",
       "remaining_scope": "⟦AI⟧ Not scan-by-velocity arithmetic, so outside this item: the pump-population solves now dominate D2 and Cs (0.21 s of 0.25 s for Rb natural D2), and the finite-probe FFT table dominates finite probe power (0.18 s of 0.29 s). The OpenMP worker spin after a parallel kernel slows the next LAPACK pump solve from 12 to 19 ms for about 0.2 s.",
       "daily_review_2026_10_19": {
         "origin": "ai_recheck",
@@ -8127,7 +8132,8 @@
       "origin": "ai_execution_of_human_request",
       "priority": "P2",
       "effort": "medium",
-      "status": "needs_decision",
+      "status": "ready",
+      "value_decision": "User decision 2026-11-04: adopt the Steck species record everywhere (Γ/2π 5.750 MHz, isotope mass 84.911789738 u, excited splitting 3·A(5P1/2) = 361.581 MHz, ground g_J 2.00233113); give the Generic and single-line paths the CRC vapor pressure with an explicit isotope composition (natural abundance or pure) in place of the Steck liquid fit × abundance; source a Cs self-broadening coefficient instead of reusing the Rb β. ⟦AI⟧ One commit per value, each with tests/baseline_focused.npz recaptured and the FWM/Λ/OD/SAS shifts quantified. Γ and mass move FWM, so they start after the in-flight gabes/schemes/fwm.py work lands. Expected sizes: Γ +0.07 %, mass +4.7e-6, Generic and single-line density ×1.22–1.45 for a natural cell over 313–393 K.",
       "problem": "⟦AI⟧ The 2026-10-30 atomic-data single-source refactor (angular.py leaf; hyperfine as the 85Rb D1 view of species) kept every value bit-identical, so these value splits remain: constants.GAMMA_2PI 5.746 MHz (FWM/Λ/OD and the hyperfine view) vs species RB85/RB87 gamma_D1 5.750 MHz (SAS/magneto); MASS_85RB 1.4100e-25 kg vs 84.911789738 u (+4.7e-6); NU_EXCITED_HF_D1 361.58 MHz vs 3·A(5P1/2) = 361.581 MHz; species.rb85_steck_density (Steck liquid fit × natural abundance; Λ/Rydberg Generic medium, OD single-line, SAS Generic) is 0.50–0.59 × number_density(RB85) (CRC, every other path) over 313–393 K; species.self_broadening applies the Rb β to Cs; species.GJ_S12_LEGACY 2.002331070 (magneto ground g_J) vs the Steck gJ_S 2.00233113 (−3.0e-8).",
       "decision_required": [
         "Adopt the Steck record (Γ/2π 5.750 MHz, isotope mass, 3·A excited splitting, ground g_J 2.00233113) in constants and species, or keep the legacy values as a documented calibration.",
@@ -8146,6 +8152,22 @@
       ]
     },
     {
+      "id": "cell-temperature-density-convention",
+      "area": "species.py + schemes/sas.py + rydberg_experiment.py",
+      "title": "Use one vapor-density convention when the cold spot and beam path differ",
+      "origin": "ai_execution_of_human_request",
+      "priority": "P2",
+      "effort": "small",
+      "status": "ready",
+      "problem": "⟦AI⟧ With separate cold-spot and beam-path temperatures, Rydberg uses the ideal-gas density at the cold-spot vapor pressure, n = n_sat(T_cold)·T_cold/T_eff, while SAS uses n = n_sat(T_cold). Consolidation item 8 (shared cell temperature, density and axial propagation) would otherwise freeze the split.",
+      "value_decision": "User decision 2026-11-04: adopt n = n_sat(T_cold)·T_cold/T_eff everywhere. ⟦AI⟧ Values change only when the temperatures are separated (SAS OD about −6 % at 40/60 °C); linked defaults are unchanged. Lands as its own commit after the bit-identical move of the shared helpers and after the in-flight gabes/schemes/sas.py work.",
+      "acceptance_criteria": [
+        "⟦AI⟧ One helper gives the beam-path density from the cold-spot vapor pressure for every scheme that separates the two temperatures.",
+        "⟦AI⟧ Linked-temperature results stay bit-identical; the separated-temperature SAS shifts are quantified in the commit.",
+        "⟦AI⟧ The pump-off Rb-85 D1 AutoOD anchor stays within its documented 0.1 % tolerance."
+      ]
+    },
+    {
       "id": "level-builder-unification-phase-2b",
       "area": "magneto_multilevel.py + zeeman.py + species.py + atoms.py + schemes/fwm.py + quantum/reservoirs.py",
       "title": "Unify the level builders and the remaining reset/dissipator copies",
@@ -8153,6 +8175,7 @@
       "priority": "P3",
       "effort": "large",
       "status": "ready",
+      "consolidation_tolerance_decision": "User decision 2026-11-04: a consolidation that cannot be bit-identical may land when every caller differs by at most 1e-12 relative and every displayed readout is identical, with the difference recorded (AGENTS.md → Unified engine). ⟦AI⟧ This unblocks one Zeeman generator for magneto_multilevel and schemes/magneto.py, which differ in the last bit for Rb87 F=2.",
       "problem": "⟦AI⟧ Phase 2a (2026-10-30) added core.dissipator and AtomModel.with_reset and routed atoms, species.build_manifold, zeeman.zeeman_manifold and sas._basis_reset_atom through them bit-identically (1,688-leaf snapshot). Phase 2b-1 moved g_J/g_I into species.Isotope with species.lande_gf for magneto_multilevel and schemes/magneto.py, bit-identically. Still separate: the Zeeman generator per magneto path, because magneto_multilevel forms (µ_B/ħ)·g_F and schemes/magneto.py (µ_B·g_F)/ħ, which differ in the last bit for Rb87 F=2. Phase 2b-2a moved the signed Wigner–Eckart dipoles into species.level_structure (read-only arrays shared by magneto_multilevel.build_multilevel_atom) and pinned each builder's relation to them in tests/test_level_structure.py, bit-identically (2,038-leaf snapshot). The four builders remain separate models, and deriving any of them from the dipoles is a value change: species.build_manifold branching equals the dipole block sums to ≤7 ulp; atoms.double_lambda_rb85 is build_manifold(RB85, D1) with the legacy Γ (×0.999304); zeeman.zeeman_manifold is a normalized dipole block to ≤2 ulp; zeeman.rb85_d1_double_lambda_zeeman emits √Γ·C_q in an F'=2 phase gauge but drives with block-fitted couplings, |c/C_q|² = (2Fg+1)/3, and feeds only a FWM Ultra diagnostic that is 1 by construction. Also separate: gabes/fwm_zeeman_response.py (another session, uncommitted) assembles its own 24-level AtomModel and reset from build_multilevel_atom; fwm.thermal_transit_reset_superoperator; quantum.reservoirs ExplicitReservoirs.dissipator and thermal_reset_channels, whose real-identity kron can differ from core.dissipator in signed zeros. The magneto speed patch these steps waited on landed in 695311b.",
       "acceptance_criteria": [
         "One Zeeman-Hamiltonian helper serves both magneto paths only after the user accepts the last-bit change; otherwise Rb85/Rb87 magneto outputs stay bit-identical.",

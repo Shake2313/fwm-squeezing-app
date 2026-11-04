@@ -34,6 +34,47 @@ Source: [practical FWM implementation request](docs/fwm_experiment_2026_10_22/RE
 ## Project Orientation
 - Read `CLAUDE.md` and `README.md` before making non-trivial changes.
 
+## Unified engine (development principle)
+
+User policy, 2026-11-04: GABES's original purpose is to develop the many
+calculations of atomic optics in one integrated system, so that the code is
+consistent. This is the main development direction. See
+[README → Development principle](README.md#development-principle).
+
+### ⟦AI⟧ Execution rules implementing that request
+
+- One implementation per piece of physics or numerics, in a shared `gabes/`
+  module that schemes call:
+  - atomic data: `species`, `angular`
+  - level structures and dissipators: `species.level_structure`,
+    `core.dissipator`, `AtomModel.with_reset`
+  - steady-state and Floquet solves: `core`
+  - velocity averages: `doppler`, `affine_doppler`, `pole_doppler`
+  - interpolated widths: `lineshape.level_crossing`
+  - propagation and detection
+- Before adding a helper, look for the shared one. If a scheme needs a variant,
+  give the shared code an explicit parameter instead of copying it. A
+  scheme-local copy of shared physics is a defect to consolidate.
+- Consolidate in two steps.
+  - Refactor first, keeping results. Snapshot every caller's raw outputs and
+    displayed readouts before and after: recursively, including extra views,
+    at the defaults and at the recompute slider ends. The refactor lands when
+    the outputs are bit-identical. User decision 2026-11-04: it may also land
+    when every caller differs by at most 1e-12 relative and every displayed
+    readout is identical; record the difference in the commit and the checklist.
+  - Value changes come second. Choosing between duplicated values, conventions
+    or measures changes results. It needs a user decision recorded in
+    `docs/checklist.json`, lands in its own commit, and recaptures the affected
+    baselines (for example `tests/baseline_focused.npz`).
+- When copies disagree, do not pick a winner silently. Pin each caller's
+  current value, record the split and its size, and ask the user.
+- Sealed records stay intact. Do not edit sealed scripts or receipts to route
+  them through shared code; new scripts use the shared code from the start.
+- Consolidate files that another session is editing only after that work lands.
+- A new scheme uses the shared modules from the start and matches the gold
+  references: FWM squeezing for physics realism, OD/SAS for cross-scheme
+  uniformity.
+
 ## Change-scoped validation
 
 User policy, 2026-10-23: reduce costly regression runs for minor patches,
