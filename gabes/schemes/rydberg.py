@@ -24,6 +24,7 @@ from .. import affine_doppler, atoms, beam, constants, core, observables, specie
 from .. import rydberg_electrometry as electrometry
 from .. import rydberg_experiment as rydberg_experiment
 from .. import rydberg_opacity as opacity
+from ..lineshape import level_crossing
 from ..report import derived_table
 from .base import ExtraView, ParamSpec, Scheme
 
@@ -1119,17 +1120,9 @@ class RydbergEITScheme(Scheme):
         half = floor + 0.5 * contrast
         if ic == 0 or ic == x.size - 1:
             return float("nan"), contrast
-
-        def crossing(step):
-            i = ic
-            while 0 < i < x.size - 1 and T_trans[i] >= half:
-                i += step
-            if T_trans[i] >= half:
-                return float("nan")
-            x0, y0, x1, y1 = x[i - step], T_trans[i - step], x[i], T_trans[i]
-            return x1 if y1 == y0 else x0 + (half - y0) * (x1 - x0) / (y1 - y0)
-
-        return abs(crossing(1) - crossing(-1)), contrast
+        right, _ = level_crossing(x, T_trans, ic, +1, half)
+        left, _ = level_crossing(x, T_trans, ic, -1, half)
+        return abs(right - left), contrast
 
     def _readout(self, raw, params, atomic_response=None):
         """Cheap transmission/dispersion arrays + scalar metrics, with no

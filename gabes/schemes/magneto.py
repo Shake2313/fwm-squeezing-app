@@ -13,6 +13,7 @@ from dataclasses import replace
 import numpy as np
 
 from .. import constants, core, doppler, kernels, observables, pole_doppler, species, zeeman
+from ..lineshape import level_crossing
 from ..magneto_noise import (DEFAULT_BEAM_DIAMETER_MM, DEFAULT_DETECTION_EFFICIENCY,
                              DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference,
                              magnetic_sensitivity)
@@ -140,18 +141,9 @@ def _central_feature(x, y):
     if abs(amplitude) <= 32 * np.finfo(float).eps * scale:
         return result
     target = background + 0.5 * amplitude
-
-    def crossing(step):
-        i = ic
-        while 0 <= i + step < axis.size:
-            j = i + step
-            if (values[j] - target) * np.sign(amplitude) <= 0.0:
-                fraction = (target - values[i]) / (values[j] - values[i])
-                return float(axis[i] + fraction * (axis[j] - axis[i]))
-            i = j
-        return float("nan")
-
-    left, right = crossing(-1), crossing(+1)
+    sign = np.sign(amplitude)
+    left, _ = level_crossing(axis, values, ic, -1, target, sign)
+    right, _ = level_crossing(axis, values, ic, +1, target, sign)
     result.update(left=left, right=right)
     if np.isfinite(left) and np.isfinite(right) and right > left:
         result.update(width=right - left, status="sampled")

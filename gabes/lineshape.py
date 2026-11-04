@@ -5,7 +5,8 @@ These operate on *sampled curves* (transmission, absorption, |ψ|², …). With 
 labelled exception they are **shape-agnostic**: they walk a sampled peak to its
 half-height and report the width, making no assumption about Lorentzian vs
 Gaussian vs Voigt form. Consolidating them here removes the per-scheme copies of
-`_window_fwhm` / `_peak_fwhm` / `_fwhm`.
+`_window_fwhm` / `_peak_fwhm` / `_fwhm`. Every interpolated half-height edge,
+here and in the schemes, comes from `level_crossing`.
 
 The single model-dependent helper is `lorentz_fwhm`, which *fits* a Lorentzian
 (1/signal linear in B²) and is therefore only valid for a Lorentzian-shaped
@@ -47,6 +48,26 @@ class SubdopplerFeature:
     @property
     def resolved(self):
         return self.status == "resolved"
+
+
+def level_crossing(x, y, start, step, level, sign=1.0):
+    """Interpolated abscissa where a sampled feature first falls to `level`.
+
+    Walks from index `start`, inside the feature, by `step` (+1 or -1). A
+    sample is inside while ``sign * (y - level) > 0``, so ``sign=-1`` follows a
+    dip; a non-finite sample counts as outside. The edge is interpolated
+    linearly from the last inside sample to the first outside one. Returns
+    ``(crossing, index of that outside sample)``, or ``(nan, None)`` when the
+    walk leaves the scan first.
+    """
+    i = start
+    while 0 <= i + step < len(y):
+        j = i + step
+        if not sign * (y[j] - level) > 0.0:
+            fraction = (level - y[i]) / (y[j] - y[i])
+            return float(x[i] + fraction * (x[j] - x[i])), j
+        i = j
+    return float("nan"), None
 
 
 def window_fwhm(x, y, ic):
@@ -108,21 +129,13 @@ def fwhm_interp(x, y):
     if peak <= 0:
         return np.nan
     half = 0.5 * peak
-    above = np.isfinite(y) & (y >= half)
-    lo = peak_index
-    while lo > 0 and above[lo - 1]:
-        lo -= 1
-    hi = peak_index
-    while hi < y.size - 1 and above[hi + 1]:
-        hi += 1
-
-    def interp_edge(i0, i1):
-        if i0 < 0 or i1 >= x.size or y[i1] == y[i0]:
-            return x[max(min(i1, x.size - 1), 0)]
-        return x[i0] + (half - y[i0]) * (x[i1] - x[i0]) / (y[i1] - y[i0])
-
-    left = interp_edge(lo - 1, lo) if lo > 0 else x[lo]
-    right = interp_edge(hi, hi + 1) if hi < x.size - 1 else x[hi]
+    left, outside_left = level_crossing(x, y, peak_index, -1, half)
+    right, outside_right = level_crossing(x, y, peak_index, +1, half)
+    # A peak that runs off the scan is clipped at the scan edge.
+    if outside_left is None:
+        left = x[0]
+    if outside_right is None:
+        right = x[-1]
     return float(max(right - left, 0.0))
 
 
@@ -141,18 +154,11 @@ def halfwidth_from_center(B, y, frac=0.5):
     if abs(amp) < 1e-30:
         return float("nan")
     target = bg + frac * amp
-    right = np.arange(ic, y.size)
-    vals = (y[right] - target) * np.sign(amp)
-    below = np.where(vals <= 0)[0]
-    if below.size == 0 or below[0] == 0:
+    sign = np.sign(amp)
+    if not sign * (y[ic] - target) > 0:
         return float("nan")
-    j = right[below[0]]
-    i = j - 1
-    y0, y1 = y[i], y[j]
-    if y1 == y0:
-        return float(abs(B[j] - B[ic]))
-    t = (target - y0) / (y1 - y0)
-    return float(abs((B[i] + t * (B[j] - B[i])) - B[ic]))
+    edge, _ = level_crossing(B, y, ic, +1, target, sign)
+    return float(abs(edge - B[ic]))
 
 
 def subdoppler_feature(x, signal, search_window=None, *, min_amplitude=1e-6):
@@ -208,30 +214,13 @@ def subdoppler_feature(x, signal, search_window=None, *, min_amplitude=1e-6):
             center=center, amplitude=amplitude)
 
     half = 0.5 * amplitude
-    left_below = np.flatnonzero(residual[:ic + 1] <= half)
-    right_below = np.flatnonzero(residual[ic:] <= half)
-    if left_below.size == 0 or right_below.size == 0:
+    left, outside_left = level_crossing(x, residual, ic, -1, half)
+    right, outside_right = level_crossing(x, residual, ic, +1, half)
+    if outside_left is None or outside_right is None:
         return SubdopplerFeature(
             "scan-edge-limited",
             "A half-height crossing is clipped by the displayed scan edge.",
             center=center, scan_edge_distance=0.0, amplitude=amplitude)
-
-    il = int(left_below[-1])
-    ir = int(ic + right_below[0])
-    if il >= ic or ir <= ic:
-        return SubdopplerFeature(
-            "unresolved", "The sampled residual has no finite half-height interval.",
-            center=center, amplitude=amplitude)
-
-    def _interpolated_crossing(i0, i1):
-        y0, y1 = residual[i0], residual[i1]
-        if y1 == y0:
-            return float(0.5 * (x[i0] + x[i1]))
-        fraction = (half - y0) / (y1 - y0)
-        return float(x[i0] + fraction * (x[i1] - x[i0]))
-
-    left = _interpolated_crossing(il, il + 1)
-    right = _interpolated_crossing(ir - 1, ir)
     width = float(right - left)
     if not np.isfinite(width) or width <= 0.0:
         return SubdopplerFeature(
