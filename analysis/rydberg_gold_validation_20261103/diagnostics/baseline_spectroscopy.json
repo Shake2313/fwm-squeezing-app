@@ -1,0 +1,1237 @@
+{
+  "origin": "⟦AI⟧ Static spectroscopy baseline, no fitted physical parameters",
+  "scope": "LO-off EIT metrics kept separate from LO=3.7 MHz AT spectra; absolute detector voltage and optical detunings not supplied by this calculation",
+  "feature_definition": "EIT centre minus minimum transmission in +/-5 MHz; linear half-height crossings; relative signal amplitude Pp*contrast",
+  "rows": [
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9201400636960739,
+      "local_floor_5mhz": 0.7446906432239265,
+      "eit_fwhm_mhz": 1.395382740360053,
+      "eit_contrast": 0.1754494204721474,
+      "relative_voltage_amplitude": 0.0877247102360737,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9201400636960739
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8621068216133448,
+      "local_floor_5mhz": 0.7692903805209474,
+      "eit_fwhm_mhz": 1.7022222873597408,
+      "eit_contrast": 0.0928164410923974,
+      "relative_voltage_amplitude": 0.0464082205461987,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.8621068216133448
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9225020059298931,
+      "local_floor_5mhz": 0.7516131998622542,
+      "eit_fwhm_mhz": 1.4166070200066392,
+      "eit_contrast": 0.1708888060676389,
+      "relative_voltage_amplitude": 0.1708888060676389,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9225020059298931
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8670197477128236,
+      "local_floor_5mhz": 0.7750671145915506,
+      "eit_fwhm_mhz": 1.7220535585847019,
+      "eit_contrast": 0.091952633121273,
+      "relative_voltage_amplitude": 0.091952633121273,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.8670197477128236
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9268158306491362,
+      "local_floor_5mhz": 0.7643894983727825,
+      "eit_fwhm_mhz": 1.4581144585211718,
+      "eit_contrast": 0.16242633227635372,
+      "relative_voltage_amplitude": 0.32485266455270745,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9268158306491362
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8759541712314778,
+      "local_floor_5mhz": 0.7857785074878236,
+      "eit_fwhm_mhz": 1.7607419428099877,
+      "eit_contrast": 0.09017566374365416,
+      "relative_voltage_amplitude": 0.1803513274873083,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.8759541712314778
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9341009530555555,
+      "local_floor_5mhz": 0.7863783249794317,
+      "eit_fwhm_mhz": 1.5376256410952616,
+      "eit_contrast": 0.1477226280761238,
+      "relative_voltage_amplitude": 0.5908905123044952,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9341009530555555
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8908991655396216,
+      "local_floor_5mhz": 0.8043701612617102,
+      "eit_fwhm_mhz": 1.8345623928614239,
+      "eit_contrast": 0.08652900427791133,
+      "relative_voltage_amplitude": 0.3461160171116453,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.8908991655396216
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9400166150823321,
+      "local_floor_5mhz": 0.8046197233379953,
+      "eit_fwhm_mhz": 1.6130909460571443,
+      "eit_contrast": 0.1353968917443369,
+      "relative_voltage_amplitude": 0.8123813504660213,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9400166150823321
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9028624162227561,
+      "local_floor_5mhz": 0.8199568125033114,
+      "eit_fwhm_mhz": 1.9043914329130145,
+      "eit_contrast": 0.08290560371944466,
+      "relative_voltage_amplitude": 0.497433622316668,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9028624162227561
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9449157990106835,
+      "local_floor_5mhz": 0.8199942700544628,
+      "eit_fwhm_mhz": 1.6850712530238565,
+      "eit_contrast": 0.12492152895622066,
+      "relative_voltage_amplitude": 0.9993722316497653,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9449157990106835
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9126207795113985,
+      "local_floor_5mhz": 0.8332197732388779,
+      "eit_fwhm_mhz": 1.9708638118084063,
+      "eit_contrast": 0.07940100627252067,
+      "relative_voltage_amplitude": 0.6352080501801654,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9126207795113985
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9490398003411062,
+      "local_floor_5mhz": 0.8331271572760625,
+      "eit_fwhm_mhz": 1.7540195083099264,
+      "eit_contrast": 0.11591264306504379,
+      "relative_voltage_amplitude": 1.1591264306504379,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9490398003411062
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9207086155299115,
+      "local_floor_5mhz": 0.8446457269308483,
+      "eit_fwhm_mhz": 2.0344793739060028,
+      "eit_contrast": 0.07606288859906318,
+      "relative_voltage_amplitude": 0.7606288859906318,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9207086155299115
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.739617467318757,
+      "local_floor_5mhz": 0.739617467318757,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.75,
+          0.8865365473689037
+        ],
+        [
+          1.75,
+          0.8865365473689037
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.7639133164465797,
+      "local_floor_5mhz": 0.7639133164465797,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7599999999999998,
+          0.8315929047724518
+        ],
+        [
+          1.7599999999999998,
+          0.8315929047724518
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.7466625629341991,
+      "local_floor_5mhz": 0.7466625629341991,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.75,
+          0.8899040871470075
+        ],
+        [
+          1.75,
+          0.8899040871470075
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.7705432955264279,
+      "local_floor_5mhz": 0.7705432955264279,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7699999999999998,
+          0.8378457614610629
+        ],
+        [
+          1.7699999999999998,
+          0.8378457614610629
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.7601160414518773,
+      "local_floor_5mhz": 0.7601160414518773,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.75,
+          0.8958079770690631
+        ],
+        [
+          1.75,
+          0.8958079770690631
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.7831558339921323,
+      "local_floor_5mhz": 0.7831558339921323,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7899999999999991,
+          0.8489053097608842
+        ],
+        [
+          1.790000000000001,
+          0.8489053097608842
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.7845789100485112,
+      "local_floor_5mhz": 0.7845789100485112,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.75,
+          0.9051000968930961
+        ],
+        [
+          1.75,
+          0.9051000968930961
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8059010656166637,
+      "local_floor_5mhz": 0.8059010656166637,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.8100000000000005,
+          0.8665947833482264
+        ],
+        [
+          1.8100000000000005,
+          0.8665947833482265
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.8060292831188751,
+      "local_floor_5mhz": 0.8060292831188751,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.75,
+          0.9120902532650903
+        ],
+        [
+          1.75,
+          0.9120902532650903
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8256109815323746,
+      "local_floor_5mhz": 0.8256109815323746,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.8100000000000005,
+          0.8801161443857219
+        ],
+        [
+          1.8100000000000005,
+          0.8801161443857219
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.8247971876754709,
+      "local_floor_5mhz": 0.8247971876754709,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7400000000000004,
+          0.9175842712016358
+        ],
+        [
+          1.7400000000000004,
+          0.9175842712016358
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8426515504501743,
+      "local_floor_5mhz": 0.8426515504501743,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.8100000000000005,
+          0.8907871132636109
+        ],
+        [
+          1.8100000000000005,
+          0.8907871132636109
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.8412143782709056,
+      "local_floor_5mhz": 0.8412143782709056,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7300000000000004,
+          0.9220554942181608
+        ],
+        [
+          1.7300000000000004,
+          0.9220554942181608
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.8573878507546305,
+      "local_floor_5mhz": 0.8573878507546305,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.7999999999999992,
+          0.8994268572715055
+        ],
+        [
+          1.8000000000000005,
+          0.8994268572715055
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9962372380413896,
+      "local_floor_5mhz": 0.9940574780659398,
+      "eit_fwhm_mhz": 2.502787614853806,
+      "eit_contrast": 0.0021797599754498354,
+      "relative_voltage_amplitude": 0.0010898799877249177,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9962372380413896
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9959478304510884,
+      "local_floor_5mhz": 0.9940995014865672,
+      "eit_fwhm_mhz": 2.772615029463771,
+      "eit_contrast": 0.0018483289645211398,
+      "relative_voltage_amplitude": 0.0009241644822605699,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9959478304510884
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9962741290325773,
+      "local_floor_5mhz": 0.9941455853192125,
+      "eit_fwhm_mhz": 2.535471202438398,
+      "eit_contrast": 0.0021285437133647944,
+      "relative_voltage_amplitude": 0.0021285437133647944,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9962741290325773
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9959970830309994,
+      "local_floor_5mhz": 0.9941807115143019,
+      "eit_fwhm_mhz": 2.81258452926902,
+      "eit_contrast": 0.001816371516697557,
+      "relative_voltage_amplitude": 0.001816371516697557,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9959970830309994
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9963446755798361,
+      "local_floor_5mhz": 0.9943018694060709,
+      "eit_fwhm_mhz": 2.6040066455203927,
+      "eit_contrast": 0.002042806173765177,
+      "relative_voltage_amplitude": 0.004085612347530354,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9963446755798361
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9960895382336384,
+      "local_floor_5mhz": 0.9943265546432044,
+      "eit_fwhm_mhz": 2.8927955331278463,
+      "eit_contrast": 0.0017629835904340307,
+      "relative_voltage_amplitude": 0.0035259671808680615,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9960895382336384
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9964742521308101,
+      "local_floor_5mhz": 0.9945591911338735,
+      "eit_fwhm_mhz": 2.747722226972324,
+      "eit_contrast": 0.0019150609969366128,
+      "relative_voltage_amplitude": 0.007660243987746451,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9964742521308101
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9962543759094489,
+      "local_floor_5mhz": 0.9945715881671846,
+      "eit_fwhm_mhz": 3.05149123321458,
+      "eit_contrast": 0.001682787742264269,
+      "relative_voltage_amplitude": 0.006731150969057076,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9962543759094489
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9965907079417338,
+      "local_floor_5mhz": 0.9947686601121657,
+      "eit_fwhm_mhz": 2.8944126122268887,
+      "eit_contrast": 0.0018220478295680742,
+      "relative_voltage_amplitude": 0.010932286977408445,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9965907079417338
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9963980533631381,
+      "local_floor_5mhz": 0.9947749804849204,
+      "eit_fwhm_mhz": 3.2060562316145074,
+      "eit_contrast": 0.001623072878217724,
+      "relative_voltage_amplitude": 0.009738437269306344,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9963980533631381
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9966961686322235,
+      "local_floor_5mhz": 0.9949466803000014,
+      "eit_fwhm_mhz": 3.0407398180403407,
+      "eit_contrast": 0.0017494883322221044,
+      "relative_voltage_amplitude": 0.013995906657776835,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9966961686322235
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9965251966049398,
+      "local_floor_5mhz": 0.9949505221184952,
+      "eit_fwhm_mhz": 3.355195345889734,
+      "eit_contrast": 0.0015746744864445494,
+      "relative_voltage_amplitude": 0.012597395891556395,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9965251966049398
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9967922937621169,
+      "local_floor_5mhz": 0.9951044954182845,
+      "eit_fwhm_mhz": 3.182216379213455,
+      "eit_contrast": 0.0016877983438323696,
+      "relative_voltage_amplitude": 0.016877983438323696,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9967922937621169
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9966390035295837,
+      "local_floor_5mhz": 0.995109502124967,
+      "eit_fwhm_mhz": 3.492557942018042,
+      "eit_contrast": 0.0015295014046167177,
+      "relative_voltage_amplitude": 0.015295014046167177,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9966390035295837
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9949578373568578,
+      "local_floor_5mhz": 0.9941148547963689,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.2300000000000004,
+          0.9954503876723718
+        ],
+        [
+          1.2300000000000004,
+          0.9954503876636671
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9951417744363547,
+      "local_floor_5mhz": 0.9941482374909455,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.049999999999999,
+          0.9952421855005857
+        ],
+        [
+          1.0500000000000007,
+          0.9952421855012623
+        ]
+      ],
+      "probe_rabi_mhz": 0.5773502691896257,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9951083155463023,
+      "local_floor_5mhz": 0.9941969730347657,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.209999999999999,
+          0.9955415515332356
+        ],
+        [
+          1.2100000000000009,
+          0.9955415515392266
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9952711657905624,
+      "local_floor_5mhz": 0.9942249835037585,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.0,
+          0.9953507618083336
+        ],
+        [
+          1.0,
+          0.9953507618083469
+        ]
+      ],
+      "probe_rabi_mhz": 0.816496580927726,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9953699829137229,
+      "local_floor_5mhz": 0.9943456611909308,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.1799999999999997,
+          0.9957063958585619
+        ],
+        [
+          1.1799999999999997,
+          0.9957063958589494
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9954981304739634,
+      "local_floor_5mhz": 0.9943651450176464,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -0.9100000000000001,
+          0.995546563463316
+        ],
+        [
+          0.9100000000000001,
+          0.9955465634632773
+        ]
+      ],
+      "probe_rabi_mhz": 1.1547005383792515,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9957837123866898,
+      "local_floor_5mhz": 0.9945966370524442,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.0999999999999996,
+          0.9959861638653137
+        ],
+        [
+          1.0999999999999996,
+          0.9959861638742036
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.995862732772443,
+      "local_floor_5mhz": 0.9946055402690386,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -0.6899999999999995,
+          0.9958765074920011
+        ],
+        [
+          0.6899999999999995,
+          0.9958765074918889
+        ]
+      ],
+      "probe_rabi_mhz": 1.632993161855452,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9961013248156785,
+      "local_floor_5mhz": 0.9948052105912332,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -1.0199999999999996,
+          0.9962197788822788
+        ],
+        [
+          1.0199999999999996,
+          0.9962197788740323
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9961480122880324,
+      "local_floor_5mhz": 0.9948150758385467,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -0.39000000000000057,
+          0.9961491798382447
+        ],
+        [
+          0.39000000000000057,
+          0.9961491798379183
+        ]
+      ],
+      "probe_rabi_mhz": 2.0,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9963552138558687,
+      "local_floor_5mhz": 0.9949926394949217,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -0.9199999999999999,
+          0.9964205347994206
+        ],
+        [
+          0.9199999999999999,
+          0.9964205347951454
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9963798154368818,
+      "local_floor_5mhz": 0.9950047341487407,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9963798154368818
+        ]
+      ],
+      "probe_rabi_mhz": 2.309401076758503,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "transmission_at_zero": 0.9965637210430889,
+      "local_floor_5mhz": 0.9951640507458505,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          -0.8100000000000005,
+          0.9965961411147246
+        ],
+        [
+          0.8100000000000005,
+          0.9965961411156095
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "transmission_at_zero": 0.9965729116572636,
+      "local_floor_5mhz": 0.9951779238154334,
+      "eit_fwhm_mhz": null,
+      "eit_contrast": null,
+      "relative_voltage_amplitude": null,
+      "transparency_peaks": [
+        [
+          0.0,
+          0.9965729116572636
+        ]
+      ],
+      "probe_rabi_mhz": 2.581988897471611,
+      "coupling_rabi_mhz": 3.0,
+      "transit_dephasing_mhz": 0.15253593028630166
+    }
+  ],
+  "source_sha256": {
+    "gabes/schemes/rydberg.py": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.py": "fa3a8c3b2304bf76cf781c2b06543908b51d642d2e2b64744e59763fb460d046"
+  }
+}

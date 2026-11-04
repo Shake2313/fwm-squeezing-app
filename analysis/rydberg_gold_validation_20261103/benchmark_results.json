@@ -1,0 +1,372 @@
+{
+  "origin": "⟦AI⟧ Gold protocol-separated spectroscopy and fixed-LO analysis",
+  "model": "CP nested optical/RF phase channels; explicit physical optical detunings",
+  "protocol_status": "PARTIAL_MATCH: LO/powers/geometry declared; source optical scan identity and absolute detunings not reported",
+  "absolute_transmission_validation": "NOT_IDENTIFIABLE_FROM_ARBITRARY_SIGNAL_UNITS",
+  "physical_contrast_validation": "NOT_IDENTIFIABLE_WITHOUT_GAIN_BASELINE",
+  "amplitude_calibration_scope": "One positive detector gain fitted only on training powers, shared with heldout powers and both B-field conditions",
+  "training_powers_uw": [
+    0.5,
+    2.0,
+    6.0,
+    10.0
+  ],
+  "heldout_powers_uw": [
+    1.0,
+    4.0,
+    8.0
+  ],
+  "comparisons": [
+    {
+      "doppler": "off",
+      "scan_axis": "Probe detuning",
+      "partition": "training",
+      "count": 8,
+      "shared_detector_gain": 0.710503092731206,
+      "width_rmse_mhz": 1.2512280338213637,
+      "maximum_absolute_width_error_mhz": 1.9258176241170863,
+      "signal_rmse_arb": 0.08476604809715217,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "off",
+      "scan_axis": "Probe detuning",
+      "partition": "heldout",
+      "count": 6,
+      "shared_detector_gain": 0.710503092731206,
+      "width_rmse_mhz": 1.1903304874350047,
+      "maximum_absolute_width_error_mhz": 1.6874407965413216,
+      "signal_rmse_arb": 0.08301540232834577,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "off",
+      "scan_axis": "Coupling detuning",
+      "partition": "training",
+      "count": 8,
+      "shared_detector_gain": 0.5224196169474572,
+      "width_rmse_mhz": 0.6788222835815185,
+      "maximum_absolute_width_error_mhz": 1.2005109271922008,
+      "signal_rmse_arb": 0.033642084243723745,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "off",
+      "scan_axis": "Coupling detuning",
+      "partition": "heldout",
+      "count": 6,
+      "shared_detector_gain": 0.5224196169474572,
+      "width_rmse_mhz": 0.5697028439694717,
+      "maximum_absolute_width_error_mhz": 1.0111432137792176,
+      "signal_rmse_arb": 0.03175679472240866,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "on",
+      "scan_axis": "Probe detuning",
+      "partition": "training",
+      "count": 8,
+      "shared_detector_gain": 45.592106777872445,
+      "width_rmse_mhz": 0.546823149733947,
+      "maximum_absolute_width_error_mhz": 0.9010523709256404,
+      "signal_rmse_arb": 0.021258858669035503,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "on",
+      "scan_axis": "Probe detuning",
+      "partition": "heldout",
+      "count": 6,
+      "shared_detector_gain": 45.592106777872445,
+      "width_rmse_mhz": 0.41073927965584955,
+      "maximum_absolute_width_error_mhz": 0.632869002024103,
+      "signal_rmse_arb": 0.017538276510204644,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "on",
+      "scan_axis": "Coupling detuning",
+      "partition": "training",
+      "count": 8,
+      "shared_detector_gain": 47.129206386548745,
+      "width_rmse_mhz": 1.8045127115441768,
+      "maximum_absolute_width_error_mhz": 2.4578932087146246,
+      "signal_rmse_arb": 0.013399836555859298,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    },
+    {
+      "doppler": "on",
+      "scan_axis": "Coupling detuning",
+      "partition": "heldout",
+      "count": 6,
+      "shared_detector_gain": 47.129206386548745,
+      "width_rmse_mhz": 1.754608442223529,
+      "maximum_absolute_width_error_mhz": 2.209515050945326,
+      "signal_rmse_arb": 0.012908443054805459,
+      "comparison_scope": "One detector gain shared across powers and compensation conditions; absolute transmission/physical contrast not identified"
+    }
+  ],
+  "source_protocols": [
+    {
+      "figure": "2a",
+      "quantity": "Relative EIT spectral signal",
+      "lo_rabi_mhz": 0.0,
+      "lo_status": "EIT without AT dressing inferred from section ordering and single peak; explicit RF-off statement absent",
+      "probe_power_uw": null,
+      "coupling_power_mw": 30.0,
+      "frequency_axis_identity": "NOT_REPORTED: probe scan versus coupling scan unspecified",
+      "probe_detuning_definition": "Frequency relative to plotted EIT centre; absolute optical detuning absent",
+      "absolute_transmission_available": false,
+      "notes": "Unknown Pp: the 1.6 MHz spectrum cannot be assigned to 6 uW."
+    },
+    {
+      "figure": "2b",
+      "quantity": "EIT peak and width vs Pp",
+      "lo_rabi_mhz": 0.0,
+      "lo_status": "EIT measurement before LO/SIG section; no split peaks; explicit RF-off statement absent",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "coupling_power_mw": 30.0,
+      "coupling_rabi_mhz": 3.0,
+      "frequency_axis_identity": "NOT_REPORTED: linewidth measured on an unidentified optical-frequency scan axis",
+      "absolute_transmission_available": false,
+      "notes": "Peaks are arbitrary signal units. Shape/calibration tests allowed; absolute transmission or normalized physical contrast not recoverable."
+    },
+    {
+      "figure": "3",
+      "quantity": "AT spectrum and IF temporal signal",
+      "lo_rabi_mhz": 3.7,
+      "lo_carrier_ghz": 37.07104,
+      "if_khz": 40.0,
+      "probe_power_uw": 6.0,
+      "frequency_axis_identity": "NOT_REPORTED: probe scan versus coupling scan unspecified",
+      "probe_detuning_definition": "Optimal spectral-slope operating point; absolute optical detuning not provided",
+      "rf_detuning_status": "LO carrier reported but atomic zero reference not independently specified"
+    },
+    {
+      "figure": "4",
+      "quantity": "Responsivity and measured sensitivity vs Pp",
+      "lo_rabi_mhz": 3.7,
+      "lo_status": "Main text supplies nominal LO 3.7 MHz and says LO optimized then fixed; another sentence says optimized conditions for each Pp. Missing Supplement Note 2 leaves per-Pp LO details unresolved.",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "if_khz": 40.0,
+      "probe_detuning_definition": "Operated near maximum spectral slope; numeric absolute optical point absent"
+    },
+    {
+      "figure": "5b",
+      "quantity": "Measured and PSN sensitivity vs Pp",
+      "temperature_c": 20.0,
+      "lo_rabi_mhz": 3.7,
+      "lo_status": "Inherited nominal heterodyne protocol; fixed/per-Pp LO details not fully specified",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "if_khz": 40.0,
+      "absolute_optical_detuning_mhz": null
+    }
+  ],
+  "source_consistency_issues": [
+    {
+      "id": "linewidth_power_assignment",
+      "status": "SOURCE_CONDITION_UNRESOLVED",
+      "finding": "Fig.2(a)/text width 1.6 MHz has no stated Pp; Fig.2(b) compensated width is about 1.60 MHz at 0.5 uW and 3.00 MHz at 6 uW. Do not use 1.6 MHz at 6 uW as a Gold validation anchor."
+    },
+    {
+      "id": "absolute_transmission_and_contrast",
+      "status": "NOT_IDENTIFIABLE_FROM_MAIN_FIGURE",
+      "finding": "Fig.2 axes are arbitrary signal units with a near-zero subtracted baseline; no dark/reference gain is supplied. Cannot infer absolute optical transmission, OD, or physical (Tpeak-Tbackground)/Tbackground contrast."
+    },
+    {
+      "id": "psn_turnover_claim",
+      "status": "NARRATIVE_FIGURE_DISTINCTION",
+      "finding": "The blue experimental curve has a minimum near 6 uW. The Fig.5(b) red PSN/SNL curve is monotonically decreasing approximately as Pp^-1/2; do not force a 6 uW PSN minimum from the narrative alone."
+    },
+    {
+      "id": "LO_protocol",
+      "status": "SUPPLEMENT_REQUIRED_FOR_EXACT_PROTOCOL",
+      "finding": "Nominal OmegaLO/2pi=3.7 MHz is reported. Main text discusses optimized conditions for each Pp and LO optimized then fixed. Exact per-Pp LO and numerical optical detunings remain unresolved without the Supplement."
+    },
+    {
+      "id": "lineshape_width_definition",
+      "status": "ESTIMATOR_AND_FIGURE_DIFFERENCE",
+      "finding": "Direct half-height crossings of Fig.2(a) vector traces give red 1.625 MHz and blue 1.753 MHz, while the narrative quotes 1.6 and 1.9 MHz. No fit definition or Pp is supplied for this panel. Preserve both rather than treating the narrative as exact curve-derived FWHM."
+    },
+    {
+      "id": "reported_vs_digitized_sensitivity",
+      "status": "REPORTED_NUMBER_HAS_PRIORITY",
+      "finding": "The narrative reports measured sensitivity 12.5(8) and PSN 11.2 nV/cm/sqrt(Hz) at 6 uW. Raster marker/line recovery gives about 13.4 and 11.8. Treat these as distinct approximate graphic extractions, with pixel uncertainty; do not overwrite reported numerical anchors."
+    },
+    {
+      "id": "scan_axis_identity",
+      "status": "NOT_REPORTED_FOR_GOLD",
+      "finding": "The Gold main article labels the optical scan only Frequency (MHz), without identifying the scanned laser or absolute fixed detunings. Earlier Ju2025 thesis explicitly scans the probe with coupling fixed, but belongs to a different apparatus. Neither importing that protocol silently nor choosing a scan axis solely because its linewidth fits is justified."
+    }
+  ],
+  "current_model_predictability": [
+    {
+      "detuning_policy": "maximum_static_slope",
+      "training_coordinates": 5,
+      "guard_coordinates": 4,
+      "maximum_relative_error": 0.0001949479086771344,
+      "candidate_sparse_rule_eligible_at_one_percent": true,
+      "evidence_scope": "New CP model, fixed Pp6/LO3.7, 3x3 pilot only; not a certificate for a reoptimized 21x9 map",
+      "errors": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "predicted": 4405.595710790367,
+          "direct": 4405.381901590069,
+          "relative_error": 4.8533635692349364e-05
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "predicted": 3497.3762734134198,
+          "direct": 3497.5139414703704,
+          "relative_error": -3.936168926110817e-05
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "predicted": 554.8562102322771,
+          "direct": 554.9643993813268,
+          "relative_error": -0.0001949479086771344
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "predicted": 440.4718617438276,
+          "direct": 440.4014203531306,
+          "relative_error": 0.0001599481460357044
+        }
+      ]
+    },
+    {
+      "detuning_policy": "bare_two_photon_center",
+      "training_coordinates": 5,
+      "guard_coordinates": 4,
+      "maximum_relative_error": 0.00029948669774082504,
+      "candidate_sparse_rule_eligible_at_one_percent": true,
+      "evidence_scope": "New CP model, fixed Pp6/LO3.7, 3x3 pilot only; not a certificate for a reoptimized 21x9 map",
+      "errors": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "predicted": 3037.1862534192455,
+          "direct": 3037.0781882265637,
+          "relative_error": 3.5581959364927584e-05
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "predicted": 2315.2819386731408,
+          "direct": 2315.3819845615053,
+          "relative_error": -4.3209236761598824e-05
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "predicted": 381.4105938784073,
+          "direct": 381.524134814877,
+          "relative_error": -0.0002975983066569876
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "predicted": 290.7536731509681,
+          "direct": 290.6666223640928,
+          "relative_error": 0.00029948669774082504
+        }
+      ]
+    }
+  ],
+  "optimization_status": "EXPERIMENTAL_OPTIMUM_NOT_VALIDATED: physical protocol and absolute readout calibration remain unresolved",
+  "reference_lo_carrier_ghz": 37.07104,
+  "rf_detuning_scope": "Nominal delta_RF=0 is an analysis assumption; source carrier is reported but independent atomic RF zero calibration is not supplied",
+  "next_grid_policy": "Use sparse T/Pc cross plus guards only where current-model error criterion passes; retain Pp/LO interaction and signed optical detuning candidates",
+  "no_sensitivity_fit": true,
+  "no_temperature_optimum_fit": true,
+  "elapsed_seconds": 8.613294099923223,
+  "source_sha256": {
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/_csv_numeric.py": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+    "gabes/adaptive_scan.py": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/angular.py": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/biphoton_evidence.py": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+    "gabes/constants.py": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/doppler.py": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+    "gabes/dressed_cell_absorption.py": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+    "gabes/experimental_alignment.py": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+    "gabes/experimental_csv.py": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+    "gabes/fwm_chi_gain.py": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+    "gabes/fwm_efficiency.py": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+    "gabes/fwm_experiment_gain.py": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+    "gabes/fwm_experiment_noise.py": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+    "gabes/fwm_gain_calibration.py": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+    "gabes/fwm_gain_closure.py": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+    "gabes/fwm_literature_gain.py": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+    "gabes/fwm_measured_gain.py": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+    "gabes/fwm_quadrature.py": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+    "gabes/fwm_stark_gain.py": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+    "gabes/fwm_stark_response.py": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+    "gabes/fwm_zeeman_gain.py": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+    "gabes/fwm_zeeman_response.py": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+    "gabes/gain_reference.py": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+    "gabes/hyperfine.py": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+    "gabes/jasperse.py": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+    "gabes/kernels.py": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/magneto_coordinates.py": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+    "gabes/magneto_multilevel.py": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+    "gabes/magneto_optical.py": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+    "gabes/observables.py": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+    "gabes/passive_readout.py": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "gabes/pole_doppler.py": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+    "gabes/probe_saturation.py": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+    "gabes/psr.py": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+    "gabes/psr_conventions.py": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+    "gabes/psr_full_obe.py": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+    "gabes/psr_homodyne.py": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+    "gabes/psr_noise.py": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+    "gabes/psr_spectrum.py": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+    "gabes/report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/rydberg_experimental_csv.py": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+    "gabes/rydberg_opacity.py": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+    "gabes/species.py": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+    "gabes/ui_metrics.py": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+    "gabes/zeeman.py": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "analysis/rydberg_gold_validation_20261103/benchmark_gold.py": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+    "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+    "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+  }
+}

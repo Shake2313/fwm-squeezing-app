@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "paper_id": "yang_2024_pra",
+  "title": "Sensitivity of Rydberg microwave electrometry limited by laser frequency noise",
+  "authors": [
+    "Bowen Yang",
+    "Yuhan Yan",
+    "Xuejie Li",
+    "Haojie Zhao",
+    "Ling Xiao",
+    "Xiaolin Li",
+    "Jianliao Deng",
+    "Huadong Cheng"
+  ],
+  "year": 2024,
+  "study_type": "theory",
+  "topics": [
+    "theory",
+    "laser_frequency_noise",
+    "Doppler",
+    "temperature",
+    "noise_spectrum"
+  ],
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "109",
+    "issue": "3",
+    "pages": "032609",
+    "doi": "10.1103/PhysRevA.109.032609",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2024-03-11"
+  },
+  "scope": {
+    "species": "87Rb model",
+    "line": "four_level_Rydberg_ladder",
+    "configuration": "phase_diffusion_noise_theory",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "context_only",
+    "reason": "실제 laser frequency noise·Doppler 감도 한계 모델 비교."
+  },
+  "apparatus_group": "SIOM_Yang_Cheng",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://journals.aps.org/pra/pdf/10.1103/PhysRevA.109.032609",
+      "path": "sources/yang_2024_pra.pdf",
+      "sha256": "8d3136a60c74ec8826bded0679a67f77045b0fc0ff59572cd1c3e4c8d66c46a0",
+      "pages": 9,
+      "access": "full_text",
+      "version": "published Physical Review A 109, 032609",
+      "accessed_on": "2026-11-03",
+      "access_method": "browser_institutional_access",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "theory_parameters",
+      "label": "잡음 이론 수치 계산 기준",
+      "kind": "theory_prediction",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 300,
+          "unit": "K",
+          "value_type": "reported",
+          "basis": "Default numerical calculation temperature",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Default numerical calculation temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "transit_relaxation_over_2pi",
+          "value": 500,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "Model transit relaxation",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Eq. (6)",
+          "evidence": "Model transit relaxation",
+          "notes": ""
+        },
+        {
+          "quantity": "excited_decay_over_2pi",
+          "value": 6.07,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Model intermediate-state spontaneous rate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Eq. (6)",
+          "evidence": "Model intermediate-state spontaneous rate",
+          "notes": ""
+        },
+        {
+          "quantity": "rydberg_decay_over_2pi",
+          "value": 10,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "Model Rydberg spontaneous rate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Eq. (6)",
+          "evidence": "Model Rydberg spontaneous rate",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "phase_diffusion",
+      "claim": "Laser phase diffusion으로 원자 coherence 잡음 PSD와 감도 한계를 계산. Laser linewidth·Doppler·온도 의존을 포함.",
+      "locator": "PDF pp. 2-8",
+      "source_id": "main",
+      "category": "laser_frequency_noise",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

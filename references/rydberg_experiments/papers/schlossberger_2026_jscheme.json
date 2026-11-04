@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "paper_id": "schlossberger_2026_jscheme",
+  "title": "Electromagnetically induced transparency and population repump readout of Rydberg states of Cs atoms in a J-scheme",
+  "authors": [
+    "Noah Schlossberger",
+    "Christopher L. Holloway",
+    "Erik McKee",
+    "Michael A. Highman",
+    "Nikunjkumar Prajapati"
+  ],
+  "year": 2026,
+  "study_type": "experiment",
+  "topics": [
+    "three_photon",
+    "repumping",
+    "heterodyne",
+    "linewidth"
+  ],
+  "publication": {
+    "journal": "AVS Quantum Science",
+    "volume": "8",
+    "issue": "3",
+    "pages": "034402",
+    "doi": "10.1116/5.0336324",
+    "arxiv_id": "2603.08678v1",
+    "status": "published",
+    "published_date": "2026-08-14"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "J_scheme_6P1/2-6S1/2-7P-Rydberg",
+    "configuration": "three_photon_J_scheme",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Boulder_Jscheme",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2603.08678v1",
+      "path": "sources/schlossberger_2026_jscheme.pdf",
+      "sha256": "3560a7dfff7ec2d2eb8a546d9ed85c5d74c7effeecaff21d1ee31133b7e81a5d",
+      "pages": 5,
+      "access": "full_text",
+      "version": "arXiv:2603.08678v1; publication metadata updated separately",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "narrow_line",
+      "label": "낮은 광파워의 좁은 EIT",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 1.3,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Table I",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "dressing_power",
+          "value": 17,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Table I",
+          "evidence": "dressing power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 460,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Table I",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_fwhm",
+          "value": 1.6,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "FWHM",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Table I",
+          "evidence": "FWHM",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "eit_linewidth",
+          "value": 1.3,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Low-laser-power linewidth",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Low-laser-power linewidth",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "좁은 선폭용 Table I 조건. 아래 감도 운전점에 같은 파워를 자동 상속하지 않음."
+      ]
+    },
+    {
+      "experiment_id": "linked_jscheme",
+      "label": "연결된 J-scheme RF 판독",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 4.7,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "rf frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 27,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Conventional heterodyne J-scheme",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Conventional heterodyne J-scheme",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "population_repump",
+      "label": "분리된 hyperfine population 판독",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 4.7,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "rf frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 39,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Population-repump readout",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Population-repump readout",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "architecture",
+      "claim": "직접 diode 파장으로 가능한 J 모양 세 광자 결합과 별도 hyperfine 인구수 판독을 비교.",
+      "locator": "PDF pp. 1-4",
+      "source_id": "main",
+      "category": "three_photon",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

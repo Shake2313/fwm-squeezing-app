@@ -1,0 +1,31 @@
+{
+  "origin": "⟦AI⟧",
+  "status": "failed",
+  "criteria": "Same physical Hamiltonian and scalar output must agree; software identity tolerance only, not experimental acceptance.",
+  "cases": [
+    {
+      "case": "default",
+      "phasor_parity_tolerance": 1e-10,
+      "phasor_parity_pass": true,
+      "coordinate_identity_pass": true,
+      "resonance_identity_pass": true,
+      "center_relative_phasor_error": 0.0
+    },
+    {
+      "case": "probe_scan_fixed_coupling_12",
+      "phasor_parity_tolerance": 1e-10,
+      "phasor_parity_pass": false,
+      "coordinate_identity_pass": true,
+      "resonance_identity_pass": false,
+      "center_relative_phasor_error": 1.0072960627486167
+    },
+    {
+      "case": "coupling_scan_fixed_probe_12",
+      "phasor_parity_tolerance": 1e-10,
+      "phasor_parity_pass": false,
+      "coordinate_identity_pass": false,
+      "resonance_identity_pass": false,
+      "center_relative_phasor_error": 1.007456405551997
+    }
+  ]
+}

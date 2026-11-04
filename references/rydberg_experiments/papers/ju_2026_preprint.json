@@ -1,0 +1,463 @@
+{
+  "schema_version": 1,
+  "paper_id": "ju_2026_preprint",
+  "title": "Photon shot-noise-limited Rydberg-EIT electrometry",
+  "authors": [
+    "Ju, Gyeongmin",
+    "Yu, Ye Jin",
+    "Kim, Heewoo",
+    "Jeong, Hansol",
+    "Bae, Jinhyuk",
+    "Baek, Changhoon",
+    "Moon, Han Seb"
+  ],
+  "year": 2026,
+  "study_type": "experiment",
+  "topics": [
+    "gold_reference",
+    "heterodyne",
+    "photon_shot_noise",
+    "temperature",
+    "magnetic_compensation",
+    "laser_locking"
+  ],
+  "publication": {
+    "journal": "arXiv",
+    "volume": "",
+    "issue": "",
+    "pages": "",
+    "doi": null,
+    "arxiv_id": "2606.04354v1",
+    "status": "preprint",
+    "published_date": "2026"
+  },
+  "scope": {
+    "species": "85Rb addressed; isotope purity not specified",
+    "line": "5S1/2(F3)-5P3/2(F4)-40D5/2-39F7/2",
+    "configuration": "counterpropagating_EIT_atomic_superheterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거.",
+    "reference_role": "gold_reference"
+  },
+  "apparatus_group": "PNU_Moon_KRISS",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2606.04354v1",
+      "path": "sources/ju_2026_preprint.pdf",
+      "sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+      "pages": 15,
+      "access": "full_text",
+      "version": "arXiv:2606.04354v1",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "gold_operating_point",
+      "label": "Gold 실험 메인 운전점",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 50,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Vapor-cell length",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Fig. 5 discussion",
+          "evidence": "Vapor-cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 20,
+          "unit": "degC",
+          "value_type": "approximate",
+          "basis": "Room-temperature operation",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Fig. 5 discussion",
+          "evidence": "Room-temperature operation",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_wavelength",
+          "value": 780,
+          "unit": "nm",
+          "value_type": "approximate",
+          "basis": "5S(F3)-5P(F4)",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 2-3",
+          "evidence": "5S(F3)-5P(F4)",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_transition_text",
+          "value": "5S1/2(F=3) -> 5P3/2(F'=4)",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "Experimental schematic in the main text; used as the nominal reference",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Sec. 2",
+          "evidence": "Experimental schematic in the main text; used as the nominal reference",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_transition_figure",
+          "value": "5S1/2(F=2) -> 5P3/2(F'=3)",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "Figure labels conflict with the main-text hyperfine labels",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 1(a)",
+          "evidence": "Figure labels conflict with the main-text hyperfine labels",
+          "notes": "⟦AI⟧ Source inconsistency preserved. Nominal reference follows Sec. 2 text."
+        },
+        {
+          "quantity": "coupling_wavelength",
+          "value": 480,
+          "unit": "nm",
+          "value_type": "approximate",
+          "basis": "5P-40D",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 2-3",
+          "evidence": "5P-40D",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 6,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "Reported probe power",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Reported probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 30,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "Reported coupling power",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Reported coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "beam_diameter",
+          "value": 0.15,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Reported beam diameter; 1/e^2/FWHM convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Reported beam diameter; 1/e^2/FWHM convention unspecified",
+          "notes": ""
+        },
+        {
+          "quantity": "beam_diameter_definition",
+          "value": null,
+          "unit": "1",
+          "value_type": "not_reported",
+          "basis": "Paper says diameter; no explicit Gaussian radius convention assigned",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Paper says diameter; no explicit Gaussian radius convention assigned",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_geometry",
+          "value": "counter_propagating",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "Probe and coupling counter-propagate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Probe and coupling counter-propagate",
+          "notes": ""
+        },
+        {
+          "quantity": "optical_polarizations",
+          "value": "linear_orthogonal",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "optical polarizations",
+          "notes": ""
+        },
+        {
+          "quantity": "detector_qe",
+          "value": 95,
+          "unit": "percent",
+          "value_type": "approximate",
+          "basis": "Balanced photodetector quantum efficiency",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "Balanced photodetector quantum efficiency",
+          "notes": ""
+        },
+        {
+          "quantity": "lo_rabi_over_2pi",
+          "value": 3.7,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Microwave local oscillator",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "Microwave local oscillator",
+          "notes": ""
+        },
+        {
+          "quantity": "lo_frequency",
+          "value": 37.07104,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "lo frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "intermediate_frequency",
+          "value": 40,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "LO-SIG frequency offset",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 2, 5",
+          "evidence": "LO-SIG frequency offset",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_detuning",
+          "value": null,
+          "unit": "MHz",
+          "value_type": "not_reported",
+          "basis": "Absolute +40 MHz optical detuning is not specified for this reported operating point",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 2-5",
+          "evidence": "Absolute +40 MHz optical detuning is not specified for this reported operating point",
+          "notes": ""
+        },
+        {
+          "quantity": "operating_optical_depth",
+          "value": null,
+          "unit": "1",
+          "value_type": "not_reported",
+          "basis": "No absolute measured operating-point OD inserted from AutoOD",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 3, 7, 9",
+          "evidence": "No absolute measured operating-point OD inserted from AutoOD",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 12.5,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Measured superheterodyne sensitivity; RF-field RMS conversion defined in Eq. (1)",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1, 7-8",
+          "evidence": "Measured superheterodyne sensitivity; RF-field RMS conversion defined in Eq. (1)",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.8,
+            "unit": "nV/cm/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        },
+        {
+          "quantity": "psn_field_sensitivity",
+          "value": 11.2,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Calculated probe-photon-shot-noise floor; field convention of Eqs. (1)-(2)",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 7, 10",
+          "evidence": "Calculated probe-photon-shot-noise floor; field convention of Eqs. (1)-(2)",
+          "notes": ""
+        },
+        {
+          "quantity": "eit_linewidth",
+          "value": 1.6,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Narrow compensated spectrum; its probe power is not specified. Fig. 2(b) gives approximately 3.0 MHz at 6 uW; do not bind 1.6 MHz to the 6 uW operating point.",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1, 4-5",
+          "evidence": "Narrow compensated spectrum; its probe power is not specified. Fig. 2(b) gives approximately 3.0 MHz at 6 uW; do not bind 1.6 MHz to the 6 uW operating point.",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "사용자 2026-11-03 채택 Gold reference. 실험 메인 구도·조건의 기준.",
+        "⟦AI⟧ 논문은 85Rb 전이를 사용. 순수 동위원소 셀이라는 추가 가정은 보류."
+      ]
+    },
+    {
+      "experiment_id": "temperature_model",
+      "label": "온도 의존 PSN 계산",
+      "kind": "theory_prediction",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 50,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "beam_diameter",
+          "value": 0.15,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Same stated diameter convention",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9",
+          "evidence": "Same stated diameter convention",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "predicted_optimum_temperature",
+          "value": 33,
+          "unit": "degC",
+          "value_type": "approximate",
+          "basis": "Calculated PSN optimum; distinct from measured ~20 C operation",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Fig. 5(a)",
+          "evidence": "Calculated PSN optimum; distinct from measured ~20 C operation",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "readout",
+      "claim": "감도 식 (2)는 동작점의 투과 광자수와 응답 기울기를 함께 사용. Probe 파워 증가의 광자수 이득과 EIT power broadening이 경쟁.",
+      "locator": "PDF pp. 7-9, Eq. (2), Figs. 4-5",
+      "source_id": "main",
+      "category": "sensitivity_definition",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "coherence",
+      "claim": "자기장 보상·두 레이저의 ULE cavity 고정·balanced 검출로 EIT 폭과 판독 잡음을 낮춤.",
+      "locator": "PDF pp. 2-5",
+      "source_id": "main",
+      "category": "coherence_control",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "hyperfine_label_discrepancy",
+      "claim": "본문 2절은 5S F=3 → 5P F′=4, 그림 1(a)는 F=2 → F′=3으로 표기되어 서로 다름.",
+      "locator": "PDF pp. 2-3, Sec. 2 and Fig. 1(a)",
+      "source_id": "main",
+      "category": "source_consistency",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "linewidth_power_scope",
+      "claim": "⟦AI⟧ Fig. 2(b)의 보상 후 폭은 0.5 µW에서 약 1.6 MHz, 6 µW에서 약 3.0 MHz. Fig. 2(a)의 1.6 MHz 스펙트럼에는 프로브 파워가 명시되지 않아 6 µW 앵커로 사용할 수 없음.",
+      "locator": "PDF p. 5, Fig. 2(a-b)",
+      "source_id": "main",
+      "category": "source_consistency",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "psn_curve_shape_scope",
+      "claim": "⟦AI⟧ Fig. 5(b)의 빨간 SNL 곡선은 파워 증가에 따라 단조 감소하지만 측정 곡선은 6 µW 부근에서 최소. 본문의 최적점 설명과 그림의 PSN 곡선을 구분해야 함.",
+      "locator": "PDF pp. 8-10, Figs. 4(d), 5(b)",
+      "source_id": "main",
+      "category": "source_consistency",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "optical_scan_identity",
+      "claim": "⟦AI⟧ Fig. 2·3 주파수 축은 스캔한 레이저와 고정 레이저의 절대 디튜닝을 명시하지 않음. 이전 학위논문의 probe scan은 다른 장치의 근거.",
+      "locator": "PDF pp. 3-6, Figs. 2-3",
+      "source_id": "main",
+      "category": "source_consistency",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ Gold 메인 전이는 본문 2절 표기 채택. 그림 1(a)의 다른 초미세 표기는 별도 근거로 보존.",
+    "⟦AI⟧ 논문이 별도 Supplementary Materials를 언급. 현재 보관·검수한 PDF는 main article 15쪽이며 별도 보충문서는 확보하지 않음."
+  ],
+  "reference_designation": {
+    "gold_reference_paper_id": "ju_2026_preprint",
+    "status": "active_temporary",
+    "origin": "direct_user_request",
+    "adopted_on": "2026-11-03",
+    "scope": "Main experimental geometry, transitions, operating conditions and readout reference.",
+    "request": "Ju et al. (2026)을 당분간 Gold reference(실험 구도, 조건 등 메인으로 삼는 논문)으로 두겠습니다."
+  }
+}

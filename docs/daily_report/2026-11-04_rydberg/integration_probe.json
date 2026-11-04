@@ -1,0 +1,403 @@
+{
+  "origin": "⟦AI⟧",
+  "completed_at": "2026-11-04T05:01:36.773277+09:00",
+  "cases": [
+    {
+      "label": "default",
+      "params": {
+        "probe_power_uw": 6.0,
+        "coupling_power_mw": 30.0,
+        "beam_diameter_mm": 0.15,
+        "cell_mm": 50.0,
+        "temp_c": 20.0,
+        "temperature_model": "Linked",
+        "heater_setpoint_c": 20.0,
+        "effective_temp_c": 20.0,
+        "cold_spot_temp_c": 20.0,
+        "coupling_rabi_mhz": 3.0,
+        "probe_rabi_ref_mhz": 2.0,
+        "scan_axis": "Probe detuning",
+        "probe_detuning_mhz": 0.0,
+        "coupling_detuning_mhz": 0.0,
+        "lo_rabi_mhz": 3.7,
+        "mw_detuning_mhz": 0.0,
+        "mw_frequency_ghz": 37.0,
+        "if_khz": 40.0,
+        "rydberg_dephasing_mhz": 0.1,
+        "temp_dephasing_mhz_per_c": 0.0,
+        "density_dephasing_mhz_per_1e16_m3": 0.0,
+        "rf_dephasing_mhz": 1.0,
+        "residual_zeeman_mhz": 1.5,
+        "doppler": "off",
+        "rf_transition_dipole_ea0": 1326.2572434514343,
+        "rf_angular_factor": 1.0,
+        "rf_field_convention": "RMS",
+        "detector_quantum_efficiency": 0.95,
+        "detector_path_efficiency": 0.5,
+        "detector_reference_power_ratio": 1.0,
+        "detector_electronic_noise_pa_sqrt_hz": 0.0,
+        "detector_rin_per_sqrt_hz": 0.0,
+        "detector_rin_correlation": 1.0,
+        "measurement_enbw_hz": 1.0,
+        "effective_opacity_participation": 0.001,
+        "effective_opacity_relative_uncertainty": 0.5,
+        "atom_participation_fraction": 1.0,
+        "beam_overlap_efficiency": 1.0,
+        "sam_enabled": "Off",
+        "sam_source_power_dbm": -40.0,
+        "sam_antenna_gain_dbi": 10.0,
+        "sam_distance_m": 0.3,
+        "sam_cable_loss_db": 0.0,
+        "sam_additional_loss_db": 0.0,
+        "sam_field_correction": 1.0,
+        "sam_source_power_std_db": 0.0,
+        "sam_antenna_gain_std_db": 0.0,
+        "sam_cable_loss_std_db": 0.0,
+        "sam_additional_loss_std_db": 0.0,
+        "sam_distance_std_m": 0.0,
+        "sam_field_correction_std": 0.0,
+        "sam_antenna_max_dimension_m": 0.1,
+        "view": "AT electrometry"
+      },
+      "configured_available": true,
+      "comparisons": [
+        {
+          "scan_coordinate_mhz": -11.100000000000003,
+          "actual": [
+            -2.3277090842421543e-12,
+            3.1768722477929994e-14
+          ],
+          "reference": [
+            -2.3277090842421543e-12,
+            3.1768722477929994e-14
+          ],
+          "relative_error": 0.0
+        },
+        {
+          "scan_coordinate_mhz": -5.550000000000002,
+          "actual": [
+            -8.029584793612101e-11,
+            1.3358857138254243e-12
+          ],
+          "reference": [
+            -8.029584793612101e-11,
+            1.3358857138254243e-12
+          ],
+          "relative_error": 0.0
+        },
+        {
+          "scan_coordinate_mhz": 0.0,
+          "actual": [
+            -4.311478144962806e-09,
+            -1.850003118753117e-10
+          ],
+          "reference": [
+            -4.311478144962806e-09,
+            -1.850003118753117e-10
+          ],
+          "relative_error": 0.0
+        },
+        {
+          "scan_coordinate_mhz": 5.5500000000000025,
+          "actual": [
+            -7.985394450024961e-11,
+            1.3229161923060393e-12
+          ],
+          "reference": [
+            -7.985394450024961e-11,
+            1.3229161923060393e-12
+          ],
+          "relative_error": 0.0
+        },
+        {
+          "scan_coordinate_mhz": 11.100000000000003,
+          "actual": [
+            -2.3189142295431363e-12,
+            3.161484534264143e-14
+          ],
+          "reference": [
+            -2.3189142295431363e-12,
+            3.161484534264143e-14
+          ],
+          "relative_error": 0.0
+        }
+      ],
+      "scheme_mode": {
+        "batch_optimum_probe_detuning_mhz": -2.24775,
+        "actual_optimum_probe_detuning_mhz": -2.24775,
+        "actual_optimum_coupling_detuning_mhz": 0.0,
+        "optimum_scan_coordinate_mhz": -2.24775
+      },
+      "resonance": {
+        "actual_scan_center_mhz": -0.0,
+        "batch_transmission": 0.8399028422467489,
+        "native_transmission": 0.8399028422467489
+      }
+    },
+    {
+      "label": "probe_scan_fixed_coupling_12",
+      "params": {
+        "probe_power_uw": 6.0,
+        "coupling_power_mw": 30.0,
+        "beam_diameter_mm": 0.15,
+        "cell_mm": 50.0,
+        "temp_c": 20.0,
+        "temperature_model": "Linked",
+        "heater_setpoint_c": 20.0,
+        "effective_temp_c": 20.0,
+        "cold_spot_temp_c": 20.0,
+        "coupling_rabi_mhz": 3.0,
+        "probe_rabi_ref_mhz": 2.0,
+        "scan_axis": "Probe detuning",
+        "probe_detuning_mhz": 0.0,
+        "coupling_detuning_mhz": 12.0,
+        "lo_rabi_mhz": 3.7,
+        "mw_detuning_mhz": 0.0,
+        "mw_frequency_ghz": 37.0,
+        "if_khz": 40.0,
+        "rydberg_dephasing_mhz": 0.1,
+        "temp_dephasing_mhz_per_c": 0.0,
+        "density_dephasing_mhz_per_1e16_m3": 0.0,
+        "rf_dephasing_mhz": 1.0,
+        "residual_zeeman_mhz": 1.5,
+        "doppler": "off",
+        "rf_transition_dipole_ea0": 1326.2572434514343,
+        "rf_angular_factor": 1.0,
+        "rf_field_convention": "RMS",
+        "detector_quantum_efficiency": 0.95,
+        "detector_path_efficiency": 0.5,
+        "detector_reference_power_ratio": 1.0,
+        "detector_electronic_noise_pa_sqrt_hz": 0.0,
+        "detector_rin_per_sqrt_hz": 0.0,
+        "detector_rin_correlation": 1.0,
+        "measurement_enbw_hz": 1.0,
+        "effective_opacity_participation": 0.001,
+        "effective_opacity_relative_uncertainty": 0.5,
+        "atom_participation_fraction": 1.0,
+        "beam_overlap_efficiency": 1.0,
+        "sam_enabled": "Off",
+        "sam_source_power_dbm": -40.0,
+        "sam_antenna_gain_dbi": 10.0,
+        "sam_distance_m": 0.3,
+        "sam_cable_loss_db": 0.0,
+        "sam_additional_loss_db": 0.0,
+        "sam_field_correction": 1.0,
+        "sam_source_power_std_db": 0.0,
+        "sam_antenna_gain_std_db": 0.0,
+        "sam_cable_loss_std_db": 0.0,
+        "sam_additional_loss_std_db": 0.0,
+        "sam_distance_std_m": 0.0,
+        "sam_field_correction_std": 0.0,
+        "sam_antenna_max_dimension_m": 0.1,
+        "view": "AT electrometry"
+      },
+      "configured_available": true,
+      "comparisons": [
+        {
+          "scan_coordinate_mhz": -23.1,
+          "actual": [
+            -3.242642920198044e-14,
+            4.6231817942554e-16
+          ],
+          "reference": [
+            -3.761454062600905e-13,
+            1.6805221840663194e-14
+          ],
+          "relative_error": 0.9139135120125637
+        },
+        {
+          "scan_coordinate_mhz": -17.55,
+          "actual": [
+            -1.6422656469490465e-13,
+            2.3151315487623253e-15
+          ],
+          "reference": [
+            -8.66358664644738e-12,
+            9.858688338421621e-13
+          ],
+          "relative_error": 0.9812581243542349
+        },
+        {
+          "scan_coordinate_mhz": -12.0,
+          "actual": [
+            -1.49339838260991e-12,
+            2.0515970064264677e-14
+          ],
+          "reference": [
+            6.140969228736287e-11,
+            -9.57783411302858e-11
+          ],
+          "relative_error": 1.0072960627486167
+        },
+        {
+          "scan_coordinate_mhz": -6.449999999999999,
+          "actual": [
+            -4.172969075955153e-11,
+            5.896409004568747e-13
+          ],
+          "reference": [
+            6.73559549037993e-11,
+            2.2270811627857486e-11
+          ],
+          "relative_error": 1.5677436684895585
+        },
+        {
+          "scan_coordinate_mhz": -0.8999999999999987,
+          "actual": [
+            -3.758554757479768e-09,
+            -2.1881318351509584e-10
+          ],
+          "reference": [
+            5.97630306244015e-11,
+            2.0645410291994392e-11
+          ],
+          "relative_error": 60.507752537510335
+        }
+      ],
+      "scheme_mode": {
+        "batch_optimum_probe_detuning_mhz": -10.1685,
+        "actual_optimum_probe_detuning_mhz": -10.1685,
+        "actual_optimum_coupling_detuning_mhz": 12.0,
+        "optimum_scan_coordinate_mhz": -10.1685
+      },
+      "resonance": {
+        "actual_scan_center_mhz": -12.0,
+        "batch_transmission": 0.7877671876028455,
+        "native_transmission": 0.9802308835628363
+      }
+    },
+    {
+      "label": "coupling_scan_fixed_probe_12",
+      "params": {
+        "probe_power_uw": 6.0,
+        "coupling_power_mw": 30.0,
+        "beam_diameter_mm": 0.15,
+        "cell_mm": 50.0,
+        "temp_c": 20.0,
+        "temperature_model": "Linked",
+        "heater_setpoint_c": 20.0,
+        "effective_temp_c": 20.0,
+        "cold_spot_temp_c": 20.0,
+        "coupling_rabi_mhz": 3.0,
+        "probe_rabi_ref_mhz": 2.0,
+        "scan_axis": "Coupling detuning",
+        "probe_detuning_mhz": 12.0,
+        "coupling_detuning_mhz": 0.0,
+        "lo_rabi_mhz": 3.7,
+        "mw_detuning_mhz": 0.0,
+        "mw_frequency_ghz": 37.0,
+        "if_khz": 40.0,
+        "rydberg_dephasing_mhz": 0.1,
+        "temp_dephasing_mhz_per_c": 0.0,
+        "density_dephasing_mhz_per_1e16_m3": 0.0,
+        "rf_dephasing_mhz": 1.0,
+        "residual_zeeman_mhz": 1.5,
+        "doppler": "off",
+        "rf_transition_dipole_ea0": 1326.2572434514343,
+        "rf_angular_factor": 1.0,
+        "rf_field_convention": "RMS",
+        "detector_quantum_efficiency": 0.95,
+        "detector_path_efficiency": 0.5,
+        "detector_reference_power_ratio": 1.0,
+        "detector_electronic_noise_pa_sqrt_hz": 0.0,
+        "detector_rin_per_sqrt_hz": 0.0,
+        "detector_rin_correlation": 1.0,
+        "measurement_enbw_hz": 1.0,
+        "effective_opacity_participation": 0.001,
+        "effective_opacity_relative_uncertainty": 0.5,
+        "atom_participation_fraction": 1.0,
+        "beam_overlap_efficiency": 1.0,
+        "sam_enabled": "Off",
+        "sam_source_power_dbm": -40.0,
+        "sam_antenna_gain_dbi": 10.0,
+        "sam_distance_m": 0.3,
+        "sam_cable_loss_db": 0.0,
+        "sam_additional_loss_db": 0.0,
+        "sam_field_correction": 1.0,
+        "sam_source_power_std_db": 0.0,
+        "sam_antenna_gain_std_db": 0.0,
+        "sam_cable_loss_std_db": 0.0,
+        "sam_additional_loss_std_db": 0.0,
+        "sam_distance_std_m": 0.0,
+        "sam_field_correction_std": 0.0,
+        "sam_antenna_max_dimension_m": 0.1,
+        "view": "AT electrometry"
+      },
+      "configured_available": true,
+      "comparisons": [
+        {
+          "scan_coordinate_mhz": -23.1,
+          "actual": [
+            -3.242642920198044e-14,
+            4.6231817942554e-16
+          ],
+          "reference": [
+            1.2112812473241678e-12,
+            3.641373691583031e-13
+          ],
+          "relative_error": 1.0244754873420463
+        },
+        {
+          "scan_coordinate_mhz": -17.55,
+          "actual": [
+            -1.6422656469490465e-13,
+            2.3151315487623253e-15
+          ],
+          "reference": [
+            7.43291862002435e-12,
+            5.772559685278858e-12
+          ],
+          "relative_error": 1.0136897027178662
+        },
+        {
+          "scan_coordinate_mhz": -12.0,
+          "actual": [
+            -1.49339838260991e-12,
+            2.0515970064264677e-14
+          ],
+          "reference": [
+            6.592343823451342e-11,
+            -9.602455646902316e-11
+          ],
+          "relative_error": 1.007456405551997
+        },
+        {
+          "scan_coordinate_mhz": -6.449999999999999,
+          "actual": [
+            -4.172969075955153e-11,
+            5.896409004568747e-13
+          ],
+          "reference": [
+            -2.0715479310576026e-11,
+            9.475452804881754e-13
+          ],
+          "relative_error": 1.0135081446816452
+        },
+        {
+          "scan_coordinate_mhz": -0.8999999999999987,
+          "actual": [
+            -3.758554757479768e-09,
+            -2.1881318351509584e-10
+          ],
+          "reference": [
+            -1.9350582330796456e-12,
+            2.672719471666942e-14
+          ],
+          "relative_error": 1944.4529109984542
+        }
+      ],
+      "scheme_mode": {
+        "batch_optimum_probe_detuning_mhz": -10.446,
+        "actual_optimum_probe_detuning_mhz": 12.0,
+        "actual_optimum_coupling_detuning_mhz": -10.446,
+        "optimum_scan_coordinate_mhz": -10.446
+      },
+      "resonance": {
+        "actual_scan_center_mhz": -12.0,
+        "batch_transmission": 0.9800409073562426,
+        "native_transmission": 0.9802308835628363
+      }
+    }
+  ],
+  "scope": "Default versus 12 MHz fixed-counterpart optical scans; compare atomic phasors before detector scaling. Five search points are a bounded diagnostic, not converged sensitivity."
+}

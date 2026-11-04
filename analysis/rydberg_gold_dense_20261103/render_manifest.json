@@ -1,0 +1,22 @@
+{
+  "origin": "AI rendering of saved dense campaign results",
+  "opacity": 0.001,
+  "map_shape": [
+    21,
+    9
+  ],
+  "scope": "Discrete solved maps and connected solved slices; no interpolated evaluations",
+  "input_sha256": {
+    "results.json": "0404487011f0ca7804392f62c2291cc0e4a75dd3e95e790f02aaa1524590b969",
+    "render_dense.py": "1f1b663fb7ffd979315ad5a29a9e96478a6c3477ea2e28fcd52e64a69a1ba6d7",
+    "../rydberg_gold_map_20261103/results.json": "df43481d094297716b343e0fedc207bede46f1099755a3a0dc65bc5566dfab28"
+  },
+  "output_sha256": {
+    "dense_sensitivity_maps.png": "59f1b062ef44bbf4ed544af83e1941f98e472818a9732467fbbd77c9f6a15a99",
+    "dense_optimal_controls.png": "2a604a36f2bde6ee7d568ce9141bbaa6208d48e2986fbf1ef3ccff70c93dfe60",
+    "dense_slices.png": "c5ee08dac0ba8e18c146ca94e1bd7370ae2199fc92954282cb1f67dcdb81eef2",
+    "dense_near_best_regions.png": "a170e6e74d0d0ddd5dc47d0c7f0214c91b506f5235c1805dd2893f3936af36a6",
+    "dense_branch_gaps.png": "1450fe2511b7004ada4a47073b011a95accffba49d12f7daa822c77f64b1e37b",
+    "render_diagnostics.json": "23ed6c10cdd0ed50dbf7d36edda894cdfc6e9ab2fd6d044a34270f2f09593aed"
+  }
+}

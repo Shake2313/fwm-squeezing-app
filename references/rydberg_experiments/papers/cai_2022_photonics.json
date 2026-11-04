@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "paper_id": "cai_2022_photonics",
+  "title": "Sensitivity Improvement and Determination of Rydberg Atom-Based Microwave Sensor",
+  "authors": [
+    "Minghao Cai",
+    "Zishan Xu",
+    "Shuhang You",
+    "Hongping Liu"
+  ],
+  "year": 2022,
+  "study_type": "experiment",
+  "topics": [
+    "heterodyne",
+    "rf_detuning",
+    "sensitivity_definition",
+    "noise_spectrum"
+  ],
+  "publication": {
+    "journal": "Photonics",
+    "volume": "9",
+    "issue": "4",
+    "pages": "250",
+    "doi": "10.3390/photonics9040250",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2022-04-10"
+  },
+  "scope": {
+    "species": "85Rb",
+    "line": "5S-5P-70S1/2-70P3/2",
+    "configuration": "detuned_atomic_superheterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "WIPM_Liu",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://mdpi-res.com/d_attachment/photonics/photonics-09-00250/article_deploy/photonics-09-00250.pdf",
+      "path": "sources/cai_2022_photonics.pdf",
+      "sha256": "f1a117153743a0d006810413beb7840a07ca4faf424bc36a7de6b1e5c6b7b670",
+      "pages": 14,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "zero_detuning_signal",
+      "label": "공명 LO 직접 응답 평가",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 10.68,
+          "unit": "GHz",
+          "value_type": "approximate",
+          "basis": "70S-70P transition",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "70S-70P transition",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_detuning",
+          "value": 0,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "rf detuning",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 49.84,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Direct field modulation calibration",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "Direct field modulation calibration",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.72,
+            "unit": "nV/cm/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "minus6_signal",
+      "label": "−6 MHz LO 직접 응답 평가",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_detuning",
+          "value": -6,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "RF detuning, not optical probe detuning",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "RF detuning, not optical probe detuning",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 35.75,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Direct field modulation calibration",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "Direct field modulation calibration",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.51,
+            "unit": "nV/cm/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "minus6_noise",
+      "label": "−6 MHz 잡음 스펙트럼 평가",
+      "kind": "noise_characterization",
+      "conditions": [
+        {
+          "quantity": "rf_detuning",
+          "value": -6,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "rf detuning",
+          "notes": ""
+        },
+        {
+          "quantity": "acquisition_time",
+          "value": 2,
+          "unit": "s",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "acquisition time",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 12.5,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Noise-spectrum fit and RF-optical gain calibration",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "Noise-spectrum fit and RF-optical gain calibration",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.04,
+            "unit": "nV/cm/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 176.78,
+          "unit": "pV/cm",
+          "value_type": "reported",
+          "basis": "5000-s minimum discernible field",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 12",
+          "evidence": "5000-s minimum discernible field",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.57,
+            "unit": "pV/cm",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": [
+        "35.75와 12.50은 평가 방법이 다름. 동일 결과로 합치지 않음."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "detuning",
+      "claim": "비공명 RF dressing에서 응답 기울기 증가를 관측. 직접 변조와 잡음 스펙트럼 감도 수치는 평가 방식별로 다름.",
+      "locator": "PDF pp. 10-12, Figs. 9-10",
+      "source_id": "main",
+      "category": "sensitivity_definition",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "paper_id": "artusio_glimpse_2024_preprint",
+  "title": "Increased instantaneous bandwidth of Rydberg atom electrometry with an optical frequency comb probe",
+  "authors": [
+    "Artusio-Glimpse, Alexandra B.",
+    "Long, David A.",
+    "Bresler, Sean M.",
+    "Prajapati, Nikunjkumar",
+    "Shylla, Dangka",
+    "Rotunno, Andrew P.",
+    "Simons, Matthew T.",
+    "Berweger, Samuel",
+    "Schlossberger, Noah",
+    "LeBrun, Thomas W.",
+    "Holloway, Christopher L."
+  ],
+  "year": 2024,
+  "study_type": "experiment",
+  "topics": [
+    "bandwidth",
+    "frequency_comb",
+    "heterodyne",
+    "IF"
+  ],
+  "publication": {
+    "journal": "arXiv",
+    "volume": "",
+    "issue": "",
+    "pages": "",
+    "doi": null,
+    "arxiv_id": "2402.17942",
+    "status": "preprint",
+    "published_date": "2024"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-Rydberg_ladder",
+    "configuration": "probe_comb_bandwidth",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_frequency_comb",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=957473",
+      "path": "sources/prajapati_2024_bandwidth.pdf",
+      "sha256": "d36132986b254ecf244fa993299fd07b9c7b5bea3c453fdc6166f61db66406cb",
+      "pages": 4,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "comb_bandwidth",
+      "label": "Probe comb 판독 대역폭",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "lo_frequency",
+          "value": 4.0,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1",
+          "evidence": "lo frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "comb_tooth_spacing",
+          "value": 1,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1",
+          "evidence": "comb tooth spacing",
+          "notes": ""
+        },
+        {
+          "quantity": "comb_optical_span",
+          "value": 200,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Optical probe-comb span; distinct from RF instantaneous bandwidth",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 1",
+          "evidence": "Optical probe-comb span; distinct from RF instantaneous bandwidth",
+          "notes": ""
+        },
+        {
+          "quantity": "acquisition_time",
+          "value": 100,
+          "unit": "ms",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "acquisition time",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "instantaneous_bandwidth",
+          "value": 12,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "RF modulation sensitivity bandwidth",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1; p. 3",
+          "evidence": "RF modulation sensitivity bandwidth",
+          "notes": "",
+          "uncertainty": {
+            "value": 1,
+            "unit": "MHz",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        },
+        {
+          "quantity": "field_sensitivity",
+          "value": 9,
+          "unit": "mV/m/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Full-acquisition-time-normalized field sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Full-acquisition-time-normalized field sensitivity",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "single_frequency_comparison",
+      "label": "단일 주파수 probe 대역폭 대조",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 19,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "probe power",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "instantaneous_bandwidth",
+          "value": 400,
+          "unit": "kHz",
+          "value_type": "approximate",
+          "basis": "Approximate 3-dB point",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Approximate 3-dB point",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "bandwidth",
+      "claim": "광 comb로 판독 대역을 넓히면서 감도·광학 span·RF modulation bandwidth를 각각 평가.",
+      "locator": "PDF pp. 2-3, Fig. 2",
+      "source_id": "main",
+      "category": "bandwidth",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

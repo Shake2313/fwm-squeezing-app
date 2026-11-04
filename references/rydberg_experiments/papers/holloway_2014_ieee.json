@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "paper_id": "holloway_2014_ieee",
+  "title": "Broadband Rydberg Atom-Based Electric-Field Probe for SI-Traceable, Self-Calibrated Measurements",
+  "authors": [
+    "Christopher L. Holloway",
+    "Joshua A. Gordon",
+    "Steven Jefferts",
+    "Andrew Schwarzkopf",
+    "David A. Anderson",
+    "Stephanie A. Miller",
+    "Nithiwadee Thaicharoen",
+    "Georg Raithel"
+  ],
+  "year": 2014,
+  "study_type": "experiment",
+  "topics": [
+    "SI_traceability",
+    "AT_splitting",
+    "field_mapping",
+    "frequency_axis"
+  ],
+  "publication": {
+    "journal": "IEEE Transactions on Antennas and Propagation",
+    "volume": "62",
+    "issue": "12",
+    "pages": "6169-6182",
+    "doi": "10.1109/TAP.2014.2360208",
+    "arxiv_id": "1405.7066",
+    "status": "published",
+    "published_date": "2014-12"
+  },
+  "scope": {
+    "species": "85Rb",
+    "line": "5S-5P-nD-(n+1)P",
+    "configuration": "AT_field_calibration",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Raithel",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=915858",
+      "path": "sources/holloway_2014_ieee.pdf",
+      "sha256": "bca6732200c0652d0600ed9a60f87944c1d33f797a15792616c420bf67f44609",
+      "pages": 12,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "17ghz",
+      "label": "17.04 GHz AT 보정 운전점",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "cell_diameter",
+          "value": 25,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "cell diameter",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_frequency",
+          "value": 17.04,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Fig. 12",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 175,
+          "unit": "nW",
+          "value_type": "reported",
+          "basis": "Input power for this frequency",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 7",
+          "evidence": "Input power for this frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 30,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7",
+          "evidence": "coupling power",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": [
+        "p. 6의 22 mW 예시와 p. 7의 30 mW 측정점을 합치지 않음."
+      ]
+    },
+    {
+      "experiment_id": "68ghz",
+      "label": "68.64 GHz 별도 운전점",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 68.64,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 8, Fig. 15",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 250,
+          "unit": "nW",
+          "value_type": "reported",
+          "basis": "Input power for this frequency",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 8",
+          "evidence": "Input power for this frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 24,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 8",
+          "evidence": "coupling power",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "traceability",
+      "claim": "AT 주파수 분리와 전이 쌍극자를 연결해 원자 위치의 RF 장을 보정. 여러 Rydberg 전이로 주파수 범위를 확장.",
+      "locator": "PDF pp. 4-8",
+      "source_id": "main",
+      "category": "calibration",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "local_field",
+      "claim": "셀 및 주변 물질의 RF 장 변화는 원자 위치의 장과 외부 입사장을 구분해 검토.",
+      "locator": "PDF pp. 9-10",
+      "source_id": "main",
+      "category": "field_plane",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "paper_id": "ma_2026_micronano",
+  "title": "MEMS vapor cells-based Rydberg-atom electrometry toward miniaturization and high sensitivity",
+  "authors": [
+    "Yintao Ma",
+    "Pan Chen",
+    "Mingzhi Yu",
+    "Yao Chen",
+    "Yanbin Wang",
+    "Ju Guo",
+    "Man Zhao",
+    "Ping Yang",
+    "Qijing Lin",
+    "Libo Zhao"
+  ],
+  "year": 2026,
+  "study_type": "experiment",
+  "topics": [
+    "MEMS",
+    "miniaturization",
+    "AT_splitting",
+    "differential_detection"
+  ],
+  "publication": {
+    "journal": "Microsystems & Nanoengineering",
+    "volume": "12",
+    "issue": "1",
+    "pages": "227",
+    "doi": "10.1038/s41378-026-01216-1",
+    "arxiv_id": "2509.01911",
+    "status": "published",
+    "published_date": "2026-06-10"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S(F4)-6P(F5)-48D5/2-46F7/2",
+    "configuration": "MEMS_differential_EIT_AT",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "UESTC_MEMS_Ma",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://www.nature.com/articles/s41378-026-01216-1.pdf",
+      "path": "sources/mems_2026_micronano.pdf",
+      "sha256": "7afda493248ad030fd214b27fa69f2c5d604b1e694f0b8c365e82a9442a0cc75",
+      "pages": 8,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "mems",
+      "label": "MEMS 셀 RF 검출",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "silicon_thickness",
+          "value": 6,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Fabrication thickness; not automatically an effective optical length",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1-2",
+          "evidence": "Fabrication thickness; not automatically an effective optical length",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_frequency",
+          "value": 29.75,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 3",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_size",
+          "value": 500,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "Beam size, convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Beam size, convention unspecified",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_beam_size",
+          "value": 600,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "Beam size, convention unspecified",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Beam size, convention unspecified",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 2.8,
+          "unit": "mV/cm",
+          "value_type": "reported",
+          "basis": "Minimum detected microwave field, not Hz-normalized sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 7, Fig. 7 discussion",
+          "evidence": "Minimum detected microwave field, not Hz-normalized sensitivity",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.3,
+            "unit": "mV/cm",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "mems",
+      "claim": "고저항 silicon 기반 MEMS 셀과 광학 차분 검출로 소형 RF 검출 장치를 구성.",
+      "locator": "PDF pp. 2-6",
+      "source_id": "main",
+      "category": "miniaturization",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

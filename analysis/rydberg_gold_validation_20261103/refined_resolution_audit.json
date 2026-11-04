@@ -1,0 +1,262 @@
+{
+  "origin": "⟦AI⟧ Current CP model adaptive variable-resolution evidence",
+  "plan": {
+    "origin": "⟦AI⟧ Adaptive sparse-axis refinement chosen before fresh guard calculations",
+    "trigger": "V1 maximum-static-slope density-normalized predictor exceeded1% (1.0633%); V1 results preserved",
+    "refinement": "Add Pc25 and35mW on T20 slice; retain T15/20/35 with exact N(T)",
+    "new_training_coordinates": [
+      [
+        20.0,
+        25.0
+      ],
+      [
+        20.0,
+        35.0
+      ]
+    ],
+    "fresh_guard_coordinates": [
+      [
+        18.5,
+        22.5
+      ],
+      [
+        18.5,
+        37.5
+      ],
+      [
+        23.0,
+        22.5
+      ],
+      [
+        23.0,
+        37.5
+      ],
+      [
+        29.0,
+        22.5
+      ],
+      [
+        29.0,
+        37.5
+      ],
+      [
+        33.0,
+        22.5
+      ],
+      [
+        33.0,
+        37.5
+      ]
+    ],
+    "guard_scope": "None of the fresh guard coordinates was used in V1 or predictor selection",
+    "tolerance_relative": 0.01,
+    "tolerance_status": "AI engineering criterion, not experimental uncertainty or a human-registered goal"
+  },
+  "reports": [
+    {
+      "detuning_policy": "maximum_static_slope",
+      "maximum_relative_error": 0.0058785656862248015,
+      "rms_relative_error": 0.003929616206270328,
+      "eligible_at_one_percent": true,
+      "training_cross_coordinates": 7,
+      "fresh_guard_coordinates": 8,
+      "predictions": [
+        {
+          "temperature_c": 18.5,
+          "coupling_power_mw": 22.5,
+          "predicted": 2883.2166149524555,
+          "direct": 2869.563580444997,
+          "relative_error": 0.004757878375826419
+        },
+        {
+          "temperature_c": 18.5,
+          "coupling_power_mw": 37.5,
+          "predicted": 2431.9698665476135,
+          "direct": 2429.999932251132,
+          "relative_error": 0.00081067257259404
+        },
+        {
+          "temperature_c": 23.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 1784.3245870030041,
+          "direct": 1774.798070536481,
+          "relative_error": 0.005367662172206078
+        },
+        {
+          "temperature_c": 23.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 1505.063339752875,
+          "direct": 1502.845688804881,
+          "relative_error": 0.0014756345009430127
+        },
+        {
+          "temperature_c": 29.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 963.5493578288338,
+          "direct": 957.9181729272525,
+          "relative_error": 0.0058785656862248015
+        },
+        {
+          "temperature_c": 29.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 812.7460805471492,
+          "direct": 811.0617173873134,
+          "relative_error": 0.0020767385807107797
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 647.937189045479,
+          "direct": 644.5303839665228,
+          "relative_error": 0.005285716800487172
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 546.5297719922282,
+          "direct": 545.6770483788663,
+          "relative_error": 0.0015626891691620237
+        }
+      ]
+    },
+    {
+      "detuning_policy": "bare_two_photon_center",
+      "maximum_relative_error": 0.0030443734301204284,
+      "rms_relative_error": 0.002248634358959615,
+      "eligible_at_one_percent": true,
+      "training_cross_coordinates": 7,
+      "fresh_guard_coordinates": 8,
+      "predictions": [
+        {
+          "temperature_c": 18.5,
+          "coupling_power_mw": 22.5,
+          "predicted": 1977.4214961709142,
+          "direct": 1973.1776775895878,
+          "relative_error": 0.0021507533911040433
+        },
+        {
+          "temperature_c": 18.5,
+          "coupling_power_mw": 37.5,
+          "predicted": 1615.299233868216,
+          "direct": 1613.4058773967135,
+          "relative_error": 0.001173515293348082
+        },
+        {
+          "temperature_c": 23.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 1222.9867673706808,
+          "direct": 1219.7554079869706,
+          "relative_error": 0.002649186355355493
+        },
+        {
+          "temperature_c": 23.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 999.0230166862106,
+          "direct": 997.2859315766093,
+          "relative_error": 0.0017418125079284863
+        },
+        {
+          "temperature_c": 29.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 659.8007522305408,
+          "direct": 657.7981689625692,
+          "relative_error": 0.0030443734301204284
+        },
+        {
+          "temperature_c": 29.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 538.972420218672,
+          "direct": 537.7436165175184,
+          "relative_error": 0.00228511071709514
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 22.5,
+          "predicted": 443.4034236219201,
+          "direct": 442.2941206919945,
+          "relative_error": 0.0025080661895076073
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 37.5,
+          "predicted": 362.2036130677958,
+          "direct": 361.5162056348751,
+          "relative_error": 0.0019014567596311593
+        }
+      ]
+    }
+  ],
+  "actual_unique_atomic_control_coordinates_across_v1_and_v2": 27,
+  "model_scope": "Fixed Pp6/LO3.7/IF40kHz, doppler on, probe scan, fixed delta_c0, opacity.001, L50mm,d.15mm",
+  "scope_limit": "Tests declared guards only; no proof of error everywhere or of experimental model validity",
+  "experimental_validation_status": "NOT_ESTABLISHED",
+  "source_sha256": {
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/_csv_numeric.py": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+    "gabes/adaptive_scan.py": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/angular.py": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/biphoton_evidence.py": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+    "gabes/constants.py": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/doppler.py": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+    "gabes/dressed_cell_absorption.py": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+    "gabes/experimental_alignment.py": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+    "gabes/experimental_csv.py": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+    "gabes/fwm_chi_gain.py": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+    "gabes/fwm_efficiency.py": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+    "gabes/fwm_experiment_gain.py": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+    "gabes/fwm_experiment_noise.py": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+    "gabes/fwm_gain_calibration.py": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+    "gabes/fwm_gain_closure.py": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+    "gabes/fwm_literature_gain.py": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+    "gabes/fwm_measured_gain.py": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+    "gabes/fwm_quadrature.py": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+    "gabes/fwm_stark_gain.py": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+    "gabes/fwm_stark_response.py": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+    "gabes/fwm_zeeman_gain.py": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+    "gabes/fwm_zeeman_response.py": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+    "gabes/gain_reference.py": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+    "gabes/hyperfine.py": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+    "gabes/jasperse.py": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+    "gabes/kernels.py": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/magneto_coordinates.py": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+    "gabes/magneto_multilevel.py": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+    "gabes/magneto_optical.py": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+    "gabes/observables.py": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+    "gabes/passive_readout.py": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "gabes/pole_doppler.py": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+    "gabes/probe_saturation.py": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+    "gabes/psr.py": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+    "gabes/psr_conventions.py": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+    "gabes/psr_full_obe.py": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+    "gabes/psr_homodyne.py": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+    "gabes/psr_noise.py": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+    "gabes/psr_spectrum.py": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+    "gabes/report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/rydberg_experimental_csv.py": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+    "gabes/rydberg_opacity.py": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+    "gabes/species.py": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+    "gabes/ui_metrics.py": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+    "gabes/zeeman.py": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "analysis/rydberg_gold_validation_20261103/benchmark_gold.py": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+    "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+    "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+  },
+  "artifact_sha256": {
+    "refine_current_resolution.py": "735c1820adcfeb67432bc5a4978ec93f4add5148070b903b7b458eb11632e4d1",
+    "current_resolution_audit.json": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+    "current_model_sparse_pilot.csv": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944",
+    "refined_guard_plan.json": "00e66ce1812ba4ef02e6fd06d1f40392bfa9d0c485b9336bcb6b1f2303710a83",
+    "refined_axis_points.csv": "60ffec94a2d84e4c0c335bc06f0a828e3273fb02e761597c2b9320a1a0afeeca",
+    "refined_guard_points.csv": "2fec890431af41f7826c021490cc7ab9257b2809d7886c0d5ada0eafc10fbaed"
+  }
+}

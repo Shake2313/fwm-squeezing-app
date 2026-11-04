@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "paper_id": "simons_2016_apl",
+  "title": "Using frequency detuning to improve the sensitivity of electric field measurements via electromagnetically induced transparency and Autler-Townes splitting in Rydberg atoms",
+  "authors": [
+    "Matt T. Simons",
+    "Joshua A. Gordon",
+    "Christopher L. Holloway",
+    "David A. Anderson",
+    "Stephanie A. Miller",
+    "Georg Raithel"
+  ],
+  "year": 2016,
+  "study_type": "experiment",
+  "topics": [
+    "AT_splitting",
+    "rf_detuning",
+    "SI_traceability"
+  ],
+  "publication": {
+    "journal": "Applied Physics Letters",
+    "volume": "108",
+    "issue": "17",
+    "pages": "174101",
+    "doi": "10.1063/1.4947231",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2016-04-25"
+  },
+  "scope": {
+    "species": "85Rb",
+    "line": "5S-5P-23D/24D-22F/23F",
+    "configuration": "detuned_AT_extrapolation",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Raithel",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=920398",
+      "path": "sources/simons_2016_apl.pdf",
+      "sha256": "8696eaeec9b3cf380fd7a7272ea52b06d7d67fa385af9728bbd9dc2b1b222202",
+      "pages": 6,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "detuning_scan",
+      "label": "182·208 GHz RF detuning 측정",
+      "kind": "scan",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 30,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 53,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_fwhm",
+          "value": 75,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "FWHM, not 1/e^2 radius",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "FWHM, not 1/e^2 radius",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_beam_fwhm",
+          "value": 140,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "FWHM",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "FWHM",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "detection_improvement_factor",
+          "value": 2,
+          "unit": "1",
+          "value_type": "approximate",
+          "basis": "At least about twofold lower measurable field through detuned fits",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "At least about twofold lower measurable field through detuned fits",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "208.30 GHz와 182.149 GHz는 별도 전이 측정. Hz 정규화 감도 값으로 해석하지 않음."
+      ]
+    },
+    {
+      "experiment_id": "208ghz",
+      "label": "208.30 GHz 전이",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 208.3,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "23D5/2-22F7/2",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "23D5/2-22F7/2",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    },
+    {
+      "experiment_id": "182ghz",
+      "label": "182.149 GHz 전이",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 182.149,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "24D5/2-23F7/2",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "24D5/2-23F7/2",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "generalized_rabi",
+      "claim": "RF detuning에 따른 일반화 Rabi 분리를 맞춰 공명 분리를 외삽하면 직접 분리되지 않는 약한 장도 추정 가능.",
+      "locator": "PDF pp. 4-5, Eq. (2), Table I",
+      "source_id": "main",
+      "category": "calibration",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

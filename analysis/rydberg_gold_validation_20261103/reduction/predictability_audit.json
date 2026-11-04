@@ -1,0 +1,1605 @@
+{
+  "origin": "⟦AI⟧ Resolution/predictability audit; no new physical solves",
+  "validation_scope": "Historical scalar surfaces only; old profile objective, not independent experiment",
+  "criterion_relative": 0.01,
+  "source_campaign_signature": "168e5179e74f16c7725937649789eb0d010f88418102ead6c61936d64badcdee",
+  "scenarios": [
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 0.012273401560156771,
+          "rms_relative_error": 0.005978942555479189,
+          "worst_coordinate": [
+            35.0,
+            40.0
+          ]
+        },
+        "accepted": false,
+        "selected_action": "branch_aware_refinement",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.012589014627468753,
+        "rms_relative_error": 0.005363622337857337,
+        "worst_coordinate": [
+          35.0,
+          35.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.014692970935491712,
+        "rms_relative_error": 0.005792924349054764,
+        "worst_coordinate": [
+          35.0,
+          35.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 0.009520612676923168,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.1408240089770274,
+          "SN35_to_SN20_ratio": 1.1247359684694975
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.1373874755736408,
+          "SN35_to_SN20_ratio": 1.1217039144821106
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.1341214997879847,
+          "SN35_to_SN20_ratio": 1.1188192864299207
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.1407416494704716,
+          "SN35_to_SN20_ratio": 1.1193658047750172
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.1504247586195746,
+          "SN35_to_SN20_ratio": 1.129201358012665
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.1591071813961702,
+          "SN35_to_SN20_ratio": 1.1381140691865663
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.1669945058357283,
+          "SN35_to_SN20_ratio": 1.1460400917719789
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.1642294735482352,
+          "SN35_to_SN20_ratio": 1.143634557110557
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.1615597335409373,
+          "SN35_to_SN20_ratio": 1.1413146378121963
+        }
+      ]
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 0.02415251108274008,
+          "rms_relative_error": 0.012858947126951946,
+          "worst_coordinate": [
+            33.0,
+            40.0
+          ]
+        },
+        "accepted": false,
+        "selected_action": "branch_aware_refinement",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.02103618807738361,
+        "rms_relative_error": 0.005923263410518337,
+        "worst_coordinate": [
+          34.0,
+          40.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.02251547407399701,
+        "rms_relative_error": 0.007356835038670354,
+        "worst_coordinate": [
+          33.0,
+          40.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 0.01029974810285128,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.2934180187636901,
+          "SN35_to_SN20_ratio": 1.2588086217011862
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.2858110421707791,
+          "SN35_to_SN20_ratio": 1.252189553457919
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.2786136395496168,
+          "SN35_to_SN20_ratio": 1.2459188361669422
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.277386375499779,
+          "SN35_to_SN20_ratio": 1.2399592525059981
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.28496167336029,
+          "SN35_to_SN20_ratio": 1.2426031426177682
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.29157895720979,
+          "SN35_to_SN20_ratio": 1.2496987568941573
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.2975489354286205,
+          "SN35_to_SN20_ratio": 1.256279872962478
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.3031438566300362,
+          "SN35_to_SN20_ratio": 1.2622571254295152
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.3083848103217361,
+          "SN35_to_SN20_ratio": 1.2677611969121922
+        }
+      ]
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 0.02854668094990831,
+          "rms_relative_error": 0.016557002757452317,
+          "worst_coordinate": [
+            35.0,
+            20.0
+          ]
+        },
+        "accepted": false,
+        "selected_action": "branch_aware_refinement",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.023407225919491625,
+        "rms_relative_error": 0.00668560824315289,
+        "worst_coordinate": [
+          34.0,
+          20.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.028524389941408823,
+        "rms_relative_error": 0.009938969505793127,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 0.014479601310283474,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.4640673152147354,
+          "SN35_to_SN20_ratio": 1.406652568854475
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.4513823388797145,
+          "SN35_to_SN20_ratio": 1.3957466651597135
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.4394403360127848,
+          "SN35_to_SN20_ratio": 1.385475903689201
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.428434552851168,
+          "SN35_to_SN20_ratio": 1.3757551591355266
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.4334521490190337,
+          "SN35_to_SN20_ratio": 1.3665286624683857
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.4375158660243348,
+          "SN35_to_SN20_ratio": 1.3710254064750198
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.4410867448350755,
+          "SN35_to_SN20_ratio": 1.375322136605073
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.4441408745479738,
+          "SN35_to_SN20_ratio": 1.3792013900724405
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.4467695027189593,
+          "SN35_to_SN20_ratio": 1.3826240354781647
+        }
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 9.738221892163779e-05,
+          "rms_relative_error": 5.679746535725357e-05,
+          "worst_coordinate": [
+            35.0,
+            20.0
+          ]
+        },
+        "accepted": true,
+        "selected_action": "cross_slices_plus_guards",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.007216554330172542,
+        "rms_relative_error": 0.0049504290921665445,
+        "worst_coordinate": [
+          18.0,
+          25.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00012359336144296407,
+        "rms_relative_error": 3.412714465530035e-05,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 8.843297612615153e-05,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0409441845435377,
+          "SN35_to_SN20_ratio": 1.0309047061983214
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0410236214374948,
+          "SN35_to_SN20_ratio": 1.030958872881754
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0410790948202424,
+          "SN35_to_SN20_ratio": 1.030995497427746
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0411165073722262,
+          "SN35_to_SN20_ratio": 1.0310189024815435
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.041139996553028,
+          "SN35_to_SN20_ratio": 1.031032119176288
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.041152548810826,
+          "SN35_to_SN20_ratio": 1.0310373363084748
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0411563724930866,
+          "SN35_to_SN20_ratio": 1.031036172919836
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.041153133934125,
+          "SN35_to_SN20_ratio": 1.031029851216214
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0410887230195522,
+          "SN35_to_SN20_ratio": 1.030983746373816
+        }
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 0.00012755818093190818,
+          "rms_relative_error": 5.653918503288549e-05,
+          "worst_coordinate": [
+            35.0,
+            40.0
+          ]
+        },
+        "accepted": true,
+        "selected_action": "cross_slices_plus_guards",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.007237783793008878,
+        "rms_relative_error": 0.004961263677735782,
+        "worst_coordinate": [
+          18.0,
+          25.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00010743237620336465,
+        "rms_relative_error": 2.521287102775859e-05,
+        "worst_coordinate": [
+          35.0,
+          40.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 6.084323303812145e-05,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.044955058148091,
+          "SN35_to_SN20_ratio": 1.0344643052149813
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0450045122007745,
+          "SN35_to_SN20_ratio": 1.0344917904788955
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0450309037878365,
+          "SN35_to_SN20_ratio": 1.034502555222833
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0450399369900714,
+          "SN35_to_SN20_ratio": 1.0345007402228759
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0450356163038692,
+          "SN35_to_SN20_ratio": 1.0344892546809847
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.04502083650486,
+          "SN35_to_SN20_ratio": 1.0344702032348208
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0449977410535611,
+          "SN35_to_SN20_ratio": 1.0344451452596024
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0449679495632245,
+          "SN35_to_SN20_ratio": 1.0344152599539362
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0449135892286057,
+          "SN35_to_SN20_ratio": 1.034378128980695
+        }
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "pilot_only_decision": {
+        "tolerance_relative": 0.01,
+        "tolerance_origin": "AI-selected illustrative decision tolerance; not a registered user goal",
+        "training_coordinates": 8,
+        "pilot_check": {
+          "count": 10,
+          "max_absolute_relative_error": 0.0002223021977454387,
+          "rms_relative_error": 0.00010299172753435746,
+          "worst_coordinate": [
+            35.0,
+            40.0
+          ]
+        },
+        "accepted": true,
+        "selected_action": "cross_slices_plus_guards",
+        "selection_scope": "Earlier pilot scalars only; no fine-map values used to choose this rule"
+      },
+      "old_pilot_8_fit_10_check_scope": "Same old sampled map; earlier evidence, not experimental validation",
+      "pilot_to_new_dense_coordinates": {
+        "count": 171,
+        "max_absolute_relative_error": 0.0072590137033039515,
+        "rms_relative_error": 0.004972271308622061,
+        "worst_coordinate": [
+          18.0,
+          25.0
+        ]
+      },
+      "pilot_to_dense_scope": "No fine-map fitting: log-linear interpolation of pilot cross; excludes all 18 pilot coordinates; error also contains changed detuning/control discretization",
+      "retrospective_dense_cross_29_fit_160_check": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00016794934030528452,
+        "rms_relative_error": 3.967832922287663e-05,
+        "worst_coordinate": [
+          35.0,
+          40.0
+        ]
+      },
+      "dense_cross_scope": "Retrospective structural diagnostic; method was inspected after dense campaign, not blind prospective validation",
+      "in_sample_log_additive_max_relative_residual": 0.00010793007068721217,
+      "known_inverse_density_baseline": [
+        {
+          "coupling_power_mw": 20.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.048981386094299,
+          "SN35_to_SN20_ratio": 1.0380361951301917
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0490006259531808,
+          "SN35_to_SN20_ratio": 1.0380368147730907
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0489977133391457,
+          "SN35_to_SN20_ratio": 1.038021542705692
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0489781519848242,
+          "SN35_to_SN20_ratio": 1.0379943364237554
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0489458122435933,
+          "SN35_to_SN20_ratio": 1.0379579822453995
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.048903496396034,
+          "SN35_to_SN20_ratio": 1.0379144999852081
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0488532824249681,
+          "SN35_to_SN20_ratio": 1.037865388874537
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "SN_max_to_min_ratio_15_to_35c": 1.0487967427887115,
+          "SN35_to_SN20_ratio": 1.0378117847542125
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "SN_max_to_min_ratio_15_to_35c": 1.0487525076516477,
+          "SN35_to_SN20_ratio": 1.0377836871597617
+        }
+      ]
+    }
+  ],
+  "axis_resolution_diagnostics": [
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.11129747424775549,
+      "log_gradient_max": -0.08302447822384162,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.0019769848169457482,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.0019769848169457482,
+      "adjacent_relative_change_min": -0.104875012762776,
+      "adjacent_relative_change_max": -0.08052609449180324,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.0031697364894113455,
+      "log_gradient_max": 0.0004998469244805959,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.000683654713764792,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.0042728419610299495,
+      "adjacent_relative_change_min": -0.008801480287589687,
+      "adjacent_relative_change_max": 0.001537472084600589,
+      "increasing_segment_count": 32,
+      "decreasing_segment_count": 136,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.10943066851090011,
+      "log_gradient_max": -0.07062861239456786,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.00305108245996788,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.00305108245996788,
+      "adjacent_relative_change_min": -0.10310385747426562,
+      "adjacent_relative_change_max": -0.06959219190114332,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.00354722597832674,
+      "log_gradient_max": 0.0006074289922196052,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.0011433247793600399,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.007145779871000249,
+      "adjacent_relative_change_min": -0.00885349378449566,
+      "adjacent_relative_change_max": 0.0013472399012679774,
+      "increasing_segment_count": 33,
+      "decreasing_segment_count": 135,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.10756322887808045,
+      "log_gradient_max": -0.05708576599155607,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.004152904475547156,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.004152904475547156,
+      "adjacent_relative_change_min": -0.10132846818166279,
+      "adjacent_relative_change_max": -0.057415920545417984,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.004499795524274992,
+      "log_gradient_max": 0.0006074407457467013,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.0014083997440055415,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.008802498400034635,
+      "adjacent_relative_change_min": -0.010263680748461474,
+      "adjacent_relative_change_max": 0.00132632664405808,
+      "increasing_segment_count": 26,
+      "decreasing_segment_count": 142,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.11148177606265808,
+      "log_gradient_max": -0.09677542082825497,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.000793639872617824,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.000793639872617824,
+      "adjacent_relative_change_min": -0.10513811056356723,
+      "adjacent_relative_change_max": -0.09255265289105455,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.014408852601780486,
+      "log_gradient_max": -0.008605036349167428,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.00039303926673469767,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.0024564954170918606,
+      "adjacent_relative_change_min": -0.03422813398090271,
+      "adjacent_relative_change_max": -0.021922635785771506,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 168,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.11142107273819413,
+      "log_gradient_max": -0.09635180077388839,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.0008004888525230403,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.0008004888525230403,
+      "adjacent_relative_change_min": -0.10508064387955421,
+      "adjacent_relative_change_max": -0.09218471597442866,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.014410531339651422,
+      "log_gradient_max": -0.008603472010372926,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.00039306213772909507,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.002456638360806844,
+      "adjacent_relative_change_min": -0.034232121789286786,
+      "adjacent_relative_change_max": -0.02192126550596951,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 168,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "variable": "temperature_c",
+      "log_gradient_min": -0.11136036941373462,
+      "log_gradient_max": -0.09592530231184604,
+      "log_gradient_unit": "1/degC",
+      "max_absolute_log_curvature": 0.000807337832435584,
+      "max_step": 1.0,
+      "max_step_squared_curvature": 0.000807337832435584,
+      "adjacent_relative_change_min": -0.1050231735051188,
+      "adjacent_relative_change_max": -0.09181364966831929,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 180,
+      "segment_count": 180,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "variable": "coupling_power_mw",
+      "log_gradient_min": -0.014412210077521248,
+      "log_gradient_max": -0.00860190767157576,
+      "log_gradient_unit": "1/mW",
+      "max_absolute_log_curvature": 0.0003930850087228953,
+      "max_step": 2.5,
+      "max_step_squared_curvature": 0.0024567813045180955,
+      "adjacent_relative_change_min": -0.03423610958120379,
+      "adjacent_relative_change_max": -0.021919895224246026,
+      "increasing_segment_count": 0,
+      "decreasing_segment_count": 168,
+      "segment_count": 168,
+      "scope": "Finite differences of saved profiled minima; not fixed-control causal derivatives or a certified interpolation bound"
+    }
+  ],
+  "separately_profiled_branch_audits": [
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.010056158544300087,
+        "rms_relative_error": 0.002852902711212044,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.010194488838957239,
+        "rms_relative_error": 0.0029622645298184994,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.019490306622209408,
+        "rms_relative_error": 0.00558154945578546,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.01862548115223528,
+        "rms_relative_error": 0.005497742027225273,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.028524389941408823,
+        "rms_relative_error": 0.008198831988042637,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.025021049363664005,
+        "rms_relative_error": 0.007692144716761876,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00012359336144296407,
+        "rms_relative_error": 3.412714465530035e-05,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 8.734867910076272e-05,
+        "rms_relative_error": 2.651518487518317e-05,
+        "worst_coordinate": [
+          33.0,
+          37.5
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00010743237620336465,
+        "rms_relative_error": 2.521287102775859e-05,
+        "worst_coordinate": [
+          35.0,
+          40.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00011713682103464684,
+        "rms_relative_error": 3.6393015088014024e-05,
+        "worst_coordinate": [
+          35.0,
+          40.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "branch": "central",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00016794934030528452,
+        "rms_relative_error": 3.967832922287663e-05,
+        "worst_coordinate": [
+          35.0,
+          40.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "branch": "sideband",
+      "retrospective_cross_error": {
+        "count": 160,
+        "max_absolute_relative_error": 0.00015658973235921358,
+        "rms_relative_error": 4.7597937028600374e-05,
+        "worst_coordinate": [
+          35.0,
+          20.0
+        ]
+      },
+      "scope": "Independent branch-profiled scalar surfaces; no interpolation of Pp/LO/detuning labels"
+    }
+  ],
+  "fixed_protocol_density_loss_residual": [
+    {
+      "doppler": "off",
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "coupling_power_mw": 30.0,
+      "residual_definition": "S(T)*N(T)*sqrt(transmission at selected frequency), normalized at20C",
+      "residual_35_to_20_ratio": 1.0127153841672156,
+      "temperature_nodes": [
+        {
+          "temperature_c": 15.0,
+          "residual_normalized_at_20": 0.9967253689163817
+        },
+        {
+          "temperature_c": 16.0,
+          "residual_normalized_at_20": 0.9973820369902137
+        },
+        {
+          "temperature_c": 17.0,
+          "residual_normalized_at_20": 0.9980378296149832
+        },
+        {
+          "temperature_c": 18.0,
+          "residual_normalized_at_20": 0.9986927513306476
+        },
+        {
+          "temperature_c": 19.0,
+          "residual_normalized_at_20": 0.9993468066381608
+        },
+        {
+          "temperature_c": 20.0,
+          "residual_normalized_at_20": 1.0
+        },
+        {
+          "temperature_c": 21.0,
+          "residual_normalized_at_20": 1.0006523358405757
+        },
+        {
+          "temperature_c": 22.0,
+          "residual_normalized_at_20": 1.0013038185467138
+        },
+        {
+          "temperature_c": 23.0,
+          "residual_normalized_at_20": 1.001954452468096
+        },
+        {
+          "temperature_c": 24.0,
+          "residual_normalized_at_20": 1.0026042419176968
+        },
+        {
+          "temperature_c": 25.0,
+          "residual_normalized_at_20": 1.0042058128979485
+        },
+        {
+          "temperature_c": 26.0,
+          "residual_normalized_at_20": 1.0048609035671705
+        },
+        {
+          "temperature_c": 27.0,
+          "residual_normalized_at_20": 1.0055151528289434
+        },
+        {
+          "temperature_c": 28.0,
+          "residual_normalized_at_20": 1.0061685649021386
+        },
+        {
+          "temperature_c": 29.0,
+          "residual_normalized_at_20": 1.006821143970628
+        },
+        {
+          "temperature_c": 30.0,
+          "residual_normalized_at_20": 1.0074728941836733
+        },
+        {
+          "temperature_c": 31.0,
+          "residual_normalized_at_20": 1.0081238196563154
+        },
+        {
+          "temperature_c": 32.0,
+          "residual_normalized_at_20": 1.0107484248503051
+        },
+        {
+          "temperature_c": 33.0,
+          "residual_normalized_at_20": 1.011404898898438
+        },
+        {
+          "temperature_c": 34.0,
+          "residual_normalized_at_20": 1.0120605506608833
+        },
+        {
+          "temperature_c": 35.0,
+          "residual_normalized_at_20": 1.0127153841672156
+        }
+      ],
+      "scope": "Fixed Pp/LO/Pc but probe detuning retains saved local optimization; not a pure fixed-detuning temperature experiment"
+    },
+    {
+      "doppler": "on",
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "coupling_power_mw": 30.0,
+      "residual_definition": "S(T)*N(T)*sqrt(transmission at selected frequency), normalized at20C",
+      "residual_35_to_20_ratio": 1.0280292782121296,
+      "temperature_nodes": [
+        {
+          "temperature_c": 15.0,
+          "residual_normalized_at_20": 0.9905305450952532
+        },
+        {
+          "temperature_c": 16.0,
+          "residual_normalized_at_20": 0.9924296568250595
+        },
+        {
+          "temperature_c": 17.0,
+          "residual_normalized_at_20": 0.9943261445464515
+        },
+        {
+          "temperature_c": 18.0,
+          "residual_normalized_at_20": 0.9962200219521599
+        },
+        {
+          "temperature_c": 19.0,
+          "residual_normalized_at_20": 0.9981113026171464
+        },
+        {
+          "temperature_c": 20.0,
+          "residual_normalized_at_20": 1.0
+        },
+        {
+          "temperature_c": 21.0,
+          "residual_normalized_at_20": 1.0018861274443476
+        },
+        {
+          "temperature_c": 22.0,
+          "residual_normalized_at_20": 1.003769698180199
+        },
+        {
+          "temperature_c": 23.0,
+          "residual_normalized_at_20": 1.0056507253125366
+        },
+        {
+          "temperature_c": 24.0,
+          "residual_normalized_at_20": 1.0075292218737408
+        },
+        {
+          "temperature_c": 25.0,
+          "residual_normalized_at_20": 1.0094052007482555
+        },
+        {
+          "temperature_c": 26.0,
+          "residual_normalized_at_20": 1.0112786747249405
+        },
+        {
+          "temperature_c": 27.0,
+          "residual_normalized_at_20": 1.0131496564727593
+        },
+        {
+          "temperature_c": 28.0,
+          "residual_normalized_at_20": 1.0150181585933877
+        },
+        {
+          "temperature_c": 29.0,
+          "residual_normalized_at_20": 1.0168841935453745
+        },
+        {
+          "temperature_c": 30.0,
+          "residual_normalized_at_20": 1.018747773696744
+        },
+        {
+          "temperature_c": 31.0,
+          "residual_normalized_at_20": 1.0206089113004642
+        },
+        {
+          "temperature_c": 32.0,
+          "residual_normalized_at_20": 1.0224676185471295
+        },
+        {
+          "temperature_c": 33.0,
+          "residual_normalized_at_20": 1.024323907488848
+        },
+        {
+          "temperature_c": 34.0,
+          "residual_normalized_at_20": 1.0261777900790052
+        },
+        {
+          "temperature_c": 35.0,
+          "residual_normalized_at_20": 1.0280292782121296
+        }
+      ],
+      "scope": "Fixed Pp/LO/Pc but probe detuning retains saved local optimization; not a pure fixed-detuning temperature experiment"
+    }
+  ],
+  "mode_decisions_from_pilot": [
+    {
+      "doppler": "off",
+      "all_opacity_pilot_checks_passed": false,
+      "selected_action": "branch_aware_refinement",
+      "decision_rule": "All three assumed opacity scenarios must meet 1% pilot error; no fine truth used for selection",
+      "later_new_coordinate_check_max_relative_error": 0.023407225919491625,
+      "later_check_within_tolerance": false
+    },
+    {
+      "doppler": "on",
+      "all_opacity_pilot_checks_passed": true,
+      "selected_action": "cross_slices_plus_guards",
+      "decision_rule": "All three assumed opacity scenarios must meet 1% pilot error; no fine truth used for selection",
+      "later_new_coordinate_check_max_relative_error": 0.0072590137033039515,
+      "later_check_within_tolerance": true
+    }
+  ],
+  "nominal_argmin_transitions": [
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        17.0,
+        27.5
+      ],
+      "right": [
+        18.0,
+        27.5
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.00046843729439364904,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        22.0,
+        30.0
+      ],
+      "right": [
+        23.0,
+        30.0
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.00020608815340297313,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        26.0,
+        32.5
+      ],
+      "right": [
+        27.0,
+        32.5
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.0012743613662188277,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        29.0,
+        35.0
+      ],
+      "right": [
+        30.0,
+        35.0
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.0005753365587525696,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        31.0,
+        37.5
+      ],
+      "right": [
+        32.0,
+        37.5
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.0016903540226880444,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "temperature_c",
+      "left": [
+        33.0,
+        40.0
+      ],
+      "right": [
+        34.0,
+        40.0
+      ],
+      "left_branch": "sideband",
+      "right_branch": "central",
+      "minimum_endpoint_competition_margin": 0.0009957821832727062,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        15.0,
+        25.0
+      ],
+      "right": [
+        15.0,
+        27.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.00440713433068923,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        16.0,
+        25.0
+      ],
+      "right": [
+        16.0,
+        27.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0028953931079748205,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        17.0,
+        25.0
+      ],
+      "right": [
+        17.0,
+        27.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0012739932312658597,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        18.0,
+        27.5
+      ],
+      "right": [
+        18.0,
+        30.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.00046843729439364904,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        19.0,
+        27.5
+      ],
+      "right": [
+        19.0,
+        30.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0023488816039241,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        20.0,
+        27.5
+      ],
+      "right": [
+        20.0,
+        30.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.004330680404776254,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        21.0,
+        27.5
+      ],
+      "right": [
+        21.0,
+        30.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0045528159725496615,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        22.0,
+        27.5
+      ],
+      "right": [
+        22.0,
+        30.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.002223355313217458,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        23.0,
+        30.0
+      ],
+      "right": [
+        23.0,
+        32.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.00020608815340297313,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        24.0,
+        30.0
+      ],
+      "right": [
+        24.0,
+        32.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0028456369293416352,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        25.0,
+        30.0
+      ],
+      "right": [
+        25.0,
+        32.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.004387626489618211,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        26.0,
+        30.0
+      ],
+      "right": [
+        26.0,
+        32.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0012743613662188277,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        27.0,
+        32.5
+      ],
+      "right": [
+        27.0,
+        35.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.00211680426602611,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        28.0,
+        32.5
+      ],
+      "right": [
+        28.0,
+        35.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.003982787228843563,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        29.0,
+        32.5
+      ],
+      "right": [
+        29.0,
+        35.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0005753365587525696,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        30.0,
+        35.0
+      ],
+      "right": [
+        30.0,
+        37.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0030832055686718478,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        31.0,
+        35.0
+      ],
+      "right": [
+        31.0,
+        37.5
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0016903540226880444,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        32.0,
+        37.5
+      ],
+      "right": [
+        32.0,
+        40.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.002593955291886809,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "axis": "coupling_power_mw",
+      "left": [
+        33.0,
+        37.5
+      ],
+      "right": [
+        33.0,
+        40.0
+      ],
+      "left_branch": "central",
+      "right_branch": "sideband",
+      "minimum_endpoint_competition_margin": 0.0009957821832727062,
+      "at_least_one_endpoint_near_tie": true,
+      "interpretation": "Control identity changes; use within-coordinate branch margins, not interpolated argmin coordinates"
+    }
+  ],
+  "source_sha256": {
+    "analysis/rydberg_gold_map_20261103/results.json": "df43481d094297716b343e0fedc207bede46f1099755a3a0dc65bc5566dfab28",
+    "analysis/rydberg_gold_dense_20261103/results.json": "0404487011f0ca7804392f62c2291cc0e4a75dd3e95e790f02aaa1524590b969",
+    "analysis/rydberg_gold_dense_20261103/interpretation.json": "49cef84216a1d52cad30800d5937fd24ff2a9ca47fef8f616ce3f334b425d43b",
+    "analysis/rydberg_gold_dense_20261103/control_points.csv": "cd0368091ca69579a2da8285182ef018fca9b121630e0f758e734da4dcda423e",
+    "analysis/rydberg_gold_validation_20261103/reduction/predictability_audit.py": "8620d8b5dcc1408cfac51ae0e9f8a0635a6dbf5b9066f3d6cc927927698db830"
+  }
+}

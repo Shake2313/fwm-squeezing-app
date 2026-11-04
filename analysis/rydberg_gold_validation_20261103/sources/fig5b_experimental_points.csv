@@ -1,0 +1,8 @@
+﻿figure,pdf_page,probe_power_uw,sensitivity_nv_cm_sqrt_hz,image_x_px,image_y_px,method,digitization_y_bound_px,experimental_standard_uncertainty
+5b,10,0.5,86.6738720862894,732.1507410493166,167.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,1.0,60.187056679162374,805.0,184.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,2.0,46.5266585336434,877.8492589506834,196.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,4.0,21.036881784318865,950.6985179013669,233.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,6.0,13.406925390726611,993.3126025928418,254.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,8.0,37.14289720609896,1023.5477768520503,206.5,Raster blue-marker densest-row centre; log-log axes,2,not_assigned
+5b,10,10.0,145.04096588315608,1047.0,143.0,Raster blue-marker densest-row centre; log-log axes,2,not_assigned

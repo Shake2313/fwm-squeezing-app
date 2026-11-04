@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "paper_id": "jing_2020_natphys",
+  "title": "Atomic superheterodyne receiver based on microwave-dressed Rydberg spectroscopy",
+  "authors": [
+    "Mingyong Jing",
+    "Ying Hu",
+    "Jie Ma",
+    "Hao Zhang",
+    "Linjie Zhang",
+    "Liantuan Xiao",
+    "Suotang Jia"
+  ],
+  "year": 2020,
+  "study_type": "experiment",
+  "topics": [
+    "heterodyne",
+    "weak_field",
+    "phase",
+    "frequency_resolution",
+    "RF_LO"
+  ],
+  "publication": {
+    "journal": "Nature Physics",
+    "volume": "16",
+    "issue": "9",
+    "pages": "911-915",
+    "doi": "10.1038/s41567-020-0918-5",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2020-06-01"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-47D5/2-48P3/2",
+    "configuration": "atomic_superheterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Shanxi_Jing_Zhang",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://laserspec.sxu.edu.cn/docs/2020-09/6f9a83e33f82405caa24290a90e1a35f.pdf",
+      "path": "sources/jing_2020_natphys.pdf",
+      "sha256": "1fb69d21d886364e7f670829b0cf8a6cc2681c2536648217e870695d2e46922a",
+      "pages": 11,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "superhet",
+      "label": "Atomic superhet 감도 운전점",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "intermediate_frequency",
+          "value": 150,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "LO-SIG offset used for the comparison",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 2",
+          "evidence": "LO-SIG offset used for the comparison",
+          "notes": ""
+        },
+        {
+          "quantity": "resolution_bandwidth",
+          "value": 1,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "Spectrum analyzer RBW",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Fig. 2",
+          "evidence": "Spectrum analyzer RBW",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": "room_temperature",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "temperature",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 55,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Measured superheterodyne sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Measured superheterodyne sensitivity",
+          "notes": ""
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 780,
+          "unit": "pV/cm",
+          "value_type": "reported",
+          "basis": "Long-integration minimum field; not 1-Hz sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Long-integration minimum field; not 1-Hz sensitivity",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "lo_optimum",
+      "claim": "LO dressing으로 약한 SIG에 선형 응답. 최적 LO는 EIT 폭과 관련되며 무제한 증가하지 않음.",
+      "locator": "PDF pp. 2-3, Fig. 2",
+      "source_id": "main",
+      "category": "RF_LO",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "phase_frequency",
+      "claim": "동일 장치가 RF 위상과 주파수도 검출. 감도·최소 검출장·주파수 정밀도는 서로 다른 지표.",
+      "locator": "PDF pp. 3-4, Figs. 3-4",
+      "source_id": "main",
+      "category": "metric_definition",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

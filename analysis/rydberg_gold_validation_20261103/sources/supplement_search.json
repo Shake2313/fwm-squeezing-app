@@ -1,0 +1,25 @@
+{
+  "origin": "AI bounded primary-source supplement lookup",
+  "abstract_url": "https://arxiv.org/abs/2606.04354v1",
+  "abstract_ancillary_link_found": false,
+  "probes": [
+    {
+      "url": "https://arxiv.org/src/2606.04354v1",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 670052,
+      "sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+      "archive_members": null,
+      "starts_with_pdf": true
+    },
+    {
+      "url": "https://arxiv.org/e-print/2606.04354v1",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 670052,
+      "sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+      "archive_members": null,
+      "starts_with_pdf": true
+    }
+  ]
+}

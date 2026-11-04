@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "paper_id": "prajapati_2025_natcom",
+  "title": "Multichannel, ultra-wideband Rydberg electrometry with an optical frequency comb",
+  "authors": [
+    "Nikunjkumar Prajapati",
+    "David A. Long",
+    "Alexandra B. Artusio-Glimpse",
+    "Sean M. Bresler",
+    "Christopher L. Holloway"
+  ],
+  "year": 2025,
+  "study_type": "experiment",
+  "topics": [
+    "frequency_comb",
+    "multichannel",
+    "three_photon",
+    "tuning_range"
+  ],
+  "publication": {
+    "journal": "Nature Communications",
+    "volume": "16",
+    "issue": "1",
+    "pages": "11054",
+    "doi": "10.1038/s41467-025-64439-2",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2025-12-07"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-7S-Rydberg_three_photon",
+    "configuration": "coupling_comb_multichannel",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_frequency_comb",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://www.nature.com/articles/s41467-025-64439-2.pdf",
+      "path": "sources/multichannel_2025_natcom.pdf",
+      "sha256": "fa98ad70db2876e2e70ff328a76f9050eb69f04daea88062a713f08b2b2a9f6a",
+      "pages": 7,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "multichannel",
+      "label": "Coupling comb 다중 Rydberg 채널",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "probe_wavelength",
+          "value": 895,
+          "unit": "nm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "probe wavelength",
+          "notes": ""
+        },
+        {
+          "quantity": "dressing_wavelength",
+          "value": 636,
+          "unit": "nm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "dressing wavelength",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_tuning_range",
+          "value": null,
+          "unit": "GHz",
+          "value_type": "range",
+          "basis": "Coverage through several Rydberg channels; not simultaneous IF bandwidth",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Coverage through several Rydberg channels; not simultaneous IF bandwidth",
+          "notes": "",
+          "lower": 1,
+          "upper": 40
+        }
+      ],
+      "results": [
+        {
+          "quantity": "rydberg_channel_count",
+          "value": 7,
+          "unit": "1",
+          "value_type": "upper_bound",
+          "basis": "Up to seven states",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Up to seven states",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "multiplex",
+      "claim": "Coupling comb로 여러 Rydberg 상태를 빠르게 준비·전환하여 다중 RF 주파수를 검출.",
+      "locator": "PDF pp. 1-4",
+      "source_id": "main",
+      "category": "multichannel",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

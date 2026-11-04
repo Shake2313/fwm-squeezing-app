@@ -1,0 +1,95 @@
+{
+  "origin": "⟦AI⟧ Bounded diagnostics synthesis; physical validation remains incomplete",
+  "uniform_profile_best": {
+    "legacy_pair": {
+      "variant": "legacy_pair",
+      "total_ground_coherence_rate_mhz": 0.02,
+      "probe_rabi_anchor_mhz": 2.5,
+      "opacity_participation": 0.1,
+      "width_rmse_mhz": 0.43577691983354633,
+      "amplitude_rmse_arb": 0.0185207282785497,
+      "one_global_gain": 0.6412960510386136,
+      "score": 0.021735122116971903
+    },
+    "nested_cp": {
+      "variant": "nested_cp",
+      "total_ground_coherence_rate_mhz": 0.02,
+      "probe_rabi_anchor_mhz": 2.5,
+      "opacity_participation": 0.1,
+      "width_rmse_mhz": 0.43613652168555705,
+      "amplitude_rmse_arb": 0.018498261489649448,
+      "one_global_gain": 0.6415604073985038,
+      "score": 0.021768420542656725
+    },
+    "nested_cp_reset": {
+      "variant": "nested_cp_reset",
+      "total_ground_coherence_rate_mhz": 0.02,
+      "probe_rabi_anchor_mhz": 2.5,
+      "opacity_participation": 0.1,
+      "width_rmse_mhz": 0.4408584877275317,
+      "amplitude_rmse_arb": 0.018367317869710433,
+      "one_global_gain": 0.6460991111182366,
+      "score": 0.022219611537722977
+    }
+  },
+  "profile_scope": "Training observations at0.5,2,6,10uW; Omega_c=3MHz fixed; coarse bounded parameter profiles, not a continuous global fit",
+  "gaussian_selected": {
+    "total_ground_coherence_rate_mhz": 0.0,
+    "probe_rabi_peak_anchor_mhz": 4.0,
+    "opacity_participation": 0.1,
+    "one_global_amplitude_gain": 0.968355239665407,
+    "train_width_rmse_mhz": 0.26216597879286907,
+    "train_amplitude_rmse_arb": 0.024662386382807346,
+    "score": 0.0087626666727589,
+    "touches_tested_parameter_bound": true
+  },
+  "gaussian_holdout_errors": {
+    "width_rmse_mhz": 0.16424079091559873,
+    "maximum_absolute_width_error_mhz": 0.20909601267973965,
+    "amplitude_rmse_arb": 0.021154586646419074,
+    "maximum_absolute_amplitude_error_arb": 0.03595498158283528,
+    "status": "NOT_REPRODUCED_AT_FIGURE_RESOLUTION",
+    "interpretation": "Readout resolution is not experimental standard uncertainty; no statistical rejection level assigned"
+  },
+  "scoped_predictability_evidence": [
+    {
+      "variable_or_numerical_configuration": "Gaussian radial quadrature + optical scan discretization",
+      "coarse": {
+        "radial_nodes": 12,
+        "optical_scan_step_mhz": 0.03333333333333333
+      },
+      "reference": {
+        "radial_nodes": 24,
+        "optical_scan_step_mhz": 0.01
+      },
+      "maximum_absolute_width_difference_mhz": 0.00013266528628985697,
+      "maximum_relative_peak_amplitude_difference": 4.738948444327207e-06,
+      "powers_uw": [
+        0.5,
+        2.0,
+        6.0,
+        10.0,
+        1.0,
+        4.0,
+        8.0
+      ],
+      "scope": "Only selected Gaussian equal-waist, Omega_c,peak=3MHz hypothesis atT20,Pc30,LOoff, ground-phase rate0, probe peak anchor4MHz, opacity0.1",
+      "decision": "Coarser joint numerical configuration is adequate relative to source graph resolution here; not a certificate for all radial profiles or parameter values",
+      "confounding": "Both radial count and spectral step changed, so errors cannot be attributed to either independently"
+    }
+  ],
+  "legacy_generator": {
+    "conditional_choi_minimum_per_2pi_mhz": -0.34098031331401074,
+    "minimum_sampled_stationary_eigenvalue": -1.7494985765208846e-05
+  },
+  "legacy_reproduction_status": "PASS",
+  "absolute_transmission_validation": "Unavailable: source detector signal is arbitrary and absolute incident/dark calibration is not reported",
+  "source_sha256": {
+    "analysis/rydberg_gold_validation_20261103/diagnostics/summarize_diagnostics.py": "dafeaa7180cc03375afa9bc4944a1f95c73ad87d6589b64734e1ae81c8441ff2",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/gaussian_trial.json": "6c1c85ded58939a9f2db394ad2b3e15a298dc58278861150bc5eea512d6d787e",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/linewidth_profiles.json": "8ebaf1b6d1d81a3297e080f4edb1d775fbb41e527fdbf721e5019f34344b3962",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/generator_audit.json": "0b6ab16f9860690ab9b87826f6fec2c7a9bdf03a3219e92ed587e369ddd739bc",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/legacy_reproduction.json": "eb5a6e488f61edeaff28223928df6a60a30d7e918925df7809d4183ce8a54de1",
+    "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+  }
+}

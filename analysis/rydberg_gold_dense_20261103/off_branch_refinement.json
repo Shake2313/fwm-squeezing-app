@@ -1,0 +1,312 @@
+{
+  "origin": "⟦AI⟧ Independent OFF local branch refinement",
+  "status": "PASS",
+  "scope": "Selected local control rectangles only; no new global optimum claim; original campaign untouched",
+  "settings": {
+    "cases": [
+      [
+        20.0,
+        30.0
+      ],
+      [
+        35.0,
+        37.5
+      ],
+      [
+        23.0,
+        30.0
+      ]
+    ],
+    "opacity": 0.001,
+    "probe_radius_uw": 0.5,
+    "probe_step_uw": 0.25,
+    "lo_radius_mhz": 0.125,
+    "lo_step_mhz": 0.0625,
+    "detuning_step_mhz": 0.005,
+    "off_global_detuning_target_step_mhz": 0.05
+  },
+  "off_snapshot": {
+    "complete_off_cells": 189,
+    "canonicalization": "Sorted by (mode,T,Pc); json.dumps sort_keys=True,separators=(',',':'),ensure_ascii=False",
+    "canonical_sha256": "827ea6de91cc8e34fa78e7c5b26b5f8b815d8b68a1d69e8b5e2a24781bbaaf19",
+    "canonical_bytes": 18996900,
+    "ignored_incomplete_appended_tail": false,
+    "scope": "Only the completed 189 OFF cell records; later thermal appends do not alter this snapshot hash"
+  },
+  "cases": [
+    {
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "opacity": 0.001,
+      "grids": {
+        "central": {
+          "probe_power_uw": [
+            9.5,
+            9.75,
+            10.0
+          ],
+          "lo_rabi_mhz": [
+            2.0,
+            2.0625,
+            2.125
+          ],
+          "control_points": 9
+        },
+        "sideband": {
+          "probe_power_uw": [
+            3.5,
+            3.75,
+            4.0,
+            4.25,
+            4.5
+          ],
+          "lo_rabi_mhz": [
+            3.625,
+            3.6875,
+            3.7,
+            3.75,
+            3.8125,
+            3.875
+          ],
+          "control_points": 30
+        }
+      },
+      "actual_unique_control_evaluations": 39,
+      "branch_comparisons": [
+        {
+          "branch": "central",
+          "old_sensitivity": 5.946643930285694,
+          "finer_sensitivity": 5.946643930285694,
+          "relative_change": 0.0,
+          "relative_improvement": 0.0,
+          "old_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.09999999999999964
+          },
+          "finer_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.09999999999999964
+          },
+          "own_rectangle_best_sensitivity": 5.946643930285694,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        },
+        {
+          "branch": "sideband",
+          "old_sensitivity": 5.906783968121138,
+          "finer_sensitivity": 5.906484023998275,
+          "relative_change": -5.0779599267802844e-05,
+          "relative_improvement": 5.0779599267802844e-05,
+          "old_control": {
+            "probe_power_uw": 4.0,
+            "lo_rabi_mhz": 3.75,
+            "detuning_mhz": -2.1999999999999997
+          },
+          "finer_control": {
+            "probe_power_uw": 4.0,
+            "lo_rabi_mhz": 3.8125,
+            "detuning_mhz": -2.225
+          },
+          "own_rectangle_best_sensitivity": 5.906484023998275,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        }
+      ],
+      "old_sideband_over_central_minus_one": -0.006702934063624211,
+      "finer_sideband_over_central_minus_one": -0.00675337329058634,
+      "absolute_relative_branch_margin": 0.00675337329058634,
+      "old_winning_branch": "sideband",
+      "finer_winning_branch": "sideband",
+      "branch_selection_changed": false,
+      "old_best_sensitivity": 5.906783968121138,
+      "finer_best_sensitivity": 5.906484023998275
+    },
+    {
+      "temperature_c": 35.0,
+      "coupling_power_mw": 37.5,
+      "opacity": 0.001,
+      "grids": {
+        "central": {
+          "probe_power_uw": [
+            9.5,
+            9.75,
+            10.0
+          ],
+          "lo_rabi_mhz": [
+            2.0,
+            2.0625,
+            2.125
+          ],
+          "control_points": 9
+        },
+        "sideband": {
+          "probe_power_uw": [
+            4.5,
+            4.75,
+            5.0,
+            5.25,
+            5.5
+          ],
+          "lo_rabi_mhz": [
+            4.5,
+            4.5625,
+            4.625,
+            4.6875,
+            4.75
+          ],
+          "control_points": 25
+        }
+      },
+      "actual_unique_control_evaluations": 34,
+      "branch_comparisons": [
+        {
+          "branch": "central",
+          "old_sensitivity": 1.5358454469844414,
+          "finer_sensitivity": 1.5358435261973251,
+          "relative_change": -1.2506382852661702e-06,
+          "relative_improvement": 1.2506382852661702e-06,
+          "old_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.1299999999999999
+          },
+          "finer_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.125
+          },
+          "own_rectangle_best_sensitivity": 1.5358435261973251,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        },
+        {
+          "branch": "sideband",
+          "old_sensitivity": 1.561565702501411,
+          "finer_sensitivity": 1.561034381619697,
+          "relative_change": -0.0003402488162123074,
+          "relative_improvement": 0.0003402488162123074,
+          "old_control": {
+            "probe_power_uw": 5.0,
+            "lo_rabi_mhz": 4.625,
+            "detuning_mhz": -2.63
+          },
+          "finer_control": {
+            "probe_power_uw": 4.75,
+            "lo_rabi_mhz": 4.625,
+            "detuning_mhz": -2.63
+          },
+          "own_rectangle_best_sensitivity": 1.561034381619697,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        }
+      ],
+      "old_sideband_over_central_minus_one": 0.01674664307367002,
+      "finer_sideband_over_central_minus_one": 0.016401967383189886,
+      "absolute_relative_branch_margin": 0.016401967383189886,
+      "old_winning_branch": "central",
+      "finer_winning_branch": "central",
+      "branch_selection_changed": false,
+      "old_best_sensitivity": 1.5358454469844414,
+      "finer_best_sensitivity": 1.5358435261973251
+    },
+    {
+      "temperature_c": 23.0,
+      "coupling_power_mw": 30.0,
+      "opacity": 0.001,
+      "grids": {
+        "central": {
+          "probe_power_uw": [
+            9.5,
+            9.75,
+            10.0
+          ],
+          "lo_rabi_mhz": [
+            2.0,
+            2.0625,
+            2.125
+          ],
+          "control_points": 9
+        },
+        "sideband": {
+          "probe_power_uw": [
+            3.5,
+            3.75,
+            4.0,
+            4.25,
+            4.5
+          ],
+          "lo_rabi_mhz": [
+            3.75,
+            3.8125,
+            3.875,
+            3.9375,
+            4.0
+          ],
+          "control_points": 25
+        }
+      },
+      "actual_unique_control_evaluations": 34,
+      "branch_comparisons": [
+        {
+          "branch": "central",
+          "old_sensitivity": 4.3910111886670355,
+          "finer_sensitivity": 4.390992915569116,
+          "relative_change": -4.161478332487256e-06,
+          "relative_improvement": 4.161478332487256e-06,
+          "old_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.11000000000000032
+          },
+          "finer_control": {
+            "probe_power_uw": 10.0,
+            "lo_rabi_mhz": 2.0,
+            "detuning_mhz": -0.10499999999999954
+          },
+          "own_rectangle_best_sensitivity": 4.390992915569116,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        },
+        {
+          "branch": "sideband",
+          "old_sensitivity": 4.39191612405448,
+          "finer_sensitivity": 4.391664805678543,
+          "relative_change": -5.722294525623006e-05,
+          "relative_improvement": 5.722294525623006e-05,
+          "old_control": {
+            "probe_power_uw": 4.0,
+            "lo_rabi_mhz": 3.875,
+            "detuning_mhz": -2.25
+          },
+          "finer_control": {
+            "probe_power_uw": 4.0,
+            "lo_rabi_mhz": 3.8125,
+            "detuning_mhz": -2.225
+          },
+          "own_rectangle_best_sensitivity": 4.391664805678543,
+          "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+        }
+      ],
+      "old_sideband_over_central_minus_one": 0.00020608815340295017,
+      "finer_sideband_over_central_minus_one": 0.00015301553027891046,
+      "absolute_relative_branch_margin": 0.00015301553027891046,
+      "old_winning_branch": "central",
+      "finer_winning_branch": "central",
+      "branch_selection_changed": false,
+      "old_best_sensitivity": 4.3910111886670355,
+      "finer_best_sensitivity": 4.390992915569116
+    }
+  ],
+  "maximum_absolute_relative_branch_change": 0.0003402488162123074,
+  "minimum_absolute_relative_branch_margin": 0.00015301553027891046,
+  "branch_selection_changed_cases": 0,
+  "actual_control_evaluations": 107,
+  "scored_rows": 321,
+  "elapsed_s": 10.270831400062889,
+  "interpretation": "PASS means selected branches stable within0.5%; a near-tie branch identity may still change. Extents describe evaluated samples, not a filled acceptable region.",
+  "source_sha256": {
+    "refine_off_branches.py": "5c6ba0a7cb4f20197b7685bb5946afa6d9275b02139a106c6815961dc594a3b1",
+    "dense_study.py": "2c38b13b61c1a3f6aedf361a2f21fe0135a3b20c5cbf0cd0a1f4b56ebab120ab",
+    "config.json": "7e0220a07a56cd7520d0623ace8efece7da74faad877e0005d89f7e979121758"
+  },
+  "artifact_sha256": {
+    "off_branch_refinement.csv": "350d81d17c1e8c490505dbe7ed54fea5a07b84656e3d20c41af5db731cdde4f6"
+  }
+}

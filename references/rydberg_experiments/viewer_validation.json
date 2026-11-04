@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-03",
+  "status": "PASS",
+  "origin": "⟦AI⟧ Browser verification",
+  "surface": "ChatGPT in-app browser, default viewport",
+  "index_sha256": "ce64f49fb336c028faa6b823859f46c930904875b738a1f109692ce0fddf2977",
+  "checks": [
+    {
+      "id": "initial_card_count",
+      "status": "PASS",
+      "observed": 26
+    },
+    {
+      "id": "gold_first_and_policy_link",
+      "status": "PASS",
+      "observed": "ju_2026_preprint; reference_policy.json"
+    },
+    {
+      "id": "search_laser_frequency_noise",
+      "status": "PASS",
+      "observed": [
+        "yang_2024_pra"
+      ]
+    },
+    {
+      "id": "theory_filter",
+      "status": "PASS",
+      "observed": [
+        "yang_2024_pra",
+        "meyer_2021_pra"
+      ]
+    },
+    {
+      "id": "gold_topic_filter_and_expand",
+      "status": "PASS",
+      "observed": "1 paper, 2 condition tables, 24 PDF page links"
+    },
+    {
+      "id": "gold_source_discrepancy_visible",
+      "status": "PASS",
+      "observed": "Text and figure hyperfine labels retained"
+    },
+    {
+      "id": "empty_results",
+      "status": "PASS",
+      "observed": "0/26 and Korean empty-state message"
+    },
+    {
+      "id": "reset_restores_all_cards",
+      "status": "PASS",
+      "observed": "26/26; Gold first"
+    },
+    {
+      "id": "visual_layout",
+      "status": "PASS",
+      "observed": "Title, Gold panel, statistics, toolbar, first card rendered without horizontal overflow"
+    },
+    {
+      "id": "offline_data_embedding",
+      "status": "PASS",
+      "observed": "Data embedded; no external script or stylesheet dependencies"
+    }
+  ],
+  "scope": "Current generated desktop view, search and evidence navigation. PDF evidence content reviewed separately."
+}

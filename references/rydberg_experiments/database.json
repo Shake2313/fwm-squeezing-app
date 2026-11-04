@@ -1,0 +1,4644 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-03",
+  "purpose": "Rydberg-EIT electrometry literature evidence",
+  "reference_policy": {
+    "gold_reference_paper_id": "ju_2026_preprint",
+    "status": "active_temporary",
+    "origin": "direct_user_request",
+    "adopted_on": "2026-11-03",
+    "scope": "Main experimental geometry, transitions, operating conditions and readout reference.",
+    "request": "Ju et al. (2026)을 당분간 Gold reference(실험 구도, 조건 등 메인으로 삼는 논문)으로 두겠습니다."
+  },
+  "unit_aliases": {
+    "µW": "uW",
+    "μW": "uW",
+    "µm": "um",
+    "μm": "um",
+    "°C": "degC",
+    "%": "percent"
+  },
+  "papers": [
+    {
+      "schema_version": 1,
+      "paper_id": "artusio_glimpse_2024_preprint",
+      "title": "Increased instantaneous bandwidth of Rydberg atom electrometry with an optical frequency comb probe",
+      "authors": [
+        "Artusio-Glimpse, Alexandra B.",
+        "Long, David A.",
+        "Bresler, Sean M.",
+        "Prajapati, Nikunjkumar",
+        "Shylla, Dangka",
+        "Rotunno, Andrew P.",
+        "Simons, Matthew T.",
+        "Berweger, Samuel",
+        "Schlossberger, Noah",
+        "LeBrun, Thomas W.",
+        "Holloway, Christopher L."
+      ],
+      "year": 2024,
+      "study_type": "experiment",
+      "topics": [
+        "bandwidth",
+        "frequency_comb",
+        "heterodyne",
+        "IF"
+      ],
+      "publication": {
+        "journal": "arXiv",
+        "volume": "",
+        "issue": "",
+        "pages": "",
+        "doi": null,
+        "arxiv_id": "2402.17942",
+        "status": "preprint",
+        "published_date": "2024"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-Rydberg_ladder",
+        "configuration": "probe_comb_bandwidth",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_frequency_comb",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=957473",
+          "path": "sources/prajapati_2024_bandwidth.pdf",
+          "sha256": "d36132986b254ecf244fa993299fd07b9c7b5bea3c453fdc6166f61db66406cb",
+          "pages": 4,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "comb_bandwidth",
+          "label": "Probe comb 판독 대역폭",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "lo_frequency",
+              "value": 4.0,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Fig. 1",
+              "evidence": "lo frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "comb_tooth_spacing",
+              "value": 1,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Fig. 1",
+              "evidence": "comb tooth spacing",
+              "notes": ""
+            },
+            {
+              "quantity": "comb_optical_span",
+              "value": 200,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Optical probe-comb span; distinct from RF instantaneous bandwidth",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Fig. 1",
+              "evidence": "Optical probe-comb span; distinct from RF instantaneous bandwidth",
+              "notes": ""
+            },
+            {
+              "quantity": "acquisition_time",
+              "value": 100,
+              "unit": "ms",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "acquisition time",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "instantaneous_bandwidth",
+              "value": 12,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "RF modulation sensitivity bandwidth",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1; p. 3",
+              "evidence": "RF modulation sensitivity bandwidth",
+              "notes": "",
+              "uncertainty": {
+                "value": 1,
+                "unit": "MHz",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            },
+            {
+              "quantity": "field_sensitivity",
+              "value": 9,
+              "unit": "mV/m/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Full-acquisition-time-normalized field sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Full-acquisition-time-normalized field sensitivity",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "single_frequency_comparison",
+          "label": "단일 주파수 probe 대역폭 대조",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 19,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "probe power",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "instantaneous_bandwidth",
+              "value": 400,
+              "unit": "kHz",
+              "value_type": "approximate",
+              "basis": "Approximate 3-dB point",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Approximate 3-dB point",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "bandwidth",
+          "claim": "광 comb로 판독 대역을 넓히면서 감도·광학 span·RF modulation bandwidth를 각각 평가.",
+          "locator": "PDF pp. 2-3, Fig. 2",
+          "source_id": "main",
+          "category": "bandwidth",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "cai_2022_photonics",
+      "title": "Sensitivity Improvement and Determination of Rydberg Atom-Based Microwave Sensor",
+      "authors": [
+        "Minghao Cai",
+        "Zishan Xu",
+        "Shuhang You",
+        "Hongping Liu"
+      ],
+      "year": 2022,
+      "study_type": "experiment",
+      "topics": [
+        "heterodyne",
+        "rf_detuning",
+        "sensitivity_definition",
+        "noise_spectrum"
+      ],
+      "publication": {
+        "journal": "Photonics",
+        "volume": "9",
+        "issue": "4",
+        "pages": "250",
+        "doi": "10.3390/photonics9040250",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2022-04-10"
+      },
+      "scope": {
+        "species": "85Rb",
+        "line": "5S-5P-70S1/2-70P3/2",
+        "configuration": "detuned_atomic_superheterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "WIPM_Liu",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://mdpi-res.com/d_attachment/photonics/photonics-09-00250/article_deploy/photonics-09-00250.pdf",
+          "path": "sources/cai_2022_photonics.pdf",
+          "sha256": "f1a117153743a0d006810413beb7840a07ca4faf424bc36a7de6b1e5c6b7b670",
+          "pages": 14,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "zero_detuning_signal",
+          "label": "공명 LO 직접 응답 평가",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 10.68,
+              "unit": "GHz",
+              "value_type": "approximate",
+              "basis": "70S-70P transition",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "70S-70P transition",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_detuning",
+              "value": 0,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "rf detuning",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 49.84,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Direct field modulation calibration",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "Direct field modulation calibration",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.72,
+                "unit": "nV/cm/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "minus6_signal",
+          "label": "−6 MHz LO 직접 응답 평가",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_detuning",
+              "value": -6,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "RF detuning, not optical probe detuning",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "RF detuning, not optical probe detuning",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 35.75,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Direct field modulation calibration",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "Direct field modulation calibration",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.51,
+                "unit": "nV/cm/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "minus6_noise",
+          "label": "−6 MHz 잡음 스펙트럼 평가",
+          "kind": "noise_characterization",
+          "conditions": [
+            {
+              "quantity": "rf_detuning",
+              "value": -6,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "rf detuning",
+              "notes": ""
+            },
+            {
+              "quantity": "acquisition_time",
+              "value": 2,
+              "unit": "s",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "acquisition time",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 12.5,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Noise-spectrum fit and RF-optical gain calibration",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "Noise-spectrum fit and RF-optical gain calibration",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.04,
+                "unit": "nV/cm/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 176.78,
+              "unit": "pV/cm",
+              "value_type": "reported",
+              "basis": "5000-s minimum discernible field",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 12",
+              "evidence": "5000-s minimum discernible field",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.57,
+                "unit": "pV/cm",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": [
+            "35.75와 12.50은 평가 방법이 다름. 동일 결과로 합치지 않음."
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "detuning",
+          "claim": "비공명 RF dressing에서 응답 기울기 증가를 관측. 직접 변조와 잡음 스펙트럼 감도 수치는 평가 방식별로 다름.",
+          "locator": "PDF pp. 10-12, Figs. 9-10",
+          "source_id": "main",
+          "category": "sensitivity_definition",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "dixon_2023_prapplied",
+      "title": "Rydberg-Atom-Based Electrometry Using a Self-Heterodyne Frequency-Comb Readout and Preparation Scheme",
+      "authors": [
+        "Katelyn Dixon",
+        "Kent Nickerson",
+        "Donald W. Booth",
+        "James P. Shaffer"
+      ],
+      "year": 2023,
+      "study_type": "experiment",
+      "topics": [
+        "frequency_comb",
+        "AT_splitting",
+        "optical_heterodyne",
+        "transient_response"
+      ],
+      "publication": {
+        "journal": "Physical Review Applied",
+        "volume": "19",
+        "issue": "3",
+        "pages": "034078",
+        "doi": "10.1103/PhysRevApplied.19.034078",
+        "arxiv_id": "2209.02583",
+        "status": "published",
+        "published_date": "2023-03-23"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-Rydberg_ladder",
+        "configuration": "optical_frequency_comb_self_heterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Quantum_Valley_Shaffer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2209.02583",
+          "path": "sources/berweger_2022_pra.pdf",
+          "sha256": "089235453cba237ed2f9af72417207271db7e7614a4c47835edc4c223568c35e",
+          "pages": 18,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "comb",
+          "label": "Probe comb 동시 스펙트럼 판독",
+          "kind": "apparatus",
+          "conditions": [
+            {
+              "quantity": "probe_wavelength",
+              "value": 852,
+              "unit": "nm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "probe wavelength",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_wavelength",
+              "value": 509,
+              "unit": "nm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "coupling wavelength",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "eit_linewidth",
+              "value": 5,
+              "unit": "MHz",
+              "value_type": "upper_bound",
+              "basis": "Resolved EIT linewidth below 5 MHz",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Resolved EIT linewidth below 5 MHz",
+              "notes": ""
+            },
+            {
+              "quantity": "field_sensitivity",
+              "value": 2.3,
+              "unit": "uV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Self-heterodyne optical comb readout",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Self-heterodyne optical comb readout",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 66,
+              "unit": "uV/cm",
+              "value_type": "reported",
+              "basis": "Measured RF field amplitude",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Measured RF field amplitude",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "comb_parallel",
+          "claim": "여러 comb tooth의 투과를 self-heterodyne으로 동시에 측정해 레이저 스캔을 줄이고 RF pulse에 의한 AT 변화를 판독.",
+          "locator": "PDF pp. 1, 5-10",
+          "source_id": "main",
+          "category": "readout",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "gordon_2019_aipadv",
+      "title": "Weak electric-field detection with sub-1 Hz resolution at radio frequencies using a Rydberg atom-based mixer",
+      "authors": [
+        "Joshua A. Gordon",
+        "Matthew T. Simons",
+        "Abdulaziz H. Haddab",
+        "Christopher L. Holloway"
+      ],
+      "year": 2019,
+      "study_type": "experiment",
+      "topics": [
+        "heterodyne",
+        "weak_field",
+        "frequency_resolution",
+        "IF"
+      ],
+      "publication": {
+        "journal": "AIP Advances",
+        "volume": "9",
+        "issue": "4",
+        "pages": "045030",
+        "doi": "10.1063/1.5095633",
+        "arxiv_id": "1903.09712",
+        "status": "published",
+        "published_date": "2019-04-01"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-34D5/2-35P3/2",
+        "configuration": "rf_mixer_weak_signal",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Boulder_mixer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=927624",
+          "path": "sources/gordon_2019_aipadv.pdf",
+          "sha256": "4a76b7aa70d599f5e5e1e974492114fb281c89708104f300ebaacef868e1fd50",
+          "pages": 6,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "weak_mixer",
+          "label": "90 kHz IF 약한 RF 신호 검출",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "lo_frequency",
+              "value": 19.626,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "lo frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "signal_frequency",
+              "value": 19.62609,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "signal frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "intermediate_frequency",
+              "value": 90,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "intermediate frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 79,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Published-edition sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "Published-edition sensitivity",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 46,
+              "unit": "uV/m",
+              "value_type": "approximate",
+              "basis": "Measured local field amplitude",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "Measured local field amplitude",
+              "notes": "",
+              "uncertainty": {
+                "value": 2,
+                "unit": "uV/m",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            },
+            {
+              "quantity": "frequency_discrimination",
+              "value": 0.1,
+              "unit": "Hz",
+              "value_type": "reported",
+              "basis": "Equal-strength neighboring signals resolved",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Abstract",
+              "evidence": "Equal-strength neighboring signals resolved",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "resolution",
+          "claim": "RF carrier와 IF의 역할을 분리. 좁은 lock-in 대역으로 서로 가까운 신호를 판별.",
+          "locator": "PDF pp. 2-5",
+          "source_id": "main",
+          "category": "frequency_resolution",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": [
+        "⟦AI⟧ 출판본 PDF 초록의 79 µV/m/√Hz를 채택. 다른 preprint·후속 표의 값으로 덮어쓰지 않음."
+      ]
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "holloway_2014_ieee",
+      "title": "Broadband Rydberg Atom-Based Electric-Field Probe for SI-Traceable, Self-Calibrated Measurements",
+      "authors": [
+        "Christopher L. Holloway",
+        "Joshua A. Gordon",
+        "Steven Jefferts",
+        "Andrew Schwarzkopf",
+        "David A. Anderson",
+        "Stephanie A. Miller",
+        "Nithiwadee Thaicharoen",
+        "Georg Raithel"
+      ],
+      "year": 2014,
+      "study_type": "experiment",
+      "topics": [
+        "SI_traceability",
+        "AT_splitting",
+        "field_mapping",
+        "frequency_axis"
+      ],
+      "publication": {
+        "journal": "IEEE Transactions on Antennas and Propagation",
+        "volume": "62",
+        "issue": "12",
+        "pages": "6169-6182",
+        "doi": "10.1109/TAP.2014.2360208",
+        "arxiv_id": "1405.7066",
+        "status": "published",
+        "published_date": "2014-12"
+      },
+      "scope": {
+        "species": "85Rb",
+        "line": "5S-5P-nD-(n+1)P",
+        "configuration": "AT_field_calibration",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Raithel",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=915858",
+          "path": "sources/holloway_2014_ieee.pdf",
+          "sha256": "bca6732200c0652d0600ed9a60f87944c1d33f797a15792616c420bf67f44609",
+          "pages": 12,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "17ghz",
+          "label": "17.04 GHz AT 보정 운전점",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "cell_length",
+              "value": 75,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "cell_diameter",
+              "value": 25,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "cell diameter",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_frequency",
+              "value": 17.04,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 7, Fig. 12",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 175,
+              "unit": "nW",
+              "value_type": "reported",
+              "basis": "Input power for this frequency",
+              "reference": null,
+              "plane": "cell_input",
+              "source_id": "main",
+              "locator": "PDF p. 7",
+              "evidence": "Input power for this frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 30,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 7",
+              "evidence": "coupling power",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": [
+            "p. 6의 22 mW 예시와 p. 7의 30 mW 측정점을 합치지 않음."
+          ]
+        },
+        {
+          "experiment_id": "68ghz",
+          "label": "68.64 GHz 별도 운전점",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 68.64,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Fig. 15",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 250,
+              "unit": "nW",
+              "value_type": "reported",
+              "basis": "Input power for this frequency",
+              "reference": null,
+              "plane": "cell_input",
+              "source_id": "main",
+              "locator": "PDF p. 8",
+              "evidence": "Input power for this frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 24,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8",
+              "evidence": "coupling power",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "traceability",
+          "claim": "AT 주파수 분리와 전이 쌍극자를 연결해 원자 위치의 RF 장을 보정. 여러 Rydberg 전이로 주파수 범위를 확장.",
+          "locator": "PDF pp. 4-8",
+          "source_id": "main",
+          "category": "calibration",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "local_field",
+          "claim": "셀 및 주변 물질의 RF 장 변화는 원자 위치의 장과 외부 입사장을 구분해 검토.",
+          "locator": "PDF pp. 9-10",
+          "source_id": "main",
+          "category": "field_plane",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "jing_2020_natphys",
+      "title": "Atomic superheterodyne receiver based on microwave-dressed Rydberg spectroscopy",
+      "authors": [
+        "Mingyong Jing",
+        "Ying Hu",
+        "Jie Ma",
+        "Hao Zhang",
+        "Linjie Zhang",
+        "Liantuan Xiao",
+        "Suotang Jia"
+      ],
+      "year": 2020,
+      "study_type": "experiment",
+      "topics": [
+        "heterodyne",
+        "weak_field",
+        "phase",
+        "frequency_resolution",
+        "RF_LO"
+      ],
+      "publication": {
+        "journal": "Nature Physics",
+        "volume": "16",
+        "issue": "9",
+        "pages": "911-915",
+        "doi": "10.1038/s41567-020-0918-5",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2020-06-01"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-47D5/2-48P3/2",
+        "configuration": "atomic_superheterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Shanxi_Jing_Zhang",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://laserspec.sxu.edu.cn/docs/2020-09/6f9a83e33f82405caa24290a90e1a35f.pdf",
+          "path": "sources/jing_2020_natphys.pdf",
+          "sha256": "1fb69d21d886364e7f670829b0cf8a6cc2681c2536648217e870695d2e46922a",
+          "pages": 11,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "superhet",
+          "label": "Atomic superhet 감도 운전점",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "intermediate_frequency",
+              "value": 150,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "LO-SIG offset used for the comparison",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Fig. 2",
+              "evidence": "LO-SIG offset used for the comparison",
+              "notes": ""
+            },
+            {
+              "quantity": "resolution_bandwidth",
+              "value": 1,
+              "unit": "Hz",
+              "value_type": "reported",
+              "basis": "Spectrum analyzer RBW",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Fig. 2",
+              "evidence": "Spectrum analyzer RBW",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": "room_temperature",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "temperature",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 55,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Measured superheterodyne sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Measured superheterodyne sensitivity",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 780,
+              "unit": "pV/cm",
+              "value_type": "reported",
+              "basis": "Long-integration minimum field; not 1-Hz sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Long-integration minimum field; not 1-Hz sensitivity",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "lo_optimum",
+          "claim": "LO dressing으로 약한 SIG에 선형 응답. 최적 LO는 EIT 폭과 관련되며 무제한 증가하지 않음.",
+          "locator": "PDF pp. 2-3, Fig. 2",
+          "source_id": "main",
+          "category": "RF_LO",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "phase_frequency",
+          "claim": "동일 장치가 RF 위상과 주파수도 검출. 감도·최소 검출장·주파수 정밀도는 서로 다른 지표.",
+          "locator": "PDF pp. 3-4, Figs. 3-4",
+          "source_id": "main",
+          "category": "metric_definition",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "ju_2026_preprint",
+      "title": "Photon shot-noise-limited Rydberg-EIT electrometry",
+      "authors": [
+        "Ju, Gyeongmin",
+        "Yu, Ye Jin",
+        "Kim, Heewoo",
+        "Jeong, Hansol",
+        "Bae, Jinhyuk",
+        "Baek, Changhoon",
+        "Moon, Han Seb"
+      ],
+      "year": 2026,
+      "study_type": "experiment",
+      "topics": [
+        "gold_reference",
+        "heterodyne",
+        "photon_shot_noise",
+        "temperature",
+        "magnetic_compensation",
+        "laser_locking"
+      ],
+      "publication": {
+        "journal": "arXiv",
+        "volume": "",
+        "issue": "",
+        "pages": "",
+        "doi": null,
+        "arxiv_id": "2606.04354v1",
+        "status": "preprint",
+        "published_date": "2026"
+      },
+      "scope": {
+        "species": "85Rb addressed; isotope purity not specified",
+        "line": "5S1/2(F3)-5P3/2(F4)-40D5/2-39F7/2",
+        "configuration": "counterpropagating_EIT_atomic_superheterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거.",
+        "reference_role": "gold_reference"
+      },
+      "apparatus_group": "PNU_Moon_KRISS",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2606.04354v1",
+          "path": "sources/ju_2026_preprint.pdf",
+          "sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+          "pages": 15,
+          "access": "full_text",
+          "version": "arXiv:2606.04354v1",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "gold_operating_point",
+          "label": "Gold 실험 메인 운전점",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "cell_length",
+              "value": 50,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Vapor-cell length",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Fig. 5 discussion",
+              "evidence": "Vapor-cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": 20,
+              "unit": "degC",
+              "value_type": "approximate",
+              "basis": "Room-temperature operation",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Fig. 5 discussion",
+              "evidence": "Room-temperature operation",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_wavelength",
+              "value": 780,
+              "unit": "nm",
+              "value_type": "approximate",
+              "basis": "5S(F3)-5P(F4)",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 2-3",
+              "evidence": "5S(F3)-5P(F4)",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_transition_text",
+              "value": "5S1/2(F=3) -> 5P3/2(F'=4)",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "Experimental schematic in the main text; used as the nominal reference",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Sec. 2",
+              "evidence": "Experimental schematic in the main text; used as the nominal reference",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_transition_figure",
+              "value": "5S1/2(F=2) -> 5P3/2(F'=3)",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "Figure labels conflict with the main-text hyperfine labels",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3, Fig. 1(a)",
+              "evidence": "Figure labels conflict with the main-text hyperfine labels",
+              "notes": "⟦AI⟧ Source inconsistency preserved. Nominal reference follows Sec. 2 text."
+            },
+            {
+              "quantity": "coupling_wavelength",
+              "value": 480,
+              "unit": "nm",
+              "value_type": "approximate",
+              "basis": "5P-40D",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 2-3",
+              "evidence": "5P-40D",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 6,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "Reported probe power",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Reported probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 30,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "Reported coupling power",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Reported coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "beam_diameter",
+              "value": 0.15,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Reported beam diameter; 1/e^2/FWHM convention unspecified",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Reported beam diameter; 1/e^2/FWHM convention unspecified",
+              "notes": ""
+            },
+            {
+              "quantity": "beam_diameter_definition",
+              "value": null,
+              "unit": "1",
+              "value_type": "not_reported",
+              "basis": "Paper says diameter; no explicit Gaussian radius convention assigned",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Paper says diameter; no explicit Gaussian radius convention assigned",
+              "notes": ""
+            },
+            {
+              "quantity": "optical_geometry",
+              "value": "counter_propagating",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "Probe and coupling counter-propagate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Probe and coupling counter-propagate",
+              "notes": ""
+            },
+            {
+              "quantity": "optical_polarizations",
+              "value": "linear_orthogonal",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "optical polarizations",
+              "notes": ""
+            },
+            {
+              "quantity": "detector_qe",
+              "value": 95,
+              "unit": "percent",
+              "value_type": "approximate",
+              "basis": "Balanced photodetector quantum efficiency",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Balanced photodetector quantum efficiency",
+              "notes": ""
+            },
+            {
+              "quantity": "lo_rabi_over_2pi",
+              "value": 3.7,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Microwave local oscillator",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Microwave local oscillator",
+              "notes": ""
+            },
+            {
+              "quantity": "lo_frequency",
+              "value": 37.07104,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "lo frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "intermediate_frequency",
+              "value": 40,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "LO-SIG frequency offset",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 2, 5",
+              "evidence": "LO-SIG frequency offset",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_detuning",
+              "value": null,
+              "unit": "MHz",
+              "value_type": "not_reported",
+              "basis": "Absolute +40 MHz optical detuning is not specified for this reported operating point",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 2-5",
+              "evidence": "Absolute +40 MHz optical detuning is not specified for this reported operating point",
+              "notes": ""
+            },
+            {
+              "quantity": "operating_optical_depth",
+              "value": null,
+              "unit": "1",
+              "value_type": "not_reported",
+              "basis": "No absolute measured operating-point OD inserted from AutoOD",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 3, 7, 9",
+              "evidence": "No absolute measured operating-point OD inserted from AutoOD",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 12.5,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Measured superheterodyne sensitivity; RF-field RMS conversion defined in Eq. (1)",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1, 7-8",
+              "evidence": "Measured superheterodyne sensitivity; RF-field RMS conversion defined in Eq. (1)",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.8,
+                "unit": "nV/cm/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            },
+            {
+              "quantity": "psn_field_sensitivity",
+              "value": 11.2,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Calculated probe-photon-shot-noise floor; field convention of Eqs. (1)-(2)",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 7, 10",
+              "evidence": "Calculated probe-photon-shot-noise floor; field convention of Eqs. (1)-(2)",
+              "notes": ""
+            },
+            {
+              "quantity": "eit_linewidth",
+              "value": 1.6,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Narrow compensated spectrum; its probe power is not specified. Fig. 2(b) gives approximately 3.0 MHz at 6 uW; do not bind 1.6 MHz to the 6 uW operating point.",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1, 4-5",
+              "evidence": "Narrow compensated spectrum; its probe power is not specified. Fig. 2(b) gives approximately 3.0 MHz at 6 uW; do not bind 1.6 MHz to the 6 uW operating point.",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "사용자 2026-11-03 채택 Gold reference. 실험 메인 구도·조건의 기준.",
+            "⟦AI⟧ 논문은 85Rb 전이를 사용. 순수 동위원소 셀이라는 추가 가정은 보류."
+          ]
+        },
+        {
+          "experiment_id": "temperature_model",
+          "label": "온도 의존 PSN 계산",
+          "kind": "theory_prediction",
+          "conditions": [
+            {
+              "quantity": "cell_length",
+              "value": 50,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9",
+              "evidence": "cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "beam_diameter",
+              "value": 0.15,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Same stated diameter convention",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9",
+              "evidence": "Same stated diameter convention",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "predicted_optimum_temperature",
+              "value": 33,
+              "unit": "degC",
+              "value_type": "approximate",
+              "basis": "Calculated PSN optimum; distinct from measured ~20 C operation",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Fig. 5(a)",
+              "evidence": "Calculated PSN optimum; distinct from measured ~20 C operation",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "readout",
+          "claim": "감도 식 (2)는 동작점의 투과 광자수와 응답 기울기를 함께 사용. Probe 파워 증가의 광자수 이득과 EIT power broadening이 경쟁.",
+          "locator": "PDF pp. 7-9, Eq. (2), Figs. 4-5",
+          "source_id": "main",
+          "category": "sensitivity_definition",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "coherence",
+          "claim": "자기장 보상·두 레이저의 ULE cavity 고정·balanced 검출로 EIT 폭과 판독 잡음을 낮춤.",
+          "locator": "PDF pp. 2-5",
+          "source_id": "main",
+          "category": "coherence_control",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "hyperfine_label_discrepancy",
+          "claim": "본문 2절은 5S F=3 → 5P F′=4, 그림 1(a)는 F=2 → F′=3으로 표기되어 서로 다름.",
+          "locator": "PDF pp. 2-3, Sec. 2 and Fig. 1(a)",
+          "source_id": "main",
+          "category": "source_consistency",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "linewidth_power_scope",
+          "claim": "⟦AI⟧ Fig. 2(b)의 보상 후 폭은 0.5 µW에서 약 1.6 MHz, 6 µW에서 약 3.0 MHz. Fig. 2(a)의 1.6 MHz 스펙트럼에는 프로브 파워가 명시되지 않아 6 µW 앵커로 사용할 수 없음.",
+          "locator": "PDF p. 5, Fig. 2(a-b)",
+          "source_id": "main",
+          "category": "source_consistency",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "psn_curve_shape_scope",
+          "claim": "⟦AI⟧ Fig. 5(b)의 빨간 SNL 곡선은 파워 증가에 따라 단조 감소하지만 측정 곡선은 6 µW 부근에서 최소. 본문의 최적점 설명과 그림의 PSN 곡선을 구분해야 함.",
+          "locator": "PDF pp. 8-10, Figs. 4(d), 5(b)",
+          "source_id": "main",
+          "category": "source_consistency",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "optical_scan_identity",
+          "claim": "⟦AI⟧ Fig. 2·3 주파수 축은 스캔한 레이저와 고정 레이저의 절대 디튜닝을 명시하지 않음. 이전 학위논문의 probe scan은 다른 장치의 근거.",
+          "locator": "PDF pp. 3-6, Figs. 2-3",
+          "source_id": "main",
+          "category": "source_consistency",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": [
+        "⟦AI⟧ Gold 메인 전이는 본문 2절 표기 채택. 그림 1(a)의 다른 초미세 표기는 별도 근거로 보존.",
+        "⟦AI⟧ 논문이 별도 Supplementary Materials를 언급. 현재 보관·검수한 PDF는 main article 15쪽이며 별도 보충문서는 확보하지 않음."
+      ],
+      "reference_designation": {
+        "gold_reference_paper_id": "ju_2026_preprint",
+        "status": "active_temporary",
+        "origin": "direct_user_request",
+        "adopted_on": "2026-11-03",
+        "scope": "Main experimental geometry, transitions, operating conditions and readout reference.",
+        "request": "Ju et al. (2026)을 당분간 Gold reference(실험 구도, 조건 등 메인으로 삼는 논문)으로 두겠습니다."
+      }
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "kumar_2017_oe",
+      "title": "Rydberg-atom based radio-frequency electrometry using frequency modulation spectroscopy in room temperature vapor cells",
+      "authors": [
+        "Santosh Kumar",
+        "Haoquan Fan",
+        "Harald Kübler",
+        "Akbar J. Jahangiri",
+        "James P. Shaffer"
+      ],
+      "year": 2017,
+      "study_type": "experiment",
+      "topics": [
+        "frequency_modulation",
+        "residual_amplitude_modulation",
+        "photon_shot_noise"
+      ],
+      "publication": {
+        "journal": "Optics Express",
+        "volume": "25",
+        "issue": "8",
+        "pages": "8625",
+        "doi": "10.1364/OE.25.008625",
+        "arxiv_id": "1702.00494",
+        "status": "published",
+        "published_date": "2017-04-04"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-52D5/2-53P3/2",
+        "configuration": "frequency_modulation_spectroscopy",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Oklahoma_Shaffer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/1702.00494",
+          "path": "sources/kumar_2017_oe.pdf",
+          "sha256": "86f23e1afc56ecda40b5097333f387bdf35cf3e3d66c68197cae2c6dd72c1b49",
+          "pages": 18,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "fm",
+          "label": "RAM 보정 FM 분광 검출",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 5.047,
+              "unit": "GHz",
+              "value_type": "approximate",
+              "basis": "Approximate Rydberg RF transition",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3, Fig. 1",
+              "evidence": "Approximate Rydberg RF transition",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 3,
+              "unit": "uV/cm/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "FM readout; abstract supplies Hz^-1/2 convention",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract; p. 11",
+              "evidence": "FM readout; abstract supplies Hz^-1/2 convention",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 1.8,
+              "unit": "uV/cm",
+              "value_type": "approximate",
+              "basis": "With matched filtering; field amplitude",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 11",
+              "evidence": "With matched filtering; field amplitude",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "본문 p. 11의 Hz 지수 인쇄와 초록 정의를 함께 기록. matched-filter 최소장과 감도 구분."
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "ram",
+          "claim": "FM spectroscopy에 능동 RAM 보정을 더해 광학 기술잡음을 낮춤.",
+          "locator": "PDF pp. 4-8",
+          "source_id": "main",
+          "category": "readout",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "filter",
+          "claim": "Matched filtering은 약한 신호 가시성을 높이나 최저장 SNR은 광자 샷노이즈로 제한.",
+          "locator": "PDF pp. 10-12",
+          "source_id": "main",
+          "category": "noise",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "kumar_2017_scirep",
+      "title": "Atom-Based Sensing of Weak Radio Frequency Electric Fields Using Homodyne Readout",
+      "authors": [
+        "Santosh Kumar",
+        "Haoquan Fan",
+        "Harald Kübler",
+        "Jiteng Sheng",
+        "James P. Shaffer"
+      ],
+      "year": 2017,
+      "study_type": "experiment",
+      "topics": [
+        "homodyne",
+        "photon_shot_noise",
+        "transit",
+        "collisions",
+        "power_broadening"
+      ],
+      "publication": {
+        "journal": "Scientific Reports",
+        "volume": "7",
+        "issue": "1",
+        "pages": "42981",
+        "doi": "10.1038/srep42981",
+        "arxiv_id": "1610.09550",
+        "status": "published",
+        "published_date": "2017-02-20"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-52D5/2-53P3/2",
+        "configuration": "optical_homodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Oklahoma_Shaffer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://www.nature.com/articles/srep42981.pdf",
+          "path": "sources/kumar_2017_scirep.pdf",
+          "sha256": "8659b63a593bfb5ec8e1cfb6ed59cc6fdbd83a3bc545ad417cb922379a69c4cd",
+          "pages": 10,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "sensitivity",
+          "label": "Mach-Zehnder 광학 homodyne 검출",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "cell_length",
+              "value": 4,
+              "unit": "cm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": "room_temperature",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "Room-temperature sensitivity data",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "Room-temperature sensitivity data",
+              "notes": ""
+            },
+            {
+              "quantity": "beam_diameter_for_noise_estimate",
+              "value": 1,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Interaction volume used in atomic-noise estimate; distinct from beam-size scans",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "Interaction volume used in atomic-noise estimate; distinct from beam-size scans",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 5,
+              "unit": "uV/cm/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Measured homodyne readout sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "Measured homodyne readout sensitivity",
+              "notes": ""
+            },
+            {
+              "quantity": "sql_field_sensitivity",
+              "value": 9,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Calculated atom projection-noise estimate; not measured optical sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 6",
+              "evidence": "Calculated atom projection-noise estimate; not measured optical sensitivity",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "tradeoff",
+          "claim": "Probe 세기·밀도·빔 크기 변화에서 power·collision·transit broadening을 분리 비교.",
+          "locator": "PDF pp. 3-6, Figs. 3-5",
+          "source_id": "main",
+          "category": "broadening",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "readout_noise",
+          "claim": "MZI로 probe 기술잡음을 줄인 뒤 광자 샷노이즈가 판독 감도를 제한.",
+          "locator": "PDF pp. 6-8",
+          "source_id": "main",
+          "category": "photon_shot_noise",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "ma_2026_micronano",
+      "title": "MEMS vapor cells-based Rydberg-atom electrometry toward miniaturization and high sensitivity",
+      "authors": [
+        "Yintao Ma",
+        "Pan Chen",
+        "Mingzhi Yu",
+        "Yao Chen",
+        "Yanbin Wang",
+        "Ju Guo",
+        "Man Zhao",
+        "Ping Yang",
+        "Qijing Lin",
+        "Libo Zhao"
+      ],
+      "year": 2026,
+      "study_type": "experiment",
+      "topics": [
+        "MEMS",
+        "miniaturization",
+        "AT_splitting",
+        "differential_detection"
+      ],
+      "publication": {
+        "journal": "Microsystems & Nanoengineering",
+        "volume": "12",
+        "issue": "1",
+        "pages": "227",
+        "doi": "10.1038/s41378-026-01216-1",
+        "arxiv_id": "2509.01911",
+        "status": "published",
+        "published_date": "2026-06-10"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S(F4)-6P(F5)-48D5/2-46F7/2",
+        "configuration": "MEMS_differential_EIT_AT",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "UESTC_MEMS_Ma",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://www.nature.com/articles/s41378-026-01216-1.pdf",
+          "path": "sources/mems_2026_micronano.pdf",
+          "sha256": "7afda493248ad030fd214b27fa69f2c5d604b1e694f0b8c365e82a9442a0cc75",
+          "pages": 8,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "mems",
+          "label": "MEMS 셀 RF 검출",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "silicon_thickness",
+              "value": 6,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Fabrication thickness; not automatically an effective optical length",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1-2",
+              "evidence": "Fabrication thickness; not automatically an effective optical length",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_frequency",
+              "value": 29.75,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4, Fig. 3",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_size",
+              "value": 500,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "Beam size, convention unspecified",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Beam size, convention unspecified",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_beam_size",
+              "value": 600,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "Beam size, convention unspecified",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Beam size, convention unspecified",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 2.8,
+              "unit": "mV/cm",
+              "value_type": "reported",
+              "basis": "Minimum detected microwave field, not Hz-normalized sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 7, Fig. 7 discussion",
+              "evidence": "Minimum detected microwave field, not Hz-normalized sensitivity",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.3,
+                "unit": "mV/cm",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "mems",
+          "claim": "고저항 silicon 기반 MEMS 셀과 광학 차분 검출로 소형 RF 검출 장치를 구성.",
+          "locator": "PDF pp. 2-6",
+          "source_id": "main",
+          "category": "miniaturization",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "meyer_2021_pra",
+      "title": "Optimal atomic quantum sensing using electromagnetically-induced-transparency readout",
+      "authors": [
+        "David H. Meyer",
+        "Christopher O'Brien",
+        "Donald P. Fahey",
+        "Kevin C. Cox",
+        "Paul D. Kunz"
+      ],
+      "year": 2021,
+      "study_type": "theory",
+      "topics": [
+        "theory",
+        "optical_depth",
+        "SQL",
+        "Doppler",
+        "propagation"
+      ],
+      "publication": {
+        "journal": "Physical Review A",
+        "volume": "104",
+        "issue": "4",
+        "pages": "043103",
+        "doi": "10.1103/PhysRevA.104.043103",
+        "arxiv_id": "2105.10494",
+        "status": "published",
+        "published_date": "2021-10-05"
+      },
+      "scope": {
+        "species": "generic_alkali; 85Rb example",
+        "line": "three_level_ladder_EIT",
+        "configuration": "EIT_quantum_sensitivity_theory",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "context_only",
+        "reason": "실험 감도 비교에 필요한 OD·Doppler·광학 판독 SQL 이론."
+      },
+      "apparatus_group": "ARL_Meyer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2105.10494",
+          "path": "sources/meyer_2021_pra.pdf",
+          "sha256": "658c63d117a84c9a258016d3325eb568f1341dfbdb93204e8214a171cc58fff0",
+          "pages": 12,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [],
+      "findings": [
+        {
+          "finding_id": "od_definition",
+          "claim": "식 (18)의 OD는 공명·small-signal 기준의 원자수·쌍극자·길이 정규화. 열증기 Doppler 평균은 별도로 취급.",
+          "locator": "PDF pp. 4-6, Eqs. (18)-(20)",
+          "source_id": "main",
+          "category": "optical_depth",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "finite_od",
+          "claim": "큰 OD에서 probe 감쇠와 길이 방향 Rabi 변화가 감도 최적점에 영향. Optically thin 결과의 적용 범위 구분.",
+          "locator": "PDF pp. 4-6, Secs. III.C-III.D",
+          "source_id": "main",
+          "category": "propagation",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "mohapatra_2007_prl",
+      "title": "Coherent Optical Detection of Highly Excited Rydberg States Using Electromagnetically Induced Transparency",
+      "authors": [
+        "A. K. Mohapatra",
+        "T. R. Jackson",
+        "C. S. Adams"
+      ],
+      "year": 2007,
+      "study_type": "experiment",
+      "topics": [
+        "foundation",
+        "optical_depth",
+        "dc_screening",
+        "transient_response"
+      ],
+      "publication": {
+        "journal": "Physical Review Letters",
+        "volume": "98",
+        "issue": "11",
+        "pages": "113003",
+        "doi": "10.1103/PhysRevLett.98.113003",
+        "arxiv_id": "quant-ph/0612200",
+        "status": "published",
+        "published_date": "2007-03-15"
+      },
+      "scope": {
+        "species": "85Rb addressed; isotope purity not specified",
+        "line": "5S-5P-nS/nD",
+        "configuration": "two_photon_EIT",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "context_only",
+        "reason": "전기장 감응 Rydberg-EIT의 광학 검출·벽 전하 기초 실험."
+      },
+      "apparatus_group": "Durham_Adams",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/quant-ph/0612200",
+          "path": "sources/mohapatra_2007_prl.pdf",
+          "sha256": "26124d4b291e8b916a7dd1ae68b7c259cacaf8d86564ccefa193ac5357174991",
+          "pages": 4,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "apparatus",
+          "label": "초기 열증기 Rydberg-EIT 장치",
+          "kind": "apparatus",
+          "conditions": [
+            {
+              "quantity": "cell_length",
+              "value": 75,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Physical vapor-cell length",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Physical vapor-cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 1,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_radius",
+              "value": 0.4,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "1/e^2 intensity radius",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "1/e^2 intensity radius",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_beam_radius",
+              "value": 0.8,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "1/e^2 intensity radius",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "1/e^2 intensity radius",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 200,
+              "unit": "mW",
+              "value_type": "upper_bound",
+              "basis": "Available power up to this value",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Available power up to this value",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": "room_temperature",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "No numerical cell temperature assigned",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "No numerical cell temperature assigned",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "eit_linewidth",
+              "value": null,
+              "unit": "MHz",
+              "value_type": "range",
+              "basis": "Varies with laser power and transition",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Varies with laser power and transition",
+              "notes": "",
+              "lower": 2,
+              "upper": 4
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "charge_response",
+          "label": "벽 전하·DC 차폐 관측",
+          "kind": "scan",
+          "conditions": [],
+          "results": [
+            {
+              "quantity": "applied_dc_field_without_observed_response",
+              "value": 100,
+              "unit": "V/cm",
+              "value_type": "upper_bound",
+              "basis": "External DC field screened in this cell",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "External DC field screened in this cell",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_frequency",
+              "value": 90,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "AC Stark response test; not an adjacent-Rydberg resonant LO",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4, Fig. 6",
+              "evidence": "AC Stark response test; not an adjacent-Rydberg resonant LO",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "가한 DC 장의 상한과 최소 검출장·감도를 구분."
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "screening",
+          "claim": "벽 전하가 정적 외부 전기장을 차폐하며, 전기장 반전 뒤 과도 EIT 응답을 관찰.",
+          "locator": "PDF pp. 3-4, Figs. 5-6",
+          "source_id": "main",
+          "category": "screening",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "doppler",
+          "claim": "속도 평균한 ladder 감수율로 probe transmission을 계산. EIT 위치는 probe·coupling detuning에 의존.",
+          "locator": "PDF pp. 2-3, Eq. (1)",
+          "source_id": "main",
+          "category": "optical_depth",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "prajapati_2021_apl",
+      "title": "Enhancement of electromagnetically induced transparency based Rydberg-atom electrometry through population repumping",
+      "authors": [
+        "Nikunjkumar Prajapati",
+        "Amy K. Robinson",
+        "Samuel Berweger",
+        "Matthew T. Simons",
+        "Alexandra B. Artusio-Glimpse",
+        "Christopher L. Holloway"
+      ],
+      "year": 2021,
+      "study_type": "experiment",
+      "topics": [
+        "repumping",
+        "heterodyne",
+        "photon_shot_noise",
+        "population"
+      ],
+      "publication": {
+        "journal": "Applied Physics Letters",
+        "volume": "119",
+        "issue": "21",
+        "pages": "214001",
+        "doi": "10.1063/5.0069195",
+        "arxiv_id": "2108.13226",
+        "status": "published",
+        "published_date": "2021-11-22"
+      },
+      "scope": {
+        "species": "85Rb",
+        "line": "5S-5P-nD; D1_ground_repump",
+        "configuration": "repumped_atomic_mixer",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Boulder_repump",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=933094",
+          "path": "sources/prajapati_2021_apl.pdf",
+          "sha256": "466708c7f6e94a7b174a07624bece1502ffcac5914f768ce8997a1d4aaa4f41e",
+          "pages": 12,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "repump_off",
+          "label": "동일 장치 repump off",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 550,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 70,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "repump_power",
+              "value": 0,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "Repump absent",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Repump absent",
+              "notes": ""
+            },
+            {
+              "quantity": "lockin_time_constant",
+              "value": 1,
+              "unit": "s",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "lockin time constant",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 5,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Authors equate their 1-s acquisition field threshold to sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Authors equate their 1-s acquisition field threshold to sensitivity",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "repump_on",
+          "label": "동일 장치 repump on",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 550,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 70,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "repump_power",
+              "value": 10,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "D1 repump before entering cell",
+              "reference": null,
+              "plane": "cell_input",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "D1 repump before entering cell",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 3,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Authors' 1-s acquisition convention",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Authors' 1-s acquisition convention",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "noise_budget",
+          "label": "광자 샷노이즈 판독 조건",
+          "kind": "noise_characterization",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 560,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "Noise measurement input",
+              "reference": null,
+              "plane": "cell_input",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "Noise measurement input",
+              "notes": ""
+            },
+            {
+              "quantity": "detected_probe_power",
+              "value": 220,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "Power on the detector",
+              "reference": null,
+              "plane": "photodetector",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "Power on the detector",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "shot_noise_dominated_frequency",
+              "value": 300,
+              "unit": "kHz",
+              "value_type": "approximate",
+              "basis": "Above this approximate frequency the traces reach photon shot noise",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "Above this approximate frequency the traces reach photon shot noise",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "population",
+          "claim": "D1 repump가 EIT 신호를 키우며 동일 정도의 power broadening 없이 판독 응답을 향상.",
+          "locator": "PDF pp. 2-4",
+          "source_id": "main",
+          "category": "repumping",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "noise",
+          "claim": "낮은 판독 주파수에서는 1/f laser noise, 높은 주파수에서는 광자 샷노이즈를 확인.",
+          "locator": "PDF p. 5, Fig. 6",
+          "source_id": "main",
+          "category": "noise",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "prajapati_2025_natcom",
+      "title": "Multichannel, ultra-wideband Rydberg electrometry with an optical frequency comb",
+      "authors": [
+        "Nikunjkumar Prajapati",
+        "David A. Long",
+        "Alexandra B. Artusio-Glimpse",
+        "Sean M. Bresler",
+        "Christopher L. Holloway"
+      ],
+      "year": 2025,
+      "study_type": "experiment",
+      "topics": [
+        "frequency_comb",
+        "multichannel",
+        "three_photon",
+        "tuning_range"
+      ],
+      "publication": {
+        "journal": "Nature Communications",
+        "volume": "16",
+        "issue": "1",
+        "pages": "11054",
+        "doi": "10.1038/s41467-025-64439-2",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2025-12-07"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-7S-Rydberg_three_photon",
+        "configuration": "coupling_comb_multichannel",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_frequency_comb",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://www.nature.com/articles/s41467-025-64439-2.pdf",
+          "path": "sources/multichannel_2025_natcom.pdf",
+          "sha256": "fa98ad70db2876e2e70ff328a76f9050eb69f04daea88062a713f08b2b2a9f6a",
+          "pages": 7,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "multichannel",
+          "label": "Coupling comb 다중 Rydberg 채널",
+          "kind": "apparatus",
+          "conditions": [
+            {
+              "quantity": "probe_wavelength",
+              "value": 895,
+              "unit": "nm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "probe wavelength",
+              "notes": ""
+            },
+            {
+              "quantity": "dressing_wavelength",
+              "value": 636,
+              "unit": "nm",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "dressing wavelength",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_tuning_range",
+              "value": null,
+              "unit": "GHz",
+              "value_type": "range",
+              "basis": "Coverage through several Rydberg channels; not simultaneous IF bandwidth",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Coverage through several Rydberg channels; not simultaneous IF bandwidth",
+              "notes": "",
+              "lower": 1,
+              "upper": 40
+            }
+          ],
+          "results": [
+            {
+              "quantity": "rydberg_channel_count",
+              "value": 7,
+              "unit": "1",
+              "value_type": "upper_bound",
+              "basis": "Up to seven states",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Up to seven states",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "multiplex",
+          "claim": "Coupling comb로 여러 Rydberg 상태를 빠르게 준비·전환하여 다중 RF 주파수를 검출.",
+          "locator": "PDF pp. 1-4",
+          "source_id": "main",
+          "category": "multichannel",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "schlossberger_2026_jscheme",
+      "title": "Electromagnetically induced transparency and population repump readout of Rydberg states of Cs atoms in a J-scheme",
+      "authors": [
+        "Noah Schlossberger",
+        "Christopher L. Holloway",
+        "Erik McKee",
+        "Michael A. Highman",
+        "Nikunjkumar Prajapati"
+      ],
+      "year": 2026,
+      "study_type": "experiment",
+      "topics": [
+        "three_photon",
+        "repumping",
+        "heterodyne",
+        "linewidth"
+      ],
+      "publication": {
+        "journal": "AVS Quantum Science",
+        "volume": "8",
+        "issue": "3",
+        "pages": "034402",
+        "doi": "10.1116/5.0336324",
+        "arxiv_id": "2603.08678v1",
+        "status": "published",
+        "published_date": "2026-08-14"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "J_scheme_6P1/2-6S1/2-7P-Rydberg",
+        "configuration": "three_photon_J_scheme",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Boulder_Jscheme",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2603.08678v1",
+          "path": "sources/schlossberger_2026_jscheme.pdf",
+          "sha256": "3560a7dfff7ec2d2eb8a546d9ed85c5d74c7effeecaff21d1ee31133b7e81a5d",
+          "pages": 5,
+          "access": "full_text",
+          "version": "arXiv:2603.08678v1; publication metadata updated separately",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "narrow_line",
+          "label": "낮은 광파워의 좁은 EIT",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 1.3,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Table I",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "dressing_power",
+              "value": 17,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Table I",
+              "evidence": "dressing power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 460,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Table I",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_fwhm",
+              "value": 1.6,
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "FWHM",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2, Table I",
+              "evidence": "FWHM",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "eit_linewidth",
+              "value": 1.3,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Low-laser-power linewidth",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Low-laser-power linewidth",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "좁은 선폭용 Table I 조건. 아래 감도 운전점에 같은 파워를 자동 상속하지 않음."
+          ]
+        },
+        {
+          "experiment_id": "linked_jscheme",
+          "label": "연결된 J-scheme RF 판독",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 4.7,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "rf frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 27,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Conventional heterodyne J-scheme",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Conventional heterodyne J-scheme",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "population_repump",
+          "label": "분리된 hyperfine population 판독",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 4.7,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "rf frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 39,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Population-repump readout",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Population-repump readout",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "architecture",
+          "claim": "직접 diode 파장으로 가능한 J 모양 세 광자 결합과 별도 hyperfine 인구수 판독을 비교.",
+          "locator": "PDF pp. 1-4",
+          "source_id": "main",
+          "category": "three_photon",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "sedlacek_2012_natphys",
+      "title": "Microwave electrometry with Rydberg atoms in a vapour cell using bright atomic resonances",
+      "authors": [
+        "Jonathon A. Sedlacek",
+        "Arne Schwettmann",
+        "Harald Kübler",
+        "Robert Löw",
+        "Tilman Pfau",
+        "James P. Shaffer"
+      ],
+      "year": 2012,
+      "study_type": "experiment",
+      "topics": [
+        "foundation",
+        "AT_splitting",
+        "weak_field",
+        "Doppler"
+      ],
+      "publication": {
+        "journal": "Nature Physics",
+        "volume": "8",
+        "issue": "11",
+        "pages": "819-824",
+        "doi": "10.1038/nphys2423",
+        "arxiv_id": "1205.4461",
+        "status": "published",
+        "published_date": "2012-09-16"
+      },
+      "scope": {
+        "species": "87Rb",
+        "line": "5S(F2)-5P(F3)-53D5/2-54P3/2",
+        "configuration": "bright_resonance_amplitude_readout",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Oklahoma_Shaffer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/1205.4461",
+          "path": "sources/sedlacek_2012_natphys.pdf",
+          "sha256": "bb9f7019a06c64a3d229a23e72e7bc6db613e24bed01ce9548f5994436d6170f",
+          "pages": 15,
+          "access": "full_text",
+          "version": "arXiv:1205.4461; preprint title Quantum Assisted Electrometry using Bright Atomic Resonances",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "weak_field",
+          "label": "밝은 공명에 의한 약한 MW 검출",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 14.233,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "Observed microwave transition frequency",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "Observed microwave transition frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "cell_length",
+              "value": 10,
+              "unit": "cm",
+              "value_type": "reported",
+              "basis": "Physical cell length",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Methods",
+              "evidence": "Physical cell length",
+              "notes": ""
+            },
+            {
+              "quantity": "effective_interaction_length",
+              "value": 7.5,
+              "unit": "cm",
+              "value_type": "reported",
+              "basis": "Focused coupling limits the interaction length",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Methods",
+              "evidence": "Focused coupling limits the interaction length",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": "room_temperature",
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Methods",
+              "evidence": "temperature",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_rabi_over_2pi",
+              "value": 6,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Average Rabi frequency",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Methods",
+              "evidence": "Average Rabi frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_rabi_over_2pi",
+              "value": 2,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Average Rabi frequency",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8, Methods",
+              "evidence": "Average Rabi frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 30,
+              "unit": "uV/cm/sqrt(Hz)",
+              "value_type": "approximate",
+              "basis": "Optical amplitude readout; laser spectral bandwidth limited",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Optical amplitude readout; laser spectral bandwidth limited",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 8,
+              "unit": "uV/cm",
+              "value_type": "approximate",
+              "basis": "Observed field amplitude; not Hz-normalized",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Observed field amplitude; not Hz-normalized",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "bright",
+          "claim": "마이크로파가 EIT 창 안의 밝은 공명을 바꾸며, 약한 장에서는 광학 진폭으로 전기장을 검출.",
+          "locator": "PDF pp. 5-6, Figs. 2-3",
+          "source_id": "main",
+          "category": "readout",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "axis",
+          "claim": "Probe 주파수 스캔에서 AT 분리에는 광학 파장비·Doppler 조건이 작용.",
+          "locator": "PDF p. 5",
+          "source_id": "main",
+          "category": "frequency_axis",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": [
+        "⟦AI⟧ 출판 논문 서지와 제목이 다른 공개 preprint를 원문 근거로 사용. 판본 출처 보존."
+      ]
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "sedlacek_2013_prl",
+      "title": "Atom-Based Vector Microwave Electrometry Using Rubidium Rydberg Atoms in a Vapor Cell",
+      "authors": [
+        "J. A. Sedlacek",
+        "A. Schwettmann",
+        "H. Kübler",
+        "J. P. Shaffer"
+      ],
+      "year": 2013,
+      "study_type": "experiment",
+      "topics": [
+        "polarization",
+        "Zeeman",
+        "AT_splitting"
+      ],
+      "publication": {
+        "journal": "Physical Review Letters",
+        "volume": "111",
+        "issue": "6",
+        "pages": "063001",
+        "doi": "10.1103/PhysRevLett.111.063001",
+        "arxiv_id": "1304.4299",
+        "status": "published",
+        "published_date": "2013-08-06"
+      },
+      "scope": {
+        "species": "87Rb",
+        "line": "5S(F2)-5P(F3)-53D5/2-54P3/2",
+        "configuration": "polarization_vector_readout",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Oklahoma_Shaffer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/1304.4299",
+          "path": "sources/sedlacek_2013_prl.pdf",
+          "sha256": "1f04e66e91032a8ec6de08abdb97ba066dbab4e91ee1cb71d64997a53b1cf1c7",
+          "pages": 5,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "vector",
+          "label": "편광 회전 기반 벡터 MW 측정",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "cell_dimensions",
+              "value": "10 x 10 x 30",
+              "unit": "mm",
+              "value_type": "reported",
+              "basis": "Cuboidal cell dimensions; propagation length not inferred",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Cuboidal cell dimensions; propagation length not inferred",
+              "notes": ""
+            },
+            {
+              "quantity": "temperature",
+              "value": 45,
+              "unit": "degC",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "temperature",
+              "notes": ""
+            },
+            {
+              "quantity": "rf_frequency",
+              "value": 14.233,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 15,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 11,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_size",
+              "value": 200,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "Spot size; radius/diameter definition not specified in this passage",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Spot size; radius/diameter definition not specified in this passage",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_beam_size",
+              "value": 65,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "Spot size; radius/diameter definition not specified in this passage",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Spot size; radius/diameter definition not specified in this passage",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "polarization_angle_resolution",
+              "value": 0.5,
+              "unit": "degree",
+              "value_type": "approximate",
+              "basis": "Resolution in both zeta and phi",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Resolution in both zeta and phi",
+              "notes": ""
+            },
+            {
+              "quantity": "at_splitting",
+              "value": 39.36,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Probe-axis peak splitting",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Probe-axis peak splitting",
+              "notes": "",
+              "uncertainty": {
+                "value": 0.06,
+                "unit": "MHz",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "manifold",
+          "claim": "편광에 따른 3준위·4준위 경로 비율로 전기장 방향을 추정. 진폭 예측에는 52상태·광펌핑·Doppler 계산 사용.",
+          "locator": "PDF pp. 2-4, Figs. 2-4",
+          "source_id": "main",
+          "category": "multilevel",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "simons_2016_apl",
+      "title": "Using frequency detuning to improve the sensitivity of electric field measurements via electromagnetically induced transparency and Autler-Townes splitting in Rydberg atoms",
+      "authors": [
+        "Matt T. Simons",
+        "Joshua A. Gordon",
+        "Christopher L. Holloway",
+        "David A. Anderson",
+        "Stephanie A. Miller",
+        "Georg Raithel"
+      ],
+      "year": 2016,
+      "study_type": "experiment",
+      "topics": [
+        "AT_splitting",
+        "rf_detuning",
+        "SI_traceability"
+      ],
+      "publication": {
+        "journal": "Applied Physics Letters",
+        "volume": "108",
+        "issue": "17",
+        "pages": "174101",
+        "doi": "10.1063/1.4947231",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2016-04-25"
+      },
+      "scope": {
+        "species": "85Rb",
+        "line": "5S-5P-23D/24D-22F/23F",
+        "configuration": "detuned_AT_extrapolation",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Raithel",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=920398",
+          "path": "sources/simons_2016_apl.pdf",
+          "sha256": "8696eaeec9b3cf380fd7a7272ea52b06d7d67fa385af9728bbd9dc2b1b222202",
+          "pages": 6,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "detuning_scan",
+          "label": "182·208 GHz RF detuning 측정",
+          "kind": "scan",
+          "conditions": [
+            {
+              "quantity": "probe_power",
+              "value": 30,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 53,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_fwhm",
+              "value": 75,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "FWHM, not 1/e^2 radius",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "FWHM, not 1/e^2 radius",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_beam_fwhm",
+              "value": 140,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "FWHM",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "FWHM",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "detection_improvement_factor",
+              "value": 2,
+              "unit": "1",
+              "value_type": "approximate",
+              "basis": "At least about twofold lower measurable field through detuned fits",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 5",
+              "evidence": "At least about twofold lower measurable field through detuned fits",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "208.30 GHz와 182.149 GHz는 별도 전이 측정. Hz 정규화 감도 값으로 해석하지 않음."
+          ]
+        },
+        {
+          "experiment_id": "208ghz",
+          "label": "208.30 GHz 전이",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 208.3,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "23D5/2-22F7/2",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "23D5/2-22F7/2",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        },
+        {
+          "experiment_id": "182ghz",
+          "label": "182.149 GHz 전이",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 182.149,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "24D5/2-23F7/2",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "24D5/2-23F7/2",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "generalized_rabi",
+          "claim": "RF detuning에 따른 일반화 Rabi 분리를 맞춰 공명 분리를 외삽하면 직접 분리되지 않는 약한 장도 추정 가능.",
+          "locator": "PDF pp. 4-5, Eq. (2), Table I",
+          "source_id": "main",
+          "category": "calibration",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "simons_2019_apl",
+      "title": "A Rydberg atom-based mixer: Measuring the phase of a radio frequency wave",
+      "authors": [
+        "Matthew T. Simons",
+        "Abdulaziz H. Haddab",
+        "Joshua A. Gordon",
+        "Christopher L. Holloway"
+      ],
+      "year": 2019,
+      "study_type": "experiment",
+      "topics": [
+        "heterodyne",
+        "phase",
+        "RF_LO",
+        "IF"
+      ],
+      "publication": {
+        "journal": "Applied Physics Letters",
+        "volume": "114",
+        "issue": "11",
+        "pages": "114101",
+        "doi": "10.1063/1.5088821",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2019-03-18"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-34D5/2-35P3/2",
+        "configuration": "rf_mixer_phase_readout",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NIST_Boulder_mixer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=927353",
+          "path": "sources/simons_2019_apl.pdf",
+          "sha256": "91484df8511aed09e0f152b61182b95c90121b21b3a6c65b0dda1b9f3463e795",
+          "pages": 4,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "mixer",
+          "label": "RF mixer 위상 검출 장치",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 19.626,
+              "unit": "GHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_power",
+              "value": 49,
+              "unit": "uW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "probe power",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 60.6,
+              "unit": "mW",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "probe_beam_fwhm",
+              "value": 425,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "FWHM",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "FWHM",
+              "notes": ""
+            },
+            {
+              "quantity": "coupling_beam_fwhm",
+              "value": 620,
+              "unit": "um",
+              "value_type": "reported",
+              "basis": "FWHM",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "FWHM",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "phase",
+          "claim": "LO와 SIG의 간섭을 원자가 혼합해 IF probe 변조를 만들며, 이 위상으로 RF 위상·전파거리를 읽음.",
+          "locator": "PDF pp. 2-3, Figs. 2-4",
+          "source_id": "main",
+          "category": "heterodyne",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "su_2022_oe",
+      "title": "Optimizing the Rydberg EIT spectrum in a thermal vapor",
+      "authors": [
+        "Hsuan-Jui Su",
+        "Jia-You Liou",
+        "I-Chun Lin",
+        "Yi-Hsin Chen"
+      ],
+      "year": 2022,
+      "study_type": "experiment",
+      "topics": [
+        "optical_depth",
+        "temperature",
+        "polarization",
+        "Zeeman",
+        "power_broadening"
+      ],
+      "publication": {
+        "journal": "Optics Express",
+        "volume": "30",
+        "issue": "2",
+        "pages": "1499",
+        "doi": "10.1364/OE.444894",
+        "arxiv_id": "2111.13408",
+        "status": "published",
+        "published_date": "2022-01-05"
+      },
+      "scope": {
+        "species": "87Rb",
+        "line": "5S(F2)-5P(F3)-33D3/2,5/2",
+        "configuration": "thermal_EIT_optimization",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "context_only",
+        "reason": "Gold 실험의 온도·OD·EIT contrast 비교용 광학 최적화 실험."
+      },
+      "apparatus_group": "NCCU_Chen",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2111.13408",
+          "path": "sources/su_2022_oe.pdf",
+          "sha256": "06871fb1e2a919cacc6b968c4787f974dc30934ea9f84ed297d8a7f013be3d79",
+          "pages": 11,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "temperature_power_scan",
+          "label": "열증기 OD·편광·probe 세기 최적화",
+          "kind": "scan",
+          "conditions": [
+            {
+              "quantity": "temperature",
+              "value": null,
+              "unit": "degC",
+              "value_type": "range",
+              "basis": "Experimental cell-temperature range",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Experimental cell-temperature range",
+              "notes": "",
+              "lower": 27,
+              "upper": 65
+            },
+            {
+              "quantity": "coupling_power",
+              "value": 27,
+              "unit": "mW",
+              "value_type": "upper_bound",
+              "basis": "Largest available coupling power",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Largest available coupling power",
+              "notes": ""
+            },
+            {
+              "quantity": "beam_diameter",
+              "value": 0.81,
+              "unit": "mm",
+              "value_type": "approximate",
+              "basis": "Full width at e^-2 maximum for both optical beams",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Full width at e^-2 maximum for both optical beams",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "eit_peak_height",
+              "value": 13,
+              "unit": "percent",
+              "value_type": "reported",
+              "basis": "Optimized transmission peak height; not an absolute field sensitivity",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Optimized transmission peak height; not an absolute field sensitivity",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "od_optimization",
+          "claim": "Probe 세기와 열증기 광학밀도를 함께 최적화하면 EIT contrast가 증가. 자기장·편광 조건의 영향도 측정.",
+          "locator": "PDF pp. 1-3, 8-10",
+          "source_id": "main",
+          "category": "optical_depth",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "tu_2024_sciadv",
+      "title": "Approaching the standard quantum limit of a Rydberg-atom microwave electrometer",
+      "authors": [
+        "Hai-Tao Tu",
+        "Kai-Yu Liao",
+        "Hong-Lei Wang",
+        "Yi-Fei Zhu",
+        "Si-Yuan Qiu",
+        "Hao Jiang",
+        "Wei Huang",
+        "Wu Bian",
+        "Hui Yan",
+        "Shi-Liang Zhu"
+      ],
+      "year": 2024,
+      "study_type": "experiment",
+      "topics": [
+        "cold_atoms",
+        "SQL",
+        "noise_budget",
+        "duty_cycle"
+      ],
+      "publication": {
+        "journal": "Science Advances",
+        "volume": "10",
+        "issue": "51",
+        "pages": "eads0683",
+        "doi": "10.1126/sciadv.ads0683",
+        "arxiv_id": "2307.15617",
+        "status": "published",
+        "published_date": "2024-12-20"
+      },
+      "scope": {
+        "species": "87Rb laser_cooled",
+        "line": "5S-5P-Rydberg_MW_ladder",
+        "configuration": "cold_atom_heterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "context_only",
+        "reason": "열증기 Gold와 구분한 냉각 원자 SQL·가동률 비교 실험."
+      },
+      "apparatus_group": "SCNU_Tu_Yan",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2307.15617",
+          "path": "sources/tu_2024_sciadv.pdf",
+          "sha256": "cab14bbbd3a40d4a2aa4452403483521e475e35c665a36c9ec89ff2ab5300eca",
+          "pages": 12,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "cold_sensor",
+          "label": "냉각 원자 SQL 접근 실험",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "temperature",
+              "value": 200,
+              "unit": "uK",
+              "value_type": "approximate",
+              "basis": "Atomic-cloud temperature",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "Atomic-cloud temperature",
+              "notes": ""
+            },
+            {
+              "quantity": "atom_number",
+              "value": 520000.0,
+              "unit": "1",
+              "value_type": "approximate",
+              "basis": "Laser-cooled ensemble",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Laser-cooled ensemble",
+              "notes": ""
+            },
+            {
+              "quantity": "repetition_rate",
+              "value": 100,
+              "unit": "Hz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1, 3",
+              "evidence": "repetition rate",
+              "notes": ""
+            },
+            {
+              "quantity": "loading_time",
+              "value": 7.3,
+              "unit": "ms",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "loading time",
+              "notes": ""
+            },
+            {
+              "quantity": "detection_window",
+              "value": 2.7,
+              "unit": "ms",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3",
+              "evidence": "detection window",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 10.0,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Duty-cycled cold-atom measurement",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Duty-cycled cold-atom measurement",
+              "notes": ""
+            },
+            {
+              "quantity": "sensitivity_to_sql_ratio",
+              "value": 2.6,
+              "unit": "1",
+              "value_type": "reported",
+              "basis": "Measured sensitivity above theoretical SQL",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Measured sensitivity above theoretical SQL",
+              "notes": ""
+            },
+            {
+              "quantity": "minimum_detectable_field",
+              "value": 540,
+              "unit": "pV/cm",
+              "value_type": "reported",
+              "basis": "Long-integration minimum field",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1",
+              "evidence": "Long-integration minimum field",
+              "notes": ""
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "cold_vs_vapor",
+          "claim": "냉각·가동률·유효 원자수를 포함한 잡음 예산으로 SQL과 비교. 열증기 연속 판독과 장치 조건이 다름.",
+          "locator": "PDF pp. 1-5",
+          "source_id": "main",
+          "category": "SQL",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "viray_2026_sensors",
+      "title": "Profiling a Rydberg-Atom Electric Field Sensor for Off-Resonant Detection of Sub-100 MHz RF Signals",
+      "authors": [
+        "Michael A. Viray",
+        "Abby Halasi-Kun",
+        "Baran N. Kayim",
+        "Brian C. Sawyer",
+        "Robert Wyllie",
+        "David S. La Mantia"
+      ],
+      "year": 2026,
+      "study_type": "experiment",
+      "topics": [
+        "off_resonant",
+        "three_photon",
+        "sapphire_cell",
+        "optimization",
+        "field_calibration"
+      ],
+      "publication": {
+        "journal": "Sensors",
+        "volume": "26",
+        "issue": "18",
+        "pages": "5887",
+        "doi": "10.3390/s26185887",
+        "arxiv_id": "2606.10151",
+        "status": "published",
+        "published_date": "2026-09-17"
+      },
+      "scope": {
+        "species": "85Rb",
+        "line": "5S-5P-5D-55F7/2",
+        "configuration": "three_photon_offresonant_Stark_heterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "GTRI_Viray_Sawyer",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2606.10151",
+          "path": "sources/offresonant_2026_sensors.pdf",
+          "sha256": "2e23cd40fe4ac1fa00dc0792a9199ced7ae906295ea99bdcd621982412aafd9f",
+          "pages": 12,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "ism_40",
+          "label": "40.68 MHz 비공명 carrier",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 40.68,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "rf frequency",
+              "notes": ""
+            },
+            {
+              "quantity": "intermediate_frequency",
+              "value": 50,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 8",
+              "evidence": "intermediate frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 333,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Table 1 summary estimate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "Table 1 summary estimate",
+              "notes": "",
+              "uncertainty": {
+                "value": 6,
+                "unit": "uV/m/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": [
+            "p. 9 Fig. 7의 별도 고정 SIG 평가 352.2±13.7 µV/m/√Hz와 구분."
+          ]
+        },
+        {
+          "experiment_id": "ism_27",
+          "label": "27.12 MHz 비공명 carrier",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 27.12,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "rf frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 449,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Table 1 summary estimate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "Table 1 summary estimate",
+              "notes": "",
+              "uncertainty": {
+                "value": 8,
+                "unit": "uV/m/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "ism_13",
+          "label": "13.56 MHz 비공명 carrier",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 13.56,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "rf frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 399,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Table 1 summary estimate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "Table 1 summary estimate",
+              "notes": "",
+              "uncertainty": {
+                "value": 10,
+                "unit": "uV/m/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        },
+        {
+          "experiment_id": "ism_6",
+          "label": "6.78 MHz 비공명 carrier",
+          "kind": "operating_point",
+          "conditions": [
+            {
+              "quantity": "rf_frequency",
+              "value": 6.78,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "rf frequency",
+              "notes": ""
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 125,
+              "unit": "uV/m/sqrt(Hz)",
+              "value_type": "reported",
+              "basis": "Table 1 summary estimate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 9, Table 1",
+              "evidence": "Table 1 summary estimate",
+              "notes": "",
+              "uncertainty": {
+                "value": 4,
+                "unit": "uV/m/sqrt(Hz)",
+                "basis": "Uncertainty as printed; confidence level only if stated in basis."
+              }
+            }
+          ],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "optimization",
+          "claim": "LO 세기와 coupling detuning을 자동 최적화. Sapphire 셀의 저주파 투과와 외부 RF 장의 보정 조건을 명시.",
+          "locator": "PDF pp. 2-8",
+          "source_id": "main",
+          "category": "optimization",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "metric",
+          "claim": "감도는 photodiode PSD를 전기장 단위로 환산한 값. 최소 검출장·dynamic range와 별도 보고.",
+          "locator": "PDF pp. 4, 8-9",
+          "source_id": "main",
+          "category": "sensitivity_definition",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "wang_2023_oe",
+      "title": "Noise analysis of the atomic superheterodyne receiver based on flat-top laser beams",
+      "authors": [
+        "Zheng Wang",
+        "Mingyong Jing",
+        "Peng Zhang",
+        "Shaoxin Yuan",
+        "Hao Zhang",
+        "Linjie Zhang",
+        "Liantuan Xiao",
+        "Suotang Jia"
+      ],
+      "year": 2023,
+      "study_type": "experiment",
+      "topics": [
+        "noise_spectrum",
+        "transit",
+        "beam_profile",
+        "atom_number",
+        "SQL"
+      ],
+      "publication": {
+        "journal": "Optics Express",
+        "volume": "31",
+        "issue": "12",
+        "pages": "19909",
+        "doi": "10.1364/OE.491718",
+        "arxiv_id": "2303.06421",
+        "status": "published",
+        "published_date": "2023-05-30"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-47D5/2-48P3/2",
+        "configuration": "flat_top_atomic_superheterodyne_noise",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Shanxi_Jing_Zhang",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://laserspec.sxu.edu.cn/docs/2023-06/b3890c5ab31c4230abd9adce20c42c64.pdf",
+          "path": "sources/wang_2023_oe.pdf",
+          "sha256": "a0807e758f8da08dd9a5164dbaeaac628b09d57e52715053a3b6f51200422457",
+          "pages": 9,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "flat_top_noise",
+          "label": "Flat-top 빔 직경별 잡음 비교",
+          "kind": "noise_characterization",
+          "conditions": [
+            {
+              "quantity": "beam_diameter_quantum_noise_regime",
+              "value": 2,
+              "unit": "mm",
+              "value_type": "upper_bound",
+              "basis": "Quantum-noise-dominated regime for diameter <=2 mm",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Quantum-noise-dominated regime for diameter <=2 mm",
+              "notes": ""
+            },
+            {
+              "quantity": "readout_frequency_quantum_noise_regime",
+              "value": 70,
+              "unit": "kHz",
+              "value_type": "lower_bound",
+              "basis": "Above this frequency in the stated diameter regime",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 1, Abstract",
+              "evidence": "Above this frequency in the stated diameter regime",
+              "notes": ""
+            },
+            {
+              "quantity": "lo_rabi_over_2pi",
+              "value": 10.68,
+              "unit": "MHz",
+              "value_type": "approximate",
+              "basis": "Local microwave Rabi frequency",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 2",
+              "evidence": "Local microwave Rabi frequency",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "participation",
+          "claim": "빔에 참여하는 모든 원자는 잡음에 기여하지만 신호 기여 원자는 일부. 양자잡음 지배 관측과 이상적 SQL 달성은 별도.",
+          "locator": "PDF pp. 1, 5-7",
+          "source_id": "main",
+          "category": "atom_number",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "transit",
+          "claim": "Flat-top 직경과 판독 주파수를 바꾸어 transit 및 기술잡음의 영향을 구분.",
+          "locator": "PDF pp. 3-7",
+          "source_id": "main",
+          "category": "transit",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "yang_2024_pra",
+      "title": "Sensitivity of Rydberg microwave electrometry limited by laser frequency noise",
+      "authors": [
+        "Bowen Yang",
+        "Yuhan Yan",
+        "Xuejie Li",
+        "Haojie Zhao",
+        "Ling Xiao",
+        "Xiaolin Li",
+        "Jianliao Deng",
+        "Huadong Cheng"
+      ],
+      "year": 2024,
+      "study_type": "theory",
+      "topics": [
+        "theory",
+        "laser_frequency_noise",
+        "Doppler",
+        "temperature",
+        "noise_spectrum"
+      ],
+      "publication": {
+        "journal": "Physical Review A",
+        "volume": "109",
+        "issue": "3",
+        "pages": "032609",
+        "doi": "10.1103/PhysRevA.109.032609",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2024-03-11"
+      },
+      "scope": {
+        "species": "87Rb model",
+        "line": "four_level_Rydberg_ladder",
+        "configuration": "phase_diffusion_noise_theory",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "context_only",
+        "reason": "실제 laser frequency noise·Doppler 감도 한계 모델 비교."
+      },
+      "apparatus_group": "SIOM_Yang_Cheng",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://journals.aps.org/pra/pdf/10.1103/PhysRevA.109.032609",
+          "path": "sources/yang_2024_pra.pdf",
+          "sha256": "8d3136a60c74ec8826bded0679a67f77045b0fc0ff59572cd1c3e4c8d66c46a0",
+          "pages": 9,
+          "access": "full_text",
+          "version": "published Physical Review A 109, 032609",
+          "accessed_on": "2026-11-03",
+          "access_method": "browser_institutional_access",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "theory_parameters",
+          "label": "잡음 이론 수치 계산 기준",
+          "kind": "theory_prediction",
+          "conditions": [
+            {
+              "quantity": "temperature",
+              "value": 300,
+              "unit": "K",
+              "value_type": "reported",
+              "basis": "Default numerical calculation temperature",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 4",
+              "evidence": "Default numerical calculation temperature",
+              "notes": ""
+            },
+            {
+              "quantity": "transit_relaxation_over_2pi",
+              "value": 500,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "Model transit relaxation",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3, Eq. (6)",
+              "evidence": "Model transit relaxation",
+              "notes": ""
+            },
+            {
+              "quantity": "excited_decay_over_2pi",
+              "value": 6.07,
+              "unit": "MHz",
+              "value_type": "reported",
+              "basis": "Model intermediate-state spontaneous rate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3, Eq. (6)",
+              "evidence": "Model intermediate-state spontaneous rate",
+              "notes": ""
+            },
+            {
+              "quantity": "rydberg_decay_over_2pi",
+              "value": 10,
+              "unit": "kHz",
+              "value_type": "reported",
+              "basis": "Model Rydberg spontaneous rate",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF p. 3, Eq. (6)",
+              "evidence": "Model Rydberg spontaneous rate",
+              "notes": ""
+            }
+          ],
+          "results": [],
+          "notes": []
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "phase_diffusion",
+          "claim": "Laser phase diffusion으로 원자 coherence 잡음 PSD와 감도 한계를 계산. Laser linewidth·Doppler·온도 의존을 포함.",
+          "locator": "PDF pp. 2-8",
+          "source_id": "main",
+          "category": "laser_frequency_noise",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "yao_2026_comphys",
+      "title": "Ultra-wideband continuous spectrum Rydberg atomic superheterodyne receiver with high sensitivity",
+      "authors": [
+        "Jiawei Yao",
+        "Zhanshan Sun",
+        "Yi Lin",
+        "Di Sang",
+        "Shoulong Zhang",
+        "Kai Yang",
+        "Jinhao Zhang",
+        "Qiang An",
+        "Yunqi Fu"
+      ],
+      "year": 2026,
+      "study_type": "experiment",
+      "topics": [
+        "tuning_range",
+        "Zeeman",
+        "heterodyne"
+      ],
+      "publication": {
+        "journal": "Communications Physics",
+        "volume": "9",
+        "issue": "1",
+        "pages": "102",
+        "doi": "10.1038/s42005-026-02529-3",
+        "arxiv_id": null,
+        "status": "published",
+        "published_date": "2026-02-11"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-Zeeman_tuned_Rydberg",
+        "configuration": "magnetically_tunable_superheterodyne",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "NUDT_Yao_Fu",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://www.nature.com/articles/s42005-026-02529-3.pdf",
+          "path": "sources/continuous_2026_comphys.pdf",
+          "sha256": "327384a0595656c59ca102fc456605e15016f32b50f55d41a95b7eb5baa9439b",
+          "pages": 9,
+          "access": "full_text",
+          "version": "archived publisher/author manuscript",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [
+        {
+          "experiment_id": "tuning_campaign",
+          "label": "Zeeman 연속 주파수 조정 캠페인",
+          "kind": "scan",
+          "conditions": [
+            {
+              "quantity": "rf_tuning_range",
+              "value": null,
+              "unit": "GHz",
+              "value_type": "range",
+              "basis": "Carrier tuning coverage, not instantaneous signal bandwidth",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1-2",
+              "evidence": "Carrier tuning coverage, not instantaneous signal bandwidth",
+              "notes": "",
+              "lower": 1,
+              "upper": 40
+            }
+          ],
+          "results": [
+            {
+              "quantity": "field_sensitivity",
+              "value": 65,
+              "unit": "nV/cm/sqrt(Hz)",
+              "value_type": "upper_bound",
+              "basis": "Reported sensitivity upper envelope over the tuning campaign",
+              "reference": null,
+              "plane": "not_specified",
+              "source_id": "main",
+              "locator": "PDF pp. 1-2",
+              "evidence": "Reported sensitivity upper envelope over the tuning campaign",
+              "notes": ""
+            }
+          ],
+          "notes": [
+            "전체 구간 상한 보고. 모든 주파수의 개별 측정점이나 동일 운전점으로 확장하지 않음."
+          ]
+        }
+      ],
+      "findings": [
+        {
+          "finding_id": "zeeman",
+          "claim": "자기장으로 Rydberg 전이를 이동시켜 이산 공명 사이의 carrier 주파수 조정을 구현.",
+          "locator": "PDF pp. 2-6",
+          "source_id": "main",
+          "category": "tuning_range",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": []
+    },
+    {
+      "schema_version": 1,
+      "paper_id": "zhang_2023_epjqt",
+      "title": "Quantum scaling atomic superheterodyne receiver",
+      "authors": [
+        "Peng Zhang",
+        "Mingyong Jing",
+        "Zheng Wang",
+        "Yan Peng",
+        "Shaoxin Yuan",
+        "Hao Zhang",
+        "Liantuan Xiao",
+        "Suotang Jia",
+        "Linjie Zhang"
+      ],
+      "year": 2023,
+      "study_type": "mixed",
+      "topics": [
+        "atom_number",
+        "SQL",
+        "transit",
+        "heterodyne"
+      ],
+      "publication": {
+        "journal": "EPJ Quantum Technology",
+        "volume": "10",
+        "issue": "1",
+        "pages": "39",
+        "doi": "10.1140/epjqt/s40507-023-00198-7",
+        "arxiv_id": "2307.15492",
+        "status": "published",
+        "published_date": "2023-10-03"
+      },
+      "scope": {
+        "species": "133Cs",
+        "line": "6S-6P-47D5/2-48P3/2",
+        "configuration": "interaction_length_scaling",
+        "measurement": "optical_EIT_readout_of_electric_field",
+        "seed_mode": "classical_probe",
+        "inclusion": "primary",
+        "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+      },
+      "apparatus_group": "Shanxi_Jing_Zhang",
+      "sources": [
+        {
+          "source_id": "main",
+          "url": "https://arxiv.org/pdf/2307.15492",
+          "path": "sources/zhang_2024_quantum_scaling.pdf",
+          "sha256": "2373f1c6fcfbd652f18162e920110815a8da736e992607b60d94d43733ed20dc",
+          "pages": 12,
+          "access": "full_text",
+          "version": "arXiv preprint, accessed 2026-11-03",
+          "accessed_on": "2026-11-03",
+          "access_method": "public_pdf_download",
+          "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+        }
+      ],
+      "experiments": [],
+      "findings": [
+        {
+          "finding_id": "scaling",
+          "claim": "상호작용 길이를 바꾸는 실험에서 신호 진폭의 N 비례·잡음 진폭의 sqrt(N) 비례 및 감도의 N^-1/2 경향을 조사.",
+          "locator": "PDF pp. 1, 5-9",
+          "source_id": "main",
+          "category": "atom_number",
+          "model_implication": ""
+        },
+        {
+          "finding_id": "nonideal",
+          "claim": "유한 빔·비균일 세기·transit noise가 이상적 원자수 스케일링에 주는 영향을 논의.",
+          "locator": "PDF pp. 6-10",
+          "source_id": "main",
+          "category": "transit",
+          "model_implication": ""
+        }
+      ],
+      "ai_notes": [
+        "⟦AI⟧ 길이 스캔의 그림 점은 수치 digitization 없이 finding·원문 위치로 연결. 독립 스칼라 감도 표본 생성 없음."
+      ]
+    }
+  ]
+}

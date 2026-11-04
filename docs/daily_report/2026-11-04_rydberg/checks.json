@@ -1,0 +1,18 @@
+{
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_rydberg_model_physics.py",
+    "tests/test_affine_doppler.py",
+    "tests/test_rydberg_eit.py",
+    "tests/test_rydberg_opacity.py",
+    "--durations=8",
+    "--junitxml=G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\daily_report\\2026-11-04_rydberg\\pytest.xml"
+  ],
+  "started_at": "2026-11-04T04:58:47.612887+09:00",
+  "completed_at": "2026-11-04T04:59:17.782681+09:00",
+  "returncode": 0,
+  "wall_seconds": 29.462918300007004
+}

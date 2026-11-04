@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "paper_id": "kumar_2017_scirep",
+  "title": "Atom-Based Sensing of Weak Radio Frequency Electric Fields Using Homodyne Readout",
+  "authors": [
+    "Santosh Kumar",
+    "Haoquan Fan",
+    "Harald Kübler",
+    "Jiteng Sheng",
+    "James P. Shaffer"
+  ],
+  "year": 2017,
+  "study_type": "experiment",
+  "topics": [
+    "homodyne",
+    "photon_shot_noise",
+    "transit",
+    "collisions",
+    "power_broadening"
+  ],
+  "publication": {
+    "journal": "Scientific Reports",
+    "volume": "7",
+    "issue": "1",
+    "pages": "42981",
+    "doi": "10.1038/srep42981",
+    "arxiv_id": "1610.09550",
+    "status": "published",
+    "published_date": "2017-02-20"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-52D5/2-53P3/2",
+    "configuration": "optical_homodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Oklahoma_Shaffer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://www.nature.com/articles/srep42981.pdf",
+      "path": "sources/kumar_2017_scirep.pdf",
+      "sha256": "8659b63a593bfb5ec8e1cfb6ed59cc6fdbd83a3bc545ad417cb922379a69c4cd",
+      "pages": 10,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "sensitivity",
+      "label": "Mach-Zehnder 광학 homodyne 검출",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 4,
+          "unit": "cm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": "room_temperature",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "Room-temperature sensitivity data",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "Room-temperature sensitivity data",
+          "notes": ""
+        },
+        {
+          "quantity": "beam_diameter_for_noise_estimate",
+          "value": 1,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Interaction volume used in atomic-noise estimate; distinct from beam-size scans",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "Interaction volume used in atomic-noise estimate; distinct from beam-size scans",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 5,
+          "unit": "uV/cm/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Measured homodyne readout sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "Measured homodyne readout sensitivity",
+          "notes": ""
+        },
+        {
+          "quantity": "sql_field_sensitivity",
+          "value": 9,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Calculated atom projection-noise estimate; not measured optical sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 6",
+          "evidence": "Calculated atom projection-noise estimate; not measured optical sensitivity",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "tradeoff",
+      "claim": "Probe 세기·밀도·빔 크기 변화에서 power·collision·transit broadening을 분리 비교.",
+      "locator": "PDF pp. 3-6, Figs. 3-5",
+      "source_id": "main",
+      "category": "broadening",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "readout_noise",
+      "claim": "MZI로 probe 기술잡음을 줄인 뒤 광자 샷노이즈가 판독 감도를 제한.",
+      "locator": "PDF pp. 6-8",
+      "source_id": "main",
+      "category": "photon_shot_noise",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

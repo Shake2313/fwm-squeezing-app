@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "paper_id": "dixon_2023_prapplied",
+  "title": "Rydberg-Atom-Based Electrometry Using a Self-Heterodyne Frequency-Comb Readout and Preparation Scheme",
+  "authors": [
+    "Katelyn Dixon",
+    "Kent Nickerson",
+    "Donald W. Booth",
+    "James P. Shaffer"
+  ],
+  "year": 2023,
+  "study_type": "experiment",
+  "topics": [
+    "frequency_comb",
+    "AT_splitting",
+    "optical_heterodyne",
+    "transient_response"
+  ],
+  "publication": {
+    "journal": "Physical Review Applied",
+    "volume": "19",
+    "issue": "3",
+    "pages": "034078",
+    "doi": "10.1103/PhysRevApplied.19.034078",
+    "arxiv_id": "2209.02583",
+    "status": "published",
+    "published_date": "2023-03-23"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-Rydberg_ladder",
+    "configuration": "optical_frequency_comb_self_heterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Quantum_Valley_Shaffer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2209.02583",
+      "path": "sources/berweger_2022_pra.pdf",
+      "sha256": "089235453cba237ed2f9af72417207271db7e7614a4c47835edc4c223568c35e",
+      "pages": 18,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "comb",
+      "label": "Probe comb 동시 스펙트럼 판독",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "probe_wavelength",
+          "value": 852,
+          "unit": "nm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "probe wavelength",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_wavelength",
+          "value": 509,
+          "unit": "nm",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "coupling wavelength",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "eit_linewidth",
+          "value": 5,
+          "unit": "MHz",
+          "value_type": "upper_bound",
+          "basis": "Resolved EIT linewidth below 5 MHz",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Resolved EIT linewidth below 5 MHz",
+          "notes": ""
+        },
+        {
+          "quantity": "field_sensitivity",
+          "value": 2.3,
+          "unit": "uV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Self-heterodyne optical comb readout",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Self-heterodyne optical comb readout",
+          "notes": ""
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 66,
+          "unit": "uV/cm",
+          "value_type": "reported",
+          "basis": "Measured RF field amplitude",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Measured RF field amplitude",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "comb_parallel",
+      "claim": "여러 comb tooth의 투과를 self-heterodyne으로 동시에 측정해 레이저 스캔을 줄이고 RF pulse에 의한 AT 변화를 판독.",
+      "locator": "PDF pp. 1, 5-10",
+      "source_id": "main",
+      "category": "readout",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

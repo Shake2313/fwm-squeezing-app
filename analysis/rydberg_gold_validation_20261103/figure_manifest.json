@@ -1,0 +1,21 @@
+{
+  "origin": "AI rendering of saved Gold validation data",
+  "scope": "No new physical solves; no implied experimental calibration PASS",
+  "input_sha256": {
+    "benchmark_results.json": "5d821c5ae00fec886d18ae64258ba476f984868a52ca5a48ca048ef75417852c",
+    "spectroscopy_comparison.csv": "62cf727ee58a166bffb172696537a0a6838cc6e6752d15735f5b40af12c1ed12",
+    "fixed_lo_rf.csv": "76b47de6820bf593bef0e485dc681107428ba5b21b18b66cf09d83974fa378ad",
+    "sources/gold_observations.json": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+    "diagnostics/gaussian_trial.json": "6c1c85ded58939a9f2db394ad2b3e15a298dc58278861150bc5eea512d6d787e",
+    "sources/fig5b_experimental_points.csv": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba",
+    "sources/fig5b_psn_curve.csv": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028",
+    "current_resolution_audit.json": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+    "refined_resolution_audit.json": "82b2a402ef61e2d3df7fc43cbc5f20d720b6a477bc331373fe9c8d138bec4ef0"
+  },
+  "code_sha256": "4ad95d86b7cd383af3378b8001197e5572882a2c39ae445e7d14d81065310d28",
+  "output_sha256": {
+    "figures/gold_eit_power_comparison.png": "8f5651682ca414f4694748e7b632bebedb4a961686df5b30c072765d0819bfef",
+    "figures/fixed_lo_normalized_power_response.png": "3d844c6989ef788d662bd9bd5517aa25efda6fda838895c56e002ce0f7f47255",
+    "figures/sparse_prediction_guard_errors.png": "e1fa29f08203ced16f3556fb9b16434ceb1718e761f3534c0c076a22c3fad3ff"
+  }
+}

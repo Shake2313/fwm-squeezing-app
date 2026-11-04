@@ -1,0 +1,52 @@
+{
+  "origin": "⟦AI⟧ Adaptive sparse-axis refinement chosen before fresh guard calculations",
+  "trigger": "V1 maximum-static-slope density-normalized predictor exceeded1% (1.0633%); V1 results preserved",
+  "refinement": "Add Pc25 and35mW on T20 slice; retain T15/20/35 with exact N(T)",
+  "new_training_coordinates": [
+    [
+      20.0,
+      25.0
+    ],
+    [
+      20.0,
+      35.0
+    ]
+  ],
+  "fresh_guard_coordinates": [
+    [
+      18.5,
+      22.5
+    ],
+    [
+      18.5,
+      37.5
+    ],
+    [
+      23.0,
+      22.5
+    ],
+    [
+      23.0,
+      37.5
+    ],
+    [
+      29.0,
+      22.5
+    ],
+    [
+      29.0,
+      37.5
+    ],
+    [
+      33.0,
+      22.5
+    ],
+    [
+      33.0,
+      37.5
+    ]
+  ],
+  "guard_scope": "None of the fresh guard coordinates was used in V1 or predictor selection",
+  "tolerance_relative": 0.01,
+  "tolerance_status": "AI engineering criterion, not experimental uncertainty or a human-registered goal"
+}

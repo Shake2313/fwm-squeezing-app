@@ -1,0 +1,2878 @@
+{
+  "origin": "AI interpretation of saved samples; no interpolation or new physical assumptions",
+  "mode_summaries": [
+    {
+      "doppler": "off",
+      "opacity": 0.0005,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 4.0,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": -2.598749999999999,
+        "sensitivity_nv_cm_sqrt_hz": 2.680862532138241,
+        "opacity": 0.0005,
+        "doppler": "off",
+        "transmission": 0.7333490982103196,
+        "model_optical_depth_at_selected_frequency": 0.31013343097538204
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 4.5,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": -2.6,
+        "sensitivity_nv_cm_sqrt_hz": 2.677656731552897,
+        "opacity": 0.0005,
+        "doppler": "off",
+        "transmission": 0.7409938565911367,
+        "model_optical_depth_at_selected_frequency": 0.2997629444206386
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 4.5,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": -2.6,
+        "sensitivity_nv_cm_sqrt_hz": 2.677656731552897,
+        "opacity": 0.0005,
+        "doppler": "off",
+        "transmission": 0.7409938565911367,
+        "model_optical_depth_at_selected_frequency": 0.2997629444206386
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 19.85349516884119,
+          "dense": 19.853173862567314,
+          "reduction_percent": 0.0016183864409935467
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 19.568144872294702,
+          "dense": 19.549950247078243,
+          "reduction_percent": 0.09298083868042317
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 19.201451094793253,
+          "dense": 19.18511695934562,
+          "reduction_percent": 0.08506719292721288
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 11.53412694887234,
+          "dense": 11.53389223757409,
+          "reduction_percent": 0.0020349290352883465
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 11.420802140558354,
+          "dense": 11.408022245625228,
+          "reduction_percent": 0.11190015180931878
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 11.19043384073302,
+          "dense": 11.183519188285567,
+          "reduction_percent": 0.06179074507624005
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 6.888614703948136,
+          "dense": 6.888313216235561,
+          "reduction_percent": 0.004376608730949361
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 6.859240574005059,
+          "dense": 6.852210270123181,
+          "reduction_percent": 0.10249391031015298
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 6.708518836487098,
+          "dense": 6.706777618688487,
+          "reduction_percent": 0.025955323985094036
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 4.246803988242164,
+          "dense": 4.246803988242162,
+          "reduction_percent": 6.661338147750939e-14
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 4.238326159495374,
+          "dense": 4.238326159495374,
+          "reduction_percent": 0.0
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 4.155970259412277,
+          "dense": 4.155740220277867,
+          "reduction_percent": 0.005535148715019034
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 3.234730445545008,
+          "dense": 3.234730445545006,
+          "reduction_percent": 5.551115123125783e-14
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 3.2195442295238355,
+          "dense": 3.2194368119655925,
+          "reduction_percent": 0.003336421262922773
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 3.1772169946602786,
+          "dense": 3.176479389706019,
+          "reduction_percent": 0.02321544154835209
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 2.7215445741426025,
+          "dense": 2.721432078239724,
+          "reduction_percent": 0.004133531522765299
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 2.7024705985216455,
+          "dense": 2.7024195713766646,
+          "reduction_percent": 0.0018881665172942874
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 2.680862532138241,
+          "dense": 2.677656731552897,
+          "reduction_percent": 0.11958093885503507
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": 0.0,
+        "median": 0.004955878722984197,
+        "max": 0.11958093885503507
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.001197241060651,
+      "map_coordinate_refinement_gain_factor": 1.0,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 4,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            27.5,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              27.5
+            ],
+            [
+              35.0,
+              30.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 9,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            20.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              20.0
+            ],
+            [
+              35.0,
+              22.5
+            ],
+            [
+              35.0,
+              25.0
+            ],
+            [
+              35.0,
+              27.5
+            ],
+            [
+              35.0,
+              30.0
+            ],
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.0,
+              35.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.721432078239724,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.7110803404763266,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.7049045159372977,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.7021938176025264,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.7024195713766646,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.705175588859018,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.709181998860217,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.6918373833193234,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 2.677656731552897,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 19.18511695934562,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 17.185616363007053,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 15.410576421007658,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 13.833547375645162,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 12.431343465046902,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 11.183519188285567,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 10.072311361440216,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 9.08203781767873,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 8.198894152984607,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 7.410730263501298,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 6.706777618688487,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 6.077321992698041,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.514423007395201,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.010729826361419,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.559748889054062,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.155740220277867,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.7936268946435976,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.4688919672220053,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.176479389706019,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.913626483696916,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.677656731552897,
+          "increasing_segments": 3,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.11079191991312687,
+        -0.0839536143418701
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.003536176839236482,
+        0.000614516553774358
+      ]
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.001,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.12990381056766687,
+        "sensitivity_nv_cm_sqrt_hz": 1.536991367524197,
+        "opacity": 0.001,
+        "doppler": "off",
+        "transmission": 0.6197071458243779,
+        "model_optical_depth_at_selected_frequency": 0.4785082579778019
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.12000000000000009,
+        "sensitivity_nv_cm_sqrt_hz": 1.5369305745419843,
+        "opacity": 0.001,
+        "doppler": "off",
+        "transmission": 0.6191394411901009,
+        "model_optical_depth_at_selected_frequency": 0.47942476318509086
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 37.5,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.1299999999999999,
+        "sensitivity_nv_cm_sqrt_hz": 1.5358454469844414,
+        "opacity": 0.001,
+        "doppler": "off",
+        "transmission": 0.6132942964201082,
+        "model_optical_depth_at_selected_frequency": 0.48891036621390854
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 10.100814707330388,
+          "dense": 10.100347945928958,
+          "reduction_percent": 0.004621027263196353
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 9.984311701515564,
+          "dense": 9.972762718859858,
+          "reduction_percent": 0.1156712951374761
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 9.780961056409117,
+          "dense": 9.776194995457118,
+          "reduction_percent": 0.048727941196291535
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 5.944270946670398,
+          "dense": 5.944199927006482,
+          "reduction_percent": 0.0011947581890714432
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 5.911988524985163,
+          "dense": 5.906783968121138,
+          "reduction_percent": 0.08803394732634917
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 5.779974033078004,
+          "dense": 5.778907845390131,
+          "reduction_percent": 0.01844623664001288
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 3.6272278516565986,
+          "dense": 3.6272278516565994,
+          "reduction_percent": -2.220446049250313e-14
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 3.614977837103725,
+          "dense": 3.6148686551230957,
+          "reduction_percent": 0.003020266943509764
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 3.5463160489298433,
+          "dense": 3.5465086887276644,
+          "reduction_percent": -0.005432110256475831
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 2.3161121935912536,
+          "dense": 2.3161181025830913,
+          "reduction_percent": -0.0002551254578264661
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 2.2940516942818543,
+          "dense": 2.2940598406388792,
+          "reduction_percent": -0.0003551078227692628
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 2.2821494833908,
+          "dense": 2.2769053435303857,
+          "reduction_percent": 0.2297894988290805
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1.8188549059793662,
+          "dense": 1.8187940480743847,
+          "reduction_percent": 0.0033459461104556887
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1.791983316975023,
+          "dense": 1.7919565897686438,
+          "reduction_percent": 0.0014914874556071211
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1.7953301244505557,
+          "dense": 1.7935449897646176,
+          "reduction_percent": 0.09943211343843572
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1.5697369317789176,
+          "dense": 1.5697270532876355,
+          "reduction_percent": 0.0006293087129516373
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1.5397897858598182,
+          "dense": 1.539765417846904,
+          "reduction_percent": 0.001582554523871238
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1.536991367524197,
+          "dense": 1.5369305745419843,
+          "reduction_percent": 0.003955323594995175
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": -0.005432110256475831,
+        "median": 0.0031831065269827263,
+        "max": 0.2297894988290805
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.0000395548004704,
+      "map_coordinate_refinement_gain_factor": 1.0007065343454145,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 7,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            25.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              25.0
+            ],
+            [
+              35.0,
+              27.5
+            ],
+            [
+              35.0,
+              30.0
+            ],
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.0,
+              35.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 9,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            20.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              20.0
+            ],
+            [
+              35.0,
+              22.5
+            ],
+            [
+              35.0,
+              25.0
+            ],
+            [
+              35.0,
+              27.5
+            ],
+            [
+              35.0,
+              30.0
+            ],
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.0,
+              35.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5697270532876355,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5586244104520581,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5502155736822225,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5440452313986663,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.539765417846904,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5371071903996427,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.53585768456941,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5358454469844414,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.5369305745419843,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 9.776194995457118,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 8.777133376424137,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 7.890380580805077,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 7.102695908626955,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 6.40210878819847,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.778907845390131,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.224168791576117,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.730051858857846,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.289665148438526,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.8969460077358797,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.5465086887276644,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.233268923839039,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.952428610234274,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.701548840717192,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.4773922936749404,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.2769053435303857,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.0973346261181662,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.9369308268440208,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 32.5,
+          "minimum_sensitivity": 1.7906187033890124,
+          "increasing_segments": 3,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.6561982298790716,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 37.5,
+          "minimum_sensitivity": 1.5358454469844414,
+          "increasing_segments": 1,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.10881520676414569,
+        -0.07213228561722096
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.00355716753308144,
+        0.0005385332751497885
+      ]
+    },
+    {
+      "doppler": "off",
+      "opacity": 0.0015,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.15588457268119882,
+        "sensitivity_nv_cm_sqrt_hz": 1.1545770122986292,
+        "opacity": 0.0015,
+        "doppler": "off",
+        "transmission": 0.48984172958183975,
+        "model_optical_depth_at_selected_frequency": 0.7136729409068643
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.16000000000000014,
+        "sensitivity_nv_cm_sqrt_hz": 1.1545732475749129,
+        "opacity": 0.0015,
+        "doppler": "off",
+        "transmission": 0.49018995474690347,
+        "model_optical_depth_at_selected_frequency": 0.7129623002504716
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 2.0,
+        "probe_detuning_mhz": -0.16000000000000014,
+        "sensitivity_nv_cm_sqrt_hz": 1.1545732475749129,
+        "opacity": 0.0015,
+        "doppler": "off",
+        "transmission": 0.49018995474690347,
+        "model_optical_depth_at_selected_frequency": 0.7129623002504716
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 6.851429575682737,
+          "dense": 6.851341288328139,
+          "reduction_percent": 0.0012885975637977332
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 6.789223798439783,
+          "dense": 6.782810788630798,
+          "reduction_percent": 0.09445865977285584
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 6.643053431375523,
+          "dense": 6.641608068044788,
+          "reduction_percent": 0.02175751475832488
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 4.084394458419317,
+          "dense": 4.084394458419312,
+          "reduction_percent": 1.3322676295501878e-13
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 4.075322640295323,
+          "dense": 4.075229129917217,
+          "reduction_percent": 0.00229455153273328
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 3.98055461757595,
+          "dense": 3.980580045993222,
+          "reduction_percent": -0.0006388159368375668
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 2.5462674291618956,
+          "dense": 2.546243220306074,
+          "reduction_percent": 0.0009507585709389588
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 2.5262139556221332,
+          "dense": 2.5262200169977325,
+          "reduction_percent": -0.00023993912257047612
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 2.499579579423816,
+          "dense": 2.4959240449468503,
+          "reduction_percent": 0.14624597300511022
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1.6833215181271055,
+          "dense": 1.6833215181271042,
+          "reduction_percent": 7.771561172376096e-14
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1.6550234212958763,
+          "dense": 1.6550234212958763,
+          "reduction_percent": 0.0
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1.6552321433490222,
+          "dense": 1.655191307447642,
+          "reduction_percent": 0.0024670800131687542
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1.3621288819751685,
+          "dense": 1.3621379144493215,
+          "reduction_percent": -0.0006631145020641327
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1.3288768742205488,
+          "dense": 1.3288698168412003,
+          "reduction_percent": 0.0005310784983447725
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1.3203722842954766,
+          "dense": 1.3203550356630334,
+          "reduction_percent": 0.0013063461455797842
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1.2052733343238442,
+          "dense": 1.2052733343238442,
+          "reduction_percent": 0.0
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1.1682661775011072,
+          "dense": 1.1682661775011072,
+          "reduction_percent": 0.0
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1.1545770122986292,
+          "dense": 1.1545732475749129,
+          "reduction_percent": 0.00032606951950731045
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": -0.0006631145020641327,
+        "median": 0.00042857400892604147,
+        "max": 0.14624597300511022
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.0000032607058271,
+      "map_coordinate_refinement_gain_factor": 1.0,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 4,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            32.5,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.0,
+              35.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 7,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            25.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              25.0
+            ],
+            [
+              35.0,
+              27.5
+            ],
+            [
+              35.0,
+              30.0
+            ],
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.0,
+              35.0
+            ],
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.2052733343238442,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1929027936057106,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1828638507217728,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1747497555714719,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1682661775011072,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.163177270114499,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1592954870030268,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1564690054939804,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.1545732475749129,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 6.641608068044788,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.975964556987647,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 5.38531490557136,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.860853011453976,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 4.394863111768323,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.980580045993222,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.612012772956582,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3.2836447036260683,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.990426323320113,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.7289059937697773,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.4959240449468503,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.288143631535841,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2.10259194518915,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.9373271404306989,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.7899844605931023,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 1.6524828542570076,
+          "increasing_segments": 2,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 37.5,
+          "minimum_sensitivity": 1.5293546855264566,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 37.5,
+          "minimum_sensitivity": 1.4190104576004914,
+          "increasing_segments": 1,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.3203550356630334,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.2324769286330526,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1.1545732475749129,
+          "increasing_segments": 0,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.10683768188826281,
+        -0.05913015466847599
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.004126686207911912,
+        0.0005301791399337397
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0005,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 429.12168324537316,
+        "opacity": 0.0005,
+        "doppler": "on",
+        "transmission": 0.9918187625740852,
+        "model_optical_depth_at_selected_frequency": 0.00821488740682219
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 428.05113654814244,
+        "opacity": 0.0005,
+        "doppler": "on",
+        "transmission": 0.991660690347988,
+        "model_optical_depth_at_selected_frequency": 0.008374276228520324
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 428.05113654814244,
+        "opacity": 0.0005,
+        "doppler": "on",
+        "transmission": 0.991660690347988,
+        "model_optical_depth_at_selected_frequency": 0.008374276228520324
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 4278.452621169988,
+          "dense": 4277.766191606282,
+          "reduction_percent": 0.016043874374338518
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 3775.1599648343276,
+          "dense": 3771.4026302923776,
+          "reduction_percent": 0.0995278233756891
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 3430.0412906420906,
+          "dense": 3421.8345811661216,
+          "reduction_percent": 0.23925978670749082
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 2474.500089559866,
+          "dense": 2474.0236095011765,
+          "reduction_percent": 0.019255608868229412
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 2183.537102756013,
+          "dense": 2181.3116077285395,
+          "reduction_percent": 0.10192155767193567
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1983.9419086411144,
+          "dense": 1979.1231079146498,
+          "reduction_percent": 0.24289021293799617
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1458.7357064512253,
+          "dense": 1458.4112193326853,
+          "reduction_percent": 0.022244407750149353
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1287.2724264942267,
+          "dense": 1285.9326934472256,
+          "reduction_percent": 0.10407533164131788
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1169.6071493116788,
+          "dense": 1166.7298268118996,
+          "reduction_percent": 0.24600760190911508
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 875.8139978906798,
+          "dense": 875.5959018296481,
+          "reduction_percent": 0.024902098111811988
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 772.8955647085835,
+          "dense": 772.0773326318069,
+          "reduction_percent": 0.10586580052184269
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 702.2415430128045,
+          "dense": 700.497600528235,
+          "reduction_percent": 0.2483394071344125
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 650.3795851734831,
+          "dense": 650.2087129781711,
+          "reduction_percent": 0.026272687397832506
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 573.9591531093456,
+          "dense": 573.3467872763938,
+          "reduction_percent": 0.10669153538791498
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 521.4838840720494,
+          "dense": 520.184358682967,
+          "reduction_percent": 0.24919761257720108
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 535.193642949961,
+          "dense": 535.0487925496805,
+          "reduction_percent": 0.027065044996077425
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 472.3091277346572,
+          "dense": 471.8032537060257,
+          "reduction_percent": 0.10710655351037213
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 429.12168324537316,
+          "dense": 428.05113654814244,
+          "reduction_percent": 0.24947392290558534
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": 0.016043874374338518,
+        "median": 0.10497056608158029,
+        "max": 0.24947392290558534
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.0025009785182764,
+      "map_coordinate_refinement_gain_factor": 1.0,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 1,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            40.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 2,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            37.5,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 535.0487925496805,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 516.7745040580677,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 500.3066734614895,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 485.3826353523439,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 471.8032537060257,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 459.4094083722161,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 448.06956182872875,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 437.672555589808,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 428.05113654814244,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3421.8345811661216,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 3062.109879129633,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2742.371188529312,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2457.9450328727826,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 2204.729880005154,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1979.1231079146498,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1777.957672419927,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1598.4471394972352,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1438.1379359184061,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1294.8678341107905,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1166.7298268118996,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1052.0406645562311,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 949.3134315897724,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 857.2336216175515,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 774.6382497940667,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 700.497600528235,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 633.8992657307224,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 574.0341748988774,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 520.184358682967,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 471.71222250311877,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 428.05113654814244,
+          "increasing_segments": 0,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.11108588609367764,
+        -0.09711973424100062
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.013931054480770654,
+        -0.008866603024956277
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.001,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 215.44395061926767,
+        "opacity": 0.001,
+        "doppler": "on",
+        "transmission": 0.9837044577939895,
+        "model_optical_depth_at_selected_frequency": 0.016429774813644427
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 214.9236016713147,
+        "opacity": 0.001,
+        "doppler": "on",
+        "transmission": 0.9833909247814481,
+        "model_optical_depth_at_selected_frequency": 0.016748552457040683
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 214.9236016713147,
+        "opacity": 0.001,
+        "doppler": "on",
+        "transmission": 0.9833909247814481,
+        "model_optical_depth_at_selected_frequency": 0.016748552457040683
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 2140.384901130312,
+          "dense": 2140.049957858599,
+          "reduction_percent": 0.015648740165186137
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1888.5713846786557,
+          "dense": 1886.7002157244538,
+          "reduction_percent": 0.09907853996846683
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1715.8955710233786,
+          "dense": 1711.8071313071239,
+          "reduction_percent": 0.23826856280165787
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1238.4102997690973,
+          "dense": 1238.180298959301,
+          "reduction_percent": 0.018572262346272517
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1092.761459949954,
+          "dense": 1091.656191166937,
+          "reduction_percent": 0.10114456114398429
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 992.8472410384114,
+          "dense": 990.4527321275702,
+          "reduction_percent": 0.24117596462641666
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 730.5302159060434,
+          "dense": 730.3761860960011,
+          "reduction_percent": 0.021084659701753328
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 644.6309948675515,
+          "dense": 643.9685937312952,
+          "reduction_percent": 0.10275663775559662
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 585.6815361282793,
+          "dense": 584.2577548671851,
+          "reduction_percent": 0.24309819812764477
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 439.072178641528,
+          "dense": 438.97132946618814,
+          "reduction_percent": 0.022968700875536374
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 387.4450247712759,
+          "dense": 387.043370532012,
+          "reduction_percent": 0.10366741436440563
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 352.00091103302447,
+          "dense": 351.14382727303735,
+          "reduction_percent": 0.2434890743526208
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 326.3571637265848,
+          "dense": 326.27992488956374,
+          "reduction_percent": 0.023666965400448436
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 287.9787110891092,
+          "dense": 287.67999461798485,
+          "reduction_percent": 0.1037286645233726
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 261.62374447617464,
+          "dense": 260.98888702385915,
+          "reduction_percent": 0.24266048694724374
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 268.76593204085844,
+          "dense": 268.7017070815633,
+          "reduction_percent": 0.023896242655252475
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 237.15519080777082,
+          "dense": 236.90972709057118,
+          "reduction_percent": 0.10350341325592316
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 215.44395061926767,
+          "dense": 214.9236016713147,
+          "reduction_percent": 0.24152404672179717
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": 0.015648740165186137,
+        "median": 0.10313002550575989,
+        "max": 0.2434890743526208
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.0024210879768745,
+      "map_coordinate_refinement_gain_factor": 1.0,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 1,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            40.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 2,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            37.5,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 268.7017070815633,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 259.51575890788934,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 251.23783594536138,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 243.7358666318957,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 236.90972709057118,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 230.6794177136581,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 224.9788103669725,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 219.75202529737578,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 214.9236016713147,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1711.8071313071239,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1531.9450286126578,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1372.075940260714,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1229.8631289242098,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1103.255829518135,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 990.4527321275702,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 889.8703158566952,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 800.1153649825105,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 719.961094308815,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 648.3263915865398,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 584.2577548671851,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 526.9135612337005,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 475.55035480315473,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 429.5108845775615,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 388.2136604846882,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 351.14382727303735,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 317.8451836534882,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 287.9131973782529,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 260.98888702385915,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 236.7534588180677,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 214.9236016713147,
+          "increasing_segments": 0,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.11102166966032812,
+        -0.09671435276577611
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.013932706140653294,
+        -0.00886604262804198
+      ]
+    },
+    {
+      "doppler": "on",
+      "opacity": 0.0015,
+      "coarse_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.5,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 144.22046293070244,
+        "opacity": 0.0015,
+        "doppler": "on",
+        "transmission": 0.975656538067846,
+        "model_optical_depth_at_selected_frequency": 0.024644662220466688
+      },
+      "dense_best_at_old_map_coordinates": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 143.8836020944265,
+        "opacity": 0.0015,
+        "doppler": "on",
+        "transmission": 0.9751901233507171,
+        "model_optical_depth_at_selected_frequency": 0.025122828685561042
+      },
+      "dense_best": {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "probe_power_uw": 10.0,
+        "lo_rabi_mhz": 4.75,
+        "probe_detuning_mhz": 0.0,
+        "sensitivity_nv_cm_sqrt_hz": 143.8836020944265,
+        "opacity": 0.0015,
+        "doppler": "on",
+        "transmission": 0.9751901233507171,
+        "model_optical_depth_at_selected_frequency": 0.025122828685561042
+      },
+      "coarse_coordinate_comparisons": [
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 1427.696079440305,
+          "dense": 1427.4783043283917,
+          "reduction_percent": 0.015253604394482867
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 1259.70887176559,
+          "dense": 1258.4664302959839,
+          "reduction_percent": 0.09862925454074967
+        },
+        {
+          "temperature_c": 15.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 1144.5139620487319,
+          "dense": 1141.7982898890139,
+          "reduction_percent": 0.23727732904689214
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 826.3810952064391,
+          "dense": 826.2332646265257,
+          "reduction_percent": 0.017888911153807197
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 729.1701810148642,
+          "dense": 728.4383307063404,
+          "reduction_percent": 0.10036755857256718
+        },
+        {
+          "temperature_c": 20.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 662.4828678999409,
+          "dense": 660.8964752493299,
+          "reduction_percent": 0.23946168685686775
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 487.7962873297905,
+          "dense": 487.69909441611605,
+          "reduction_percent": 0.01992489820012988
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 430.41820932511376,
+          "dense": 429.98160201845855,
+          "reduction_percent": 0.10143792646222227
+        },
+        {
+          "temperature_c": 25.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 391.0405437853808,
+          "dense": 390.10130854967554,
+          "reduction_percent": 0.24018870949115145
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 293.4936390928087,
+          "dense": 293.43190192439965,
+          "reduction_percent": 0.021035266249669338
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 258.96322707214955,
+          "dense": 258.7004597275131,
+          "reduction_percent": 0.10146897982672431
+        },
+        {
+          "temperature_c": 30.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 235.2555045120138,
+          "dense": 234.69409429140373,
+          "reduction_percent": 0.23863850572788392
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 218.35248367510505,
+          "dense": 218.3064960753372,
+          "reduction_percent": 0.021061175487369077
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 192.6542161087554,
+          "dense": 192.46008672818053,
+          "reduction_percent": 0.10076570577894906
+        },
+        {
+          "temperature_c": 33.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 175.00568605434404,
+          "dense": 174.59245749567384,
+          "reduction_percent": 0.2361229329096659
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 20.0,
+          "coarse": 179.960100242434,
+          "dense": 179.92279930081892,
+          "reduction_percent": 0.020727339874138107
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 30.0,
+          "coarse": 158.77337171618166,
+          "dense": 158.61475689073396,
+          "reduction_percent": 0.0999001430361024
+        },
+        {
+          "temperature_c": 35.0,
+          "coupling_power_mw": 40.0,
+          "coarse": 144.22046293070244,
+          "dense": 143.8836020944265,
+          "reduction_percent": 0.23357353695210303
+        }
+      ],
+      "coarse_to_dense_percent": {
+        "min": 0.015253604394482867,
+        "median": 0.10056663217575812,
+        "max": 0.24018870949115145
+      },
+      "hidden_control_and_detuning_refinement_gain_factor": 1.0023412038020487,
+      "map_coordinate_refinement_gain_factor": 1.0,
+      "near_best_map_coordinates": [
+        {
+          "relative_tolerance": 0.01,
+          "count": 1,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            40.0,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        },
+        {
+          "relative_tolerance": 0.03,
+          "count": 2,
+          "temperature_c_range": [
+            35.0,
+            35.0
+          ],
+          "coupling_power_mw_range": [
+            37.5,
+            40.0
+          ],
+          "coordinates": [
+            [
+              35.0,
+              37.5
+            ],
+            [
+              35.0,
+              40.0
+            ]
+          ]
+        }
+      ],
+      "temperature_trends": [
+        {
+          "coupling_power_mw": 20.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 179.92279930081892,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 22.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 173.76612969530996,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 25.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 168.21802455360591,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 27.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 163.18994090006817,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 30.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 158.61475689073396,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 32.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 154.43884485012228,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 35.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 150.61787849058902,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 37.5,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 147.11440323911106,
+          "increasing_segments": 0,
+          "segment_count": 20
+        },
+        {
+          "coupling_power_mw": 40.0,
+          "best_coordinate": 35.0,
+          "minimum_sensitivity": 143.8836020944265,
+          "increasing_segments": 0,
+          "segment_count": 20
+        }
+      ],
+      "coupling_trends": [
+        {
+          "temperature_c": 15.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1141.7982898890139,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 16.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 1021.8904234131545,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 17.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 915.3112429208514,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 18.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 820.5029245477218,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 19.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 736.0982926778635,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 20.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 660.8964752493299,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 21.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 593.8417929939463,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 22.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 534.0054368703993,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 23.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 480.56955166110004,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 24.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 432.81339758382325,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 25.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 390.10130854967554,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 26.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 351.87220464726454,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 27.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 317.63045084724894,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 28.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 286.9378822270902,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 29.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 259.4068413688343,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 30.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 234.69409429140373,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 31.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 212.49550989832895,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 32.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 192.54140339680782,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 33.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 174.59245749567384,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 34.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 158.4361469792751,
+          "increasing_segments": 0,
+          "segment_count": 8
+        },
+        {
+          "temperature_c": 35.0,
+          "best_coordinate": 40.0,
+          "minimum_sensitivity": 143.8836020944265,
+          "increasing_segments": 0,
+          "segment_count": 8
+        }
+      ],
+      "temperature_trends_log_derivative_range": [
+        -0.11095745322698036,
+        -0.09630568979515619
+      ],
+      "coupling_trends_log_derivative_range": [
+        -0.01393435780053558,
+        -0.008865482231126976
+      ]
+    }
+  ],
+  "scope": "Sampled conditional PSN model, not experimental calibration",
+  "model_temperature_diagnostics": [
+    {
+      "temperature_c": 15.0,
+      "model_density_m3": 4320162387836223.0,
+      "model_transit_dephasing_mhz": 0.1512295005190613
+    },
+    {
+      "temperature_c": 16.0,
+      "model_density_m3": 4837093247734912.0,
+      "model_transit_dephasing_mhz": 0.1514916877833807
+    },
+    {
+      "temperature_c": 17.0,
+      "model_density_m3": 5411595577418870.0,
+      "model_transit_dephasing_mhz": 0.15175342206246897
+    },
+    {
+      "temperature_c": 18.0,
+      "model_density_m3": 6049594281783701.0,
+      "model_transit_dephasing_mhz": 0.1520147056961345
+    },
+    {
+      "temperature_c": 19.0,
+      "model_density_m3": 6757572551809552.0,
+      "model_transit_dephasing_mhz": 0.1522755410041118
+    },
+    {
+      "temperature_c": 20.0,
+      "model_density_m3": 7542619448481685.0,
+      "model_transit_dephasing_mhz": 0.15253593028630166
+    },
+    {
+      "temperature_c": 21.0,
+      "model_density_m3": 8412481094033301.0,
+      "model_transit_dephasing_mhz": 0.1527958758230078
+    },
+    {
+      "temperature_c": 22.0,
+      "model_density_m3": 9375615707741956.0,
+      "model_transit_dephasing_mhz": 0.1530553798751699
+    },
+    {
+      "temperature_c": 23.0,
+      "model_density_m3": 1.0441252736497544e+16,
+      "model_transit_dephasing_mhz": 0.15331444468459296
+    },
+    {
+      "temperature_c": 24.0,
+      "model_density_m3": 1.16194563438901e+16,
+      "model_transit_dephasing_mhz": 0.1535730724741732
+    },
+    {
+      "temperature_c": 25.0,
+      "model_density_m3": 1.292119353565531e+16,
+      "model_transit_dephasing_mhz": 0.15383126544812079
+    },
+    {
+      "temperature_c": 26.0,
+      "model_density_m3": 1.4358407213978662e+16,
+      "model_transit_dephasing_mhz": 0.1540890257921788
+    },
+    {
+      "temperature_c": 27.0,
+      "model_density_m3": 1.5944094468406742e+16,
+      "model_transit_dephasing_mhz": 0.15434635567383928
+    },
+    {
+      "temperature_c": 28.0,
+      "model_density_m3": 1.7692390426962824e+16,
+      "model_transit_dephasing_mhz": 0.15460325724255564
+    },
+    {
+      "temperature_c": 29.0,
+      "model_density_m3": 1.9618658007525276e+16,
+      "model_transit_dephasing_mhz": 0.1548597326299525
+    },
+    {
+      "temperature_c": 30.0,
+      "model_density_m3": 2.1739583926614748e+16,
+      "model_transit_dephasing_mhz": 0.15511578395003175
+    },
+    {
+      "temperature_c": 31.0,
+      "model_density_m3": 2.40732813404611e+16,
+      "model_transit_dephasing_mhz": 0.15537141329937587
+    },
+    {
+      "temperature_c": 32.0,
+      "model_density_m3": 2.663939951160309e+16,
+      "model_transit_dephasing_mhz": 0.15562662275734834
+    },
+    {
+      "temperature_c": 33.0,
+      "model_density_m3": 2.9459240913312164e+16,
+      "model_transit_dephasing_mhz": 0.15588141438629097
+    },
+    {
+      "temperature_c": 34.0,
+      "model_density_m3": 3.255588620385416e+16,
+      "model_transit_dephasing_mhz": 0.1561357902317182
+    },
+    {
+      "temperature_c": 35.0,
+      "model_density_m3": 3.5954327523011124e+16,
+      "model_transit_dephasing_mhz": 0.1563897523225088
+    }
+  ],
+  "model_density_ratio_35c_to_20c": 4.766822424038463,
+  "nominal_mode_gap_at_separately_optimized_bests": 139.93830049326047,
+  "sha256": {
+    "rydberg_gold_dense_20261103\\results.json": "0404487011f0ca7804392f62c2291cc0e4a75dd3e95e790f02aaa1524590b969",
+    "rydberg_gold_map_20261103\\results.json": "df43481d094297716b343e0fedc207bede46f1099755a3a0dc65bc5566dfab28",
+    "rydberg_gold_dense_20261103\\interpret_dense.py": "a0325af64f51e027845f90cee4576b67e003d25fb44761b8b8b5a15668a9fe48"
+  }
+}

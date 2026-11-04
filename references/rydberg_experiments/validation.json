@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "validation_date": "2026-11-03",
+  "status": "PASS",
+  "paper_count": 26,
+  "experiment_count": 39,
+  "quantity_count": 171,
+  "finding_count": 42,
+  "source_count": 26,
+  "study_type_counts": {
+    "experiment": 23,
+    "theory": 2,
+    "mixed": 1
+  },
+  "full_text_paper_count": 26,
+  "errors": [],
+  "warnings": [],
+  "scope": "Structure, evidence links, source bytes and page counts; scientific interpretation requires source review."
+}

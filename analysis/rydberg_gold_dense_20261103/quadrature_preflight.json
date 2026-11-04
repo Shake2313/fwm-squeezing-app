@@ -1,0 +1,172 @@
+{
+  "origin": "AI independent velocity-grid convergence preflight before dense campaign",
+  "status": "PASS",
+  "references": [
+    {
+      "control": [
+        "on",
+        20.0,
+        30.0,
+        6.0,
+        3.7
+      ],
+      "opacity": 0.001,
+      "detuning_mhz": 0.0,
+      "variants": [
+        {
+          "spacing_divisor": 1,
+          "cutoff_sigma": 6,
+          "velocity_classes": 11353,
+          "dv_m_s": 0.1791155832690947,
+          "phasor_real": -4.9270430356796374e-11,
+          "phasor_imag": -1.6758669060829146e-12,
+          "phasor_magnitude": 4.92989232887578e-11,
+          "phase_deg": -178.05191275408197,
+          "amplitude_participation_A": 0.021968260759022366,
+          "phase_coherence_C": 0.628936620987978,
+          "coherent_to_static_amplitude_ratio": 0.013816643690762319,
+          "sensitivity_nv_cm_sqrt_hz": 1142.2231679015433,
+          "relative_complex_error_vs_dv4_8sigma": 1.9581086919518966e-09,
+          "relative_sensitivity_change_vs_reference": -1.9581086752040733e-09
+        },
+        {
+          "spacing_divisor": 2,
+          "cutoff_sigma": 6,
+          "velocity_classes": 22703,
+          "dv_m_s": 0.08955779163454736,
+          "phasor_real": -4.927043035730348e-11,
+          "phasor_imag": -1.6758669061246703e-12,
+          "phasor_magnitude": 4.929892328926603e-11,
+          "phase_deg": -178.05191275405352,
+          "amplitude_participation_A": 0.0219765608841126,
+          "phase_coherence_C": 0.6286990837084592,
+          "coherent_to_static_amplitude_ratio": 0.013816643690904757,
+          "sensitivity_nv_cm_sqrt_hz": 1142.2231678897679,
+          "relative_complex_error_vs_dv4_8sigma": 1.9684178460645677e-09,
+          "relative_sensitivity_change_vs_reference": -1.968417873143835e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 6,
+          "velocity_classes": 45405,
+          "dv_m_s": 0.04477889581727368,
+          "phasor_real": -4.927043035738258e-11,
+          "phasor_imag": -1.6758669061273616e-12,
+          "phasor_magnitude": 4.929892328934517e-11,
+          "phase_deg": -178.05191275405352,
+          "amplitude_participation_A": 0.02197414051803988,
+          "phase_coherence_C": 0.6287683324671576,
+          "coherent_to_static_amplitude_ratio": 0.013816643690926939,
+          "sensitivity_nv_cm_sqrt_hz": 1142.2231678879336,
+          "relative_complex_error_vs_dv4_8sigma": 1.970023254760557e-09,
+          "relative_sensitivity_change_vs_reference": -1.970023255637443e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 8,
+          "velocity_classes": 60539,
+          "dv_m_s": 0.04477889581727368,
+          "phasor_real": -4.9270430260318687e-11,
+          "phasor_imag": -1.675866902825865e-12,
+          "phasor_magnitude": 4.929892319222515e-11,
+          "phase_deg": -178.05191275405352,
+          "amplitude_participation_A": 0.02197414047475032,
+          "phase_coherence_C": 0.6287683324671575,
+          "coherent_to_static_amplitude_ratio": 0.01381664366370783,
+          "sensitivity_nv_cm_sqrt_hz": 1142.2231701381402,
+          "relative_complex_error_vs_dv4_8sigma": 0.0,
+          "relative_sensitivity_change_vs_reference": 0.0
+        }
+      ],
+      "campaign_sensitivity": 1142.223167893334,
+      "base_grid_relative_sensitivity_difference": 7.187139772213413e-12,
+      "static_phasor_real": -3.5657533808298013e-09,
+      "static_phasor_imag": -1.2889878363123429e-10,
+      "elapsed_s": 1.726190899964422,
+      "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+    },
+    {
+      "control": [
+        "on",
+        35.0,
+        40.0,
+        10.0,
+        4.5
+      ],
+      "opacity": 0.001,
+      "detuning_mhz": 0.0,
+      "variants": [
+        {
+          "spacing_divisor": 1,
+          "cutoff_sigma": 6,
+          "velocity_classes": 9425,
+          "dv_m_s": 0.22121605524921506,
+          "phasor_real": -5.514117964633204e-11,
+          "phasor_imag": -1.939596128689153e-12,
+          "phasor_magnitude": 5.517528183826059e-11,
+          "phase_deg": -177.98544620693127,
+          "amplitude_participation_A": 0.021933054222897666,
+          "phase_coherence_C": 0.6480892822116423,
+          "coherent_to_static_amplitude_ratio": 0.01421457736802678,
+          "sensitivity_nv_cm_sqrt_hz": 215.443950618095,
+          "relative_complex_error_vs_dv4_8sigma": 1.9551171750857887e-09,
+          "relative_sensitivity_change_vs_reference": -1.9551170682419183e-09
+        },
+        {
+          "spacing_divisor": 2,
+          "cutoff_sigma": 6,
+          "velocity_classes": 18847,
+          "dv_m_s": 0.11060802762460753,
+          "phasor_real": -5.514117964700875e-11,
+          "phasor_imag": -1.9395961287196524e-12,
+          "phasor_magnitude": 5.517528183893795e-11,
+          "phase_deg": -177.98544620692434,
+          "amplitude_participation_A": 0.021961879150002656,
+          "phase_coherence_C": 0.6472386661958098,
+          "coherent_to_static_amplitude_ratio": 0.014214577368201286,
+          "sensitivity_nv_cm_sqrt_hz": 215.44395061544998,
+          "relative_complex_error_vs_dv4_8sigma": 1.967393777258712e-09,
+          "relative_sensitivity_change_vs_reference": -1.9673936924036184e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 6,
+          "velocity_classes": 37693,
+          "dv_m_s": 0.055304013812303765,
+          "phasor_real": -5.51411796471153e-11,
+          "phasor_imag": -1.9395961287234216e-12,
+          "phasor_magnitude": 5.5175281839044573e-11,
+          "phase_deg": -177.9854462069243,
+          "amplitude_participation_A": 0.021964110542480344,
+          "phase_coherence_C": 0.6471729114974462,
+          "coherent_to_static_amplitude_ratio": 0.014214577368228754,
+          "sensitivity_nv_cm_sqrt_hz": 215.44395061503366,
+          "relative_complex_error_vs_dv4_8sigma": 1.9693261252590203e-09,
+          "relative_sensitivity_change_vs_reference": -1.969326146600281e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 8,
+          "velocity_classes": 50257,
+          "dv_m_s": 0.055304013812303765,
+          "phasor_real": -5.5141179538524336e-11,
+          "phasor_imag": -1.9395961249037236e-12,
+          "phasor_magnitude": 5.517528173038645e-11,
+          "phase_deg": -177.9854462069243,
+          "amplitude_participation_A": 0.02196411049922585,
+          "phase_coherence_C": 0.647172911497446,
+          "coherent_to_static_amplitude_ratio": 0.014214577340235617,
+          "sensitivity_nv_cm_sqrt_hz": 215.44395103931308,
+          "relative_complex_error_vs_dv4_8sigma": 0.0,
+          "relative_sensitivity_change_vs_reference": 0.0
+        }
+      ],
+      "campaign_sensitivity": 215.44395061926767,
+      "base_grid_relative_sensitivity_difference": -5.443090422829755e-12,
+      "static_phasor_real": -3.879563073239655e-09,
+      "static_phasor_imag": -1.2568645086162262e-10,
+      "elapsed_s": 1.1605731999734417,
+      "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+    }
+  ]
+}

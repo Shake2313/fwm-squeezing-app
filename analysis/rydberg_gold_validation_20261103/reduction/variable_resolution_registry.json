@@ -1,0 +1,650 @@
+{
+  "origin": "⟦AI⟧ Saved-model resolution evidence",
+  "adoption_status": "Analysis recommendation; not a human-registered goal",
+  "model_tag": "legacy_compact_RydbergEITScheme_profiled_PSN",
+  "fixed_model_settings_sha256": "dab8088c32e1e19a4a858171157c62926f3f1a721805e07b6cb7601a15f0f010",
+  "fixed_settings_hash_excludes": [
+    "cold_spot_temp_c",
+    "coupling_power_mw",
+    "doppler",
+    "effective_opacity_participation",
+    "effective_temp_c",
+    "heater_setpoint_c",
+    "lo_rabi_mhz",
+    "probe_power_uw",
+    "temp_c"
+  ],
+  "parameter_snapshot": {
+    "probe_power_uw": 6.0,
+    "coupling_power_mw": 30.0,
+    "beam_diameter_mm": 0.15,
+    "cell_mm": 50.0,
+    "temp_c": 20.0,
+    "temperature_model": "Linked",
+    "heater_setpoint_c": 20.0,
+    "effective_temp_c": 20.0,
+    "cold_spot_temp_c": 20.0,
+    "coupling_rabi_mhz": 3.0,
+    "lo_rabi_mhz": 3.7,
+    "mw_detuning_mhz": 0.0,
+    "mw_frequency_ghz": 37.0,
+    "if_khz": 40.0,
+    "rydberg_dephasing_mhz": 0.1,
+    "temp_dephasing_mhz_per_c": 0.0,
+    "density_dephasing_mhz_per_1e16_m3": 0.0,
+    "rf_dephasing_mhz": 1.0,
+    "residual_zeeman_mhz": 1.5,
+    "doppler": "off",
+    "rf_transition_dipole_ea0": 1326.2572434514343,
+    "rf_angular_factor": 1.0,
+    "rf_field_convention": "RMS",
+    "detector_quantum_efficiency": 0.95,
+    "detector_path_efficiency": 0.5,
+    "detector_reference_power_ratio": 1.0,
+    "detector_electronic_noise_pa_sqrt_hz": 0.0,
+    "detector_rin_per_sqrt_hz": 0.0,
+    "detector_rin_correlation": 1.0,
+    "measurement_enbw_hz": 1.0,
+    "effective_opacity_participation": 0.001,
+    "effective_opacity_relative_uncertainty": 0.5,
+    "atom_participation_fraction": 1.0,
+    "beam_overlap_efficiency": 1.0,
+    "sam_enabled": "Off",
+    "sam_source_power_dbm": -40.0,
+    "sam_antenna_gain_dbi": 10.0,
+    "sam_distance_m": 0.3,
+    "sam_cable_loss_db": 0.0,
+    "sam_additional_loss_db": 0.0,
+    "sam_field_correction": 1.0,
+    "sam_source_power_std_db": 0.0,
+    "sam_antenna_gain_std_db": 0.0,
+    "sam_cable_loss_std_db": 0.0,
+    "sam_additional_loss_std_db": 0.0,
+    "sam_distance_std_m": 0.0,
+    "sam_field_correction_std": 0.0,
+    "sam_antenna_max_dimension_m": 0.1,
+    "view": "AT electrometry"
+  },
+  "reuse_check": "reuse_rejections(registry,current_parameters,current_source_hashes,model_tag); eligibility is not experimental validation",
+  "domain": {
+    "temperature_c": [
+      15.0,
+      35.0
+    ],
+    "coupling_power_mw": [
+      20.0,
+      40.0
+    ],
+    "probe_power_uw": [
+      2.0,
+      10.0
+    ],
+    "lo_rabi_mhz": [
+      2.0,
+      6.0
+    ],
+    "probe_detuning_mhz": [
+      -6.0,
+      6.0
+    ],
+    "opacity_scenarios": [
+      0.0005,
+      0.001,
+      0.0015
+    ],
+    "cell_mm": 50.0,
+    "beam_diameter_mm": 0.15,
+    "if_khz": 40.0,
+    "delta_c_mhz": 0.0,
+    "delta_rf_mhz": 0.0,
+    "temperature_policy": "Linked",
+    "objective": "Profiled PSN-only field ASD; zero RIN/electronics"
+  },
+  "source_campaign_signature": "168e5179e74f16c7725937649789eb0d010f88418102ead6c61936d64badcdee",
+  "expected_critical_source_sha256": {
+    "gabes/schemes/rydberg.py": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/rydberg_opacity.py": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/doppler.py": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+    "gabes/pole_doppler.py": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+    "gabes/kernels.py": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+    "gabes/species.py": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/constants.py": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/observables.py": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+    "analysis/rydberg_gold_map_20261103/resolved_parameters.json": "5dda93a66ac6c0541c28fe9d261206f0565030fa9ae96aebdc4a9defd269e53f"
+  },
+  "current_source_mismatches": [
+    "gabes/schemes/rydberg.py"
+  ],
+  "applicability_status": "INVALIDATED_FOR_CURRENT_SOURCE",
+  "physical_validation_status": "NOT_ESTABLISHED",
+  "invalidation_rules": [
+    "Any critical source/default/Rabi/opacity/noise-policy change",
+    "New density- or temperature-dependent dephasing, separated temperature policy, spatial propagation or manifold",
+    "Independent coupling detuning, RF detuning or IF outside fixed scope",
+    "Changed geometry, beam convention, scan/control protocol or domain",
+    "Guard error above declared decision tolerance"
+  ],
+  "recalibrated_model_policy": "Do not inherit eligibility automatically; regenerate cross/guard audit under a new fingerprint",
+  "decision_tolerance_relative": 0.01,
+  "tolerance_scope": "AI illustrative 1% scalar prediction/decision criterion, not experimental uncertainty",
+  "mode_policies_selected_from_pilot": [
+    {
+      "doppler": "off",
+      "all_opacity_pilot_checks_passed": false,
+      "selected_action": "branch_aware_refinement",
+      "decision_rule": "All three assumed opacity scenarios must meet 1% pilot error; no fine truth used for selection",
+      "later_new_coordinate_check_max_relative_error": 0.023407225919491625,
+      "later_check_within_tolerance": false
+    },
+    {
+      "doppler": "on",
+      "all_opacity_pilot_checks_passed": true,
+      "selected_action": "cross_slices_plus_guards",
+      "decision_rule": "All three assumed opacity scenarios must meet 1% pilot error; no fine truth used for selection",
+      "later_new_coordinate_check_max_relative_error": 0.0072590137033039515,
+      "later_check_within_tolerance": true
+    }
+  ],
+  "variables": [
+    {
+      "variable": "temperature_c",
+      "role": "Important nonlinear covariate; dominant density scale",
+      "reduction": "Thermal mode: separate 1D slice/known N(T) baseline; retain sparse transit/Doppler checks",
+      "evidence": "Density increases 4.7668x from20 to35C; thermal cross factorization passes; do not call T linear",
+      "policy": "CONDITIONAL_REDUCTION",
+      "dense_step": 1.0,
+      "proposed_seed_nodes": [
+        15.0,
+        20.0,
+        25.0,
+        30.0,
+        33.0,
+        35.0
+      ],
+      "prediction_evidence": [
+        {
+          "doppler": "off",
+          "opacity": 0.0005,
+          "pilot_check_max_relative_error": 0.012273401560156771,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.012589014627468753,
+          "retrospective_dense_cross_max_relative_error": 0.014692970935491712,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "off",
+          "opacity": 0.001,
+          "pilot_check_max_relative_error": 0.02415251108274008,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.02103618807738361,
+          "retrospective_dense_cross_max_relative_error": 0.02251547407399701,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "off",
+          "opacity": 0.0015,
+          "pilot_check_max_relative_error": 0.02854668094990831,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.023407225919491625,
+          "retrospective_dense_cross_max_relative_error": 0.028524389941408823,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.0005,
+          "pilot_check_max_relative_error": 9.738221892163779e-05,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.007216554330172542,
+          "retrospective_dense_cross_max_relative_error": 0.00012359336144296407,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.001,
+          "pilot_check_max_relative_error": 0.00012755818093190818,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.007237783793008878,
+          "retrospective_dense_cross_max_relative_error": 0.00010743237620336465,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.0015,
+          "pilot_check_max_relative_error": 0.0002223021977454387,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.0072590137033039515,
+          "retrospective_dense_cross_max_relative_error": 0.00016794934030528452,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        }
+      ]
+    },
+    {
+      "variable": "coupling_power_mw",
+      "role": "Physical optical control",
+      "reduction": "Thermal mode: 1D slice and guards. Off mode: retain branch-aware interaction refinement",
+      "evidence": "Nominal retrospective cross errors: on 0.0107432%; off 2.25155%",
+      "policy": "MODE_DEPENDENT_REDUCTION",
+      "dense_step": 2.5,
+      "proposed_seed_nodes": [
+        20.0,
+        30.0,
+        40.0
+      ],
+      "prediction_evidence": [
+        {
+          "doppler": "off",
+          "opacity": 0.0005,
+          "pilot_check_max_relative_error": 0.012273401560156771,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.012589014627468753,
+          "retrospective_dense_cross_max_relative_error": 0.014692970935491712,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "off",
+          "opacity": 0.001,
+          "pilot_check_max_relative_error": 0.02415251108274008,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.02103618807738361,
+          "retrospective_dense_cross_max_relative_error": 0.02251547407399701,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "off",
+          "opacity": 0.0015,
+          "pilot_check_max_relative_error": 0.02854668094990831,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.023407225919491625,
+          "retrospective_dense_cross_max_relative_error": 0.028524389941408823,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.0005,
+          "pilot_check_max_relative_error": 9.738221892163779e-05,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.007216554330172542,
+          "retrospective_dense_cross_max_relative_error": 0.00012359336144296407,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.001,
+          "pilot_check_max_relative_error": 0.00012755818093190818,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.007237783793008878,
+          "retrospective_dense_cross_max_relative_error": 0.00010743237620336465,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        },
+        {
+          "doppler": "on",
+          "opacity": 0.0015,
+          "pilot_check_max_relative_error": 0.0002223021977454387,
+          "sparse_pilot_to_new_dense_max_relative_error": 0.0072590137033039515,
+          "retrospective_dense_cross_max_relative_error": 0.00016794934030528452,
+          "evidence_file": "predictability_audit.json",
+          "scope": "Paired T/Pc scalar surface; not independent causal importance or a new-model validation"
+        }
+      ]
+    },
+    {
+      "variable": "probe_power_uw",
+      "role": "Physical control interacting with LO",
+      "reduction": "Retain joint local scans and matched fixed-LO validation",
+      "evidence": "All thermal profiled argmins at10uW do not imply monotonic fixed-LO response; fixedLO3.7 has turnover",
+      "policy": "KEEP_INTERACTION",
+      "dense_step": 0.5,
+      "proposed_seed_nodes": [
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ]
+    },
+    {
+      "variable": "lo_rabi_mhz",
+      "role": "Physical RF control interacting with probe power",
+      "reduction": "Local response/robust plateau refinement; compare with fixedGoldLO3.7 separately",
+      "evidence": "Thermal optima4.625/4.75MHz; near-equal controls exist and do not establish a filled acceptable rectangle",
+      "policy": "KEEP_INTERACTION",
+      "dense_step": 0.125,
+      "proposed_seed_nodes": [
+        2.0,
+        3.0,
+        3.7,
+        4.5,
+        6.0
+      ]
+    },
+    {
+      "variable": "probe_detuning_mhz",
+      "role": "Signed finite-IF response coordinate",
+      "reduction": "Thermal: center-first plus signed off-center challenges; off: track central and side candidates separately",
+      "evidence": "Thermal189argmins at0; finiteIF sign symmetry rejected; static-slope-only candidates are insufficient",
+      "policy": "ADAPTIVE_SIGNED_PEAK_SEARCH",
+      "dense_step": 0.01,
+      "proposed_seed_nodes": [
+        -6.0,
+        -3.0,
+        -1.0,
+        0.0,
+        1.0,
+        3.0,
+        6.0
+      ]
+    },
+    {
+      "variable": "coupling_detuning_mhz",
+      "role": "Missing independent one/two-photon detuning control in old model",
+      "reduction": "No old-map predictability claim; audit after physical model supports it",
+      "evidence": "Fixed0 in all old maps",
+      "policy": "UNTESTED_NEW_VARIABLE",
+      "dense_step": null,
+      "proposed_seed_nodes": []
+    },
+    {
+      "variable": "cold_spot_temperature_c_vs_effective_temperature_c",
+      "role": "Separate density and kinetic-temperature covariates",
+      "reduction": "Keep known density analytic/postprocessed; audit kinetic/transit residual separately",
+      "evidence": "Old maps link both temperatures; no independent two-temperature evidence",
+      "policy": "UNTESTED_DECONFOUNDING",
+      "dense_step": null,
+      "proposed_seed_nodes": []
+    },
+    {
+      "variable": "effective_opacity_participation",
+      "role": "Uncalibrated nuisance parameter",
+      "reduction": "Scenario/calibration axis, never choose its value solely to minimize sensitivity",
+      "evidence": "Three assumed scenarios are not statistical confidence limits; N*eta*L confounding at fixed atomic response",
+      "policy": "CALIBRATE_NOT_OPTIMIZE",
+      "dense_step": null,
+      "proposed_seed_nodes": [
+        0.0005,
+        0.001,
+        0.0015
+      ]
+    },
+    {
+      "variable": "beam_diameter_mm_and_overlap",
+      "role": "Geometry/calibration, then possible design variable",
+      "reduction": "Resolve beam definition and P-to-Rabi conversion before design optimization",
+      "evidence": "Oldfixed0.15mm; 1/e2/FWHM convention unresolved; affects intensity, transit and overlap together",
+      "policy": "UNTESTED_FIXED_GEOMETRY",
+      "dense_step": null,
+      "proposed_seed_nodes": [
+        0.15
+      ]
+    },
+    {
+      "variable": "if_khz_and_rf_detuning",
+      "role": "Application/measurement protocol",
+      "reduction": "Include only for specified bandwidth/carrier/linearity question",
+      "evidence": "Only40kHz andzeroRFdetuning evaluated",
+      "policy": "UNTESTED_OUTSIDE_PROTOCOL",
+      "dense_step": null,
+      "proposed_seed_nodes": [
+        40.0
+      ]
+    },
+    {
+      "variable": "dephasing_and_technical_noise",
+      "role": "Measured/model nuisance parameters",
+      "reduction": "Constrain through spectra/noise budget, then propagate uncertainty",
+      "evidence": "ExtraT/densitydephasing0 andzeroRIN/electronics; changing these invalidates old reductions",
+      "policy": "CALIBRATE_NOT_OPTIMIZE",
+      "dense_step": null,
+      "proposed_seed_nodes": []
+    }
+  ],
+  "proposed_dense_domain_sparse_plan": {
+    "reference": [
+      20.0,
+      30.0
+    ],
+    "fit_coordinates": [
+      [
+        15.0,
+        30.0
+      ],
+      [
+        16.0,
+        30.0
+      ],
+      [
+        17.0,
+        30.0
+      ],
+      [
+        18.0,
+        30.0
+      ],
+      [
+        19.0,
+        30.0
+      ],
+      [
+        20.0,
+        20.0
+      ],
+      [
+        20.0,
+        22.5
+      ],
+      [
+        20.0,
+        25.0
+      ],
+      [
+        20.0,
+        27.5
+      ],
+      [
+        20.0,
+        30.0
+      ],
+      [
+        20.0,
+        32.5
+      ],
+      [
+        20.0,
+        35.0
+      ],
+      [
+        20.0,
+        37.5
+      ],
+      [
+        20.0,
+        40.0
+      ],
+      [
+        21.0,
+        30.0
+      ],
+      [
+        22.0,
+        30.0
+      ],
+      [
+        23.0,
+        30.0
+      ],
+      [
+        24.0,
+        30.0
+      ],
+      [
+        25.0,
+        30.0
+      ],
+      [
+        26.0,
+        30.0
+      ],
+      [
+        27.0,
+        30.0
+      ],
+      [
+        28.0,
+        30.0
+      ],
+      [
+        29.0,
+        30.0
+      ],
+      [
+        30.0,
+        30.0
+      ],
+      [
+        31.0,
+        30.0
+      ],
+      [
+        32.0,
+        30.0
+      ],
+      [
+        33.0,
+        30.0
+      ],
+      [
+        34.0,
+        30.0
+      ],
+      [
+        35.0,
+        30.0
+      ]
+    ],
+    "guard_coordinates": [
+      [
+        15.0,
+        20.0
+      ],
+      [
+        15.0,
+        40.0
+      ],
+      [
+        25.0,
+        25.0
+      ],
+      [
+        25.0,
+        35.0
+      ],
+      [
+        30.0,
+        25.0
+      ],
+      [
+        30.0,
+        35.0
+      ],
+      [
+        35.0,
+        20.0
+      ],
+      [
+        35.0,
+        40.0
+      ]
+    ],
+    "fit_count": 29,
+    "guard_count": 8,
+    "initial_count": 37,
+    "full_cartesian_count": 189,
+    "guard_origin": "Axis endpoints and fixed fractional interior positions; no sensitivity/argmin inspection",
+    "failure_action": "Retain expensive direct solves and refine cells near failing guards; do not average control branches"
+  },
+  "future_coarse_domain_seed_plan": {
+    "reference": [
+      20.0,
+      30.0
+    ],
+    "fit_coordinates": [
+      [
+        15.0,
+        30.0
+      ],
+      [
+        20.0,
+        20.0
+      ],
+      [
+        20.0,
+        30.0
+      ],
+      [
+        20.0,
+        40.0
+      ],
+      [
+        25.0,
+        30.0
+      ],
+      [
+        30.0,
+        30.0
+      ],
+      [
+        33.0,
+        30.0
+      ],
+      [
+        35.0,
+        30.0
+      ]
+    ],
+    "guard_coordinates": [
+      [
+        15.0,
+        20.0
+      ],
+      [
+        15.0,
+        40.0
+      ],
+      [
+        25.0,
+        20.0
+      ],
+      [
+        30.0,
+        20.0
+      ],
+      [
+        35.0,
+        20.0
+      ],
+      [
+        35.0,
+        40.0
+      ]
+    ],
+    "fit_count": 8,
+    "guard_count": 6,
+    "initial_count": 14,
+    "full_cartesian_count": 18,
+    "guard_origin": "Axis endpoints and fixed fractional interior positions; no sensitivity/argmin inspection",
+    "failure_action": "Retain expensive direct solves and refine cells near failing guards; do not average control branches"
+  },
+  "actual_historical_policy_fit_and_check": {
+    "fit_cross_coordinates": 8,
+    "pilot_check_coordinates": 10,
+    "subsequent_new_dense_check_coordinates": 171,
+    "retrospective_dense_cross_fit": 29,
+    "retrospective_dense_cross_check": 160
+  },
+  "calibrated_model_status": "PENDING_NEW_PHYSICAL_VALIDATION_AND_RESOLUTION_AUDIT"
+}

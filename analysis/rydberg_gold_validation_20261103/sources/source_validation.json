@@ -1,0 +1,20 @@
+{
+  "origin": "AI extraction integrity receipt",
+  "extraction_status": "PASS",
+  "physical_protocol_match_status": "NOT_ESTABLISHED",
+  "checks": {
+    "script_ast": true,
+    "artifact_hashes": true,
+    "vector_points_28": true,
+    "power_axis_marker_agreement": true,
+    "psn_source_curve_monotone_decreasing": true,
+    "unknown_scan_axis_preserved": true
+  },
+  "visual_QA": [
+    "Fig2 vector curves/markers and crop inspected",
+    "Fig4 raster source and full crop inspected",
+    "Fig5 raster source and full crop inspected; monotonically decreasing red dashed curve confirmed"
+  ],
+  "scope": "Integrity and coordinate recovery only. No absolute transmission or Gold scan identity is established.",
+  "observations_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+}

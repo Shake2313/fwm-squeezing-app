@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "paper_id": "yao_2026_comphys",
+  "title": "Ultra-wideband continuous spectrum Rydberg atomic superheterodyne receiver with high sensitivity",
+  "authors": [
+    "Jiawei Yao",
+    "Zhanshan Sun",
+    "Yi Lin",
+    "Di Sang",
+    "Shoulong Zhang",
+    "Kai Yang",
+    "Jinhao Zhang",
+    "Qiang An",
+    "Yunqi Fu"
+  ],
+  "year": 2026,
+  "study_type": "experiment",
+  "topics": [
+    "tuning_range",
+    "Zeeman",
+    "heterodyne"
+  ],
+  "publication": {
+    "journal": "Communications Physics",
+    "volume": "9",
+    "issue": "1",
+    "pages": "102",
+    "doi": "10.1038/s42005-026-02529-3",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2026-02-11"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-Zeeman_tuned_Rydberg",
+    "configuration": "magnetically_tunable_superheterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NUDT_Yao_Fu",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://www.nature.com/articles/s42005-026-02529-3.pdf",
+      "path": "sources/continuous_2026_comphys.pdf",
+      "sha256": "327384a0595656c59ca102fc456605e15016f32b50f55d41a95b7eb5baa9439b",
+      "pages": 9,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "tuning_campaign",
+      "label": "Zeeman 연속 주파수 조정 캠페인",
+      "kind": "scan",
+      "conditions": [
+        {
+          "quantity": "rf_tuning_range",
+          "value": null,
+          "unit": "GHz",
+          "value_type": "range",
+          "basis": "Carrier tuning coverage, not instantaneous signal bandwidth",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1-2",
+          "evidence": "Carrier tuning coverage, not instantaneous signal bandwidth",
+          "notes": "",
+          "lower": 1,
+          "upper": 40
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 65,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "upper_bound",
+          "basis": "Reported sensitivity upper envelope over the tuning campaign",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1-2",
+          "evidence": "Reported sensitivity upper envelope over the tuning campaign",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "전체 구간 상한 보고. 모든 주파수의 개별 측정점이나 동일 운전점으로 확장하지 않음."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "zeeman",
+      "claim": "자기장으로 Rydberg 전이를 이동시켜 이산 공명 사이의 carrier 주파수 조정을 구현.",
+      "locator": "PDF pp. 2-6",
+      "source_id": "main",
+      "category": "tuning_range",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

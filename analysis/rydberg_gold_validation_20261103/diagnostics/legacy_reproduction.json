@@ -1,0 +1,684 @@
+{
+  "origin": "⟦AI⟧ Explicit legacy-physics reproduction after production model revision",
+  "status": "PASS",
+  "historical_record_sha256": "2f550aaafd4be7d2bbf7c3e36f1dfaffcfd81e5c1a4347ac5382cd3bb828ecaa",
+  "exact_legacy_engine_archive_sha256": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+  "exact_legacy_engine_matches_historical_source_hash": true,
+  "historical_source_version_note": "Historical baseline JSON records the original execution source hashes, including its then-current helper. That old self-script version is no longer the current helper; historical self-hash equality is not claimed.",
+  "numerical_scope": "Current helper explicitly freezes legacy pairwise atom, old probe anchor and old baseline parameters; production CP atom is not used.",
+  "checked_unique_atomic_cases": 28,
+  "checked_metric_rows": 56,
+  "maximum_absolute_metric_difference": 0.0,
+  "maximum_absolute_spectrum_difference": 0.0,
+  "comparisons": [
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "off",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 0.0,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0,
+        "eit_fwhm_mhz": 0.0,
+        "eit_contrast": 0.0,
+        "relative_voltage_amplitude": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 0.5,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 1.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 2.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 4.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 6.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 8.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "compensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    },
+    {
+      "doppler": "on",
+      "lo_rabi_mhz": 3.7,
+      "probe_power_uw": 10.0,
+      "compensation": "uncompensated",
+      "absolute_differences": {
+        "transmission_at_zero": 0.0,
+        "local_floor_5mhz": 0.0
+      }
+    }
+  ],
+  "source_sha256_before": {
+    "analysis/rydberg_gold_validation_20261103/diagnostics/legacy_reproduction.py": "afeecbd956e92cc373f47d1ce77d5d123b165842b74a4e89b92d9583ce340163",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.py": "e0b48d2ad98b3b62c38c27e41cf812a6e6718bf73ad4fea7fe27a559f0c6e6b7",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.json": "2f550aaafd4be7d2bbf7c3e36f1dfaffcfd81e5c1a4347ac5382cd3bb828ecaa",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/legacy_rydberg_v7.py": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectra.npz": "3661632e2b87b8dd5b4b5be6bbe06e6b82472c85628881447436ee1d9a95d076",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "analysis/rydberg_gold_map_20261103/resolved_parameters.json": "5dda93a66ac6c0541c28fe9d261206f0565030fa9ae96aebdc4a9defd269e53f"
+  },
+  "source_sha256_after": {
+    "analysis/rydberg_gold_validation_20261103/diagnostics/legacy_reproduction.py": "afeecbd956e92cc373f47d1ce77d5d123b165842b74a4e89b92d9583ce340163",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.py": "e0b48d2ad98b3b62c38c27e41cf812a6e6718bf73ad4fea7fe27a559f0c6e6b7",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.json": "2f550aaafd4be7d2bbf7c3e36f1dfaffcfd81e5c1a4347ac5382cd3bb828ecaa",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/legacy_rydberg_v7.py": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectra.npz": "3661632e2b87b8dd5b4b5be6bbe06e6b82472c85628881447436ee1d9a95d076",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "analysis/rydberg_gold_map_20261103/resolved_parameters.json": "5dda93a66ac6c0541c28fe9d261206f0565030fa9ae96aebdc4a9defd269e53f"
+  },
+  "changed_sources_during_run": []
+}

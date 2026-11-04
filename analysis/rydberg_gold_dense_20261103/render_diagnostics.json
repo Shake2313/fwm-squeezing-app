@@ -1,0 +1,840 @@
+{
+  "origin": "AI analysis of complete saved discrete nominal map",
+  "opacity": 0.001,
+  "near_best_map_coordinates": {
+    "off": {
+      "0.01": {
+        "count": 7,
+        "temperature_range_c": [
+          35.0,
+          35.0
+        ],
+        "coupling_power_range_mw": [
+          25.0,
+          40.0
+        ],
+        "coordinates": [
+          [
+            35.0,
+            25.0
+          ],
+          [
+            35.0,
+            27.5
+          ],
+          [
+            35.0,
+            30.0
+          ],
+          [
+            35.0,
+            32.5
+          ],
+          [
+            35.0,
+            35.0
+          ],
+          [
+            35.0,
+            37.5
+          ],
+          [
+            35.0,
+            40.0
+          ]
+        ]
+      },
+      "0.03": {
+        "count": 9,
+        "temperature_range_c": [
+          35.0,
+          35.0
+        ],
+        "coupling_power_range_mw": [
+          20.0,
+          40.0
+        ],
+        "coordinates": [
+          [
+            35.0,
+            20.0
+          ],
+          [
+            35.0,
+            22.5
+          ],
+          [
+            35.0,
+            25.0
+          ],
+          [
+            35.0,
+            27.5
+          ],
+          [
+            35.0,
+            30.0
+          ],
+          [
+            35.0,
+            32.5
+          ],
+          [
+            35.0,
+            35.0
+          ],
+          [
+            35.0,
+            37.5
+          ],
+          [
+            35.0,
+            40.0
+          ]
+        ]
+      }
+    },
+    "on": {
+      "0.01": {
+        "count": 1,
+        "temperature_range_c": [
+          35.0,
+          35.0
+        ],
+        "coupling_power_range_mw": [
+          40.0,
+          40.0
+        ],
+        "coordinates": [
+          [
+            35.0,
+            40.0
+          ]
+        ]
+      },
+      "0.03": {
+        "count": 2,
+        "temperature_range_c": [
+          35.0,
+          35.0
+        ],
+        "coupling_power_range_mw": [
+          37.5,
+          40.0
+        ],
+        "coordinates": [
+          [
+            35.0,
+            37.5
+          ],
+          [
+            35.0,
+            40.0
+          ]
+        ]
+      }
+    }
+  },
+  "branch_plot_status": "Rendered from complete branchgaps table; each branch independently profiled over all saved controls",
+  "local_slopes": {
+    "off": {
+      "d_log_sensitivity_per_c_range": [
+        -0.10943066851090011,
+        -0.07062861239456786
+      ],
+      "d_log_sensitivity_per_mw_range": [
+        -0.00354722597832674,
+        0.0006074289922196052
+      ],
+      "temperature_adjacent_increase_count": 0,
+      "coupling_adjacent_increase_count": 33,
+      "gold_d_log_sensitivity_per_c": -0.10112863763380153,
+      "gold_d_log_sensitivity_per_mw": -0.0024655107148489285,
+      "scope": "Finite differences of solved profiled map; branch transitions can make derivatives non-smooth"
+    },
+    "on": {
+      "d_log_sensitivity_per_c_range": [
+        -0.11142107273819413,
+        -0.09635180077388839
+      ],
+      "d_log_sensitivity_per_mw_range": [
+        -0.014410531339651422,
+        -0.008603472010372926
+      ],
+      "temperature_adjacent_increase_count": 0,
+      "coupling_adjacent_increase_count": 0,
+      "gold_d_log_sensitivity_per_c": -0.10746993803823246,
+      "gold_d_log_sensitivity_per_mw": -0.01100533232200469,
+      "scope": "Finite differences of solved profiled map; branch transitions can make derivatives non-smooth"
+    }
+  },
+  "coarse_comparison": {
+    "rows": [
+      {
+        "doppler": "off",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 10.100814707330388,
+        "dense_sensitivity": 10.100347945928958,
+        "improvement_percent": 0.0046210272631916054,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999858
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.13999999999999968
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 9.984311701515564,
+        "dense_sensitivity": 9.972762718859858,
+        "improvement_percent": 0.11567129513747566,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 3.7,
+          "probe_detuning_mhz": -2.1645000000000003
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 3.75,
+          "probe_detuning_mhz": -2.1999999999999997
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 9.780961056409117,
+        "dense_sensitivity": 9.776194995457118,
+        "improvement_percent": 0.04872794119628992,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": -2.598749999999999
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.375,
+          "probe_detuning_mhz": -2.55
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 5.944270946670398,
+        "dense_sensitivity": 5.944199927006482,
+        "improvement_percent": 0.0011947581890721845,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999858
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.13999999999999968
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 5.911988524985163,
+        "dense_sensitivity": 5.906783968121138,
+        "improvement_percent": 0.08803394732634671,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 3.7,
+          "probe_detuning_mhz": -2.1645000000000003
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 3.75,
+          "probe_detuning_mhz": -2.1999999999999997
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 5.779974033078004,
+        "dense_sensitivity": 5.778907845390131,
+        "improvement_percent": 0.01844623664001578,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": -2.598749999999999
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.375,
+          "probe_detuning_mhz": -2.54
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 3.6272278516565986,
+        "dense_sensitivity": 3.6272278516565994,
+        "improvement_percent": -2.4486424785652313e-14,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999858
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999947
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 3.614977837103725,
+        "dense_sensitivity": 3.6148686551230957,
+        "improvement_percent": 0.0030202669435131163,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.09999999999999964
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.11000000000000032
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 3.5463160489298433,
+        "dense_sensitivity": 3.5465086887276644,
+        "improvement_percent": -0.005432110256480638,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": -2.598749999999999
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": -2.6
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 2.3161121935912536,
+        "dense_sensitivity": 2.3161181025830913,
+        "improvement_percent": -0.00025512545782373143,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.17499999999999896
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.16999999999999993
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 2.2940516942818543,
+        "dense_sensitivity": 2.2940598406388792,
+        "improvement_percent": -0.00035510782277737657,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.125
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.1299999999999999
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 2.2821494833908,
+        "dense_sensitivity": 2.2769053435303857,
+        "improvement_percent": 0.22978949882908037,
+        "coarse_controls": {
+          "probe_power_uw": 4.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": -2.598749999999999
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.5,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": -2.65
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 1.8188549059793662,
+        "dense_sensitivity": 1.8187940480743847,
+        "improvement_percent": 0.0033459461104556505,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.1999999999999993
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.18999999999999947
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 1.791983316975023,
+        "dense_sensitivity": 1.7919565897686438,
+        "improvement_percent": 0.0014914874556038185,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999858
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.13999999999999968
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 1.7953301244505557,
+        "dense_sensitivity": 1.7935449897646176,
+        "improvement_percent": 0.09943211343843683,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.10392304845413314
+        },
+        "dense_controls": {
+          "probe_power_uw": 4.5,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": -2.6999999999999997
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 1.5697369317789176,
+        "dense_sensitivity": 1.5697270532876355,
+        "improvement_percent": 0.0006293087129506728,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.1999999999999993
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.21
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 1.5397897858598182,
+        "dense_sensitivity": 1.539765417846904,
+        "improvement_percent": 0.0015825545238670018,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.14999999999999858
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.16000000000000014
+        }
+      },
+      {
+        "doppler": "off",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 1.536991367524197,
+        "dense_sensitivity": 1.5369305745419843,
+        "improvement_percent": 0.003955323594995708,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.12990381056766687
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 2.0,
+          "probe_detuning_mhz": -0.12000000000000009
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 2140.384901130312,
+        "dense_sensitivity": 2140.049957858599,
+        "improvement_percent": 0.015648740165185526,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 1888.5713846786557,
+        "dense_sensitivity": 1886.7002157244538,
+        "improvement_percent": 0.09907853996847102,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 15.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 1715.8955710233786,
+        "dense_sensitivity": 1711.8071313071239,
+        "improvement_percent": 0.23826856280165745,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 1238.4102997690973,
+        "dense_sensitivity": 1238.180298959301,
+        "improvement_percent": 0.018572262346271618,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 1092.761459949954,
+        "dense_sensitivity": 1091.656191166937,
+        "improvement_percent": 0.10114456114398473,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 20.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 992.8472410384114,
+        "dense_sensitivity": 990.4527321275702,
+        "improvement_percent": 0.2411759646264196,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 730.5302159060434,
+        "dense_sensitivity": 730.3761860960011,
+        "improvement_percent": 0.021084659701755472,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 644.6309948675515,
+        "dense_sensitivity": 643.9685937312952,
+        "improvement_percent": 0.10275663775559453,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 25.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 585.6815361282793,
+        "dense_sensitivity": 584.2577548671851,
+        "improvement_percent": 0.24309819812764813,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 439.072178641528,
+        "dense_sensitivity": 438.97132946618814,
+        "improvement_percent": 0.02296870087553662,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 387.4450247712759,
+        "dense_sensitivity": 387.043370532012,
+        "improvement_percent": 0.10366741436440374,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 30.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 352.00091103302447,
+        "dense_sensitivity": 351.14382727303735,
+        "improvement_percent": 0.2434890743526254,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 326.3571637265848,
+        "dense_sensitivity": 326.27992488956374,
+        "improvement_percent": 0.023666965400453006,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 287.9787110891092,
+        "dense_sensitivity": 287.67999461798485,
+        "improvement_percent": 0.10372866452337133,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 33.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 261.62374447617464,
+        "dense_sensitivity": 260.98888702385915,
+        "improvement_percent": 0.24266048694723938,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 20.0,
+        "coarse_sensitivity": 268.76593204085844,
+        "dense_sensitivity": 268.7017070815633,
+        "improvement_percent": 0.023896242655251403,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 30.0,
+        "coarse_sensitivity": 237.15519080777082,
+        "dense_sensitivity": 236.90972709057118,
+        "improvement_percent": 0.10350341325592352,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.625,
+          "probe_detuning_mhz": 0.0
+        }
+      },
+      {
+        "doppler": "on",
+        "temperature_c": 35.0,
+        "coupling_power_mw": 40.0,
+        "coarse_sensitivity": 215.44395061926767,
+        "dense_sensitivity": 214.9236016713147,
+        "improvement_percent": 0.24152404672179162,
+        "coarse_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.5,
+          "probe_detuning_mhz": 0.0
+        },
+        "dense_controls": {
+          "probe_power_uw": 10.0,
+          "lo_rabi_mhz": 4.75,
+          "probe_detuning_mhz": 0.0
+        }
+      }
+    ],
+    "scope": "Same map coordinates and nominal opacity; hidden-control and detuning sampling changed",
+    "summary": {
+      "off": {
+        "coordinate_count": 18,
+        "improvement_percent_range": [
+          -0.005432110256480638,
+          0.22978949882908037
+        ]
+      },
+      "on": {
+        "coordinate_count": 18,
+        "improvement_percent_range": [
+          0.015648740165185526,
+          0.2434890743526254
+        ]
+      }
+    }
+  }
+}

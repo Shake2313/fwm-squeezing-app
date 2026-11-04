@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "paper_id": "viray_2026_sensors",
+  "title": "Profiling a Rydberg-Atom Electric Field Sensor for Off-Resonant Detection of Sub-100 MHz RF Signals",
+  "authors": [
+    "Michael A. Viray",
+    "Abby Halasi-Kun",
+    "Baran N. Kayim",
+    "Brian C. Sawyer",
+    "Robert Wyllie",
+    "David S. La Mantia"
+  ],
+  "year": 2026,
+  "study_type": "experiment",
+  "topics": [
+    "off_resonant",
+    "three_photon",
+    "sapphire_cell",
+    "optimization",
+    "field_calibration"
+  ],
+  "publication": {
+    "journal": "Sensors",
+    "volume": "26",
+    "issue": "18",
+    "pages": "5887",
+    "doi": "10.3390/s26185887",
+    "arxiv_id": "2606.10151",
+    "status": "published",
+    "published_date": "2026-09-17"
+  },
+  "scope": {
+    "species": "85Rb",
+    "line": "5S-5P-5D-55F7/2",
+    "configuration": "three_photon_offresonant_Stark_heterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "GTRI_Viray_Sawyer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2606.10151",
+      "path": "sources/offresonant_2026_sensors.pdf",
+      "sha256": "2e23cd40fe4ac1fa00dc0792a9199ced7ae906295ea99bdcd621982412aafd9f",
+      "pages": 12,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "ism_40",
+      "label": "40.68 MHz 비공명 carrier",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 40.68,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "intermediate_frequency",
+          "value": 50,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 8",
+          "evidence": "intermediate frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 333,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Table 1 summary estimate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "Table 1 summary estimate",
+          "notes": "",
+          "uncertainty": {
+            "value": 6,
+            "unit": "uV/m/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": [
+        "p. 9 Fig. 7의 별도 고정 SIG 평가 352.2±13.7 µV/m/√Hz와 구분."
+      ]
+    },
+    {
+      "experiment_id": "ism_27",
+      "label": "27.12 MHz 비공명 carrier",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 27.12,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "rf frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 449,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Table 1 summary estimate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "Table 1 summary estimate",
+          "notes": "",
+          "uncertainty": {
+            "value": 8,
+            "unit": "uV/m/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "ism_13",
+      "label": "13.56 MHz 비공명 carrier",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 13.56,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "rf frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 399,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Table 1 summary estimate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "Table 1 summary estimate",
+          "notes": "",
+          "uncertainty": {
+            "value": 10,
+            "unit": "uV/m/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "ism_6",
+      "label": "6.78 MHz 비공명 carrier",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 6.78,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "rf frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 125,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Table 1 summary estimate",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 9, Table 1",
+          "evidence": "Table 1 summary estimate",
+          "notes": "",
+          "uncertainty": {
+            "value": 4,
+            "unit": "uV/m/sqrt(Hz)",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "optimization",
+      "claim": "LO 세기와 coupling detuning을 자동 최적화. Sapphire 셀의 저주파 투과와 외부 RF 장의 보정 조건을 명시.",
+      "locator": "PDF pp. 2-8",
+      "source_id": "main",
+      "category": "optimization",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "metric",
+      "claim": "감도는 photodiode PSD를 전기장 단위로 환산한 값. 최소 검출장·dynamic range와 별도 보고.",
+      "locator": "PDF pp. 4, 8-9",
+      "source_id": "main",
+      "category": "sensitivity_definition",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

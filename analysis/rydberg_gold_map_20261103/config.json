@@ -1,0 +1,51 @@
+{
+  "as_of": "2026-11-03",
+  "signature": "7d8cdbc4369d2dc1e0a22ae15dd84e72ff1b98bb32bea510dca83c61322c857e",
+  "temperature_c": [
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    33.0,
+    35.0
+  ],
+  "coupling_power_mw": [
+    20.0,
+    30.0,
+    40.0
+  ],
+  "probe_power_uw": [
+    2.0,
+    4.0,
+    6.0,
+    8.0,
+    10.0
+  ],
+  "lo_rabi_mhz": [
+    2.0,
+    3.0,
+    3.7,
+    4.5,
+    6.0
+  ],
+  "opacities": [
+    0.0005,
+    0.001,
+    0.0015
+  ],
+  "modes": [
+    "off",
+    "on"
+  ],
+  "probe_window_mhz": 6.0,
+  "fixed": {
+    "cell_mm": 50,
+    "beam_diameter_mm": 0.15,
+    "if_khz": 40,
+    "rf_detuning_mhz": 0,
+    "coupling_detuning_mhz": 0,
+    "temperature_model": "Linked"
+  },
+  "scope": "Sampled local optima, compact homogeneous propagation; not a global optimum or validated forecast",
+  "provenance": "AI-selected bounded pilot around user-adopted Ju2026 Gold; no fit to the sensitivity reference"
+}

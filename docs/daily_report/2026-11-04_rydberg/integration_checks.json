@@ -1,0 +1,16 @@
+{
+  "command": [
+    "C:\\Python312\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "analysis/rydberg_cell_heating/test_adapter_integration_regressions.py",
+    "analysis/rydberg_cell_heating/test_workflow.py::test_calibrated_finite_if_chain_can_emit_absolute_sensitivity",
+    "--durations=5",
+    "--junitxml=G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\docs\\daily_report\\2026-11-04_rydberg\\integration_pytest.xml"
+  ],
+  "started_at": "2026-11-04T05:01:36.780277+09:00",
+  "completed_at": "2026-11-04T05:02:06.502303+09:00",
+  "returncode": 0,
+  "wall_seconds": 29.722396500001196
+}

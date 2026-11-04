@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "paper_id": "wang_2023_oe",
+  "title": "Noise analysis of the atomic superheterodyne receiver based on flat-top laser beams",
+  "authors": [
+    "Zheng Wang",
+    "Mingyong Jing",
+    "Peng Zhang",
+    "Shaoxin Yuan",
+    "Hao Zhang",
+    "Linjie Zhang",
+    "Liantuan Xiao",
+    "Suotang Jia"
+  ],
+  "year": 2023,
+  "study_type": "experiment",
+  "topics": [
+    "noise_spectrum",
+    "transit",
+    "beam_profile",
+    "atom_number",
+    "SQL"
+  ],
+  "publication": {
+    "journal": "Optics Express",
+    "volume": "31",
+    "issue": "12",
+    "pages": "19909",
+    "doi": "10.1364/OE.491718",
+    "arxiv_id": "2303.06421",
+    "status": "published",
+    "published_date": "2023-05-30"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-47D5/2-48P3/2",
+    "configuration": "flat_top_atomic_superheterodyne_noise",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Shanxi_Jing_Zhang",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://laserspec.sxu.edu.cn/docs/2023-06/b3890c5ab31c4230abd9adce20c42c64.pdf",
+      "path": "sources/wang_2023_oe.pdf",
+      "sha256": "a0807e758f8da08dd9a5164dbaeaac628b09d57e52715053a3b6f51200422457",
+      "pages": 9,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "flat_top_noise",
+      "label": "Flat-top 빔 직경별 잡음 비교",
+      "kind": "noise_characterization",
+      "conditions": [
+        {
+          "quantity": "beam_diameter_quantum_noise_regime",
+          "value": 2,
+          "unit": "mm",
+          "value_type": "upper_bound",
+          "basis": "Quantum-noise-dominated regime for diameter <=2 mm",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Quantum-noise-dominated regime for diameter <=2 mm",
+          "notes": ""
+        },
+        {
+          "quantity": "readout_frequency_quantum_noise_regime",
+          "value": 70,
+          "unit": "kHz",
+          "value_type": "lower_bound",
+          "basis": "Above this frequency in the stated diameter regime",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Above this frequency in the stated diameter regime",
+          "notes": ""
+        },
+        {
+          "quantity": "lo_rabi_over_2pi",
+          "value": 10.68,
+          "unit": "MHz",
+          "value_type": "approximate",
+          "basis": "Local microwave Rabi frequency",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "Local microwave Rabi frequency",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "participation",
+      "claim": "빔에 참여하는 모든 원자는 잡음에 기여하지만 신호 기여 원자는 일부. 양자잡음 지배 관측과 이상적 SQL 달성은 별도.",
+      "locator": "PDF pp. 1, 5-7",
+      "source_id": "main",
+      "category": "atom_number",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "transit",
+      "claim": "Flat-top 직경과 판독 주파수를 바꾸어 transit 및 기술잡음의 영향을 구분.",
+      "locator": "PDF pp. 3-7",
+      "source_id": "main",
+      "category": "transit",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

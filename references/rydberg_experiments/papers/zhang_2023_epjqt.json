@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "paper_id": "zhang_2023_epjqt",
+  "title": "Quantum scaling atomic superheterodyne receiver",
+  "authors": [
+    "Peng Zhang",
+    "Mingyong Jing",
+    "Zheng Wang",
+    "Yan Peng",
+    "Shaoxin Yuan",
+    "Hao Zhang",
+    "Liantuan Xiao",
+    "Suotang Jia",
+    "Linjie Zhang"
+  ],
+  "year": 2023,
+  "study_type": "mixed",
+  "topics": [
+    "atom_number",
+    "SQL",
+    "transit",
+    "heterodyne"
+  ],
+  "publication": {
+    "journal": "EPJ Quantum Technology",
+    "volume": "10",
+    "issue": "1",
+    "pages": "39",
+    "doi": "10.1140/epjqt/s40507-023-00198-7",
+    "arxiv_id": "2307.15492",
+    "status": "published",
+    "published_date": "2023-10-03"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-47D5/2-48P3/2",
+    "configuration": "interaction_length_scaling",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Shanxi_Jing_Zhang",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2307.15492",
+      "path": "sources/zhang_2024_quantum_scaling.pdf",
+      "sha256": "2373f1c6fcfbd652f18162e920110815a8da736e992607b60d94d43733ed20dc",
+      "pages": 12,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "finding_id": "scaling",
+      "claim": "상호작용 길이를 바꾸는 실험에서 신호 진폭의 N 비례·잡음 진폭의 sqrt(N) 비례 및 감도의 N^-1/2 경향을 조사.",
+      "locator": "PDF pp. 1, 5-9",
+      "source_id": "main",
+      "category": "atom_number",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "nonideal",
+      "claim": "유한 빔·비균일 세기·transit noise가 이상적 원자수 스케일링에 주는 영향을 논의.",
+      "locator": "PDF pp. 6-10",
+      "source_id": "main",
+      "category": "transit",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ 길이 스캔의 그림 점은 수치 digitization 없이 finding·원문 위치로 연결. 독립 스칼라 감도 표본 생성 없음."
+  ]
+}

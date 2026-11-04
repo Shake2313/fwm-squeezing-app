@@ -1,0 +1,73 @@
+{
+  "head": {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "returncode": 0,
+    "stdout": "676a7a61ee693dbde5ca4940c9500f24f965f8cb\n",
+    "stderr": ""
+  },
+  "branch": {
+    "command": [
+      "git",
+      "branch",
+      "--show-current"
+    ],
+    "returncode": 0,
+    "stdout": "main\n",
+    "stderr": ""
+  },
+  "tracked_working_changes": {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "--",
+      "gabes/schemes/rydberg.py",
+      "tests/test_rydberg_eit.py",
+      "tests/test_rydberg_opacity.py",
+      "README.md",
+      "docs/checklist.json"
+    ],
+    "returncode": 0,
+    "stdout": "README.md\ndocs/checklist.json\ngabes/schemes/rydberg.py\ntests/test_rydberg_eit.py\ntests/test_rydberg_opacity.py\n",
+    "stderr": "warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'tests/test_rydberg_opacity.py', LF will be replaced by CRLF the next time Git touches it\n"
+  },
+  "model_physics_tracking": {
+    "command": [
+      "git",
+      "ls-files",
+      "--",
+      "tests/test_rydberg_model_physics.py"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "shared_core_diff": {
+    "command": [
+      "git",
+      "diff",
+      "e6aad618685bfcca815e32a01473822d4055a89c",
+      "--",
+      "gabes/core.py"
+    ],
+    "returncode": 0,
+    "stdout": "diff --git a/gabes/core.py b/gabes/core.py\nindex f60fb8a..8f662f6 100644\n--- a/gabes/core.py\n+++ b/gabes/core.py\n@@ -113,6 +113,16 @@ def comm_super(H):\n     return -1j * (np.kron(H, eye) - np.kron(eye, H.T))\n \n \n+def dissipator(L):\n+    \"\"\"vec rule (row-major):  D[L]ρ = LρL† − ½{L†L, ρ}, rate folded into L.\"\"\"\n+    n = L.shape[0]\n+    eye = _eye(n)\n+    LdL = L.conj().T @ L\n+    return (np.kron(L, L.conj())\n+            - 0.5 * np.kron(LdL, eye)\n+            - 0.5 * np.kron(eye, LdL.T))\n+\n+\n def build_liouvillian(H, atom):\n     \"\"\"L₀ = −i[H,·] + (Lindblad dissipator + dephasing) for the given AtomModel.\n \n",
+    "stderr": ""
+  },
+  "doppler_commit": {
+    "command": [
+      "git",
+      "show",
+      "-s",
+      "--format=fuller",
+      "e251527"
+    ],
+    "returncode": 0,
+    "stdout": "commit e25152741388506884dfebbc4a353d97f45fbaa4\nAuthor:     Suin Park <bamtolsuin@pusan.ac.kr>\nAuthorDate: Tue Nov 3 16:00:43 2026 +0900\nCommit:     Suin Park <bamtolsuin@pusan.ac.kr>\nCommitDate: Tue Nov 3 16:00:43 2026 +0900\n\n    feat(doppler): exact Maxwell average for Doppler-on Lambda and Rydberg\n    \n    User decision (consolidation item 4c): drop the 2 m/s, 4 sigma velocity grid\n    for the exact Maxwell average.\n    \n    AffineScan.maxwell_mean takes the Gaussian mean of the pole form in closed\n    form with sigma = k sqrt(k_B T/m): no grid, no truncation. It matches fine\n    trapezoid grids to <=2e-12 (Lambda), 5.7e-11 (Rydberg EIT) and 2.3e-9 (Rydberg\n    AT electrometry) at the 4b cost (13 ms Lambda, 19 ms Rydberg). Rows that miss\n    the pole guard, or the whole scan on LinAlgError, are summed on a grid whose\n    step resolves the rows' narrowest pole: doppler.maxwell_strip_grid, step\n    2 pi strip / (k ln(1/error)), error 1e-8, +-6 sigma. magneto's fallback grid\n    now comes from the same function, bit-identical.\n    \n    The superheterodyne finite-IF phasor is a product of complex (L - i omega_IF)\n    resolvents with no closed form, so it stays a class sum, now on the pole-derived\n    grid (AffineScan.quadrature_classes, solved in chunks of 16384 classes). It is\n    within 6.1e-7 of a finer grid (error 1e-11, 8 sigma) at every slider end; a\n    readout takes about 0.2 s and the cell-heating sweep's first run 2.3 s (0.39 s\n    before).\n    \n    Correction to the 57bf5a2 checklist notes: the difference from the old grid is\n    not the 4 sigma truncation. Widening to 8 sigma leaves it; the 2 m/s step makes\n    it (k * 2 m/s = 2.56 MHz against the 2.87 MHz natural HWHM), and 1 m/s takes\n    Lambda to 1e-6. The same step had the finite-IF phasor 58 % off.\n    \n    Value changes against 57bf5a2, Doppler on only:\n    - Lambda: chi_bar up to ~0.15 %; displayed readouts at the regime defaults are\n      unchanged at display precision.\n    - Rydberg EIT: linewidth 2.92 -> 2.89 MHz, IF optimum -1.87 -> -1.33 MHz.\n    - Rydberg AT electrometry: total sensitivity 1007.28 -> 1557.57 nV/cm/rtHz,\n      RF AT splitting 2.39 -> 2.05 MHz, AT field estimate 99.44 -> 85.565 mV/m RMS,\n      superheterodyne optimum -2.16 -> -2.28 MHz, response phase +3.8 -> +2.8 deg.\n    - Cell heating: sensitivities rise about 54 % (55 C: 38.80 -> 59.44\n      nV/cm/rtHz) and 55 C stays best; Fig. 2(b) moves up to 7.5 % in amplitude and\n      2 % in width.\n    This supersedes 57bf5a2's \"1007.28 stands\". cache_version becomes\n    physical-units-v5-exact-maxwell and rydberg-eit-v7-exact-maxwell, which also\n    covers 4b's value change. The stored analysis/rydberg_cell_heating results are\n    Doppler off and do not move.\n    \n    Doppler off is bit-identical: 134612 displayed and extra-view paths, and the\n    raw snapshots with and without Numba. Every recompute knob at both slider ends\n    and every choice of Lambda EIT/AT/CPT and Rydberg EIT/AT electrometry, Doppler\n    on: 132 calls, 92532 rows, no fallback row, worst row 6.2e-8 against a\n    resolving grid. test_absorption's angle test had its independent reference\n    pinned to the 2 m/s grid; it now uses 0.5 m/s and 8 sigma at the same 1e-10.\n    docs/checklist.json records the decision and the validation on both pole items.\n    \n    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n",
+    "stderr": ""
+  }
+}

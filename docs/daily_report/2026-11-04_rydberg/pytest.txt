@@ -1,0 +1,20 @@
+........................................................................ [ 72%]
+............................                                             [100%]
+============================== warnings summary ===============================
+tests/test_rydberg_opacity.py::test_export_preserves_live_opacity_provenance_and_scenario_bounds[0.0]
+tests/test_rydberg_opacity.py::test_export_preserves_live_opacity_provenance_and_scenario_bounds[0.002]
+  G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation Solver\gabes_ui\export.py:203: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "generated_at_utc": datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation Solver\docs\daily_report\2026-11-04_rydberg\pytest.xml -
+============================= slowest 8 durations =============================
+5.71s call     tests/test_rydberg_model_physics.py::test_legacy_negative_stationary_state_is_physical_after_cp_correction
+1.94s call     tests/test_rydberg_eit.py::test_cell_heating_extra_view_reports_absolute_sensitivity
+1.67s call     tests/test_rydberg_opacity.py::test_export_preserves_live_opacity_provenance_and_scenario_bounds[0.0]
+1.33s call     tests/test_affine_doppler.py::test_maxwell_mean_is_the_limit_of_fine_velocity_grids
+0.67s call     tests/test_rydberg_opacity.py::test_scenarios_reuse_each_atomic_sweep_and_report_separate_optima[1-20]
+0.66s call     tests/test_rydberg_eit.py::test_doppler_finite_if_phasor_is_converged_in_velocity
+0.40s call     tests/test_rydberg_eit.py::test_at_center_shift_tracks_microwave_detuning
+0.34s call     tests/test_rydberg_eit.py::test_microwave_at_splitting_tracks_lo_rabi
+100 passed, 2 warnings in 23.02s

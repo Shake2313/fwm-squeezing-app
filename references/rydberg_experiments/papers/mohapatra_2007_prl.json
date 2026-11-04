@@ -1,0 +1,213 @@
+{
+  "schema_version": 1,
+  "paper_id": "mohapatra_2007_prl",
+  "title": "Coherent Optical Detection of Highly Excited Rydberg States Using Electromagnetically Induced Transparency",
+  "authors": [
+    "A. K. Mohapatra",
+    "T. R. Jackson",
+    "C. S. Adams"
+  ],
+  "year": 2007,
+  "study_type": "experiment",
+  "topics": [
+    "foundation",
+    "optical_depth",
+    "dc_screening",
+    "transient_response"
+  ],
+  "publication": {
+    "journal": "Physical Review Letters",
+    "volume": "98",
+    "issue": "11",
+    "pages": "113003",
+    "doi": "10.1103/PhysRevLett.98.113003",
+    "arxiv_id": "quant-ph/0612200",
+    "status": "published",
+    "published_date": "2007-03-15"
+  },
+  "scope": {
+    "species": "85Rb addressed; isotope purity not specified",
+    "line": "5S-5P-nS/nD",
+    "configuration": "two_photon_EIT",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "context_only",
+    "reason": "전기장 감응 Rydberg-EIT의 광학 검출·벽 전하 기초 실험."
+  },
+  "apparatus_group": "Durham_Adams",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/quant-ph/0612200",
+      "path": "sources/mohapatra_2007_prl.pdf",
+      "sha256": "26124d4b291e8b916a7dd1ae68b7c259cacaf8d86564ccefa193ac5357174991",
+      "pages": 4,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "apparatus",
+      "label": "초기 열증기 Rydberg-EIT 장치",
+      "kind": "apparatus",
+      "conditions": [
+        {
+          "quantity": "cell_length",
+          "value": 75,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Physical vapor-cell length",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Physical vapor-cell length",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 1,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_radius",
+          "value": 0.4,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "1/e^2 intensity radius",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "1/e^2 intensity radius",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_beam_radius",
+          "value": 0.8,
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "1/e^2 intensity radius",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "1/e^2 intensity radius",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 200,
+          "unit": "mW",
+          "value_type": "upper_bound",
+          "basis": "Available power up to this value",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Available power up to this value",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": "room_temperature",
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "No numerical cell temperature assigned",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "No numerical cell temperature assigned",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "eit_linewidth",
+          "value": null,
+          "unit": "MHz",
+          "value_type": "range",
+          "basis": "Varies with laser power and transition",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "Varies with laser power and transition",
+          "notes": "",
+          "lower": 2,
+          "upper": 4
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "charge_response",
+      "label": "벽 전하·DC 차폐 관측",
+      "kind": "scan",
+      "conditions": [],
+      "results": [
+        {
+          "quantity": "applied_dc_field_without_observed_response",
+          "value": 100,
+          "unit": "V/cm",
+          "value_type": "upper_bound",
+          "basis": "External DC field screened in this cell",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "External DC field screened in this cell",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_frequency",
+          "value": 90,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "AC Stark response test; not an adjacent-Rydberg resonant LO",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4, Fig. 6",
+          "evidence": "AC Stark response test; not an adjacent-Rydberg resonant LO",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "가한 DC 장의 상한과 최소 검출장·감도를 구분."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "screening",
+      "claim": "벽 전하가 정적 외부 전기장을 차폐하며, 전기장 반전 뒤 과도 EIT 응답을 관찰.",
+      "locator": "PDF pp. 3-4, Figs. 5-6",
+      "source_id": "main",
+      "category": "screening",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "doppler",
+      "claim": "속도 평균한 ladder 감수율로 probe transmission을 계산. EIT 위치는 probe·coupling detuning에 의존.",
+      "locator": "PDF pp. 2-3, Eq. (1)",
+      "source_id": "main",
+      "category": "optical_depth",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

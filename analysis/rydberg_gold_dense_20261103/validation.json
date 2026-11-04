@@ -1,0 +1,2526 @@
+{
+  "origin": "⟦AI⟧ Independent dense-map verification",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "completed_config_matches",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "engine_inputs_and_dense_source_hashes",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "configuration_signature",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "environment_is_resume_signed_and_matches",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "complete_unique_map_cells",
+      "status": "PASS",
+      "detail": {
+        "expected": 1134,
+        "actual": 1134
+      }
+    },
+    {
+      "id": "same_bounded_domain",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "gold_geometry_and_fixed_if_unchanged",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "positive_finite_outputs",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "bounded_controls_and_detuning",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "fixed_physical_detuning_grid",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "hidden_controls_on_refined_lattice_or_protected_gold_lo",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "passive_transmission",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "psn_equals_total_under_zero_technical_noise",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "independent_balanced_psn_and_field_unit_reconstruction",
+      "status": "PASS",
+      "detail": {
+        "max_relative_error": 6.661338147750939e-16
+      }
+    },
+    {
+      "id": "complete_unique_opacity_scores_per_control",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "reported_state_and_score_counts",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "each_map_cell_is_saved_control_minimum",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "reported_nominal_best_matches_complete_map",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "optimized_no_worse_than_fixed_gold_controls",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "original_25_control_grid_reevaluated_at_original_map_cells",
+      "status": "PASS",
+      "detail": {
+        "expected_old_control_states": 900
+      }
+    },
+    {
+      "id": "old_map_values_retained_or_improved_with_fixed_detuning_grid",
+      "status": "PASS",
+      "detail": {
+        "maximum_relative_worsening": 5.4321102564758306e-05
+      }
+    },
+    {
+      "id": "global_saved_central_and_sideband_minima_match",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "epsilon_bands_match_saved_sample_membership",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "adaptive_control_stencils_finished_without_iteration_cap",
+      "status": "PASS",
+      "detail": {
+        "failed_paths": 0,
+        "max_iterations": 12
+      }
+    },
+    {
+      "id": "finite_if_mirror_shortcut_disabled",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "selected_off_finer_control_branch_supplement_integrity",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "selected_off_finer_control_branches_stable_within_declared_tolerance",
+      "status": "PASS",
+      "detail": {
+        "maximum_absolute_relative_branch_change": 0.0003402488162123074,
+        "minimum_absolute_relative_branch_margin": 0.00015301553027891046,
+        "branch_selection_changed_cases": 0
+      }
+    },
+    {
+      "id": "selected_local_rectangles_and_finer_detuning_agree",
+      "status": "PASS",
+      "detail": [
+        {
+          "saved_control": [
+            "off",
+            20.0,
+            30.0,
+            4.0,
+            3.75
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 5.906783968121138,
+          "reference_control": [
+            "off",
+            20.0,
+            30.0,
+            4.0,
+            3.75
+          ],
+          "reference_sensitivity": 5.906783968121138,
+          "reference_detuning_mhz": -2.1999999999999997,
+          "relative_improvement": 0.0,
+          "probe_grid_uw": [
+            3.5,
+            4.0,
+            4.5
+          ],
+          "lo_grid_mhz": [
+            3.7,
+            3.75,
+            3.875
+          ],
+          "control_evaluations": 9,
+          "elapsed_s": 0.9558305999962613,
+          "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+        },
+        {
+          "saved_control": [
+            "on",
+            20.0,
+            30.0,
+            10.0,
+            4.625
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 1091.656191166937,
+          "reference_control": [
+            "on",
+            20.0,
+            30.0,
+            10.0,
+            4.625
+          ],
+          "reference_sensitivity": 1091.656191166937,
+          "reference_detuning_mhz": 0.0,
+          "relative_improvement": 0.0,
+          "probe_grid_uw": [
+            9.5,
+            10.0
+          ],
+          "lo_grid_mhz": [
+            4.5,
+            4.625,
+            4.75
+          ],
+          "control_evaluations": 6,
+          "elapsed_s": 47.94919369998388,
+          "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+        },
+        {
+          "saved_control": [
+            "off",
+            35.0,
+            37.5,
+            10.0,
+            2.0
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 1.5358454469844414,
+          "reference_control": [
+            "off",
+            35.0,
+            37.5,
+            10.0,
+            2.0
+          ],
+          "reference_sensitivity": 1.5358435261973251,
+          "reference_detuning_mhz": -0.125,
+          "relative_improvement": 1.2506382852661702e-06,
+          "probe_grid_uw": [
+            9.5,
+            10.0
+          ],
+          "lo_grid_mhz": [
+            2.0,
+            2.125
+          ],
+          "control_evaluations": 4,
+          "elapsed_s": 0.1859345999546349,
+          "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+        },
+        {
+          "saved_control": [
+            "on",
+            35.0,
+            40.0,
+            10.0,
+            4.75
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 214.9236016713147,
+          "reference_control": [
+            "on",
+            35.0,
+            40.0,
+            10.0,
+            4.75
+          ],
+          "reference_sensitivity": 214.9236016713147,
+          "reference_detuning_mhz": 0.0,
+          "relative_improvement": 0.0,
+          "probe_grid_uw": [
+            9.5,
+            10.0
+          ],
+          "lo_grid_mhz": [
+            4.625,
+            4.75,
+            4.875
+          ],
+          "control_evaluations": 6,
+          "elapsed_s": 45.630936500034295,
+          "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+        },
+        {
+          "saved_control": [
+            "off",
+            23.0,
+            30.0,
+            10.0,
+            2.0
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 4.3910111886670355,
+          "reference_control": [
+            "off",
+            23.0,
+            30.0,
+            10.0,
+            2.0
+          ],
+          "reference_sensitivity": 4.390992915569116,
+          "reference_detuning_mhz": -0.10499999999999954,
+          "relative_improvement": 4.161478332487256e-06,
+          "probe_grid_uw": [
+            9.5,
+            10.0
+          ],
+          "lo_grid_mhz": [
+            2.0,
+            2.125
+          ],
+          "control_evaluations": 4,
+          "elapsed_s": 0.1757279000012204,
+          "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+        }
+      ]
+    },
+    {
+      "id": "independent_velocity_sum_reproduces_saved_fixed_control_sensitivity",
+      "status": "PASS",
+      "detail": [
+        {
+          "control": [
+            "on",
+            20.0,
+            30.0,
+            10.0,
+            4.625
+          ],
+          "opacity": 0.001,
+          "detuning_mhz": 0.0,
+          "variants": [
+            {
+              "spacing_divisor": 1,
+              "cutoff_sigma": 6,
+              "velocity_classes": 9679,
+              "dv_m_s": 0.21009824657835452,
+              "phasor_real": -5.15083556871299e-11,
+              "phasor_imag": -2.64749843967899e-12,
+              "phasor_magnitude": 5.157635071987926e-11,
+              "phase_deg": -177.0576207959116,
+              "amplitude_participation_A": 0.025081836729032587,
+              "phase_coherence_C": 0.6107976578057189,
+              "coherent_to_static_amplitude_ratio": 0.01531992712755856,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561911669362,
+              "relative_complex_error_vs_dv4_8sigma": 1.9573524886465578e-09,
+              "relative_sensitivity_change_vs_reference": -1.9573521692350937e-09
+            },
+            {
+              "spacing_divisor": 2,
+              "cutoff_sigma": 6,
+              "velocity_classes": 19355,
+              "dv_m_s": 0.10504912328917726,
+              "phasor_real": -5.150835568770558e-11,
+              "phasor_imag": -2.6474984397688588e-12,
+              "phasor_magnitude": 5.1576350720458795e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510489349016147,
+              "phase_coherence_C": 0.6102366908560888,
+              "coherent_to_static_amplitude_ratio": 0.015319927127730702,
+              "sensitivity_nv_cm_sqrt_hz": 1091.65619115467,
+              "relative_complex_error_vs_dv4_8sigma": 1.9685885520934093e-09,
+              "relative_sensitivity_change_vs_reference": -1.968588736467325e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 6,
+              "velocity_classes": 38709,
+              "dv_m_s": 0.05252456164458863,
+              "phasor_real": -5.150835568780256e-11,
+              "phasor_imag": -2.647498439773846e-12,
+              "phasor_magnitude": 5.15763507205559e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510380955612669,
+              "phase_coherence_C": 0.6102630396995125,
+              "coherent_to_static_amplitude_ratio": 0.015319927127759545,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561911526144,
+              "relative_complex_error_vs_dv4_8sigma": 1.9704713650008155e-09,
+              "relative_sensitivity_change_vs_reference": -1.9704713416501818e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 8,
+              "velocity_classes": 51613,
+              "dv_m_s": 0.05252456164458863,
+              "phasor_real": -5.150835558630682e-11,
+              "phasor_imag": -2.6474984345570256e-12,
+              "phasor_magnitude": 5.1576350618926175e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510380950666035,
+              "phase_coherence_C": 0.6102630396995126,
+              "coherent_to_static_amplitude_ratio": 0.015319927097572066,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561933036921,
+              "relative_complex_error_vs_dv4_8sigma": 0.0,
+              "relative_sensitivity_change_vs_reference": 0.0
+            }
+          ],
+          "campaign_sensitivity": 1091.656191166937,
+          "base_grid_relative_sensitivity_difference": -8.881784197001252e-16,
+          "static_phasor_real": -3.3636252852482513e-09,
+          "static_phasor_imag": -1.4193429271484764e-10,
+          "elapsed_s": 1.0193491999525577,
+          "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+        },
+        {
+          "control": [
+            "on",
+            35.0,
+            40.0,
+            10.0,
+            4.75
+          ],
+          "opacity": 0.001,
+          "detuning_mhz": 0.0,
+          "variants": [
+            {
+              "spacing_divisor": 1,
+              "cutoff_sigma": 6,
+              "velocity_classes": 9431,
+              "dv_m_s": 0.22107903506343973,
+              "phasor_real": -5.527345314749252e-11,
+              "phasor_imag": -2.211641835949254e-12,
+              "phasor_magnitude": 5.531768236702051e-11,
+              "phase_deg": -177.70866166584455,
+              "amplitude_participation_A": 0.023995557537226278,
+              "phase_coherence_C": 0.6593384845168386,
+              "coherent_to_static_amplitude_ratio": 0.01582119454173138,
+              "sensitivity_nv_cm_sqrt_hz": 214.9236016713144,
+              "relative_complex_error_vs_dv4_8sigma": 1.95502925528581e-09,
+              "relative_sensitivity_change_vs_reference": -1.955029138578368e-09
+            },
+            {
+              "spacing_divisor": 2,
+              "cutoff_sigma": 6,
+              "velocity_classes": 18859,
+              "dv_m_s": 0.11053951753171987,
+              "phasor_real": -5.5273453148109593e-11,
+              "phasor_imag": -2.211641835933737e-12,
+              "phasor_magnitude": 5.531768236763647e-11,
+              "phase_deg": -177.70866166588615,
+              "amplitude_participation_A": 0.02397386768440995,
+              "phase_coherence_C": 0.6599350071576463,
+              "coherent_to_static_amplitude_ratio": 0.015821194541907547,
+              "sensitivity_nv_cm_sqrt_hz": 214.92360166892126,
+              "relative_complex_error_vs_dv4_8sigma": 1.9661640144264672e-09,
+              "relative_sensitivity_change_vs_reference": -1.966164120403846e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 6,
+              "velocity_classes": 37717,
+              "dv_m_s": 0.05526975876585993,
+              "phasor_real": -5.52734531482163e-11,
+              "phasor_imag": -2.2116418359380365e-12,
+              "phasor_magnitude": 5.531768236774326e-11,
+              "phase_deg": -177.70866166588613,
+              "amplitude_participation_A": 0.023972818294855654,
+              "phase_coherence_C": 0.6599638952476927,
+              "coherent_to_static_amplitude_ratio": 0.01582119454193809,
+              "sensitivity_nv_cm_sqrt_hz": 214.9236016685064,
+              "relative_complex_error_vs_dv4_8sigma": 1.9680945522606004e-09,
+              "relative_sensitivity_change_vs_reference": -1.9680945761990642e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 8,
+              "velocity_classes": 50287,
+              "dv_m_s": 0.05526975876585993,
+              "phasor_real": -5.527345303943292e-11,
+              "phasor_imag": -2.2116418315853172e-12,
+              "phasor_magnitude": 5.531768225887283e-11,
+              "phase_deg": -177.70866166588613,
+              "amplitude_participation_A": 0.023972818247674894,
+              "phase_coherence_C": 0.6599638952476924,
+              "coherent_to_static_amplitude_ratio": 0.015821194510800482,
+              "sensitivity_nv_cm_sqrt_hz": 214.92360209149635,
+              "relative_complex_error_vs_dv4_8sigma": 0.0,
+              "relative_sensitivity_change_vs_reference": 0.0
+            }
+          ],
+          "campaign_sensitivity": 214.9236016713147,
+          "base_grid_relative_sensitivity_difference": -1.4432899320127035e-15,
+          "static_phasor_real": -3.494630795378473e-09,
+          "static_phasor_imag": -1.1212000217833038e-10,
+          "elapsed_s": 0.9975178999593481,
+          "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+        }
+      ]
+    },
+    {
+      "id": "selected_thermal_finite_if_velocity_quadrature_converges",
+      "status": "PASS",
+      "detail": [
+        {
+          "control": [
+            "on",
+            20.0,
+            30.0,
+            10.0,
+            4.625
+          ],
+          "opacity": 0.001,
+          "detuning_mhz": 0.0,
+          "variants": [
+            {
+              "spacing_divisor": 1,
+              "cutoff_sigma": 6,
+              "velocity_classes": 9679,
+              "dv_m_s": 0.21009824657835452,
+              "phasor_real": -5.15083556871299e-11,
+              "phasor_imag": -2.64749843967899e-12,
+              "phasor_magnitude": 5.157635071987926e-11,
+              "phase_deg": -177.0576207959116,
+              "amplitude_participation_A": 0.025081836729032587,
+              "phase_coherence_C": 0.6107976578057189,
+              "coherent_to_static_amplitude_ratio": 0.01531992712755856,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561911669362,
+              "relative_complex_error_vs_dv4_8sigma": 1.9573524886465578e-09,
+              "relative_sensitivity_change_vs_reference": -1.9573521692350937e-09
+            },
+            {
+              "spacing_divisor": 2,
+              "cutoff_sigma": 6,
+              "velocity_classes": 19355,
+              "dv_m_s": 0.10504912328917726,
+              "phasor_real": -5.150835568770558e-11,
+              "phasor_imag": -2.6474984397688588e-12,
+              "phasor_magnitude": 5.1576350720458795e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510489349016147,
+              "phase_coherence_C": 0.6102366908560888,
+              "coherent_to_static_amplitude_ratio": 0.015319927127730702,
+              "sensitivity_nv_cm_sqrt_hz": 1091.65619115467,
+              "relative_complex_error_vs_dv4_8sigma": 1.9685885520934093e-09,
+              "relative_sensitivity_change_vs_reference": -1.968588736467325e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 6,
+              "velocity_classes": 38709,
+              "dv_m_s": 0.05252456164458863,
+              "phasor_real": -5.150835568780256e-11,
+              "phasor_imag": -2.647498439773846e-12,
+              "phasor_magnitude": 5.15763507205559e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510380955612669,
+              "phase_coherence_C": 0.6102630396995125,
+              "coherent_to_static_amplitude_ratio": 0.015319927127759545,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561911526144,
+              "relative_complex_error_vs_dv4_8sigma": 1.9704713650008155e-09,
+              "relative_sensitivity_change_vs_reference": -1.9704713416501818e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 8,
+              "velocity_classes": 51613,
+              "dv_m_s": 0.05252456164458863,
+              "phasor_real": -5.150835558630682e-11,
+              "phasor_imag": -2.6474984345570256e-12,
+              "phasor_magnitude": 5.1576350618926175e-11,
+              "phase_deg": -177.0576207958447,
+              "amplitude_participation_A": 0.02510380950666035,
+              "phase_coherence_C": 0.6102630396995126,
+              "coherent_to_static_amplitude_ratio": 0.015319927097572066,
+              "sensitivity_nv_cm_sqrt_hz": 1091.6561933036921,
+              "relative_complex_error_vs_dv4_8sigma": 0.0,
+              "relative_sensitivity_change_vs_reference": 0.0
+            }
+          ],
+          "campaign_sensitivity": 1091.656191166937,
+          "base_grid_relative_sensitivity_difference": -8.881784197001252e-16,
+          "static_phasor_real": -3.3636252852482513e-09,
+          "static_phasor_imag": -1.4193429271484764e-10,
+          "elapsed_s": 1.0193491999525577,
+          "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+        },
+        {
+          "control": [
+            "on",
+            35.0,
+            40.0,
+            10.0,
+            4.75
+          ],
+          "opacity": 0.001,
+          "detuning_mhz": 0.0,
+          "variants": [
+            {
+              "spacing_divisor": 1,
+              "cutoff_sigma": 6,
+              "velocity_classes": 9431,
+              "dv_m_s": 0.22107903506343973,
+              "phasor_real": -5.527345314749252e-11,
+              "phasor_imag": -2.211641835949254e-12,
+              "phasor_magnitude": 5.531768236702051e-11,
+              "phase_deg": -177.70866166584455,
+              "amplitude_participation_A": 0.023995557537226278,
+              "phase_coherence_C": 0.6593384845168386,
+              "coherent_to_static_amplitude_ratio": 0.01582119454173138,
+              "sensitivity_nv_cm_sqrt_hz": 214.9236016713144,
+              "relative_complex_error_vs_dv4_8sigma": 1.95502925528581e-09,
+              "relative_sensitivity_change_vs_reference": -1.955029138578368e-09
+            },
+            {
+              "spacing_divisor": 2,
+              "cutoff_sigma": 6,
+              "velocity_classes": 18859,
+              "dv_m_s": 0.11053951753171987,
+              "phasor_real": -5.5273453148109593e-11,
+              "phasor_imag": -2.211641835933737e-12,
+              "phasor_magnitude": 5.531768236763647e-11,
+              "phase_deg": -177.70866166588615,
+              "amplitude_participation_A": 0.02397386768440995,
+              "phase_coherence_C": 0.6599350071576463,
+              "coherent_to_static_amplitude_ratio": 0.015821194541907547,
+              "sensitivity_nv_cm_sqrt_hz": 214.92360166892126,
+              "relative_complex_error_vs_dv4_8sigma": 1.9661640144264672e-09,
+              "relative_sensitivity_change_vs_reference": -1.966164120403846e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 6,
+              "velocity_classes": 37717,
+              "dv_m_s": 0.05526975876585993,
+              "phasor_real": -5.52734531482163e-11,
+              "phasor_imag": -2.2116418359380365e-12,
+              "phasor_magnitude": 5.531768236774326e-11,
+              "phase_deg": -177.70866166588613,
+              "amplitude_participation_A": 0.023972818294855654,
+              "phase_coherence_C": 0.6599638952476927,
+              "coherent_to_static_amplitude_ratio": 0.01582119454193809,
+              "sensitivity_nv_cm_sqrt_hz": 214.9236016685064,
+              "relative_complex_error_vs_dv4_8sigma": 1.9680945522606004e-09,
+              "relative_sensitivity_change_vs_reference": -1.9680945761990642e-09
+            },
+            {
+              "spacing_divisor": 4,
+              "cutoff_sigma": 8,
+              "velocity_classes": 50287,
+              "dv_m_s": 0.05526975876585993,
+              "phasor_real": -5.527345303943292e-11,
+              "phasor_imag": -2.2116418315853172e-12,
+              "phasor_magnitude": 5.531768225887283e-11,
+              "phase_deg": -177.70866166588613,
+              "amplitude_participation_A": 0.023972818247674894,
+              "phase_coherence_C": 0.6599638952476924,
+              "coherent_to_static_amplitude_ratio": 0.015821194510800482,
+              "sensitivity_nv_cm_sqrt_hz": 214.92360209149635,
+              "relative_complex_error_vs_dv4_8sigma": 0.0,
+              "relative_sensitivity_change_vs_reference": 0.0
+            }
+          ],
+          "campaign_sensitivity": 214.9236016713147,
+          "base_grid_relative_sensitivity_difference": -1.4432899320127035e-15,
+          "static_phasor_real": -3.494630795378473e-09,
+          "static_phasor_imag": -1.1212000217833038e-10,
+          "elapsed_s": 0.9975178999593481,
+          "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    "Sampled adaptive hidden-control search; no global continuous optimum established.",
+    "Opacity/Rabi anchors and zero technical noise are model assumptions, not calibrated experimental forecasts.",
+    "Local reference tests and velocity convergence probes cover selected settings only."
+  ],
+  "old_map_comparison": [
+    {
+      "cell": [
+        "off",
+        0.0005,
+        15.0,
+        20.0
+      ],
+      "old": 19.85349516884119,
+      "new": 19.853173862567314,
+      "relative_change": -1.6183864409935467e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        15.0,
+        30.0
+      ],
+      "old": 19.568144872294702,
+      "new": 19.549950247078243,
+      "relative_change": -0.0009298083868042317
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        15.0,
+        40.0
+      ],
+      "old": 19.201451094793253,
+      "new": 19.18511695934562,
+      "relative_change": -0.0008506719292721288
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        20.0,
+        20.0
+      ],
+      "old": 11.53412694887234,
+      "new": 11.53389223757409,
+      "relative_change": -2.0349290352883465e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        20.0,
+        30.0
+      ],
+      "old": 11.420802140558354,
+      "new": 11.408022245625228,
+      "relative_change": -0.0011190015180931878
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        20.0,
+        40.0
+      ],
+      "old": 11.19043384073302,
+      "new": 11.183519188285567,
+      "relative_change": -0.0006179074507624005
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        25.0,
+        20.0
+      ],
+      "old": 6.888614703948136,
+      "new": 6.888313216235561,
+      "relative_change": -4.3766087309493606e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        25.0,
+        30.0
+      ],
+      "old": 6.859240574005059,
+      "new": 6.852210270123181,
+      "relative_change": -0.0010249391031015298
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        25.0,
+        40.0
+      ],
+      "old": 6.708518836487098,
+      "new": 6.706777618688487,
+      "relative_change": -0.00025955323985094036
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        30.0,
+        20.0
+      ],
+      "old": 4.246803988242164,
+      "new": 4.246803988242162,
+      "relative_change": -6.661338147750939e-16
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        30.0,
+        30.0
+      ],
+      "old": 4.238326159495374,
+      "new": 4.238326159495374,
+      "relative_change": 0.0
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        30.0,
+        40.0
+      ],
+      "old": 4.155970259412277,
+      "new": 4.155740220277867,
+      "relative_change": -5.535148715019034e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        33.0,
+        20.0
+      ],
+      "old": 3.234730445545008,
+      "new": 3.234730445545006,
+      "relative_change": -5.551115123125783e-16
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        33.0,
+        30.0
+      ],
+      "old": 3.2195442295238355,
+      "new": 3.2194368119655925,
+      "relative_change": -3.336421262922773e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        33.0,
+        40.0
+      ],
+      "old": 3.1772169946602786,
+      "new": 3.176479389706019,
+      "relative_change": -0.0002321544154835209
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        35.0,
+        20.0
+      ],
+      "old": 2.7215445741426025,
+      "new": 2.721432078239724,
+      "relative_change": -4.133531522765299e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        35.0,
+        30.0
+      ],
+      "old": 2.7024705985216455,
+      "new": 2.7024195713766646,
+      "relative_change": -1.8881665172942874e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0005,
+        35.0,
+        40.0
+      ],
+      "old": 2.680862532138241,
+      "new": 2.677656731552897,
+      "relative_change": -0.0011958093885503507
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        15.0,
+        20.0
+      ],
+      "old": 10.100814707330388,
+      "new": 10.100347945928958,
+      "relative_change": -4.6210272631963534e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        15.0,
+        30.0
+      ],
+      "old": 9.984311701515564,
+      "new": 9.972762718859858,
+      "relative_change": -0.001156712951374761
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        15.0,
+        40.0
+      ],
+      "old": 9.780961056409117,
+      "new": 9.776194995457118,
+      "relative_change": -0.00048727941196291535
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        20.0,
+        20.0
+      ],
+      "old": 5.944270946670398,
+      "new": 5.944199927006482,
+      "relative_change": -1.1947581890714432e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        20.0,
+        30.0
+      ],
+      "old": 5.911988524985163,
+      "new": 5.906783968121138,
+      "relative_change": -0.0008803394732634917
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        20.0,
+        40.0
+      ],
+      "old": 5.779974033078004,
+      "new": 5.778907845390131,
+      "relative_change": -0.0001844623664001288
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        25.0,
+        20.0
+      ],
+      "old": 3.6272278516565986,
+      "new": 3.6272278516565994,
+      "relative_change": 2.220446049250313e-16
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        25.0,
+        30.0
+      ],
+      "old": 3.614977837103725,
+      "new": 3.6148686551230957,
+      "relative_change": -3.020266943509764e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        25.0,
+        40.0
+      ],
+      "old": 3.5463160489298433,
+      "new": 3.5465086887276644,
+      "relative_change": 5.4321102564758306e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        30.0,
+        20.0
+      ],
+      "old": 2.3161121935912536,
+      "new": 2.3161181025830913,
+      "relative_change": 2.551254578264661e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        30.0,
+        30.0
+      ],
+      "old": 2.2940516942818543,
+      "new": 2.2940598406388792,
+      "relative_change": 3.551078227692628e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        30.0,
+        40.0
+      ],
+      "old": 2.2821494833908,
+      "new": 2.2769053435303857,
+      "relative_change": -0.002297894988290805
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        33.0,
+        20.0
+      ],
+      "old": 1.8188549059793662,
+      "new": 1.8187940480743847,
+      "relative_change": -3.345946110455689e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        33.0,
+        30.0
+      ],
+      "old": 1.791983316975023,
+      "new": 1.7919565897686438,
+      "relative_change": -1.4914874556071211e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        33.0,
+        40.0
+      ],
+      "old": 1.7953301244505557,
+      "new": 1.7935449897646176,
+      "relative_change": -0.0009943211343843572
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        35.0,
+        20.0
+      ],
+      "old": 1.5697369317789176,
+      "new": 1.5697270532876355,
+      "relative_change": -6.293087129516373e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        35.0,
+        30.0
+      ],
+      "old": 1.5397897858598182,
+      "new": 1.539765417846904,
+      "relative_change": -1.582554523871238e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.001,
+        35.0,
+        40.0
+      ],
+      "old": 1.536991367524197,
+      "new": 1.5369305745419843,
+      "relative_change": -3.955323594995175e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        15.0,
+        20.0
+      ],
+      "old": 6.851429575682737,
+      "new": 6.851341288328139,
+      "relative_change": -1.2885975637977332e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        15.0,
+        30.0
+      ],
+      "old": 6.789223798439783,
+      "new": 6.782810788630798,
+      "relative_change": -0.0009445865977285584
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        15.0,
+        40.0
+      ],
+      "old": 6.643053431375523,
+      "new": 6.641608068044788,
+      "relative_change": -0.0002175751475832488
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        20.0,
+        20.0
+      ],
+      "old": 4.084394458419317,
+      "new": 4.084394458419312,
+      "relative_change": -1.3322676295501878e-15
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        20.0,
+        30.0
+      ],
+      "old": 4.075322640295323,
+      "new": 4.075229129917217,
+      "relative_change": -2.29455153273328e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        20.0,
+        40.0
+      ],
+      "old": 3.98055461757595,
+      "new": 3.980580045993222,
+      "relative_change": 6.388159368375668e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        25.0,
+        20.0
+      ],
+      "old": 2.5462674291618956,
+      "new": 2.546243220306074,
+      "relative_change": -9.507585709389588e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        25.0,
+        30.0
+      ],
+      "old": 2.5262139556221332,
+      "new": 2.5262200169977325,
+      "relative_change": 2.399391225704761e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        25.0,
+        40.0
+      ],
+      "old": 2.499579579423816,
+      "new": 2.4959240449468503,
+      "relative_change": -0.0014624597300511022
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        30.0,
+        20.0
+      ],
+      "old": 1.6833215181271055,
+      "new": 1.6833215181271042,
+      "relative_change": -7.771561172376096e-16
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        30.0,
+        30.0
+      ],
+      "old": 1.6550234212958763,
+      "new": 1.6550234212958763,
+      "relative_change": 0.0
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        30.0,
+        40.0
+      ],
+      "old": 1.6552321433490222,
+      "new": 1.655191307447642,
+      "relative_change": -2.4670800131687542e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        33.0,
+        20.0
+      ],
+      "old": 1.3621288819751685,
+      "new": 1.3621379144493215,
+      "relative_change": 6.631145020641327e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        33.0,
+        30.0
+      ],
+      "old": 1.3288768742205488,
+      "new": 1.3288698168412003,
+      "relative_change": -5.310784983447725e-06
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        33.0,
+        40.0
+      ],
+      "old": 1.3203722842954766,
+      "new": 1.3203550356630334,
+      "relative_change": -1.3063461455797842e-05
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        35.0,
+        20.0
+      ],
+      "old": 1.2052733343238442,
+      "new": 1.2052733343238442,
+      "relative_change": 0.0
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        35.0,
+        30.0
+      ],
+      "old": 1.1682661775011072,
+      "new": 1.1682661775011072,
+      "relative_change": 0.0
+    },
+    {
+      "cell": [
+        "off",
+        0.0015,
+        35.0,
+        40.0
+      ],
+      "old": 1.1545770122986292,
+      "new": 1.1545732475749129,
+      "relative_change": -3.2606951950731045e-06
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        15.0,
+        20.0
+      ],
+      "old": 4278.452621169988,
+      "new": 4277.766191606282,
+      "relative_change": -0.00016043874374338518
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        15.0,
+        30.0
+      ],
+      "old": 3775.1599648343276,
+      "new": 3771.4026302923776,
+      "relative_change": -0.000995278233756891
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        15.0,
+        40.0
+      ],
+      "old": 3430.0412906420906,
+      "new": 3421.8345811661216,
+      "relative_change": -0.002392597867074908
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        20.0,
+        20.0
+      ],
+      "old": 2474.500089559866,
+      "new": 2474.0236095011765,
+      "relative_change": -0.00019255608868229412
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        20.0,
+        30.0
+      ],
+      "old": 2183.537102756013,
+      "new": 2181.3116077285395,
+      "relative_change": -0.0010192155767193567
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        20.0,
+        40.0
+      ],
+      "old": 1983.9419086411144,
+      "new": 1979.1231079146498,
+      "relative_change": -0.0024289021293799617
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        25.0,
+        20.0
+      ],
+      "old": 1458.7357064512253,
+      "new": 1458.4112193326853,
+      "relative_change": -0.00022244407750149353
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        25.0,
+        30.0
+      ],
+      "old": 1287.2724264942267,
+      "new": 1285.9326934472256,
+      "relative_change": -0.0010407533164131788
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        25.0,
+        40.0
+      ],
+      "old": 1169.6071493116788,
+      "new": 1166.7298268118996,
+      "relative_change": -0.002460076019091151
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        30.0,
+        20.0
+      ],
+      "old": 875.8139978906798,
+      "new": 875.5959018296481,
+      "relative_change": -0.0002490209811181199
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        30.0,
+        30.0
+      ],
+      "old": 772.8955647085835,
+      "new": 772.0773326318069,
+      "relative_change": -0.001058658005218427
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        30.0,
+        40.0
+      ],
+      "old": 702.2415430128045,
+      "new": 700.497600528235,
+      "relative_change": -0.002483394071344125
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        33.0,
+        20.0
+      ],
+      "old": 650.3795851734831,
+      "new": 650.2087129781711,
+      "relative_change": -0.00026272687397832506
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        33.0,
+        30.0
+      ],
+      "old": 573.9591531093456,
+      "new": 573.3467872763938,
+      "relative_change": -0.0010669153538791498
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        33.0,
+        40.0
+      ],
+      "old": 521.4838840720494,
+      "new": 520.184358682967,
+      "relative_change": -0.0024919761257720108
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        35.0,
+        20.0
+      ],
+      "old": 535.193642949961,
+      "new": 535.0487925496805,
+      "relative_change": -0.00027065044996077425
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        35.0,
+        30.0
+      ],
+      "old": 472.3091277346572,
+      "new": 471.8032537060257,
+      "relative_change": -0.0010710655351037213
+    },
+    {
+      "cell": [
+        "on",
+        0.0005,
+        35.0,
+        40.0
+      ],
+      "old": 429.12168324537316,
+      "new": 428.05113654814244,
+      "relative_change": -0.0024947392290558534
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        15.0,
+        20.0
+      ],
+      "old": 2140.384901130312,
+      "new": 2140.049957858599,
+      "relative_change": -0.00015648740165186137
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        15.0,
+        30.0
+      ],
+      "old": 1888.5713846786557,
+      "new": 1886.7002157244538,
+      "relative_change": -0.0009907853996846683
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        15.0,
+        40.0
+      ],
+      "old": 1715.8955710233786,
+      "new": 1711.8071313071239,
+      "relative_change": -0.0023826856280165787
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        20.0,
+        20.0
+      ],
+      "old": 1238.4102997690973,
+      "new": 1238.180298959301,
+      "relative_change": -0.00018572262346272517
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        20.0,
+        30.0
+      ],
+      "old": 1092.761459949954,
+      "new": 1091.656191166937,
+      "relative_change": -0.001011445611439843
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        20.0,
+        40.0
+      ],
+      "old": 992.8472410384114,
+      "new": 990.4527321275702,
+      "relative_change": -0.0024117596462641666
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        25.0,
+        20.0
+      ],
+      "old": 730.5302159060434,
+      "new": 730.3761860960011,
+      "relative_change": -0.00021084659701753328
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        25.0,
+        30.0
+      ],
+      "old": 644.6309948675515,
+      "new": 643.9685937312952,
+      "relative_change": -0.0010275663775559662
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        25.0,
+        40.0
+      ],
+      "old": 585.6815361282793,
+      "new": 584.2577548671851,
+      "relative_change": -0.0024309819812764477
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        30.0,
+        20.0
+      ],
+      "old": 439.072178641528,
+      "new": 438.97132946618814,
+      "relative_change": -0.00022968700875536374
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        30.0,
+        30.0
+      ],
+      "old": 387.4450247712759,
+      "new": 387.043370532012,
+      "relative_change": -0.0010366741436440563
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        30.0,
+        40.0
+      ],
+      "old": 352.00091103302447,
+      "new": 351.14382727303735,
+      "relative_change": -0.002434890743526208
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        33.0,
+        20.0
+      ],
+      "old": 326.3571637265848,
+      "new": 326.27992488956374,
+      "relative_change": -0.00023666965400448436
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        33.0,
+        30.0
+      ],
+      "old": 287.9787110891092,
+      "new": 287.67999461798485,
+      "relative_change": -0.001037286645233726
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        33.0,
+        40.0
+      ],
+      "old": 261.62374447617464,
+      "new": 260.98888702385915,
+      "relative_change": -0.0024266048694724374
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        35.0,
+        20.0
+      ],
+      "old": 268.76593204085844,
+      "new": 268.7017070815633,
+      "relative_change": -0.00023896242655252475
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        35.0,
+        30.0
+      ],
+      "old": 237.15519080777082,
+      "new": 236.90972709057118,
+      "relative_change": -0.0010350341325592316
+    },
+    {
+      "cell": [
+        "on",
+        0.001,
+        35.0,
+        40.0
+      ],
+      "old": 215.44395061926767,
+      "new": 214.9236016713147,
+      "relative_change": -0.0024152404672179717
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        15.0,
+        20.0
+      ],
+      "old": 1427.696079440305,
+      "new": 1427.4783043283917,
+      "relative_change": -0.00015253604394482867
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        15.0,
+        30.0
+      ],
+      "old": 1259.70887176559,
+      "new": 1258.4664302959839,
+      "relative_change": -0.0009862925454074967
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        15.0,
+        40.0
+      ],
+      "old": 1144.5139620487319,
+      "new": 1141.7982898890139,
+      "relative_change": -0.0023727732904689214
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        20.0,
+        20.0
+      ],
+      "old": 826.3810952064391,
+      "new": 826.2332646265257,
+      "relative_change": -0.00017888911153807197
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        20.0,
+        30.0
+      ],
+      "old": 729.1701810148642,
+      "new": 728.4383307063404,
+      "relative_change": -0.0010036755857256718
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        20.0,
+        40.0
+      ],
+      "old": 662.4828678999409,
+      "new": 660.8964752493299,
+      "relative_change": -0.0023946168685686775
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        25.0,
+        20.0
+      ],
+      "old": 487.7962873297905,
+      "new": 487.69909441611605,
+      "relative_change": -0.0001992489820012988
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        25.0,
+        30.0
+      ],
+      "old": 430.41820932511376,
+      "new": 429.98160201845855,
+      "relative_change": -0.0010143792646222227
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        25.0,
+        40.0
+      ],
+      "old": 391.0405437853808,
+      "new": 390.10130854967554,
+      "relative_change": -0.0024018870949115145
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        30.0,
+        20.0
+      ],
+      "old": 293.4936390928087,
+      "new": 293.43190192439965,
+      "relative_change": -0.00021035266249669338
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        30.0,
+        30.0
+      ],
+      "old": 258.96322707214955,
+      "new": 258.7004597275131,
+      "relative_change": -0.0010146897982672431
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        30.0,
+        40.0
+      ],
+      "old": 235.2555045120138,
+      "new": 234.69409429140373,
+      "relative_change": -0.002386385057278839
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        33.0,
+        20.0
+      ],
+      "old": 218.35248367510505,
+      "new": 218.3064960753372,
+      "relative_change": -0.00021061175487369077
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        33.0,
+        30.0
+      ],
+      "old": 192.6542161087554,
+      "new": 192.46008672818053,
+      "relative_change": -0.0010076570577894906
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        33.0,
+        40.0
+      ],
+      "old": 175.00568605434404,
+      "new": 174.59245749567384,
+      "relative_change": -0.002361229329096659
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        35.0,
+        20.0
+      ],
+      "old": 179.960100242434,
+      "new": 179.92279930081892,
+      "relative_change": -0.00020727339874138107
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        35.0,
+        30.0
+      ],
+      "old": 158.77337171618166,
+      "new": 158.61475689073396,
+      "relative_change": -0.000999001430361024
+    },
+    {
+      "cell": [
+        "on",
+        0.0015,
+        35.0,
+        40.0
+      ],
+      "old": 144.22046293070244,
+      "new": 143.8836020944265,
+      "relative_change": -0.0023357353695210303
+    }
+  ],
+  "local_references": [
+    {
+      "saved_control": [
+        "off",
+        20.0,
+        30.0,
+        4.0,
+        3.75
+      ],
+      "opacity": 0.001,
+      "saved_sensitivity": 5.906783968121138,
+      "reference_control": [
+        "off",
+        20.0,
+        30.0,
+        4.0,
+        3.75
+      ],
+      "reference_sensitivity": 5.906783968121138,
+      "reference_detuning_mhz": -2.1999999999999997,
+      "relative_improvement": 0.0,
+      "probe_grid_uw": [
+        3.5,
+        4.0,
+        4.5
+      ],
+      "lo_grid_mhz": [
+        3.7,
+        3.75,
+        3.875
+      ],
+      "control_evaluations": 9,
+      "elapsed_s": 0.9558305999962613,
+      "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+    },
+    {
+      "saved_control": [
+        "on",
+        20.0,
+        30.0,
+        10.0,
+        4.625
+      ],
+      "opacity": 0.001,
+      "saved_sensitivity": 1091.656191166937,
+      "reference_control": [
+        "on",
+        20.0,
+        30.0,
+        10.0,
+        4.625
+      ],
+      "reference_sensitivity": 1091.656191166937,
+      "reference_detuning_mhz": 0.0,
+      "relative_improvement": 0.0,
+      "probe_grid_uw": [
+        9.5,
+        10.0
+      ],
+      "lo_grid_mhz": [
+        4.5,
+        4.625,
+        4.75
+      ],
+      "control_evaluations": 6,
+      "elapsed_s": 47.94919369998388,
+      "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+    },
+    {
+      "saved_control": [
+        "off",
+        35.0,
+        37.5,
+        10.0,
+        2.0
+      ],
+      "opacity": 0.001,
+      "saved_sensitivity": 1.5358454469844414,
+      "reference_control": [
+        "off",
+        35.0,
+        37.5,
+        10.0,
+        2.0
+      ],
+      "reference_sensitivity": 1.5358435261973251,
+      "reference_detuning_mhz": -0.125,
+      "relative_improvement": 1.2506382852661702e-06,
+      "probe_grid_uw": [
+        9.5,
+        10.0
+      ],
+      "lo_grid_mhz": [
+        2.0,
+        2.125
+      ],
+      "control_evaluations": 4,
+      "elapsed_s": 0.1859345999546349,
+      "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+    },
+    {
+      "saved_control": [
+        "on",
+        35.0,
+        40.0,
+        10.0,
+        4.75
+      ],
+      "opacity": 0.001,
+      "saved_sensitivity": 214.9236016713147,
+      "reference_control": [
+        "on",
+        35.0,
+        40.0,
+        10.0,
+        4.75
+      ],
+      "reference_sensitivity": 214.9236016713147,
+      "reference_detuning_mhz": 0.0,
+      "relative_improvement": 0.0,
+      "probe_grid_uw": [
+        9.5,
+        10.0
+      ],
+      "lo_grid_mhz": [
+        4.625,
+        4.75,
+        4.875
+      ],
+      "control_evaluations": 6,
+      "elapsed_s": 45.630936500034295,
+      "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+    },
+    {
+      "saved_control": [
+        "off",
+        23.0,
+        30.0,
+        10.0,
+        2.0
+      ],
+      "opacity": 0.001,
+      "saved_sensitivity": 4.3910111886670355,
+      "reference_control": [
+        "off",
+        23.0,
+        30.0,
+        10.0,
+        2.0
+      ],
+      "reference_sensitivity": 4.390992915569116,
+      "reference_detuning_mhz": -0.10499999999999954,
+      "relative_improvement": 4.161478332487256e-06,
+      "probe_grid_uw": [
+        9.5,
+        10.0
+      ],
+      "lo_grid_mhz": [
+        2.0,
+        2.125
+      ],
+      "control_evaluations": 4,
+      "elapsed_s": 0.1757279000012204,
+      "scope": "Adjacent final-grid 3x3 control rectangle (clipped at bounds, protected LO3.7 if adjacent); 0.005 MHz fixed detuning grid, thermal targets 0.25/0.025 MHz"
+    }
+  ],
+  "thermal_quadrature_references": [
+    {
+      "control": [
+        "on",
+        20.0,
+        30.0,
+        10.0,
+        4.625
+      ],
+      "opacity": 0.001,
+      "detuning_mhz": 0.0,
+      "variants": [
+        {
+          "spacing_divisor": 1,
+          "cutoff_sigma": 6,
+          "velocity_classes": 9679,
+          "dv_m_s": 0.21009824657835452,
+          "phasor_real": -5.15083556871299e-11,
+          "phasor_imag": -2.64749843967899e-12,
+          "phasor_magnitude": 5.157635071987926e-11,
+          "phase_deg": -177.0576207959116,
+          "amplitude_participation_A": 0.025081836729032587,
+          "phase_coherence_C": 0.6107976578057189,
+          "coherent_to_static_amplitude_ratio": 0.01531992712755856,
+          "sensitivity_nv_cm_sqrt_hz": 1091.6561911669362,
+          "relative_complex_error_vs_dv4_8sigma": 1.9573524886465578e-09,
+          "relative_sensitivity_change_vs_reference": -1.9573521692350937e-09
+        },
+        {
+          "spacing_divisor": 2,
+          "cutoff_sigma": 6,
+          "velocity_classes": 19355,
+          "dv_m_s": 0.10504912328917726,
+          "phasor_real": -5.150835568770558e-11,
+          "phasor_imag": -2.6474984397688588e-12,
+          "phasor_magnitude": 5.1576350720458795e-11,
+          "phase_deg": -177.0576207958447,
+          "amplitude_participation_A": 0.02510489349016147,
+          "phase_coherence_C": 0.6102366908560888,
+          "coherent_to_static_amplitude_ratio": 0.015319927127730702,
+          "sensitivity_nv_cm_sqrt_hz": 1091.65619115467,
+          "relative_complex_error_vs_dv4_8sigma": 1.9685885520934093e-09,
+          "relative_sensitivity_change_vs_reference": -1.968588736467325e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 6,
+          "velocity_classes": 38709,
+          "dv_m_s": 0.05252456164458863,
+          "phasor_real": -5.150835568780256e-11,
+          "phasor_imag": -2.647498439773846e-12,
+          "phasor_magnitude": 5.15763507205559e-11,
+          "phase_deg": -177.0576207958447,
+          "amplitude_participation_A": 0.02510380955612669,
+          "phase_coherence_C": 0.6102630396995125,
+          "coherent_to_static_amplitude_ratio": 0.015319927127759545,
+          "sensitivity_nv_cm_sqrt_hz": 1091.6561911526144,
+          "relative_complex_error_vs_dv4_8sigma": 1.9704713650008155e-09,
+          "relative_sensitivity_change_vs_reference": -1.9704713416501818e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 8,
+          "velocity_classes": 51613,
+          "dv_m_s": 0.05252456164458863,
+          "phasor_real": -5.150835558630682e-11,
+          "phasor_imag": -2.6474984345570256e-12,
+          "phasor_magnitude": 5.1576350618926175e-11,
+          "phase_deg": -177.0576207958447,
+          "amplitude_participation_A": 0.02510380950666035,
+          "phase_coherence_C": 0.6102630396995126,
+          "coherent_to_static_amplitude_ratio": 0.015319927097572066,
+          "sensitivity_nv_cm_sqrt_hz": 1091.6561933036921,
+          "relative_complex_error_vs_dv4_8sigma": 0.0,
+          "relative_sensitivity_change_vs_reference": 0.0
+        }
+      ],
+      "campaign_sensitivity": 1091.656191166937,
+      "base_grid_relative_sensitivity_difference": -8.881784197001252e-16,
+      "static_phasor_real": -3.3636252852482513e-09,
+      "static_phasor_imag": -1.4193429271484764e-10,
+      "elapsed_s": 1.0193491999525577,
+      "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+    },
+    {
+      "control": [
+        "on",
+        35.0,
+        40.0,
+        10.0,
+        4.75
+      ],
+      "opacity": 0.001,
+      "detuning_mhz": 0.0,
+      "variants": [
+        {
+          "spacing_divisor": 1,
+          "cutoff_sigma": 6,
+          "velocity_classes": 9431,
+          "dv_m_s": 0.22107903506343973,
+          "phasor_real": -5.527345314749252e-11,
+          "phasor_imag": -2.211641835949254e-12,
+          "phasor_magnitude": 5.531768236702051e-11,
+          "phase_deg": -177.70866166584455,
+          "amplitude_participation_A": 0.023995557537226278,
+          "phase_coherence_C": 0.6593384845168386,
+          "coherent_to_static_amplitude_ratio": 0.01582119454173138,
+          "sensitivity_nv_cm_sqrt_hz": 214.9236016713144,
+          "relative_complex_error_vs_dv4_8sigma": 1.95502925528581e-09,
+          "relative_sensitivity_change_vs_reference": -1.955029138578368e-09
+        },
+        {
+          "spacing_divisor": 2,
+          "cutoff_sigma": 6,
+          "velocity_classes": 18859,
+          "dv_m_s": 0.11053951753171987,
+          "phasor_real": -5.5273453148109593e-11,
+          "phasor_imag": -2.211641835933737e-12,
+          "phasor_magnitude": 5.531768236763647e-11,
+          "phase_deg": -177.70866166588615,
+          "amplitude_participation_A": 0.02397386768440995,
+          "phase_coherence_C": 0.6599350071576463,
+          "coherent_to_static_amplitude_ratio": 0.015821194541907547,
+          "sensitivity_nv_cm_sqrt_hz": 214.92360166892126,
+          "relative_complex_error_vs_dv4_8sigma": 1.9661640144264672e-09,
+          "relative_sensitivity_change_vs_reference": -1.966164120403846e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 6,
+          "velocity_classes": 37717,
+          "dv_m_s": 0.05526975876585993,
+          "phasor_real": -5.52734531482163e-11,
+          "phasor_imag": -2.2116418359380365e-12,
+          "phasor_magnitude": 5.531768236774326e-11,
+          "phase_deg": -177.70866166588613,
+          "amplitude_participation_A": 0.023972818294855654,
+          "phase_coherence_C": 0.6599638952476927,
+          "coherent_to_static_amplitude_ratio": 0.01582119454193809,
+          "sensitivity_nv_cm_sqrt_hz": 214.9236016685064,
+          "relative_complex_error_vs_dv4_8sigma": 1.9680945522606004e-09,
+          "relative_sensitivity_change_vs_reference": -1.9680945761990642e-09
+        },
+        {
+          "spacing_divisor": 4,
+          "cutoff_sigma": 8,
+          "velocity_classes": 50287,
+          "dv_m_s": 0.05526975876585993,
+          "phasor_real": -5.527345303943292e-11,
+          "phasor_imag": -2.2116418315853172e-12,
+          "phasor_magnitude": 5.531768225887283e-11,
+          "phase_deg": -177.70866166588613,
+          "amplitude_participation_A": 0.023972818247674894,
+          "phase_coherence_C": 0.6599638952476924,
+          "coherent_to_static_amplitude_ratio": 0.015821194510800482,
+          "sensitivity_nv_cm_sqrt_hz": 214.92360209149635,
+          "relative_complex_error_vs_dv4_8sigma": 0.0,
+          "relative_sensitivity_change_vs_reference": 0.0
+        }
+      ],
+      "campaign_sensitivity": 214.9236016713147,
+      "base_grid_relative_sensitivity_difference": -1.4432899320127035e-15,
+      "static_phasor_real": -3.494630795378473e-09,
+      "static_phasor_imag": -1.1212000217833038e-10,
+      "elapsed_s": 0.9975178999593481,
+      "scope": "Fixed winning detuning; initial velocity grid from full fixed +/-6 MHz scan as in campaign. No control or detuning reoptimization."
+    }
+  ],
+  "off_finer_branch_supplement": {
+    "origin": "⟦AI⟧ Independent OFF local branch refinement",
+    "status": "PASS",
+    "scope": "Selected local control rectangles only; no new global optimum claim; original campaign untouched",
+    "settings": {
+      "cases": [
+        [
+          20.0,
+          30.0
+        ],
+        [
+          35.0,
+          37.5
+        ],
+        [
+          23.0,
+          30.0
+        ]
+      ],
+      "opacity": 0.001,
+      "probe_radius_uw": 0.5,
+      "probe_step_uw": 0.25,
+      "lo_radius_mhz": 0.125,
+      "lo_step_mhz": 0.0625,
+      "detuning_step_mhz": 0.005,
+      "off_global_detuning_target_step_mhz": 0.05
+    },
+    "off_snapshot": {
+      "complete_off_cells": 189,
+      "canonicalization": "Sorted by (mode,T,Pc); json.dumps sort_keys=True,separators=(',',':'),ensure_ascii=False",
+      "canonical_sha256": "827ea6de91cc8e34fa78e7c5b26b5f8b815d8b68a1d69e8b5e2a24781bbaaf19",
+      "canonical_bytes": 18996900,
+      "ignored_incomplete_appended_tail": false,
+      "scope": "Only the completed 189 OFF cell records; later thermal appends do not alter this snapshot hash"
+    },
+    "cases": [
+      {
+        "temperature_c": 20.0,
+        "coupling_power_mw": 30.0,
+        "opacity": 0.001,
+        "grids": {
+          "central": {
+            "probe_power_uw": [
+              9.5,
+              9.75,
+              10.0
+            ],
+            "lo_rabi_mhz": [
+              2.0,
+              2.0625,
+              2.125
+            ],
+            "control_points": 9
+          },
+          "sideband": {
+            "probe_power_uw": [
+              3.5,
+              3.75,
+              4.0,
+              4.25,
+              4.5
+            ],
+            "lo_rabi_mhz": [
+              3.625,
+              3.6875,
+              3.7,
+              3.75,
+              3.8125,
+              3.875
+            ],
+            "control_points": 30
+          }
+        },
+        "actual_unique_control_evaluations": 39,
+        "branch_comparisons": [
+          {
+            "branch": "central",
+            "old_sensitivity": 5.946643930285694,
+            "finer_sensitivity": 5.946643930285694,
+            "relative_change": 0.0,
+            "relative_improvement": 0.0,
+            "old_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.09999999999999964
+            },
+            "finer_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.09999999999999964
+            },
+            "own_rectangle_best_sensitivity": 5.946643930285694,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          },
+          {
+            "branch": "sideband",
+            "old_sensitivity": 5.906783968121138,
+            "finer_sensitivity": 5.906484023998275,
+            "relative_change": -5.0779599267802844e-05,
+            "relative_improvement": 5.0779599267802844e-05,
+            "old_control": {
+              "probe_power_uw": 4.0,
+              "lo_rabi_mhz": 3.75,
+              "detuning_mhz": -2.1999999999999997
+            },
+            "finer_control": {
+              "probe_power_uw": 4.0,
+              "lo_rabi_mhz": 3.8125,
+              "detuning_mhz": -2.225
+            },
+            "own_rectangle_best_sensitivity": 5.906484023998275,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          }
+        ],
+        "old_sideband_over_central_minus_one": -0.006702934063624211,
+        "finer_sideband_over_central_minus_one": -0.00675337329058634,
+        "absolute_relative_branch_margin": 0.00675337329058634,
+        "old_winning_branch": "sideband",
+        "finer_winning_branch": "sideband",
+        "branch_selection_changed": false,
+        "old_best_sensitivity": 5.906783968121138,
+        "finer_best_sensitivity": 5.906484023998275
+      },
+      {
+        "temperature_c": 35.0,
+        "coupling_power_mw": 37.5,
+        "opacity": 0.001,
+        "grids": {
+          "central": {
+            "probe_power_uw": [
+              9.5,
+              9.75,
+              10.0
+            ],
+            "lo_rabi_mhz": [
+              2.0,
+              2.0625,
+              2.125
+            ],
+            "control_points": 9
+          },
+          "sideband": {
+            "probe_power_uw": [
+              4.5,
+              4.75,
+              5.0,
+              5.25,
+              5.5
+            ],
+            "lo_rabi_mhz": [
+              4.5,
+              4.5625,
+              4.625,
+              4.6875,
+              4.75
+            ],
+            "control_points": 25
+          }
+        },
+        "actual_unique_control_evaluations": 34,
+        "branch_comparisons": [
+          {
+            "branch": "central",
+            "old_sensitivity": 1.5358454469844414,
+            "finer_sensitivity": 1.5358435261973251,
+            "relative_change": -1.2506382852661702e-06,
+            "relative_improvement": 1.2506382852661702e-06,
+            "old_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.1299999999999999
+            },
+            "finer_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.125
+            },
+            "own_rectangle_best_sensitivity": 1.5358435261973251,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          },
+          {
+            "branch": "sideband",
+            "old_sensitivity": 1.561565702501411,
+            "finer_sensitivity": 1.561034381619697,
+            "relative_change": -0.0003402488162123074,
+            "relative_improvement": 0.0003402488162123074,
+            "old_control": {
+              "probe_power_uw": 5.0,
+              "lo_rabi_mhz": 4.625,
+              "detuning_mhz": -2.63
+            },
+            "finer_control": {
+              "probe_power_uw": 4.75,
+              "lo_rabi_mhz": 4.625,
+              "detuning_mhz": -2.63
+            },
+            "own_rectangle_best_sensitivity": 1.561034381619697,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          }
+        ],
+        "old_sideband_over_central_minus_one": 0.01674664307367002,
+        "finer_sideband_over_central_minus_one": 0.016401967383189886,
+        "absolute_relative_branch_margin": 0.016401967383189886,
+        "old_winning_branch": "central",
+        "finer_winning_branch": "central",
+        "branch_selection_changed": false,
+        "old_best_sensitivity": 1.5358454469844414,
+        "finer_best_sensitivity": 1.5358435261973251
+      },
+      {
+        "temperature_c": 23.0,
+        "coupling_power_mw": 30.0,
+        "opacity": 0.001,
+        "grids": {
+          "central": {
+            "probe_power_uw": [
+              9.5,
+              9.75,
+              10.0
+            ],
+            "lo_rabi_mhz": [
+              2.0,
+              2.0625,
+              2.125
+            ],
+            "control_points": 9
+          },
+          "sideband": {
+            "probe_power_uw": [
+              3.5,
+              3.75,
+              4.0,
+              4.25,
+              4.5
+            ],
+            "lo_rabi_mhz": [
+              3.75,
+              3.8125,
+              3.875,
+              3.9375,
+              4.0
+            ],
+            "control_points": 25
+          }
+        },
+        "actual_unique_control_evaluations": 34,
+        "branch_comparisons": [
+          {
+            "branch": "central",
+            "old_sensitivity": 4.3910111886670355,
+            "finer_sensitivity": 4.390992915569116,
+            "relative_change": -4.161478332487256e-06,
+            "relative_improvement": 4.161478332487256e-06,
+            "old_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.11000000000000032
+            },
+            "finer_control": {
+              "probe_power_uw": 10.0,
+              "lo_rabi_mhz": 2.0,
+              "detuning_mhz": -0.10499999999999954
+            },
+            "own_rectangle_best_sensitivity": 4.390992915569116,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          },
+          {
+            "branch": "sideband",
+            "old_sensitivity": 4.39191612405448,
+            "finer_sensitivity": 4.391664805678543,
+            "relative_change": -5.722294525623006e-05,
+            "relative_improvement": 5.722294525623006e-05,
+            "old_control": {
+              "probe_power_uw": 4.0,
+              "lo_rabi_mhz": 3.875,
+              "detuning_mhz": -2.25
+            },
+            "finer_control": {
+              "probe_power_uw": 4.0,
+              "lo_rabi_mhz": 3.8125,
+              "detuning_mhz": -2.225
+            },
+            "own_rectangle_best_sensitivity": 4.391664805678543,
+            "minimum_scope": "Branch-constrained minimum over union of both local control rectangles"
+          }
+        ],
+        "old_sideband_over_central_minus_one": 0.00020608815340295017,
+        "finer_sideband_over_central_minus_one": 0.00015301553027891046,
+        "absolute_relative_branch_margin": 0.00015301553027891046,
+        "old_winning_branch": "central",
+        "finer_winning_branch": "central",
+        "branch_selection_changed": false,
+        "old_best_sensitivity": 4.3910111886670355,
+        "finer_best_sensitivity": 4.390992915569116
+      }
+    ],
+    "maximum_absolute_relative_branch_change": 0.0003402488162123074,
+    "minimum_absolute_relative_branch_margin": 0.00015301553027891046,
+    "branch_selection_changed_cases": 0,
+    "actual_control_evaluations": 107,
+    "scored_rows": 321,
+    "elapsed_s": 10.270831400062889,
+    "interpretation": "PASS means selected branches stable within0.5%; a near-tie branch identity may still change. Extents describe evaluated samples, not a filled acceptable region.",
+    "source_sha256": {
+      "refine_off_branches.py": "5c6ba0a7cb4f20197b7685bb5946afa6d9275b02139a106c6815961dc594a3b1",
+      "dense_study.py": "2c38b13b61c1a3f6aedf361a2f21fe0135a3b20c5cbf0cd0a1f4b56ebab120ab",
+      "config.json": "7e0220a07a56cd7520d0623ace8efece7da74faad877e0005d89f7e979121758"
+    },
+    "artifact_sha256": {
+      "off_branch_refinement.csv": "350d81d17c1e8c490505dbe7ed54fea5a07b84656e3d20c41af5db731cdde4f6"
+    }
+  },
+  "scope": "Saved-grid consistency plus explicitly requested selected convergence probes; no experimental predictive validation.",
+  "artifact_sha256": {
+    "results.json": "0404487011f0ca7804392f62c2291cc0e4a75dd3e95e790f02aaa1524590b969",
+    "control_points.csv": "cd0368091ca69579a2da8285182ef018fca9b121630e0f758e734da4dcda423e",
+    "optima.csv": "e4948b87b8896c184b3c4222160c4c7e40ffa64e11a17011c162d91a56c99475",
+    "config.json": "7e0220a07a56cd7520d0623ace8efece7da74faad877e0005d89f7e979121758",
+    "source_manifest.json": "f71917b0d37e7e8d5357ae2a7cf7de04c539e75596c537677864309f29f6df55",
+    "verify_dense.py": "773dae8c40960874aa790b3a23f630e96d071f1acfcc5fc54c04321aa86415f7",
+    "off_branch_refinement.json": "f9b8238a76759dbfd49dbc766faea861192d7af9917e53cba6d3753fdf7d5b01",
+    "off_branch_refinement.csv": "350d81d17c1e8c490505dbe7ed54fea5a07b84656e3d20c41af5db731cdde4f6",
+    "refine_off_branches.py": "5c6ba0a7cb4f20197b7685bb5946afa6d9275b02139a106c6815961dc594a3b1",
+    "quadrature_preflight.json": "e02bc8cc8dfb83d64a77732003412a928d6988a0e8004a8353f0bfb7b8b6f455",
+    "symmetry_check.json": "04aef9a412422650a2453a61d78794e943d1646b8cbec9826359ae0b835bddeb"
+  }
+}

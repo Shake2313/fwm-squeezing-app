@@ -1,0 +1,213 @@
+{
+  "origin": "AI pre-freeze numerical diagnostic",
+  "status": "SHORTCUT_REJECTED",
+  "candidate_assumption": "Finite-IF |response| mirror symmetric under probe detuning sign reversal",
+  "conclusion": "Static transmission is mirror symmetric, but finite-IF weak-SIG response is not; retain both signs",
+  "campaign_impact": "No campaign values use the rejected shortcut",
+  "cases": [
+    {
+      "doppler": "off",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "pairs": [
+        {
+          "abs_detuning_mhz": 3.0,
+          "negative_transmission": 0.8451639891268605,
+          "positive_transmission": 0.8451639891268605,
+          "negative_response_phasor": [
+            1.6286974657181418e-09,
+            1.560270345139328e-10
+          ],
+          "positive_response_phasor": [
+            1.6062944029708212e-09,
+            1.5421743183884322e-10
+          ],
+          "response_magnitude_relative_difference": 0.013735563440817914
+        },
+        {
+          "abs_detuning_mhz": 1.5,
+          "negative_transmission": 0.902932345811666,
+          "positive_transmission": 0.902932345811666,
+          "negative_response_phasor": [
+            -4.761320159905591e-09,
+            -4.760363068451028e-10
+          ],
+          "positive_response_phasor": [
+            -4.596293176343979e-09,
+            -4.6420050992121364e-10
+          ],
+          "response_magnitude_relative_difference": 0.03456247614335596
+        },
+        {
+          "abs_detuning_mhz": 0.25,
+          "negative_transmission": 0.8094791130812631,
+          "positive_transmission": 0.8094791130812631,
+          "negative_response_phasor": [
+            -3.860071250118331e-09,
+            -1.4569093758069176e-10
+          ],
+          "positive_response_phasor": [
+            -3.798654446963364e-09,
+            -1.431435280049498e-10
+          ],
+          "response_magnitude_relative_difference": 0.015913032782043115
+        }
+      ]
+    },
+    {
+      "doppler": "off",
+      "temperature_c": 35.0,
+      "coupling_power_mw": 40.0,
+      "probe_power_uw": 10.0,
+      "lo_rabi_mhz": 2.0,
+      "pairs": [
+        {
+          "abs_detuning_mhz": 3.0,
+          "negative_transmission": 0.4715399579336355,
+          "positive_transmission": 0.4715399579336355,
+          "negative_response_phasor": [
+            7.535253529213702e-10,
+            5.387932544167507e-11
+          ],
+          "positive_response_phasor": [
+            7.328681172665943e-10,
+            5.230298052813306e-11
+          ],
+          "response_magnitude_relative_difference": 0.027423486648386113
+        },
+        {
+          "abs_detuning_mhz": 1.5,
+          "negative_transmission": 0.61922337472143,
+          "positive_transmission": 0.61922337472143,
+          "negative_response_phasor": [
+            6.832076965949103e-09,
+            4.657299136763304e-10
+          ],
+          "positive_response_phasor": [
+            6.687317865661847e-09,
+            4.5260093281059043e-10
+          ],
+          "response_magnitude_relative_difference": 0.0212204257771783
+        },
+        {
+          "abs_detuning_mhz": 0.25,
+          "negative_transmission": 0.62983420377233,
+          "positive_transmission": 0.62983420377233,
+          "negative_response_phasor": [
+            -9.581602564005434e-09,
+            -4.836986596040007e-10
+          ],
+          "positive_response_phasor": [
+            -9.368875592777373e-09,
+            -4.708974273623924e-10
+          ],
+          "response_magnitude_relative_difference": 0.022212421216275653
+        }
+      ]
+    },
+    {
+      "doppler": "on",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "pairs": [
+        {
+          "abs_detuning_mhz": 3.0,
+          "negative_transmission": 0.9951202159044361,
+          "positive_transmission": 0.995120215908696,
+          "negative_response_phasor": [
+            2.2319802244902785e-11,
+            9.47733418469301e-13
+          ],
+          "positive_response_phasor": [
+            2.2075449350260095e-11,
+            9.0591699979378e-13
+          ],
+          "response_magnitude_relative_difference": 0.011006513612612418
+        },
+        {
+          "abs_detuning_mhz": 1.5,
+          "negative_transmission": 0.9961269361079804,
+          "positive_transmission": 0.9961269361061604,
+          "negative_response_phasor": [
+            1.188919352793822e-11,
+            5.820643299193923e-13
+          ],
+          "positive_response_phasor": [
+            1.2075289563499874e-11,
+            5.315193697490819e-13
+          ],
+          "response_magnitude_relative_difference": 0.015419810988506224
+        },
+        {
+          "abs_detuning_mhz": 0.25,
+          "negative_transmission": 0.9961172072073393,
+          "positive_transmission": 0.9961172072031237,
+          "negative_response_phasor": [
+            -4.70408165901968e-11,
+            -1.5818242286813356e-12
+          ],
+          "positive_response_phasor": [
+            -4.671009646582249e-11,
+            -1.587046859856395e-12
+          ],
+          "response_magnitude_relative_difference": 0.00701876231858324
+        }
+      ]
+    },
+    {
+      "doppler": "on",
+      "temperature_c": 35.0,
+      "coupling_power_mw": 40.0,
+      "probe_power_uw": 10.0,
+      "lo_rabi_mhz": 4.5,
+      "pairs": [
+        {
+          "abs_detuning_mhz": 3.0,
+          "negative_transmission": 0.9805814770951108,
+          "positive_transmission": 0.9805814770932665,
+          "negative_response_phasor": [
+            4.192676548310679e-11,
+            2.0182207859146622e-12
+          ],
+          "positive_response_phasor": [
+            4.15586341846231e-11,
+            1.9648801427892866e-12
+          ],
+          "response_magnitude_relative_difference": 0.008820779931809228
+        },
+        {
+          "abs_detuning_mhz": 1.5,
+          "negative_transmission": 0.9844150992304833,
+          "positive_transmission": 0.9844150992253226,
+          "negative_response_phasor": [
+            -9.36182846723018e-13,
+            -6.234631924004365e-14
+          ],
+          "positive_response_phasor": [
+            -5.925942057885352e-13,
+            -1.0462429913350132e-13
+          ],
+          "response_magnitude_relative_difference": 0.35864109819499157
+        },
+        {
+          "abs_detuning_mhz": 0.25,
+          "negative_transmission": 0.9837728931876882,
+          "positive_transmission": 0.9837728931207662,
+          "negative_response_phasor": [
+            -5.338044897212463e-11,
+            -1.8614420860490466e-12
+          ],
+          "positive_response_phasor": [
+            -5.3102670836757057e-11,
+            -1.8676728397448796e-12
+          ],
+          "response_magnitude_relative_difference": 0.005193312945378462
+        }
+      ]
+    }
+  ]
+}

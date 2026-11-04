@@ -1,0 +1,25 @@
+{
+  "origin": "AI primary-source protocol audit",
+  "gold_main": {
+    "path": "references/rydberg_experiments/sources/ju_2026_preprint.pdf",
+    "scan_laser": "not reported",
+    "absolute_optical_detunings": "not reported",
+    "locators": [
+      "PDF p.5 Fig.2 and caption",
+      "PDF p.6 Fig.3 and caption"
+    ]
+  },
+  "prior_thesis": {
+    "path": "analysis/rydberg_gold_map_20261103/sources/ju_2025_thesis.pdf",
+    "sha256": "456fff9b9ca0e64dd11dd9d52d80ace5a0ec5d7be11686c2528756a767a862e6",
+    "scan_laser": "probe",
+    "coupling_frequency": "fixed on selected transition",
+    "locators": [
+      "Printed p.16 / PDF p.25, 51D ladder",
+      "Printed p.19 / PDF p.28, 40D ladder",
+      "Printed pp.17-18 / PDF pp.26-27, wavelength-axis scaling"
+    ],
+    "applicability": "DIFFERENT_APPARATUS; supporting evidence only, does not establish Gold scan identity"
+  },
+  "recommendation": "Keep probe-scan and coupling-scan as separate conditional models until protocol is resolved; comparison success alone is not experimental identification."
+}

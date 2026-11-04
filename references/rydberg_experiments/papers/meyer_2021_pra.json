@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "paper_id": "meyer_2021_pra",
+  "title": "Optimal atomic quantum sensing using electromagnetically-induced-transparency readout",
+  "authors": [
+    "David H. Meyer",
+    "Christopher O'Brien",
+    "Donald P. Fahey",
+    "Kevin C. Cox",
+    "Paul D. Kunz"
+  ],
+  "year": 2021,
+  "study_type": "theory",
+  "topics": [
+    "theory",
+    "optical_depth",
+    "SQL",
+    "Doppler",
+    "propagation"
+  ],
+  "publication": {
+    "journal": "Physical Review A",
+    "volume": "104",
+    "issue": "4",
+    "pages": "043103",
+    "doi": "10.1103/PhysRevA.104.043103",
+    "arxiv_id": "2105.10494",
+    "status": "published",
+    "published_date": "2021-10-05"
+  },
+  "scope": {
+    "species": "generic_alkali; 85Rb example",
+    "line": "three_level_ladder_EIT",
+    "configuration": "EIT_quantum_sensitivity_theory",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "context_only",
+    "reason": "실험 감도 비교에 필요한 OD·Doppler·광학 판독 SQL 이론."
+  },
+  "apparatus_group": "ARL_Meyer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2105.10494",
+      "path": "sources/meyer_2021_pra.pdf",
+      "sha256": "658c63d117a84c9a258016d3325eb568f1341dfbdb93204e8214a171cc58fff0",
+      "pages": 12,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [],
+  "findings": [
+    {
+      "finding_id": "od_definition",
+      "claim": "식 (18)의 OD는 공명·small-signal 기준의 원자수·쌍극자·길이 정규화. 열증기 Doppler 평균은 별도로 취급.",
+      "locator": "PDF pp. 4-6, Eqs. (18)-(20)",
+      "source_id": "main",
+      "category": "optical_depth",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "finite_od",
+      "claim": "큰 OD에서 probe 감쇠와 길이 방향 Rabi 변화가 감도 최적점에 영향. Optically thin 결과의 적용 범위 구분.",
+      "locator": "PDF pp. 4-6, Secs. III.C-III.D",
+      "source_id": "main",
+      "category": "propagation",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

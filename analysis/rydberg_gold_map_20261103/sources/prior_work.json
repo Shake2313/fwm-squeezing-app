@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-11-03T07:33:45.408775+00:00",
+  "scope": "Supporting primary prior work for Ju2026 Gold-neighborhood pilot; original references DB unchanged.",
+  "provenance": {
+    "author": "AI-assisted extraction",
+    "marker": "⟦AI⟧",
+    "adoption_status": "Supporting evidence only; no older apparatus substitution."
+  },
+  "gold_baseline_policy": {
+    "baseline": "Ju et al. (2026) main preprint arXiv:2606.04354v1, 50 mm cell; user-adopted Gold",
+    "older_apparatus_substitution": false,
+    "note": "⟦AI⟧ Retain final Gold article conditions. Prior work does not resolve the Gold 0.15 mm diameter convention."
+  },
+  "sources": [
+    {
+      "id": "ju_2025_thesis",
+      "type": "masters_thesis",
+      "title_ko": "리드버그 원자 전기장 양자 센서를 위한 마이크로파 분광 연구",
+      "title_en": "Microwave spectroscopy research for Rydberg atomic Electric field quantum sensors",
+      "authors": [
+        "Gyeongmin Ju"
+      ],
+      "institution": "Pusan National University, Graduate School, Department of Physics",
+      "advisor": "Han Seb Moon",
+      "date": "2025-02",
+      "doi": "10.23172/pusan.000000167386.21016.0000882",
+      "stable_urls": {
+        "doi": "https://doi.org/10.23172/pusan.000000167386.21016.0000882",
+        "repository_record": "https://dcollection.pusan.ac.kr/srch/srchDetail/000000167386",
+        "fulltext_entry": "https://dcollection.pusan.ac.kr/common/orgView/000000167386",
+        "riss": "https://www.riss.kr/link?id=T17226405"
+      },
+      "archive": {
+        "relative_path": "sources/ju_2025_thesis.pdf",
+        "sha256": "456fff9b9ca0e64dd11dd9d52d80ace5a0ec5d7be11686c2528756a767a862e6",
+        "bytes": 2655047,
+        "pdf_pages": 60,
+        "retrieved_utc": "2026-11-03T07:33:45.408775+00:00",
+        "resolved_pdf_url_at_retrieval": "https://dcollection.pusan.ac.kr/public_resource/pdf/000000167386_20261103163345.pdf"
+      },
+      "apparatus_status": "DIFFERENT_APPARATUS",
+      "applicability": "Same 85Rb 40D5/2–39F7/2 transition studied alongside 51D5/2–50F7/2, but 15 mm natural-abundance cubic cell and focused unequal beams differ from Gold 50 mm apparatus.",
+      "reported_conditions": [
+        {
+          "quantity": "state_ladder",
+          "value": "85Rb 5S1/2–5P3/2–40D5/2–39F7/2",
+          "unit": null,
+          "printed_page": 28,
+          "pdf_page": 37
+        },
+        {
+          "quantity": "probe_wavelength",
+          "value": 780.24,
+          "unit": "nm",
+          "printed_page": 28,
+          "pdf_page": 37
+        },
+        {
+          "quantity": "coupling_wavelength",
+          "value": 480.751,
+          "unit": "nm",
+          "printed_page": 28,
+          "pdf_page": 37
+        },
+        {
+          "quantity": "rf_frequency",
+          "value": 37.07,
+          "unit": "GHz",
+          "printed_page": 28,
+          "pdf_page": 37
+        },
+        {
+          "quantity": "cell_side_length",
+          "value": 15,
+          "unit": "mm",
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "isotope_percent",
+          "value": {
+            "85Rb": 72.17,
+            "87Rb": 27.83
+          },
+          "unit": "percent",
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "geometry",
+          "value": "counterpropagating; probe +z, coupling -z, RF -x",
+          "unit": null,
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "collimated_beam_diameters",
+          "value": {
+            "probe": 1.0,
+            "coupling": 1.7
+          },
+          "unit": "mm",
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "focusing_lens_focal_length",
+          "value": 300,
+          "unit": "mm",
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "focused_beam_waists_as_reported",
+          "value": {
+            "probe": 170,
+            "coupling": 54
+          },
+          "unit": "um",
+          "printed_page": 29,
+          "pdf_page": 38,
+          "note": "Source does not explicitly state a 1/e^2 radius/diameter convention."
+        },
+        {
+          "quantity": "optical_powers",
+          "value": {
+            "probe": 20,
+            "coupling": 31000
+          },
+          "unit": "uW",
+          "printed_page": 29,
+          "pdf_page": 38,
+          "note": "EIT visibility setting; not Gold electric-field sensitivity optimum."
+        },
+        {
+          "quantity": "optical_polarizations",
+          "value": {
+            "probe": "V linear",
+            "coupling": "H linear"
+          },
+          "unit": null,
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "rf_polarization",
+          "value": "Rotatable H/V relative to coupling polarization",
+          "unit": null,
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "detector",
+          "value": "Balanced detection for common-mode laser-noise suppression",
+          "unit": null,
+          "printed_page": 29,
+          "pdf_page": 38
+        },
+        {
+          "quantity": "laser_models",
+          "value": "TOPTICA DL-PRO-780 and 480 ECDLs",
+          "unit": null,
+          "printed_page": 30,
+          "pdf_page": 39
+        },
+        {
+          "quantity": "individual_laser_linewidth_upper_bound",
+          "value": 1,
+          "unit": "MHz",
+          "printed_page": 30,
+          "pdf_page": 39,
+          "note": "Each linewidth <=1 MHz; older setup does not replace Gold ULE conditions."
+        },
+        {
+          "quantity": "37_GHz_horn",
+          "value": "Eravant WR-28",
+          "unit": null,
+          "printed_page": 30,
+          "pdf_page": 39
+        },
+        {
+          "quantity": "37_GHz_horn_aperture",
+          "value": 3.35,
+          "unit": "cm",
+          "printed_page": 30,
+          "pdf_page": 39
+        },
+        {
+          "quantity": "37_GHz_Fraunhofer_distance",
+          "value": 27.7,
+          "unit": "cm",
+          "printed_page": 30,
+          "pdf_page": 39
+        },
+        {
+          "quantity": "40D5/2_39F7/2_transition_dipole",
+          "value": 1002.544,
+          "unit": "e a0",
+          "printed_page": 32,
+          "pdf_page": 41,
+          "note": "Reported value; do not silently substitute for a Gold-specific Zeeman/polarization effective dipole."
+        },
+        {
+          "quantity": "rf_detuning_scan",
+          "value": [
+            -36,
+            -6,
+            0,
+            6,
+            36
+          ],
+          "unit": "MHz",
+          "printed_pages": [
+            35,
+            36
+          ],
+          "pdf_pages": [
+            44,
+            45
+          ]
+        }
+      ],
+      "remaining_gaps": [
+        "No numerical experimental cell temperature found in full thesis text; generic room-temperature discussion does not establish an exact temperature.",
+        "No explicit 1/e^2 convention found for focused beam waists.",
+        "Prior apparatus does not determine Gold 0.15 mm diameter convention, effective overlap length or extra dephasing."
+      ],
+      "interpretation_note": "⟦AI⟧ Preserve DIFFERENT_APPARATUS status and distinguish EIT visibility optimization from electric-field sensitivity optimization."
+    },
+    {
+      "id": "ju_damop_2024",
+      "type": "conference_abstract",
+      "title": "Polarization dependencies in RF Electric field sensing with Rydberg atoms",
+      "authors": [
+        "Gyeongmin Ju",
+        "Gisung Sim",
+        "Yejin Yu",
+        "Hanseb S Moon"
+      ],
+      "venue": "APS DAMOP 2024",
+      "stable_url": "https://meetings-archive.aps.org/damop/2024/k00/73/",
+      "apparatus_status": "DIFFERENT_RYDBERG_PAIR",
+      "metadata_snapshot": {
+        "transition": "85Rb 5S1/2–5P3/2–51D5/2–50F7/2",
+        "laser_stabilization": "ULE cavity",
+        "reported_sensitivity": "Several tens of microvolts per centimeter per sqrt Hz",
+        "investigated_control": "RF polarization",
+        "verification_method": "Primary APS abstract inspected using web tool during prior-work research; selected metadata snapshot, not a full HTML archive.",
+        "archive_request_http_status": 403
+      },
+      "limitations": "Abstract provides no temperature, beam-definition or optical-power values."
+    },
+    {
+      "id": "ju_damop_2026",
+      "type": "conference_abstract",
+      "title": "High-sensitivity electric-field quantum sensing using optimal Rydberg electromagnetically-induced-transparency",
+      "authors": [
+        "Gyeongmin Ju",
+        "Hanseb S Moon"
+      ],
+      "venue": "APS DAMOP 2026",
+      "date": "2026-06-03",
+      "stable_url": "https://meetings-archive.aps.org/damop/2026/h00/97/",
+      "apparatus_status": "SAME_TRANSITION_PRECURSOR_NOT_FINAL_ARTICLE",
+      "metadata_snapshot": {
+        "transition": "85Rb 5S1/2–5P3/2–40D5/2–39F7/2",
+        "reported_sensitivity": 13.3,
+        "sensitivity_unit": "nV/cm/sqrt(Hz)",
+        "controls": [
+          "EIT linewidth",
+          "RF polarization",
+          "heterodyne detection"
+        ],
+        "laser_stabilization": "ULE cavity",
+        "verification_method": "Primary APS abstract inspected using web tool during prior-work research; selected metadata snapshot, not a full HTML archive.",
+        "archive_request_http_status": 403
+      },
+      "limitations": "Conference result differs from final Gold 12.5(8) nV/cm/sqrt(Hz); abstract supplies no missing beam geometry or temperature."
+    }
+  ]
+}

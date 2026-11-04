@@ -1,0 +1,8 @@
+﻿figure,pdf_page,probe_power_uw,minimum_field_nv_cm,image_x_px,image_y_px,method,digitization_y_bound_px,experimental_standard_uncertainty,unit_scope
+4d,9,0.5,86.05839416058399,643,567.0,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,1.0,59.45255474452557,658,607.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,2.0,46.31386861313871,688,627.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,4.0,21.350364963503694,748,665.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,6.0,13.467153284671554,808,677.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,8.0,37.11678832116792,868,641.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD
+4d,9,10.0,144.85401459854018,928,477.5,Raster gray-marker densest-row centre; linear axes,2,not_assigned,Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD

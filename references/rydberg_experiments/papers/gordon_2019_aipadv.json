@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "paper_id": "gordon_2019_aipadv",
+  "title": "Weak electric-field detection with sub-1 Hz resolution at radio frequencies using a Rydberg atom-based mixer",
+  "authors": [
+    "Joshua A. Gordon",
+    "Matthew T. Simons",
+    "Abdulaziz H. Haddab",
+    "Christopher L. Holloway"
+  ],
+  "year": 2019,
+  "study_type": "experiment",
+  "topics": [
+    "heterodyne",
+    "weak_field",
+    "frequency_resolution",
+    "IF"
+  ],
+  "publication": {
+    "journal": "AIP Advances",
+    "volume": "9",
+    "issue": "4",
+    "pages": "045030",
+    "doi": "10.1063/1.5095633",
+    "arxiv_id": "1903.09712",
+    "status": "published",
+    "published_date": "2019-04-01"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-34D5/2-35P3/2",
+    "configuration": "rf_mixer_weak_signal",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Boulder_mixer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=927624",
+      "path": "sources/gordon_2019_aipadv.pdf",
+      "sha256": "4a76b7aa70d599f5e5e1e974492114fb281c89708104f300ebaacef868e1fd50",
+      "pages": 6,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "weak_mixer",
+      "label": "90 kHz IF 약한 RF 신호 검출",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "lo_frequency",
+          "value": 19.626,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "lo frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "signal_frequency",
+          "value": 19.62609,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "signal frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "intermediate_frequency",
+          "value": 90,
+          "unit": "kHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "intermediate frequency",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 79,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Published-edition sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "Published-edition sensitivity",
+          "notes": ""
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 46,
+          "unit": "uV/m",
+          "value_type": "approximate",
+          "basis": "Measured local field amplitude",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "Measured local field amplitude",
+          "notes": "",
+          "uncertainty": {
+            "value": 2,
+            "unit": "uV/m",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        },
+        {
+          "quantity": "frequency_discrimination",
+          "value": 0.1,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "Equal-strength neighboring signals resolved",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2, Abstract",
+          "evidence": "Equal-strength neighboring signals resolved",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "resolution",
+      "claim": "RF carrier와 IF의 역할을 분리. 좁은 lock-in 대역으로 서로 가까운 신호를 판별.",
+      "locator": "PDF pp. 2-5",
+      "source_id": "main",
+      "category": "frequency_resolution",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": [
+    "⟦AI⟧ 출판본 PDF 초록의 79 µV/m/√Hz를 채택. 다른 preprint·후속 표의 값으로 덮어쓰지 않음."
+  ]
+}

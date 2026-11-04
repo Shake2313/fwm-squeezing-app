@@ -1,0 +1,17 @@
+{
+  "origin": "⟦AI⟧",
+  "published_at": "2026-11-04T05:04:37.187603+09:00",
+  "report_path": "docs/daily_report/2026-11-04_scheme-3_rydberg-eit.md",
+  "report_sha256": "bdd01d097f4d0cb32f8bbc806d6a53375ee6eefdd6f588ca04123ba3af5d61f4",
+  "evidence_path": "docs/daily_report/2026-11-04_scheme-3_rydberg-eit_evidence.json",
+  "evidence_sha256": "421309dc4cc95280a718ca7ff72716773cb32a7beff97fde589942d73727b08d",
+  "state_sha256": "e342a5b62321d193b6815a48df03a72b0298354bd635ab4f5317e48317b010a4",
+  "numerical_validation_status": "failed",
+  "existing_tests_passed": 107,
+  "new_actionable_findings": 1,
+  "report_links_checked": 22,
+  "source_hashes_stable": 56,
+  "unrelated_completed_topic_pointers_preserved": true,
+  "unknown_state_fields_preserved": true,
+  "artifact_validation_status": "passed"
+}

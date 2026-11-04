@@ -1,0 +1,20 @@
+{
+  "signature": "7d8cdbc4369d2dc1e0a22ae15dd84e72ff1b98bb32bea510dca83c61322c857e",
+  "code_sha256": {
+    "gabes/schemes/rydberg.py": "817175f817ccee4ea3c1a910c585bd562f07a553c1ef55e315e07961b4ca8f08",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_opacity.py": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/doppler.py": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/species.py": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+    "gabes/constants.py": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+    "gabes/observables.py": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+    "pilot.py": "ab6ffc394af3c3dafc6137c1e63497fb2eaa69718b248acfb279e8809cd05fe1"
+  },
+  "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "numpy": "2.4.1",
+  "blas_threads": 1
+}

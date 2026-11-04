@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "paper_id": "prajapati_2021_apl",
+  "title": "Enhancement of electromagnetically induced transparency based Rydberg-atom electrometry through population repumping",
+  "authors": [
+    "Nikunjkumar Prajapati",
+    "Amy K. Robinson",
+    "Samuel Berweger",
+    "Matthew T. Simons",
+    "Alexandra B. Artusio-Glimpse",
+    "Christopher L. Holloway"
+  ],
+  "year": 2021,
+  "study_type": "experiment",
+  "topics": [
+    "repumping",
+    "heterodyne",
+    "photon_shot_noise",
+    "population"
+  ],
+  "publication": {
+    "journal": "Applied Physics Letters",
+    "volume": "119",
+    "issue": "21",
+    "pages": "214001",
+    "doi": "10.1063/5.0069195",
+    "arxiv_id": "2108.13226",
+    "status": "published",
+    "published_date": "2021-11-22"
+  },
+  "scope": {
+    "species": "85Rb",
+    "line": "5S-5P-nD; D1_ground_repump",
+    "configuration": "repumped_atomic_mixer",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Boulder_repump",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=933094",
+      "path": "sources/prajapati_2021_apl.pdf",
+      "sha256": "466708c7f6e94a7b174a07624bece1502ffcac5914f768ce8997a1d4aaa4f41e",
+      "pages": 12,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "repump_off",
+      "label": "동일 장치 repump off",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 550,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 70,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "repump_power",
+          "value": 0,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "Repump absent",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Repump absent",
+          "notes": ""
+        },
+        {
+          "quantity": "lockin_time_constant",
+          "value": 1,
+          "unit": "s",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "lockin time constant",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 5,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Authors equate their 1-s acquisition field threshold to sensitivity",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Authors equate their 1-s acquisition field threshold to sensitivity",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "repump_on",
+      "label": "동일 장치 repump on",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 550,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 70,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "repump_power",
+          "value": 10,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "D1 repump before entering cell",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "D1 repump before entering cell",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 3,
+          "unit": "uV/m/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "Authors' 1-s acquisition convention",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Authors' 1-s acquisition convention",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    },
+    {
+      "experiment_id": "noise_budget",
+      "label": "광자 샷노이즈 판독 조건",
+      "kind": "noise_characterization",
+      "conditions": [
+        {
+          "quantity": "probe_power",
+          "value": 560,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "Noise measurement input",
+          "reference": null,
+          "plane": "cell_input",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "Noise measurement input",
+          "notes": ""
+        },
+        {
+          "quantity": "detected_probe_power",
+          "value": 220,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "Power on the detector",
+          "reference": null,
+          "plane": "photodetector",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "Power on the detector",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "shot_noise_dominated_frequency",
+          "value": 300,
+          "unit": "kHz",
+          "value_type": "approximate",
+          "basis": "Above this approximate frequency the traces reach photon shot noise",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 5",
+          "evidence": "Above this approximate frequency the traces reach photon shot noise",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "population",
+      "claim": "D1 repump가 EIT 신호를 키우며 동일 정도의 power broadening 없이 판독 응답을 향상.",
+      "locator": "PDF pp. 2-4",
+      "source_id": "main",
+      "category": "repumping",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "noise",
+      "claim": "낮은 판독 주파수에서는 1/f laser noise, 높은 주파수에서는 광자 샷노이즈를 확인.",
+      "locator": "PDF p. 5, Fig. 6",
+      "source_id": "main",
+      "category": "noise",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

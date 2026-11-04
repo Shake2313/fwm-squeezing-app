@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "paper_id": "kumar_2017_oe",
+  "title": "Rydberg-atom based radio-frequency electrometry using frequency modulation spectroscopy in room temperature vapor cells",
+  "authors": [
+    "Santosh Kumar",
+    "Haoquan Fan",
+    "Harald Kübler",
+    "Akbar J. Jahangiri",
+    "James P. Shaffer"
+  ],
+  "year": 2017,
+  "study_type": "experiment",
+  "topics": [
+    "frequency_modulation",
+    "residual_amplitude_modulation",
+    "photon_shot_noise"
+  ],
+  "publication": {
+    "journal": "Optics Express",
+    "volume": "25",
+    "issue": "8",
+    "pages": "8625",
+    "doi": "10.1364/OE.25.008625",
+    "arxiv_id": "1702.00494",
+    "status": "published",
+    "published_date": "2017-04-04"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-52D5/2-53P3/2",
+    "configuration": "frequency_modulation_spectroscopy",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Oklahoma_Shaffer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1702.00494",
+      "path": "sources/kumar_2017_oe.pdf",
+      "sha256": "86f23e1afc56ecda40b5097333f387bdf35cf3e3d66c68197cae2c6dd72c1b49",
+      "pages": 18,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "fm",
+      "label": "RAM 보정 FM 분광 검출",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 5.047,
+          "unit": "GHz",
+          "value_type": "approximate",
+          "basis": "Approximate Rydberg RF transition",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3, Fig. 1",
+          "evidence": "Approximate Rydberg RF transition",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 3,
+          "unit": "uV/cm/sqrt(Hz)",
+          "value_type": "approximate",
+          "basis": "FM readout; abstract supplies Hz^-1/2 convention",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract; p. 11",
+          "evidence": "FM readout; abstract supplies Hz^-1/2 convention",
+          "notes": ""
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 1.8,
+          "unit": "uV/cm",
+          "value_type": "approximate",
+          "basis": "With matched filtering; field amplitude",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 11",
+          "evidence": "With matched filtering; field amplitude",
+          "notes": ""
+        }
+      ],
+      "notes": [
+        "본문 p. 11의 Hz 지수 인쇄와 초록 정의를 함께 기록. matched-filter 최소장과 감도 구분."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "ram",
+      "claim": "FM spectroscopy에 능동 RAM 보정을 더해 광학 기술잡음을 낮춤.",
+      "locator": "PDF pp. 4-8",
+      "source_id": "main",
+      "category": "readout",
+      "model_implication": ""
+    },
+    {
+      "finding_id": "filter",
+      "claim": "Matched filtering은 약한 신호 가시성을 높이나 최저장 SNR은 광자 샷노이즈로 제한.",
+      "locator": "PDF pp. 10-12",
+      "source_id": "main",
+      "category": "noise",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

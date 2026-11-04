@@ -1,0 +1,8 @@
+﻿figure,pdf_page,probe_power_uw,sensitivity_nv_cm_sqrt_hz,image_x_px,image_y_px,method,digitization_y_bound_px,curve_kind
+5b,10,0.5,41.050168089118735,732.1507410493166,201.83752979745685,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,1.0,28.98978444491093,805.0,218.0523714868662,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,2.0,20.472695759439997,877.8492589506834,234.2672131762755,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,4.0,14.457895416748093,950.6985179013669,250.4820548656848,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,6.0,11.796001552357382,993.3126025928418,259.9671292091194,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,8.0,10.210220595167131,1023.5477768520503,266.69689655509416,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"
+5b,10,10.0,9.128542942250611,1047.0,271.9169096490659,Fit red dashed raster centreline in log-log pixel space,2,"Published PSN theory, not new measurement"

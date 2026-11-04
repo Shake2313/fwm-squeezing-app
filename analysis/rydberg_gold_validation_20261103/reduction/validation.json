@@ -1,0 +1,27 @@
+{
+  "origin": "⟦AI⟧ Resolution audit verification",
+  "status": "PASS",
+  "scope": "Pure-data helpers and historical simulation predictions; no experiment/model-calibration claim",
+  "tests": {
+    "command": "python -X utf8 -B -m pytest -q analysis/rydberg_gold_validation_20261103/reduction/test_predictability_audit.py",
+    "outcome": "9 passed in 0.42s"
+  },
+  "checks": [
+    "AST and whitespace",
+    "Pinned historical input hashes",
+    "6 scenario audits",
+    "171 new coordinates excluded all18pilot points",
+    "11 variable roles and explicit new-model invalidation"
+  ],
+  "artifact_sha256": {
+    "predictability_audit.py": "8620d8b5dcc1408cfac51ae0e9f8a0635a6dbf5b9066f3d6cc927927698db830",
+    "test_predictability_audit.py": "4158ad9af89cacdb9deb5b38b1e3366e0507eaf57c368df29160bc1f1fc53314",
+    "predictability_audit.json": "da6a44188eafc780e021dcc2418421938b89ac5988c824bbbd8039ba574a1c0b",
+    "variable_resolution_registry.json": "ba9b7b5f3890a301efc1ff68d9a25f9955091f97f468cde13d2043cf95b7f971",
+    "heldout_predictions.csv": "93bf7b3dca959587e6ff6b4fee8b82c05c353cbc66da5de99f32682b0b188f08",
+    "variable_resolution_registry.csv": "15d34259c63832a4ad8fb364b614474a447c19aeaa2cddcd739c8033c671aeab",
+    "cross_slice_audit.csv": "b96a7674d3529b72d8e2c8bd22f0e25d6ea79a4fc4a03e3f886fa4ec00c892a6",
+    "axis_resolution_diagnostics.csv": "28acdece9c6e99dc154a090b26dfb7dbfb37a637aac041d7980797ad714fb6da",
+    "argmin_transition_diagnostics.csv": "81b514a857e53841f33caf7f5e20b4f9215eac6888fe246da8727017fe71cdce"
+  }
+}

@@ -1,0 +1,1040 @@
+{
+  "origin": "⟦AI⟧ Primary-figure extraction; not experimental recalibration",
+  "source": {
+    "path": "references/rydberg_experiments/sources/ju_2026_preprint.pdf",
+    "sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+    "version": "arXiv:2606.04354v1",
+    "pages": 15
+  },
+  "calibrations": {
+    "fig2b_probe_power": {
+      "coordinate": [
+        378.74786377,
+        396.66696167,
+        414.58685303,
+        432.50634766,
+        450.4262085,
+        468.34609985
+      ],
+      "value": [
+        0.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        0.11160920429122477,
+        -42.27171266870839
+      ],
+      "max_tick_residual": 3.5033662506123164e-05
+    },
+    "fig2b_width": {
+      "coordinate": [
+        406.4710083,
+        392.80444336,
+        379.1378479,
+        365.50115967,
+        351.83459473,
+        338.16799927
+      ],
+      "value": [
+        1.5,
+        2.0,
+        2.5,
+        3.0,
+        3.5,
+        4.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        -0.03660618233849151,
+        16.37919582993384
+      ],
+      "max_tick_residual": 0.000406638283179106
+    },
+    "fig2b_peak": {
+      "coordinate": [
+        322.25888062,
+        304.04663086,
+        285.83392334,
+        267.62164307,
+        249.41018677
+      ],
+      "value": [
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        -0.01098162702053038,
+        3.5389251553911647
+      ],
+      "max_tick_residual": 4.490837796078395e-06
+    },
+    "fig2a_frequency": {
+      "coordinate": [
+        180.16879272,
+        210.44288635,
+        240.71603394,
+        270.98919678,
+        301.26239014
+      ],
+      "value": [
+        -2.0,
+        -1.0,
+        0.0,
+        1.0,
+        2.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        0.033032352962434224,
+        -7.951411250713445
+      ],
+      "max_tick_residual": 1.2449633186584208e-05
+    },
+    "fig2a_signal": {
+      "coordinate": [
+        381.00247192,
+        356.73379517,
+        332.46374512,
+        308.19506836,
+        283.9263916
+      ],
+      "value": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        -0.0041204678527946926,
+        1.569908437417366
+      ],
+      "max_tick_residual": 2.263430677718059e-06
+    },
+    "fig5b_log10_probe_power_pixel": {
+      "coordinate": [
+        805.0,
+        1047.0
+      ],
+      "value": [
+        0.0,
+        1.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        0.0041322314049586795,
+        -3.326446280991738
+      ],
+      "max_tick_residual": 8.881784197001252e-16
+    },
+    "fig5b_log10_sensitivity_pixel": {
+      "coordinate": [
+        375.0,
+        53.0
+      ],
+      "value": [
+        0.0,
+        3.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        -0.009316770186335402,
+        3.4937888198757765
+      ],
+      "max_tick_residual": 4.440892098500626e-16
+    },
+    "fig4d_field_pixel": {
+      "coordinate": [
+        698.0,
+        424.0
+      ],
+      "value": [
+        0.0,
+        180.0
+      ],
+      "map_value_equals_a_coordinate_plus_b": [
+        -0.656934306569343,
+        458.54014598540147
+      ],
+      "max_tick_residual": 0.0
+    }
+  },
+  "protocols": [
+    {
+      "figure": "2a",
+      "quantity": "Relative EIT spectral signal",
+      "lo_rabi_mhz": 0.0,
+      "lo_status": "EIT without AT dressing inferred from section ordering and single peak; explicit RF-off statement absent",
+      "probe_power_uw": null,
+      "coupling_power_mw": 30.0,
+      "frequency_axis_identity": "NOT_REPORTED: probe scan versus coupling scan unspecified",
+      "probe_detuning_definition": "Frequency relative to plotted EIT centre; absolute optical detuning absent",
+      "absolute_transmission_available": false,
+      "notes": "Unknown Pp: the 1.6 MHz spectrum cannot be assigned to 6 uW."
+    },
+    {
+      "figure": "2b",
+      "quantity": "EIT peak and width vs Pp",
+      "lo_rabi_mhz": 0.0,
+      "lo_status": "EIT measurement before LO/SIG section; no split peaks; explicit RF-off statement absent",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "coupling_power_mw": 30.0,
+      "coupling_rabi_mhz": 3.0,
+      "frequency_axis_identity": "NOT_REPORTED: linewidth measured on an unidentified optical-frequency scan axis",
+      "absolute_transmission_available": false,
+      "notes": "Peaks are arbitrary signal units. Shape/calibration tests allowed; absolute transmission or normalized physical contrast not recoverable."
+    },
+    {
+      "figure": "3",
+      "quantity": "AT spectrum and IF temporal signal",
+      "lo_rabi_mhz": 3.7,
+      "lo_carrier_ghz": 37.07104,
+      "if_khz": 40.0,
+      "probe_power_uw": 6.0,
+      "frequency_axis_identity": "NOT_REPORTED: probe scan versus coupling scan unspecified",
+      "probe_detuning_definition": "Optimal spectral-slope operating point; absolute optical detuning not provided",
+      "rf_detuning_status": "LO carrier reported but atomic zero reference not independently specified"
+    },
+    {
+      "figure": "4",
+      "quantity": "Responsivity and measured sensitivity vs Pp",
+      "lo_rabi_mhz": 3.7,
+      "lo_status": "Main text supplies nominal LO 3.7 MHz and says LO optimized then fixed; another sentence says optimized conditions for each Pp. Missing Supplement Note 2 leaves per-Pp LO details unresolved.",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "if_khz": 40.0,
+      "probe_detuning_definition": "Operated near maximum spectral slope; numeric absolute optical point absent"
+    },
+    {
+      "figure": "5b",
+      "quantity": "Measured and PSN sensitivity vs Pp",
+      "temperature_c": 20.0,
+      "lo_rabi_mhz": 3.7,
+      "lo_status": "Inherited nominal heterodyne protocol; fixed/per-Pp LO details not fully specified",
+      "probe_power_uw": [
+        0.5,
+        1.0,
+        2.0,
+        4.0,
+        6.0,
+        8.0,
+        10.0
+      ],
+      "if_khz": 40.0,
+      "absolute_optical_detuning_mhz": null
+    }
+  ],
+  "source_issues": [
+    {
+      "id": "linewidth_power_assignment",
+      "status": "SOURCE_CONDITION_UNRESOLVED",
+      "finding": "Fig.2(a)/text width 1.6 MHz has no stated Pp; Fig.2(b) compensated width is about 1.60 MHz at 0.5 uW and 3.00 MHz at 6 uW. Do not use 1.6 MHz at 6 uW as a Gold validation anchor."
+    },
+    {
+      "id": "absolute_transmission_and_contrast",
+      "status": "NOT_IDENTIFIABLE_FROM_MAIN_FIGURE",
+      "finding": "Fig.2 axes are arbitrary signal units with a near-zero subtracted baseline; no dark/reference gain is supplied. Cannot infer absolute optical transmission, OD, or physical (Tpeak-Tbackground)/Tbackground contrast."
+    },
+    {
+      "id": "psn_turnover_claim",
+      "status": "NARRATIVE_FIGURE_DISTINCTION",
+      "finding": "The blue experimental curve has a minimum near 6 uW. The Fig.5(b) red PSN/SNL curve is monotonically decreasing approximately as Pp^-1/2; do not force a 6 uW PSN minimum from the narrative alone."
+    },
+    {
+      "id": "LO_protocol",
+      "status": "SUPPLEMENT_REQUIRED_FOR_EXACT_PROTOCOL",
+      "finding": "Nominal OmegaLO/2pi=3.7 MHz is reported. Main text discusses optimized conditions for each Pp and LO optimized then fixed. Exact per-Pp LO and numerical optical detunings remain unresolved without the Supplement."
+    },
+    {
+      "id": "lineshape_width_definition",
+      "status": "ESTIMATOR_AND_FIGURE_DIFFERENCE",
+      "finding": "Direct half-height crossings of Fig.2(a) vector traces give red 1.625 MHz and blue 1.753 MHz, while the narrative quotes 1.6 and 1.9 MHz. No fit definition or Pp is supplied for this panel. Preserve both rather than treating the narrative as exact curve-derived FWHM."
+    },
+    {
+      "id": "reported_vs_digitized_sensitivity",
+      "status": "REPORTED_NUMBER_HAS_PRIORITY",
+      "finding": "The narrative reports measured sensitivity 12.5(8) and PSN 11.2 nV/cm/sqrt(Hz) at 6 uW. Raster marker/line recovery gives about 13.4 and 11.8. Treat these as distinct approximate graphic extractions, with pixel uncertainty; do not overwrite reported numerical anchors."
+    },
+    {
+      "id": "scan_axis_identity",
+      "status": "NOT_REPORTED_FOR_GOLD",
+      "finding": "The Gold main article labels the optical scan only Frequency (MHz), without identifying the scanned laser or absolute fixed detunings. Earlier Ju2025 thesis explicitly scans the probe with coupling fixed, but belongs to a different apparatus. Neither importing that protocol silently nor choosing a scan axis solely because its linewidth fits is justified."
+    }
+  ],
+  "fig2a_derived_shape": {
+    "uncompensated": {
+      "baseline_arb": 0.0021918907408079447,
+      "peak_arb": 0.2792070916053191,
+      "peak_above_baseline_arb": 0.27701520086451115,
+      "fwhm_mhz": 1.7525113179979033,
+      "half_height_crossings_mhz": [
+        -0.8701624650896483,
+        0.882348852908255
+      ],
+      "definition": "Median baseline at |frequency|>=2.2 MHz; peak maximum within 0.3 MHz; interpolated half-height crossings",
+      "absolute_probe_power_uw": null,
+      "absolute_optical_transmission": null
+    },
+    "compensated": {
+      "baseline_arb": 0.0029697598245905787,
+      "peak_arb": 0.3407370894180004,
+      "peak_above_baseline_arb": 0.3377673295934098,
+      "fwhm_mhz": 1.6250534448434886,
+      "half_height_crossings_mhz": [
+        -0.8067525825861356,
+        0.8183008622573531
+      ],
+      "definition": "Median baseline at |frequency|>=2.2 MHz; peak maximum within 0.3 MHz; interpolated half-height crossings",
+      "absolute_probe_power_uw": null,
+      "absolute_optical_transmission": null
+    }
+  },
+  "fig2b_points": [
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 0.5,
+      "digitized_probe_power_uw": 0.4999961073923558,
+      "quantity": "eit_fwhm",
+      "value": 1.6010891020209979,
+      "unit": "MHz",
+      "pdf_x_pt": 383.22743225097656,
+      "pdf_y_pt": 403.70521545410156,
+      "drawing_index": 236,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 1.0,
+      "digitized_probe_power_uw": 0.9983069535292799,
+      "quantity": "eit_fwhm",
+      "value": 1.9010463132658142,
+      "unit": "MHz",
+      "pdf_x_pt": 387.6922149658203,
+      "pdf_y_pt": 395.51104736328125,
+      "drawing_index": 237,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 2.0,
+      "digitized_probe_power_uw": 1.9983432035210882,
+      "quantity": "eit_fwhm",
+      "value": 2.201004083076647,
+      "unit": "MHz",
+      "pdf_x_pt": 396.6523742675781,
+      "pdf_y_pt": 387.3168640136719,
+      "drawing_index": 238,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 4.0,
+      "digitized_probe_power_uw": 3.9983220373328834,
+      "quantity": "eit_fwhm",
+      "value": 2.6202737878885642,
+      "unit": "MHz",
+      "pdf_x_pt": 414.5718536376953,
+      "pdf_y_pt": 375.86334228515625,
+      "drawing_index": 239,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 6.0,
+      "digitized_probe_power_uw": 5.998302574165983,
+      "quantity": "eit_fwhm",
+      "value": 3.0001400117604398,
+      "unit": "MHz",
+      "pdf_x_pt": 432.49134826660156,
+      "pdf_y_pt": 365.4862365722656,
+      "drawing_index": 240,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 8.0,
+      "digitized_probe_power_uw": 7.99828311099909,
+      "quantity": "eit_fwhm",
+      "value": 3.3504469221351094,
+      "unit": "MHz",
+      "pdf_x_pt": 450.4108428955078,
+      "pdf_y_pt": 355.9166259765625,
+      "drawing_index": 241,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 10.0,
+      "digitized_probe_power_uw": 9.998306223364835,
+      "quantity": "eit_fwhm",
+      "value": 3.6503896106635434,
+      "unit": "MHz",
+      "pdf_x_pt": 468.3307189941406,
+      "pdf_y_pt": 347.7228546142578,
+      "drawing_index": 242,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 0.5,
+      "digitized_probe_power_uw": 0.5033272170663281,
+      "quantity": "eit_fwhm",
+      "value": 1.89994817248094,
+      "unit": "MHz",
+      "pdf_x_pt": 383.2572784423828,
+      "pdf_y_pt": 395.5410461425781,
+      "drawing_index": 145,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 1.0,
+      "digitized_probe_power_uw": 1.0016397662245637,
+      "quantity": "eit_fwhm",
+      "value": 2.1999092936878615,
+      "unit": "MHz",
+      "pdf_x_pt": 387.7220764160156,
+      "pdf_y_pt": 387.3467712402344,
+      "drawing_index": 146,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 2.0,
+      "digitized_probe_power_uw": 2.001696452472032,
+      "quantity": "eit_fwhm",
+      "value": 2.4998592435744875,
+      "unit": "MHz",
+      "pdf_x_pt": 396.6824188232422,
+      "pdf_y_pt": 379.1528015136719,
+      "drawing_index": 147,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 4.0,
+      "digitized_probe_power_uw": 4.001665068155994,
+      "quantity": "eit_fwhm",
+      "value": 2.919117777066111,
+      "unit": "MHz",
+      "pdf_x_pt": 414.601806640625,
+      "pdf_y_pt": 367.6995849609375,
+      "drawing_index": 148,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 6.0,
+      "digitized_probe_power_uw": 6.0016456049891005,
+      "quantity": "eit_fwhm",
+      "value": 3.3197771794007043,
+      "unit": "MHz",
+      "pdf_x_pt": 432.52130126953125,
+      "pdf_y_pt": 356.75445556640625,
+      "drawing_index": 149,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 8.0,
+      "digitized_probe_power_uw": 8.00167042037615,
+      "quantity": "eit_fwhm",
+      "value": 3.6492981726708464,
+      "unit": "MHz",
+      "pdf_x_pt": 450.4411926269531,
+      "pdf_y_pt": 347.75267028808594,
+      "drawing_index": 150,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 10.0,
+      "digitized_probe_power_uw": 10.001661175337091,
+      "quantity": "eit_fwhm",
+      "value": 3.949259293877766,
+      "unit": "MHz",
+      "pdf_x_pt": 468.36077880859375,
+      "pdf_y_pt": 339.5583953857422,
+      "drawing_index": 151,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.03,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 0.5,
+      "digitized_probe_power_uw": 0.49999440437105136,
+      "quantity": "eit_peak",
+      "value": 0.034320433151107554,
+      "unit": "arb.unit",
+      "pdf_x_pt": 383.2274169921875,
+      "pdf_y_pt": 319.1334686279297,
+      "drawing_index": 336,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 1.0,
+      "digitized_probe_power_uw": 0.9983069535292799,
+      "quantity": "eit_peak",
+      "value": 0.0822671926290508,
+      "unit": "arb.unit",
+      "pdf_x_pt": 387.6922149658203,
+      "pdf_y_pt": 314.7673797607422,
+      "drawing_index": 337,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 2.0,
+      "digitized_probe_power_uw": 1.9983415004997767,
+      "quantity": "eit_peak",
+      "value": 0.18013296729220718,
+      "unit": "arb.unit",
+      "pdf_x_pt": 396.65235900878906,
+      "pdf_y_pt": 305.85560607910156,
+      "drawing_index": 338,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 4.0,
+      "digitized_probe_power_uw": 3.9983220373328834,
+      "quantity": "eit_peak",
+      "value": 0.3601015519300841,
+      "unit": "arb.unit",
+      "pdf_x_pt": 414.5718536376953,
+      "pdf_y_pt": 289.4674530029297,
+      "drawing_index": 339,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 6.0,
+      "digitized_probe_power_uw": 5.998302574165983,
+      "quantity": "eit_peak",
+      "value": 0.5151081154804005,
+      "unit": "arb.unit",
+      "pdf_x_pt": 432.49134826660156,
+      "pdf_y_pt": 275.3523712158203,
+      "drawing_index": 340,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 8.0,
+      "digitized_probe_power_uw": 7.99828311099909,
+      "quantity": "eit_peak",
+      "value": 0.63004839649901,
+      "unit": "arb.unit",
+      "pdf_x_pt": 450.4108428955078,
+      "pdf_y_pt": 264.8857727050781,
+      "drawing_index": 341,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "compensated",
+      "probe_power_uw": 10.0,
+      "digitized_probe_power_uw": 9.998306223364835,
+      "quantity": "eit_peak",
+      "value": 0.7351403853718659,
+      "unit": "arb.unit",
+      "pdf_x_pt": 468.3307189941406,
+      "pdf_y_pt": 255.31597137451172,
+      "drawing_index": 342,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 0.5,
+      "digitized_probe_power_uw": 0.5033272170663281,
+      "quantity": "eit_peak",
+      "value": 0.028081603542520206,
+      "unit": "arb.unit",
+      "pdf_x_pt": 383.2572784423828,
+      "pdf_y_pt": 319.7015838623047,
+      "drawing_index": 301,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 1.0,
+      "digitized_probe_power_uw": 1.0016397662245637,
+      "quantity": "eit_peak",
+      "value": 0.07110174534421487,
+      "unit": "arb.unit",
+      "pdf_x_pt": 387.7220764160156,
+      "pdf_y_pt": 315.78411865234375,
+      "drawing_index": 302,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 2.0,
+      "digitized_probe_power_uw": 2.001696452472032,
+      "quantity": "eit_peak",
+      "value": 0.16995398299366649,
+      "unit": "arb.unit",
+      "pdf_x_pt": 396.6824188232422,
+      "pdf_y_pt": 306.7825164794922,
+      "drawing_index": 303,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 4.0,
+      "digitized_probe_power_uw": 4.001665068155994,
+      "quantity": "eit_peak",
+      "value": 0.32988599125591955,
+      "unit": "arb.unit",
+      "pdf_x_pt": 414.601806640625,
+      "pdf_y_pt": 292.2189178466797,
+      "drawing_index": 304,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 6.0,
+      "digitized_probe_power_uw": 6.0016456049891005,
+      "quantity": "eit_peak",
+      "value": 0.48489272237256653,
+      "unit": "arb.unit",
+      "pdf_x_pt": 432.52130126953125,
+      "pdf_y_pt": 278.10382080078125,
+      "drawing_index": 305,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 8.0,
+      "digitized_probe_power_uw": 8.00167042037615,
+      "quantity": "eit_peak",
+      "value": 0.5998397060443867,
+      "unit": "arb.unit",
+      "pdf_x_pt": 450.4411926269531,
+      "pdf_y_pt": 267.63661193847656,
+      "drawing_index": 306,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "2b",
+      "pdf_page": 5,
+      "condition": "uncompensated",
+      "probe_power_uw": 10.0,
+      "digitized_probe_power_uw": 10.00165947231578,
+      "quantity": "eit_peak",
+      "value": 0.6898224902663528,
+      "unit": "arb.unit",
+      "pdf_x_pt": 468.3607635498047,
+      "pdf_y_pt": 259.4426727294922,
+      "drawing_index": 307,
+      "method": "PDF vector marker rectangle centre",
+      "comparison_resolution_bound": 0.005,
+      "experimental_standard_uncertainty": "not_assigned"
+    }
+  ],
+  "fig4d_experimental_points": [
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 0.5,
+      "minimum_field_nv_cm": 86.05839416058399,
+      "image_x_px": 643,
+      "image_y_px": 567.0,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 1.0,
+      "minimum_field_nv_cm": 59.45255474452557,
+      "image_x_px": 658,
+      "image_y_px": 607.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 2.0,
+      "minimum_field_nv_cm": 46.31386861313871,
+      "image_x_px": 688,
+      "image_y_px": 627.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 4.0,
+      "minimum_field_nv_cm": 21.350364963503694,
+      "image_x_px": 748,
+      "image_y_px": 665.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 6.0,
+      "minimum_field_nv_cm": 13.467153284671554,
+      "image_x_px": 808,
+      "image_y_px": 677.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 8.0,
+      "minimum_field_nv_cm": 37.11678832116792,
+      "image_x_px": 868,
+      "image_y_px": 641.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    },
+    {
+      "figure": "4d",
+      "pdf_page": 9,
+      "probe_power_uw": 10.0,
+      "minimum_field_nv_cm": 144.85401459854018,
+      "image_x_px": 928,
+      "image_y_px": 477.5,
+      "method": "Raster gray-marker densest-row centre; linear axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned",
+      "unit_scope": "Figure axis nV/cm; main text specifies 1 s integration and quotes field ASD"
+    }
+  ],
+  "fig5b_experimental_points": [
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 0.5,
+      "sensitivity_nv_cm_sqrt_hz": 86.6738720862894,
+      "image_x_px": 732.1507410493166,
+      "image_y_px": 167.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 1.0,
+      "sensitivity_nv_cm_sqrt_hz": 60.187056679162374,
+      "image_x_px": 805.0,
+      "image_y_px": 184.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 2.0,
+      "sensitivity_nv_cm_sqrt_hz": 46.5266585336434,
+      "image_x_px": 877.8492589506834,
+      "image_y_px": 196.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 4.0,
+      "sensitivity_nv_cm_sqrt_hz": 21.036881784318865,
+      "image_x_px": 950.6985179013669,
+      "image_y_px": 233.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 6.0,
+      "sensitivity_nv_cm_sqrt_hz": 13.406925390726611,
+      "image_x_px": 993.3126025928418,
+      "image_y_px": 254.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 8.0,
+      "sensitivity_nv_cm_sqrt_hz": 37.14289720609896,
+      "image_x_px": 1023.5477768520503,
+      "image_y_px": 206.5,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 10.0,
+      "sensitivity_nv_cm_sqrt_hz": 145.04096588315608,
+      "image_x_px": 1047.0,
+      "image_y_px": 143.0,
+      "method": "Raster blue-marker densest-row centre; log-log axes",
+      "digitization_y_bound_px": 2,
+      "experimental_standard_uncertainty": "not_assigned"
+    }
+  ],
+  "fig5b_psn_curve": [
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 0.5,
+      "sensitivity_nv_cm_sqrt_hz": 41.050168089118735,
+      "image_x_px": 732.1507410493166,
+      "image_y_px": 201.83752979745685,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 1.0,
+      "sensitivity_nv_cm_sqrt_hz": 28.98978444491093,
+      "image_x_px": 805.0,
+      "image_y_px": 218.0523714868662,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 2.0,
+      "sensitivity_nv_cm_sqrt_hz": 20.472695759439997,
+      "image_x_px": 877.8492589506834,
+      "image_y_px": 234.2672131762755,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 4.0,
+      "sensitivity_nv_cm_sqrt_hz": 14.457895416748093,
+      "image_x_px": 950.6985179013669,
+      "image_y_px": 250.4820548656848,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 6.0,
+      "sensitivity_nv_cm_sqrt_hz": 11.796001552357382,
+      "image_x_px": 993.3126025928418,
+      "image_y_px": 259.9671292091194,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 8.0,
+      "sensitivity_nv_cm_sqrt_hz": 10.210220595167131,
+      "image_x_px": 1023.5477768520503,
+      "image_y_px": 266.69689655509416,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    },
+    {
+      "figure": "5b",
+      "pdf_page": 10,
+      "probe_power_uw": 10.0,
+      "sensitivity_nv_cm_sqrt_hz": 9.128542942250611,
+      "image_x_px": 1047.0,
+      "image_y_px": 271.9169096490659,
+      "method": "Fit red dashed raster centreline in log-log pixel space",
+      "digitization_y_bound_px": 2,
+      "curve_kind": "Published PSN theory, not new measurement"
+    }
+  ],
+  "reported_numeric_anchors": [
+    {
+      "quantity": "measured_field_asd",
+      "probe_power_uw": 6.0,
+      "value": 12.5,
+      "printed_uncertainty": 0.8,
+      "unit": "nV/cm/sqrt(Hz)",
+      "uncertainty_confidence": "not stated",
+      "locator": "PDF p.8 and abstract"
+    },
+    {
+      "quantity": "PSN_field_asd",
+      "probe_power_uw": 6.0,
+      "value": 11.2,
+      "unit": "nV/cm/sqrt(Hz)",
+      "locator": "PDF p.10"
+    }
+  ],
+  "fig5b_red_line_loglog_exponent": -0.5018435232503075,
+  "digitization_uncertainty_policy": "Vector comparison bounds 0.03 MHz/0.005 arb are conservative analyst comparison resolutions, not reported measurement standard uncertainties. Raster +/-2 pixel bounds describe digitization only. Published error-bar confidence is not assigned.",
+  "source_figures_QA": "PDF pages 5,9,10 rendered and inspected; original marker/path and embedded-image extractions independently viewed",
+  "supplement_status": "Main PDF references Notes 1 and 2; no ancillary link on official abstract. Both /src and /e-print return the identical main PDF. See supplement_search.json.",
+  "artifact_sha256": {
+    "fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+    "fig2a_lineshape.csv": "61c8b49741852de6791763c837d0125a03341533803542ef9c1bcd9108d05f13",
+    "fig2b_theory_curves.csv": "a80aaa128d60a3d15c48b41f3b284429b6f4aa2968e08c3b67ffaba545ce184d",
+    "fig4d_experimental_points.csv": "88fb38e4027de73897690f1e5caf342dc54f92937c4a74f65a4789612efb1443",
+    "fig5b_experimental_points.csv": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba",
+    "fig5b_psn_curve.csv": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028",
+    "extract_gold_observations.py": "fb371625bd586793bfb15cc3bfde68957555f5aeaed8eaffdcf89372e8949296",
+    "fig2_source_crop.png": "c52e5ab4b87ae513376a884a94956cbe252ae77ddcdcf160e9edc1598e40097b",
+    "fig4_source_crop.png": "274c522058ac23f3ef4880cfae4da6adbcf32a69648d7b13325981a7baacb73a",
+    "fig5_source_crop.png": "73f0c3834453b74fc1a6195a29314aac6be21911d8c7cd3fa299fae9b7845afe",
+    "scan_axis_audit.json": "9277a383cc27b1ee410e4f52d569052dedfd6894832077e2191a81dc3919d521",
+    "supplement_search.json": "48fe1c5c4f45631686937a1ef4978bd694dcb702d1ef0673ed08ffa501905487"
+  }
+}

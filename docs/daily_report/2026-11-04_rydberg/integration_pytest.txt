@@ -1,0 +1,9 @@
+.......                                                                  [100%]
+- generated xml file: G:\내 드라이브\Coding\GABES - Generic Atomic Bloch Equation Solver\docs\daily_report\2026-11-04_rydberg\integration_pytest.xml -
+============================= slowest 5 durations =============================
+21.56s call     analysis/rydberg_cell_heating/test_workflow.py::test_calibrated_finite_if_chain_can_emit_absolute_sensitivity
+0.45s call     analysis/rydberg_cell_heating/test_adapter_integration_regressions.py::test_static_adapter_forwards_effective_and_cold_spot_temperatures
+0.09s call     analysis/rydberg_cell_heating/test_adapter_integration_regressions.py::test_configured_electrometry_rebuild_includes_density_dephasing
+0.08s setup    analysis/rydberg_cell_heating/test_adapter_integration_regressions.py::test_default_opacity_keeps_legacy_transmission
+0.03s call     analysis/rydberg_cell_heating/test_adapter_integration_regressions.py::test_configured_opacity_scales_once_and_reuses_atomic_phasors
+7 passed in 28.02s

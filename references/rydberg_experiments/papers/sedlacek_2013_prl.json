@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "paper_id": "sedlacek_2013_prl",
+  "title": "Atom-Based Vector Microwave Electrometry Using Rubidium Rydberg Atoms in a Vapor Cell",
+  "authors": [
+    "J. A. Sedlacek",
+    "A. Schwettmann",
+    "H. Kübler",
+    "J. P. Shaffer"
+  ],
+  "year": 2013,
+  "study_type": "experiment",
+  "topics": [
+    "polarization",
+    "Zeeman",
+    "AT_splitting"
+  ],
+  "publication": {
+    "journal": "Physical Review Letters",
+    "volume": "111",
+    "issue": "6",
+    "pages": "063001",
+    "doi": "10.1103/PhysRevLett.111.063001",
+    "arxiv_id": "1304.4299",
+    "status": "published",
+    "published_date": "2013-08-06"
+  },
+  "scope": {
+    "species": "87Rb",
+    "line": "5S(F2)-5P(F3)-53D5/2-54P3/2",
+    "configuration": "polarization_vector_readout",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "Oklahoma_Shaffer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/1304.4299",
+      "path": "sources/sedlacek_2013_prl.pdf",
+      "sha256": "1f04e66e91032a8ec6de08abdb97ba066dbab4e91ee1cb71d64997a53b1cf1c7",
+      "pages": 5,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "vector",
+      "label": "편광 회전 기반 벡터 MW 측정",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "cell_dimensions",
+          "value": "10 x 10 x 30",
+          "unit": "mm",
+          "value_type": "reported",
+          "basis": "Cuboidal cell dimensions; propagation length not inferred",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Cuboidal cell dimensions; propagation length not inferred",
+          "notes": ""
+        },
+        {
+          "quantity": "temperature",
+          "value": 45,
+          "unit": "degC",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "rf_frequency",
+          "value": 14.233,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 15,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 11,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_size",
+          "value": 200,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "Spot size; radius/diameter definition not specified in this passage",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Spot size; radius/diameter definition not specified in this passage",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_beam_size",
+          "value": 65,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "Spot size; radius/diameter definition not specified in this passage",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Spot size; radius/diameter definition not specified in this passage",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "polarization_angle_resolution",
+          "value": 0.5,
+          "unit": "degree",
+          "value_type": "approximate",
+          "basis": "Resolution in both zeta and phi",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Resolution in both zeta and phi",
+          "notes": ""
+        },
+        {
+          "quantity": "at_splitting",
+          "value": 39.36,
+          "unit": "MHz",
+          "value_type": "reported",
+          "basis": "Probe-axis peak splitting",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 4",
+          "evidence": "Probe-axis peak splitting",
+          "notes": "",
+          "uncertainty": {
+            "value": 0.06,
+            "unit": "MHz",
+            "basis": "Uncertainty as printed; confidence level only if stated in basis."
+          }
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "manifold",
+      "claim": "편광에 따른 3준위·4준위 경로 비율로 전기장 방향을 추정. 진폭 예측에는 52상태·광펌핑·Doppler 계산 사용.",
+      "locator": "PDF pp. 2-4, Figs. 2-4",
+      "source_id": "main",
+      "category": "multilevel",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

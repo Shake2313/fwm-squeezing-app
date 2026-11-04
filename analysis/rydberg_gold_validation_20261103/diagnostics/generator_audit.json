@@ -1,0 +1,88 @@
+{
+  "origin": "⟦AI⟧ Analysis-only generator audit; no production edits",
+  "criterion": "A trace-preserving Hermiticity-preserving generator is GKSL iff its Choi matrix projected orthogonal to vectorized identity is positive semidefinite",
+  "conditional_choi_eigenvalues_per_2pi_mhz": [
+    -0.34098031331401074,
+    -2.7332834345591566e-16,
+    -1.3247107945314995e-16,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    1.4822459136312394e-16,
+    2.3186578448044243e-16,
+    0.02,
+    0.02,
+    0.09351624360031244,
+    1.0000000000000002,
+    6.0666
+  ],
+  "conditional_choi_minimum_per_2pi_mhz": -0.34098031331401074,
+  "stationary_samples": [
+    {
+      "probe_power_uw": 0.5,
+      "lo_rabi_mhz": 0.0,
+      "min_stationary_eigenvalue": -1.7494985765208846e-05,
+      "min_case_detuning_mhz": -3.0,
+      "min_case_velocity_m_s": 0.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 4
+    },
+    {
+      "probe_power_uw": 0.5,
+      "lo_rabi_mhz": 3.7,
+      "min_stationary_eigenvalue": -1.0168246364099194e-05,
+      "min_case_detuning_mhz": -6.0,
+      "min_case_velocity_m_s": 0.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 2
+    },
+    {
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 0.0,
+      "min_stationary_eigenvalue": 0.0,
+      "min_case_detuning_mhz": -6.0,
+      "min_case_velocity_m_s": -600.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 0
+    },
+    {
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "min_stationary_eigenvalue": 4.22005640674703e-12,
+      "min_case_detuning_mhz": -6.0,
+      "min_case_velocity_m_s": 600.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 0
+    },
+    {
+      "probe_power_uw": 10.0,
+      "lo_rabi_mhz": 0.0,
+      "min_stationary_eigenvalue": 0.0,
+      "min_case_detuning_mhz": -6.0,
+      "min_case_velocity_m_s": -600.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 0
+    },
+    {
+      "probe_power_uw": 10.0,
+      "lo_rabi_mhz": 3.7,
+      "min_stationary_eigenvalue": 1.0113300743988334e-11,
+      "min_case_detuning_mhz": -6.0,
+      "min_case_velocity_m_s": 600.0,
+      "sampled_state_count": 25,
+      "nonpositive_state_count": 0
+    }
+  ],
+  "interpretation": "Negative conditional Choi eigenvalue diagnoses phenomenological pairwise dephasing as non-GKSL. A finite stationary-state sample is not a universal positivity proof; no change to legacy numerical results is implied.",
+  "source_sha256": {
+    "analysis/rydberg_gold_validation_20261103/diagnostics/generator_audit.py": "d6c4c76b16acf97e10eba5b71b0f3d26244e8867380f2bff6c0e53e2c509ddcd",
+    "analysis/rydberg_gold_validation_20261103/diagnostics/baseline_spectroscopy.py": "e0b48d2ad98b3b62c38c27e41cf812a6e6718bf73ad4fea7fe27a559f0c6e6b7",
+    "analysis/rydberg_gold_map_20261103/resolved_parameters.json": "5dda93a66ac6c0541c28fe9d261206f0565030fa9ae96aebdc4a9defd269e53f",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f"
+  }
+}

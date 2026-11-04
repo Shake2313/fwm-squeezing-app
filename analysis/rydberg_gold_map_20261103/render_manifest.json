@@ -1,0 +1,10 @@
+{
+  "origin": "AI rendering of saved discrete results",
+  "opacity": 0.001,
+  "sha256": {
+    "render_maps.py": "86b698674648133d6df77c52108046b991ddd6dcde5d8aa83ce18c95299fb27f",
+    "results.json": "df43481d094297716b343e0fedc207bede46f1099755a3a0dc65bc5566dfab28",
+    "optimized_maps.png": "4caf2bf9cf60060281c62dc21ecd80d981ce6501ea6bed23a06e1c4cd9760edd",
+    "optimal_controls.png": "f85ed2e5cf4f22b142def9984ef855254c8eafeb55e51b8df05cecc22b7abc87"
+  }
+}

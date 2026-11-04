@@ -1,0 +1,317 @@
+{
+  "as_of": "2026-11-03",
+  "origin": "⟦AI⟧ Independent pilot verification",
+  "status": "PASS",
+  "checks": [
+    {
+      "id": "completed_config_matches",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "engine_and_pilot_source_hashes",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "configuration_signature",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "current_environment_matches_final_manifest",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "complete_coarse_control_grid",
+      "status": "PASS",
+      "detail": {
+        "expected": 900,
+        "actual": 900
+      }
+    },
+    {
+      "id": "complete_unique_opacity_scenarios",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "positive_finite_outputs",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "bounded_probe_search",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "passive_transmission",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "psn_equals_total_under_zero_technical_noise",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "independent_balanced_psn_and_field_unit_reconstruction",
+      "status": "PASS",
+      "detail": {
+        "max_relative_error": 4.440892098500626e-16
+      }
+    },
+    {
+      "id": "complete_unique_map_cells",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "each_map_cell_is_saved_control_minimum",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "optimized_map_no_worse_than_fixed_gold_controls",
+      "status": "PASS",
+      "detail": {
+        "maximum_optimized_to_fixed_ratio": 0.9761791344581082
+      }
+    },
+    {
+      "id": "refinement_retains_or_improves_coarse_candidates",
+      "status": "PASS",
+      "detail": {
+        "largest_relative_worsening": 0.0
+      }
+    },
+    {
+      "id": "fresh_default_gold_parity",
+      "status": "PASS",
+      "detail": {
+        "fresh_sensitivity": 6.08238721516595
+      }
+    },
+    {
+      "id": "prior_work_archive_hash_size_pages",
+      "status": "PASS",
+      "detail": [
+        {
+          "id": "ju_2025_thesis",
+          "path": "sources/ju_2025_thesis.pdf",
+          "okay": true
+        }
+      ]
+    },
+    {
+      "id": "older_apparatus_not_substituted",
+      "status": "PASS",
+      "detail": null
+    },
+    {
+      "id": "thermal_dense_candidates_agree_with_saved_local_optima",
+      "status": "PASS",
+      "detail": [
+        {
+          "controls": [
+            "on",
+            20.0,
+            30.0,
+            6.0,
+            3.7
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 1142.223167893334,
+          "dense_sensitivity": 1142.223167893334,
+          "relative_improvement": 0.0,
+          "saved_probe_detuning_mhz": 0.0,
+          "dense_probe_detuning_mhz": 0.0,
+          "candidate_count": 67,
+          "search_scope": "41 global targets plus 41 local targets, snapped to the existing spectrum grid"
+        },
+        {
+          "controls": [
+            "on",
+            35.0,
+            40.0,
+            10.0,
+            4.5
+          ],
+          "opacity": 0.001,
+          "saved_sensitivity": 215.44395061926767,
+          "dense_sensitivity": 215.44395061926767,
+          "relative_improvement": 0.0,
+          "saved_probe_detuning_mhz": 0.0,
+          "dense_probe_detuning_mhz": 0.0,
+          "candidate_count": 63,
+          "search_scope": "41 global targets plus 41 local targets, snapped to the existing spectrum grid"
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    "Best sampled settings touch map or control bounds; no unconstrained optimum established.",
+    "Resume parser does not recover a truncated final checkpoint JSONL line.",
+    "Campaign signature covers code and inputs, not Python/NumPy; final-manifest environment parity cannot audit earlier resumed processes.",
+    "Opacity, anchored Rabi rates, compact propagation and zero technical noise remain model assumptions.",
+    "Thermal dense checks refine probe candidates only at selected controls; continuous control-variable convergence is untested."
+  ],
+  "best_boundary_flags": [
+    {
+      "mode": "off",
+      "flags": [
+        "probe_power_uw_upper",
+        "lo_rabi_mhz_lower",
+        "temperature_c_map_upper",
+        "coupling_power_mw_map_upper"
+      ],
+      "controls": [
+        "off",
+        35.0,
+        40.0,
+        10.0,
+        2.0
+      ],
+      "sensitivity": 1.536991367524197
+    },
+    {
+      "mode": "on",
+      "flags": [
+        "probe_power_uw_upper",
+        "temperature_c_map_upper",
+        "coupling_power_mw_map_upper"
+      ],
+      "controls": [
+        "on",
+        35.0,
+        40.0,
+        10.0,
+        4.5
+      ],
+      "sensitivity": 215.44395061926767
+    }
+  ],
+  "gold_baselines": [
+    {
+      "doppler": "off",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.0005,
+      "probe_detuning_mhz": -2.2200000000000006,
+      "sensitivity_nv_cm_sqrt_hz": 11.781990082637455,
+      "psn_nv_cm_sqrt_hz": 11.781990082637455,
+      "transmission": 0.9380569060548806,
+      "current_response_a_per_v_m": 8.813225441547883e-07,
+      "detected_power_w": 2.8141707181646416e-06,
+      "candidate_count": 435,
+      "refined": false,
+      "actual_probe_search": "all bounded scan points",
+      "boundary_flags": ""
+    },
+    {
+      "doppler": "off",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.001,
+      "probe_detuning_mhz": -2.2200000000000006,
+      "sensitivity_nv_cm_sqrt_hz": 6.08238721516595,
+      "psn_nv_cm_sqrt_hz": 6.08238721516595,
+      "transmission": 0.8799507589972551,
+      "current_response_a_per_v_m": 1.6534613980125133e-06,
+      "detected_power_w": 2.639852276991765e-06,
+      "candidate_count": 435,
+      "refined": false,
+      "actual_probe_search": "all bounded scan points",
+      "boundary_flags": ""
+    },
+    {
+      "doppler": "off",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.0015,
+      "probe_detuning_mhz": -2.1922499999999996,
+      "sensitivity_nv_cm_sqrt_hz": 4.185897219795265,
+      "psn_nv_cm_sqrt_hz": 4.185897219795265,
+      "transmission": 0.8294948464817461,
+      "current_response_a_per_v_m": 2.332691062175452e-06,
+      "detected_power_w": 2.4884845394452385e-06,
+      "candidate_count": 435,
+      "refined": false,
+      "actual_probe_search": "all bounded scan points",
+      "boundary_flags": ""
+    },
+    {
+      "doppler": "on",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.0005,
+      "probe_detuning_mhz": 0.0,
+      "sensitivity_nv_cm_sqrt_hz": 2282.2164945387763,
+      "psn_nv_cm_sqrt_hz": 2282.2164945387763,
+      "transmission": 0.9980487587366053,
+      "current_response_a_per_v_m": 4.6930802365805325e-09,
+      "detected_power_w": 2.994146276209816e-06,
+      "candidate_count": 15,
+      "refined": false,
+      "actual_probe_search": "explicit finite-IF candidates",
+      "boundary_flags": ""
+    },
+    {
+      "doppler": "on",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.001,
+      "probe_detuning_mhz": 0.0,
+      "sensitivity_nv_cm_sqrt_hz": 1142.223167893334,
+      "psn_nv_cm_sqrt_hz": 1142.223167893334,
+      "transmission": 0.9961013248156785,
+      "current_response_a_per_v_m": 9.367845809540986e-09,
+      "detected_power_w": 2.9883039744470357e-06,
+      "candidate_count": 15,
+      "refined": false,
+      "actual_probe_search": "explicit finite-IF candidates",
+      "boundary_flags": ""
+    },
+    {
+      "doppler": "on",
+      "temperature_c": 20.0,
+      "coupling_power_mw": 30.0,
+      "probe_power_uw": 6.0,
+      "lo_rabi_mhz": 3.7,
+      "opacity": 0.0015,
+      "probe_detuning_mhz": 0.0,
+      "sensitivity_nv_cm_sqrt_hz": 762.2261185675117,
+      "psn_nv_cm_sqrt_hz": 762.2261185675117,
+      "transmission": 0.994157690808176,
+      "current_response_a_per_v_m": 1.4024350323372436e-08,
+      "detected_power_w": 2.982473072424528e-06,
+      "candidate_count": 15,
+      "refined": false,
+      "actual_probe_search": "explicit finite-IF candidates",
+      "boundary_flags": ""
+    }
+  ],
+  "measured_gold_reference_nv_cm_sqrt_hz": 12.5,
+  "scope": "Saved sampled map, numerical consistency and source provenance; no experimental predictive validation.",
+  "artifact_sha256": {
+    "results.json": "df43481d094297716b343e0fedc207bede46f1099755a3a0dc65bc5566dfab28",
+    "control_points.csv": "ce447a5738fe3529304cc00276350520cb8b176268979fcc3ab37c80ee79287e",
+    "optima.csv": "050a6c0ac45dc635908eb3fbbd99026073de5d0500ca3c992bad9476d9b6ffd9",
+    "config.json": "cf2265887bea8012bd9430451129e37b20806486b71a5dd4c04b8c588854eb21",
+    "source_manifest.json": "f3cf1cc972d00942489f4ab7617143b5cdd7d28991e50ab7e50285fccb5c43cf",
+    "sources/prior_work.json": "2f59f3fdc8980af6d66e31ad80769c0d6134ab9a47f99c5257cc76ff0b4621d5",
+    "verify_pilot.py": "d8ec7836af7eb4a0c3e4bc057afb2e37a3e7da9aeddc8881f17bdb9bdaefe0ef"
+  }
+}

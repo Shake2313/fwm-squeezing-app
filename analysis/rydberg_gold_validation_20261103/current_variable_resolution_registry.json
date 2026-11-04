@@ -1,0 +1,566 @@
+{
+  "origin": "⟦AI⟧ Current-model variable-resolution evidence registry",
+  "adoption_status": "Analysis evidence and recommendations; not a new human-registered goal",
+  "physical_model_validation": "NOT_ESTABLISHED",
+  "model": "correlated_phase_lindblad",
+  "variables": [
+    {
+      "variable": "temperature_c",
+      "role": "Important nonlinear covariate",
+      "recommendation": "Use exact N(T) baseline and sparse residual-temperature slice with guards",
+      "evidence": "current_resolution_audit.json",
+      "scope": "Fixed Pp/LO/probe-scan protocol only; new dephasing or geometry requires recheck",
+      "adaptive_evidence": "refined_resolution_audit.json",
+      "proposed_training_nodes": [
+        15.0,
+        20.0,
+        35.0
+      ]
+    },
+    {
+      "variable": "coupling_power_mw",
+      "role": "Smooth control with weak T interaction in tested CP kernel",
+      "recommendation": "Sparse1Dslice plus independent cross guards; no removal from physical design",
+      "evidence": "current_resolution_audit.json",
+      "scope": "20–40 mW; 5 training nodes after adaptive refinement; tested 8 fresh cross guards",
+      "adaptive_evidence": "refined_resolution_audit.json",
+      "proposed_training_nodes": [
+        20.0,
+        25.0,
+        30.0,
+        35.0,
+        40.0
+      ]
+    },
+    {
+      "variable": "probe_power_uw",
+      "role": "Control interacting with LO and readout noise",
+      "recommendation": "Retain explicit Pp–LO interaction; source low-power width and high-power measured sensitivity demand different spacing",
+      "evidence": "fixed_lo_rf.csv and sources/fig2b_points.csv",
+      "scope": "Do not infer fixed-LO monotonicity from jointly profiled optimum counts"
+    },
+    {
+      "variable": "lo_rabi_mhz",
+      "role": "Control fixed for Gold reproduction, later joint optimization axis",
+      "recommendation": "Validate3.7MHz first; then local Pp–LO search after spectroscopy/response gates",
+      "evidence": "benchmark_results.json",
+      "scope": "No current calibrated LO optimum"
+    },
+    {
+      "variable": "probe/coupling_detuning_mhz",
+      "role": "Independent physical coordinates",
+      "recommendation": "Keep scan-axis and fixed counterpart explicit; signed candidates; compare source protocol hypotheses",
+      "evidence": "independent_detuning_pilot.csv",
+      "scope": "Source absolute detunings/scan identity not reported. Current linewidth comparison is restricted to zero fixed optical detuning; bare two-photon centre is not a fitted spectral maximum at general detuning."
+    },
+    {
+      "variable": "opacity/Rabi/dephasing/beam_parameters",
+      "role": "Calibration or nuisance parameters",
+      "recommendation": "Profile against spectra and independent gain/density data; never optimize them freely for lowest S",
+      "evidence": "diagnostics/model_diagnostic_summary.json",
+      "scope": "Gaussian candidate improves shape but unvalidated; boundaryGamma0 not adopted"
+    },
+    {
+      "variable": "radial_nodes_and_frequency_step",
+      "role": "Numerical resolution",
+      "recommendation": "Retain selected12nodes/.0333MHz coarsening evidence; do not spend resolution to fit a much larger model residual",
+      "evidence": "diagnostics/gaussian_trial.json",
+      "scope": "Selected Gaussian hypothesis only; joint numerical configuration certificate"
+    }
+  ],
+  "current_sparse_evidence": [
+    {
+      "detuning_policy": "maximum_static_slope",
+      "density_normalized": false,
+      "training_cross_coordinates": 5,
+      "independent_new_guard_coordinates": 8,
+      "maximum_relative_error": 0.030115355026550716,
+      "rms_relative_error": 0.018684136339616103,
+      "eligible_at_declared_criterion": false,
+      "predictions": [
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 3264.8922122149593,
+          "predicted_sensitivity": 3303.9257540376607,
+          "relative_error": 0.011955537667266647
+        },
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 2926.1960940408317,
+          "predicted_sensitivity": 2943.73789531976,
+          "relative_error": 0.005994745640817367
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 1255.270440608984,
+          "predicted_sensitivity": 1293.0733555822583,
+          "relative_error": 0.030115355026550716
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 1124.9611465514154,
+          "predicted_sensitivity": 1152.1048963052417,
+          "relative_error": 0.024128610874283085
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 686.6576853701813,
+          "predicted_sensitivity": 702.503299407448,
+          "relative_error": 0.023076438777094976
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 615.3330280133123,
+          "predicted_sensitivity": 625.9176924680056,
+          "relative_error": 0.01720152173347067
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 564.9062287793593,
+          "predicted_sensitivity": 573.2227743703168,
+          "relative_error": 0.014721993080033524
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 506.2139198360681,
+          "predicted_sensitivity": 510.7310905252853,
+          "relative_error": 0.008923442268596649
+        }
+      ]
+    },
+    {
+      "detuning_policy": "maximum_static_slope",
+      "density_normalized": true,
+      "training_cross_coordinates": 5,
+      "independent_new_guard_coordinates": 8,
+      "maximum_relative_error": 0.010632780825619248,
+      "rms_relative_error": 0.007773262554419383,
+      "eligible_at_declared_criterion": false,
+      "predictions": [
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 3264.8922122149593,
+          "predicted_sensitivity": 3296.202372604066,
+          "relative_error": 0.009589952241598088
+        },
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 2926.1960940408317,
+          "predicted_sensitivity": 2936.856502607398,
+          "relative_error": 0.0036430943873775323
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 1255.270440608984,
+          "predicted_sensitivity": 1268.617456080858,
+          "relative_error": 0.010632780825619248
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 1124.9611465514154,
+          "predicted_sensitivity": 1130.3151336150843,
+          "relative_error": 0.004759263979988715
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 686.6576853701813,
+          "predicted_sensitivity": 693.792040051331,
+          "relative_error": 0.010389972810547654
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 615.3330280133123,
+          "predicted_sensitivity": 618.156118452243,
+          "relative_error": 0.004587906565076683
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 564.9062287793593,
+          "predicted_sensitivity": 570.4660721767298,
+          "relative_error": 0.009842064247342686
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 506.2139198360681,
+          "predicted_sensitivity": 508.27491889266133,
+          "relative_error": 0.004071399414027788
+        }
+      ]
+    },
+    {
+      "detuning_policy": "bare_two_photon_center",
+      "density_normalized": false,
+      "training_cross_coordinates": 5,
+      "independent_new_guard_coordinates": 8,
+      "maximum_relative_error": 0.028046772037831458,
+      "rms_relative_error": 0.018225484008014416,
+      "eligible_at_declared_criterion": false,
+      "predictions": [
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 2228.8513817020316,
+          "predicted_sensitivity": 2251.3863603287623,
+          "relative_error": 0.010110579292874178
+        },
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 1951.0453291475649,
+          "predicted_sensitivity": 1965.6955741078614,
+          "relative_error": 0.007508920854595091
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 856.0159933972722,
+          "predicted_sensitivity": 880.0244788248233,
+          "relative_error": 0.028046772037831458
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 749.244816008143,
+          "predicted_sensitivity": 768.3533371322045,
+          "relative_error": 0.025503708154924087
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 467.8128193274547,
+          "predicted_sensitivity": 477.6512294358075,
+          "relative_error": 0.021030655214829164
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 409.4097578871496,
+          "predicted_sensitivity": 417.03944032602135,
+          "relative_error": 0.018635809948073456
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 384.71707272197716,
+          "predicted_sensitivity": 389.62751235698533,
+          "relative_error": 0.012763768450059887
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 336.6676856821642,
+          "predicted_sensitivity": 340.185536381655,
+          "relative_error": 0.010449029856735015
+        }
+      ]
+    },
+    {
+      "detuning_policy": "bare_two_photon_center",
+      "density_normalized": true,
+      "training_cross_coordinates": 5,
+      "independent_new_guard_coordinates": 8,
+      "maximum_relative_error": 0.00860332095197136,
+      "rms_relative_error": 0.007049751125043848,
+      "eligible_at_declared_criterion": true,
+      "predictions": [
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 2228.8513817020316,
+          "predicted_sensitivity": 2246.1234346731458,
+          "relative_error": 0.007749306711479553
+        },
+        {
+          "temperature_c": 17.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 1951.0453291475649,
+          "predicted_sensitivity": 1961.1004900075106,
+          "relative_error": 0.00515373000807684
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 856.0159933972722,
+          "predicted_sensitivity": 863.3805737284895,
+          "relative_error": 0.00860332095197136
+        },
+        {
+          "temperature_c": 26.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 749.244816008143,
+          "predicted_sensitivity": 753.8214686087794,
+          "relative_error": 0.006108354042434483
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 467.8128193274547,
+          "predicted_sensitivity": 471.7282056651108,
+          "relative_error": 0.008369557600591326
+        },
+        {
+          "temperature_c": 32.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 409.4097578871496,
+          "predicted_sensitivity": 411.86802158752846,
+          "relative_error": 0.006004409159823698
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 25.0,
+          "direct_sensitivity": 384.71707272197716,
+          "predicted_sensitivity": 387.7537434384777,
+          "relative_error": 0.00789325697197496
+        },
+        {
+          "temperature_c": 34.0,
+          "coupling_power_mw": 35.0,
+          "direct_sensitivity": 336.6676856821642,
+          "predicted_sensitivity": 338.5495402972373,
+          "relative_error": 0.0055896502548500315
+        }
+      ]
+    }
+  ],
+  "historical_registry": "reduction/variable_resolution_registry.json",
+  "historical_evidence_status": "Retained historical results; not automatically transferable after the CP/axis change",
+  "source_sha256": {
+    "gabes/__init__.py": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+    "gabes/_csv_numeric.py": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+    "gabes/adaptive_scan.py": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+    "gabes/affine_doppler.py": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+    "gabes/angular.py": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+    "gabes/atoms.py": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+    "gabes/beam.py": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+    "gabes/biphoton_evidence.py": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+    "gabes/constants.py": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+    "gabes/core.py": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+    "gabes/doppler.py": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+    "gabes/dressed_cell_absorption.py": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+    "gabes/experimental_alignment.py": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+    "gabes/experimental_csv.py": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+    "gabes/fwm_chi_gain.py": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+    "gabes/fwm_efficiency.py": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+    "gabes/fwm_experiment_gain.py": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+    "gabes/fwm_experiment_noise.py": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+    "gabes/fwm_gain_calibration.py": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+    "gabes/fwm_gain_closure.py": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+    "gabes/fwm_literature_gain.py": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+    "gabes/fwm_measured_gain.py": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+    "gabes/fwm_quadrature.py": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+    "gabes/fwm_stark_gain.py": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+    "gabes/fwm_stark_response.py": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+    "gabes/fwm_zeeman_gain.py": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+    "gabes/fwm_zeeman_response.py": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+    "gabes/gain_reference.py": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+    "gabes/hyperfine.py": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+    "gabes/jasperse.py": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+    "gabes/kernels.py": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+    "gabes/lineshape.py": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+    "gabes/magneto_coordinates.py": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+    "gabes/magneto_multilevel.py": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+    "gabes/magneto_noise.py": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+    "gabes/magneto_optical.py": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+    "gabes/observables.py": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+    "gabes/passive_readout.py": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+    "gabes/plot_style.py": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+    "gabes/pole_doppler.py": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+    "gabes/probe_saturation.py": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+    "gabes/psr.py": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+    "gabes/psr_conventions.py": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+    "gabes/psr_full_obe.py": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+    "gabes/psr_homodyne.py": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+    "gabes/psr_noise.py": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+    "gabes/psr_spectrum.py": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+    "gabes/report.py": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+    "gabes/rydberg_electrometry.py": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+    "gabes/rydberg_experiment.py": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+    "gabes/rydberg_experimental_csv.py": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+    "gabes/rydberg_opacity.py": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+    "gabes/species.py": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+    "gabes/ui_metrics.py": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+    "gabes/zeeman.py": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+    "gabes/schemes/rydberg.py": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+    "analysis/rydberg_gold_validation_20261103/benchmark_gold.py": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+    "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+    "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+  },
+  "invalidate_when": [
+    "Critical physical source changes",
+    "Pp or LO optimized rather than fixed",
+    "Optical axis/fixed detuning changes",
+    "Opacity/noise/geometry/Rabi calibration changes",
+    "Temperature/dephasing policy changes"
+  ],
+  "evidence_manifest_sha256": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+  "adaptive_refinement_evidence": "refined_resolution_audit.json",
+  "adaptive_refinement_evidence_sha256": "82b2a402ef61e2d3df7fc43cbc5f20d720b6a477bc331373fe9c8d138bec4ef0",
+  "previous_failed_guard_preserved": "current_resolution_audit.json",
+  "selected_current_policy": {
+    "temperature_nodes_c": [
+      15.0,
+      20.0,
+      35.0
+    ],
+    "coupling_power_nodes_mw": [
+      20.0,
+      25.0,
+      30.0,
+      35.0,
+      40.0
+    ],
+    "exact_density_baseline": true,
+    "reports": [
+      {
+        "detuning_policy": "maximum_static_slope",
+        "maximum_relative_error": 0.0058785656862248015,
+        "rms_relative_error": 0.003929616206270328,
+        "eligible_at_one_percent": true,
+        "training_cross_coordinates": 7,
+        "fresh_guard_coordinates": 8,
+        "predictions": [
+          {
+            "temperature_c": 18.5,
+            "coupling_power_mw": 22.5,
+            "predicted": 2883.2166149524555,
+            "direct": 2869.563580444997,
+            "relative_error": 0.004757878375826419
+          },
+          {
+            "temperature_c": 18.5,
+            "coupling_power_mw": 37.5,
+            "predicted": 2431.9698665476135,
+            "direct": 2429.999932251132,
+            "relative_error": 0.00081067257259404
+          },
+          {
+            "temperature_c": 23.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 1784.3245870030041,
+            "direct": 1774.798070536481,
+            "relative_error": 0.005367662172206078
+          },
+          {
+            "temperature_c": 23.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 1505.063339752875,
+            "direct": 1502.845688804881,
+            "relative_error": 0.0014756345009430127
+          },
+          {
+            "temperature_c": 29.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 963.5493578288338,
+            "direct": 957.9181729272525,
+            "relative_error": 0.0058785656862248015
+          },
+          {
+            "temperature_c": 29.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 812.7460805471492,
+            "direct": 811.0617173873134,
+            "relative_error": 0.0020767385807107797
+          },
+          {
+            "temperature_c": 33.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 647.937189045479,
+            "direct": 644.5303839665228,
+            "relative_error": 0.005285716800487172
+          },
+          {
+            "temperature_c": 33.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 546.5297719922282,
+            "direct": 545.6770483788663,
+            "relative_error": 0.0015626891691620237
+          }
+        ]
+      },
+      {
+        "detuning_policy": "bare_two_photon_center",
+        "maximum_relative_error": 0.0030443734301204284,
+        "rms_relative_error": 0.002248634358959615,
+        "eligible_at_one_percent": true,
+        "training_cross_coordinates": 7,
+        "fresh_guard_coordinates": 8,
+        "predictions": [
+          {
+            "temperature_c": 18.5,
+            "coupling_power_mw": 22.5,
+            "predicted": 1977.4214961709142,
+            "direct": 1973.1776775895878,
+            "relative_error": 0.0021507533911040433
+          },
+          {
+            "temperature_c": 18.5,
+            "coupling_power_mw": 37.5,
+            "predicted": 1615.299233868216,
+            "direct": 1613.4058773967135,
+            "relative_error": 0.001173515293348082
+          },
+          {
+            "temperature_c": 23.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 1222.9867673706808,
+            "direct": 1219.7554079869706,
+            "relative_error": 0.002649186355355493
+          },
+          {
+            "temperature_c": 23.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 999.0230166862106,
+            "direct": 997.2859315766093,
+            "relative_error": 0.0017418125079284863
+          },
+          {
+            "temperature_c": 29.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 659.8007522305408,
+            "direct": 657.7981689625692,
+            "relative_error": 0.0030443734301204284
+          },
+          {
+            "temperature_c": 29.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 538.972420218672,
+            "direct": 537.7436165175184,
+            "relative_error": 0.00228511071709514
+          },
+          {
+            "temperature_c": 33.0,
+            "coupling_power_mw": 22.5,
+            "predicted": 443.4034236219201,
+            "direct": 442.2941206919945,
+            "relative_error": 0.0025080661895076073
+          },
+          {
+            "temperature_c": 33.0,
+            "coupling_power_mw": 37.5,
+            "predicted": 362.2036130677958,
+            "direct": 361.5162056348751,
+            "relative_error": 0.0019014567596311593
+          }
+        ]
+      }
+    ],
+    "scope": "Fixed Pp6/LO3.7/IF40kHz, doppler on, probe scan, fixed delta_c0, opacity.001, L50mm,d.15mm",
+    "status": "ELIGIBLE_ON_TESTED_GUARDS"
+  }
+}

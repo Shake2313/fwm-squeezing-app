@@ -1,0 +1,2128 @@
+{
+  "origin": "⟦AI⟧ Saved-data integrity and scientific-contract verification",
+  "status": "PASS",
+  "scope": "No new atomic solves, fitting, pytest or DB-verifier execution. Standard-library hashes, AST and independent arithmetic only.",
+  "experimental_validation_status": "NOT_ESTABLISHED",
+  "unresolved_experiment_is_numerical_failure": false,
+  "checks_passed": 43,
+  "checks_total": 43,
+  "failed_checks": [],
+  "checks": [
+    {
+      "name": "benchmark physical/source hashes",
+      "status": "PASS",
+      "references": 59,
+      "mismatches": []
+    },
+    {
+      "name": "current audit physical/source hashes",
+      "status": "PASS",
+      "references": 59,
+      "mismatches": []
+    },
+    {
+      "name": "current audit artifact hashes",
+      "status": "PASS",
+      "references": 4,
+      "mismatches": []
+    },
+    {
+      "name": "refined audit physical/source hashes",
+      "status": "PASS",
+      "references": 59,
+      "mismatches": []
+    },
+    {
+      "name": "refined audit artifact hashes",
+      "status": "PASS",
+      "references": 6,
+      "mismatches": []
+    },
+    {
+      "name": "current registry physical/source hashes",
+      "status": "PASS",
+      "references": 59,
+      "mismatches": []
+    },
+    {
+      "name": "frozen CP production model fingerprint",
+      "status": "PASS",
+      "sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+      "dephasing_model": "correlated_phase_lindblad"
+    },
+    {
+      "name": "figure input hashes",
+      "status": "PASS",
+      "references": 9,
+      "mismatches": []
+    },
+    {
+      "name": "figure renderer hash",
+      "status": "PASS",
+      "references": 1,
+      "mismatches": []
+    },
+    {
+      "name": "figure output hashes",
+      "status": "PASS",
+      "references": 3,
+      "mismatches": []
+    },
+    {
+      "name": "extracted source artifacts",
+      "status": "PASS",
+      "references": 12,
+      "mismatches": []
+    },
+    {
+      "name": "primary source PDF",
+      "status": "PASS",
+      "references": 1,
+      "mismatches": []
+    },
+    {
+      "name": "source extraction receipt and physical scope",
+      "status": "PASS",
+      "reported_checks": {
+        "script_ast": true,
+        "artifact_hashes": true,
+        "vector_points_28": true,
+        "power_axis_marker_agreement": true,
+        "psn_source_curve_monotone_decreasing": true,
+        "unknown_scan_axis_preserved": true
+      },
+      "visual_qa": "Existing human/agent receipt only; images not reinspected here"
+    },
+    {
+      "name": "source vector-point coverage",
+      "status": "PASS",
+      "points": 28,
+      "experimental_uncertainty": "No standard uncertainty inferred from digitization resolution"
+    },
+    {
+      "name": "source PSN line preserves decreasing power dependence",
+      "status": "PASS",
+      "points": 7,
+      "interpretation": "Published theory curve; not measured total noise"
+    },
+    {
+      "name": "Gold unknown scan identity retained",
+      "status": "PASS",
+      "prior_protocol": "Different apparatus supports hypotheses only"
+    },
+    {
+      "name": "spectroscopy references equal extracted Gold observations",
+      "status": "PASS",
+      "comparisons": 56,
+      "independent_source_points": 28
+    },
+    {
+      "name": "power split is disjoint and complete",
+      "status": "PASS",
+      "training": [
+        0.5,
+        2.0,
+        6.0,
+        10.0
+      ],
+      "heldout": [
+        1.0,
+        4.0,
+        8.0
+      ]
+    },
+    {
+      "name": "spectroscopy coverage and passive outputs",
+      "status": "PASS",
+      "rows": 56
+    },
+    {
+      "name": "one gain per model/axis trained only on training powers",
+      "status": "PASS",
+      "groups": [
+        {
+          "doppler": "off",
+          "scan_axis": "Probe detuning",
+          "training_only_shared_gain": 0.710503092731206
+        },
+        {
+          "doppler": "off",
+          "scan_axis": "Coupling detuning",
+          "training_only_shared_gain": 0.522419616947457
+        },
+        {
+          "doppler": "on",
+          "scan_axis": "Probe detuning",
+          "training_only_shared_gain": 45.592106777872445
+        },
+        {
+          "doppler": "on",
+          "scan_axis": "Coupling detuning",
+          "training_only_shared_gain": 47.12920638654874
+        }
+      ],
+      "sharing": "Same gain for compensated/uncompensated conditions and heldout powers"
+    },
+    {
+      "name": "saved comparison metrics independently reconstructed",
+      "status": "PASS",
+      "comparisons": 8
+    },
+    {
+      "name": "RF evidence row counts",
+      "status": "PASS",
+      "counts": {
+        "fixed_lo_rf.csv": 56,
+        "current_model_sparse_pilot.csv": 18,
+        "current_guard_points.csv": 16,
+        "refined_axis_points.csv": 4,
+        "refined_guard_points.csv": 16,
+        "independent_detuning_pilot.csv": 6
+      },
+      "total_rows": 116
+    },
+    {
+      "name": "fixed LO and IF across RF evidence",
+      "status": "PASS",
+      "rows": 116,
+      "RF_zero": "Analysis assumption; absolute atomic resonance not independently calibrated"
+    },
+    {
+      "name": "passive finite RF readouts",
+      "status": "PASS",
+      "rows": 116
+    },
+    {
+      "name": "saved physical optical coordinates agree with scan axis",
+      "status": "PASS",
+      "rows": 116,
+      "centre_scope": "Bare two-photon centre, not a fitted spectral maximum"
+    },
+    {
+      "name": "PSN detector assumptions agree with frozen source",
+      "status": "PASS",
+      "assumptions": {
+        "detector_quantum_efficiency": 0.95,
+        "detector_path_efficiency": 0.5,
+        "detector_reference_power_ratio": 1.0,
+        "detector_electronic_noise_pa_sqrt_hz": 0.0,
+        "detector_rin_per_sqrt_hz": 0.0
+      },
+      "optical_frequency_hz": 384230406373000.0,
+      "constants_read_by": "AST only; no model imports"
+    },
+    {
+      "name": "equal-arm photon shot noise reconstructed independently",
+      "status": "PASS",
+      "rows": 116,
+      "maximum_relative_PSN_error": 4.440892098500626e-16,
+      "maximum_relative_power_error": 0.0,
+      "equation": "S_E=sqrt(4 e R_PD P_signal)/abs(H_IE)*1e7 nV/cm/sqrt(Hz); P_signal=0.5 Pp T",
+      "scope": "Equal DC arms, QE0.95, zero RIN/electronics; verifies saved readout arithmetic only"
+    },
+    {
+      "name": "pilot, V1 guards, added axis and V2 guards disjoint",
+      "status": "PASS",
+      "counts": [
+        9,
+        8,
+        2,
+        8
+      ],
+      "unique_atomic_coordinates": 27
+    },
+    {
+      "name": "27 unique atomic control coordinates honestly counted",
+      "status": "PASS",
+      "training_and_guard_costs": [
+        9,
+        8,
+        2,
+        8
+      ]
+    },
+    {
+      "name": "saved guard plans agree with direct CSV coordinates",
+      "status": "PASS",
+      "chronology": "Plans describe predeclared coordinates; hashes cannot independently prove wall-clock chronology"
+    },
+    {
+      "name": "guard tolerance is explicit AI numerical criterion",
+      "status": "PASS",
+      "tolerance_relative": 0.01,
+      "adoption": "Not experimental uncertainty or a human-registered goal"
+    },
+    {
+      "name": "V1 forecasts reconstructed from five training cross points",
+      "status": "PASS",
+      "reports": [
+        {
+          "detuning_policy": "maximum_static_slope",
+          "density_normalized": false,
+          "maximum_relative_error": 0.030115355026550716,
+          "independent_points": 8,
+          "consistent": true
+        },
+        {
+          "detuning_policy": "maximum_static_slope",
+          "density_normalized": true,
+          "maximum_relative_error": 0.010632780825619248,
+          "independent_points": 8,
+          "consistent": true
+        },
+        {
+          "detuning_policy": "bare_two_photon_center",
+          "density_normalized": false,
+          "maximum_relative_error": 0.028046772037831458,
+          "independent_points": 8,
+          "consistent": true
+        },
+        {
+          "detuning_policy": "bare_two_photon_center",
+          "density_normalized": true,
+          "maximum_relative_error": 0.00860332095197136,
+          "independent_points": 8,
+          "consistent": true
+        }
+      ],
+      "calculation": "Reconstruct log-cross forecast from training CSV only; exact closed-form N(T), no atomic solves"
+    },
+    {
+      "name": "V2 forecasts reconstructed from seven training cross points",
+      "status": "PASS",
+      "reports": [
+        {
+          "detuning_policy": "maximum_static_slope",
+          "density_normalized": true,
+          "maximum_relative_error": 0.0058785656862248015,
+          "independent_points": 8,
+          "consistent": true
+        },
+        {
+          "detuning_policy": "bare_two_photon_center",
+          "density_normalized": true,
+          "maximum_relative_error": 0.0030443734301204284,
+          "independent_points": 8,
+          "consistent": true
+        }
+      ],
+      "calculation": "Reconstruct log-cross forecast from training CSV only; exact closed-form N(T), no atomic solves"
+    },
+    {
+      "name": "failed V1 retained separately from eligible fresh V2 guards",
+      "status": "PASS",
+      "V1_maximum_relative_error": 0.010632780825619248,
+      "V2_maximum_relative_errors": [
+        0.0058785656862248015,
+        0.0030443734301204284
+      ]
+    },
+    {
+      "name": "current registry evidence links and scope",
+      "status": "PASS",
+      "roles": 7
+    },
+    {
+      "name": "human-readable variable registry matches current JSON",
+      "status": "PASS",
+      "rows": 7,
+      "numeric_error_roles": [
+        "coupling_power_mw",
+        "temperature_c"
+      ],
+      "source_registry_sha256": "381bf804ab0f8a66ca94fb43cb2f700525d0f486843013ca633f86ebf0d084fe"
+    },
+    {
+      "name": "historical model eligibility is invalidated",
+      "status": "PASS",
+      "historical_model": "legacy_compact_RydbergEITScheme_profiled_PSN",
+      "current_applicability": "INVALIDATED_FOR_CURRENT_SOURCE"
+    },
+    {
+      "name": "historical helper test-code receipt remains applicable",
+      "status": "PASS",
+      "historical_output_hashes_changed": [
+        "variable_resolution_registry.json",
+        "variable_resolution_registry.csv"
+      ],
+      "interpretation": "Invalidation metadata regenerated after original receipt; current hashes recorded below, original receipt retained"
+    },
+    {
+      "name": "unresolved experiment states are explicit",
+      "status": "PASS",
+      "absolute_transmission": "NOT_IDENTIFIABLE_FROM_ARBITRARY_SIGNAL_UNITS",
+      "physical_contrast": "NOT_IDENTIFIABLE_WITHOUT_GAIN_BASELINE",
+      "protocol": "PARTIAL_MATCH: LO/powers/geometry declared; source optical scan identity and absolute detunings not reported",
+      "physical_model_validation": "NOT_ESTABLISHED"
+    },
+    {
+      "name": "no reported-sensitivity or temperature-optimum fit",
+      "status": "PASS",
+      "no_sensitivity_fit": true,
+      "no_temperature_optimum_fit": true,
+      "scope": "Explicit saved-analysis flags; detector arbitrary-unit gain is fitted separately"
+    },
+    {
+      "name": "README local artifact links",
+      "status": "PASS",
+      "missing": [],
+      "validation_link": "Created by this verifier"
+    },
+    {
+      "name": "README headline claims and scope match receipts",
+      "status": "PASS",
+      "checked_claims": [
+        "0.588%",
+        "0.304%",
+        "27개",
+        "108 passed",
+        "9 passed",
+        "36 checks PASS",
+        "NOT_IDENTIFIABLE",
+        "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b"
+      ],
+      "scope": "Headline values and linked-artifact presence; not independent line-by-line scientific review"
+    },
+    {
+      "name": "README current numeric tables match saved results",
+      "status": "PASS",
+      "checked_values": [
+        "1.1903",
+        "0.5697",
+        "0.4107",
+        "1.7546",
+        "0.08302",
+        "0.03176",
+        "0.01754",
+        "0.01291",
+        "0.588%",
+        "0.304%",
+        "2221.2",
+        "1495.9"
+      ],
+      "scope": "Current heldout spectroscopy RMSE, refined guard errors and nominal6uW RF readout"
+    }
+  ],
+  "hash_reference_count": 272,
+  "unique_hashed_reference_files": 89,
+  "hash_references": [
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/__init__.py",
+      "expected_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+      "actual_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/_csv_numeric.py",
+      "expected_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+      "actual_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/adaptive_scan.py",
+      "expected_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+      "actual_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/affine_doppler.py",
+      "expected_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+      "actual_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/angular.py",
+      "expected_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+      "actual_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/atoms.py",
+      "expected_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+      "actual_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/beam.py",
+      "expected_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+      "actual_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/biphoton_evidence.py",
+      "expected_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+      "actual_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/constants.py",
+      "expected_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+      "actual_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/core.py",
+      "expected_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+      "actual_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/doppler.py",
+      "expected_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+      "actual_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/dressed_cell_absorption.py",
+      "expected_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+      "actual_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/experimental_alignment.py",
+      "expected_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+      "actual_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/experimental_csv.py",
+      "expected_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+      "actual_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_chi_gain.py",
+      "expected_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+      "actual_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_efficiency.py",
+      "expected_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+      "actual_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_experiment_gain.py",
+      "expected_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+      "actual_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_experiment_noise.py",
+      "expected_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+      "actual_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_gain_calibration.py",
+      "expected_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+      "actual_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_gain_closure.py",
+      "expected_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+      "actual_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_literature_gain.py",
+      "expected_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+      "actual_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_measured_gain.py",
+      "expected_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+      "actual_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_quadrature.py",
+      "expected_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+      "actual_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_stark_gain.py",
+      "expected_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+      "actual_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_stark_response.py",
+      "expected_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+      "actual_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_zeeman_gain.py",
+      "expected_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+      "actual_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/fwm_zeeman_response.py",
+      "expected_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+      "actual_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/gain_reference.py",
+      "expected_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+      "actual_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/hyperfine.py",
+      "expected_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+      "actual_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/jasperse.py",
+      "expected_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+      "actual_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/kernels.py",
+      "expected_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+      "actual_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/lineshape.py",
+      "expected_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+      "actual_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/magneto_coordinates.py",
+      "expected_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+      "actual_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/magneto_multilevel.py",
+      "expected_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+      "actual_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/magneto_noise.py",
+      "expected_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+      "actual_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/magneto_optical.py",
+      "expected_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+      "actual_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/observables.py",
+      "expected_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+      "actual_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/passive_readout.py",
+      "expected_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+      "actual_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/plot_style.py",
+      "expected_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+      "actual_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/pole_doppler.py",
+      "expected_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+      "actual_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/probe_saturation.py",
+      "expected_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+      "actual_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr.py",
+      "expected_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+      "actual_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr_conventions.py",
+      "expected_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+      "actual_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr_full_obe.py",
+      "expected_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+      "actual_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr_homodyne.py",
+      "expected_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+      "actual_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr_noise.py",
+      "expected_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+      "actual_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/psr_spectrum.py",
+      "expected_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+      "actual_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/report.py",
+      "expected_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+      "actual_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/rydberg_electrometry.py",
+      "expected_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+      "actual_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/rydberg_experiment.py",
+      "expected_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+      "actual_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/rydberg_experimental_csv.py",
+      "expected_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+      "actual_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/rydberg_opacity.py",
+      "expected_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+      "actual_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/species.py",
+      "expected_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+      "actual_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/ui_metrics.py",
+      "expected_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+      "actual_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/zeeman.py",
+      "expected_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+      "actual_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "gabes/schemes/rydberg.py",
+      "expected_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+      "actual_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/benchmark_gold.py",
+      "expected_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+      "actual_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json",
+      "expected_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+      "actual_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+    },
+    {
+      "manifest": "benchmark physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv",
+      "expected_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+      "actual_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/__init__.py",
+      "expected_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+      "actual_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/_csv_numeric.py",
+      "expected_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+      "actual_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/adaptive_scan.py",
+      "expected_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+      "actual_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/affine_doppler.py",
+      "expected_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+      "actual_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/angular.py",
+      "expected_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+      "actual_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/atoms.py",
+      "expected_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+      "actual_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/beam.py",
+      "expected_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+      "actual_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/biphoton_evidence.py",
+      "expected_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+      "actual_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/constants.py",
+      "expected_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+      "actual_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/core.py",
+      "expected_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+      "actual_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/doppler.py",
+      "expected_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+      "actual_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/dressed_cell_absorption.py",
+      "expected_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+      "actual_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/experimental_alignment.py",
+      "expected_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+      "actual_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/experimental_csv.py",
+      "expected_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+      "actual_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_chi_gain.py",
+      "expected_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+      "actual_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_efficiency.py",
+      "expected_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+      "actual_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_experiment_gain.py",
+      "expected_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+      "actual_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_experiment_noise.py",
+      "expected_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+      "actual_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_gain_calibration.py",
+      "expected_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+      "actual_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_gain_closure.py",
+      "expected_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+      "actual_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_literature_gain.py",
+      "expected_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+      "actual_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_measured_gain.py",
+      "expected_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+      "actual_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_quadrature.py",
+      "expected_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+      "actual_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_stark_gain.py",
+      "expected_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+      "actual_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_stark_response.py",
+      "expected_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+      "actual_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_zeeman_gain.py",
+      "expected_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+      "actual_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/fwm_zeeman_response.py",
+      "expected_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+      "actual_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/gain_reference.py",
+      "expected_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+      "actual_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/hyperfine.py",
+      "expected_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+      "actual_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/jasperse.py",
+      "expected_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+      "actual_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/kernels.py",
+      "expected_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+      "actual_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/lineshape.py",
+      "expected_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+      "actual_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/magneto_coordinates.py",
+      "expected_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+      "actual_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/magneto_multilevel.py",
+      "expected_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+      "actual_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/magneto_noise.py",
+      "expected_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+      "actual_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/magneto_optical.py",
+      "expected_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+      "actual_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/observables.py",
+      "expected_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+      "actual_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/passive_readout.py",
+      "expected_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+      "actual_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/plot_style.py",
+      "expected_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+      "actual_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/pole_doppler.py",
+      "expected_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+      "actual_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/probe_saturation.py",
+      "expected_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+      "actual_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr.py",
+      "expected_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+      "actual_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr_conventions.py",
+      "expected_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+      "actual_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr_full_obe.py",
+      "expected_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+      "actual_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr_homodyne.py",
+      "expected_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+      "actual_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr_noise.py",
+      "expected_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+      "actual_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/psr_spectrum.py",
+      "expected_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+      "actual_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/report.py",
+      "expected_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+      "actual_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/rydberg_electrometry.py",
+      "expected_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+      "actual_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/rydberg_experiment.py",
+      "expected_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+      "actual_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/rydberg_experimental_csv.py",
+      "expected_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+      "actual_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/rydberg_opacity.py",
+      "expected_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+      "actual_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/species.py",
+      "expected_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+      "actual_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/ui_metrics.py",
+      "expected_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+      "actual_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/zeeman.py",
+      "expected_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+      "actual_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "gabes/schemes/rydberg.py",
+      "expected_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+      "actual_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/benchmark_gold.py",
+      "expected_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+      "actual_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json",
+      "expected_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+      "actual_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+    },
+    {
+      "manifest": "current audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv",
+      "expected_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+      "actual_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+    },
+    {
+      "manifest": "current audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_resolution_audit.py",
+      "expected_sha256": "8aa8c7266a5ead7870f5df2c50c30791ae9a52937d6cc8cdc3058c3077b14897",
+      "actual_sha256": "8aa8c7266a5ead7870f5df2c50c30791ae9a52937d6cc8cdc3058c3077b14897"
+    },
+    {
+      "manifest": "current audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_model_sparse_pilot.csv",
+      "expected_sha256": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944",
+      "actual_sha256": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944"
+    },
+    {
+      "manifest": "current audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_guard_plan.json",
+      "expected_sha256": "181dfb100c8294d9ee71f9031d6523b838637d301b6365cbb9211c24ec6cf94c",
+      "actual_sha256": "181dfb100c8294d9ee71f9031d6523b838637d301b6365cbb9211c24ec6cf94c"
+    },
+    {
+      "manifest": "current audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_guard_points.csv",
+      "expected_sha256": "e0b20f145e6086f4be44c7a32c6e72d8ce9f43dfc96f62798f4886e57be95d3d",
+      "actual_sha256": "e0b20f145e6086f4be44c7a32c6e72d8ce9f43dfc96f62798f4886e57be95d3d"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/__init__.py",
+      "expected_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+      "actual_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/_csv_numeric.py",
+      "expected_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+      "actual_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/adaptive_scan.py",
+      "expected_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+      "actual_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/affine_doppler.py",
+      "expected_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+      "actual_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/angular.py",
+      "expected_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+      "actual_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/atoms.py",
+      "expected_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+      "actual_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/beam.py",
+      "expected_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+      "actual_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/biphoton_evidence.py",
+      "expected_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+      "actual_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/constants.py",
+      "expected_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+      "actual_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/core.py",
+      "expected_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+      "actual_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/doppler.py",
+      "expected_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+      "actual_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/dressed_cell_absorption.py",
+      "expected_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+      "actual_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/experimental_alignment.py",
+      "expected_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+      "actual_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/experimental_csv.py",
+      "expected_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+      "actual_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_chi_gain.py",
+      "expected_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+      "actual_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_efficiency.py",
+      "expected_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+      "actual_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_experiment_gain.py",
+      "expected_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+      "actual_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_experiment_noise.py",
+      "expected_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+      "actual_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_gain_calibration.py",
+      "expected_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+      "actual_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_gain_closure.py",
+      "expected_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+      "actual_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_literature_gain.py",
+      "expected_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+      "actual_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_measured_gain.py",
+      "expected_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+      "actual_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_quadrature.py",
+      "expected_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+      "actual_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_stark_gain.py",
+      "expected_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+      "actual_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_stark_response.py",
+      "expected_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+      "actual_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_zeeman_gain.py",
+      "expected_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+      "actual_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/fwm_zeeman_response.py",
+      "expected_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+      "actual_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/gain_reference.py",
+      "expected_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+      "actual_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/hyperfine.py",
+      "expected_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+      "actual_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/jasperse.py",
+      "expected_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+      "actual_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/kernels.py",
+      "expected_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+      "actual_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/lineshape.py",
+      "expected_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+      "actual_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/magneto_coordinates.py",
+      "expected_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+      "actual_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/magneto_multilevel.py",
+      "expected_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+      "actual_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/magneto_noise.py",
+      "expected_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+      "actual_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/magneto_optical.py",
+      "expected_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+      "actual_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/observables.py",
+      "expected_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+      "actual_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/passive_readout.py",
+      "expected_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+      "actual_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/plot_style.py",
+      "expected_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+      "actual_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/pole_doppler.py",
+      "expected_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+      "actual_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/probe_saturation.py",
+      "expected_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+      "actual_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr.py",
+      "expected_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+      "actual_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr_conventions.py",
+      "expected_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+      "actual_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr_full_obe.py",
+      "expected_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+      "actual_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr_homodyne.py",
+      "expected_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+      "actual_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr_noise.py",
+      "expected_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+      "actual_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/psr_spectrum.py",
+      "expected_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+      "actual_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/report.py",
+      "expected_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+      "actual_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/rydberg_electrometry.py",
+      "expected_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+      "actual_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/rydberg_experiment.py",
+      "expected_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+      "actual_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/rydberg_experimental_csv.py",
+      "expected_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+      "actual_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/rydberg_opacity.py",
+      "expected_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+      "actual_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/species.py",
+      "expected_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+      "actual_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/ui_metrics.py",
+      "expected_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+      "actual_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/zeeman.py",
+      "expected_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+      "actual_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "gabes/schemes/rydberg.py",
+      "expected_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+      "actual_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/benchmark_gold.py",
+      "expected_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+      "actual_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json",
+      "expected_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+      "actual_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+    },
+    {
+      "manifest": "refined audit physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv",
+      "expected_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+      "actual_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/refine_current_resolution.py",
+      "expected_sha256": "735c1820adcfeb67432bc5a4978ec93f4add5148070b903b7b458eb11632e4d1",
+      "actual_sha256": "735c1820adcfeb67432bc5a4978ec93f4add5148070b903b7b458eb11632e4d1"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_resolution_audit.json",
+      "expected_sha256": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+      "actual_sha256": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_model_sparse_pilot.csv",
+      "expected_sha256": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944",
+      "actual_sha256": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/refined_guard_plan.json",
+      "expected_sha256": "00e66ce1812ba4ef02e6fd06d1f40392bfa9d0c485b9336bcb6b1f2303710a83",
+      "actual_sha256": "00e66ce1812ba4ef02e6fd06d1f40392bfa9d0c485b9336bcb6b1f2303710a83"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/refined_axis_points.csv",
+      "expected_sha256": "60ffec94a2d84e4c0c335bc06f0a828e3273fb02e761597c2b9320a1a0afeeca",
+      "actual_sha256": "60ffec94a2d84e4c0c335bc06f0a828e3273fb02e761597c2b9320a1a0afeeca"
+    },
+    {
+      "manifest": "refined audit artifact hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/refined_guard_points.csv",
+      "expected_sha256": "2fec890431af41f7826c021490cc7ab9257b2809d7886c0d5ada0eafc10fbaed",
+      "actual_sha256": "2fec890431af41f7826c021490cc7ab9257b2809d7886c0d5ada0eafc10fbaed"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/__init__.py",
+      "expected_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62",
+      "actual_sha256": "ba7c2edb03241f411c1de9889a44ce3dab607e837984564d69feedf9be323e62"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/_csv_numeric.py",
+      "expected_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd",
+      "actual_sha256": "a345a2f79e0f4a89ac96094e1f7be10ff01eb59f41056c87bf6937b56e50b9cd"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/adaptive_scan.py",
+      "expected_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385",
+      "actual_sha256": "eaa197844336b5611bd42b1b688bd261c6f48e25588ae8a725847b157eb1b385"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/affine_doppler.py",
+      "expected_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456",
+      "actual_sha256": "0a246e7992ade42bb201f415eb0c13c32b5e5ccb75e6928f3b898ad426e6e456"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/angular.py",
+      "expected_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055",
+      "actual_sha256": "f16db6c6bfd25540f52d427b7016e212efde621ff0f3ecda135c2b30684b8055"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/atoms.py",
+      "expected_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391",
+      "actual_sha256": "b6214dae3109c87b5e13ec6cd58de85812add40cf0bebb699be33f4091efc391"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/beam.py",
+      "expected_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a",
+      "actual_sha256": "fd22b3647f79bf231bab19fb9f8f36df2dffcd774d810c1fa2cbc4e9b754213a"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/biphoton_evidence.py",
+      "expected_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f",
+      "actual_sha256": "2712303e0810e9710db7cee3720706f56181760106575ae252d1f7ddf01cb94f"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/constants.py",
+      "expected_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288",
+      "actual_sha256": "8c7c3f430053f899075c114c5cc824ed2adbb1868e362f4e1c792210a015e288"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/core.py",
+      "expected_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f",
+      "actual_sha256": "11ab64e1069bc2339c2bb166f0218238a51cc39e36dcf3bec18ed9fc2933274f"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/doppler.py",
+      "expected_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7",
+      "actual_sha256": "b35e3ebee8fb15512673a5d8c20477c6f1cb28e633e0791a48ded5729b058af7"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/dressed_cell_absorption.py",
+      "expected_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41",
+      "actual_sha256": "d731b555242bcd1859e3877ca358cb466cd0a31765177752de104876d91daa41"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/experimental_alignment.py",
+      "expected_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8",
+      "actual_sha256": "14e98ed43eeadda17899730d2607f745892c18fe677b047a56b022cf744b19f8"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/experimental_csv.py",
+      "expected_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7",
+      "actual_sha256": "911ff599ecb87de16214c7a8c9b9726d1a68744f58ba4a4e13c375ce75aef7d7"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_chi_gain.py",
+      "expected_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c",
+      "actual_sha256": "930e17a818eae332dc072624bcde5591e3ba9409043fc7afaf546fa360dd687c"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_efficiency.py",
+      "expected_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3",
+      "actual_sha256": "79c4283e5e58033bd95907afbec50941cd9ad51e484288b87e1b20220f2a8da3"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_experiment_gain.py",
+      "expected_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b",
+      "actual_sha256": "9af62af3df51ea61a0e44d3616ec25809bbf1fb7708e83cceca71d88d095fa0b"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_experiment_noise.py",
+      "expected_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1",
+      "actual_sha256": "393788edf22cd6fa042a437b403882e40f5eecb58b2419adf4fe2290b57aa8e1"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_gain_calibration.py",
+      "expected_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843",
+      "actual_sha256": "a5dc800c7968ca3d9a50d9224bf448c95493dee5ad660c580f23a7ad40f8b843"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_gain_closure.py",
+      "expected_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007",
+      "actual_sha256": "f4e622f25aeb81f78250f8b823abee95c1008cc3318ebd64d4f560a713496007"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_literature_gain.py",
+      "expected_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23",
+      "actual_sha256": "89150bb0d8b056bd06ef27c113c054261dc7f54dc2919f42445a1fd58d8a2c23"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_measured_gain.py",
+      "expected_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c",
+      "actual_sha256": "df35e67a034cb028bb69a4b81f7867fb2e36f6db84bfdf02947dd9e5e55b553c"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_quadrature.py",
+      "expected_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce",
+      "actual_sha256": "192302a55b104bba9fdbb51c41ab5221a0015c8756cd103a6336a0980e45c7ce"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_stark_gain.py",
+      "expected_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096",
+      "actual_sha256": "bf1fec5433bb93a442c9c7ec895794e5bddb2c4736ab3d4acbe5f78eccaf3096"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_stark_response.py",
+      "expected_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4",
+      "actual_sha256": "ffaa514992206b23559d8c7c67ae9217e5b2b616574c6775c67c0ceeb66bf2c4"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_zeeman_gain.py",
+      "expected_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87",
+      "actual_sha256": "b0238abd83e111e0ddb526ccd09e5ba9b91f8b29fe05736bddfb68eb520f3f87"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/fwm_zeeman_response.py",
+      "expected_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7",
+      "actual_sha256": "65513995b5a6c5fa1bf0ac9c792145b0425f9050c8b8654471eba734b4828de7"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/gain_reference.py",
+      "expected_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635",
+      "actual_sha256": "0d1a352b051c17a1f629e7f17dabe6f56e2cde8a60b08939a5f9dfecc2707635"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/hyperfine.py",
+      "expected_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8",
+      "actual_sha256": "66501a4173b5275168479d965c325e9e8652518c3bac7d60d0d9419dd70b25e8"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/jasperse.py",
+      "expected_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa",
+      "actual_sha256": "aafeb4d7a8ab7119844472cfaa0ecc993702cef0fdd709f21d52b97c2348fdfa"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/kernels.py",
+      "expected_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16",
+      "actual_sha256": "a381e6c228f8dd985e6a4e0ab403b7b9b11412d052e91ffec55d6498d232ff16"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/lineshape.py",
+      "expected_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2",
+      "actual_sha256": "f69dd0b53a7458f25423fc46c6864afb0c9b15112a9ebdc966bc6deaae5634a2"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/magneto_coordinates.py",
+      "expected_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56",
+      "actual_sha256": "3a851d04cac1b77dda3e2ab3a174318cef588b48dd34ff4b059deffdc2c9fe56"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/magneto_multilevel.py",
+      "expected_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55",
+      "actual_sha256": "66c3dfec7a2121aae601707b13df497a732507cb20b40552a3868211f2317e55"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/magneto_noise.py",
+      "expected_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4",
+      "actual_sha256": "9e913932ef5428eea61dcff9c59e63e9bc30cff4b11cea2c95c97ae5f97ca6a4"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/magneto_optical.py",
+      "expected_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee",
+      "actual_sha256": "7da5ade5ec2e293bf65b631c8a9472d57c3126ee44c23692bc81438337c617ee"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/observables.py",
+      "expected_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238",
+      "actual_sha256": "d8c31f4f37df1b27efc8f9cc1c9d1d857d65a0ae9edd82bae182267d2f8ad238"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/passive_readout.py",
+      "expected_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8",
+      "actual_sha256": "d2438c97b1ce1a9d31bf9e0506ae3602b5a34e9f5076cba0574d2dc016f2c1f8"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/plot_style.py",
+      "expected_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd",
+      "actual_sha256": "7ee6b4b94c5487d517fa71dcbd72d454edc4c45b30912fe52ddbe7f108c012fd"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/pole_doppler.py",
+      "expected_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a",
+      "actual_sha256": "06a1255af017a82a4948d507a4e6a6d2112dc95880f168099fe4571f15724f5a"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/probe_saturation.py",
+      "expected_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f",
+      "actual_sha256": "b8495b3e861ca0d43b28adb45f812968bec884414b6de1466f14c2d4264ca05f"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr.py",
+      "expected_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2",
+      "actual_sha256": "30a33a3ffa5965099c9bc983619e99adf997ac46144466fa749aaec4c856a0c2"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr_conventions.py",
+      "expected_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567",
+      "actual_sha256": "c8e3920ecf39063b8a36afa58cc839b1e79be051e5b87191a7df7deb16e03567"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr_full_obe.py",
+      "expected_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+      "actual_sha256": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr_homodyne.py",
+      "expected_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+      "actual_sha256": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr_noise.py",
+      "expected_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392",
+      "actual_sha256": "fd2441ef8e2d7e52cc6d4d61f7c0c48b0b73b19503b1ef3115f50802409db392"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/psr_spectrum.py",
+      "expected_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3",
+      "actual_sha256": "2f9cd9198cf9214131c17eb99487d1719be58c202c5287f4b2d62257441b01f3"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/report.py",
+      "expected_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82",
+      "actual_sha256": "48546fa620df526f1ccb8a440ae2d9cce0b5b2557400aec1b5d2736cbcf66e82"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/rydberg_electrometry.py",
+      "expected_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033",
+      "actual_sha256": "e7745ecd93f41b611e95d0cd8799852cd0379398d51a0ed7db09125fc847d033"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/rydberg_experiment.py",
+      "expected_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a",
+      "actual_sha256": "4987e3135dc0878a29f649d6e31a8716a6ec10100ee25dc7b3e7b816f82e454a"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/rydberg_experimental_csv.py",
+      "expected_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6",
+      "actual_sha256": "79ae588a028f1280e8f9cd236d83a4f0824c2b573affd0f8eb23037ada3f71f6"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/rydberg_opacity.py",
+      "expected_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f",
+      "actual_sha256": "074497081ea96036721f4b0da6dbe9b8c2635fe4419ca73d5ca1d8522f97e93f"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/species.py",
+      "expected_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4",
+      "actual_sha256": "9e0c311d906a97b8239ecbd7e67f0fa9c8ca271c9b10948f3359bd41e4806dd4"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/ui_metrics.py",
+      "expected_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e",
+      "actual_sha256": "42ec4bbff93628aa3255acc50c94fbbd74eeb3291448a86b733d855272e8a03e"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/zeeman.py",
+      "expected_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d",
+      "actual_sha256": "11816b1a58a2747ed7e8321c2af13ee97ddf4fe86235522184d99bc13bc6d03d"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "gabes/schemes/rydberg.py",
+      "expected_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+      "actual_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/benchmark_gold.py",
+      "expected_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+      "actual_sha256": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json",
+      "expected_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+      "actual_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+    },
+    {
+      "manifest": "current registry physical/source hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv",
+      "expected_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+      "actual_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/benchmark_results.json",
+      "expected_sha256": "5d821c5ae00fec886d18ae64258ba476f984868a52ca5a48ca048ef75417852c",
+      "actual_sha256": "5d821c5ae00fec886d18ae64258ba476f984868a52ca5a48ca048ef75417852c"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/spectroscopy_comparison.csv",
+      "expected_sha256": "62cf727ee58a166bffb172696537a0a6838cc6e6752d15735f5b40af12c1ed12",
+      "actual_sha256": "62cf727ee58a166bffb172696537a0a6838cc6e6752d15735f5b40af12c1ed12"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/fixed_lo_rf.csv",
+      "expected_sha256": "76b47de6820bf593bef0e485dc681107428ba5b21b18b66cf09d83974fa378ad",
+      "actual_sha256": "76b47de6820bf593bef0e485dc681107428ba5b21b18b66cf09d83974fa378ad"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/gold_observations.json",
+      "expected_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+      "actual_sha256": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/diagnostics/gaussian_trial.json",
+      "expected_sha256": "6c1c85ded58939a9f2db394ad2b3e15a298dc58278861150bc5eea512d6d787e",
+      "actual_sha256": "6c1c85ded58939a9f2db394ad2b3e15a298dc58278861150bc5eea512d6d787e"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig5b_experimental_points.csv",
+      "expected_sha256": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba",
+      "actual_sha256": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig5b_psn_curve.csv",
+      "expected_sha256": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028",
+      "actual_sha256": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/current_resolution_audit.json",
+      "expected_sha256": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+      "actual_sha256": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78"
+    },
+    {
+      "manifest": "figure input hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/refined_resolution_audit.json",
+      "expected_sha256": "82b2a402ef61e2d3df7fc43cbc5f20d720b6a477bc331373fe9c8d138bec4ef0",
+      "actual_sha256": "82b2a402ef61e2d3df7fc43cbc5f20d720b6a477bc331373fe9c8d138bec4ef0"
+    },
+    {
+      "manifest": "figure renderer hash",
+      "path": "analysis/rydberg_gold_validation_20261103/render_validation.py",
+      "expected_sha256": "4ad95d86b7cd383af3378b8001197e5572882a2c39ae445e7d14d81065310d28",
+      "actual_sha256": "4ad95d86b7cd383af3378b8001197e5572882a2c39ae445e7d14d81065310d28"
+    },
+    {
+      "manifest": "figure output hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/figures/gold_eit_power_comparison.png",
+      "expected_sha256": "8f5651682ca414f4694748e7b632bebedb4a961686df5b30c072765d0819bfef",
+      "actual_sha256": "8f5651682ca414f4694748e7b632bebedb4a961686df5b30c072765d0819bfef"
+    },
+    {
+      "manifest": "figure output hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/figures/fixed_lo_normalized_power_response.png",
+      "expected_sha256": "3d844c6989ef788d662bd9bd5517aa25efda6fda838895c56e002ce0f7f47255",
+      "actual_sha256": "3d844c6989ef788d662bd9bd5517aa25efda6fda838895c56e002ce0f7f47255"
+    },
+    {
+      "manifest": "figure output hashes",
+      "path": "analysis/rydberg_gold_validation_20261103/figures/sparse_prediction_guard_errors.png",
+      "expected_sha256": "e1fa29f08203ced16f3556fb9b16434ceb1718e761f3534c0c076a22c3fad3ff",
+      "actual_sha256": "e1fa29f08203ced16f3556fb9b16434ceb1718e761f3534c0c076a22c3fad3ff"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_points.csv",
+      "expected_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+      "actual_sha256": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2a_lineshape.csv",
+      "expected_sha256": "61c8b49741852de6791763c837d0125a03341533803542ef9c1bcd9108d05f13",
+      "actual_sha256": "61c8b49741852de6791763c837d0125a03341533803542ef9c1bcd9108d05f13"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2b_theory_curves.csv",
+      "expected_sha256": "a80aaa128d60a3d15c48b41f3b284429b6f4aa2968e08c3b67ffaba545ce184d",
+      "actual_sha256": "a80aaa128d60a3d15c48b41f3b284429b6f4aa2968e08c3b67ffaba545ce184d"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig4d_experimental_points.csv",
+      "expected_sha256": "88fb38e4027de73897690f1e5caf342dc54f92937c4a74f65a4789612efb1443",
+      "actual_sha256": "88fb38e4027de73897690f1e5caf342dc54f92937c4a74f65a4789612efb1443"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig5b_experimental_points.csv",
+      "expected_sha256": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba",
+      "actual_sha256": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig5b_psn_curve.csv",
+      "expected_sha256": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028",
+      "actual_sha256": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/extract_gold_observations.py",
+      "expected_sha256": "fb371625bd586793bfb15cc3bfde68957555f5aeaed8eaffdcf89372e8949296",
+      "actual_sha256": "fb371625bd586793bfb15cc3bfde68957555f5aeaed8eaffdcf89372e8949296"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig2_source_crop.png",
+      "expected_sha256": "c52e5ab4b87ae513376a884a94956cbe252ae77ddcdcf160e9edc1598e40097b",
+      "actual_sha256": "c52e5ab4b87ae513376a884a94956cbe252ae77ddcdcf160e9edc1598e40097b"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig4_source_crop.png",
+      "expected_sha256": "274c522058ac23f3ef4880cfae4da6adbcf32a69648d7b13325981a7baacb73a",
+      "actual_sha256": "274c522058ac23f3ef4880cfae4da6adbcf32a69648d7b13325981a7baacb73a"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/fig5_source_crop.png",
+      "expected_sha256": "73f0c3834453b74fc1a6195a29314aac6be21911d8c7cd3fa299fae9b7845afe",
+      "actual_sha256": "73f0c3834453b74fc1a6195a29314aac6be21911d8c7cd3fa299fae9b7845afe"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/scan_axis_audit.json",
+      "expected_sha256": "9277a383cc27b1ee410e4f52d569052dedfd6894832077e2191a81dc3919d521",
+      "actual_sha256": "9277a383cc27b1ee410e4f52d569052dedfd6894832077e2191a81dc3919d521"
+    },
+    {
+      "manifest": "extracted source artifacts",
+      "path": "analysis/rydberg_gold_validation_20261103/sources/supplement_search.json",
+      "expected_sha256": "48fe1c5c4f45631686937a1ef4978bd694dcb702d1ef0673ed08ffa501905487",
+      "actual_sha256": "48fe1c5c4f45631686937a1ef4978bd694dcb702d1ef0673ed08ffa501905487"
+    },
+    {
+      "manifest": "primary source PDF",
+      "path": "references/rydberg_experiments/sources/ju_2026_preprint.pdf",
+      "expected_sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13",
+      "actual_sha256": "45494b6d13a3670a6e0b200e0189685f5879368970321c26ab47cddcf26c6d13"
+    }
+  ],
+  "model_sha256": "e967843a91ee4e39b14153997679e3f8130a3987da316d957b543e45edf6c15b",
+  "reported_execution_receipts": [
+    {
+      "origin": "⟦AI⟧ Parent-reported actual prior execution",
+      "command": "python -X utf8 -B -m pytest -q tests/test_rydberg_model_physics.py tests/test_rydberg_eit.py tests/test_rydberg_electrometry.py tests/test_rydberg_opacity.py tests/test_rydberg_experiment.py tests/test_rydberg_experimental_csv.py",
+      "outcome": "108 passed in 10.17s",
+      "warnings": "2 existing datetime.utcnow DeprecationWarnings",
+      "subsequent_change": "Test function/doc names only, as parent reported",
+      "freshly_executed_by_this_verifier": false
+    },
+    {
+      "origin": "⟦AI⟧ Persisted historical helper-test receipt",
+      "receipt": "reduction/validation.json",
+      "command": "python -X utf8 -B -m pytest -q analysis/rydberg_gold_validation_20261103/reduction/test_predictability_audit.py",
+      "outcome": "9 passed in 0.42s",
+      "freshly_executed_by_this_verifier": false
+    },
+    {
+      "origin": "⟦AI⟧ Parent-reported actual prior execution",
+      "command": "python -X utf8 -B references/rydberg_experiments/verify_db.py",
+      "outcome": "36 checks PASS",
+      "reported_table_counts": {
+        "papers": 26,
+        "experiments": 39,
+        "numbers": 171,
+        "findings": 42
+      },
+      "freshly_executed_by_this_verifier": false
+    }
+  ],
+  "intentional_omissions": [
+    "No physics campaign or full-suite/GC rerun",
+    "No new source-figure visual QA",
+    "No claim of absolute transmission/physical-contrast identification or Gold optimum validation"
+  ],
+  "artifact_sha256": {
+    "benchmark_gold.py": "f025081886e0e1c14262f119389b774416743bf69f4c2d846c1e75f8b4f3807f",
+    "benchmark_results.json": "5d821c5ae00fec886d18ae64258ba476f984868a52ca5a48ca048ef75417852c",
+    "current_guard_plan.json": "181dfb100c8294d9ee71f9031d6523b838637d301b6365cbb9211c24ec6cf94c",
+    "current_guard_points.csv": "e0b20f145e6086f4be44c7a32c6e72d8ce9f43dfc96f62798f4886e57be95d3d",
+    "current_model_sparse_pilot.csv": "bb7a0422f136c113f8f9d80aa37cf18458b56e918fb354f48adfa553eff94944",
+    "current_resolution_audit.json": "b8d9c75053717d7086e4eb41c0b61c02366e1932a907f1bc7b89bb0aad621f78",
+    "current_resolution_audit.py": "8aa8c7266a5ead7870f5df2c50c30791ae9a52937d6cc8cdc3058c3077b14897",
+    "current_variable_resolution_registry.csv": "bef02da211edbad912edc366927c815d742700c820f8934b8967955af4ab67ca",
+    "current_variable_resolution_registry.json": "381bf804ab0f8a66ca94fb43cb2f700525d0f486843013ca633f86ebf0d084fe",
+    "diagnostics/gaussian_trial.json": "6c1c85ded58939a9f2db394ad2b3e15a298dc58278861150bc5eea512d6d787e",
+    "figure_manifest.json": "d1b90385af9fba89b2ee03a8014acf6689d3d301f8f0c438027362da1249a3a7",
+    "figures/fixed_lo_normalized_power_response.png": "3d844c6989ef788d662bd9bd5517aa25efda6fda838895c56e002ce0f7f47255",
+    "figures/gold_eit_power_comparison.png": "8f5651682ca414f4694748e7b632bebedb4a961686df5b30c072765d0819bfef",
+    "figures/sparse_prediction_guard_errors.png": "e1fa29f08203ced16f3556fb9b16434ceb1718e761f3534c0c076a22c3fad3ff",
+    "fixed_lo_rf.csv": "76b47de6820bf593bef0e485dc681107428ba5b21b18b66cf09d83974fa378ad",
+    "independent_detuning_pilot.csv": "4f161ee2dfa97e2ad2c454ae7851beaacc7bb116dd8d40e64a46ea0300ec6962",
+    "README.md": "f2d2ddb6ce154ea8141c4d81a3ece333a6cf806f256292729432f9627e13439a",
+    "reduction/argmin_transition_diagnostics.csv": "81b514a857e53841f33caf7f5e20b4f9215eac6888fe246da8727017fe71cdce",
+    "reduction/axis_resolution_diagnostics.csv": "28acdece9c6e99dc154a090b26dfb7dbfb37a637aac041d7980797ad714fb6da",
+    "reduction/cross_slice_audit.csv": "b96a7674d3529b72d8e2c8bd22f0e25d6ea79a4fc4a03e3f886fa4ec00c892a6",
+    "reduction/heldout_predictions.csv": "93bf7b3dca959587e6ff6b4fee8b82c05c353cbc66da5de99f32682b0b188f08",
+    "reduction/predictability_audit.json": "da6a44188eafc780e021dcc2418421938b89ac5988c824bbbd8039ba574a1c0b",
+    "reduction/predictability_audit.py": "8620d8b5dcc1408cfac51ae0e9f8a0635a6dbf5b9066f3d6cc927927698db830",
+    "reduction/test_predictability_audit.py": "4158ad9af89cacdb9deb5b38b1e3366e0507eaf57c368df29160bc1f1fc53314",
+    "reduction/validation.json": "bbffd981348c102d3fa04fbf6c7a221b564b36927ec4b784ef2110121adeecae",
+    "reduction/variable_resolution_registry.csv": "93096fc6d6cf233e3df377ebb580c59748e886e760163ecf88aef0d7488b4e46",
+    "reduction/variable_resolution_registry.json": "580ee30c296118ecee4227743d8350b3fed2869eea81c377f458cbb3983df020",
+    "refine_current_resolution.py": "735c1820adcfeb67432bc5a4978ec93f4add5148070b903b7b458eb11632e4d1",
+    "refined_axis_points.csv": "60ffec94a2d84e4c0c335bc06f0a828e3273fb02e761597c2b9320a1a0afeeca",
+    "refined_guard_plan.json": "00e66ce1812ba4ef02e6fd06d1f40392bfa9d0c485b9336bcb6b1f2303710a83",
+    "refined_guard_points.csv": "2fec890431af41f7826c021490cc7ab9257b2809d7886c0d5ada0eafc10fbaed",
+    "refined_resolution_audit.json": "82b2a402ef61e2d3df7fc43cbc5f20d720b6a477bc331373fe9c8d138bec4ef0",
+    "render_validation.py": "4ad95d86b7cd383af3378b8001197e5572882a2c39ae445e7d14d81065310d28",
+    "sources/extract_gold_observations.py": "fb371625bd586793bfb15cc3bfde68957555f5aeaed8eaffdcf89372e8949296",
+    "sources/fig2_source_crop.png": "c52e5ab4b87ae513376a884a94956cbe252ae77ddcdcf160e9edc1598e40097b",
+    "sources/fig2a_lineshape.csv": "61c8b49741852de6791763c837d0125a03341533803542ef9c1bcd9108d05f13",
+    "sources/fig2b_points.csv": "f3ddc592510f8c6ca9fef00d1e058b4139c40c1d292f8dccfa0045080add8251",
+    "sources/fig2b_theory_curves.csv": "a80aaa128d60a3d15c48b41f3b284429b6f4aa2968e08c3b67ffaba545ce184d",
+    "sources/fig4_source_crop.png": "274c522058ac23f3ef4880cfae4da6adbcf32a69648d7b13325981a7baacb73a",
+    "sources/fig4d_experimental_points.csv": "88fb38e4027de73897690f1e5caf342dc54f92937c4a74f65a4789612efb1443",
+    "sources/fig5_source_crop.png": "73f0c3834453b74fc1a6195a29314aac6be21911d8c7cd3fa299fae9b7845afe",
+    "sources/fig5b_experimental_points.csv": "6046c13beedd159be8e0d0dd83e70b7fa37c849257d8ddf4da7c021ce24536ba",
+    "sources/fig5b_psn_curve.csv": "d3fd82fa3362d4c310302260dc5789031c064a8aa619917a208421c3a930d028",
+    "sources/gold_observations.json": "1d7b74a6926b4e9ff989bf83734c0ee6fa8cf4564288ef94723913d669a4f0d1",
+    "sources/scan_axis_audit.json": "9277a383cc27b1ee410e4f52d569052dedfd6894832077e2191a81dc3919d521",
+    "sources/source_validation.json": "c3928df4389f506794a11589940b47e7c7638c0e7e48d86bbfd7a7b706717c73",
+    "sources/supplement_search.json": "48fe1c5c4f45631686937a1ef4978bd694dcb702d1ef0673ed08ffa501905487",
+    "spectroscopy_comparison.csv": "62cf727ee58a166bffb172696537a0a6838cc6e6752d15735f5b40af12c1ed12",
+    "verify_analysis.py": "5613dc81f21ef2b2573d8ee84473b86a80dca8161471b28fef9afe6abdb3409c"
+  }
+}

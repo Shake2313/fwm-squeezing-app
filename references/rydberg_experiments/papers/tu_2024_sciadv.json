@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "paper_id": "tu_2024_sciadv",
+  "title": "Approaching the standard quantum limit of a Rydberg-atom microwave electrometer",
+  "authors": [
+    "Hai-Tao Tu",
+    "Kai-Yu Liao",
+    "Hong-Lei Wang",
+    "Yi-Fei Zhu",
+    "Si-Yuan Qiu",
+    "Hao Jiang",
+    "Wei Huang",
+    "Wu Bian",
+    "Hui Yan",
+    "Shi-Liang Zhu"
+  ],
+  "year": 2024,
+  "study_type": "experiment",
+  "topics": [
+    "cold_atoms",
+    "SQL",
+    "noise_budget",
+    "duty_cycle"
+  ],
+  "publication": {
+    "journal": "Science Advances",
+    "volume": "10",
+    "issue": "51",
+    "pages": "eads0683",
+    "doi": "10.1126/sciadv.ads0683",
+    "arxiv_id": "2307.15617",
+    "status": "published",
+    "published_date": "2024-12-20"
+  },
+  "scope": {
+    "species": "87Rb laser_cooled",
+    "line": "5S-5P-Rydberg_MW_ladder",
+    "configuration": "cold_atom_heterodyne",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "context_only",
+    "reason": "열증기 Gold와 구분한 냉각 원자 SQL·가동률 비교 실험."
+  },
+  "apparatus_group": "SCNU_Tu_Yan",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://arxiv.org/pdf/2307.15617",
+      "path": "sources/tu_2024_sciadv.pdf",
+      "sha256": "cab14bbbd3a40d4a2aa4452403483521e475e35c665a36c9ec89ff2ab5300eca",
+      "pages": 12,
+      "access": "full_text",
+      "version": "arXiv preprint, accessed 2026-11-03",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "cold_sensor",
+      "label": "냉각 원자 SQL 접근 실험",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "temperature",
+          "value": 200,
+          "unit": "uK",
+          "value_type": "approximate",
+          "basis": "Atomic-cloud temperature",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "Atomic-cloud temperature",
+          "notes": ""
+        },
+        {
+          "quantity": "atom_number",
+          "value": 520000.0,
+          "unit": "1",
+          "value_type": "approximate",
+          "basis": "Laser-cooled ensemble",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Laser-cooled ensemble",
+          "notes": ""
+        },
+        {
+          "quantity": "repetition_rate",
+          "value": 100,
+          "unit": "Hz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF pp. 1, 3",
+          "evidence": "repetition rate",
+          "notes": ""
+        },
+        {
+          "quantity": "loading_time",
+          "value": 7.3,
+          "unit": "ms",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "loading time",
+          "notes": ""
+        },
+        {
+          "quantity": "detection_window",
+          "value": 2.7,
+          "unit": "ms",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 3",
+          "evidence": "detection window",
+          "notes": ""
+        }
+      ],
+      "results": [
+        {
+          "quantity": "field_sensitivity",
+          "value": 10.0,
+          "unit": "nV/cm/sqrt(Hz)",
+          "value_type": "reported",
+          "basis": "Duty-cycled cold-atom measurement",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1, Abstract",
+          "evidence": "Duty-cycled cold-atom measurement",
+          "notes": ""
+        },
+        {
+          "quantity": "sensitivity_to_sql_ratio",
+          "value": 2.6,
+          "unit": "1",
+          "value_type": "reported",
+          "basis": "Measured sensitivity above theoretical SQL",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Measured sensitivity above theoretical SQL",
+          "notes": ""
+        },
+        {
+          "quantity": "minimum_detectable_field",
+          "value": 540,
+          "unit": "pV/cm",
+          "value_type": "reported",
+          "basis": "Long-integration minimum field",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 1",
+          "evidence": "Long-integration minimum field",
+          "notes": ""
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "cold_vs_vapor",
+      "claim": "냉각·가동률·유효 원자수를 포함한 잡음 예산으로 SQL과 비교. 열증기 연속 판독과 장치 조건이 다름.",
+      "locator": "PDF pp. 1-5",
+      "source_id": "main",
+      "category": "SQL",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "paper_id": "simons_2019_apl",
+  "title": "A Rydberg atom-based mixer: Measuring the phase of a radio frequency wave",
+  "authors": [
+    "Matthew T. Simons",
+    "Abdulaziz H. Haddab",
+    "Joshua A. Gordon",
+    "Christopher L. Holloway"
+  ],
+  "year": 2019,
+  "study_type": "experiment",
+  "topics": [
+    "heterodyne",
+    "phase",
+    "RF_LO",
+    "IF"
+  ],
+  "publication": {
+    "journal": "Applied Physics Letters",
+    "volume": "114",
+    "issue": "11",
+    "pages": "114101",
+    "doi": "10.1063/1.5088821",
+    "arxiv_id": null,
+    "status": "published",
+    "published_date": "2019-03-18"
+  },
+  "scope": {
+    "species": "133Cs",
+    "line": "6S-6P-34D5/2-35P3/2",
+    "configuration": "rf_mixer_phase_readout",
+    "measurement": "optical_EIT_readout_of_electric_field",
+    "seed_mode": "classical_probe",
+    "inclusion": "primary",
+    "reason": "Rydberg-EIT 전기장 검출의 실험 조건·판독·잡음 근거."
+  },
+  "apparatus_group": "NIST_Boulder_mixer",
+  "sources": [
+    {
+      "source_id": "main",
+      "url": "https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=927353",
+      "path": "sources/simons_2019_apl.pdf",
+      "sha256": "91484df8511aed09e0f152b61182b95c90121b21b3a6c65b0dda1b9f3463e795",
+      "pages": 4,
+      "access": "full_text",
+      "version": "archived publisher/author manuscript",
+      "accessed_on": "2026-11-03",
+      "access_method": "public_pdf_download",
+      "access_note": "Numerical fields and findings manually checked at their PDF locators; bibliography may describe the later published edition."
+    }
+  ],
+  "experiments": [
+    {
+      "experiment_id": "mixer",
+      "label": "RF mixer 위상 검출 장치",
+      "kind": "operating_point",
+      "conditions": [
+        {
+          "quantity": "rf_frequency",
+          "value": 19.626,
+          "unit": "GHz",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "rf frequency",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_power",
+          "value": 49,
+          "unit": "uW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "probe power",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_power",
+          "value": 60.6,
+          "unit": "mW",
+          "value_type": "reported",
+          "basis": "",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "coupling power",
+          "notes": ""
+        },
+        {
+          "quantity": "probe_beam_fwhm",
+          "value": 425,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "FWHM",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "FWHM",
+          "notes": ""
+        },
+        {
+          "quantity": "coupling_beam_fwhm",
+          "value": 620,
+          "unit": "um",
+          "value_type": "reported",
+          "basis": "FWHM",
+          "reference": null,
+          "plane": "not_specified",
+          "source_id": "main",
+          "locator": "PDF p. 2",
+          "evidence": "FWHM",
+          "notes": ""
+        }
+      ],
+      "results": [],
+      "notes": []
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "phase",
+      "claim": "LO와 SIG의 간섭을 원자가 혼합해 IF probe 변조를 만들며, 이 위상으로 RF 위상·전파거리를 읽음.",
+      "locator": "PDF pp. 2-3, Figs. 2-4",
+      "source_id": "main",
+      "category": "heterodyne",
+      "model_implication": ""
+    }
+  ],
+  "ai_notes": []
+}
