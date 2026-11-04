@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "source_hashes_matched": [
+    "Main.lean",
+    "negative/NaiveNoise.lean",
+    "negative/MissingNoise.lean",
+    "lean-toolchain",
+    "lakefile.toml",
+    "lake-manifest.json",
+    "setup.ps1",
+    "run_pilot.ps1"
+  ],
+  "local_links": [
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "protocol.json",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "run/receipt.json",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "run/proof_audit.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "run/negative_naive.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "run/negative_missing.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "../../../analysis/grand_challenge/lean_pilot/Main.lean",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "initial_build.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "initial_NaiveNoise.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "initial_MissingNoise.log",
+      "exists": true
+    },
+    {
+      "from": "docs\\grand_challenge\\lean_pilot_2026_10_28\\README.md",
+      "target": "toolchain.json",
+      "exists": true
+    },
+    {
+      "from": "analysis\\grand_challenge\\lean_pilot\\README.md",
+      "target": "../../../docs/grand_challenge/lean_pilot_2026_10_28/README.md",
+      "exists": true
+    }
+  ],
+  "ledger_ids": [
+    "REQ-2026-10-28-LEAN-PILOT",
+    "LEAN-PILOT-2026-10-28-RESULT"
+  ],
+  "active_work": "WP-LEAN-PILOT",
+  "adoption": "not_adopted_pending_user_decision",
+  "build_output_ignored": "analysis/grand_challenge/lean_pilot/.lake/build/lib/lean/Main.olean",
+  "required_deferred_validation": [],
+  "intentional_omissions": [
+    "full pytest",
+    "GC numerical campaigns",
+    "general matrix CP proof",
+    "production integration"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-28",
+  "request": "한번 Lean을 도입하고, 비교적 간략한 테스트 케이스를 이용해 시범 운영을 한 다음, Lean이 유용해진다면 Grand Challenge에 정식 도입을 고려해보겠습니다. 우선 1회 가동하고, 정식 도입 이전에 턴을 끝내고 저에게 보고해주세요.",
+  "origin": "human_request; plan is AI interpretation",
+  "status": "pilot_only_not_adopted",
+  "question": "Can a small exact covariance-channel algebra pilot yield machine-checked reusable identities and reject representative mistakes at reasonable cost?",
+  "scope": "Lean core + Std, rational scalar/isotropic covariance maps. No general real-matrix CP or microscopic atomic-to-optical proof.",
+  "planned_checks": [
+    "arbitrary rational affine composition and associativity",
+    "pure-loss vacuum identity and closure",
+    "exact numerical noise-propagation counterexamples",
+    "kernel rejection of deliberately false fixtures",
+    "axiom audit rejecting sorryAx/custom/native axioms"
+  ],
+  "stop_rule": "Complete this bounded pilot and report; no formal GC adoption or CI/production integration.",
+  "new_atomic_solves": 0,
+  "validation": "Lean build, theorem axioms, negative-control failure, report/source checks. No Python regression or GC campaigns: shared scientific source unchanged.",
+  "toolchain": {
+    "version": "v4.35.0",
+    "url": "https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-windows.zip",
+    "sha256": "sha256:5fc033e93e1a7bc59c5ebf311103d2c9cd18d4b3eddda4ffa3414e8adb0ef79e",
+    "size": 902262322
+  }
+}

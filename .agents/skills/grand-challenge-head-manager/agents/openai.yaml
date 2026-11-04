@@ -1,0 +1,6 @@
+interface:
+  display_name: "Grand Challenge Head Manager"
+  short_description: "Long-term Grand Challenge direction and session review"
+  default_prompt: "Use $grand-challenge-head-manager to reconcile durable memory, review this session against the Grand Challenge goal, and carry out the user's current request."
+policy:
+  allow_implicit_invocation: true

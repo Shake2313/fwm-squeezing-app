@@ -1,0 +1,17 @@
+{
+  "version": "v4.35.0",
+  "url": "https://github.com/leanprover/lean4/releases/download/v4.35.0/lean-4.35.0-windows.zip",
+  "archive_bytes": 902262322,
+  "sha256": "5fc033e93e1a7bc59c5ebf311103d2c9cd18d4b3eddda4ffa3414e8adb0ef79e",
+  "release_published_at": "2026-10-12T18:13:12Z",
+  "release_asset_digest": "sha256:5fc033e93e1a7bc59c5ebf311103d2c9cd18d4b3eddda4ffa3414e8adb0ef79e",
+  "download_seconds_from_curl_progress": 92,
+  "extraction_observed_complete_within_seconds": 24.146,
+  "initial_build_seconds": 24.122,
+  "initial_build_status": "three proof-script issues; not accepted",
+  "corrected_build_seconds": 1.68,
+  "final_workflow_seconds": 5.221,
+  "toolchain_root": "C:\\Users\\박수인\\AppData\\Local\\Temp\\gabes-lean-tools",
+  "source": "https://api.github.com/repos/leanprover/lean4/releases/latest",
+  "installation": "portable under user temporary directory; setup.ps1 can restore after cleanup; no global PATH change"
+}

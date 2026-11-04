@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-13",
+  "status": "PASS",
+  "scope": "skill and internal documentation; no scientific solves",
+  "checks": {
+    "selected_historical_evidence_unchanged": true,
+    "original_technical_blueprint_unchanged": true,
+    "original_research_log_prefix_unchanged": true,
+    "objective_no_fit_milestones_status_unchanged": true,
+    "report_backup_exact": true,
+    "report_display_equations_preserved": true,
+    "report_original_link_targets_preserved": true,
+    "report_original_numeric_tokens_preserved": true,
+    "report_utf8_lf_preserved": true,
+    "unique_ledger_ids": true,
+    "ledger_record_links_resolve": true,
+    "snapshot_record_refs_resolve": true,
+    "human_requests_have_literal_sources": true,
+    "ai_commentary_marked": true,
+    "memory_source_paths_resolve": true,
+    "ledger_evidence_hashes_match": true,
+    "ledger_evidence_sections_resolve": true,
+    "local_links_valid": true,
+    "ui_name_and_implicit_policy_valid": true,
+    "ui_description_length_valid": true,
+    "only_declared_registry_edits": true,
+    "original_root_agents_prefix_preserved": true
+  },
+  "missing_links": [],
+  "missing_memory_sources": [],
+  "report_original_sha256": "2230a3a89c993adf52e7bd56c3375368c17bbb6f2e41f16deb077f96f77ae8c8",
+  "report_edited_sha256": "b5871257b9b1e5ae4550058083072b9da7fb2b5f017cbf17878fe0015cdac057",
+  "ledger_event_count": 10,
+  "independent_reviews": [
+    "GC integration and authority separation",
+    "prose consolidation and scientific preservation"
+  ],
+  "forward_tests": [
+    {
+      "scenario": "User-prioritized exploratory gain fit with four candidates",
+      "outcome": "PASS; current request supported, old counts not promoted, fit result typed separately",
+      "execution": "read-only hypothetical response"
+    },
+    {
+      "scenario": "C trained on p2/811 evaluated on p3/811",
+      "outcome": "PASS; nested evaluation classified as development, independent seed proposed",
+      "execution": "read-only hypothetical response"
+    }
+  ],
+  "scientific_milestones": {
+    "gc-fwm-1-reduced-four-level-theorem-model": "in_progress",
+    "gc-fwm-2-no-fit-absolute-prediction": "parked",
+    "gc-fwm-3-out-of-sample-validation": "blocked_external",
+    "gc-fwm-4-full-atom-physics-ablation": "parked"
+  }
+}

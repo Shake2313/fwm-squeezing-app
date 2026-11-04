@@ -1,0 +1,174 @@
+{
+    "schema":  "gabes-lean-pilot-v1",
+    "timestamp_utc":  "2026-10-28T04:56:49.9269140Z",
+    "status":  "PASS",
+    "adoption":  "pilot_only_pending_user_decision",
+    "lean_version":  "Lean (version 4.35.0, x86_64-w64-windows-gnu, commit eb6cafb7290e8bd5f2937522d8d804f58f02bafc, Release)",
+    "lean_bin":  "C:\\Users\\박수인\\AppData\\Local\\Temp\\gabes-lean-tools\\lean-4.35.0-windows\\bin",
+    "checks":  [
+                   {
+                       "name":  "build",
+                       "args":  [
+                                    "build"
+                                ],
+                       "exit_code":  0,
+                       "seconds":  0.176,
+                       "expected_failure":  false,
+                       "passed":  true
+                   },
+                   {
+                       "name":  "proof_audit",
+                       "args":  [
+                                    "env",
+                                    "lean",
+                                    "Main.lean"
+                                ],
+                       "exit_code":  0,
+                       "seconds":  1.5786,
+                       "expected_failure":  false,
+                       "passed":  true
+                   },
+                   {
+                       "name":  "negative_naive",
+                       "args":  [
+                                    "env",
+                                    "lean",
+                                    "negative/NaiveNoise.lean"
+                                ],
+                       "exit_code":  1,
+                       "seconds":  1.4277,
+                       "expected_failure":  true,
+                       "passed":  true
+                   },
+                   {
+                       "name":  "negative_missing",
+                       "args":  [
+                                    "env",
+                                    "lean",
+                                    "negative/MissingNoise.lean"
+                                ],
+                       "exit_code":  1,
+                       "seconds":  1.3813,
+                       "expected_failure":  true,
+                       "passed":  true
+                   }
+               ],
+    "theorem_count":  13,
+    "axiom_audit":  [
+                        {
+                            "theorem":  "GabesPilot.composition_action",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.composition_associative",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.identity_after",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.identity_before",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.loss_preserves_vacuum",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.loss_composition",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.two_half_losses",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.two_half_losses_vacuum",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.naive_noise_witness",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.missing_noise_witness",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.naive_noise_is_wrong",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.missing_noise_is_wrong",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        },
+                        {
+                            "theorem":  "GabesPilot.equal_gain_different_noise",
+                            "axioms":  [
+                                           "propext",
+                                           "Classical.choice",
+                                           "Quot.sound"
+                                       ]
+                        }
+                    ],
+    "source_sha256":  {
+                          "Main.lean":  "fb9e36ef46a86bd573b0965a33d3dfa2fc8cc6d34eac487a279befb244e1ea92",
+                          "negative/NaiveNoise.lean":  "fda76e5b3c37de7f55e04de4e7c16a09ceebb0e81d720022c5c361f29e14dbf8",
+                          "negative/MissingNoise.lean":  "8198b5cd6cd7af6ebfefc64c21ed55bba93821b9d04a536cb908f18f01fff45d",
+                          "lean-toolchain":  "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+                          "lakefile.toml":  "212059a526b8761e38a222213712f2119135600854ad7b88463959102c08976f",
+                          "lake-manifest.json":  "cc3acad4bea3ef60d6010903c640a19a624531a090b3b672b8095bb33562c7f5",
+                          "setup.ps1":  "2a3da48bce4260d3aa4a55f112009ca15feed0dc56a5a76ed1a785863b572e01",
+                          "run_pilot.ps1":  "2105523f63221d1ec020ba6e4cd850701b0195fccaa9f4739ab3fbb558aa45d9"
+                      },
+    "scope":  "Exact rational scalar covariance algebra; no general CP, real-matrix, Python implementation or GC milestone certification."
+}

@@ -1,0 +1,505 @@
+{
+  "schema_version": "gc-head-manager-memory-v1",
+  "last_reconciled": "2026-10-30",
+  "policy_source": "REQ-2026-10-13-MANAGER",
+  "sources": {
+    "master": "docs/grand_challenge/blueprint.md",
+    "registry": "docs/checklist.json",
+    "handoff": "docs/grand_challenge/NEXT_SESSION.md",
+    "history": "docs/grand_challenge/research_log.md",
+    "provenance": "docs/grand_challenge/internal_provenance.md",
+    "ledger": "docs/grand_challenge/head_manager/decisions.jsonl",
+    "methods": ".agents/skills/grand-challenge-head-manager/references/research-methods.md"
+  },
+  "human_request_ids": [
+    "REQ-2026-10-13-METHODS",
+    "REQ-2026-10-13-PROVENANCE",
+    "REQ-2026-10-13-MANAGER",
+    "REQ-2026-10-13-RESUME",
+    "REQ-2026-10-13-CONTINUE",
+    "REQ-2026-10-14-REGIME-REVIEW",
+    "REQ-2026-10-14-FWM-OPERATING",
+    "REQ-2026-10-14-FWM-F2-PIVOT",
+    "REQ-2026-10-15-FWM-NOISE",
+    "REQ-2026-10-15-FWM-INPUT",
+    "REQ-2026-10-15-FWM-MEAN-GAIN",
+    "REQ-2026-10-16-JASPERSE",
+    "REQ-2026-10-16-GAIN-ROLLBACK",
+    "REQ-2026-10-16-CONJUGATE-EFFICIENCY",
+    "REQ-2026-10-16-NEW-GAIN",
+    "REQ-2026-10-16-GAIN-CONTEXT",
+    "REQ-2026-10-19-DAILY-REVIEW",
+    "REQ-2026-10-21-P1-CONTINUATION",
+    "REQ-2026-10-21-SABES-APPARATUS",
+    "REQ-2026-10-21-SABES-CONFIRMATIONS-NOTION",
+    "REQ-2026-10-21-SABES-CODE",
+    "REQ-2026-10-22-FWM-GC-SEPARATION",
+    "REQ-2026-10-23-TEST-PERFORMANCE",
+    "REQ-2026-10-23-RYDBERG-OPACITY",
+    "REQ-2026-10-23-FWM-LITERATURE-GAIN",
+    "REQ-2026-10-23-FWM-CHI-GAIN",
+    "REQ-2026-10-23-FWM-STARK-GAIN",
+    "REQ-2026-10-28-LEAN-PILOT",
+    "REQ-2026-10-28-LEAN-EVOLVING-WORKFLOW",
+    "REQ-2026-10-30-FWM-ZEEMAN-GAIN"
+  ],
+  "purpose": {
+    "origin": "project_registered",
+    "record": "CONTRACT-GC-REGISTERED",
+    "source": "docs/checklist.json",
+    "selector": "grand_challenges[id=gabes-grand-challenge-parameter-free-hot-vapor-fwm].objective",
+    "historical_authorship": "unverified"
+  },
+  "science_checkpoint": {
+    "date": "2026-10-14",
+    "record": "REGIME-2026-10-14-RESULT",
+    "milestones_completed": 0,
+    "milestones_total": 4,
+    "source": "docs/grand_challenge/regime_variance_2026_10_14/summary.json"
+  },
+  "active_work": {
+    "work_package": "WP-LEAN-PREPARATION",
+    "record": "LEAN-WORKFLOW-2026-10-28-READY",
+    "card_source": "docs/grand_challenge/blueprint.md",
+    "question": "Prepare an evolving Lean workflow from the bounded pilot.",
+    "operational_status": "Preparation complete. Guide v0.1 is a revisable working default for selected Lean tasks; no blanket requirement, CI gate or scheduled run."
+  },
+  "method_states": [
+    {
+      "id": "bridge-fixture",
+      "state": "candidate",
+      "work_package": "WP-OPTICAL",
+      "record": "METHODS-2026-10-07"
+    },
+    {
+      "id": "ensemble-variance-reduction",
+      "state": "evaluated_not_adopted",
+      "work_package": "WP-THERM",
+      "record": "REGIME-2026-10-14-RESULT"
+    },
+    {
+      "id": "fixed-Q-boundary-history",
+      "state": "candidate",
+      "work_package": "WP-BOUNDARY",
+      "record": "METHODS-2026-10-07"
+    },
+    {
+      "id": "blind-derivation-negative-controls",
+      "state": "selected",
+      "scope": "Session review process",
+      "record": "SETUP-2026-10-13"
+    },
+    {
+      "id": "code-candidate-evaluator",
+      "state": "deferred",
+      "revisit_when": "A verified implementation cost is a measured bottleneck.",
+      "record": "METHODS-2026-10-07"
+    },
+    {
+      "id": "input-identifiability-ledger",
+      "state": "candidate",
+      "work_package": "WP-INPUT",
+      "record": "METHODS-2026-10-07"
+    },
+    {
+      "id": "mechanism-simplification",
+      "state": "candidate",
+      "revisit_when": "A promising result needs a reusable reduced lemma.",
+      "record": "METHODS-2026-10-07"
+    },
+    {
+      "id": "analytic-ballistic-control-moments",
+      "state": "supported_in_scope",
+      "work_package": "WP-THERM",
+      "record": "REGIME-2026-10-14-MOMENTS",
+      "scope": "Frozen collisionless Maxwell flux box; analytic exposure and first-exit masses"
+    },
+    {
+      "id": "ordered-absorption-emission-split",
+      "state": "supported_in_scope",
+      "work_package": "WP-FWM-JASPERSE",
+      "record": "FWM-JASPERSE-2026-10-16-RESULT",
+      "scope": "Declared uniform local finite-seed reduced Lindblad state and truncated1DMaxwell absorption survival; emission retained separately."
+    },
+    {
+      "id": "global-measured-ratio-polynomial-spline",
+      "state": "evaluated_not_adopted",
+      "work_package": "WP-FWM-GAIN-CALIBRATION",
+      "record": "GAIN-CALIBRATION-2026-10-16-GLOBAL-FAIL"
+    },
+    {
+      "id": "bounded-log-pchip-measured-reference",
+      "state": "supported_in_scope",
+      "work_package": "WP-FWM-GAIN-CALIBRATION",
+      "record": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+      "scope": "23-point sampled detector-reference interpolation; no independent prediction/noise acceptance"
+    },
+    {
+      "id": "lean-formal-algebra-pilot",
+      "state": "supported_in_scope",
+      "adoption": "pilot_evidence_preserved; evolving_workflow_prepared",
+      "work_package": "WP-LEAN-PILOT",
+      "record": "LEAN-PILOT-2026-10-28-RESULT",
+      "scope": "13 rational scalar covariance theorems and2 rejected false claims; no generalCP/production equivalence.",
+      "workflow_record": "LEAN-WORKFLOW-2026-10-28-READY",
+      "guide": "docs/grand_challenge/lean_workflow.md"
+    }
+  ],
+  "closed_work": {
+    "source": "docs/grand_challenge/blueprint.md",
+    "section": "근거를 갖고 닫은 작업 단위",
+    "ids": [
+      "WP-FND",
+      "WP-ATOM",
+      "WP-FIELD",
+      "WP-READOUT",
+      "WP-PATH",
+      "WP-TOY",
+      "WP-FWM-PASSIVE-L1",
+      "WP-FWM-MEAN-GAIN",
+      "WP-FWM-JASPERSE",
+      "WP-FWM-GAIN-CALIBRATION"
+    ],
+    "reopen_when": "Relevant model, code or assumption changes the accepted scope."
+  },
+  "failed_attempts": [
+    {
+      "record": "FAIL-V2-234",
+      "scope": "Frozen v2 [2,3,4]",
+      "status": "FAIL"
+    },
+    {
+      "record": "GAIN-CALIBRATION-2026-10-16-GLOBAL-FAIL",
+      "scope": "Six predeclared global measured-ratio candidates on inspected23-point development cohort",
+      "status": "FAIL"
+    }
+  ],
+  "open_dependencies": {
+    "source": "docs/grand_challenge/blueprint.md",
+    "section": "열린 작업과 의존성",
+    "ids": [
+      "WP-THERM",
+      "WP-BOUNDARY",
+      "WP-OPTICAL",
+      "WP-INPUT",
+      "WP-PREDICT",
+      "WP-HOLDOUT",
+      "WP-FULL"
+    ]
+  },
+  "repeat_tracker": {
+    "question_record": "CARD-GAIN-CALIBRATION-2026-10-16",
+    "model_source_identity": "d3e1d2399befe967357d0400a25ad4fd3a6b395a35c0bc48d91c617f396e5e98",
+    "consecutive_stagnant_turns": 0,
+    "review_threshold": 2,
+    "last_substantive_evidence": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+    "review_note": "⟦AI⟧ New measurements resolve sign/plane and old monotone-map failure; bounded sampled-reference implementation is closed. Further predictive physics is a separate changed question, not another empirical basis search."
+  },
+  "resume_point": {
+    "completed_record": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+    "next_source": "docs/grand_challenge/NEXT_SESSION.md",
+    "candidate_next_record": "PI-2026-10-16-GAIN-NEXT",
+    "review_note": "⟦AI⟧ No batch running. Measured-data waiting reminder fulfilled; completed sampled-reference checks need no rerun without relevant change. Next physical ensemble-response question is a candidate, not a scheduled job.",
+    "latest_maintenance_record": "RYDBERG-OPACITY-2026-10-23-RESULT",
+    "maintenance_next_candidate": "sabes-mean-field-trust-boundary selected-model integration",
+    "latest_method_pilot_record": "LEAN-PILOT-2026-10-28-RESULT",
+    "method_pilot_next": "Pilot complete; preparation authorized by subsequent request. Use the current evolving guide when a relevant GC task warrants Lean.",
+    "latest_method_workflow_record": "LEAN-WORKFLOW-2026-10-28-READY"
+  },
+  "closed_decisions": [
+    {
+      "work_package": "WP-THERM-PILOT",
+      "record": "PILOT-2026-10-14-COMPLETE",
+      "route": "PIVOT_REVIEW",
+      "source": "docs/grand_challenge/pilot_p3_seed811_2026_10_13/result-summary.json"
+    },
+    {
+      "work_package": "WP-THERM-REGIME",
+      "record": "REGIME-2026-10-14-RESULT",
+      "route": "EVALUATED_NOT_ADOPTED",
+      "source": "docs/grand_challenge/regime_variance_2026_10_14/summary.json"
+    },
+    {
+      "work_package": "WP-FWM-PASSIVE-L1",
+      "record": "FWM-NOISE-2026-10-15-RESULT",
+      "route": "ACCEPTED_STATIC_CONDITIONAL_SCOPE",
+      "source": "docs/grand_challenge/noise_readout_2026_10_15/README.md"
+    },
+    {
+      "work_package": "WP-FWM-MEAN-GAIN",
+      "record": "FWM-MEAN-GAIN-2026-10-15-RESULT",
+      "route": "SCOPED_CODE_DEFECTS_CLOSED_GAIN_UNRESOLVED",
+      "source": "docs/grand_challenge/mean_gain_2026_10_15/README.md"
+    },
+    {
+      "work_package": "WP-FWM-JASPERSE",
+      "record": "FWM-JASPERSE-2026-10-16-RESULT",
+      "route": "ACCEPTED_REDUCED_ABSORPTION_READOUT_SCOPE",
+      "source": "docs/grand_challenge/jasperse_2026_10_16/README.md"
+    },
+    {
+      "work_package": "WP-FWM-GAIN-CALIBRATION",
+      "record": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+      "route": "ACCEPTED_SAMPLED_REFERENCE_SCOPE",
+      "source": "docs/grand_challenge/gain_calibration_2026_10_16/README.md"
+    }
+  ],
+  "applied_explorations": {
+    "fwm_operating_point": {
+      "record": "CARD-FWM-OPERATING-F2-2026-10-14",
+      "source": "analysis/squeezing/operating_point_rb87_f2_20261014/README.md",
+      "status": "complete_in_finite_app_scope",
+      "origin": "human_request_with_ai_execution_design",
+      "supersedes": "CARD-FWM-OPERATING-2026-10-14 frequency target",
+      "review_note": "⟦AI⟧ Historical81-point gain/legacy-indicator scope preserved. New L1 nominal reevaluated; prior noise stability certificate does not certify the new estimator.",
+      "completed_record": "FWM-OPERATING-F2-2026-10-14-COMPLETE",
+      "current_readout_review": "docs/grand_challenge/noise_readout_2026_10_15/previous_candidate_review.json"
+    }
+  },
+  "latest_code_validation": {
+    "record": "RYDBERG-OPACITY-2026-10-23-RESULT",
+    "source": "docs/grand_challenge/rydberg_opacity_2026_10_23/full_pytest_receipt.json",
+    "passed": 2747,
+    "skipped": 3,
+    "failed": 0,
+    "validation_mode": "full_baseline_plus_affected_source_revalidation_plus_original_path_case"
+  },
+  "latest_production_readout_review": {
+    "record": "FWM-JASPERSE-2026-10-16-RESULT",
+    "source": "docs/grand_challenge/jasperse_2026_10_16/README.md",
+    "status": "accepted_in_declared_scope",
+    "physical_squeezing_certified": false,
+    "previous_source": "docs/grand_challenge/noise_readout_2026_10_15/README.md"
+  },
+  "latest_mean_gain_review": {
+    "record": "FWM-MEAN-GAIN-2026-10-15-RESULT",
+    "source": "docs/grand_challenge/mean_gain_2026_10_15/README.md",
+    "status": "code_defects_closed_absolute_gain_unresolved",
+    "new_fitting_performed": false
+  },
+  "pending_human_data": {
+    "record": "REQ-2026-10-16-GAIN-ROLLBACK",
+    "origin": "human",
+    "status": "received_and_processed_2026_10_16",
+    "next_turn_reminder_required": false,
+    "source": "current Codex chat",
+    "action": "New workbook and apparatus confirmations processed; do not repeat the old waiting reminder.",
+    "retired_data_policy": "No automatic refit using the invalid historical data.",
+    "fulfillment_record": "REQ-2026-10-16-NEW-GAIN",
+    "result_record": "FWM-MEASURED-GAIN-2026-10-16-RESULT"
+  },
+  "latest_absorption_efficiency_review": {
+    "record": "FWM-JASPERSE-2026-10-16-RESULT",
+    "source": "docs/grand_challenge/jasperse_2026_10_16/qrt_absorption_review.md",
+    "method": "Positive ordered absorption/emission separation, not net-transmission clipping",
+    "status": "supported_reduced_local_scope"
+  },
+  "latest_measured_gain_review": {
+    "record": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+    "source": "docs/grand_challenge/gain_calibration_2026_10_16/README.md",
+    "status": "accepted_sampled_reference_scope",
+    "predictive_calibration_accepted": false,
+    "atomic_gain_modified": false,
+    "NF_modified": false
+  },
+  "latest_daily_review": {
+    "origin": "ai_execution_of_human_request",
+    "record": "DAILY-REVIEW-2026-10-19-RESULT",
+    "request_record": "REQ-2026-10-19-DAILY-REVIEW",
+    "status": "complete_in_maintenance_scope",
+    "source": "docs/daily_report/reconciliation_2026-10-19/README.md",
+    "previous_report_cutoff": "2026-08-07",
+    "reports": 55,
+    "finding_families": 85,
+    "official_milestones_changed": false,
+    "validation_process": {
+      "status": "completed_with_original_root_nonportable_case",
+      "receipt": "docs/daily_report/reconciliation_2026-10-19/full_pytest_relocated_receipt.json",
+      "original_root_recheck": "docs/daily_report/reconciliation_2026-10-19/original_root_shadow_pytest_receipt.json"
+    },
+    "review_note": "⟦AI⟧ 55reports through10-18 reconciled; do not re-register solved key/Fast detector defects or reopen closed GC science. Resume future daily promotion after10-18, using current registry and new evidence.",
+    "completed_on": "2026-10-20"
+  },
+  "latest_apparatus_research": {
+    "origin": "ai_execution_of_human_request",
+    "request_record": "REQ-2026-10-21-SABES-APPARATUS",
+    "record": "SABES-CODE-2026-10-21-RESULT",
+    "status": "sabes_code_complete_in_apparatus_scope",
+    "implementation_request": "REQ-2026-10-21-SABES-CODE",
+    "implementation_source": "docs/SABES/apparatus_patch_2026_10_21/README.md",
+    "confirmation_record": "REQ-2026-10-21-SABES-CONFIRMATIONS-NOTION",
+    "confirmed_baseline": "2026-10-16",
+    "confirmed_inputs": "docs/SABES/apparatus_research_2026_10_21/apparatus_confirmed_2026_10_16.json",
+    "notion_verification": "docs/SABES/apparatus_research_2026_10_21/notion_update_verification_2026_10_21.json",
+    "pending_contextual_reminder": "Waveform generator model: when related control/wiring/coil/frequency-response work needs exact model, tell user this was deferred and ask. No scheduled automation.",
+    "source": "docs/SABES/apparatus_research_2026_10_21/README.md",
+    "questions": "docs/SABES/apparatus_research_2026_10_21/questions.md",
+    "dependencies": [
+      "WP-INPUT",
+      "WP-OPTICAL"
+    ],
+    "official_milestones_changed": false,
+    "review_note": "⟦AI⟧ 10/16 dated apparatus and Lab/Paper profiles integrated with NEL/SQL paths, exit-plane/nominal-mode geometry, recorded radii/QE/efficiency, hardware/wiring UI and live JSON. Full2570passed/3skipped/0failed, frozen238code/settings, atomic/baseline74hashes unchanged; real UI/AppTest and independent review pass. Unknown geometry/RF/termination remain explicit. Ask minor/deferred inputs only when materially needed; keep FWM/Hanle thermal scopes separate. No physical model certification or official milestone change.",
+    "research_record": "SABES-APPARATUS-2026-10-21-RESULT",
+    "implementation_validation": "docs/SABES/apparatus_patch_2026_10_21/validation.json",
+    "release": {
+      "record": "SABES-CODE-2026-10-22-PUSH",
+      "date": "2026-10-22",
+      "commit": "7776072a11f52fa067176fc2f6553c069ad608bc",
+      "branch": "main",
+      "remote": "origin/main",
+      "url": "https://github.com/Shake2313/fwm-squeezing-app/commit/7776072a11f52fa067176fc2f6553c069ad608bc",
+      "files": 26,
+      "isolated_sabes_tests_passed": 245,
+      "unrelated_staging_preserved": true
+    }
+  },
+  "latest_p1_maintenance": {
+    "origin": "ai_execution_of_human_request",
+    "request_record": "REQ-2026-10-23-RYDBERG-OPACITY",
+    "record": "RYDBERG-OPACITY-2026-10-23-RESULT",
+    "status": "complete_in_maintenance_scope",
+    "completed_on": "2026-10-23",
+    "completed_items": [
+      "rydberg-effective-opacity-and-sweep-trust"
+    ],
+    "recognized_prior_completion": "fwm-practical-jasperse-and-gain-calibration",
+    "remaining_p1": 20,
+    "source": "docs/grand_challenge/rydberg_opacity_2026_10_23/README.md",
+    "official_milestones_changed": false,
+    "review_note": "⟦AI⟧ No held-out/numerical-convergence/receiver/dephasing-generator certification. Next candidate SABES selected-model parity; science card/daily cutoff preserved; no running batch."
+  },
+  "latest_noise_history_review": {
+    "record": "NF-HISTORY-2026-10-22-REVIEW",
+    "source": "docs/grand_challenge/noise_history_2026_10_22/README.md",
+    "origin": "ai",
+    "status": "history_and_scope_verified",
+    "recommendation_adopted": false,
+    "next_question": "Construct and propagate two-arm loss/emission covariance consistently with production drift."
+  },
+  "practical_fwm_policy": {
+    "record": "REQ-2026-10-22-FWM-GC-SEPARATION",
+    "origin": "human",
+    "status": "adopted_policy",
+    "source": "AGENTS.md#grand-challenge-and-practical-fwm",
+    "purpose": "Experimentally useful approximate and empirical FWM tool, distinct from fundamental analytic Grand Challenge.",
+    "empirical_affine_and_extrapolation_allowed": true,
+    "grand_challenge_completion_required": false,
+    "implementation_status": "implemented_and_tested; practical FWM only",
+    "implementation_evidence": {
+      "origin": "ai",
+      "status": "verified_implementation",
+      "source": "docs/fwm_experiment_2026_10_22/README.md",
+      "receipt": "output/fwm_experiment_20261022/validation.json",
+      "grand_challenge_milestone_change": false
+    }
+  },
+  "latest_test_performance": {
+    "record": "TEST-PERFORMANCE-2026-10-23-RESULT",
+    "request_record": "REQ-2026-10-23-TEST-PERFORMANCE",
+    "origin": "ai",
+    "status": "complete_in_maintenance_scope",
+    "source": "docs/grand_challenge/test_performance_2026_10_23/README.md",
+    "review_note": "⟦AI⟧ 155 focused passes/3 existing skips; exact input/byte reuse only. Whole-suite time unmeasured; scientific active work unchanged."
+  },
+  "science_resume_before_maintenance": {
+    "work_package": "WP-FWM-GAIN-CALIBRATION",
+    "record": "FWM-MEASURED-GAIN-2026-10-16-RESULT",
+    "card_record": "CARD-GAIN-CALIBRATION-2026-10-16",
+    "card_source": "docs/grand_challenge/blueprint.md",
+    "card_section": "새 23점 양팔 gain 보정, 2026-10-16",
+    "question": "Calibrate the new 23 measured two-arm ratios after checking RF sign, measurement planes and apparatus context; inspect GC impact.",
+    "operational_status": "Requested measured-reference two-arm interpolation/UI/GC review complete. Full2435passed/4skipped/0failed;281Python SHA unchanged,37sealed artifacts preserved. No running batch; physical absolute gain remains open."
+  },
+  "latest_practical_fwm_review": {
+    "origin": "ai_current_implementation_review",
+    "date": "2026-10-23",
+    "status": "implemented_and_current_source_regression_checked",
+    "source": "docs/fwm_experiment_2026_10_22/README.md",
+    "validation": "docs/grand_challenge/rydberg_opacity_2026_10_23/full_pytest_receipt.json",
+    "cache_version": "fwm-experimental-jasperse-gain-v22",
+    "review_note": "⟦AI⟧ Empirical correction and assumed Jasperse closure permitted independently of microscopic/no-fit GC gates; SABES selected-model integration remains open."
+  },
+  "latest_literature_gain_calibration": {
+    "record": "FWM-LITERATURE-GAIN-2026-10-23-RESULT",
+    "request_record": "REQ-2026-10-23-FWM-LITERATURE-GAIN",
+    "origin": "ai_execution_of_human_request",
+    "status": "implemented_opt_in_prediction_gate_failed",
+    "source": "analysis/fwm_literature_calibration_20261023/README.md",
+    "cohort": "9 papers, 12 conditions, 5 conservative lab/apparatus groups, conditional inputs",
+    "apparatus_factor_errors": {
+      "raw": 7.267060692461542,
+      "corrected": 3.513887822419099,
+      "training_only_constant": 2.2029791660364477
+    },
+    "focused_tests_passed": 117,
+    "official_milestones_changed": false,
+    "review_note": "⟦AI⟧ No same-holdout candidate expansion. Raw caches and fold predictions retained; red OPD failure informs a future propagation/resonance model, not unique chi/noise identification. Existing lab mode remains default; no running batch."
+  },
+  "latest_chi_gain_calibration": {
+    "record": "FWM-CHI-GAIN-2026-10-23-RESULT",
+    "request_record": "REQ-2026-10-23-FWM-CHI-GAIN",
+    "origin": "ai_execution_of_human_request",
+    "status": "implemented_opt_in_repeated_development_prediction_gate_failed",
+    "source": "analysis/fwm_chi_calibration_20261023/README.md",
+    "factors": {
+      "raw": 7.2489657748950735,
+      "old_output": 3.513887822419099,
+      "chi": 3.2090612385863193,
+      "constant": 2.2029791660364477
+    },
+    "focused_tests_passed": 141,
+    "provenance_rechecks_passed": 2,
+    "cache_version": "fwm-experimental-jasperse-gain-v23-chi-snapshot",
+    "official_milestones_changed": false,
+    "review_note": "⟦AI⟧ Red weak cross+phase suppression and displaced native chi/Stark structure quantified; no sign/backend bug. Gain/noise uniqueness remains open. Freeze failed C0-C4 and diagnostic falsifications; pump/Zeeman/coherence closure is an unadopted next question. No running batch.",
+    "validation_basis": "140 consolidated + 23 affected followup (one added), not a single141 batch",
+    "corrected_artifacts": "chi, Maxwell drift and undepleted field transfer stored separately from raw/canonical/noise audit"
+  },
+  "latest_stark_gain_calibration": {
+    "record": "FWM-STARK-GAIN-2026-10-23-RESULT",
+    "origin": "ai_execution_of_human_request",
+    "source": "analysis/fwm_stark_calibration_20261023/README.md",
+    "status": "implementation_complete_grouped_prediction_not_fully_established",
+    "group_factor": 1.9912996116100734,
+    "constant_factor": 2.2029791660364477,
+    "paper_factor": 1.9477172635973732,
+    "gain_gates_passed": 3,
+    "gain_gates_total": 4,
+    "red_group_factor": 3.4799237759797896,
+    "red_gain_unresolved": true,
+    "allen_heldout_peak_absolute_error_mhz": 1.3920417114775403,
+    "source_target_correction": "Kim -16MHz is operating/best-squeezing and author Raman proxy, not measured chi maximum",
+    "validation": "239 focused PASS; all direct/tier numerical checks PASS",
+    "atomic_solve_count": 124,
+    "final_replay_new_atomic_solves": 0,
+    "running_batch": false,
+    "gc_scope": "Original scientific cards and milestones0/4 preserved; no unique chi or noise identification"
+  },
+  "latest_zeeman_gain_calibration": {
+    "record": "FWM-ZEEMAN-GAIN-2026-10-30-RESULT",
+    "request_record": "REQ-2026-10-30-FWM-ZEEMAN-GAIN",
+    "origin": "ai_execution_of_human_request",
+    "source": "analysis/fwm_zeeman_calibration_20261030/README.md",
+    "status": "implementation_and_diagnosis_complete_Kim_replication_failed",
+    "user_goal_achieved": false,
+    "stage1_group_factor": 120.28698230911837,
+    "stage2_group_factor": 5.744594730150628,
+    "constant_factor": 2.2029791660364477,
+    "old_stark_factor": 1.9912996116100734,
+    "kim_heldout_predictions": [
+      0.8899806830348953,
+      0.9715185545968338,
+      0.6994573914125485
+    ],
+    "new_atomic_bank_contexts": 73,
+    "stage2_new_atomic_solves": 0,
+    "focused_tests_passed": 270,
+    "numerical_validation_passed": true,
+    "predictive_gate_passed": false,
+    "source_correction": "Kim9dB reference isbluepumpOPD; reportedredgains5.6/3.8/1.9",
+    "next_discriminating_question": "Finite seed bichromatic steady state versus pump-onlyweak response: population and optical coherence changes",
+    "running_batch": false,
+    "gc_milestones_changed": false
+  }
+}

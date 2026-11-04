@@ -1,7 +1,11 @@
 # Grand Challenge context rules
 
-Follow repository `AGENTS.md` and `CLAUDE.md`. After repository orientation:
+Follow the repository `AGENTS.md`. After repository orientation:
 
+- Apply [Grand Challenge Head Manager](../../.agents/skills/grand-challenge-head-manager/SKILL.md)
+  at every session start, meaningful checkpoint and closure. Read its compact
+  [hypermemory](head_manager/memory.json), then reconcile the master sources below.
+  This file path is the entrypoint even when skill discovery has not refreshed.
 - Read [blueprint.md](blueprint.md) for the living master design, scoped work
   packages, active experiment card, and end-turn principal-investigator review.
   Then read [NEXT_SESSION.md](NEXT_SESSION.md) for the compact execution handoff.
@@ -16,6 +20,16 @@ Follow repository `AGENTS.md` and `CLAUDE.md`. After repository orientation:
   focused checks, unrelated-GC omissions and one final full run only when warranted.
   GC milestone acceptance and sealed evidence contracts retain their own scope.
   Documentation-only navigation: verify links, status sources, and preservation.
+
+## Internal provenance and user intent
+
+Follow [internal_provenance.md](internal_provenance.md): user requests, registered
+contracts, source evidence and `⟦AI⟧` interpretations have distinct origins.
+Carry the marker and source into summaries and hypermemory. Combine repeated
+validation notes in one short section; retain necessary mathematical conditions
+with their claims. Frontend, guides and public scientific prose are outside this
+marker convention. The latest human request may change future scope or defaults;
+record that decision without rewriting historical experiment results.
 
 ## Research-turn contract
 

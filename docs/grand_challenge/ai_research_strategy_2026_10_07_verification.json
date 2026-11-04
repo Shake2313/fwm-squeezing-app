@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-07",
+  "scope": "documentation-only strategy review; no new atomic solves; no code validation claim",
+  "checks": {
+    "selected_sealed_evidence_unchanged": true,
+    "original_blueprint_technical_suffix_unchanged": true,
+    "research_log_original_prefix_unchanged": true,
+    "objective_no_fit_milestones_status_unchanged": true,
+    "local_links_valid": true,
+    "registry_strategy_link_valid": true,
+    "only_declared_registry_edits": true,
+    "final_local_links_valid": true
+  },
+  "missing_links": [],
+  "protected_evidence": [
+    {
+      "path": "docs/grand_challenge/thermal_campaign_v2/ensemble-p2-three-seeds-p3-s11.json",
+      "sha256": "2df9676e3d80701efd19c4420f70ee7e0f38ebaf9509f5921b6cd1c6f09b82a8"
+    },
+    {
+      "path": "docs/grand_challenge/thermal_campaign_v2/comparison-p2-p3-s11.json",
+      "sha256": "cbf8a4bea9cf1709c918b60d7cca53bb8fb1e6d65d3a7180c1346fafe025c752"
+    },
+    {
+      "path": "docs/grand_challenge/progress_2026_09_28/README.md",
+      "sha256": "ae5eddd1c82760d33f0c3d240fb6d0921879666a3af1edd787bee821075b262b"
+    },
+    {
+      "path": "docs/grand_challenge/audit_2026_10_02/geometry_probe.json",
+      "sha256": "9671e0a4cc4f0750b4e9f884d0a9a03dc2e00395c52bc18f59b3d9a57b9f33c4"
+    }
+  ],
+  "scientific_milestones": {
+    "gc-fwm-1-reduced-four-level-theorem-model": "in_progress",
+    "gc-fwm-2-no-fit-absolute-prediction": "parked",
+    "gc-fwm-3-out-of-sample-validation": "blocked_external",
+    "gc-fwm-4-full-atom-physics-ablation": "parked"
+  },
+  "independent_reviews": [
+    "external result scope and resource interpretation",
+    "GC physics, estimator assumptions, sample independence and solve budgets"
+  ]
+}
