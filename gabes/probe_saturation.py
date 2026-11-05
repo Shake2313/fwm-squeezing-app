@@ -58,8 +58,7 @@ def closed_two_level_saturation_intensity(nu_hz, gamma_rad_s):
     if not np.isfinite(gamma_rad_s) or gamma_rad_s <= 0.0:
         raise ValueError("Natural linewidth must be finite and positive.")
     wavelength = constants.C_LIGHT / nu_hz
-    planck = 2.0 * np.pi * constants.HBAR
-    return (np.pi * planck * constants.C_LIGHT * gamma_rad_s
+    return (np.pi * constants.PLANCK * constants.C_LIGHT * gamma_rad_s
             / (3.0 * wavelength**3))
 
 

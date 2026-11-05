@@ -8,7 +8,7 @@ detector-dependent uppercase polynomial calibration ``A P**2 + B P + C``.
 
 import numpy as np
 
-from .constants import HBAR
+from .detection import optical_shot_power_psd, optical_shot_rin
 
 
 def seed_noise_components(power_W, omega_rad_s, *, classical_rin_per_Hz=0.0):
@@ -32,7 +32,7 @@ def seed_noise_components(power_W, omega_rad_s, *, classical_rin_per_Hz=0.0):
         raise ValueError("seed omega_rad_s must be finite and positive")
     if np.any(~np.isfinite(classical)) or np.any(classical < 0.0):
         raise ValueError("classical_rin_per_Hz must be finite and non-negative")
-    shot_rin = 2.0 * HBAR * omega / power
+    shot_rin = optical_shot_rin(power, omega)
     return {
         "seed_power_W": power,
         "seed_omega_rad_s": omega,
@@ -40,7 +40,7 @@ def seed_noise_components(power_W, omega_rad_s, *, classical_rin_per_Hz=0.0):
         "shot_rin_per_Hz": shot_rin,
         "seed_fano": 1.0 + classical / shot_rin,
         "classical_power_psd_W2_per_Hz": classical * power ** 2,
-        "shot_power_psd_W2_per_Hz": 2.0 * HBAR * omega * power,
+        "shot_power_psd_W2_per_Hz": optical_shot_power_psd(power, omega),
         "convention": (
             "one-sided optical PSD at the seed input plane; a=classical RIN, "
             "b=2*hbar*omega/P shot RIN [1/Hz]; no integrated bandwidth assumed"),

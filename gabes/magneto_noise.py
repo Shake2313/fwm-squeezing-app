@@ -12,7 +12,7 @@ Technical/electronic noise and atomic spin noise are outside this reference.
 """
 import numpy as np
 
-from . import constants
+from . import detection
 
 
 NOISE_SEED = 20261023
@@ -68,11 +68,11 @@ def magnetic_sensitivity(transmission, slope_rad_per_t, *, frequency_hz,
         np.asarray(transmission, dtype=float),
         np.asarray(slope_rad_per_t, dtype=float),
         np.asarray(slope_valid, dtype=bool))
-    photon_energy = 2 * np.pi * constants.HBAR * frequency_hz
+    photon_energy = detection.photon_energy(frequency_hz)
     with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
         area = np.pi * np.square(np.float64(beam_diameter_mm) * 1e-3 / 2)
         incident_power = intensity_mw_cm2 * 10.0 * area
-        incident_flux = efficiency * incident_power / photon_energy
+        incident_flux = detection.photon_flux(incident_power, frequency_hz, efficiency)
     if not np.all(np.isfinite([incident_power, incident_flux])):
         raise ValueError("Magnetic sensitivity requires finite derived power and photon flux.")
 
@@ -170,10 +170,10 @@ def shot_noise_reference(transmission, *, reference_transmission, frequency_hz,
             or not np.isfinite(reference_transmission) or reference_transmission < 0):
         raise ValueError("Shot noise requires finite nonnegative transmission.")
 
-    photon_energy = 2 * np.pi * constants.HBAR * frequency_hz
+    photon_energy = detection.photon_energy(frequency_hz)
     area = np.pi * (beam_diameter_mm * 1e-3 / 2) ** 2
     incident_power = intensity_mw_cm2 * 10.0 * area
-    incident_flux = efficiency * incident_power / photon_energy
+    incident_flux = detection.photon_flux(incident_power, frequency_hz, efficiency)
     detected_flux = incident_flux * transmission
     reference_flux = incident_flux * reference_transmission
     # With no detected incident photons the transmission normalization is

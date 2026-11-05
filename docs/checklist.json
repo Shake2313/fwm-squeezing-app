@@ -8256,6 +8256,58 @@
       "review_note": "⟦AI⟧ gabes/vapor_cell.py holds CellTemperatureState, resolve_cell_temperature, LinearTemperatureCalibration, fit_effective_temperature_calibration, AxialCellProfile, axial_cell_profile, linear_axial_cell_profile, SegmentedBeerLambert and integrate_beer_lambert, moved verbatim, plus cold_spot_limited_density and CellTemperatureState.beam_path_density_m3. axial_cell_profile's cold_spot_limited mode calls the helper with the same arithmetic. rydberg_experiment keeps the effective atom number, SAM and dephasing helpers and re-exports the moved names (same objects), so gabes/schemes/rydberg.py, the cell-heating workflow and the sealed legacy_rydberg_v7 diagnostic are unchanged. The workflow's source manifest now lists vapor_cell.py. tests/test_vapor_cell.py checks the cold-spot density against the reservoir pressure (n k_B T = P_sat(T_cold)) and pins beam_path_density_m3 bit-equal to the Rydberg scheme's inline _local_density_from_temperature_state. Not done here: routing that Rydberg method through the helper (bit-identical; gabes/schemes/rydberg.py is being edited in another session) and the SAS density convention (value change, cell-temperature-density-convention). observables.transmission and the scheme-level exp(-alpha L) / exp(-OD) lines are one-line uniform-slab cases and stay."
     },
     {
+      "id": "detection-consolidation",
+      "area": "detection.py (new) + constants.py + rydberg_electrometry.py + magneto_noise.py + probe_saturation.py + jasperse.py + analysis/rydberg_cell_heating/workflow.py",
+      "title": "One photodetection module: photon energy, responsivity, shot noise, detectors",
+      "problem": "constants had no Planck constant, so rydberg_electrometry (_PLANCK), probe_saturation and both magneto_noise readouts each wrote 2*pi*HBAR, and FWM and SABES carried hc/e = 1239.841984 eV nm. The photon flux eta P/(h nu) was written twice in magneto_noise, the Schottky PSD 2 e I in rydberg_electrometry and SABES, and the optical shot PSD 2 hbar omega P in jasperse. The general photodiode / balanced-detector model lived in rydberg_electrometry.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "completed_at": "2026-11-05",
+      "related_items": [
+        "planck-constant-value-unification"
+      ],
+      "why": "Consolidation item 7 of the 2026-10-30 survey under the unified-engine principle (AGENTS.md).",
+      "acceptance_criteria": [
+        "Every caller gives bit-identical raw outputs and displayed readouts at the defaults and the recompute slider ends, including extra views.",
+        "Existing imports from gabes.rydberg_electrometry keep working and return the same objects."
+      ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "method": "Frozen copy of gabes/ before and after (only constants.py, rydberg_electrometry.py, magneto_noise.py, probe_saturation.py, jasperse.py and the new detection.py differ); recursive leaf comparison of raw outputs and headless readouts, with return types, array dtypes and read-only flags.",
+        "cases": "Direct calls of photodiode_responsivity_a_per_w (8 efficiencies x 8 wavelengths, rejected inputs included), PhotodiodeChannel/BalancedDetector/balanced_detector_noise/electrometry_sensitivity/asd_to_rms over 5 powers x 4 references x 3 weights x 3 RIN/correlation/electronics settings plus rejected inputs, magneto_noise.magnetic_sensitivity and shot_noise_reference over 3 frequencies x 5 intensities x 3 geometry/efficiency/ENBW sets, closed_two_level_saturation_intensity for 4 lines x 3 widths, jasperse.seed_noise_components on scalar and array inputs; all 12 registered schemes at their recommended defaults and recompute slider ends, extra views at the defaults.",
+        "entries": 848,
+        "leaves_compared": 1889786,
+        "array_elements_compared": 9780245,
+        "bitwise_identical": "all except 56 FWM dressed_cell_absorption.runtime_seconds wall-clock fields",
+        "displayed_text_changes": 0
+      },
+      "review_note": "⟦AI⟧ constants.PLANCK = 2*pi*HBAR (the value every 2*pi*HBAR copy already had). gabes/detection.py holds photon_energy, photon_flux, shot_noise_current_psd, optical_shot_power_psd, optical_shot_rin and, moved verbatim from rydberg_electrometry, photodiode_responsivity_a_per_w, PhotodiodeChannel, BalancedDetector, DetectorNoiseBudget, balanced_detector_noise and asd_to_rms. rydberg_electrometry re-exports them (same objects); magneto_noise, probe_saturation and jasperse call them with unchanged arithmetic. The cell-heating workflow's source manifest lists detection.py. tests/test_detection.py checks the helpers against an independent photon count (P/(h nu) photons per second, one electron each: R P = e Phi, 2 e I = R^2 2 hbar omega P, RIN = S_P/P^2) and pins the Planck split. Not routed: gabes/schemes/fwm.py responsivity_AW and sabes/ (detection.py, instruments/base.py, noise.py), which other sessions are editing and which use hc/e = 1239.841984 (a value split, planck-constant-value-unification); gabes/quantum readout/photocounting, which keep their two-sided e^2-flux conventions for the GC packages; observables.photon_flux_mode_matrix, a field normalization rather than detection."
+    },
+    {
+      "id": "planck-constant-value-unification",
+      "area": "constants.py + schemes/fwm.py + sabes/detection.py + sabes/instruments/base.py",
+      "title": "Choose one Planck constant / hc/e for every photodetection caller",
+      "origin": "ai_execution_of_human_request",
+      "priority": "P3",
+      "effort": "small",
+      "status": "ready",
+      "problem": "⟦AI⟧ Consolidation item 7 found three Planck values. (1) constants.PLANCK = 2*pi*HBAR with HBAR = 1.054571817e-34 (rounded): 6.6260701459e-34, 6.13e-10 below the exact SI h = 6.62607015e-34; used by the Rydberg responsivity, magneto photon flux, the closed two-level I_sat and, through HBAR, every hbar omega. (2) hc/e = 1239.841984 eV nm in fwm.responsivity_AW and SABES (detection.py, instruments/base.py): 3.45e-10 above 2*pi*HBAR*c/e and 2.7e-10 below the exact hc/e = 1239.84198433 eV nm. (3) The FWM default qe_pct = 0.58*1239.8/795 rounds hc/e to 1239.8 (-3.4e-5); it converts a 0.58 A/W responsivity into a QE preset.",
+      "decision_required": [
+        "Adopt the exact SI h = 6.62607015e-34 with HBAR = h/(2 pi) everywhere (moves every hbar-dependent result by about 6e-10 relative; FWM baseline recapture), or keep the rounded HBAR and route FWM/SABES through constants.PLANCK*c/e (moves their responsivity by -3.45e-10), or keep the split documented.",
+        "Whether the FWM qe_pct preset keeps 1239.8 or uses the chosen hc/e."
+      ],
+      "acceptance_criteria": [
+        "⟦AI⟧ One Planck constant in constants; fwm.responsivity_AW and SABES call gabes.detection once their sessions land.",
+        "⟦AI⟧ Each value change lands in its own commit with affected baselines recaptured and the shifts quantified; the pin in tests/test_detection.py follows the decision."
+      ],
+      "source_documents": [
+        "gabes/constants.py",
+        "gabes/detection.py",
+        "tests/test_detection.py"
+      ]
+    },
+    {
       "id": "level-builder-unification-phase-2b",
       "area": "magneto_multilevel.py + zeeman.py + species.py + atoms.py + schemes/fwm.py + quantum/reservoirs.py",
       "title": "Unify the level builders and the remaining reset/dissipator copies",

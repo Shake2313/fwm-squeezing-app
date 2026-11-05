@@ -1328,6 +1328,7 @@ def run_analysis(
     for name in (
         "rydberg_electrometry.py", "rydberg_experiment.py",
         "rydberg_experimental_csv.py", "rydberg_opacity.py", "vapor_cell.py",
+        "detection.py",
     ):
         path = ROOT / "gabes" / name
         if path.is_file():

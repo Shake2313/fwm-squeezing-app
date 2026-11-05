@@ -18,6 +18,10 @@ C_LIGHT = 299792458.0
 EPS_0 = 8.8541878128e-12
 ELEMENTARY_CHARGE = 1.602176634e-19
 MU_B = 9.2740100783e-24
+# h = 2πħ from the rounded ħ above, 6.1e-10 below the exact SI value
+# 6.62607015e-34. FWM and SABES responsivities use hc/e = 1239.841984 eV·nm
+# instead (3.4e-10 above 2πħc/e): checklist `planck-constant-value-unification`.
+PLANCK = 2.0 * np.pi * HBAR
 
 # ---- 85Rb D1 atomic data (legacy FWM/Λ/OD operating values) ----
 # The per-isotope reference record is `species.RB85`. These values stay

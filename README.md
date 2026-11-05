@@ -103,8 +103,12 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     explicitly relative extrema normalization or evidence-backed absolute
     transmission calibration, acquisition-order sweep diagnostics, and manual
     x-axis transforms.
+  - `detection.py` — photodetection shared by every scheme: photon energy and
+    flux, photodiode responsivity ηeλ/(hc), Schottky 2eI and optical 2ħωP shot
+    noise, and the balanced-detector budget (shot, common-mode RIN, electronics).
   - `rydberg_electrometry.py` — finite-IF Liouvillian response, explicit RF
-    dipole/peak-RMS conventions, balanced-detector noise, and absolute field ASD.
+    dipole/peak-RMS conventions, and absolute field ASD; re-exports the
+    `detection` detector model.
   - `vapor_cell.py` — heated-cell layer shared by every scheme: heater/sensor/
     effective/cold-spot temperature states and the heater-to-vapor calibration,
     the cold-spot-limited density n_sat(T_cold)·T_cold/T_path, axial
@@ -322,6 +326,7 @@ python tests/test_regression.py      # FWM matches the versioned compatibility b
 python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line ratio, Lambda AT/EIT/CPT
 python tests/test_rydberg_eit.py     # 85Rb Rydberg-EIT reference defaults, linewidth, RF AT split
 python tests/test_rydberg_electrometry.py # finite-IF response and detector/noise conventions
+python -m pytest -q tests/test_detection.py # shared photodetection: photon count, 2eI = R^2 2hbar omega P, Planck split pin
 python tests/test_rydberg_experiment.py # thermal/axial/SAM/dephasing experiment helpers
 python -m pytest -q tests/test_vapor_cell.py # shared cell layer: cold-spot pressure, Rydberg density pin
 python tests/test_rydberg_experimental_csv.py # unit-aware EIT/RF/PSD import
