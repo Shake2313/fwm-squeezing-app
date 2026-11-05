@@ -1,9 +1,42 @@
-"""Shared beam-scaling and simple wave-vector geometry helpers."""
+"""Shared beam-scaling and simple wave-vector geometry helpers.
+
+Power → intensity → Rabi frequency has one implementation here:
+`peak_intensity` (Gaussian on-axis I₀ = 2P/(πw²)), `two_level_rabi`
+(Ω = Γ·√(I/2I_sat)) and `field_amplitude` (E₀ = √(2I/(ε₀c))). Callers keep
+their own units and saturation intensity; `constants.rabi_freq` is the fixed
+Rb-85 D1 specialization the FWM model uses.
+"""
 import math
+
+import numpy as np
 
 from . import constants
 
 MHZ = 2.0 * math.pi * 1e6
+
+
+def peak_intensity(power_w, waist_m):
+    """On-axis intensity I₀ = 2P/(πw²) [W/m²] of a Gaussian beam.
+
+    ``waist_m`` is the 1/e² intensity radius. Works on scalars and arrays.
+    """
+    return 2 * power_w / (np.pi * waist_m**2)
+
+
+def two_level_rabi(intensity, gamma, saturation_intensity):
+    """Angular Rabi frequency Ω = Γ·√(I/(2·I_sat)), in the unit of ``gamma``.
+
+    This is the two-level relation I/I_sat = 2Ω²/Γ² with Γ the angular natural
+    linewidth. ``intensity`` and ``saturation_intensity`` may be in any common
+    unit. Which I_sat applies (line, polarization, effective or closed-cycle
+    value) is the caller's choice and must be recorded there.
+    """
+    return gamma * np.sqrt(intensity / (2 * saturation_intensity))
+
+
+def field_amplitude(intensity_w_m2):
+    """Peak electric-field amplitude E₀ = √(2I/(ε₀c)) [V/m] for intensity I [W/m²]."""
+    return np.sqrt(2 * intensity_w_m2 / (constants.EPS_0 * constants.C_LIGHT))
 
 
 def anchored_rabi_mhz(anchor_mhz, power, ref_power, diameter=None,

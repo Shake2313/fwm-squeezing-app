@@ -23,7 +23,7 @@ import math
 import numpy as np
 from numpy.polynomial.legendre import leggauss
 
-from . import constants, core, species, zeeman
+from . import beam, constants, core, species, zeeman
 from .magneto_coordinates import ground_coordinates
 from .magneto_optical import assemble_optical_generator
 
@@ -158,7 +158,7 @@ def _left_right(K):
 
 
 def _optical_terms(atom, laser_eff_mhz, intensity_mw_cm2, polarization):
-    field = math.sqrt(2*intensity_mw_cm2*10/(constants.EPS_0*constants.C_LIGHT))
+    field = float(beam.field_amplitude(intensity_mw_cm2*10))     # mW/cm² → W/m²
     omega_scale = math.sqrt(atom.dipole_sq)*field/constants.HBAR
     excitation = sum(polarization[q]*atom.dipoles[q].T for q in (-1, 1))
     V = -0.5*omega_scale*excitation

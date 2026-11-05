@@ -3426,6 +3426,7 @@
       "priority": "P1",
       "effort": "medium",
       "status": "ready",
+      "consolidation_2026_11_05": "⟦AI⟧ The conversion now has one implementation (beam.peak_intensity, beam.two_level_rabi; item beam-rabi-conversion-consolidation). This item's value step is the I_sat argument: species.pump_rabi_from_power still passes the Rb-85 D1 constants.I_SAT for every species and line, while the OD/SAS probe saturation already uses the line's closed two-level value probe_saturation.closed_two_level_saturation_intensity. SAS results move, so it lands after the in-flight gabes/schemes/sas.py work.",
       "acceptance_criteria": [
         "Every supported isotope/species and D1/D2 path derives or sources its saturation/Rabi scale with dipole, linewidth, polarization, intensity, and angular-versus-cyclic-frequency conventions recorded.",
         "Unsupported combinations are labelled unsupported rather than reusing the Rb-85 D1 value.",
@@ -8195,6 +8196,33 @@
         "displayed_text_changes": 0
       },
       "review_note": "⟦AI⟧ core.stationary_solve(A, trace) borders any stack of generators with a trace functional (core.population_trace in vec or Hermitian coordinates, or the two-region sum); steady_state_batched, steady_state_from_liouvillian, floquet_solve_truncated and the magneto two-region fallback call it. magneto_multilevel's scaled-row LU solve and its trace-zero response moved to core as stationary_factored/stationary_response, unchanged. core.floquet_solve is now floquet_solve_truncated(n_f=1); its ±sideband symmetry shortcut survives in kernels.floquet_chi_grid. Left as they are: the dense *_direct Floquet references (independent by design), pole_doppler's pole-form rows (the row is zeroed in every affine coefficient), the compiled kernels (editing kernels.py invalidates the whole Numba cache; they are checked against the NumPy paths in tests/test_kernels.py), sas._stationary_ground_populations (a population reservoir, not a Liouvillian), the augmented border in fwm_quantum.seed_validity, the in-flight fwm_zeeman_response.py, and analysis scripts."
+    },
+    {
+      "id": "beam-rabi-conversion-consolidation",
+      "area": "beam.py (peak_intensity, two_level_rabi, field_amplitude) + constants.py + species.py + probe_saturation.py + schemes/magneto.py + magneto_multilevel.py",
+      "title": "One power -> intensity -> Rabi conversion in beam",
+      "problem": "The Gaussian on-axis intensity I0 = 2P/(pi w^2) was written out in constants.rabi_freq, species.pump_rabi_from_power and probe_saturation.gaussian_peak_intensity; the two-level relation Omega = Gamma sqrt(I/2 I_sat) in constants.rabi_freq, species.pump_rabi_from_power and the single-pair magneto reference; the field amplitude E0 = sqrt(2I/(eps0 c)) inline in magneto_multilevel.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "completed_at": "2026-11-05",
+      "related_items": [
+        "species-line-rabi-and-saturation-provenance"
+      ],
+      "why": "Consolidation item 9 of the 2026-10-30 survey under the unified-engine principle (AGENTS.md), and the first step of species-line-rabi-and-saturation-provenance: the line-specific I_sat then changes one argument instead of five formulas.",
+      "acceptance_criteria": [
+        "Every caller gives bit-identical raw outputs and displayed readouts at the defaults and the recompute slider ends, including extra views, with Numba on and off where a NumPy path changed.",
+        "Each caller keeps its own units and saturation intensity; no value moves."
+      ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "method": "Frozen copy of gabes/ before and after (only the six edited files differ); recursive leaf comparison of raw outputs and headless readouts, return types included.",
+        "cases": "Direct calls of constants.rabi_freq (scalars and arrays), species.pump_rabi_from_power (three linewidths, zero and negative power) and probe_saturation.gaussian_peak_intensity (including its rejected inputs) over 9 powers x 5 waists; magneto_multilevel optical terms at five intensities; single-pair magneto reference for both cells and Doppler on/off with Numba on and off; all 12 registered schemes at their recommended defaults and recompute slider ends, extra views at the defaults, Lambda/EIT with Numba off.",
+        "leaves_compared": 877438,
+        "bitwise_identical": "all",
+        "displayed_text_changes": 0
+      },
+      "review_note": "⟦AI⟧ beam.peak_intensity, beam.two_level_rabi and beam.field_amplitude hold the formulas; constants.rabi_freq (the FWM model's fixed Rb-85 D1 GAMMA and I_SAT, importing beam inside the function because beam imports constants), species.pump_rabi_from_power, probe_saturation.gaussian_peak_intensity, the magneto reference and magneto_multilevel call them. The data-layer import guard in tests/test_atomic_data.py now lists gabes.beam, a constants-only leaf. tests/test_beam.py checks the conversion against an independent closed two-level dipole reference (d^2 from Gamma, Omega = d E0/hbar equals Gamma sqrt(I/2 I_sat) with I_sat = pi h c Gamma/(3 lambda^3)). Not moved: psr_full_obe.py (in flight, uncommitted) computes E0 the same way; beam.anchored_rabi_mhz scales a calibrated anchor and was already shared."
     },
     {
       "id": "level-builder-unification-phase-2b",

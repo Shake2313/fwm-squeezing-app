@@ -12,7 +12,7 @@ from dataclasses import replace
 
 import numpy as np
 
-from .. import constants, core, doppler, kernels, observables, pole_doppler, species, zeeman
+from .. import beam, constants, core, doppler, kernels, observables, pole_doppler, species, zeeman
 from ..lineshape import level_crossing
 from ..magneto_noise import (DEFAULT_BEAM_DIAMETER_MM, DEFAULT_DETECTION_EFFICIENCY,
                              DEFAULT_NOISE_BANDWIDTH_HZ, shot_noise_reference,
@@ -635,7 +635,8 @@ class SinglePairMagnetoReference(Scheme):
         T = params["temp_c"] + 273.15
         N = species.number_density(RB87, T)
         intensity = max(float(params["intensity_mw_cm2"]), 0.0)
-        Om = GAMMA_D1 * math.sqrt(intensity / (2 * D1_ISAT_MW_CM2)) if intensity > 0 else 0.0
+        Om = (float(beam.two_level_rabi(intensity, GAMMA_D1, D1_ISAT_MW_CM2))
+              if intensity > 0 else 0.0)
         drive = _qwp_drive_weights(params["qwp_deg"])
         dL = 2 * np.pi * params["laser_detuning_mhz"] * 1e6
 

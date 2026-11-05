@@ -97,6 +97,10 @@ def neon_buffer_broadening(pressure_torr):
 
 
 def rabi_freq(power, waist):
-    """I = 2P/(π w₀²),  Ω = Γ √(I / 2 I_sat).  rad/s."""
-    I = 2 * power / (np.pi * waist**2)
-    return GAMMA * np.sqrt(I / (2 * I_SAT))
+    """I = 2P/(π w₀²),  Ω = Γ √(I / 2 I_sat).  rad/s.
+
+    The fixed Rb-85 D1 values GAMMA and I_SAT of the FWM model, through the
+    general conversion in `beam` (imported here because beam imports constants).
+    """
+    from .beam import peak_intensity, two_level_rabi
+    return two_level_rabi(peak_intensity(power, waist), GAMMA, I_SAT)

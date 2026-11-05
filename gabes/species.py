@@ -43,7 +43,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from . import constants
+from . import beam, constants
 from .angular import clebsch_gordan, wigner3j, wigner6j
 
 MHZ = 2 * np.pi * 1e6          # MHz → rad/s
@@ -271,12 +271,12 @@ def pump_rabi_from_power(power_mw, waist_mm, gamma):
     Pump Rabi Ω [rad/s] from beam power and 1/e² waist: I = 2P/(πw²),
     Ω = Γ·√(I/2I_sat) with I_sat = 4.484 mW/cm² (the reference saturation
     intensity; documented in the scheme About). Power 0 → Ω 0 → linear OD limit.
+    The conversion itself is `beam.peak_intensity` and `beam.two_level_rabi`.
     """
     if power_mw <= 0:
         return 0.0
-    w = waist_mm * 1e-3
-    I = 2 * (power_mw * 1e-3) / (np.pi * w ** 2)
-    return gamma * np.sqrt(I / (2 * constants.I_SAT))
+    intensity = beam.peak_intensity(power_mw * 1e-3, waist_mm * 1e-3)
+    return beam.two_level_rabi(intensity, gamma, constants.I_SAT)
 
 
 # Per-(species, line) recommended slider values for the "Default" button —

@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import constants
+from . import beam, constants
 
 
 SATURATION_LOG_STEP = 0.1
@@ -39,8 +39,7 @@ def gaussian_peak_intensity(power_mw, waist_mm):
         raise ValueError("Probe power must be finite and non-negative.")
     if not np.isfinite(waist_mm) or waist_mm <= 0.0:
         raise ValueError("Probe waist must be finite and positive.")
-    waist_m = waist_mm * 1e-3
-    return 2.0 * power_mw * 1e-3 / (np.pi * waist_m**2)
+    return beam.peak_intensity(power_mw * 1e-3, waist_mm * 1e-3)
 
 
 def closed_two_level_saturation_intensity(nu_hz, gamma_rad_s):

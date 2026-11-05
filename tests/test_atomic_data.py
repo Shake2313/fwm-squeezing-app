@@ -40,7 +40,8 @@ def test_data_layer_imports_without_level_schemes():
              "print(sorted(m for m in sys.modules if m.startswith('gabes')))")
     out = subprocess.run([sys.executable, "-c", probe], cwd=ROOT, check=True,
                          capture_output=True, text=True).stdout
-    assert out.strip() == str(["gabes", "gabes.angular", "gabes.constants",
+    # beam is a leaf (constants only): species converts pump power with it.
+    assert out.strip() == str(["gabes", "gabes.angular", "gabes.beam", "gabes.constants",
                                "gabes.hyperfine", "gabes.species"])
 
 
