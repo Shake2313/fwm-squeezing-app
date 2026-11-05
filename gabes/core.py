@@ -135,56 +135,15 @@ def build_liouvillian(H, atom):
 
 def floquet_solve(L0_at_Deff_zero, Cp, Cm, Omega_beat, Delta_eff_axis,
                   S_v, n_levels):
+    """3-mode sideband (Floquet) steady state: ``floquet_solve_truncated`` at n_f=1.
+
+    Kept under its original name for ``archive/fwm_obe.py`` and older imports.
+    Returns ρ_0 and ρ_+1, each reshaped to (N_deff, n_levels, n_levels). The
+    ±sideband conjugate-symmetry shortcut this function used to take lives on in
+    the compiled ``kernels.floquet_chi_grid``.
     """
-    3-mode sideband (Floquet) steady state, batched over every Δ_eff.
-
-    Generalisation of the original `solve_sidebands_batched`: the velocity-shift
-    super-operator `S_v` and `n_levels` are passed in (were 4-level globals).
-    The trace-normalisation row is row 0 (= ρ_index(ground₀, ground₀)).
-
-    Returns ρ_0 and ρ_+1, each reshaped to (N_deff, n_levels, n_levels).
-    """
-    n = Delta_eff_axis.size
-    M = n_levels * n_levels
-    eye_rho = _eye(M)
-    trace_row = 0
-
-    L0_batch = (L0_at_Deff_zero[None, :, :]
-                - Delta_eff_axis[:, None, None] * S_v[None, :, :])
-
-    iO = 1j * Omega_beat * eye_rho
-    A_minus = L0_batch - iO[None, :, :]
-
-    Cm_batch = np.broadcast_to(Cm, (n, M, M))
-    Cp_batch = np.broadcast_to(Cp, (n, M, M))
-
-    Am_inv_Cm = np.linalg.solve(A_minus, Cm_batch)
-    minus_feedback = Cp_batch @ Am_inv_Cm
-
-    # ±sideband conjugate symmetry. For the vec transpose-swap permutation P, a
-    # Hermiticity-preserving L₀ obeys P·L₀*·P = L₀ and the couplings obey
-    # Cp = P·Cm*·P, so A₊ = P·A₋*·P. Hence A₊⁻¹Cp = P·(A₋⁻¹Cm)*·P and the +side
-    # feedback is the conjugate-transpose-permute of the − side — the second
-    # factorisation + M-column solve (and one M×M product) drop out entirely.
-    perm = _transpose_perm(n_levels)
-    Ap_inv_Cp = Am_inv_Cm.conj()[:, perm][:, :, perm]
-    plus_feedback = minus_feedback.conj()[:, perm][:, :, perm]
-
-    A_eff = L0_batch - minus_feedback - plus_feedback
-    A_eff[:, trace_row, :] = 0
-    for state in range(n_levels):
-        A_eff[:, trace_row, state * n_levels + state] = 1
-
-    rhs = np.zeros((n, M, 1), dtype=complex)
-    rhs[:, trace_row, 0] = 1
-    rho_0_vec = np.linalg.solve(A_eff, rhs)
-    # ρ₊₁ = −A₊⁻¹ (Cp ρ₀) = −(A₊⁻¹ Cp) ρ₀  (associativity): reuse the factor
-    # already solved for the +sideband feedback instead of a second linear solve.
-    rho_p1_vec = -(Ap_inv_Cp @ rho_0_vec)
-
-    rho_0 = rho_0_vec[:, :, 0].reshape(n, n_levels, n_levels)
-    rho_p1 = rho_p1_vec[:, :, 0].reshape(n, n_levels, n_levels)
-    return rho_0, rho_p1
+    return floquet_solve_truncated(L0_at_Deff_zero, Cp, Cm, Omega_beat,
+                                   Delta_eff_axis, S_v, n_levels, n_f=1)
 
 
 def floquet_solve_truncated(L0_at_Deff_zero, Cp, Cm, Omega_beat,
@@ -256,13 +215,7 @@ def floquet_solve_truncated(L0_at_Deff_zero, Cp, Cm, Omega_beat,
         previous_Q = current
 
     A_eff = L_batch + Cp_batch @ Q[-1] + Cm_batch @ R[0]
-    A_eff = np.array(A_eff, copy=True)
-    A_eff[:, 0, :] = 0.0
-    diagonal = np.arange(n_levels) * (n_levels + 1)
-    A_eff[:, 0, diagonal] = 1.0
-    rhs = np.zeros((n_deff, M, 1), dtype=complex)
-    rhs[:, 0, 0] = 1.0
-    rho0 = np.linalg.solve(A_eff, rhs)
+    rho0 = _stationary_column(A_eff, population_trace(n_levels), 0)
 
     if not return_harmonics:
         rho1 = R[0] @ rho0
@@ -875,14 +828,129 @@ def floquet_solution_diagnostics(L0_at_Deff_zero, Cp, Cm, Omega_beat,
     }
 
 
+@lru_cache(maxsize=None)
+def population_trace(n_levels, basis="vec"):
+    """The trace functional as a coordinate row: Tr ρ = population_trace(n) · x.
+
+    ``basis="vec"`` is the row-major vec(ρ) used throughout core (ones at the
+    diagonal indices n·s+s); ``basis="hermitian"`` is the real coordinate vector
+    of `hermitian_basis`, whose first n entries are the populations. Read-only.
+    """
+    n = int(n_levels)
+    trace = np.zeros(n * n)
+    if basis == "vec":
+        trace[np.arange(n) * (n + 1)] = 1.0
+    elif basis == "hermitian":
+        trace[:n] = 1.0
+    else:
+        raise ValueError(f"unknown basis {basis!r}")
+    trace.flags.writeable = False
+    return trace
+
+
+def _border_trace(A, trace, trace_row=0, scale=None):
+    """Replace row ``trace_row`` of every matrix in A by the trace functional.
+
+    In place on A (..., D, D); returns the matching right-hand side (..., D, 1),
+    zero except 1 in the trace row. With ``scale`` (one value per matrix) both
+    the row and its right-hand side are multiplied by it, which leaves the
+    solution unchanged and keeps a unit row from being tiny next to rate rows.
+    """
+    rhs = np.zeros(A.shape[:-1] + (1,), dtype=A.dtype)
+    if scale is None:
+        A[..., trace_row, :] = trace
+        rhs[..., trace_row, 0] = 1
+    else:
+        A[..., trace_row, :] = trace * scale[..., None]
+        rhs[..., trace_row, 0] = scale
+    return rhs
+
+
+def _stationary_column(A, trace, trace_row):
+    """Bordered solve on A (overwritten); the solution keeps its column axis."""
+    return np.linalg.solve(A, _border_trace(A, trace, trace_row))
+
+
+def stationary_solve(A, trace, *, trace_row=0, overwrite_a=False):
+    """Trace-normalized stationary vector of a stack of generators.
+
+    Solves A·x = 0 together with trace·x = 1 by replacing row ``trace_row`` of
+    every matrix with ``trace``, batched over all leading axes of A (..., D, D).
+    The trace row must be one the generator does not need: for a
+    trace-preserving generator any row inside the conserved block works. A may
+    be any generator whose conserved quantity is ``trace``: a Liouvillian in
+    vec(ρ) or real Hermitian coordinates (`population_trace`), or a block system
+    of coupled regions with the sum of their traces. Returns x, shape (..., D).
+    `stationary_factored` uses the same border with a scaled row. The dense
+    ``*_direct`` Floquet references, the pole-form `pole_doppler` systems and
+    the compiled `kernels` mirrors insert the row themselves.
+    """
+    A = A if overwrite_a else np.array(A)
+    return _stationary_column(A, trace, trace_row)[..., 0]
+
+
+@lru_cache(maxsize=2)
+def _getrf_getrs(dtype):
+    from scipy.linalg.lapack import get_lapack_funcs
+    return get_lapack_funcs(("getrf", "getrs"), dtype=np.dtype(dtype))
+
+
+def stationary_factored(generator, trace):
+    """Trace-normalized stationary vectors plus a reusable LU of the bordered system.
+
+    ``generator`` is (..., D, D) with any leading batch. The trace row 0 and its
+    right-hand side are scaled by max(max|A|, 1) per matrix (see `_border_trace`).
+    Low-level LAPACK getrf/getrs keep the factor reusable on SciPy ≥ 1.14,
+    including versions predating scipy.linalg's batched LU wrappers. Returns
+    ``(states (..., D), factors)``; `stationary_response` reuses ``factors``.
+    """
+    A = np.array(generator, dtype=np.result_type(generator, np.float64), copy=True)
+    scale = np.maximum(np.max(np.abs(A), axis=(-2, -1)), 1.)
+    rhs = _border_trace(A, trace, 0, scale)
+    matrices = A.reshape(-1, A.shape[-1], A.shape[-1])
+    sources = rhs.reshape(-1, A.shape[-1], 1)
+    lu = np.empty_like(matrices)
+    pivots = np.empty(matrices.shape[:-1], dtype=np.intc)
+    state = np.empty_like(sources)
+    getrf, getrs = _getrf_getrs(A.dtype.str)
+    for i, (matrix, source) in enumerate(zip(matrices, sources)):
+        lu[i], pivots[i], info = getrf(matrix, overwrite_a=True)
+        if info:
+            raise np.linalg.LinAlgError("singular normalized steady-state generator")
+        state[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
+        if info:
+            raise np.linalg.LinAlgError("normalized steady-state solve failed")
+    return state.reshape(A.shape[:-1]), (lu, pivots, A.shape[:-2])
+
+
+def stationary_response(factors, forcing):
+    """Trace-zero DC response of a factored stationary system.
+
+    Solves L·x = −forcing with trace·x = 0 (the bordered row's right-hand side
+    is zero), reusing the LU from `stationary_factored`. ``forcing`` has the
+    factored batch shape + (D,); returns x with the same shape.
+    """
+    lu, pivots, batch_shape = factors
+    rhs = -np.array(forcing, dtype=lu.dtype, copy=True)[..., None]
+    rhs[..., 0, 0] = 0.
+    sources = rhs.reshape(-1, rhs.shape[-2], 1)
+    result = np.empty_like(sources)
+    _, getrs = _getrf_getrs(lu.dtype.str)
+    for i, source in enumerate(sources):
+        result[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
+        if info:
+            raise np.linalg.LinAlgError("normalized magnetic-response solve failed")
+    return result.reshape(batch_shape + (rhs.shape[-2],))
+
+
 def steady_state_batched(L0_at_Deff_zero, Delta_eff_axis, S_v, n_levels):
     """
     Single-mode steady state ρ (Lρ = 0, trace = 1), batched over every Δ_eff.
 
-    Same velocity-batching idea as `floquet_solve` but without the sideband
-    coupling — this is the engine for the absorption-cluster schemes (OD / AT /
-    EIT / CPT), where a (weak) probe sits inside H₀ and we want the steady-state
-    coherence.
+    Same velocity-batching idea as `floquet_solve_truncated` but without the
+    sideband coupling — this is the engine for the absorption-cluster schemes
+    (OD / AT / EIT / CPT), where a (weak) probe sits inside H₀ and we want the
+    steady-state coherence.
 
     Solved in the **real Hermitian-generator basis** (see `hermitian_basis`):
     L₀ and S_v are Hermiticity-preserving, so one change of basis (done once, not
@@ -896,17 +964,13 @@ def steady_state_batched(L0_at_Deff_zero, Delta_eff_axis, S_v, n_levels):
     """
     n = Delta_eff_axis.size
     nl = n_levels
-    M = nl * nl
     U = hermitian_basis(nl)
     Uh = U.conj().T
     L0r = np.real(Uh @ L0_at_Deff_zero @ U)             # one-time → real frame
     S_vr = np.real(Uh @ S_v @ U)
     A = (L0r[None, :, :] - Delta_eff_axis[:, None, None] * S_vr[None, :, :])
-    A[:, 0, :] = 0.0
-    A[:, 0, :nl] = 1.0                                  # trace: Σ populations = 1
-    rhs = np.zeros((n, M, 1))
-    rhs[:, 0, 0] = 1.0
-    r = np.linalg.solve(A, rhs)[:, :, 0]                # REAL batched solve
+    r = stationary_solve(A, population_trace(nl, "hermitian"),
+                         overwrite_a=True)               # REAL batched solve
     rho_vec = r @ U.T                                   # back to complex vec(ρ)
     return rho_vec.reshape(n, nl, nl)
 
@@ -922,14 +986,9 @@ def steady_state_from_liouvillian(L_batch, n_levels, trace_row=0):
     mutated. Returns ρ reshaped to (..., n_levels, n_levels).
     """
     A = np.array(L_batch, dtype=complex)              # own copy (trace row edited)
-    M = n_levels * n_levels
-    A[..., trace_row, :] = 0
-    for state in range(n_levels):
-        A[..., trace_row, state * n_levels + state] = 1
-    rhs = np.zeros(A.shape[:-1] + (1,), dtype=complex)
-    rhs[..., trace_row, 0] = 1
-    rho_vec = np.linalg.solve(A, rhs)
-    return rho_vec[..., 0].reshape(A.shape[:-2] + (n_levels, n_levels))
+    rho_vec = stationary_solve(A, population_trace(n_levels),
+                               trace_row=trace_row, overwrite_a=True)
+    return rho_vec.reshape(A.shape[:-2] + (n_levels, n_levels))
 
 
 # float64 overflows exp/cosh past ~709; cap the per-exponent real part well

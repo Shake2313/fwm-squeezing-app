@@ -21,7 +21,6 @@ from functools import lru_cache
 import math
 
 import numpy as np
-from scipy.linalg.lapack import get_lapack_funcs
 from numpy.polynomial.legendre import leggauss
 
 from . import constants, core, species, zeeman
@@ -206,60 +205,6 @@ def _ground_generator(atom, b_ut, reset_rate, pure_dephasing_rate,
     return L
 
 
-@lru_cache(maxsize=2)
-def _normalization_lapack(dtype):
-    return get_lapack_funcs(("getrf", "getrs"), dtype=np.dtype(dtype))
-
-
-def _stationary_factored(generator, trace):
-    """Normalized states and reusable LU, with any leading velocity batch."""
-    A = np.array(generator, dtype=np.result_type(generator, np.float64), copy=True)
-    scale = np.maximum(np.max(np.abs(A), axis=(-2, -1)), 1.)
-    A[..., 0, :] = trace*scale[..., None]
-    rhs = np.zeros(A.shape[:-1] + (1,), dtype=A.dtype)
-    rhs[..., 0, 0] = scale
-    # Low-level LAPACK keeps the same LU reusable on SciPy>=1.14, including
-    # versions predating scipy.linalg's batched LU wrappers.
-    matrices = A.reshape(-1, A.shape[-1], A.shape[-1])
-    sources = rhs.reshape(-1, A.shape[-1], 1)
-    lu = np.empty_like(matrices)
-    pivots = np.empty(matrices.shape[:-1], dtype=np.intc)
-    state = np.empty_like(sources)
-    getrf, getrs = _normalization_lapack(A.dtype.str)
-    for i, (matrix, source) in enumerate(zip(matrices, sources)):
-        lu[i], pivots[i], info = getrf(matrix, overwrite_a=True)
-        if info:
-            raise np.linalg.LinAlgError("singular normalized steady-state generator")
-        state[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
-        if info:
-            raise np.linalg.LinAlgError("normalized steady-state solve failed")
-    return state.reshape(A.shape[:-1]), (lu, pivots, A.shape[:-2])
-
-
-def _stationary(L, trace):
-    return _stationary_factored(L, trace)[0]
-
-
-def _response_from_factor(factors, forcing):
-    lu, pivots, batch_shape = factors
-    rhs = -np.array(forcing, dtype=lu.dtype, copy=True)[..., None]
-    rhs[..., 0, 0] = 0.
-    sources = rhs.reshape(-1, rhs.shape[-2], 1)
-    result = np.empty_like(sources)
-    _, getrs = _normalization_lapack(lu.dtype.str)
-    for i, source in enumerate(sources):
-        result[i], info = getrs(lu[i], pivots[i], source, overwrite_b=True)
-        if info:
-            raise np.linalg.LinAlgError("normalized magnetic-response solve failed")
-    return result.reshape(batch_shape + (rhs.shape[-2],))
-
-
-def _trace_zero_response(generator, forcing, trace):
-    """Differentiate a normalized steady state: L rho' = -forcing, tr rho'=0."""
-    _, factors = _stationary_factored(generator, trace)
-    return _response_from_factor(factors, forcing)
-
-
 def _reservoir_states(light, dark, weights, gamma_out, gamma_in, mixing, trace, thermal):
     """Conditional trace-one light states; exact block Schur elimination."""
     states, reservoir, _, _ = _reservoir_solution(
@@ -277,18 +222,18 @@ def _reservoir_solution(light, dark, weights, gamma_out, gamma_in, mixing,
     nv, M, _ = light.shape
     eye = np.eye(M)
     if gamma_out == 0:
-        states, factors = _stationary_factored(light, trace)
+        states, factors = core.stationary_factored(light, trace)
         response = (None if magnetic_generator is None else
-                    _response_from_factor(factors, states@magnetic_generator.T))
+                    core.stationary_response(factors, states@magnetic_generator.T))
         return states, None, response, None
     if gamma_in == 0:
         # Conditional gamma_in -> 0+ limit: the reset dark reservoir is
         # thermal. It supplies a transit-reset source at gamma_out. Absolute
         # light-region occupation is not inferred from this conditional limit.
         refill = gamma_out*(np.outer(thermal, trace)-eye)
-        states, factors = _stationary_factored(light+refill, trace)
+        states, factors = core.stationary_factored(light+refill, trace)
         response = (None if magnetic_generator is None else
-                    _response_from_factor(factors, states@magnetic_generator.T))
+                    core.stationary_response(factors, states@magnetic_generator.T))
         return states, thermal, response, np.zeros(M, dtype=light.dtype) if response is not None else None
     # NumPy handles the velocity batch within its solve instead of one Python
     # scipy.solve call per class. Keep the complete matrix maps: the shared
@@ -297,11 +242,11 @@ def _reservoir_solution(light, dark, weights, gamma_out, gamma_in, mixing,
     if mixing == "complete":
         mean_map = np.einsum("v,vij->ij", weights, maps)
         dark_generator = dark + gamma_in*(mean_map-eye)
-        dark_state, factors = _stationary_factored(dark_generator, trace)
+        dark_state, factors = core.stationary_factored(dark_generator, trace)
         states = maps @ dark_state
     else:
         dark_generators = dark[None]+gamma_in*(maps-eye)
-        dark_state, factors = _stationary_factored(dark_generators, trace)
+        dark_state, factors = core.stationary_factored(dark_generators, trace)
         states = np.einsum("vij,vj->vi", maps, dark_state)
     if magnetic_generator is None:
         return states, dark_state, None, None
@@ -310,11 +255,11 @@ def _reservoir_solution(light, dark, weights, gamma_out, gamma_in, mixing,
     local_response = np.einsum("vij,vj->vi", maps, forcing)/gamma_out
     if mixing == "complete":
         source = magnetic_generator@dark_state + gamma_in*(weights@local_response)
-        dark_response = _response_from_factor(factors, source)
+        dark_response = core.stationary_response(factors, source)
         response = local_response + maps@dark_response
     else:
         source = dark_state@magnetic_generator.T + gamma_in*local_response
-        dark_response = _response_from_factor(factors, source)
+        dark_response = core.stationary_response(factors, source)
         response = local_response + np.einsum("vij,vj->vi", maps, dark_response)
     return states, dark_state, response, dark_response
 

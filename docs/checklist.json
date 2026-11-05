@@ -8168,6 +8168,35 @@
       ]
     },
     {
+      "id": "steady-state-solver-consolidation",
+      "area": "core.py (population_trace, stationary_solve, stationary_factored, stationary_response) + schemes/magneto.py + magneto_multilevel.py",
+      "title": "One trace-bordered steady-state solve in core",
+      "problem": "The trace-one steady state (one row of the generator replaced by Tr ρ = 1) was written out separately in core.steady_state_batched (real Hermitian frame), core.steady_state_from_liouvillian (complex vec), core.floquet_solve and core.floquet_solve_truncated, the magneto two-region NumPy fallback (one trace over the light and dark blocks) and magneto_multilevel (scaled row with a reusable LU for the DC field response). core.floquet_solve had no in-tree caller; only archive/fwm_obe.py re-exports it.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "completed_at": "2026-11-05",
+      "related_items": [
+        "level-builder-unification-phase-2b"
+      ],
+      "why": "Consolidation item 5 of the 2026-10-30 survey under the unified-engine principle (AGENTS.md): one implementation of each numerical step, shared from core.",
+      "acceptance_criteria": [
+        "Every caller of the moved code gives bit-identical raw outputs and displayed readouts at the defaults and the recompute slider ends, including extra views, with Numba on and off where a NumPy path changed.",
+        "Any caller that cannot stay bitwise differs by at most 1e-12 relative with identical displayed readouts, and the difference is recorded here (user decision 2026-11-04)."
+      ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "method": "Frozen copy of gabes/ before and after (only the three edited files differ); recursive leaf comparison of raw outputs and headless readouts.",
+        "cases": "Direct calls on random Lindblad generators n = 2,3,4,5,8 (batched real-frame and vec-stack solves at three trace rows, Floquet n_f = 1..3, magneto_multilevel factored solve, trace-zero response and all reservoir branches); magneto buffer/two-region velocity grids with Numba on and off; single-pair magneto reference for both cells and Doppler on/off with Numba on and off; all 12 registered schemes at their recommended defaults and recompute slider ends, extra views at the defaults, Lambda/EIT with Numba off.",
+        "leaves_compared": 882520,
+        "bitwise_identical": "all except core.floquet_solve",
+        "floquet_solve_max_relative_change": 2.84e-13,
+        "floquet_solve_callers": "none in tree; re-exported by archive/fwm_obe.py; no displayed readout",
+        "displayed_text_changes": 0
+      },
+      "review_note": "⟦AI⟧ core.stationary_solve(A, trace) borders any stack of generators with a trace functional (core.population_trace in vec or Hermitian coordinates, or the two-region sum); steady_state_batched, steady_state_from_liouvillian, floquet_solve_truncated and the magneto two-region fallback call it. magneto_multilevel's scaled-row LU solve and its trace-zero response moved to core as stationary_factored/stationary_response, unchanged. core.floquet_solve is now floquet_solve_truncated(n_f=1); its ±sideband symmetry shortcut survives in kernels.floquet_chi_grid. Left as they are: the dense *_direct Floquet references (independent by design), pole_doppler's pole-form rows (the row is zeroed in every affine coefficient), the compiled kernels (editing kernels.py invalidates the whole Numba cache; they are checked against the NumPy paths in tests/test_kernels.py), sas._stationary_ground_populations (a population reservoir, not a Liouvillian), the augmented border in fwm_quantum.seed_validity, the in-flight fwm_zeeman_response.py, and analysis scripts."
+    },
+    {
       "id": "level-builder-unification-phase-2b",
       "area": "magneto_multilevel.py + zeeman.py + species.py + atoms.py + schemes/fwm.py + quantum/reservoirs.py",
       "title": "Unify the level builders and the remaining reset/dissipator copies",

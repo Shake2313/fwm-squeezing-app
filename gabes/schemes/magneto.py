@@ -799,6 +799,8 @@ class SinglePairMagnetoReference(Scheme):
         nv = deff.size
         M = n_levels * n_levels
         eye = core._eye(M)
+        population = core.population_trace(n_levels)
+        trace = np.concatenate((population, population))   # global: both regions
         rho_l = np.empty((nB, nv, n_levels, n_levels), dtype=complex)
         rows = max(1, int(9.0e6 // max(nv * (2 * M) ** 2, 1)))
         for b0 in range(0, nB, rows):
@@ -812,14 +814,7 @@ class SinglePairMagnetoReference(Scheme):
             A[..., :M, M:] = gamma_in * eye
             A[..., M:, :M] = gamma_out * eye
             A[..., M:, M:] = Ld - gamma_in * eye
-            A[..., 0, :] = 0
-            for state in range(n_levels):
-                idx = state * n_levels + state
-                A[..., 0, idx] = 1
-                A[..., 0, M + idx] = 1
-            rhs = np.zeros((nb, nv, 2 * M, 1), dtype=complex)
-            rhs[..., 0, 0] = 1
-            sol = np.linalg.solve(A, rhs)[..., 0]
+            sol = core.stationary_solve(A, trace, overwrite_a=True)
             rho_l[sl] = sol[..., :M].reshape(nb, nv, n_levels, n_levels)
         return SinglePairMagnetoReference._conditional_light_state(rho_l)
 
