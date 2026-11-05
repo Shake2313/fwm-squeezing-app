@@ -105,9 +105,12 @@ wave mixing, Bell-Bloom magnetometry, Na D-lines (SAS species data); time-domain
     x-axis transforms.
   - `rydberg_electrometry.py` — finite-IF Liouvillian response, explicit RF
     dipole/peak-RMS conventions, balanced-detector noise, and absolute field ASD.
-  - `rydberg_experiment.py` — heater/effective/cold-spot temperature states,
-    axial density/Beer–Lambert integration, effective atom number, SAM uncertainty,
-    and temperature/density dephasing fits.
+  - `vapor_cell.py` — heated-cell layer shared by every scheme: heater/sensor/
+    effective/cold-spot temperature states and the heater-to-vapor calibration,
+    the cold-spot-limited density n_sat(T_cold)·T_cold/T_path, axial
+    temperature/density profiles, and the segmented Beer–Lambert integral.
+  - `rydberg_experiment.py` — effective atom number, SAM uncertainty, and
+    temperature/density dephasing fits; re-exports the `vapor_cell` layer.
   - `rydberg_experimental_csv.py` — unit-aware EIT/RF/PSD trace import with
     duplicate handling and SHA-256 provenance.
   - `probe_saturation.py` — Natural-Rb D2 finite-probe saturation, power broadening,
@@ -320,6 +323,7 @@ python tests/test_absorption.py      # OD width, full-D1 AutoOD scale + line rat
 python tests/test_rydberg_eit.py     # 85Rb Rydberg-EIT reference defaults, linewidth, RF AT split
 python tests/test_rydberg_electrometry.py # finite-IF response and detector/noise conventions
 python tests/test_rydberg_experiment.py # thermal/axial/SAM/dephasing experiment helpers
+python -m pytest -q tests/test_vapor_cell.py # shared cell layer: cold-spot pressure, Rydberg density pin
 python tests/test_rydberg_experimental_csv.py # unit-aware EIT/RF/PSD import
 python -m pytest -q analysis/rydberg_cell_heating/test_workflow.py # report workflow
 python tests/test_sas.py             # 6j↔CF2, HF splittings, no-pump→OD (49/25), hyperfine-pumping crossovers, internal Generic compatibility

@@ -55,10 +55,11 @@ consistent. This is the main development direction. See
   module that schemes call: atomic data (`species`, `angular`); level structures
   and dissipators (`species.level_structure`, `core.dissipator`,
   `AtomModel.with_reset`); steady-state and Floquet solves (`core`); beam power
-  to intensity, field and Rabi frequency (`beam`); velocity averages (`doppler`,
-  `affine_doppler`, `pole_doppler`); physical observables (`observables`);
-  interpolated widths (`lineshape.level_crossing`); derived tables (`report`);
-  propagation and detection.
+  to intensity, field and Rabi frequency (`beam`); cell temperatures, cold-spot
+  density and axial Beer–Lambert propagation (`vapor_cell`); velocity averages
+  (`doppler`, `affine_doppler`, `pole_doppler`); physical observables
+  (`observables`); interpolated widths (`lineshape.level_crossing`); derived
+  tables (`report`); detection.
 - Before adding a helper, look for the shared one. If a scheme needs a variant,
   give the shared code an explicit parameter instead of copying it. A
   scheme-local copy of shared physics is a defect to consolidate.

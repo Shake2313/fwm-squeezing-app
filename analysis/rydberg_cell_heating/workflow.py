@@ -1327,7 +1327,7 @@ def run_analysis(
         code_paths.append(scheme_path)
     for name in (
         "rydberg_electrometry.py", "rydberg_experiment.py",
-        "rydberg_experimental_csv.py", "rydberg_opacity.py",
+        "rydberg_experimental_csv.py", "rydberg_opacity.py", "vapor_cell.py",
     ):
         path = ROOT / "gabes" / name
         if path.is_file():

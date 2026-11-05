@@ -6328,6 +6328,7 @@
       "priority": "P2",
       "effort": "large",
       "status": "ready",
+      "consolidation_2026_11_05": "⟦AI⟧ The shared layer for this item is vapor_cell (item vapor-cell-consolidation): axial_cell_profile gives T(z) and the cold-spot-limited n(z) and integrate_beer_lambert the per-segment and total optical depth for any trailing scan axes; reuse them rather than adding a SAS-local slicer.",
       "acceptance_criteria": [
         "Segment count is an explicit convergence parameter with a documented convergence test showing the reported observables are stable to a stated tolerance.",
         "With one segment and no gradient the result is bit-for-bit identical to the current uniform path, and the pump-off Rb-85 D1 AutoOD anchor stays within its documented tolerance at any segment count.",
@@ -8160,6 +8161,7 @@
       "priority": "P2",
       "effort": "small",
       "status": "ready",
+      "consolidation_2026_11_05": "⟦AI⟧ The helper exists: vapor_cell.cold_spot_limited_density(n_cold, T_cold, T_path) and CellTemperatureState.beam_path_density_m3 (item vapor-cell-consolidation); axial_cell_profile uses it. Two steps remain. (1) Bit-identical: RydbergEITScheme._local_density_from_temperature_state computes the same density inline (tests/test_vapor_cell.py pins it equal); route it through the method once the in-flight gabes/schemes/rydberg.py edits land. (2) This item's value step: SAS calls the helper with its density (cold-spot) and Doppler temperatures, after the in-flight gabes/schemes/sas.py work.",
       "problem": "⟦AI⟧ With separate cold-spot and beam-path temperatures, Rydberg uses the ideal-gas density at the cold-spot vapor pressure, n = n_sat(T_cold)·T_cold/T_eff, while SAS uses n = n_sat(T_cold). Consolidation item 8 (shared cell temperature, density and axial propagation) would otherwise freeze the split.",
       "value_decision": "User decision 2026-11-04: adopt n = n_sat(T_cold)·T_cold/T_eff everywhere. ⟦AI⟧ Values change only when the temperatures are separated (SAS OD about −6 % at 40/60 °C); linked defaults are unchanged. Lands as its own commit after the bit-identical move of the shared helpers and after the in-flight gabes/schemes/sas.py work.",
       "acceptance_criteria": [
@@ -8223,6 +8225,35 @@
         "displayed_text_changes": 0
       },
       "review_note": "⟦AI⟧ beam.peak_intensity, beam.two_level_rabi and beam.field_amplitude hold the formulas; constants.rabi_freq (the FWM model's fixed Rb-85 D1 GAMMA and I_SAT, importing beam inside the function because beam imports constants), species.pump_rabi_from_power, probe_saturation.gaussian_peak_intensity, the magneto reference and magneto_multilevel call them. The data-layer import guard in tests/test_atomic_data.py now lists gabes.beam, a constants-only leaf. tests/test_beam.py checks the conversion against an independent closed two-level dipole reference (d^2 from Gamma, Omega = d E0/hbar equals Gamma sqrt(I/2 I_sat) with I_sat = pi h c Gamma/(3 lambda^3)). Not moved: psr_full_obe.py (in flight, uncommitted) computes E0 the same way; beam.anchored_rabi_mhz scales a calibrated anchor and was already shared."
+    },
+    {
+      "id": "vapor-cell-consolidation",
+      "area": "vapor_cell.py (new) + rydberg_experiment.py + analysis/rydberg_cell_heating/workflow.py",
+      "title": "One heated-cell layer: temperatures, cold-spot density, axial Beer-Lambert",
+      "problem": "The heated-cell layer (heater/sensor/effective/cold-spot temperature state, the heater-to-vapor calibration fit, axial temperature/density profiles and the segmented Beer-Lambert integral) lived in rydberg_experiment.py although nothing in it is Rydberg-specific, and the cold-spot-limited density n = n_sat(T_cold)·T_cold/T was written out separately in axial_cell_profile and in the Rydberg scheme.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "completed_at": "2026-11-05",
+      "related_items": [
+        "cell-temperature-density-convention",
+        "od-sas-segmented-cell-propagation"
+      ],
+      "why": "Consolidation item 8 of the 2026-10-30 survey under the unified-engine principle (AGENTS.md). It gives cell-temperature-density-convention its single helper and od-sas-segmented-cell-propagation a profile and Beer-Lambert integral to reuse.",
+      "acceptance_criteria": [
+        "Every caller gives bit-identical raw outputs and displayed readouts at the defaults and the recompute slider ends, including extra views, with linked and separated temperatures.",
+        "Existing imports from gabes.rydberg_experiment keep working and return the same objects."
+      ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "method": "Frozen copy of gabes/ before and after (only rydberg_experiment.py and the new vapor_cell.py differ); recursive leaf comparison of raw outputs and headless readouts, with return types, array dtypes and read-only flags.",
+        "cases": "Direct calls of resolve_cell_temperature (12 input sets including every rejected input), saturated_cold_spot_density_m3 for Rb85/Rb87/Cs133, the Rydberg scheme's cold-spot density, axial_cell_profile over 3 temperature profiles x 5 density-mode spellings x 3 isotopes x 3 pressure cold spots plus 5 rejected inputs, linear_axial_cell_profile, integrate_beer_lambert on 1-D/2-D/3-D/list coefficients plus rejected inputs, fit_effective_temperature_calibration with and without weights, and the helpers that share the moved validators (effective_atom_number, gaussian_overlap_area_m2, sam_field_calibration, fit_temperature_density_dephasing); Rydberg at every view's defaults and recompute slider ends with linked and separated temperature models, extra views at the defaults.",
+        "entries": 379,
+        "leaves_compared": 681370,
+        "bitwise_identical": "all",
+        "displayed_text_changes": 0
+      },
+      "review_note": "⟦AI⟧ gabes/vapor_cell.py holds CellTemperatureState, resolve_cell_temperature, LinearTemperatureCalibration, fit_effective_temperature_calibration, AxialCellProfile, axial_cell_profile, linear_axial_cell_profile, SegmentedBeerLambert and integrate_beer_lambert, moved verbatim, plus cold_spot_limited_density and CellTemperatureState.beam_path_density_m3. axial_cell_profile's cold_spot_limited mode calls the helper with the same arithmetic. rydberg_experiment keeps the effective atom number, SAM and dephasing helpers and re-exports the moved names (same objects), so gabes/schemes/rydberg.py, the cell-heating workflow and the sealed legacy_rydberg_v7 diagnostic are unchanged. The workflow's source manifest now lists vapor_cell.py. tests/test_vapor_cell.py checks the cold-spot density against the reservoir pressure (n k_B T = P_sat(T_cold)) and pins beam_path_density_m3 bit-equal to the Rydberg scheme's inline _local_density_from_temperature_state. Not done here: routing that Rydberg method through the helper (bit-identical; gabes/schemes/rydberg.py is being edited in another session) and the SAS density convention (value change, cell-temperature-density-convention). observables.transmission and the scheme-level exp(-alpha L) / exp(-OD) lines are one-line uniform-slab cases and stay."
     },
     {
       "id": "level-builder-unification-phase-2b",
