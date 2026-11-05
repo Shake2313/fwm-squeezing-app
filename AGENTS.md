@@ -60,7 +60,8 @@ consistent. This is the main development direction. See
   (`doppler`, `affine_doppler`, `pole_doppler`); physical observables
   (`observables`); interpolated widths (`lineshape.level_crossing`); derived
   tables (`report`); photodetection and shot noise (`detection`, with
-  `constants.PLANCK`).
+  `constants.PLANCK`); CSV text decoding and duplicate merging
+  (`_csv_numeric`) and read-only float arrays (`_arrays`).
 - Before adding a helper, look for the shared one. If a scheme needs a variant,
   give the shared code an explicit parameter instead of copying it. A
   scheme-local copy of shared physics is a defect to consolidate.

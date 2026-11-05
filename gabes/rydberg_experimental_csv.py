@@ -19,7 +19,8 @@ from typing import Sequence
 
 import numpy as np
 
-from ._csv_numeric import sort_and_median_duplicates
+from ._arrays import readonly_float_array as _readonly
+from ._csv_numeric import decode_csv_text, sort_and_median_duplicates
 
 
 MAX_RYDBERG_CSV_BYTES = 25 * 1024 * 1024
@@ -105,12 +106,6 @@ class _ParsedColumns:
     y_label: str
 
 
-def _readonly(values: Sequence[float] | np.ndarray) -> np.ndarray:
-    result = np.array(values, dtype=float, copy=True)
-    result.setflags(write=False)
-    return result
-
-
 def _read_source(
     source: bytes | bytearray | memoryview | str | Path,
     source_name: str | None,
@@ -134,20 +129,6 @@ def _read_source(
             f"CSV exceeds the {MAX_RYDBERG_CSV_BYTES // (1024 * 1024)} MiB limit."
         )
     return data, str(name)
-
-
-def _decode(data: bytes) -> tuple[str, str]:
-    if data.startswith((b"\xff\xfe", b"\xfe\xff")):
-        try:
-            return data.decode("utf-16"), "utf-16"
-        except UnicodeDecodeError as exc:
-            raise RydbergCSVError("Malformed UTF-16 CSV text.") from exc
-    for encoding in ("utf-8-sig", "utf-8", "cp949"):
-        try:
-            return data.decode(encoding), encoding
-        except UnicodeDecodeError:
-            continue
-    return data.decode("latin-1"), "latin-1"
 
 
 def _delimiter(text: str) -> str:
@@ -220,7 +201,7 @@ def _parse_columns(
     y_column: int | str | None,
 ) -> _ParsedColumns:
     data, name = _read_source(source, source_name)
-    text, encoding = _decode(data)
+    text, encoding = decode_csv_text(data, RydbergCSVError)
     delimiter = _delimiter(text)
     rows = _rows(text, delimiter)
 

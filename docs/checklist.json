@@ -8309,6 +8309,31 @@
       ]
     },
     {
+      "id": "csv-import-consolidation",
+      "area": "_csv_numeric.py + _arrays.py (new) + experimental_csv.py + rydberg_experimental_csv.py + vapor_cell.py",
+      "title": "One CSV text decoder and one read-only array converter",
+      "problem": "experimental_csv._decode_csv and rydberg_experimental_csv._decode were the same encoding cascade (BOM UTF-16, UTF-8, CP949, Latin-1) apart from the exception type, and _readonly was written three times (experimental_csv, rydberg_experimental_csv, vapor_cell, which rydberg_experiment imports), one of them freezing in place instead of copying.",
+      "priority": "P3",
+      "effort": "small",
+      "status": "done",
+      "completed_at": "2026-11-05",
+      "why": "Consolidation item 10 of the 2026-10-30 survey under the unified-engine principle (AGENTS.md).",
+      "acceptance_criteria": [
+        "Every loader returns bit-identical traces, diagnostics, provenance and error messages for every encoding branch, and every converter keeps its copy/alias behaviour."
+      ],
+      "validation_scope": {
+        "origin": "ai_change_validation",
+        "method": "Frozen copy of gabes/ before and after (only _arrays.py, _csv_numeric.py, experimental_csv.py, rydberg_experimental_csv.py and vapor_cell.py differ); recursive leaf comparison with return types, array dtypes, read-only flags and, for the converters, whether the result aliases its input and whether the input stays writeable.",
+        "cases": "Both decoders over UTF-16 LE/BE BOM, malformed UTF-16, UTF-8 with and without BOM, CP949 and two Latin-1 fallbacks, plus short and empty input; load_experimental_csv on those payloads with and without denoising, both absolute calibrations, a forward/reverse sweep and a non-bytes input; transform_x; load_eit_csv, load_rf_sweep_csv and load_psd_csv in five encodings plus CP949, whitespace, malformed and empty sources; the four read-only converters on float, int, list, view, read-only, scalar and float32 inputs; and the item-8 vapor-cell/rydberg_experiment snapshot (379 entries) rerun on both trees.",
+        "entries": 480,
+        "leaves_compared": 324105,
+        "array_elements_compared": 732184,
+        "bitwise_identical": "all",
+        "displayed_text_changes": 0
+      },
+      "review_note": "⟦AI⟧ _csv_numeric.decode_csv_text(data, error) takes the loader's exception class for malformed UTF-16; both loaders call it. _arrays.readonly_float_array(values, copy=True) replaces the three converters; experimental_csv binds copy=False because its version froze the freshly computed arrays in place (np.asarray), the others copied. Recorded, not changed: the cascade's plain 'utf-8' step is unreachable (utf-8-sig accepts the same bytes), so BOM-less UTF-8 is labelled 'utf-8-sig' in provenance; the two byte readers (_coerce_bytes and _read_source) differ in accepted sources, limits and UI-visible messages and stay separate. The landing replaces the stale staged deletion of gabes/_csv_numeric.py in the shared index (working copy was identical to HEAD) with the new blob. tests/test_csv_shared.py covers every decoding branch, each loader's error type, the copy flag and the routed callers."
+    },
+    {
       "id": "level-builder-unification-phase-2b",
       "area": "magneto_multilevel.py + zeeman.py + species.py + atoms.py + schemes/fwm.py + quantum/reservoirs.py",
       "title": "Unify the level builders and the remaining reset/dissipator copies",

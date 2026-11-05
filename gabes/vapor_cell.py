@@ -20,6 +20,7 @@ from typing import Sequence
 import numpy as np
 
 from . import species
+from ._arrays import readonly_float_array as _readonly
 
 
 def _finite_scalar(value: float, name: str) -> float:
@@ -33,12 +34,6 @@ def _temperature_c(value: float, name: str) -> float:
     result = _finite_scalar(value, name)
     if result <= -273.15:
         raise ValueError(f"{name} must be above absolute zero.")
-    return result
-
-
-def _readonly(values: np.ndarray | Sequence[float]) -> np.ndarray:
-    result = np.array(values, dtype=float, copy=True)
-    result.setflags(write=False)
     return result
 
 

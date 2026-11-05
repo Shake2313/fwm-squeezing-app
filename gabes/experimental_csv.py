@@ -12,10 +12,12 @@ from __future__ import annotations
 import csv
 import io
 from dataclasses import dataclass
+from functools import partial
 
 import numpy as np
 
-from ._csv_numeric import sort_and_median_duplicates
+from ._arrays import readonly_float_array
+from ._csv_numeric import decode_csv_text, sort_and_median_duplicates
 
 
 MAX_FILE_BYTES = 10 * 1024 * 1024
@@ -238,7 +240,7 @@ def load_experimental_csv(
     """
 
     raw_bytes = _coerce_bytes(data)
-    text, encoding = _decode_csv(raw_bytes)
+    text, encoding = decode_csv_text(raw_bytes, ExperimentalCSVError)
     source_x, source_y, counts = _parse_first_two_columns(text)
     branch_slices, direction_labels, reversal_count = _sweep_structure(source_x)
     detuning, raw_signal = _sort_and_merge(source_x, source_y)
@@ -370,24 +372,6 @@ def _coerce_bytes(data: bytes | bytearray | memoryview) -> bytes:
             "import limit."
         )
     return result
-
-
-def _decode_csv(data: bytes) -> tuple[str, str]:
-    if data.startswith((b"\xff\xfe", b"\xfe\xff")):
-        try:
-            return data.decode("utf-16"), "utf-16"
-        except UnicodeDecodeError as exc:
-            raise ExperimentalCSVError("Malformed UTF-16 CSV text.") from exc
-
-    for encoding in ("utf-8-sig", "utf-8", "cp949"):
-        try:
-            return data.decode(encoding), encoding
-        except UnicodeDecodeError:
-            continue
-    # A/B numeric fields and CSV delimiters are ASCII. Latin-1's one-to-one
-    # byte mapping lets us safely ignore an unsupported byte in oscilloscope
-    # metadata or later columns instead of rejecting otherwise valid A/B data.
-    return data.decode("latin-1"), "latin-1"
 
 
 def _parse_first_two_columns(
@@ -981,10 +965,8 @@ def _normalize_transmission(
     return normalized, diagnostics
 
 
-def _readonly(values: np.ndarray) -> np.ndarray:
-    result = np.asarray(values, dtype=float)
-    result.setflags(write=False)
-    return result
+# Freezes the freshly computed float arrays in place rather than copying them.
+_readonly = partial(readonly_float_array, copy=False)
 
 
 __all__ = [
