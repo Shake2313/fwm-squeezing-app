@@ -1,0 +1,137 @@
+{
+  "provenance": "AI browser verification; display coordinates are schematic, not physical measurements",
+  "checked_at_utc": "2026-10-22T11:47:45.801578+00:00",
+  "browser": "Chromium via Playwright CLI",
+  "desktop_viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "parts": {
+    "part1": {
+      "viewbox": {
+        "width": 1200,
+        "height": 680
+      },
+      "label_count": 27,
+      "clipped": [],
+      "label_overlaps": [],
+      "label_glyph_overlaps": [],
+      "label_beam_overlaps": [],
+      "fit_percent": "92%",
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "IBM Plex Mono",
+          "status": "loaded"
+        }
+      ],
+      "final_bounds_verified": true
+    },
+    "part2": {
+      "viewbox": {
+        "width": 1200,
+        "height": 640
+      },
+      "label_count": 27,
+      "clipped": [],
+      "label_overlaps": [],
+      "label_glyph_overlaps": [],
+      "label_beam_overlaps": [],
+      "fit_percent": "92%",
+      "fonts": [
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "loaded"
+        },
+        {
+          "family": "IBM Plex Sans",
+          "status": "unloaded"
+        },
+        {
+          "family": "IBM Plex Mono",
+          "status": "loaded"
+        }
+      ],
+      "final_bounds_verified": true
+    }
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "fit_percent": "30%",
+    "detail_percent": "100%",
+    "page_scroll_width": 390,
+    "native_touch": {
+      "scroll_left_before": 418,
+      "scroll_left_after": 553,
+      "passed": true
+    },
+    "part1_eom_dialog_open_close": true,
+    "part2_cell_space_open_close": true
+  },
+  "interaction": {
+    "keyboard": true,
+    "repeated": true,
+    "firstClickAfterRemount": true,
+    "retainedZoom": "100%",
+    "beam": "probe beam · iris_probe → lens_probe"
+  },
+  "table_zoom_200": {
+    "keyboard_scroll_left": {
+      "before": 555,
+      "after": 615
+    },
+    "mouse_drag": {
+      "left_before": 615,
+      "left_after": 735,
+      "top_before": 290,
+      "top_after": 330
+    },
+    "drag_did_not_place_probe": true
+  },
+  "browser_zoom_200_equivalent": {
+    "method": "CDP CSS viewport720x450 and DPR2 on1440x900; not browser toolbar zoom",
+    "states": [
+      {
+        "part": "Part 1",
+        "state": {
+          "width": 720,
+          "height": 450,
+          "dpr": 2,
+          "scrollWidth": 720
+        }
+      },
+      {
+        "part": "Part 2",
+        "state": {
+          "width": 720,
+          "height": 450,
+          "dpr": 2,
+          "scrollWidth": 720
+        }
+      }
+    ],
+    "horizontal_overflow": false
+  },
+  "console_errors": 0,
+  "local_artifacts": "output/playwright/sabes_table_20261022",
+  "final_mirror_tilt_check": true,
+  "final_sabes_and_docs_result": "250 passed in 48.30s"
+}

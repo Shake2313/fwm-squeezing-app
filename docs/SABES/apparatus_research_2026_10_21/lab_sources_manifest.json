@@ -1,0 +1,476 @@
+[
+  {
+    "path": "G:\\내 드라이브\\Docs\\ECDL laser 구성요소 및 제작방법_2024.08.02.pptx",
+    "bytes": 12325228,
+    "sha256": "beb130ac23f133d7397adf449a3f16b004ce680309dfa44634624881060f688b",
+    "section_count": 30
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\220729_심기성.pptx",
+    "bytes": 3510291,
+    "sha256": "1834c3056e42d6f5839a19891f9d9bfc63ebb8453615356e17fd8816149a6f75",
+    "section_count": 31
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\220923_심기성.pptx",
+    "bytes": 2836554,
+    "sha256": "44484662e87d252960455532148db86ca5bc3f53fb6c6957c8293e060da13ce6",
+    "section_count": 24
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\221006_심기성.pptx",
+    "bytes": 2729788,
+    "sha256": "3e9da1a0e53b22b7f19dee67b1b90ecdd88327fc5bdf248ab9930a34ecf65044",
+    "section_count": 19
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\221118_심기성.pptx",
+    "bytes": 3010997,
+    "sha256": "e162bebc68f88713a59873d1bafb40748622666b26d1270989250943be281c42",
+    "section_count": 40
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\221125_심기성.pptx",
+    "bytes": 4084081,
+    "sha256": "7ec6c6185b382c090c923fdec4e3cb8e5ea958bb0262539e60ef7bed2a772517",
+    "section_count": 27
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230113_심기성.pptx",
+    "bytes": 1915688,
+    "sha256": "fdf8ea4eb41a6d1b2407cc2819d49cb3716009eb1354017bd84c01f7be22e833",
+    "section_count": 34
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230127_심기성.pptx",
+    "bytes": 2555192,
+    "sha256": "f493c51211fa1e49c5cf08f9d0520ba543e59668e7c57b0566bd85771f0506e1",
+    "section_count": 14
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230303_심기성.pptx",
+    "bytes": 2879348,
+    "sha256": "4a2d97663f9e0f0f4854289615aaa03d1f6b73928c7689dfcadf39a89f0075f9",
+    "section_count": 32
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230320_심기성.pptx",
+    "bytes": 2768879,
+    "sha256": "4202e942926694c15d3f5d1cdc3b59fb658b41ff22b41b2967b3c97d50c41900",
+    "section_count": 28
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230330_심기성.pptx",
+    "bytes": 596422,
+    "sha256": "d71a8ba5035f4729fb964d54d932219cbf262a510f36b3e9af0626a60a95bfaf",
+    "section_count": 22
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230428_심기성.pptx",
+    "bytes": 331764,
+    "sha256": "0733ab35679e32b1f589f301e602ff7e00e16313a1c0635bc7394a758e30b72c",
+    "section_count": 9
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230526_심기성.pptx",
+    "bytes": 2429782,
+    "sha256": "8793c8e27f63c18b7c7ea1ec2f160ad9b91aabf3f6ff5d15540f92197893fc7e",
+    "section_count": 21
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230602_심기성.pptx",
+    "bytes": 2688838,
+    "sha256": "daaedd13cd25c298eb9e0740f231f268b07df9478f8a6f3881f8c44418e0045a",
+    "section_count": 24
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230619_심기성.pptx",
+    "bytes": 1551731,
+    "sha256": "87229742b98ed59bd52f877aa72f994d9132a96c23b47edb4b238b531d00718c",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230630_심기성.pptx",
+    "bytes": 3401328,
+    "sha256": "ae97337e56116446bf85504ebd2119cc32fa2664152f579fa17d8b7c65c0521b",
+    "section_count": 39
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230714_심기성.pptx",
+    "bytes": 12067772,
+    "sha256": "e8acd66d245f790b5680e9e6a4222bce144f9e5b7f6747b55ebf0b20fbe99cac",
+    "section_count": 21
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230728_심기성.pptx",
+    "bytes": 12684076,
+    "sha256": "aa7a30426e46ae6233b557516ad6f4ab3a91592724ee07eab1af7db134c3338d",
+    "section_count": 26
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230814_심기성.pptx",
+    "bytes": 2071369,
+    "sha256": "bf9a7bb6875af3758ed6511556a1f8840ff4ad1d9cdf4f0654f47e9c1fa36d93",
+    "section_count": 25
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230901_심기성.pptx",
+    "bytes": 1739333,
+    "sha256": "64c7126628ece260e3c0d7889bec4c66994974047926b19a500bc780664c8e41",
+    "section_count": 28
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\230915_심기성.pptx",
+    "bytes": 2227503,
+    "sha256": "afe17c378c0255266cc423231fbe495da646584595e20c433247b9cfaa8a8f88",
+    "section_count": 16
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231006_심기성.pptx",
+    "bytes": 1328119,
+    "sha256": "3a286d1d4cbf358af5cd447dce245a8baa75bdb90864f9dbbbb79ab8c9c5bb60",
+    "section_count": 26
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231020_심기성.pptx",
+    "bytes": 2053541,
+    "sha256": "dcba9295ee3ec400370e8d34d1ceca8ef8e8ac5547a80235b7fd4a283a493d45",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231110_심기성.pptx",
+    "bytes": 1778098,
+    "sha256": "4fabdcb3531f445e158e8a2f8db441e27b6f028b6a5b4fcf0a28baaeaacc6c32",
+    "section_count": 21
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231124_심기성.pptx",
+    "bytes": 1952883,
+    "sha256": "b12ff574806a52280e96ae2be28bbaafe31ab576647c6d00138e009729f0a35e",
+    "section_count": 40
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231208_심기성.pptx",
+    "bytes": 736164,
+    "sha256": "042c34789069a4c48e434fea41d7ea201e7180d1a62ab2425d2d58e4e279b85f",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\231222_심기성.pptx",
+    "bytes": 1012112,
+    "sha256": "7fc8537b32f37715cdc9c6d60fef21f90a03b813d2dce204aefc0948d356c947",
+    "section_count": 22
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240108_심기성.pptx",
+    "bytes": 1202841,
+    "sha256": "9db685596963e0654e326391ba6d4b22a1c4a3523d2fe300d0f66b1cf9717c75",
+    "section_count": 12
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240129_심기성.pptx",
+    "bytes": 874556,
+    "sha256": "617b13fa7f7444536ce256e25d5c211afb89e2a3b7342bac789dda55e332b747",
+    "section_count": 32
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240213_심기성.pptx",
+    "bytes": 1831176,
+    "sha256": "4b342a1522944fbbcfe208bae87dce56842a97117e026897af1557b2e189f997",
+    "section_count": 15
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240304_심기성.pptx",
+    "bytes": 3306912,
+    "sha256": "a5b78d237dd54d72d0ed37f1aadd8ad542bfbd589aa5aef30fef113c0bce3fb5",
+    "section_count": 11
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240322_심기성.pptx",
+    "bytes": 2694886,
+    "sha256": "87962b75779343cc38922ab63d7d4487d6f83bc8daa886191da11c7cb60b3602",
+    "section_count": 13
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240412_심기성.pptx",
+    "bytes": 2388698,
+    "sha256": "62f9769807997021e1445a6d557f7eba69dc65fbc186d77897b9936155955992",
+    "section_count": 36
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240419_심기성.pptx",
+    "bytes": 1902312,
+    "sha256": "d8be331008bdef7c3e59e54fcc7b4bdcab78fa249ef79f5c7e4e4c86e1cf9e88",
+    "section_count": 16
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240426_심기성.pptx",
+    "bytes": 2543139,
+    "sha256": "5764aa911166a7a9d31d22a73d582f52e2724883dab5a5e285cd40cfd52d9b91",
+    "section_count": 6
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240510_심기성.pptx",
+    "bytes": 1014357,
+    "sha256": "4e64c96fa72be3fd979a352d2a66a004a76039720f4940ea000e12b2764122bb",
+    "section_count": 10
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240531_심기성.pptx",
+    "bytes": 611148,
+    "sha256": "9f9514bd19e5137bee92f924d6a47ee2a57d02098d818abe9ed4c58a752b6f74",
+    "section_count": 7
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240621_심기성.pptx",
+    "bytes": 1058692,
+    "sha256": "7479a58ee758562e4f95eab25d343b3fde963ab5782972a458c50a3e89ceef07",
+    "section_count": 7
+  },
+  {
+    "path": "G:\\내 드라이브\\Docs\\Gisung Sim\\240627_심기성.pptx",
+    "bytes": 979429,
+    "sha256": "21183532b4c661e30be62b18105c9e3ab0f6761d9f60dac9dd66c3b5592f22e5",
+    "section_count": 22
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\20261001 OD 온도 역산.md",
+    "bytes": 5281,
+    "sha256": "f0f6d496c4bcff2bad8830d5b3e35ae596303cf4d854de185108fe3acd2acbd1",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\20261002 분석 전개_v2.md",
+    "bytes": 9194,
+    "sha256": "b6ecf39015dfcae630a90875558747f4c1f79b9650b528899b0c82cf36398339",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\lab-context\\FWM_NOTATION_AND_LOGIC.md",
+    "bytes": 10228,
+    "sha256": "29cb568ac89a9539652980476d4d30830194b71dedd2ed2822b5789812dada61",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\lab-context\\GRAPH_STYLE_GUIDE.md",
+    "bytes": 11793,
+    "sha256": "afddefeea5b8431f1c430c04b1c617cfdc1ee7d31a76415a8256c476ed65eaab",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\lab-context\\LAB_CONTEXT.md",
+    "bytes": 34410,
+    "sha256": "546c660e28ff1abd52b4c6ea9dd60dfc08ee26b83cd6518a31bd82643b00ab6a",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\lab-context\\NOTION_SOURCE_INDEX.md",
+    "bytes": 17862,
+    "sha256": "aa1003982bab1b19b0a68a0d49aad4b0182cb88e86b6c4435f29adf73aecf8ac",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\lab-context\\SIM_LAB_MEETING_ARCHIVE.md",
+    "bytes": 7621,
+    "sha256": "8388a797a30338893e16dbb144824f4104e0afa26f0d8e6f3b48f28e272beec3",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\Media & Reference\\20260521\\Etalon.md",
+    "bytes": 7670,
+    "sha256": "970a21185c61319ba93426f366f71b9d6d02057948ccd1afc6f0afbdb7012884",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\Media & Reference\\Templetes_PPTX\\Intensity Difference Squeezing Setup.pptx",
+    "bytes": 69792,
+    "sha256": "d84cfa72a6fa945a964aa87dfbace00d32535b56c081e5bbbd9d18ff9eb91e8c",
+    "section_count": 6
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260521.html",
+    "bytes": 932489,
+    "sha256": "5c7ffdd733eb961c914d918fc12d5358c19af5f5c510191bffcb05c9854daa23",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260529.html",
+    "bytes": 2989190,
+    "sha256": "6ec2c14993fcbaa7791b3ef76283231dcc9b5cb3653b1d41de0eda36c74bef3d",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260619.html",
+    "bytes": 2283005,
+    "sha256": "ed6dd5a223081324a2ee29c5b230ae71905800f95274a4cfbe785f87dae17250",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260703.html",
+    "bytes": 2871621,
+    "sha256": "7dea1964775ef943c036c1de290f1c052b03bfb44a9b8d7b7a7aa03cbdadab53",
+    "section_count": 1
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260703.pptx",
+    "bytes": 2411725,
+    "sha256": "edd987348b011ba22ab5c5e6d8984122102a9c1ffef12ac19aa109fed7e3f771",
+    "section_count": 16
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260715.pptx",
+    "bytes": 412477,
+    "sha256": "3a71199034ad9c0c3a8597a4d9775b89993445e587d14749956779e0a1855427",
+    "section_count": 14
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260807.pptx",
+    "bytes": 121998,
+    "sha256": "31094284aad213cf66f2676aa52fb54a148970b312201c066637e6f487cee4f4",
+    "section_count": 8
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260814.pptx",
+    "bytes": 41776369,
+    "sha256": "0e410f48d39864a427739749598c67e207e0e0fc44519b2c330fe2d331702782",
+    "section_count": 16
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260821.pptx",
+    "bytes": 18221294,
+    "sha256": "619b005c4bef9cb1126cdffba93f3c31808d18f41ed6e9adc91b50da5af69564",
+    "section_count": 12
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v1.pptx",
+    "bytes": 1963410,
+    "sha256": "9d1ae2ad93625561a5a7d73eef0600e273ab47d028a51288ed240631d622ad36",
+    "section_count": 86
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v2.pptx",
+    "bytes": 2605397,
+    "sha256": "fda33859e586107cbe086f3e16de1c584532d71b8d9609db3afa6e077636e281",
+    "section_count": 88
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v3.pptx",
+    "bytes": 2690565,
+    "sha256": "dd76c25ea57f5f0fffe0c5dbb0fab2c02b6ad892830f2f5fe9cba290d48d755c",
+    "section_count": 100
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v4.pptx",
+    "bytes": 2466661,
+    "sha256": "809d64ef60fd7c3959d4a059676223da0e916eee4e5d0818c380acb0f7f1d669",
+    "section_count": 88
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v5.pptx",
+    "bytes": 3101660,
+    "sha256": "4e28fad1aa39ce0fd880752c8d6a2d926c7dad252d5fc0dc86197659ac06c0d6",
+    "section_count": 87
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v6.pptx",
+    "bytes": 3001900,
+    "sha256": "a23b4167ea64e297258e91c97bd5a5d71575c43faa2905e94636428a5216298d",
+    "section_count": 86
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v7.pptx",
+    "bytes": 3351515,
+    "sha256": "b83c6c407e6e30568b303a7e25f91d9b5a90077cded699f2d14e358b18f55693",
+    "section_count": 88
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260828_v8.pptx",
+    "bytes": 5436826,
+    "sha256": "f7771f8186c90f4c50cda7a1caa9bbbe1b8486796d93325381f50c833fe7f893",
+    "section_count": 94
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260904.pptx",
+    "bytes": 4966861,
+    "sha256": "e07dfadbe9614f888b1f25ae94812bbae09b06eca5b1b2b05533d68dce7bccd7",
+    "section_count": 70
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260910.pptx",
+    "bytes": 518942,
+    "sha256": "557ed76c3f5a80f92fdb69edfa6151d133533c1933aa9e203ed79f0aad3d9521",
+    "section_count": 10
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260917 초안.pptx",
+    "bytes": 87749,
+    "sha256": "1664ff7034d58676fac854eed8fd5e0ea0f118a347a13db39f4bd7b29fe74092",
+    "section_count": 14
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20260917.pptx",
+    "bytes": 534323,
+    "sha256": "54d6d47d8dabbfcfb2b05088a7e2c4e2db4296da2ea094478f6a1d3f27c1a4a6",
+    "section_count": 21
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261002 초안_v2.pptx",
+    "bytes": 650872,
+    "sha256": "a8f793e62404f5efbc7caf0c47207d121efd2fd6f617db9438c5df25f843ae0f",
+    "section_count": 32
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261002 초안_v2_FuturePlans수정.pptx",
+    "bytes": 648470,
+    "sha256": "b0c440d2de7fe58312289fcdaa7f203b9bcedccde98432936b6ad9ba28f626cd",
+    "section_count": 32
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261012 초안.pptx",
+    "bytes": 263546,
+    "sha256": "0babc4bbb024d86ee444fb347ce26db1dce2cb608230a3d51067907c0b3873b4",
+    "section_count": 4
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261012 초안_v2.pptx",
+    "bytes": 470175,
+    "sha256": "9d0adddc5b7f69cb2bf5e7b38e97635eebb5b7fbf81ccdb7fee3d997409948d7",
+    "section_count": 4
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261012 초안_v2_COM교정.pptx",
+    "bytes": 511873,
+    "sha256": "d93960539d9219a5d2bdb2e964c0914032d3460a8087a585fbc4f2e89055a942",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261012 초안_v2_수정.pptx",
+    "bytes": 443647,
+    "sha256": "c6ce679a235c0781a7e1efb4e8bc5c5d69caaf144e2f4fb0b980b17b2b0e9e83",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261016 초안.pptx",
+    "bytes": 1206149,
+    "sha256": "74e71b5ff759ce185e8c1823ba77f6435009abefbb1850e02047c057c4778dd8",
+    "section_count": 20
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261016 초안_COM수정.pptx",
+    "bytes": 2568700,
+    "sha256": "8c661267b47a4b478f0c0ab0d8a12fff9a038e9630dd6dbe0613c64e8db3da20",
+    "section_count": 35
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261016 초안_강조설명.pptx",
+    "bytes": 2558233,
+    "sha256": "ef543902fc80c486d997a8ef1bb38957d100dd6d050b96bec814753404b5699a",
+    "section_count": 35
+  },
+  {
+    "path": "G:\\내 드라이브\\원자광학연구실\\Lab meeting\\박수인 랩미팅 20261016 초안_강조설명_발표대본.pptx",
+    "bytes": 2609552,
+    "sha256": "f27728ae7e046e24138878a7c3a0228e00d357c3c49e8cce05dcad3326131c28",
+    "section_count": 36
+  }
+]

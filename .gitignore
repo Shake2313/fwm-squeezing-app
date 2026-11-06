@@ -46,3 +46,8 @@ docs/Rydberg cell-heating analysis/$out/
 !analysis/squeezing/squeezing_frontier_ideal_v6_low_angle_ridge/squeezing_low_angle_ridge.npz
 !analysis/squeezing/squeezing_frontier_ideal_v6_tpd_angle_detail/squeezing_tpd_angle_detail.npz
 !analysis/squeezing/squeezing_v6_tolerance/squeezing_v6_tolerance.npz
+
+# SABES local validation state and browser-export scratch file.
+/.playwright-cli/sabes-session-2026-10-16.json
+/docs/ui_redesign/audit/sabes_asterisk_20261022/running.json
+/docs/ui_redesign/audit/sabes_table_20261022/running.json

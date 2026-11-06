@@ -1,0 +1,23 @@
+{
+  "page_id": "3fa6cba1-4fee-81c9-b447-c1d6e36cabae",
+  "url": "https://app.notion.com/p/3fa6cba14fee81c9b447c1d6e36cabae",
+  "date": "2026-10-21",
+  "baseline_date": "2026-10-16",
+  "origin": "user_confirmations_and_ai_editorial_verification",
+  "review_passes": 1,
+  "status": "updated_and_fetched",
+  "content_update_count": 35,
+  "formatting_repair_count": 2,
+  "image_upload_id": "4006cba1-4fee-8120-95d2-00b2fdc21c5e",
+  "source_image": "C:/Users/박수인/AppData/Local/Temp/codex-clipboard-a81b79c1-7c4a-48c0-b8de-7eb95a5ee6fe.png",
+  "final_edited_at": "2026-10-21T08:55:16.065Z",
+  "tables_before": 9,
+  "tables_after": 9,
+  "rows_before": 79,
+  "rows_after": 88,
+  "block_equations_preserved": true,
+  "native_image_confirmed": true,
+  "unresolved_policy": "Ask important details only when needed; inspect existing sources first for minor details.",
+  "waveform_model_trigger": "When waveform generator control/wiring or coil/frequency response work requires exact model, notify user it was deferred and ask.",
+  "sabes_runtime_modified": false
+}

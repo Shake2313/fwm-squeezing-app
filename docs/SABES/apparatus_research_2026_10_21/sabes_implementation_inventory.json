@@ -1,0 +1,2347 @@
+{
+  "date": "2026-10-21",
+  "origin": "code_snapshot",
+  "adoption_status": "existing_implementation_only",
+  "scope_note": "AI export: display coordinates are arbitrary schematic units. Values and provenance labels are copied from code, not independently certified apparatus facts. Null defaults include NaN in source.",
+  "git_branch": "main",
+  "source_sha256": {
+    "sabes/layout/parts.py": "72a3e05742895b4ce8c1e8a9a1d8aba3200572e8f381b6c80644bc9fbaa3737d",
+    "sabes/layout/table.py": "3d9e85daf7899106a70d8e01b319401f43274d847e4ca50eaf0b7d938210a362",
+    "sabes/beamline.py": "01f4d77958c570ba97353e1f9fe7a735d4d069f14673408864619137ad57a924",
+    "sabes/calibration.py": "3d9574a57b6db4f484b672fbbee7804c9990b3eb9d124bb3fae212e87e744bf1",
+    "sabes/calibration_sim2025.json": "b71267e1763c8fb58561163670fa3c8f2af7168b587772662189787e94045c90",
+    "sabes/detection.py": "350dc798241ffe2f0b8e5340c7aed52962b381c62941612d592146fa3f7c738a"
+  },
+  "setup_defaults": {
+    "ecdl_power_mw": 40.0,
+    "ta_current_a": 2.5,
+    "hwp_ta_deg": 0.0,
+    "hwp_split_deg": 8.0996,
+    "seed_polarizer_deg": 19.1607,
+    "hwp_eom_deg": 0.0,
+    "eom_frequency_hz": 3043732439.0,
+    "eom_rf_dbm": 18.0,
+    "etalon_detune_ghz": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "seed_trim_qwp_deg": 0.0,
+    "seed_trim_hwp_deg": 37.6333,
+    "seed_gtp_deg": 0.0,
+    "pump_telescope_f1_mm": 300.0,
+    "pump_telescope_f2_mm": 150.0,
+    "seed_telescope_f1_mm": 400.0,
+    "seed_telescope_f2_mm": 150.0,
+    "opd_ghz": 0.9,
+    "cell_temp_c": 121.0,
+    "dmirror_separation_mm": 3.2628,
+    "ecdl_temp_c": null,
+    "ecdl_current_ma": null,
+    "ecdl_pzt_v": null,
+    "ta_temp_c": null
+  },
+  "calibration": {
+    "bpd_bandwidth_hz": {
+      "value": 4000000.0,
+      "unit": "Hz",
+      "provenance": "datasheet",
+      "note": "PDB450A RF bandwidth at the 1e5 V/A gain setting (150/45/4/0.3/0.1 MHz for 1e3..1e7 V/A)."
+    },
+    "bpd_cw_saturation_w": {
+      "value": 0.009,
+      "unit": "W",
+      "provenance": "datasheet",
+      "note": "PDB450A CW saturation power at 820 nm. Optical damage threshold is 20 mW."
+    },
+    "bpd_nep_w_per_rthz": {
+      "value": 3.3e-12,
+      "unit": "W/rtHz",
+      "provenance": "datasheet",
+      "note": "PDB450A minimum NEP, DC to 4 MHz, gain 1e5 V/A. WARNING: specified with the STOCK photodiode. This unit has S3883 diodes fitted, which changes junction capacitance and therefore the amplifier noise gain. Replace with a measured dark trace before trusting any clearance number."
+    },
+    "bpd_transimpedance_v_per_a": {
+      "value": 100000.0,
+      "unit": "V/A",
+      "provenance": "paper",
+      "note": "Transimpedance gain stated in Sim et al."
+    },
+    "cell_length_mm": {
+      "value": 12.5,
+      "unit": "mm",
+      "provenance": "paper",
+      "note": "Rb vapour cell length."
+    },
+    "etalon_fsr_hz": {
+      "value": 17000000000.0,
+      "unit": "Hz",
+      "provenance": "paper",
+      "note": "Free spectral range. Deliberately incommensurate with 3.036 GHz, so no unwanted sideband lands on a transmission peak."
+    },
+    "etalon_fwhm_hz": {
+      "value": 950000000.0,
+      "unit": "Hz",
+      "provenance": "paper",
+      "note": "Passband FWHM; with the FSR this gives finesse 17.9."
+    },
+    "etalon_leak": {
+      "value": 0.076497,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Stopband floor per stage, solved from the paper's two-etalon carrier:seed ratio of ~0.5 percent. An ideal Airy cascade predicts far deeper suppression, so without this floor the model overestimates seed purity and therefore squeezing. It lumps surface scatter, the finite angular spread of a real beam washing out the resonance, alignment, and the measurement floor. It is fitted to ONE published number, not measured: a real transmission scan should replace it."
+    },
+    "etalon_peak_transmission": {
+      "value": 0.8,
+      "unit": "fraction",
+      "provenance": "lab",
+      "note": "Per-stage peak transmission including realistic alignment. The paper quotes 85 percent as the etalon specification."
+    },
+    "etalon_stages": {
+      "value": 3.0,
+      "unit": "count",
+      "provenance": "paper",
+      "note": "Three sequential etalons. The paper reports ~0.5 percent carrier:seed with two and much less with three."
+    },
+    "eom_insertion_loss_db": {
+      "value": 5.3,
+      "unit": "dB",
+      "provenance": "lab",
+      "note": "Fiber-EOM insertion loss including connectors. Back-solved so that J1(beta)^2 times this loss reproduces the reported ~10 percent minus-first-order efficiency; it is not a separately measured figure."
+    },
+    "eom_max_input_w": {
+      "value": 0.01,
+      "unit": "W",
+      "provenance": "lab",
+      "note": "Optical power above which the fiber EOM stops modulating properly. This is the binding constraint on the whole seed path."
+    },
+    "eom_orthogonal_leakage": {
+      "value": 0.0,
+      "unit": "fraction",
+      "provenance": "datasheet",
+      "note": "Fraction of polarization-mismatched light that leaves the modulator as unmodulated carrier. Zero for a single-polarization LiNbO3 waveguide: the mismatched component becomes coupling loss instead of carrier contamination."
+    },
+    "eom_v_pi_v": {
+      "value": 4.4,
+      "unit": "V",
+      "provenance": "nominal",
+      "note": "RF half-wave voltage at ~3 GHz for an EOSPACE AZ-0S5-10 class modulator. Placeholder: measure the sideband ratio versus RF power to fix it. At 18 dBm this gives beta = 1.79, close to the J1 maximum at 1.841, which is consistent with 18 dBm having been chosen to maximise the seed."
+    },
+    "loss_ecdl_to_ta": {
+      "value": 0.95,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Isolator and steering optics between the ECDL and the amplifier. Placeholder."
+    },
+    "pbs_extinction_ratio": {
+      "value": 3000.0,
+      "unit": "ratio",
+      "provenance": "paper",
+      "note": "Extinction of the PBS used for polarization rejection of the pump after the cell."
+    },
+    "pd_active_diameter_mm": {
+      "value": 1.5,
+      "unit": "mm",
+      "provenance": "datasheet",
+      "note": "Hamamatsu S3883 photosensitive diameter, 1.7 mm^2. The stock PDB450A diode is 0.8 mm."
+    },
+    "pd_max_power_density_w_per_cm2": {
+      "value": 4.0,
+      "unit": "W/cm^2",
+      "provenance": "datasheet",
+      "note": "Thorlabs linearity limit for the PDB450A. The manual also asks that the beam illuminate the whole active area, so a hard focus onto the diode is doubly discouraged."
+    },
+    "pd_responsivity_a_per_w": {
+      "value": 0.58,
+      "unit": "A/W",
+      "provenance": "datasheet",
+      "note": "Hamamatsu S3883 photosensitivity at 795 nm, read off the spectral-response curve. Implies QE = 1240*0.58/795 = 90.45 percent, matching the 90.47 percent quoted in the paper. The stock PDB450A Si diode peaks at 0.53 A/W, i.e. QE <= 82.7 percent."
+    },
+    "post_cell_loss_pct": {
+      "value": 5.5,
+      "unit": "%",
+      "provenance": "paper",
+      "note": "Optical loss between the cell and the detector, the `loss_pct` knob in the GABES FWM scheme."
+    },
+    "pump_collimator_diameter_mm": {
+      "value": 2.0,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "Collimated 1/e^2 diameter out of the pump fiber collimator, from the setup drawing."
+    },
+    "pump_fiber_efficiency": {
+      "value": 0.7,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Free space to fiber coupling on the pump path. Placeholder; this one directly sets the available pump power."
+    },
+    "pump_seed_angle_deg": {
+      "value": 0.32,
+      "unit": "deg",
+      "provenance": "paper",
+      "note": "Crossing angle in the cell. Stated as an empirical choice, so it is a candidate for optimisation rather than a fixed constant."
+    },
+    "pump_telescope_f1_mm": {
+      "value": 300.0,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "First lens of the pump telescope (from the setup drawing)."
+    },
+    "pump_telescope_f2_mm": {
+      "value": 150.0,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "Second lens of the pump telescope; magnification 150/300 = 0.5."
+    },
+    "seed_collimator_diameter_mm": {
+      "value": 1.6,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "Collimated 1/e^2 diameter out of the seed fiber collimator, from the setup drawing."
+    },
+    "seed_fiber_in_efficiency": {
+      "value": 0.6,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Coupling into the fiber EOM. Placeholder. Not power-critical: the seed path has large headroom and is deliberately attenuated afterwards."
+    },
+    "seed_fiber_out_efficiency": {
+      "value": 0.5,
+      "unit": "fraction",
+      "provenance": "lab",
+      "note": "Coupling out of the seed chain into the delivery fiber."
+    },
+    "seed_telescope_f1_mm": {
+      "value": 400.0,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "First lens of the seed telescope (from the setup drawing)."
+    },
+    "seed_telescope_f2_mm": {
+      "value": 150.0,
+      "unit": "mm",
+      "provenance": "lab",
+      "note": "Second lens of the seed telescope; magnification 150/400 = 0.375."
+    },
+    "ta_ase_fraction": {
+      "value": 0.03,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Broadband amplified spontaneous emission as a fraction of amplifier output. Placeholder. Removed from coherent power rather than tracked as a spectral line: it is not at any FWM-relevant frequency and the etalons erase it in the seed path."
+    },
+    "ta_m2_out": {
+      "value": 1.6,
+      "unit": "M^2",
+      "provenance": "nominal",
+      "note": "Beam-quality factor out of the tapered amplifier. Placeholder, but it matters: it is what makes fiber coupling after the amplifier lossy."
+    },
+    "ta_saturation_w": {
+      "value": 0.02,
+      "unit": "W",
+      "provenance": "nominal",
+      "note": "Seed power at which the amplifier reaches half its maximum output. Placeholder; fix it together with the slope from one P-I curve at known seed power."
+    },
+    "ta_slope_w_per_a": {
+      "value": 1.05,
+      "unit": "W/A",
+      "provenance": "nominal",
+      "note": "Slope of the amplifier's maximum output versus drive current. Placeholder chosen so the nominal operating point gives about 1.4 W."
+    },
+    "ta_threshold_a": {
+      "value": 0.5,
+      "unit": "A",
+      "provenance": "nominal",
+      "note": "Amplifier current threshold. Placeholder."
+    },
+    "waist_scale_factor": {
+      "value": 1.08,
+      "unit": "ratio",
+      "provenance": "fitted",
+      "note": "Collimator diameter times telescope magnification underestimates the paper's cell waists by a consistent 6-10 percent (500 vs 530 um pump, 300 vs 330 um seed). One shared factor absorbs it. The consistency across two independent paths suggests a definition difference (1/e^2 versus 4-sigma or FWHM in the quoted collimator diameters) rather than two coincidences."
+    },
+    "t_m_mopa_out": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_mopa_out. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_oi_mopa": {
+      "value": 0.92,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of OI. Optical isolator. The lossiest passive element on the table."
+    },
+    "t_hwp_split": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+    },
+    "t_m_split_1": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_split_1. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_m_split_2": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_split_2. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_pbs_split": {
+      "value": 0.97,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+    },
+    "t_f230_pump": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of F230. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_pol_seed": {
+      "value": 0.95,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Polarizer. Sheet/Glan polarizer."
+    },
+    "t_noise_eater": {
+      "value": 0.97,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Noise eater. Intensity-noise servo; only its throughput is modelled."
+    },
+    "t_m_seed_1": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_seed_1. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_hwp_eom": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+    },
+    "t_f220_eom_in": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_in_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_eom": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of fiber EOM. Set to 1 deliberately: this element's throughput is already carried by `eom_insertion_loss_db`, and counting it twice would quietly halve the budget."
+    },
+    "t_f220_eom_out": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_etalon_1": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of Etalon 1. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+    },
+    "t_m_et_1": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_et_1. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_hwp_etalon": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+    },
+    "t_m_et_2": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_et_2. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_etalon_2": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of Etalon 2. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+    },
+    "t_etalon_3": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of Etalon 3. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+    },
+    "t_gt_seed": {
+      "value": 0.95,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of GT. Glan-Taylor: calcite plus two surfaces."
+    },
+    "t_m_seed_out": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_seed_out. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_m_seed_down": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_seed_down. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_f220_seed": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_col_seed": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of 5724 · 1.6 mm. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_qwp_seed": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+    },
+    "t_hwp_seed": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+    },
+    "t_seed_l1": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=400. Telescope lens, AR-coated."
+    },
+    "t_seed_l2": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+    },
+    "t_m_seed_a": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_seed_a. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_gtp_seed": {
+      "value": 0.95,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+    },
+    "t_col_pump": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Per-pass transmission of 5725 · 2.0 mm. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+    },
+    "t_qwp_pump": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+    },
+    "t_hwp_pump": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+    },
+    "t_pump_l1": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=300. Telescope lens, AR-coated."
+    },
+    "t_pump_l2": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+    },
+    "t_m_pump_a": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of m_pump_a. Steering mirror, protected-silver order of magnitude."
+    },
+    "t_gtp_pump": {
+      "value": 0.95,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+    },
+    "t_pbs_in": {
+      "value": 0.97,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+    },
+    "t_cell": {
+      "value": 0.96,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Rb cell. Both vapour-cell windows, uncoated-glass order of magnitude."
+    },
+    "t_pbs_out": {
+      "value": 0.97,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+    },
+    "t_dm_probe": {
+      "value": 0.985,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+    },
+    "t_dm_conj": {
+      "value": 0.985,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+    },
+    "t_iris_probe": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+    },
+    "t_iris_conj": {
+      "value": 0.995,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+    },
+    "t_lens_probe": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=75. Singlet, AR-coated."
+    },
+    "t_lens_conj": {
+      "value": 0.99,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of f=100. Singlet, AR-coated."
+    },
+    "t_bpd": {
+      "value": 1.0,
+      "unit": "fraction",
+      "provenance": "nominal",
+      "note": "Per-pass transmission of Balanced detector. Detector face; its quantum efficiency is the separate pd_responsivity_a_per_w."
+    },
+    "loss_post_cell_residual": {
+      "value": 1.004074,
+      "unit": "fraction",
+      "provenance": "fitted",
+      "note": "Residual factor on the post-cell transmission, on top of the per-optic values. Solved so the wide-open limit reproduces the 5.5 percent post-cell loss quoted in Sim et al.: the per-optic numbers are nominal guesses while the total is the one measured quantity, so the discrepancy lives here rather than being spread silently over optics nobody measured."
+    }
+  },
+  "layouts": [
+    {
+      "key": "part1",
+      "title": "Part 1 — source, amplifier, seed modulation and filtering",
+      "width": 960,
+      "height": 520,
+      "nodes": [
+        {
+          "id": "ecdl",
+          "label": "795 nm ECDL",
+          "x": 880,
+          "y": 60,
+          "kind": "source",
+          "shape": "rect",
+          "w": 86,
+          "h": 52,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "ecdl_power_mw"
+          ],
+          "transmission_key": "",
+          "note": "Detuning is set by locking to the reference arm, not by predicting frequency from temperature / current / PZT."
+        },
+        {
+          "id": "oi_ecdl",
+          "label": "OI",
+          "x": 880,
+          "y": 140,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 22,
+          "h": 22,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": "Optical isolator. Loss only; not modelled."
+        },
+        {
+          "id": "hwp_lock",
+          "label": "HWP",
+          "x": 880,
+          "y": 186,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "pbs_lock",
+          "label": "PBS",
+          "x": 806,
+          "y": 214,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 26,
+          "h": 26,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "lens_lock",
+          "label": "f=300",
+          "x": 806,
+          "y": 168,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 14,
+          "h": 14,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "rb_ref",
+          "label": "Rb natural",
+          "x": 560,
+          "y": 56,
+          "kind": "cell",
+          "shape": "rect",
+          "w": 74,
+          "h": 26,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": "Saturated-absorption reference. The oscilloscope demo lives here: this trace is what the detuning is actually set by."
+        },
+        {
+          "id": "pbs_ref",
+          "label": "PBS",
+          "x": 450,
+          "y": 56,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 22,
+          "h": 22,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "pd_ref",
+          "label": "PD",
+          "x": 356,
+          "y": 56,
+          "kind": "detector",
+          "shape": "rect",
+          "w": 24,
+          "h": 34,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "m_lock",
+          "label": "",
+          "x": 806,
+          "y": 56,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": -45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "m_ecdl_1",
+          "label": "",
+          "x": 806,
+          "y": 260,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "hwp_mopa",
+          "label": "HWP",
+          "x": 742,
+          "y": 260,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "hwp_ta_deg"
+          ],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "m_ecdl_2",
+          "label": "",
+          "x": 690,
+          "y": 292,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": -45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "cl",
+          "label": "CL",
+          "x": 500,
+          "y": 330,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 12,
+          "h": 18,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "",
+          "note": "Cylindrical lens shaping the amplifier input. It is what sets the amplifier's output beam quality, i.e. ta_m2_out."
+        },
+        {
+          "id": "mopa",
+          "label": "MOPA",
+          "x": 620,
+          "y": 340,
+          "kind": "source",
+          "shape": "rect",
+          "w": 110,
+          "h": 54,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "ta_current_a"
+          ],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "m_mopa_out",
+          "label": "",
+          "x": 436,
+          "y": 330,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_mopa_out",
+          "note": ""
+        },
+        {
+          "id": "oi_mopa",
+          "label": "OI",
+          "x": 350,
+          "y": 480,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 22,
+          "h": 22,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_oi_mopa",
+          "note": ""
+        },
+        {
+          "id": "hwp_split",
+          "label": "HWP",
+          "x": 292,
+          "y": 480,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "hwp_split_deg"
+          ],
+          "transmission_key": "t_hwp_split",
+          "note": "The pump-power knob: it sets how the amplifier output divides."
+        },
+        {
+          "id": "m_split_1",
+          "label": "",
+          "x": 236,
+          "y": 480,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": -45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_split_1",
+          "note": ""
+        },
+        {
+          "id": "m_split_2",
+          "label": "",
+          "x": 236,
+          "y": 424,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_split_2",
+          "note": ""
+        },
+        {
+          "id": "pbs_split",
+          "label": "PBS",
+          "x": 176,
+          "y": 424,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 26,
+          "h": 26,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_pbs_split",
+          "note": "Pump transmits, seed reflects."
+        },
+        {
+          "id": "f230_pump",
+          "label": "F230",
+          "x": 86,
+          "y": 424,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 30,
+          "h": 40,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_f230_pump",
+          "note": "Pump delivery collimator; continues in part 2."
+        },
+        {
+          "id": "pol_seed",
+          "label": "Polarizer",
+          "x": 176,
+          "y": 350,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 26,
+          "h": 8,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_polarizer_deg"
+          ],
+          "transmission_key": "t_pol_seed",
+          "note": "Holds the fiber EOM under its ~10 mW rating. The split alone cannot satisfy both that and the pump power."
+        },
+        {
+          "id": "noise_eater",
+          "label": "Noise eater",
+          "x": 250,
+          "y": 306,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 62,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_noise_eater",
+          "note": "Intensity-noise servo. Not modelled, but it acts on exactly the noise a squeezing measurement cares about."
+        },
+        {
+          "id": "m_seed_1",
+          "label": "",
+          "x": 176,
+          "y": 258,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_seed_1",
+          "note": ""
+        },
+        {
+          "id": "hwp_eom",
+          "label": "HWP",
+          "x": 240,
+          "y": 258,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "hwp_eom_deg"
+          ],
+          "transmission_key": "t_hwp_eom",
+          "note": ""
+        },
+        {
+          "id": "f220_eom_in",
+          "label": "F220",
+          "x": 306,
+          "y": 258,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 26,
+          "h": 34,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_f220_eom_in",
+          "note": ""
+        },
+        {
+          "id": "eom",
+          "label": "fiber EOM",
+          "x": 306,
+          "y": 190,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 92,
+          "h": 22,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "eom_offset_mhz",
+            "eom_rf_dbm",
+            "eom_unwanted_rin_db_per_hz"
+          ],
+          "transmission_key": "",
+          "note": "EOSPACE LiNbO3 phase modulator. The RF offset from the ground-state splitting sets the two-photon detuning. Unwanted-mode RIN is a detector-level input."
+        },
+        {
+          "id": "f220_eom_out",
+          "label": "F220",
+          "x": 400,
+          "y": 190,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 26,
+          "h": 34,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_f220_eom_out",
+          "note": ""
+        },
+        {
+          "id": "etalon_1",
+          "label": "Etalon 1",
+          "x": 470,
+          "y": 190,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 48,
+          "h": 30,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "etalon_detune_ghz_1"
+          ],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "m_et_1",
+          "label": "",
+          "x": 560,
+          "y": 190,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_et_1",
+          "note": ""
+        },
+        {
+          "id": "hwp_etalon",
+          "label": "HWP",
+          "x": 560,
+          "y": 244,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_hwp_etalon",
+          "note": "Between etalon 1 and etalon 2 in the drawing."
+        },
+        {
+          "id": "m_et_2",
+          "label": "",
+          "x": 560,
+          "y": 292,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": -45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_et_2",
+          "note": ""
+        },
+        {
+          "id": "etalon_2",
+          "label": "Etalon 2",
+          "x": 484,
+          "y": 292,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 48,
+          "h": 30,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "etalon_detune_ghz_2"
+          ],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "etalon_3",
+          "label": "Etalon 3",
+          "x": 402,
+          "y": 292,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 48,
+          "h": 30,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "etalon_detune_ghz_3"
+          ],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "gt_seed",
+          "label": "GT",
+          "x": 330,
+          "y": 292,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 18,
+          "h": 28,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_gtp_deg"
+          ],
+          "transmission_key": "t_gt_seed",
+          "note": "Glan-Taylor after the filter chain. Part 2 has further GTPs on each arm; the model previously had only one."
+        },
+        {
+          "id": "m_seed_out",
+          "label": "",
+          "x": 262,
+          "y": 292,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_seed_out",
+          "note": ""
+        },
+        {
+          "id": "m_seed_down",
+          "label": "",
+          "x": 262,
+          "y": 396,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": -45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_seed_down",
+          "note": ""
+        },
+        {
+          "id": "f220_seed",
+          "label": "F220",
+          "x": 86,
+          "y": 350,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 30,
+          "h": 40,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_f220_seed",
+          "note": "Seed delivery collimator; continues in part 2."
+        }
+      ],
+      "links": [
+        {
+          "a": "ecdl",
+          "b": "oi_ecdl",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "ECDL output",
+          "note": ""
+        },
+        {
+          "a": "oi_ecdl",
+          "b": "hwp_lock",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "ECDL output",
+          "note": ""
+        },
+        {
+          "a": "hwp_lock",
+          "b": "pbs_lock",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "ECDL output",
+          "note": ""
+        },
+        {
+          "a": "pbs_lock",
+          "b": "lens_lock",
+          "beam": "reference",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "",
+          "note": ""
+        },
+        {
+          "a": "lens_lock",
+          "b": "m_lock",
+          "beam": "reference",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "",
+          "note": ""
+        },
+        {
+          "a": "m_lock",
+          "b": "rb_ref",
+          "beam": "reference",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "",
+          "note": ""
+        },
+        {
+          "a": "rb_ref",
+          "b": "pbs_ref",
+          "beam": "reference",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "",
+          "note": ""
+        },
+        {
+          "a": "pbs_ref",
+          "b": "pd_ref",
+          "beam": "reference",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "",
+          "note": ""
+        },
+        {
+          "a": "pbs_lock",
+          "b": "m_ecdl_1",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "ECDL output",
+          "note": ""
+        },
+        {
+          "a": "m_ecdl_1",
+          "b": "hwp_mopa",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "to amplifier",
+          "note": ""
+        },
+        {
+          "a": "hwp_mopa",
+          "b": "m_ecdl_2",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "to amplifier",
+          "note": ""
+        },
+        {
+          "a": "m_ecdl_2",
+          "b": "mopa",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [
+            [
+              690,
+              340
+            ]
+          ],
+          "carries": "to amplifier",
+          "note": ""
+        },
+        {
+          "a": "cl",
+          "b": "mopa",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "to amplifier",
+          "note": ""
+        },
+        {
+          "a": "mopa",
+          "b": "m_mopa_out",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "m_mopa_out",
+          "b": "oi_mopa",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [
+            [
+              436,
+              480
+            ]
+          ],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "oi_mopa",
+          "b": "hwp_split",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "hwp_split",
+          "b": "m_split_1",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "m_split_1",
+          "b": "m_split_2",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "m_split_2",
+          "b": "pbs_split",
+          "beam": "common",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "tapered amplifier",
+          "note": ""
+        },
+        {
+          "a": "pbs_split",
+          "b": "f230_pump",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "PBS transmitted",
+          "note": ""
+        },
+        {
+          "a": "pbs_split",
+          "b": "pol_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "PBS reflected",
+          "note": ""
+        },
+        {
+          "a": "pol_seed",
+          "b": "m_seed_1",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "input polarizer",
+          "note": ""
+        },
+        {
+          "a": "m_seed_1",
+          "b": "hwp_eom",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "input polarizer",
+          "note": ""
+        },
+        {
+          "a": "hwp_eom",
+          "b": "f220_eom_in",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "input polarizer",
+          "note": ""
+        },
+        {
+          "a": "f220_eom_in",
+          "b": "eom",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "into fiber EOM",
+          "note": ""
+        },
+        {
+          "a": "eom",
+          "b": "f220_eom_out",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "EOM sidebands",
+          "note": ""
+        },
+        {
+          "a": "f220_eom_out",
+          "b": "etalon_1",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "EOM sidebands",
+          "note": ""
+        },
+        {
+          "a": "etalon_1",
+          "b": "m_et_1",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 1",
+          "note": ""
+        },
+        {
+          "a": "m_et_1",
+          "b": "hwp_etalon",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 1",
+          "note": ""
+        },
+        {
+          "a": "hwp_etalon",
+          "b": "m_et_2",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 1",
+          "note": ""
+        },
+        {
+          "a": "m_et_2",
+          "b": "etalon_2",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 1",
+          "note": ""
+        },
+        {
+          "a": "etalon_2",
+          "b": "etalon_3",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 2",
+          "note": ""
+        },
+        {
+          "a": "etalon_3",
+          "b": "gt_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 3",
+          "note": ""
+        },
+        {
+          "a": "gt_seed",
+          "b": "m_seed_out",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 3",
+          "note": ""
+        },
+        {
+          "a": "m_seed_out",
+          "b": "m_seed_down",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "etalon 3",
+          "note": ""
+        },
+        {
+          "a": "m_seed_down",
+          "b": "f220_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [
+            [
+              160,
+              396
+            ]
+          ],
+          "carries": "etalon 3",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "key": "part2",
+      "title": "Part 2 — delivery, the vapour cell, and detection",
+      "width": 960,
+      "height": 400,
+      "nodes": [
+        {
+          "id": "col_seed",
+          "label": "5724 · 1.6 mm",
+          "x": 890,
+          "y": 60,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 34,
+          "h": 42,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_col_seed",
+          "note": "Seed collimator. Its diameter times the telescope magnification is the cell waist."
+        },
+        {
+          "id": "qwp_seed",
+          "label": "QWP",
+          "x": 836,
+          "y": 60,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_trim_qwp_deg"
+          ],
+          "transmission_key": "t_qwp_seed",
+          "note": ""
+        },
+        {
+          "id": "hwp_seed",
+          "label": "HWP",
+          "x": 812,
+          "y": 60,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_trim_hwp_deg"
+          ],
+          "transmission_key": "t_hwp_seed",
+          "note": "With the Glan-Taylor, sets the seed power at the cell."
+        },
+        {
+          "id": "seed_l1",
+          "label": "f=400",
+          "x": 720,
+          "y": 60,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_telescope_f1_mm"
+          ],
+          "transmission_key": "t_seed_l1",
+          "note": ""
+        },
+        {
+          "id": "seed_l2",
+          "label": "f=150",
+          "x": 330,
+          "y": 60,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "seed_telescope_f2_mm"
+          ],
+          "transmission_key": "t_seed_l2",
+          "note": ""
+        },
+        {
+          "id": "m_seed_a",
+          "label": "",
+          "x": 250,
+          "y": 60,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_seed_a",
+          "note": ""
+        },
+        {
+          "id": "gtp_seed",
+          "label": "GTP",
+          "x": 250,
+          "y": 132,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 18,
+          "h": 28,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_gtp_seed",
+          "note": ""
+        },
+        {
+          "id": "col_pump",
+          "label": "5725 · 2.0 mm",
+          "x": 890,
+          "y": 152,
+          "kind": "fiber",
+          "shape": "rect",
+          "w": 34,
+          "h": 42,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_col_pump",
+          "note": ""
+        },
+        {
+          "id": "qwp_pump",
+          "label": "QWP",
+          "x": 836,
+          "y": 152,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_qwp_pump",
+          "note": ""
+        },
+        {
+          "id": "hwp_pump",
+          "label": "HWP",
+          "x": 812,
+          "y": 152,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 8,
+          "h": 24,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_hwp_pump",
+          "note": ""
+        },
+        {
+          "id": "pump_l1",
+          "label": "f=300",
+          "x": 720,
+          "y": 152,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "pump_telescope_f1_mm"
+          ],
+          "transmission_key": "t_pump_l1",
+          "note": ""
+        },
+        {
+          "id": "pump_l2",
+          "label": "f=150",
+          "x": 400,
+          "y": 152,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "pump_telescope_f2_mm"
+          ],
+          "transmission_key": "t_pump_l2",
+          "note": ""
+        },
+        {
+          "id": "m_pump_a",
+          "label": "",
+          "x": 330,
+          "y": 152,
+          "kind": "mirror",
+          "shape": "rect",
+          "w": 22,
+          "h": 6,
+          "angle": 45,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_m_pump_a",
+          "note": ""
+        },
+        {
+          "id": "gtp_pump",
+          "label": "GTP",
+          "x": 330,
+          "y": 208,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 18,
+          "h": 28,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_gtp_pump",
+          "note": ""
+        },
+        {
+          "id": "pbs_in",
+          "label": "PBS",
+          "x": 250,
+          "y": 256,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 26,
+          "h": 26,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_pbs_in",
+          "note": "Combines pump and seed at the crossing angle."
+        },
+        {
+          "id": "cell",
+          "label": "Rb cell",
+          "x": 372,
+          "y": 256,
+          "kind": "cell",
+          "shape": "rect",
+          "w": 76,
+          "h": 32,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "cell_temp_c",
+            "opd_ghz"
+          ],
+          "transmission_key": "t_cell",
+          "note": "Where the four-wave mixing happens. 12.5 mm."
+        },
+        {
+          "id": "pbs_out",
+          "label": "PBS",
+          "x": 496,
+          "y": 256,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 26,
+          "h": 26,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_pbs_out",
+          "note": "Polarization rejection of the pump, 3000:1."
+        },
+        {
+          "id": "dump",
+          "label": "Beam block",
+          "x": 496,
+          "y": 322,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 54,
+          "h": 22,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": false,
+          "params": [],
+          "transmission_key": "",
+          "note": ""
+        },
+        {
+          "id": "dm_probe",
+          "label": "D-mirror",
+          "x": 700,
+          "y": 214,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 24,
+          "h": 8,
+          "angle": 45,
+          "modelled": true,
+          "lumped": true,
+          "params": [
+            "dmirror_separation_mm"
+          ],
+          "transmission_key": "t_dm_probe",
+          "note": "Alignment is done by overlapping at the cell and separating by a stated number of mm here, so this is the crossing angle."
+        },
+        {
+          "id": "dm_conj",
+          "label": "D-mirror",
+          "x": 700,
+          "y": 300,
+          "kind": "optic",
+          "shape": "rect",
+          "w": 24,
+          "h": 8,
+          "angle": -45,
+          "modelled": true,
+          "lumped": true,
+          "params": [
+            "dmirror_separation_mm"
+          ],
+          "transmission_key": "t_dm_conj",
+          "note": ""
+        },
+        {
+          "id": "iris_probe",
+          "label": "Iris",
+          "x": 790,
+          "y": 214,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_iris_probe",
+          "note": "Opened past the twin beam. Pump rejection is not derived from it -- see the detector's observed pump leakage."
+        },
+        {
+          "id": "iris_conj",
+          "label": "Iris",
+          "x": 790,
+          "y": 300,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 16,
+          "h": 16,
+          "angle": 0.0,
+          "modelled": false,
+          "lumped": true,
+          "params": [],
+          "transmission_key": "t_iris_conj",
+          "note": "Opened past the twin beam. Pump rejection is not derived from it -- see the detector's observed pump leakage."
+        },
+        {
+          "id": "lens_probe",
+          "label": "f=75",
+          "x": 862,
+          "y": 214,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 14,
+          "h": 14,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "probe_lens_focal_mm"
+          ],
+          "transmission_key": "t_lens_probe",
+          "note": ""
+        },
+        {
+          "id": "lens_conj",
+          "label": "f=100",
+          "x": 862,
+          "y": 300,
+          "kind": "optic",
+          "shape": "circle",
+          "w": 14,
+          "h": 14,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "conjugate_lens_focal_mm"
+          ],
+          "transmission_key": "t_lens_conj",
+          "note": ""
+        },
+        {
+          "id": "bpd",
+          "label": "Balanced detector",
+          "x": 920,
+          "y": 257,
+          "kind": "detector",
+          "shape": "rect",
+          "w": 54,
+          "h": 76,
+          "angle": 0.0,
+          "modelled": true,
+          "lumped": false,
+          "params": [
+            "pd_defocus_mm",
+            "pump_leakage_dbm"
+          ],
+          "transmission_key": "t_bpd",
+          "note": "PDB450A with Hamamatsu S3883 photodiodes fitted."
+        }
+      ],
+      "links": [
+        {
+          "a": "col_seed",
+          "b": "qwp_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "delivery fiber + collimator",
+          "note": ""
+        },
+        {
+          "a": "qwp_seed",
+          "b": "hwp_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "delivery fiber + collimator",
+          "note": ""
+        },
+        {
+          "a": "hwp_seed",
+          "b": "seed_l1",
+          "beam": "seed",
+          "path_m": 0.4,
+          "provenance": "design",
+          "via": [],
+          "carries": "collimator",
+          "note": "Waist sits at L1's front focal plane in the afocal arrangement."
+        },
+        {
+          "a": "seed_l1",
+          "b": "seed_l2",
+          "beam": "seed",
+          "path_m": 0.55,
+          "provenance": "design",
+          "via": [],
+          "carries": "telescope L1",
+          "note": "f1 + f2 = 400 + 150 mm, by definition of an afocal telescope."
+        },
+        {
+          "a": "seed_l2",
+          "b": "m_seed_a",
+          "beam": "seed",
+          "path_m": 0.15,
+          "provenance": "design",
+          "via": [],
+          "carries": "trim + telescope",
+          "note": ""
+        },
+        {
+          "a": "m_seed_a",
+          "b": "gtp_seed",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "gtp_seed",
+          "b": "pbs_in",
+          "beam": "seed",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "col_pump",
+          "b": "qwp_pump",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "delivery fiber",
+          "note": ""
+        },
+        {
+          "a": "qwp_pump",
+          "b": "hwp_pump",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "delivery fiber",
+          "note": ""
+        },
+        {
+          "a": "hwp_pump",
+          "b": "pump_l1",
+          "beam": "pump",
+          "path_m": 0.3,
+          "provenance": "design",
+          "via": [],
+          "carries": "collimator",
+          "note": ""
+        },
+        {
+          "a": "pump_l1",
+          "b": "pump_l2",
+          "beam": "pump",
+          "path_m": 0.45,
+          "provenance": "design",
+          "via": [],
+          "carries": "telescope L1",
+          "note": "f1 + f2 = 300 + 150 mm."
+        },
+        {
+          "a": "pump_l2",
+          "b": "m_pump_a",
+          "beam": "pump",
+          "path_m": 0.15,
+          "provenance": "design",
+          "via": [],
+          "carries": "collimator + telescope",
+          "note": ""
+        },
+        {
+          "a": "m_pump_a",
+          "b": "gtp_pump",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "gtp_pump",
+          "b": "pbs_in",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "pbs_in",
+          "b": "cell",
+          "beam": "pump",
+          "path_m": 0.05,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "cell",
+          "b": "pbs_out",
+          "beam": "pump",
+          "path_m": 0.1,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "pbs_out",
+          "b": "dump",
+          "beam": "pump",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "at cell",
+          "note": ""
+        },
+        {
+          "a": "pbs_out",
+          "b": "dm_probe",
+          "beam": "probe",
+          "path_m": 0.4842000000000001,
+          "provenance": "measured",
+          "via": [],
+          "carries": "probe",
+          "note": "Cell to the D-shaped mirrors is 23 inch; this is the part after the rejection PBS."
+        },
+        {
+          "a": "pbs_out",
+          "b": "dm_conj",
+          "beam": "conjugate",
+          "path_m": 0.4842000000000001,
+          "provenance": "measured",
+          "via": [],
+          "carries": "conjugate",
+          "note": ""
+        },
+        {
+          "a": "dm_probe",
+          "b": "iris_probe",
+          "beam": "probe",
+          "path_m": 0.1,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "probe",
+          "note": ""
+        },
+        {
+          "a": "dm_conj",
+          "b": "iris_conj",
+          "beam": "conjugate",
+          "path_m": 0.1,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "conjugate",
+          "note": ""
+        },
+        {
+          "a": "iris_probe",
+          "b": "lens_probe",
+          "beam": "probe",
+          "path_m": 0.2158,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "probe",
+          "note": ""
+        },
+        {
+          "a": "iris_conj",
+          "b": "lens_conj",
+          "beam": "conjugate",
+          "path_m": 0.2158,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "conjugate",
+          "note": ""
+        },
+        {
+          "a": "lens_probe",
+          "b": "bpd",
+          "beam": "probe",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "probe",
+          "note": ""
+        },
+        {
+          "a": "lens_conj",
+          "b": "bpd",
+          "beam": "conjugate",
+          "path_m": null,
+          "provenance": "nominal",
+          "via": [],
+          "carries": "conjugate",
+          "note": ""
+        }
+      ]
+    }
+  ],
+  "routes": {
+    "ROUTE_TO_DMIRROR": [
+      "cell",
+      "pbs_out",
+      "dm_probe"
+    ],
+    "ROUTE_TO_LENS": [
+      "cell",
+      "pbs_out",
+      "dm_probe",
+      "iris_probe",
+      "lens_probe"
+    ],
+    "ROUTE_TA_TO_SPLIT": [
+      "m_mopa_out",
+      "oi_mopa",
+      "hwp_split",
+      "m_split_1",
+      "m_split_2"
+    ],
+    "ROUTE_PUMP_TO_FIBER": [
+      "pbs_split",
+      "f230_pump"
+    ],
+    "ROUTE_PUMP_DELIVERY": [
+      "col_pump",
+      "qwp_pump",
+      "hwp_pump",
+      "pump_l1",
+      "pump_l2",
+      "m_pump_a",
+      "gtp_pump",
+      "pbs_in",
+      "cell"
+    ],
+    "ROUTE_SEED_TO_EOM": [
+      "pbs_split",
+      "pol_seed",
+      "noise_eater",
+      "m_seed_1",
+      "hwp_eom",
+      "f220_eom_in"
+    ],
+    "ROUTE_SEED_FILTERS": [
+      "f220_eom_out",
+      "m_et_1",
+      "hwp_etalon",
+      "m_et_2",
+      "gt_seed",
+      "m_seed_out",
+      "m_seed_down",
+      "f220_seed"
+    ],
+    "ROUTE_SEED_DELIVERY": [
+      "col_seed",
+      "qwp_seed",
+      "hwp_seed",
+      "seed_l1",
+      "seed_l2",
+      "m_seed_a",
+      "gtp_seed",
+      "pbs_in",
+      "cell"
+    ],
+    "ROUTE_POST_CELL_PROBE": [
+      "pbs_out",
+      "dm_probe",
+      "iris_probe",
+      "lens_probe",
+      "bpd"
+    ],
+    "ROUTE_POST_CELL_CONJUGATE": [
+      "pbs_out",
+      "dm_conj",
+      "iris_conj",
+      "lens_conj",
+      "bpd"
+    ],
+    "ROUTE_POST_CELL": [
+      "pbs_out",
+      "dm_probe",
+      "iris_probe",
+      "lens_probe",
+      "bpd"
+    ]
+  }
+}

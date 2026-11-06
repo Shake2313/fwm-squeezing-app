@@ -1,0 +1,15 @@
+{
+  "command": "python -m pytest -q --ignore=output",
+  "started_at_utc": "2026-10-22T11:22:32.876226+00:00",
+  "finished_at_utc": "2026-10-22T11:41:10.439761+00:00",
+  "elapsed_seconds": 1117.56,
+  "exit_code": 0,
+  "source_count": 243,
+  "changed_sources": [
+    "gabes/schemes/fwm.py",
+    "gabes_ui/controls.py",
+    "streamlit_app.py",
+    "tests/test_fwm_measured_gain_integration.py"
+  ],
+  "scope": "Repository tests; generated output/release test copies excluded"
+}

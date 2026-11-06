@@ -124,3 +124,14 @@ SAS ready = 첫 페이지 로드 포함 (다른 scheme은 전환 후).
 ## 추가 후보
 - [x] FWM plot의 δ 마커 직접 드래그 — 2026-10-21 사용자 요청, D11 반영.
 - [x] scheme deep link (`?scheme=`) — 2026-10-21 웹 디자인 피드백 패치 요청으로 반영.
+## SABES · 광학 테이블 마감 — 2026-10-22
+
+직접 사용자 요청: [SABES 디자인 규칙](../SABES/design_rules.md)을 실제 화면에 적용.
+
+### ⟦AI⟧ 실행·검수
+
+- [x] Part1/Part2 label anchor·여백·viewBox 정리, 실제 SVG bounds와 화면 검수.
+- [x] 공통 토큰·Plex·기능별 glyph 적용, 광로와 검출기 두 입력 정렬.
+- [x] Fit·확대·이동·키보드/터치·Part 재진입 동작 확인.
+- [x] 물리 계약·파워·거리·검출 geometry 보존 확인.
+- [x] 전체 pytest·최종 미러 기호 검수 결과 기록. 전체2627 통과·3 skip, 마지막 표시 회전 후 SABES·문서250 통과. [audit](audit/sabes_table_20261022/summary.md).

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-21",
+  "origin": "code_snapshot",
+  "adoption_status": "existing_implementation_only",
+  "coefficients": 85,
+  "coefficient_provenance": {
+    "datasheet": 7,
+    "paper": 8,
+    "fitted": 13,
+    "lab": 10,
+    "nominal": 47
+  },
+  "nodes": 63,
+  "links": 61,
+  "layouts": [
+    {
+      "key": "part1",
+      "nodes": 38,
+      "links": 36,
+      "links_with_path_m": 0
+    },
+    {
+      "key": "part2",
+      "nodes": 25,
+      "links": 25,
+      "links_with_path_m": 14
+    }
+  ],
+  "source_sha256": {
+    "sabes/layout/parts.py": "72a3e05742895b4ce8c1e8a9a1d8aba3200572e8f381b6c80644bc9fbaa3737d",
+    "sabes/layout/table.py": "3d9e85daf7899106a70d8e01b319401f43274d847e4ca50eaf0b7d938210a362",
+    "sabes/beamline.py": "01f4d77958c570ba97353e1f9fe7a735d4d069f14673408864619137ad57a924",
+    "sabes/calibration.py": "3d9574a57b6db4f484b672fbbee7804c9990b3eb9d124bb3fae212e87e744bf1",
+    "sabes/calibration_sim2025.json": "b71267e1763c8fb58561163670fa3c8f2af7168b587772662189787e94045c90",
+    "sabes/detection.py": "350dc798241ffe2f0b8e5340c7aed52962b381c62941612d592146fa3f7c738a"
+  }
+}

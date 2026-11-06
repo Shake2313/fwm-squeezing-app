@@ -143,6 +143,11 @@ def test_canvas_events_round_trip_through_the_real_table_state(monkeypatch):
     assert state[sabes_page._key("open_optic")] == "cell"
     assert sabes_page._handle_canvas_event(optic, "part2") is False
 
+    # A remounted iframe's first click is new even when its counter restarts.
+    remounted = dict(optic, instance="remounted-frame")
+    assert sabes_page._handle_canvas_event(remounted, "part2") is True
+    assert sabes_page._handle_canvas_event(remounted, "part2") is False
+
     point = {"seq": 2, "kind": sabes_page.canvas_module.KIND_POINT,
              "x": 12.5, "y": 34.0}
     assert sabes_page._handle_canvas_event(point, "part2") is True

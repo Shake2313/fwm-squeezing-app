@@ -61,7 +61,7 @@
 
 ## ⟦AI⟧ 테이블 전체 마감 검수 기준
 
-브라우저 실제 screenshot과 label bounds 확인 후 체크. 정적 문자열·SVG 생성 검사만으로 시각 검수 완료 처리하지 않음. 이번 표기 수정 검증은 [UI 개발 로그](../ui_redesign/log.md) 참조. 아래 항목 전체의 완료 선언과 구분.
+브라우저 실제 screenshot과 label bounds 확인 후 체크. 정적 문자열·SVG 생성 검사만으로 시각 검수 완료 처리하지 않음. 2026-10-22 실제 마감 결과는 [테이블 audit](../ui_redesign/audit/sabes_table_20261022/summary.md) 참조.
 
 | 확인 화면 | 필수 상태 |
 |---|---|
@@ -69,12 +69,12 @@
 | 모바일390×844 | Part1/Part2, fit과 확대/이동, 소자 선택·상세 접근 |
 | 브라우저 zoom100%·200% | 범례·도구·본문 줄바꿈, label clipping, focus와 선택 표시 |
 
-- [ ] 위 화면 screenshot 저장·직접 확인. 결과 경로·viewport·zoom·표시 상태 기록.
-- [ ] 라벨 bounds가 viewBox·카드 경계 안에 존재. 라벨끼리·소자와·광선과 겹침 검토.
-- [ ] PBS·waveplate·mirror·lens·cell·detector glyph 일관성, 기존 beam 색·점선 유지.
+- [x] 위 화면 screenshot 저장·직접 확인. 결과 경로·viewport·zoom·표시 상태 기록. 브라우저200% 레이아웃은 CSS viewport720×450/DPR2 등가 검증.
+- [x] 라벨 bounds가 viewBox·카드 경계 안에 존재. 라벨끼리·소자와·광선과 겹침 검토. 두 Part 각27개, 충돌0건.
+- [x] PBS·waveplate·mirror·lens·cell·detector glyph 일관성, 기존 beam 색·점선 유지.
 - [x] `*` 뜻은 범례에 한 번. `(lumped)` 반복·선 굵기 설명 없음. 미확인 정보를 사실로 표시하지 않음. 2026-10-22 표기 검증.
-- [ ] 선택·hover·keyboard focus·touch 클릭과 확대 후 좌표 일치. popup 입력·닫기 정상.
-- [ ] console 글꼴·색·간격·컴포넌트와 시각적 연속성 확인. 보조 장식으로 정보량 증가하지 않음.
-- [ ] 표현 변경 전후 optical path·power·geometry 입력 동일. 관련 테스트와 저장소 전체 `python -m pytest -q` 결과 기록.
+- [x] 선택·hover·keyboard focus·touch 클릭과 확대 후 좌표 일치. popup 입력·닫기 정상.
+- [x] console 글꼴·색·간격·컴포넌트와 시각적 연속성 확인. 보조 장식으로 정보량 증가하지 않음.
+- [x] 표현 변경 전후 optical path·power·geometry 입력 동일. 전체2627 통과·3 skip(`--ignore=output`), 최종 표시 회전 후 SABES·문서250 통과. 세부 범위는 audit 참조.
 
-기존 [UI audit 절차](../ui_redesign/README.md) 재사용. 이 파일은 검증 기준이며 screenshot QA 수행 기록 아님.
+기존 [UI audit 절차](../ui_redesign/README.md) 재사용. 이 파일은 검증 기준·현재 체크 상태이며 상세 screenshot QA 기록은 위 audit에 보존.

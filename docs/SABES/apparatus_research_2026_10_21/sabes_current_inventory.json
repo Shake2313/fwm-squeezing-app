@@ -1,0 +1,5044 @@
+{
+  "schema_version": "sabes_apparatus_inventory_v1",
+  "research_date_local": "2026-10-21",
+  "timezone": "Asia/Seoul",
+  "author": "AI",
+  "provenance_marker": "⟦AI⟧",
+  "status": "research_inventory_no_implementation_changes",
+  "scope": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver",
+  "meaning": "Inventory of current code definitions and their stated provenance; no assertion of current physical equipment positions or measurements.",
+  "counts": {
+    "nodes": 63,
+    "links": 61,
+    "calibration_coefficients": 85,
+    "coefficient_raw_provenance_counts": {
+      "datasheet": 7,
+      "paper": 8,
+      "fitted": 13,
+      "lab": 10,
+      "nominal": 47
+    }
+  },
+  "source_files": [
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+      "bytes": 24120,
+      "sha256": "72a3e05742895b4ce8c1e8a9a1d8aba3200572e8f381b6c80644bc9fbaa3737d"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\table.py",
+      "bytes": 9707,
+      "sha256": "3d9e85daf7899106a70d8e01b319401f43274d847e4ca50eaf0b7d938210a362"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\beamline.py",
+      "bytes": 22026,
+      "sha256": "01f4d77958c570ba97353e1f9fe7a735d4d069f14673408864619137ad57a924"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\detection.py",
+      "bytes": 14244,
+      "sha256": "350dc798241ffe2f0b8e5340c7aed52962b381c62941612d592146fa3f7c738a"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration.py",
+      "bytes": 6153,
+      "sha256": "3d9574a57b6db4f484b672fbbee7804c9990b3eb9d124bb3fae212e87e744bf1"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+      "bytes": 19994,
+      "sha256": "b71267e1763c8fb58561163670fa3c8f2af7168b587772662189787e94045c90"
+    },
+    {
+      "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\instruments\\electrical.py",
+      "bytes": 14051,
+      "sha256": "ffee8d7c2c15d275ff8e71c20cb3f657ab3e50ad28b9251dd0fd528b398d6f0b"
+    }
+  ],
+  "layouts": [
+    {
+      "key": "part1",
+      "title": "Part 1 — source, amplifier, seed modulation and filtering",
+      "width": 960,
+      "height": 520,
+      "display_units": "arbitrary",
+      "nodes": [
+        {
+          "raw": {
+            "id": "ecdl",
+            "label": "795 nm ECDL",
+            "x": 880,
+            "y": 60,
+            "kind": "source",
+            "shape": "rect",
+            "w": 86,
+            "h": 52,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "ecdl_power_mw"
+            ],
+            "transmission_key": "",
+            "note": "Detuning is set by locking to the reference arm, not by predicting frequency from temperature / current / PZT."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 58
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "oi_ecdl",
+            "label": "OI",
+            "x": 880,
+            "y": 140,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 22,
+            "h": 22,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": "Optical isolator. Loss only; not modelled."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 62
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_lock",
+            "label": "HWP",
+            "x": 880,
+            "y": 186,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 65
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pbs_lock",
+            "label": "PBS",
+            "x": 806,
+            "y": 214,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 26,
+            "h": 26,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 67
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "lens_lock",
+            "label": "f=300",
+            "x": 806,
+            "y": 168,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 14,
+            "h": 14,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 69
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "rb_ref",
+            "label": "Rb natural",
+            "x": 560,
+            "y": 56,
+            "kind": "cell",
+            "shape": "rect",
+            "w": 74,
+            "h": 26,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": "Saturated-absorption reference. The oscilloscope demo lives here: this trace is what the detuning is actually set by."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 71
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pbs_ref",
+            "label": "PBS",
+            "x": 450,
+            "y": 56,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 22,
+            "h": 22,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 75
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pd_ref",
+            "label": "PD",
+            "x": 356,
+            "y": 56,
+            "kind": "detector",
+            "shape": "rect",
+            "w": 24,
+            "h": 34,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 77
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_lock",
+            "label": "",
+            "x": 806,
+            "y": 56,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": -45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 79
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_ecdl_1",
+            "label": "",
+            "x": 806,
+            "y": 260,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 83
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_mopa",
+            "label": "HWP",
+            "x": 742,
+            "y": 260,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "hwp_ta_deg"
+            ],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 85
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_ecdl_2",
+            "label": "",
+            "x": 690,
+            "y": 292,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": -45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 87
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "cl",
+            "label": "CL",
+            "x": 500,
+            "y": 330,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 12,
+            "h": 18,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "",
+            "note": "Cylindrical lens shaping the amplifier input. It is what sets the amplifier's output beam quality, i.e. ta_m2_out."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 89
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "mopa",
+            "label": "MOPA",
+            "x": 620,
+            "y": 340,
+            "kind": "source",
+            "shape": "rect",
+            "w": 110,
+            "h": 54,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "ta_current_a"
+            ],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 93
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_mopa_out",
+            "label": "",
+            "x": 436,
+            "y": 330,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_mopa_out",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 95
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "oi_mopa",
+            "label": "OI",
+            "x": 350,
+            "y": 480,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 22,
+            "h": 22,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_oi_mopa",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 97
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_split",
+            "label": "HWP",
+            "x": 292,
+            "y": 480,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "hwp_split_deg"
+            ],
+            "transmission_key": "t_hwp_split",
+            "note": "The pump-power knob: it sets how the amplifier output divides."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 99
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_split_1",
+            "label": "",
+            "x": 236,
+            "y": 480,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": -45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_split_1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 103
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_split_2",
+            "label": "",
+            "x": 236,
+            "y": 424,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_split_2",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 105
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pbs_split",
+            "label": "PBS",
+            "x": 176,
+            "y": 424,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 26,
+            "h": 26,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_pbs_split",
+            "note": "Pump transmits, seed reflects."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 107
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "f230_pump",
+            "label": "F230",
+            "x": 86,
+            "y": 424,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 30,
+            "h": 40,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_f230_pump",
+            "note": "Pump delivery collimator; continues in part 2."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 112
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pol_seed",
+            "label": "Polarizer",
+            "x": 176,
+            "y": 350,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 26,
+            "h": 8,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_polarizer_deg"
+            ],
+            "transmission_key": "t_pol_seed",
+            "note": "Holds the fiber EOM under its ~10 mW rating. The split alone cannot satisfy both that and the pump power."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 117
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "noise_eater",
+            "label": "Noise eater",
+            "x": 250,
+            "y": 306,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 62,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_noise_eater",
+            "note": "Intensity-noise servo. Not modelled, but it acts on exactly the noise a squeezing measurement cares about."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 122
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_seed_1",
+            "label": "",
+            "x": 176,
+            "y": 258,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_seed_1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 126
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_eom",
+            "label": "HWP",
+            "x": 240,
+            "y": 258,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "hwp_eom_deg"
+            ],
+            "transmission_key": "t_hwp_eom",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 128
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "f220_eom_in",
+            "label": "F220",
+            "x": 306,
+            "y": 258,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 26,
+            "h": 34,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_f220_eom_in",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 131
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "eom",
+            "label": "fiber EOM",
+            "x": 306,
+            "y": 190,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 92,
+            "h": 22,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "eom_offset_mhz",
+              "eom_rf_dbm",
+              "eom_unwanted_rin_db_per_hz"
+            ],
+            "transmission_key": "",
+            "note": "EOSPACE LiNbO3 phase modulator. The RF offset from the ground-state splitting sets the two-photon detuning. Unwanted-mode RIN is a detector-level input."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 134
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "f220_eom_out",
+            "label": "F220",
+            "x": 400,
+            "y": 190,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 26,
+            "h": 34,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_f220_eom_out",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 140
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "etalon_1",
+            "label": "Etalon 1",
+            "x": 470,
+            "y": 190,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 48,
+            "h": 30,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "etalon_detune_ghz_1"
+            ],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 143
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_et_1",
+            "label": "",
+            "x": 560,
+            "y": 190,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_et_1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 145
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_etalon",
+            "label": "HWP",
+            "x": 560,
+            "y": 244,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_hwp_etalon",
+            "note": "Between etalon 1 and etalon 2 in the drawing."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 147
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_et_2",
+            "label": "",
+            "x": 560,
+            "y": 292,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": -45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_et_2",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 150
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "etalon_2",
+            "label": "Etalon 2",
+            "x": 484,
+            "y": 292,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 48,
+            "h": 30,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "etalon_detune_ghz_2"
+            ],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 152
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "etalon_3",
+            "label": "Etalon 3",
+            "x": 402,
+            "y": 292,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 48,
+            "h": 30,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "etalon_detune_ghz_3"
+            ],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 154
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "gt_seed",
+            "label": "GT",
+            "x": 330,
+            "y": 292,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 18,
+            "h": 28,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_gtp_deg"
+            ],
+            "transmission_key": "t_gt_seed",
+            "note": "Glan-Taylor after the filter chain. Part 2 has further GTPs on each arm; the model previously had only one."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 156
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_seed_out",
+            "label": "",
+            "x": 262,
+            "y": 292,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_seed_out",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 161
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_seed_down",
+            "label": "",
+            "x": 262,
+            "y": 396,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": -45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_seed_down",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 163
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "f220_seed",
+            "label": "F220",
+            "x": 86,
+            "y": 350,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 30,
+            "h": 40,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_f220_seed",
+            "note": "Seed delivery collimator; continues in part 2."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 165
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        }
+      ],
+      "links": [
+        {
+          "raw": {
+            "a": "ecdl",
+            "b": "oi_ecdl",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "ECDL output",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 171
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "oi_ecdl",
+            "b": "hwp_lock",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "ECDL output",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 172
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_lock",
+            "b": "pbs_lock",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "ECDL output",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 173
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_lock",
+            "b": "lens_lock",
+            "beam": "reference",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 175
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "lens_lock",
+            "b": "m_lock",
+            "beam": "reference",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 176
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_lock",
+            "b": "rb_ref",
+            "beam": "reference",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 177
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "rb_ref",
+            "b": "pbs_ref",
+            "beam": "reference",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 178
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_ref",
+            "b": "pd_ref",
+            "beam": "reference",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 179
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_lock",
+            "b": "m_ecdl_1",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "ECDL output",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 181
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_ecdl_1",
+            "b": "hwp_mopa",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "to amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 182
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_mopa",
+            "b": "m_ecdl_2",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "to amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 183
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_ecdl_2",
+            "b": "mopa",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [
+              [
+                690,
+                340
+              ]
+            ],
+            "carries": "to amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 184
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "cl",
+            "b": "mopa",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "to amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 186
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "mopa",
+            "b": "m_mopa_out",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 188
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_mopa_out",
+            "b": "oi_mopa",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [
+              [
+                436,
+                480
+              ]
+            ],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 189
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "oi_mopa",
+            "b": "hwp_split",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 191
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_split",
+            "b": "m_split_1",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 192
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_split_1",
+            "b": "m_split_2",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 193
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_split_2",
+            "b": "pbs_split",
+            "beam": "common",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "tapered amplifier",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 194
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_split",
+            "b": "f230_pump",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "PBS transmitted",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 196
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_split",
+            "b": "pol_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "PBS reflected",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 198
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pol_seed",
+            "b": "m_seed_1",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "input polarizer",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 199
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_seed_1",
+            "b": "hwp_eom",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "input polarizer",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 200
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_eom",
+            "b": "f220_eom_in",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "input polarizer",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 201
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "f220_eom_in",
+            "b": "eom",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "into fiber EOM",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 202
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "eom",
+            "b": "f220_eom_out",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "EOM sidebands",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 203
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "f220_eom_out",
+            "b": "etalon_1",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "EOM sidebands",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 204
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "etalon_1",
+            "b": "m_et_1",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 205
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_et_1",
+            "b": "hwp_etalon",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 206
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_etalon",
+            "b": "m_et_2",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 207
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_et_2",
+            "b": "etalon_2",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 208
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "etalon_2",
+            "b": "etalon_3",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 2",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 209
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "etalon_3",
+            "b": "gt_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 3",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 210
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "gt_seed",
+            "b": "m_seed_out",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 3",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 211
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_seed_out",
+            "b": "m_seed_down",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "etalon 3",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 212
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_seed_down",
+            "b": "f220_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [
+              [
+                160,
+                396
+              ]
+            ],
+            "carries": "etalon 3",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 213
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        }
+      ]
+    },
+    {
+      "key": "part2",
+      "title": "Part 2 — delivery, the vapour cell, and detection",
+      "width": 960,
+      "height": 400,
+      "display_units": "arbitrary",
+      "nodes": [
+        {
+          "raw": {
+            "id": "col_seed",
+            "label": "5724 · 1.6 mm",
+            "x": 890,
+            "y": 60,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 34,
+            "h": 42,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_col_seed",
+            "note": "Seed collimator. Its diameter times the telescope magnification is the cell waist."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 232
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "qwp_seed",
+            "label": "QWP",
+            "x": 836,
+            "y": 60,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_trim_qwp_deg"
+            ],
+            "transmission_key": "t_qwp_seed",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 236
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_seed",
+            "label": "HWP",
+            "x": 812,
+            "y": 60,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_trim_hwp_deg"
+            ],
+            "transmission_key": "t_hwp_seed",
+            "note": "With the Glan-Taylor, sets the seed power at the cell."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 239
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "seed_l1",
+            "label": "f=400",
+            "x": 720,
+            "y": 60,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_telescope_f1_mm"
+            ],
+            "transmission_key": "t_seed_l1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 243
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "seed_l2",
+            "label": "f=150",
+            "x": 330,
+            "y": 60,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "seed_telescope_f2_mm"
+            ],
+            "transmission_key": "t_seed_l2",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 246
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_seed_a",
+            "label": "",
+            "x": 250,
+            "y": 60,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_seed_a",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 249
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "gtp_seed",
+            "label": "GTP",
+            "x": 250,
+            "y": 132,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 18,
+            "h": 28,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_gtp_seed",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 251
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "col_pump",
+            "label": "5725 · 2.0 mm",
+            "x": 890,
+            "y": 152,
+            "kind": "fiber",
+            "shape": "rect",
+            "w": 34,
+            "h": 42,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_col_pump",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 255
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "qwp_pump",
+            "label": "QWP",
+            "x": 836,
+            "y": 152,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_qwp_pump",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 258
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "hwp_pump",
+            "label": "HWP",
+            "x": 812,
+            "y": 152,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 8,
+            "h": 24,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_hwp_pump",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 260
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pump_l1",
+            "label": "f=300",
+            "x": 720,
+            "y": 152,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "pump_telescope_f1_mm"
+            ],
+            "transmission_key": "t_pump_l1",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 262
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pump_l2",
+            "label": "f=150",
+            "x": 400,
+            "y": 152,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "pump_telescope_f2_mm"
+            ],
+            "transmission_key": "t_pump_l2",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 265
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "m_pump_a",
+            "label": "",
+            "x": 330,
+            "y": 152,
+            "kind": "mirror",
+            "shape": "rect",
+            "w": 22,
+            "h": 6,
+            "angle": 45,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_m_pump_a",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 268
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "gtp_pump",
+            "label": "GTP",
+            "x": 330,
+            "y": 208,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 18,
+            "h": 28,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_gtp_pump",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 270
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pbs_in",
+            "label": "PBS",
+            "x": 250,
+            "y": 256,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 26,
+            "h": 26,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_pbs_in",
+            "note": "Combines pump and seed at the crossing angle."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 274
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "cell",
+            "label": "Rb cell",
+            "x": 372,
+            "y": 256,
+            "kind": "cell",
+            "shape": "rect",
+            "w": 76,
+            "h": 32,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "cell_temp_c",
+              "opd_ghz"
+            ],
+            "transmission_key": "t_cell",
+            "note": "Where the four-wave mixing happens. 12.5 mm."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 277
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "pbs_out",
+            "label": "PBS",
+            "x": 496,
+            "y": 256,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 26,
+            "h": 26,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_pbs_out",
+            "note": "Polarization rejection of the pump, 3000:1."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 281
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "dump",
+            "label": "Beam block",
+            "x": 496,
+            "y": 322,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 54,
+            "h": 22,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": false,
+            "params": [],
+            "transmission_key": "",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 284
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "dm_probe",
+            "label": "D-mirror",
+            "x": 700,
+            "y": 214,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 24,
+            "h": 8,
+            "angle": 45,
+            "modelled": true,
+            "lumped": true,
+            "params": [
+              "dmirror_separation_mm"
+            ],
+            "transmission_key": "t_dm_probe",
+            "note": "Alignment is done by overlapping at the cell and separating by a stated number of mm here, so this is the crossing angle."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 287
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "dm_conj",
+            "label": "D-mirror",
+            "x": 700,
+            "y": 300,
+            "kind": "optic",
+            "shape": "rect",
+            "w": 24,
+            "h": 8,
+            "angle": -45,
+            "modelled": true,
+            "lumped": true,
+            "params": [
+              "dmirror_separation_mm"
+            ],
+            "transmission_key": "t_dm_conj",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 292
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "iris_probe",
+            "label": "Iris",
+            "x": 790,
+            "y": 214,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_iris_probe",
+            "note": "Opened past the twin beam. Pump rejection is not derived from it -- see the detector's observed pump leakage."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 295
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "iris_conj",
+            "label": "Iris",
+            "x": 790,
+            "y": 300,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 16,
+            "h": 16,
+            "angle": 0.0,
+            "modelled": false,
+            "lumped": true,
+            "params": [],
+            "transmission_key": "t_iris_conj",
+            "note": "Opened past the twin beam. Pump rejection is not derived from it -- see the detector's observed pump leakage."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 300
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "lens_probe",
+            "label": "f=75",
+            "x": 862,
+            "y": 214,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 14,
+            "h": 14,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "probe_lens_focal_mm"
+            ],
+            "transmission_key": "t_lens_probe",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 305
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "lens_conj",
+            "label": "f=100",
+            "x": 862,
+            "y": 300,
+            "kind": "optic",
+            "shape": "circle",
+            "w": 14,
+            "h": 14,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "conjugate_lens_focal_mm"
+            ],
+            "transmission_key": "t_lens_conj",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 308
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        },
+        {
+          "raw": {
+            "id": "bpd",
+            "label": "Balanced detector",
+            "x": 920,
+            "y": 257,
+            "kind": "detector",
+            "shape": "rect",
+            "w": 54,
+            "h": 76,
+            "angle": 0.0,
+            "modelled": true,
+            "lumped": false,
+            "params": [
+              "pd_defocus_mm",
+              "pump_leakage_dbm"
+            ],
+            "transmission_key": "t_bpd",
+            "note": "PDB450A with Hamamatsu S3883 photodiodes fitted."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 311
+          },
+          "evidence_status": "schematic_current_code_definition",
+          "position_units": "arbitrary_display_units",
+          "measured_physical_position": false,
+          "adoption_status": "existing_implementation",
+          "ai_assessment": {
+            "marker": "⟦AI⟧",
+            "note": "x/y/angle are schematic display coordinates. modelled/lumped indicate implementation behavior, not experimental verification."
+          }
+        }
+      ],
+      "links": [
+        {
+          "raw": {
+            "a": "col_seed",
+            "b": "qwp_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "delivery fiber + collimator",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 319
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "qwp_seed",
+            "b": "hwp_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "delivery fiber + collimator",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 320
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_seed",
+            "b": "seed_l1",
+            "beam": "seed",
+            "path_m": 0.4,
+            "provenance": "design",
+            "via": [],
+            "carries": "collimator",
+            "note": "Waist sits at L1's front focal plane in the afocal arrangement."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 321
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "seed_l1",
+            "b": "seed_l2",
+            "beam": "seed",
+            "path_m": 0.55,
+            "provenance": "design",
+            "via": [],
+            "carries": "telescope L1",
+            "note": "f1 + f2 = 400 + 150 mm, by definition of an afocal telescope."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 324
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "seed_l2",
+            "b": "m_seed_a",
+            "beam": "seed",
+            "path_m": 0.15,
+            "provenance": "design",
+            "via": [],
+            "carries": "trim + telescope",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 327
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_seed_a",
+            "b": "gtp_seed",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 329
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "gtp_seed",
+            "b": "pbs_in",
+            "beam": "seed",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 330
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "col_pump",
+            "b": "qwp_pump",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "delivery fiber",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 333
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "qwp_pump",
+            "b": "hwp_pump",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "delivery fiber",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 334
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "hwp_pump",
+            "b": "pump_l1",
+            "beam": "pump",
+            "path_m": 0.3,
+            "provenance": "design",
+            "via": [],
+            "carries": "collimator",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 335
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pump_l1",
+            "b": "pump_l2",
+            "beam": "pump",
+            "path_m": 0.45,
+            "provenance": "design",
+            "via": [],
+            "carries": "telescope L1",
+            "note": "f1 + f2 = 300 + 150 mm."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 337
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pump_l2",
+            "b": "m_pump_a",
+            "beam": "pump",
+            "path_m": 0.15,
+            "provenance": "design",
+            "via": [],
+            "carries": "collimator + telescope",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 340
+          },
+          "evidence_status": "ideal_design_assumption",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "m_pump_a",
+            "b": "gtp_pump",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 342
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "gtp_pump",
+            "b": "pbs_in",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 343
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_in",
+            "b": "cell",
+            "beam": "pump",
+            "path_m": 0.05,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 346
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "cell",
+            "b": "pbs_out",
+            "beam": "pump",
+            "path_m": 0.1,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 348
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_out",
+            "b": "dump",
+            "beam": "pump",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "at cell",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 350
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_out",
+            "b": "dm_probe",
+            "beam": "probe",
+            "path_m": 0.4842000000000001,
+            "provenance": "measured",
+            "via": [],
+            "carries": "probe",
+            "note": "Cell to the D-shaped mirrors is 23 inch; this is the part after the rejection PBS."
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 353
+          },
+          "evidence_status": "historical_measurement_label_in_code_original_record_not_located",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "pbs_out",
+            "b": "dm_conj",
+            "beam": "conjugate",
+            "path_m": 0.4842000000000001,
+            "provenance": "measured",
+            "via": [],
+            "carries": "conjugate",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 357
+          },
+          "evidence_status": "historical_measurement_label_in_code_original_record_not_located",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "dm_probe",
+            "b": "iris_probe",
+            "beam": "probe",
+            "path_m": 0.1,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "probe",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 359
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "dm_conj",
+            "b": "iris_conj",
+            "beam": "conjugate",
+            "path_m": 0.1,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "conjugate",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 361
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "iris_probe",
+            "b": "lens_probe",
+            "beam": "probe",
+            "path_m": 0.2158,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "probe",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 363
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "iris_conj",
+            "b": "lens_conj",
+            "beam": "conjugate",
+            "path_m": 0.2158,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "conjugate",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 365
+          },
+          "evidence_status": "nominal_model_default",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "lens_probe",
+            "b": "bpd",
+            "beam": "probe",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "probe",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 367
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        },
+        {
+          "raw": {
+            "a": "lens_conj",
+            "b": "bpd",
+            "beam": "conjugate",
+            "path_m": null,
+            "provenance": "nominal",
+            "via": [],
+            "carries": "conjugate",
+            "note": ""
+          },
+          "source": {
+            "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\layout\\parts.py",
+            "line": 368
+          },
+          "evidence_status": "schematic_no_physical_length",
+          "adoption_status": "existing_implementation",
+          "source_measurement_record": null
+        }
+      ]
+    }
+  ],
+  "calibration_coefficients": [
+    {
+      "name": "bpd_bandwidth_hz",
+      "raw": {
+        "value": 4000000.0,
+        "unit": "Hz",
+        "provenance": "datasheet",
+        "note": "PDB450A RF bandwidth at the 1e5 V/A gain setting (150/45/4/0.3/0.1 MHz for 1e3..1e7 V/A)."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 2
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "bpd_cw_saturation_w",
+      "raw": {
+        "value": 0.009,
+        "unit": "W",
+        "provenance": "datasheet",
+        "note": "PDB450A CW saturation power at 820 nm. Optical damage threshold is 20 mW."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 8
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "bpd_nep_w_per_rthz",
+      "raw": {
+        "value": 3.3e-12,
+        "unit": "W/rtHz",
+        "provenance": "datasheet",
+        "note": "PDB450A minimum NEP, DC to 4 MHz, gain 1e5 V/A. WARNING: specified with the STOCK photodiode. This unit has S3883 diodes fitted, which changes junction capacitance and therefore the amplifier noise gain. Replace with a measured dark trace before trusting any clearance number."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 14
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "bpd_transimpedance_v_per_a",
+      "raw": {
+        "value": 100000.0,
+        "unit": "V/A",
+        "provenance": "paper",
+        "note": "Transimpedance gain stated in Sim et al."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 20
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "cell_length_mm",
+      "raw": {
+        "value": 12.5,
+        "unit": "mm",
+        "provenance": "paper",
+        "note": "Rb vapour cell length."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 26
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "etalon_fsr_hz",
+      "raw": {
+        "value": 17000000000.0,
+        "unit": "Hz",
+        "provenance": "paper",
+        "note": "Free spectral range. Deliberately incommensurate with 3.036 GHz, so no unwanted sideband lands on a transmission peak."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 32
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "etalon_fwhm_hz",
+      "raw": {
+        "value": 950000000.0,
+        "unit": "Hz",
+        "provenance": "paper",
+        "note": "Passband FWHM; with the FSR this gives finesse 17.9."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 38
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "etalon_leak",
+      "raw": {
+        "value": 0.076497,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Stopband floor per stage, solved from the paper's two-etalon carrier:seed ratio of ~0.5 percent. An ideal Airy cascade predicts far deeper suppression, so without this floor the model overestimates seed purity and therefore squeezing. It lumps surface scatter, the finite angular spread of a real beam washing out the resonance, alignment, and the measurement floor. It is fitted to ONE published number, not measured: a real transmission scan should replace it."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 44
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "phenomenological_fit_to_single_published_ratio",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "etalon_peak_transmission",
+      "raw": {
+        "value": 0.8,
+        "unit": "fraction",
+        "provenance": "lab",
+        "note": "Per-stage peak transmission including realistic alignment. The paper quotes 85 percent as the etalon specification."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 50
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "etalon_stages",
+      "raw": {
+        "value": 3.0,
+        "unit": "count",
+        "provenance": "paper",
+        "note": "Three sequential etalons. The paper reports ~0.5 percent carrier:seed with two and much less with three."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 56
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "eom_insertion_loss_db",
+      "raw": {
+        "value": 5.3,
+        "unit": "dB",
+        "provenance": "lab",
+        "note": "Fiber-EOM insertion loss including connectors. Back-solved so that J1(beta)^2 times this loss reproduces the reported ~10 percent minus-first-order efficiency; it is not a separately measured figure."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 62
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "backsolved_historical_input_despite_raw_lab_tag",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "eom_max_input_w",
+      "raw": {
+        "value": 0.01,
+        "unit": "W",
+        "provenance": "lab",
+        "note": "Optical power above which the fiber EOM stops modulating properly. This is the binding constraint on the whole seed path."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 68
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "eom_orthogonal_leakage",
+      "raw": {
+        "value": 0.0,
+        "unit": "fraction",
+        "provenance": "datasheet",
+        "note": "Fraction of polarization-mismatched light that leaves the modulator as unmodulated carrier. Zero for a single-polarization LiNbO3 waveguide: the mismatched component becomes coupling loss instead of carrier contamination."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 74
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "eom_v_pi_v",
+      "raw": {
+        "value": 4.4,
+        "unit": "V",
+        "provenance": "nominal",
+        "note": "RF half-wave voltage at ~3 GHz for an EOSPACE AZ-0S5-10 class modulator. Placeholder: measure the sideband ratio versus RF power to fix it. At 18 dBm this gives beta = 1.79, close to the J1 maximum at 1.841, which is consistent with 18 dBm having been chosen to maximise the seed."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 80
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "loss_ecdl_to_ta",
+      "raw": {
+        "value": 0.95,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Isolator and steering optics between the ECDL and the amplifier. Placeholder."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 86
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pbs_extinction_ratio",
+      "raw": {
+        "value": 3000.0,
+        "unit": "ratio",
+        "provenance": "paper",
+        "note": "Extinction of the PBS used for polarization rejection of the pump after the cell."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 92
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pd_active_diameter_mm",
+      "raw": {
+        "value": 1.5,
+        "unit": "mm",
+        "provenance": "datasheet",
+        "note": "Hamamatsu S3883 photosensitive diameter, 1.7 mm^2. The stock PDB450A diode is 0.8 mm."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 98
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pd_max_power_density_w_per_cm2",
+      "raw": {
+        "value": 4.0,
+        "unit": "W/cm^2",
+        "provenance": "datasheet",
+        "note": "Thorlabs linearity limit for the PDB450A. The manual also asks that the beam illuminate the whole active area, so a hard focus onto the diode is doubly discouraged."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 104
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pd_responsivity_a_per_w",
+      "raw": {
+        "value": 0.58,
+        "unit": "A/W",
+        "provenance": "datasheet",
+        "note": "Hamamatsu S3883 photosensitivity at 795 nm, read off the spectral-response curve. Implies QE = 1240*0.58/795 = 90.45 percent, matching the 90.47 percent quoted in the paper. The stock PDB450A Si diode peaks at 0.53 A/W, i.e. QE <= 82.7 percent."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 110
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "manufacturer_specification_device_identity_and_conditions_required",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "post_cell_loss_pct",
+      "raw": {
+        "value": 5.5,
+        "unit": "%",
+        "provenance": "paper",
+        "note": "Optical loss between the cell and the detector, the `loss_pct` knob in the GABES FWM scheme."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 116
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pump_collimator_diameter_mm",
+      "raw": {
+        "value": 2.0,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "Collimated 1/e^2 diameter out of the pump fiber collimator, from the setup drawing."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 122
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pump_fiber_efficiency",
+      "raw": {
+        "value": 0.7,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Free space to fiber coupling on the pump path. Placeholder; this one directly sets the available pump power."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 128
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pump_seed_angle_deg",
+      "raw": {
+        "value": 0.32,
+        "unit": "deg",
+        "provenance": "paper",
+        "note": "Crossing angle in the cell. Stated as an empirical choice, so it is a candidate for optimisation rather than a fixed constant."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 134
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "published_sim2025_reference_value_not_current_apparatus",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pump_telescope_f1_mm",
+      "raw": {
+        "value": 300.0,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "First lens of the pump telescope (from the setup drawing)."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 140
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "pump_telescope_f2_mm",
+      "raw": {
+        "value": 150.0,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "Second lens of the pump telescope; magnification 150/300 = 0.5."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 146
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "seed_collimator_diameter_mm",
+      "raw": {
+        "value": 1.6,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "Collimated 1/e^2 diameter out of the seed fiber collimator, from the setup drawing."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 152
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "seed_fiber_in_efficiency",
+      "raw": {
+        "value": 0.6,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Coupling into the fiber EOM. Placeholder. Not power-critical: the seed path has large headroom and is deliberately attenuated afterwards."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 158
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "seed_fiber_out_efficiency",
+      "raw": {
+        "value": 0.5,
+        "unit": "fraction",
+        "provenance": "lab",
+        "note": "Coupling out of the seed chain into the delivery fiber."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 164
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "seed_telescope_f1_mm",
+      "raw": {
+        "value": 400.0,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "First lens of the seed telescope (from the setup drawing)."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 170
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "seed_telescope_f2_mm",
+      "raw": {
+        "value": 150.0,
+        "unit": "mm",
+        "provenance": "lab",
+        "note": "Second lens of the seed telescope; magnification 150/400 = 0.375."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 176
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "historical_lab_input_original_report_not_verified_here",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "ta_ase_fraction",
+      "raw": {
+        "value": 0.03,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Broadband amplified spontaneous emission as a fraction of amplifier output. Placeholder. Removed from coherent power rather than tracked as a spectral line: it is not at any FWM-relevant frequency and the etalons erase it in the seed path."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 182
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "ta_m2_out",
+      "raw": {
+        "value": 1.6,
+        "unit": "M^2",
+        "provenance": "nominal",
+        "note": "Beam-quality factor out of the tapered amplifier. Placeholder, but it matters: it is what makes fiber coupling after the amplifier lossy."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 188
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "ta_saturation_w",
+      "raw": {
+        "value": 0.02,
+        "unit": "W",
+        "provenance": "nominal",
+        "note": "Seed power at which the amplifier reaches half its maximum output. Placeholder; fix it together with the slope from one P-I curve at known seed power."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 194
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "ta_slope_w_per_a",
+      "raw": {
+        "value": 1.05,
+        "unit": "W/A",
+        "provenance": "nominal",
+        "note": "Slope of the amplifier's maximum output versus drive current. Placeholder chosen so the nominal operating point gives about 1.4 W."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 200
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "ta_threshold_a",
+      "raw": {
+        "value": 0.5,
+        "unit": "A",
+        "provenance": "nominal",
+        "note": "Amplifier current threshold. Placeholder."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 206
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "waist_scale_factor",
+      "raw": {
+        "value": 1.08,
+        "unit": "ratio",
+        "provenance": "fitted",
+        "note": "Collimator diameter times telescope magnification underestimates the paper's cell waists by a consistent 6-10 percent (500 vs 530 um pump, 300 vs 330 um seed). One shared factor absorbs it. The consistency across two independent paths suggests a definition difference (1/e^2 versus 4-sigma or FWHM in the quoted collimator diameters) rather than two coincidences."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 212
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "phenomenological_common_scale_not_measured_optic",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_mopa_out",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_mopa_out. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 218
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_oi_mopa",
+      "raw": {
+        "value": 0.92,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of OI. Optical isolator. The lossiest passive element on the table."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 224
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_hwp_split",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 230
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_split_1",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_split_1. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 236
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_split_2",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_split_2. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 242
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pbs_split",
+      "raw": {
+        "value": 0.97,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 248
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_f230_pump",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of F230. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 254
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pol_seed",
+      "raw": {
+        "value": 0.95,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Polarizer. Sheet/Glan polarizer."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 260
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_noise_eater",
+      "raw": {
+        "value": 0.97,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Noise eater. Intensity-noise servo; only its throughput is modelled."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 266
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_seed_1",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_seed_1. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 272
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_hwp_eom",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 278
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_f220_eom_in",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_in_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 284
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_eom",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of fiber EOM. Set to 1 deliberately: this element's throughput is already carried by `eom_insertion_loss_db`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 290
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_f220_eom_out",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 296
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_etalon_1",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of Etalon 1. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 302
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_et_1",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_et_1. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 308
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_hwp_etalon",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 314
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_et_2",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_et_2. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 320
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_etalon_2",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of Etalon 2. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 326
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_etalon_3",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of Etalon 3. Set to 1 deliberately: this element's throughput is already carried by `etalon_peak_transmission`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 332
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_gt_seed",
+      "raw": {
+        "value": 0.95,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of GT. Glan-Taylor: calcite plus two surfaces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 338
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_seed_out",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_seed_out. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 344
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_seed_down",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_seed_down. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 350
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_f220_seed",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of F220. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 356
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_col_seed",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of 5724 · 1.6 mm. Set to 1 deliberately: this element's throughput is already carried by `seed_fiber_out_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 362
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_qwp_seed",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 368
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_hwp_seed",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 374
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_seed_l1",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=400. Telescope lens, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 380
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_seed_l2",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 386
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_seed_a",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_seed_a. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 392
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_gtp_seed",
+      "raw": {
+        "value": 0.95,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 398
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_col_pump",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Per-pass transmission of 5725 · 2.0 mm. Set to 1 deliberately: this element's throughput is already carried by `pump_fiber_efficiency`, and counting it twice would quietly halve the budget."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 404
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "bookkeeping_identity_prevents_double_counting",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_qwp_pump",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of QWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 410
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_hwp_pump",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of HWP. Waveplate, AR-coated both faces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 416
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pump_l1",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=300. Telescope lens, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 422
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pump_l2",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=150. Telescope lens, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 428
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_m_pump_a",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of m_pump_a. Steering mirror, protected-silver order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 434
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_gtp_pump",
+      "raw": {
+        "value": 0.95,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of GTP. Glan-Taylor: calcite plus two surfaces."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 440
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pbs_in",
+      "raw": {
+        "value": 0.97,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 446
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_cell",
+      "raw": {
+        "value": 0.96,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Rb cell. Both vapour-cell windows, uncoated-glass order of magnitude."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 452
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_pbs_out",
+      "raw": {
+        "value": 0.97,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of PBS. Polarizing cube, insertion loss on the used port."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 458
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_dm_probe",
+      "raw": {
+        "value": 0.985,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 464
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_dm_conj",
+      "raw": {
+        "value": 0.985,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of D-mirror. D-shaped pick-off mirror."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 470
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_iris_probe",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 476
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_iris_conj",
+      "raw": {
+        "value": 0.995,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Iris. Iris, opened past the beam. Pump rejection is no longer modelled here -- see pump_leakage_dbm on the detector."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 482
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_lens_probe",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=75. Singlet, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 488
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_lens_conj",
+      "raw": {
+        "value": 0.99,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of f=100. Singlet, AR-coated."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 494
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "t_bpd",
+      "raw": {
+        "value": 1.0,
+        "unit": "fraction",
+        "provenance": "nominal",
+        "note": "Per-pass transmission of Balanced detector. Detector face; its quantum efficiency is the separate pd_responsivity_a_per_w."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 500
+      },
+      "verified_in_current_code": false,
+      "evidence_status": "nominal_model_default",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    },
+    {
+      "name": "loss_post_cell_residual",
+      "raw": {
+        "value": 1.004074,
+        "unit": "fraction",
+        "provenance": "fitted",
+        "note": "Residual factor on the post-cell transmission, on top of the per-optic values. Solved so the wide-open limit reproduces the 5.5 percent post-cell loss quoted in Sim et al.: the per-optic numbers are nominal guesses while the total is the one measured quantity, so the discrepancy lives here rather than being spread silently over optics nobody measured."
+      },
+      "source": {
+        "file": "G:\\내 드라이브\\Coding\\GABES - Generic Atomic Bloch Equation Solver\\sabes\\calibration_sim2025.json",
+        "line": 506
+      },
+      "verified_in_current_code": true,
+      "evidence_status": "aggregate_reference_fit_not_passive_optic_transmission",
+      "adoption_status": "existing_implementation",
+      "ai_assessment": {
+        "marker": "⟦AI⟧",
+        "note": "Raw provenance is preserved. Evidence status distinguishes source claims from current physical measurement."
+      }
+    }
+  ],
+  "settings": {
+    "raw_SetupSettings_defaults": {
+      "ecdl_power_mw": 40.0,
+      "ta_current_a": 2.5,
+      "hwp_ta_deg": 0.0,
+      "hwp_split_deg": 8.0996,
+      "seed_polarizer_deg": 19.1607,
+      "hwp_eom_deg": 0.0,
+      "eom_frequency_hz": 3043732439.0,
+      "eom_rf_dbm": 18.0,
+      "etalon_detune_ghz": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seed_trim_qwp_deg": 0.0,
+      "seed_trim_hwp_deg": 37.6333,
+      "seed_gtp_deg": 0.0,
+      "pump_telescope_f1_mm": 300.0,
+      "pump_telescope_f2_mm": 150.0,
+      "seed_telescope_f1_mm": 400.0,
+      "seed_telescope_f2_mm": 150.0,
+      "opd_ghz": 0.9,
+      "cell_temp_c": 121.0,
+      "dmirror_separation_mm": 3.2628,
+      "ecdl_temp_c": null,
+      "ecdl_current_ma": null,
+      "ecdl_pzt_v": null,
+      "ta_temp_c": null
+    },
+    "unset_fields_encoded_as_null": [
+      "ecdl_temp_c",
+      "ecdl_current_ma",
+      "ecdl_pzt_v",
+      "ta_temp_c"
+    ],
+    "nominal_settings_solved": {
+      "ecdl_power_mw": 40.0,
+      "ta_current_a": 2.5,
+      "hwp_ta_deg": 0.0,
+      "hwp_split_deg": 8.099631392396986,
+      "seed_polarizer_deg": 19.160650614649057,
+      "hwp_eom_deg": 0.0,
+      "eom_frequency_hz": 3043732439.0,
+      "eom_rf_dbm": 18.0,
+      "etalon_detune_ghz": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "seed_trim_qwp_deg": 0.0,
+      "seed_trim_hwp_deg": 37.63331055175513,
+      "seed_gtp_deg": 0.0,
+      "pump_telescope_f1_mm": 300.0,
+      "pump_telescope_f2_mm": 150.0,
+      "seed_telescope_f1_mm": 400.0,
+      "seed_telescope_f2_mm": 150.0,
+      "opd_ghz": 0.9,
+      "cell_temp_c": 121.0,
+      "dmirror_separation_mm": 3.2628,
+      "ecdl_temp_c": null,
+      "ecdl_current_ma": null,
+      "ecdl_pzt_v": null,
+      "ta_temp_c": null
+    },
+    "raw_DetectionSettings_defaults": {
+      "pump_leakage_dbm": -60.0,
+      "probe_lens_focal_mm": 75.0,
+      "conjugate_lens_focal_mm": 100.0,
+      "pd_defocus_mm": 0.0,
+      "bpd_gain_v_per_a": 100000.0,
+      "analysis_bandwidth_hz": 100000.0,
+      "eom_unwanted_rin_db_per_hz": -100.0
+    },
+    "evidence_status": "code_model_defaults_or_inverse_solutions_not_measured_dial_positions"
+  },
+  "computed_nominal_geometry": {
+    "evidence_status": "AI_execution_of_model_no_atomic_solver_no_experimental_validation",
+    "pump_power_w": 0.6000000001637431,
+    "wanted_seed_power_w": 7.99999993331016e-06,
+    "pump_waist_m": 0.0005399999999999999,
+    "seed_waist_m": 0.000324,
+    "crossing_angle_deg": 0.31999781862438686,
+    "eom_frequency_hz": 3043732439.0,
+    "tpd_mhz": -8.0,
+    "carrier_to_wanted_seed_power_ratio": 0.0005954101979848261,
+    "detection_geometry": {
+      "arms": [
+        {
+          "name": "probe",
+          "radius_at_dmirror_m": 0.0005596058572094861,
+          "spot_radius_m": 2.6314979037912887e-05,
+          "lens_focal_m": 0.075,
+          "optics_transmission": 0.9450003328756649
+        },
+        {
+          "name": "conjugate",
+          "radius_at_dmirror_m": 0.0005596058572094861,
+          "spot_radius_m": 3.595353276900209e-05,
+          "lens_focal_m": 0.1,
+          "optics_transmission": 0.9450003328756649
+        }
+      ],
+      "twin_separation_m": 0.0065256,
+      "pump_separation_m": 0.0032628,
+      "pump_radius_at_dmirror_m": 0.0006054302416896096,
+      "twin_radius_at_dmirror_m": 0.0005596058572094861,
+      "optics_transmission": 0.9450003328756649,
+      "loss_pct": 5.499966712433513,
+      "qe_pct": 90.45388059371068,
+      "warnings": []
+    }
+  },
+  "known_source_discrepancies": [
+    {
+      "marker": "⟦AI⟧",
+      "id": "noise_eater_order",
+      "source": "references/IDS setup part 1.png",
+      "observation": "Drawing places Noise Eater after etalon/GT before final delivery fiber. Code includes it in upstream EOM transmission route, with no connected drawing link."
+    },
+    {
+      "marker": "⟦AI⟧",
+      "id": "sql_bypass_missing",
+      "source": "references/IDS setup part 2.png",
+      "observation": "Drawing includes bypass HWP, BS and two flip mirrors. Current layouts do not contain these nodes."
+    },
+    {
+      "marker": "⟦AI⟧",
+      "id": "paper_vs_lab_eom_name",
+      "source": "Sim2025 p2 vs 박수인 랩미팅20260904 slides4-5",
+      "observation": "Paper AZ-0S5-10-PFA-PFA-780-UL; lab slides PM-0S5-10-PFA-PFA-780-UL. Physical replacement or typo not established."
+    },
+    {
+      "marker": "⟦AI⟧",
+      "id": "qe_paper_claim",
+      "source": "sabes/calibration_sim2025.json pd_responsivity_a_per_w.note",
+      "observation": "Claim that Sim2025 quotes90.47% QE is unsupported by inspected full PDF. Paper lists5.5% optical and8.0% system losses instead."
+    },
+    {
+      "marker": "⟦AI⟧",
+      "id": "waist_reference",
+      "source": "computed nominal vs Sim2025 p3",
+      "observation": "Nominal source computes540/324 µm radii; paper states530/330 µm radii."
+    }
+  ]
+}

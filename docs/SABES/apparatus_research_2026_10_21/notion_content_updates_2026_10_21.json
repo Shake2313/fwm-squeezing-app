@@ -1,0 +1,142 @@
+[
+  {
+    "old_str": "최종 갱신: 2026-10-16",
+    "new_str": "기본 장치 구성 기준일: <mention-date start=\"2026-10-16\"/>. 이후 변경은 항목별 날짜·근거를 붙여 계속 갱신.\n\n최종 갱신: <mention-date start=\"2026-10-21\"/> — 사용자 Q1–Q26 직접 답변·제공 도식 반영."
+  },
+  {
+    "old_str": "- <b>셋업 출처:</b> 심기성 선배의 IDS 셋업을 그대로 사용. Sim, Kim, Moon, Sci. Rep. 15, 7727 (2025) Fig. 1(a)와 같은 구성이며 옵틱 간 거리 등 기본 배치는 바꾸지 않았다 <code>확정 08-12</code>. 이 논문이 골드 레퍼런스.",
+    "new_str": "- **셋업 출처:** 심기성 선배 IDS 셋업과 Sim, Kim, Moon, Sci. Rep. 15, 7727 (2025) Fig. 1(a)를 계승. 08-12에는 기본 배치를 유지했다고 확인했으나, 이후 fiber EOM 교체·펌프 파이버 변경·계측기 이동을 반영. 논문은 설계 기준선, 아래 현재 기종은 실제 운용 구성. `확정 10-21` (사용자 Q1–Q26 답변)"
+  },
+  {
+    "old_str": "```txt\n[광원]  ECDL(795 nm, 자작 Littrow) - OI - HWP - glass(SAS 픽오프) - M - HWP - M - M - TA - 비구면 - CL(원통, f=70 mm)\n        -> F260APC-780 -> 펌프 SM 파이버(OZ Optics, 2 m, PM 아님) -> 콜리메이터(1/e2 지름 2.0 mm)\n        -> QWP, HWP -> 망원경 f300/f150 -> GTP -> PBS(시드와 합침)          [셀 중심 펌프 waist 530 um]\n[시드]  펌프에서 PBS 픽오프 -> 선형편광자 -> fiber EOM(EOSPACE, RF: Keysight E8257D)\n        -> 에탈론 1 -> 에탈론 2 -> 에탈론 3 -> GTP -> 노이즈 이터(Thorlabs NEL03A/M) -> 출력 파이버\n        -> 콜리메이터(1/e2 지름 1.6 mm) -> QWP, HWP -> 망원경 f400/f150 -> GTP -> PBS   [셀 중심 시드 waist 330 um]\n[셀]    펌프와 시드는 직교 선편광 -> 85Rb 셀(12.5 mm), 교차각 약 0.3 deg\n        -> PBS(펌프 제거) -> D-mirror, iris로 probe/conjugate 분리 -> 렌즈(probe f75 / conj f100)\n[검출]  플립 미러로 FWM(probe+conj) <-> SQL 기준광 전환 -> PDB450A(S3883 개조) -> SA / 오실로스코프\n[자력계] Hanle 셀(Pure 87Rb, 51.5 mm, Ne 50 Torr) + 원통형 mu-metal 3겹 + 3축 Helmholtz 코일\n```",
+    "new_str": "```txt\n[광원]  ECDL(795 nm, 자작 Littrow) - OI - HWP - glass(SAS 픽오프) - M - HWP - M - M - TA - 비구면 - CL(원통, f=70 mm)\n        -> F260APC-780 -> 일반 APC–APC 파이버(현재 길이·MFD·PM 여부 미등록) -> 콜리메이터(1/e2 지름 2.0 mm)\n        -> QWP, HWP -> 망원경 f300/f150 -> GTP -> PBS(시드와 합침)          [펌프 기준 waist 530 um, 정확한 z 미등록]\n[시드]  펌프에서 PBS 픽오프 -> 선형편광자 -> fiber EOM(EOSPACE PM-0S5-10-PFA-PFA-780-UL, RF: E8257D)\n        -> 에탈론 1 -> 에탈론 2 -> 에탈론 3 -> GTP -> 노이즈 이터(NEL03A/M, 삽입·ON·미최적화) -> 출력 파이버\n        -> 콜리메이터(1/e2 지름 1.6 mm) -> QWP, HWP -> 망원경 f400/f150 -> GTP -> PBS   [시드 기준 waist 330 um, 정확한 z 미등록]\n[셀]    펌프와 시드는 직교 선편광 -> 85Rb 셀(12.5 mm), 교차각 약 0.3 deg\n        -> PBS(펌프 제거) -> D-mirror, iris로 probe/conjugate 분리 -> 렌즈(probe f75 / conj f100)\n[검출]  플립 미러로 FWM(probe+conj) <-> SQL 기준광 전환 -> PDB450A(S3883 개조) -> RF: RIGOL DSA875 / Monitor +·-: Keysight DSOX1204A\n[자력계] Hanle 셀(Pure 87Rb, 51.5 mm, Ne 50 Torr) + 원통형 mu-metal 3겹 + 3축 Helmholtz 코일\n```"
+  },
+  {
+    "old_str": "- 망원경·콜리메이터 지름·렌즈 초점거리는 셋업 도면 기준 값(Drive <code>calibration_sim2025.json</code>의 lab 항목). waist 530/330 µm는 1/e² 반경이며 지름이 아니다 <code>확정 10-01</code>.",
+    "new_str": "- 망원경·콜리메이터 지름·렌즈 초점거리는 셋업 도면 기준 값(Drive <code>calibration_sim2025.json</code>의 lab 항목). waist 530/330 µm는 1/e² 반경이며 지름이 아니다 <code>확정 10-01</code>.\n\n- **위치·각도 기준:** 빔 교차점은 FWM 셀 내부이며 정확한 종방향 위치는 추가 측정 후 갱신. 약 23 inch(584.2 mm)는 **셀 출사면 끝→D-mirror** 거리. 출사면에서 빔 겹침을 확인하고, D-mirror 위치에서 probe–pump 간격을 재어 삼각형으로 각도를 구함. 셀 중심 기준 거리나 probe–conjugate 전체 간격으로 해석하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)\n- **SQL/FWM 전환 배치:** 아래 도식이 사용자 확인 기준. 파선 pump 우회 경로와 두 flip mirror로 같은 BPD 양 eye에 SQL을 넣음. 도식 좌표는 실측 mm 좌표가 아님. `확정 10-21` (사용자 Q1–Q26 답변)\n\n<image source=\"file-upload://4006cba1-4fee-8120-95d2-00b2fdc21c5e\" />\n\n사용자 제공 FWM·SQL 전환 도식. 장치 기준 2026-10-16, 확인·제공 2026-10-21."
+  },
+  {
+    "old_str": "- $S$ = 정규화된 스퀴징 정도 = FWM 잡음 파워 ÷ SQL 잡음 파워(선형). $S_{dB}=10\\log_{10}S$. 음수가 SQL 아래. 별도 표기가 없으면 전자잡음 <b>미차감(raw)</b>.",
+    "new_str": "- **현재 잡음 표기:** Jasperse의 **NF**로 스퀴징 정도를 쓰고, 로그 표시는 **10 log₁₀(NF), Squeezing Degree [dB]**. 사용자 직접 요청 10-16. 9/17–10/13 기록의 정규화 잡음비 **S**와 아래 과거 경험식은 당시 기호로 보존. Jasperse의 intrinsic squeezing parameter S와 혼동하지 않음. 별도 표기가 없으면 전자잡음 미차감(raw)."
+  },
+  {
+    "old_str": "- <b>경험식(현행 기준, 9/17 랩미팅 8쪽):</b>",
+    "new_str": "- **과거 경험식(9/17 랩미팅 8쪽, 10/13까지의 해석):** 아래 식과 수치는 이력으로 보존. 10/16부터 사용자 선택은 Jasperse NF 해석이며, 아래 a를 새 모델의 seed 고전 잡음 a와 동일한 계수로 취급하지 않음."
+  },
+  {
+    "old_str": "- $N_{ex}\\equiv a(G-1)$: 시드와 같은 경로로 들어와 FWM에서 공간적으로 분리할 수 없는 probe 경로 초과잡음(Sim 논문의 sideband effect). 비공개 TeX 원고의 단일 이득식은 기준이 아니다. 두 항 모두 η 괄호 안에 있다.",
+    "new_str": "- **과거 경험식의 항:** N_ex=a(G−1)은 당시 seed 경로 초과잡음 항. 비공개 TeX 원고의 단일 이득식과 구분하며, 위 식의 두 항은 모두 η 괄호 안에 있음."
+  },
+  {
+    "old_str": "- $a$는 상수가 아니다(10/13 점별 역산: 스퀴징 최적점 부근 0.02, 저이득 0.17, $G_c$ 우세 분기 0.14→28). 전 구간을 단일 $a$로 맞추지 않는다.",
+    "new_str": "- **과거 점별 a 역산(10/13):** 최적점 부근 0.02, 저이득 0.17, Gc 우세 분기 0.14→28. 당시 경험식에서도 전 구간을 단일 a로 설명하지 못함. 현재 Jasperse 해석은 seed 고전 잡음 a와 shot-noise b를 구분. 실측 양팔 gain에서 역산한 intrinsic S·effective transmission Ta는 측정 기반 모델 해석값."
+  },
+  {
+    "old_str": "- <b>OPD 설정·판독:</b> SAS 피크를 오실로스코프에서 확대해 정해진 위치에 두는 방식(심기성 선배 방식). 현재 MHz 자리까지 실시간으로 읽지는 못한다 <code>측정 10-13</code>. 사후 정량은 SAS 피크 5개로 시간축을 2차식 보정(9/30: +1.06 GHz, 보정 모형에 따른 차이 ±0.03 GHz 수준, 선형 보정은 약 90 MHz 과대).",
+    "new_str": "- **OPD 설정·판독:** 현재 **SAS에 전자 lock을 걸지 않고**, 사용자가 오실로스코프의 SAS 피크를 눈으로 보고 위치를 맞춤. `확정 10-21` (사용자 Q1–Q26 답변) 현재 MHz 자리까지 실시간 판독하지 않음(10/13). 사후 SAS 피크 5개의 시간축 2차 보정에서 9/30 OPD 약 +1.06 GHz, 모형별 차이 ±0.03 GHz 수준; 선형 보정은 약 90 MHz 과대."
+  },
+  {
+    "old_str": "- ⚠ <b>미정리 표기:</b> Hanle Task에는 \"Pump OPD 약 −1 GHz(red), probe = pump + 약 3.04 GHz\"로 적혀 있어 위 규약과 부호가 다르다(10/14 체크리스트의 열린 항목). 추측으로 통일하지 말고 사용자에게 확인한다.",
+    "new_str": "- **과거 Task 표기:** 10/14 Task의 ‘pump red / probe=pump+3.04 GHz’는 위 현재 주파수 규약과 다른 과거 표기. 현재는 seed=pump−fEOM과 blue OPD를 기준으로 보관. Hanle의 상세 scan 기준·과거 Task 대응은 실제 탐색/구현에 필요할 때만 확인하고, 지금 반복 질문하지 않음."
+  },
+  {
+    "old_str": "- 화면상 잡음 요동 약 ±0.5 dB(10/13).",
+    "new_str": "- **저장:** 대개 위 SA 설정으로 측정하고 USB에 저장. 정밀한 파일명/trace 식별 체계를 사용하지 않아 과거 파일 검색이 어려울 수 있음. 필요한 분석 시 실제 파일의 헤더·trace를 확인하며 이름만으로 날짜/조건을 추정하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)\n- 화면상 잡음 요동 약 ±0.5 dB(10/13)."
+  },
+  {
+    "old_str": "<tr>\n<td>\nECDL\n</td>\n<td>\n자작 Littrow ECDL, 795 nm. 외부 공진기 약 21 mm(모드 호프 간격 약 7 GHz, 0.014 nm)\n</td>\n<td>\n연속 튜닝은 PZT, 전류는 모드 선택용 <code>측정 08-11</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>ECDL</td>\n<td>자작 Littrow ECDL, 795 nm. 외부 공진기 약 21 mm는 mode-hop 간격 약 7 GHz로 역산한 값.</td>\n<td>연속 튜닝 PZT·전류에 따른 mode 선택은 08-11 기록. 현재 SAS lock 없이 수동 정렬. 내부 거울 수는 사용자 정정 기준 2개(08-13); 개별 부품 역할은 도식과 대조.</td>\n</tr>\n<tr>\n<td>ECDL·TA controller</td>\n<td>**Stanford Research Systems LDC501**</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변). 과거 자료의 LDC-502를 현 기종으로 사용하지 않음.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nTA (MOPA)\n</td>\n<td>\nTEC 25.000 °C(2024년부터 고정). 1 A → 355 mW, 2 A → 1.34 W 이상\n</td>\n<td>\n<code>측정 08-11</code>. 시드 20–30 mW에서 이미 이득 포화. ASE(1 A, 무시드) 11.57 mW. 기준 실적 1.4 W\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>TA (MOPA)</td>\n<td>전류·온도는 매번 조금씩 변경. 실제 입출력 측정 기반의 휴리스틱 모델 사용.</td>\n<td>앞·뒤 asphere 존재. chip·asphere 품번은 낮은 우선도의 미등록 정보. 08-11 이력: TEC25.000°C,1 A→355 mW,2 A→1.34 W 이상,무시드 ASE11.57 mW. 이 날짜의 운전점을 현재 고정값으로 사용하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n원통렌즈 CL\n</td>\n<td>\nThorlabs LJ1477L1 추정, N-BK7 평볼록, f = 70 mm\n</td>\n<td>\n<code>측정 08-12</code>. 회전 오차가 가장 민감: 0.17° → 5%, 0.5° → 31% 손실 <code>AI 계산 08-24</code>. 최대점에서 잠근다\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>원통렌즈 CL</td>\n<td>Thorlabs LJ1477L1 **추정**, f70 mm.</td>\n<td>기종은 사용자도 추정으로 유지. TA 출력 측 비구면·CL의 상세 모델/배치는 기존 Sim 자료를 우선 활용. 회전 오차별 5%/31% 손실 수치는 과거 ⟦AI⟧ 계산이며 실측 아님.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n펌프 파이버\n</td>\n<td>\nOZ Optics SMJ-A3AHPC3A-780-5/125-3AS-2 AR2. SM(PM 아님), MFD 5 µm, 2 m, 입력단 고출력 에어갭 FC/APC, 양단 AR\n</td>\n<td>\n<code>측정 08-12</code>. PM이 아니라 출력 편광이 실온(공조)에 따라 드리프트\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>펌프 파이버</td>\n<td>**현재 일반 APC–APC 파이버. OZ 고출력 파이버는 사용하지 않음.**</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변). 현재 길이·MFD·PM 여부·AR 사양은 미등록. 08-12의 OZ SMJ-A3AHPC3A-780-5/125-3AS-2 AR2,2 m,MFD5µm,non-PM,air-gap/양단AR 사양은 과거 사용 이력으로만 보존.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nFiber EOM\n</td>\n<td>\nEOSPACE (LiNbO₃, PM)\n</td>\n<td>\n<code>문헌</code>. 정확한 모델 번호는 기록에 없음. 광 입력이 약 10 mW를 넘으면 변조가 제대로 되지 않음(lab 값, <code>calibration_sim2025.json</code>)\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>Fiber EOM</td>\n<td>**EOSPACE PM-0S5-10-PFA-PFA-780-UL**</td>\n<td>논문의 AZ-0S5-10-PFA-PFA-780-UL에서 실제 기기를 교체함. `확정 10-21` (사용자 Q1–Q26 답변). 교체 날짜는 미등록. 광 입력 약10mW 운용 제한은 lab 기록이며 제조사 rating으로 승격하지 않음.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nRF 소스\n</td>\n<td>\nKeysight E8257D PSG\n</td>\n<td>\n구동 약 3.022–3.044 GHz(TPD −14…+8)\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>RF 소스</td>\n<td>**Agilent/Keysight E8257D PSG**</td>\n<td>현재 연결: **N–SMA 변환 커넥터→SMA 케이블→EOM**. `확정 10-21` (사용자 Q1–Q26 답변). 최신 확보 RF 설정은 09-03 실험/09-04 랩미팅 기록: 60A74-01(5.9–8.5GHz) 제거 후 발생기 표시11.8dBm 최적화. EOM 포트의 실측 RF power와 구분.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n에탈론 필터\n</td>\n<td>\n3매 직렬, 각각 온도 제어. FSR 17 GHz, FWHM 950 MHz, peak T 85%\n</td>\n<td>\n<code>문헌</code>. 실사용 peak T 약 0.8. 2매면 캐리어:시드 약 0.5%, 3매면 0.5%보다 훨씬 작음. 3매 유지\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>에탈론 필터</td>\n<td>3매 직렬. Sim2025 명목 FSR17GHz/FWHM950MHz/peak T85%.</td>\n<td>현재 개별 제조사·기종·정밀 실측 자료는 없음. 사용 기록 peak 약0.8,2매 carrier:seed 약0.5%,3매는 그보다 훨씬 작음. 세부사항은 Gisung Sim 자료로 보완, 필수 작업 때만 추가 확인.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n에탈론 온도 컨트롤러 PID\n</td>\n<td>\nP 200 / I 5 / D 6\n</td>\n<td>\n<code>05-21</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>에탈론 온도 컨트롤러 PID</td>\n<td>**Thorlabs TC200**, 과거 PID P200/I5/D6</td>\n<td>기종 `확정 10-21` (사용자 Q1–Q26 답변). PID 숫자는 05-21 기록이며 현재 설정을 새로 측정한 값은 아님.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n노이즈 이터\n</td>\n<td>\nThorlabs NEL03A/M\n</td>\n<td>\nGTP 뒤, 출력 파이버 앞. 투과 약 93% <code>측정 01-07</code>. 아직 최적화하지 않은 상태로 운용(09-09, 09-28 기록)\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>노이즈 이터</td>\n<td>**Thorlabs NEL03A/M — 삽입·전원 ON·미최적화**</td>\n<td>에탈론3→GT 뒤, 출력 파이버 앞. `확정 10-21` (사용자 Q1–Q26 답변). 현 SABES 적용 범위는 **투과율만**; noise suppression/feedback 성능을 가정하지 않음. 약93% 투과는 01-07 이력이며 현재 재측정값 아님.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nFWM 셀\n</td>\n<td>\n85Rb 셀, 길이 12.5 mm\n</td>\n<td>\n골드 레퍼런스와 같은 셀 길이. 코르크 커버로 단열. 실험실 냉방이 강하면 온도 유지가 어려움(06-24)\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>FWM 셀</td>\n<td>Pure85Rb 셀, 길이12.5mm. 미량87Rb(~0.1%) 가능성은 사용자 추정.</td>\n<td>길이·종류는 기존 확인 유지. 공급사·직경·창·코팅 상세는 사용자 보류. 코르크 단열 cover는 과거 기록; **현재 FWM 자기 차폐 없음**. `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n빔 waist (셀 중심, 1/e² 반경)\n</td>\n<td>\n펌프 530 µm / 시드 330 µm\n</td>\n<td>\n<code>확정 10-01</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>빔 waist (1/e² 반경)</td>\n<td>펌프530µm / 시드330µm, **1/e² 반경**.</td>\n<td>`확정 10-01` 기준값 유지. 교차점은 셀 내부, 정확한 z 위치는 미정이며 추후 측정 자료 반영. waist/교차점을 정확히 셀 중앙으로 새 확정하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n교차각\n</td>\n<td>\n약 0.3° (논문 0.32°)\n</td>\n<td>\n<code>측정 05-28, 06-26</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>교차각</td>\n<td>약0.3°(논문0.32°), 셀 출사면에서 빔 겹침 확인.</td>\n<td>출사면 끝→D-mirror 약23inch=584.2mm, D-mirror 위치의 **probe–pump 간격**으로 삼각형 각도 측정. `확정 10-21` (사용자 Q1–Q26 답변). 거리·겹침은 근사 계측. probe–conjugate 총간격과 구분.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n펌프 제거\n</td>\n<td>\n셀 뒤 PBS(소광비 3000:1, 논문) + D-mirror + iris\n</td>\n<td>\n+0.9–1.0 GHz OPD에서는 펌프 누설 거의 없음\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>펌프 제거</td>\n<td>셀 뒤 PBS + D-mirror + iris. **PBS 전부 Thorlabs CCM1-PBS252/M**.</td>\n<td>소광비3000:1은 Sim2025 서술, 현재 각 부품의 독립 실측값 아님. +0.9–1.0GHz에서 pump leakage가 작았던 기록 보존. PBS 기종 `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>\n<tr>\n<td>렌즈·기타 편광 옵틱</td>\n<td>렌즈는 Thorlabs plano-convex. 그 외 waveplate·편광 옵틱도 Thorlabs.</td>\n<td>정확한 품번·각도·좌표는 사용자 보류. 제공 도식을 배치 기준으로 유지. `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n히터 컨트롤러\n</td>\n<td>\nTP1 전압 = 설정 모니터. 10월 초 컨트롤러 교체\n</td>\n<td>\nV–T 환산표는 10/06 실험일지 첨부 'Heater Controller V-T spec sheet'. 표의 온도는 추정치 → <b>온도는 OD 피팅을 우선</b> <code>확정 10-06</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>히터 컨트롤러</td>\n<td>**자체 제작**, Notion Docs의 회로도_Heater Controller와 연결.</td>\n<td>회로 근거: <mention-page url=\"https://app.notion.com/p/24f6cba14fee804eb94eea4d11b3652e\"/>. **TP1은 센서 온도 전압**, 설정 노브 전압과 분리. 10월 초 보드 교체 이력. 사용자 확인상 FWM/Hanle는 같은 보드 형식이나 실장·보정 동일성을 별도 실측한 것은 아님. `확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>\n<tr>\n<td>센서·열 상태</td>\n<td>센서는 셀 윗면 부착. cold spot 미측정.</td>\n<td>FWM 자기 차폐 없음. `확정 10-21` (사용자 Q1–Q26 답변). 회로도의 센서는 Pt1000; 실제 보드의 실장 상세가 별도 확인된 것으로 확대하지 않음.</td>\n</tr>\n<tr>\n<td>V–T 환산 기준</td>\n<td>10/06–07 V–T 표·OD 자료는 **FWM 보드에서 측정**.</td>\n<td>회로도 주석120°C=1.566V와 현장표120°C=2.262V는 서로 다른 보정 이력. 현장표는 10/12·10/16 랩미팅 부록 및 10/06 로그 참조. Hanle도 비슷할 것이라는 설명은 사용자 예상이며 별도 Hanle 실측 교정 아님.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nBalanced detector\n</td>\n<td>\n<b>Thorlabs PDB450A, 두 포토다이오드를 Hamamatsu S3883으로 교체한 개조품</b>\n</td>\n<td>\n<code>확정</code>. S3883: Si PIN, 수광부 지름 1.5 mm, 0.58 A/W @795 nm → QE 0.905 <code>사양</code>. 순정 다이오드(0.53 A/W 최대)보다 QE가 높다\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>Balanced detector</td>\n<td>**Thorlabs PDB450A, 두 eye만 Hamamatsu S3883으로 교체. 회로는 기존 PDB450A와 동일.**</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변). 수광 지름1.5mm. R795=0.58A/W·QE0.905는 사용자 채택 기준. 제품 데이터시트의0.58A/W 표값은780nm이며795nm 실측 사양으로 단정하지 않음.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\nTIA gain / 대역\n</td>\n<td>\n10⁵ V/A → RF 대역 4 MHz\n</td>\n<td>\ngain은 Sim 논문 기재값. 사양상 10³…10⁷ V/A에서 150/45/4/0.3/0.1 MHz. 50 Ω 입력 SA에서는 실효 5×10⁴ V/A\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>TIA gain / 대역</td>\n<td>**현재 gain 스위치10⁵ V/A**. 순정 매뉴얼에서 해당 설정 RF 대역4MHz.</td>\n<td>gain은 사용자 직접 확인10-21. 매뉴얼의 high-Z gain은50Ω load에서 절반(실효5×10⁴V/A). 150/45/4/0.3/0.1MHz는 순정 gain별 명목 대역이며 개조품의 새 전달함수 측정 아님.</td>\n</tr>\n<tr>\n<td>출력 포트 연결</td>\n<td>RF→SA, Monitor +→오실로스코프(지금은 주로 probe), Monitor −→오실로스코프(지금은 주로 conjugate).</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변). 양 monitor의 광학 arm 대응은 현 배치 기준. 실제 load/종단은 자료에 없는 값을 가정하지 않음.</td>\n</tr>\n<tr>\n<td>오실로스코프</td>\n<td>**Keysight DSOX1204A**</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변)</td>\n</tr>\n<tr>\n<td>스펙트럼 애널라이저</td>\n<td>**RIGOL DSA875**</td>\n<td>`확정 10-21` (사용자 Q1–Q26 답변). 2025 다른 셋업 재고 RSA5065N과 구분. 최근 SA setting은1.6절.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n목표 전이\n</td>\n<td>\n87Rb D1 F=1→F′=1 (F\\_e = F\\_g, CPT 가능)\n</td>\n<td>\nF=1→F′=2는 dark state가 생길 수 없어 EIA/광펌핑 신호가 나온다. CPT 문헌 선폭과 비교 불가 <code>04-22</code>\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>목표 전이</td>\n<td>**87Rb D1 F=2→F′=1·2 사이**</td>\n<td>사용자10-14·10-16 직접 방향 변경. 과거04-22의 F1→F′1 CPT 계획과 F1→F′2의 EIA/광펌핑 해석은 과거 전이에 대한 참고이며 현재 목표로 사용하지 않음. 상세 scan/주파수 대응은 사용자 보류.</td>\n</tr>\n<tr>\n<td>기준일 삽입·가열 상태</td>\n<td>**10/16 셀 삽입·히터 연결 완료, 미가열 상온.**</td>\n<td>EOM3.039GHz,seed35mV,온도계1.722V. 10/21 사용자Q1에서10/16을 기준 snapshot으로 선택.</td>\n</tr>\n<tr>\n<td>10/16 셀 전후 파워</td>\n<td>**앞27.17µW / 뒤26.53µW**</td>\n<td>사용자가10/21에 기존 앞뒤 순서가 바뀌었다고 정정. 파워미터 측정. 이전26.53/27.17 표기는 정정 전 값으로만 보존.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n자기장 교정\n</td>\n<td>\n셀 중심 fluxgate, 오실로스코프 값 ÷ 10 ≈ µT\n</td>\n<td>\n<code>04-28</code>. FG 구동 2–8 Vpp에서 선형(1 Hz, 8 Vpp → 354 mV). 교정은 1 Hz 이하 사각/삼각파로. 100 Hz에서는 fluxgate 응답 자체가 거의 사라진다\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>자기장 교정</td>\n<td>4/28 기록: 셀 중심 fluxgate, scope 표시÷10≈µT.</td>\n<td>**이전4/03**: 1Hz에서FG2–8Vpp→88–354mV 선형(4/28 실드 교체 전). **4/28**: 약24.3µT↔scope약243표시.100Hz 응답 감소는 센서·coil 기여가 분리되지 않음. 두 날짜의 결과를 같은 최신 교정으로 합치지 않음. 원기록: <mention-page url=\"https://app.notion.com/p/3366cba14fee81f5b923d1c2ec7430bc\"/> · <mention-page url=\"https://app.notion.com/p/3506cba14fee816787abcd88ae11e101\"/>.</td>\n</tr>"
+  },
+  {
+    "old_str": "<tr>\n<td>\n0.2–0.6 MHz 정체불명 잡음\n</td>\n<td>\n노이즈 필터 3단 전원으로도 그대로 → 접지 아님. 케이블·커넥터 교체로 일부 개선, 경로 차폐 후보\n</td>\n<td>\n06-26\n</td>\n</tr>",
+    "new_str": "<tr>\n<td>0.2–0.6 MHz 정체불명 잡음</td>\n<td>당시 전원 노이즈 필터3단에서도 남았고 케이블·커넥터 교체로 일부 개선.</td>\n<td>06-26 역사 기록. 필터 효과가 없었다는 관측만으로 접지 기원을 배제하지 않음. 현재 SA 이동 후의 큰 잡음 감소는 아래 별도 상태와 구분.</td>\n</tr>"
+  },
+  {
+    "old_str": "## 3. 실험적으로 잘 나왔던 조건",
+    "new_str": "### 2.6 전원·테이블·미등록 기기\n\n- **현재 테이블 접지 없음.** SA를 detector와 **같은 테이블로 옮긴 후**, 과거의 큰 전기적 잡음은 들어오지 않음. 접지를 완료한 결과로 해석하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)\n- 멀티탭 **그린세이프**, 전원 필터 **자체 제작**. 배선은 과거 SU(1,1) 도면과 일부 다르며 상세 port/접점은 미등록. 기존 재고·다른 셋업 배전도를 현재 회로에 자동 적용하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)\n- **Waveform generator 모델 미등록.** 해당 기기의 제어·연결·주파수 응답을 구현/분석할 때 사용자에게 다시 알리고 질문. 지금 추가 확인 과제로 재요청하지 않음. `확정 10-21` (사용자 Q1–Q26 답변)\n\n## 3. 실험적으로 잘 나왔던 조건"
+  },
+  {
+    "old_str": "- <b>심기성 선배 자료:</b> 랩미팅 아카이브 <code>G:/내 드라이브/Docs/*심기성*.pptx</code>(220729–240627). 최종 최적 조건은 240419 덱. 논문: Sim, Kim, Moon, Sci. Rep. 15, 7727 (2025), DOI 10.1038/s41598-025-86479-w.",
+    "new_str": "- **심기성 선배 자료:** Drive `G:/내 드라이브/Docs/Gisung Sim/`의220729–240627 랩미팅38개. 최종 최적 조건은240419덱. 논문: Sim, Kim, Moon, Sci. Rep.15,7727(2025),DOI10.1038/s41598-025-86479-w. TA chip/asphere·etalon 상세는 이 자료에서 먼저 보완. 부품이 확인되지 않으면 TA는 사용자 선택에 따라 측정 기반 휴리스틱 범위를 유지."
+  },
+  {
+    "old_str": "## 7. 아직 비어 있는 정보\n\n에이전트 자료에서 찾지 못한 항목이다. 미실시 실험이나 실험자가 모르는 사항이라는 뜻이 아니다.\n\n- 스펙트럼 애널라이저 기종.\n- Hanle Task의 OPD 부호·probe 방향 표기와 1.5절 규약의 대응.\n- 골드 레퍼런스 TPD −8 MHz의 랩 규약 부호(운전 당시 EOM 주파수 3.0277 vs 3.0437 GHz).\n- fiber EOM 정확한 모델 번호와 RF 구동 파워.\n\n",
+    "new_str": "## 7. 보류 정보와 재질문 시점\n\n사용자 방침10-21: 사소한 세부나 추가 자료 조사로 확인 가능한 항목은 보류하고, **정말 중요한 정보만 필요한 작업 시점에 다시 질문**. 미등록을 미실시 실험이나 실험자 무지로 해석하지 않음.\n\n- **사진·기하:** 최신 테이블 사진은 추후 제공 예정. 교차점은 셀 내부지만 정확한 위치는 추후 측정. 제공된 SQL/FWM 도식은 현재 배치 근거이며 실측 좌표 아님.\n- **Waveform generator:** 모델이 필요한 제어/코일/주파수 응답 작업을 시작할 때 다시 알리고 질문.\n- **일단 보류:** 렌즈/기타 Thorlabs 부품 상세, FWM/Hanle 셀 공급사·창·mount, Hanle 상세 scan/기준 주파수. chip/asphere·etalon·coil 측정 기록은 Gisung Sim/랩미팅/Notion 기존 자료 우선.\n- **낮은 우선도:** Q17의 전압 판독 port/추가 환산 세부는 현 단계에서 더 캐묻지 않음. USB 파일은 엄격한 이름 체계가 없어 필요 분석 때 실제 파일로 대응.\n- **이미 해결:** 기준일10/16, PM-EOM 실제 교체, EOM 연결·RF 최신 기록, NEL 삽입ON/투과율만 반영, LDC501·DSOX1204A·DSA875·TC200·CCM1-PBS252/M, 현재APC–APC fiber, manual SAS, BPD gain/출력 연결, SA 같은 테이블·미접지, 센서 윗면·cold spot 미측정, 셀 전후 power 정정.\n- **기존 확인 유지:** SQL/FWM 파워 정합·공통 전기 구성,530/330µm 반경,QE0.905,ηOpt0.781/ηtotal0.707/after-cell0.9709. 값이 바뀌면 사용자가 알리기로 함. 골드 레퍼런스의 당시 RF/TPD는 문헌 재현에 필요할 때만 원자료로 대응.\n\n"
+  },
+  {
+    "old_str": "## 변경 이력",
+    "new_str": "## 변경 이력\n\n- **2026-10-21 사용자 확인 반영:**10/16기준의 지속 갱신,장비/배선/파이버/Noise Eater/기하/온도 기준 보정,제공 도식 추가,Hanle power 순서 정정. 출처는 현재 사용자 Q1–Q26 답변 및10/16직접 NF 요청. 위 장치·방법 갱신은 사용자 확인, 미등록 세부는 필요 시점 재질문으로 보류.\n- **⟦AI⟧ 추가 검수:**기존 조사·직접 사용자 발언과1회 대조.584.2mm 기준면·FWM/Hanle 온도 교정·문헌/개조 detector 사양·4/03/4/28 coil 자료의 범위를 분리. 새로운 suppression 성능·Hanle 교정·실물 좌표를 추정값으로 채우지 않음."
+  },
+  {
+    "old_str": "### 1.2 기호와 정의 <code>확정 10-02, 10-13</code>",
+    "new_str": "### 1.2 기호와 정의 — 10/16 NF 선택 반영"
+  }
+]

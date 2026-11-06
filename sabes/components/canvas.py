@@ -31,6 +31,7 @@ without it, clicking the same optic twice would be silently swallowed.
 from pathlib import Path
 
 import streamlit.components.v1 as components
+from gabes_ui.theme import FONT_MONO, FONT_SANS, tokens
 
 _FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 
@@ -60,7 +61,9 @@ def svg_canvas(spec, *, selected=None, key=None, default=None):
     caller can keep the canvas in step with state changed elsewhere (a dialog
     closing, a preset being applied).
     """
-    return _instance()(spec=spec, selected=selected, key=key, default=default)
+    return _instance()(spec=spec, selected=selected, key=key, default=default,
+                       view_key=str(key or "optical-table"), theme=tokens(),
+                       font_sans=FONT_SANS, font_mono=FONT_MONO)
 
 
 def make_spec(shapes, *, width=900, height=360, background="#F6F8FB",
@@ -77,25 +80,28 @@ def make_spec(shapes, *, width=900, height=360, background="#F6F8FB",
 
 def rect(shape_id, x, y, w, h, *, angle=0.0, label=None, title=None,
          fill="#E2E8F0", stroke="#1F4E79", stroke_width=1.6, clickable=True,
-         label_dy=None):
+         label_dy=None, label_dx=0.0, label_anchor="middle"):
     """A boxy optic: cube, plate, mount, cell."""
     return {
         "id": shape_id, "kind": "rect", "x": float(x), "y": float(y),
         "w": float(w), "h": float(h), "angle": float(angle),
         "label": label, "title": title, "fill": fill, "stroke": stroke,
         "stroke_width": stroke_width, "clickable": bool(clickable),
-        "label_dy": label_dy,
+        "label_dy": label_dy, "label_dx": float(label_dx),
+        "label_anchor": label_anchor,
     }
 
 
 def circle(shape_id, x, y, r, *, label=None, title=None, fill="#E2E8F0",
-           stroke="#1F4E79", stroke_width=1.6, clickable=True, label_dy=None):
+           stroke="#1F4E79", stroke_width=1.6, clickable=True, label_dy=None,
+           label_dx=0.0, label_anchor="middle"):
     """A round optic: lens, iris, fiber tip."""
     return {
         "id": shape_id, "kind": "circle", "x": float(x), "y": float(y),
         "r": float(r), "label": label, "title": title, "fill": fill,
         "stroke": stroke, "stroke_width": stroke_width,
         "clickable": bool(clickable), "label_dy": label_dy,
+        "label_dx": float(label_dx), "label_anchor": label_anchor,
     }
 
 

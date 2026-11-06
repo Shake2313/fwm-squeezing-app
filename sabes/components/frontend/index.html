@@ -3,311 +3,470 @@
 <head>
 <meta charset="utf-8">
 <style>
+  :root {
+    --g-surface: #FFFFFF; --g-ground: #F5F7FA; --g-ink: #0E1726;
+    --g-ink-2: #1F2D3D; --g-muted: #5B6B80; --g-line: #E3E8EF;
+    --g-accent: #0284C7; --g-accent-soft: #E6F2FA;
+    --g-font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", system-ui, sans-serif;
+    --g-font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: transparent;
-    font-family: "Source Sans Pro", -apple-system, system-ui, sans-serif; }
-  #stage { display: block; width: 100%; height: auto; }
-  .hit { cursor: pointer; }
-  .hit .body { transition: filter .12s ease, stroke-width .12s ease; }
-  .hit:hover .body { filter: brightness(1.06); stroke-width: 2.6; }
-  .hit.selected .body { stroke: #0F766E; stroke-width: 3; }
-  .label { font-size: 10.5px; fill: #334155; pointer-events: none;
-    user-select: none; text-anchor: middle; font-weight: 600; }
-  /* Decorative hardware is drawn but owns no parameter, so it recedes. */
-  .label-muted { fill: #94A3B8; font-weight: 500; }
-  .beam { pointer-events: none; }
+    font-family: var(--g-font-sans); color: var(--g-ink-2); }
+  .toolbar { display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; min-height: 40px; padding: 0 0 8px; font-size: 12px; }
+  .toolbar-group { display: flex; align-items: center; gap: 4px; }
+  .toolbar button { appearance: none; border: 1px solid var(--g-line);
+    border-radius: 6px; background: var(--g-surface); color: var(--g-ink-2);
+    font: 500 12px/1 var(--g-font-sans); min-height: 30px;
+    padding: 7px 10px; cursor: pointer; }
+  .toolbar button:hover { background: var(--g-ground); }
+  .toolbar button[aria-pressed="true"] { color: var(--g-accent);
+    border-color: var(--g-accent); background: var(--g-accent-soft); }
+  .toolbar button:disabled { opacity: .45; cursor: default; }
+  .toolbar button:focus-visible, #viewport:focus-visible {
+    outline: 2px solid var(--g-accent); outline-offset: 2px; }
+  #zoom-value { min-width: 42px; text-align: center;
+    font: 500 11px/1 var(--g-font-mono); color: var(--g-muted); }
+  #pan-hint { color: var(--g-muted); white-space: nowrap; }
+  #viewport { overflow: auto; border: 1px solid var(--g-line); border-radius: 8px;
+    background: var(--g-surface); overscroll-behavior: contain;
+    touch-action: pan-x pan-y pinch-zoom; scrollbar-width: thin; position: relative; }
+  #viewport.can-pan { cursor: grab; }
+  #viewport.panning { cursor: grabbing; user-select: none; }
+  #stage { display: block; max-width: none; flex: none; margin-inline: auto; }
+  .hit { cursor: pointer; outline: none; }
+  .body, .beam, .probe { pointer-events: none; }
+  .hit .body { transition: stroke-width .12s ease; }
+  .hit:hover > .body { stroke-width: 2; }
+  .focus-ring { fill: none; stroke: var(--g-accent); stroke-width: 1.8;
+    opacity: 0; pointer-events: none; }
+  .hit.selected .focus-ring { opacity: .7; }
+  .hit:focus-visible .focus-ring { opacity: 1; stroke-width: 2.4; }
+  .label { font: 500 12px var(--g-font-sans); fill: var(--g-ink-2);
+    pointer-events: none; user-select: none; text-anchor: middle; }
+  .label.clickable-label { pointer-events: visiblePainted; cursor: pointer; }
   #empty { fill: transparent; cursor: crosshair; }
-  .probe { pointer-events: none; }
+  @media (max-width: 450px) { #pan-hint { display: none; }
+    .toolbar button { min-height: 34px; padding: 8px 10px; } }
 </style>
 </head>
 <body>
-<svg id="stage" xmlns="http://www.w3.org/2000/svg"></svg>
-
+<div class="toolbar" role="toolbar" aria-label="Optical table view">
+  <div class="toolbar-group">
+    <button id="fit" type="button" aria-pressed="true" title="Show the entire table">Fit</button>
+    <button id="actual" type="button" aria-pressed="false" title="Read labels at their original size">100%</button>
+  </div>
+  <div class="toolbar-group">
+    <span id="pan-hint">Drag to pan</span>
+    <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+    <output id="zoom-value" aria-label="Table zoom">100%</output>
+    <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+  </div>
+</div>
+<div id="viewport" tabindex="0" role="region" aria-label="Optical table. Use the view controls to zoom; scroll or drag to pan.">
+  <svg id="stage" xmlns="http://www.w3.org/2000/svg" aria-label="Optical table schematic"></svg>
+</div>
 <script>
-// ---------------------------------------------------------------------------
-// Streamlit component protocol, implemented by hand.
-//
-// The official helper library is an npm package; the protocol underneath it is
-// three postMessage shapes, so a build step buys nothing here. Doing it this way
-// keeps the component a plain static folder that ships as package data and
-// deploys with no toolchain.
-// ---------------------------------------------------------------------------
+// Plain Streamlit component protocol: no frontend build or external runtime.
 const SVG_NS = "http://www.w3.org/2000/svg";
+const stage = document.getElementById("stage");
+const viewport = document.getElementById("viewport");
+let seq = 0;
+const instance = globalThis.crypto?.randomUUID?.() ||
+  Date.now().toString(36) + Math.random().toString(36).slice(2);
+let selected = null;
+let lastSpec = {};
+let viewKey = "optical-table";
+let mode = "fit";
+let scale = 1;
+let lastHeight = 0;
+let lastAvailableWidth = 0;
+let drag = null;
+let suppressClickUntil = 0;
+let viewState = {};
+try { viewState = JSON.parse(sessionStorage.getItem("sabes-table-view") || "{}"); }
+catch (_) { viewState = {}; }
 
 function send(type, extra) {
   window.parent.postMessage(
     Object.assign({isStreamlitMessage: true, type: type}, extra || {}), "*");
 }
-
 function setValue(value) {
   send("streamlit:setComponentValue", {value: value, dataType: "json"});
 }
-
-function setHeight(height) {
-  send("streamlit:setFrameHeight", {height: height});
-}
-
-// Streamlit only reruns when the component's value CHANGES. Two identical
-// clicks on the same optic would otherwise be swallowed, which reads as a
-// broken UI, so every event carries a monotonic sequence number.
-let seq = 0;
-let selected = null;
-
+function setHeight(height) { send("streamlit:setFrameHeight", {height: height}); }
 function emit(payload) {
   seq += 1;
   payload.seq = seq;
+  payload.instance = instance;
   setValue(payload);
 }
-
-// ---------------------------------------------------------------------------
-// Rendering
-// ---------------------------------------------------------------------------
 function el(name, attrs) {
   const node = document.createElementNS(SVG_NS, name);
   for (const key in attrs) {
-    if (attrs[key] !== null && attrs[key] !== undefined) {
-      node.setAttribute(key, attrs[key]);
-    }
+    if (attrs[key] !== null && attrs[key] !== undefined) node.setAttribute(key, attrs[key]);
   }
   return node;
 }
 
-// A `part` is a sub-primitive positioned relative to the node's centre. Optics
-// are built from them -- a polarizing cube is a square plus its diagonal, a
-// waveplate is a plate plus its hatch -- so the whole glyph stays inside one
-// clickable, hoverable group instead of fragmenting into separate targets.
+// Fonts use the same self-hosted assets as the parent application.
+try {
+  const base = new URL(window.parent.location.href);
+  base.search = ""; base.hash = "";
+  if (!base.pathname.endsWith("/")) base.pathname += "/";
+  const fontStyle = document.createElement("style");
+  fontStyle.textContent = [
+    ["IBM Plex Sans", "ibm-plex-sans-latin-400-normal.woff2", 400],
+    ["IBM Plex Sans", "ibm-plex-sans-latin-500-normal.woff2", 500],
+    ["IBM Plex Sans", "ibm-plex-sans-latin-600-normal.woff2", 600],
+    ["IBM Plex Mono", "ibm-plex-mono-latin-500-normal.woff2", 500],
+  ].map(([family, file, weight]) =>
+    `@font-face{font-family:"${family}";font-style:normal;font-weight:${weight};font-display:swap;src:url("${new URL("app/static/fonts/" + file, base)}") format("woff2");}`
+  ).join("\n");
+  document.head.appendChild(fontStyle);
+} catch (_) { /* The existing system-font stack remains usable. */ }
+
+function applyTheme(args) {
+  Object.entries(args.theme || {}).forEach(([name, value]) =>
+    document.documentElement.style.setProperty("--g-" + name, value));
+  if (args.font_sans) document.documentElement.style.setProperty("--g-font-sans", args.font_sans);
+  if (args.font_mono) document.documentElement.style.setProperty("--g-font-mono", args.font_mono);
+}
+
+// Sub-primitives stay inside the glyph transform; labels never rotate.
 function drawPart(part, cx, cy) {
   const kind = part.kind || "rect";
-  if (kind === "rect") {
-    return el("rect", {
-      x: cx + (part.dx || 0) - (part.w || 0) / 2,
-      y: cy + (part.dy || 0) - (part.h || 0) / 2,
-      width: part.w, height: part.h, rx: part.rx || 0,
-      fill: part.fill || "none", stroke: part.stroke || "none",
-      "stroke-width": part.stroke_width || 1,
-      opacity: part.opacity === undefined ? 1 : part.opacity,
-    });
-  }
-  if (kind === "circle") {
-    return el("circle", {
-      cx: cx + (part.dx || 0), cy: cy + (part.dy || 0), r: part.r || 3,
-      fill: part.fill || "none", stroke: part.stroke || "none",
-      "stroke-width": part.stroke_width || 1,
-      opacity: part.opacity === undefined ? 1 : part.opacity,
-    });
-  }
-  if (kind === "line") {
-    return el("line", {
-      x1: cx + part.x1, y1: cy + part.y1,
-      x2: cx + part.x2, y2: cy + part.y2,
-      stroke: part.stroke || "#1F4E79",
-      "stroke-width": part.stroke_width || 1.2,
-      "stroke-linecap": "round",
-      opacity: part.opacity === undefined ? 1 : part.opacity,
-    });
-  }
+  const attrs = {
+    fill: part.fill || "none", stroke: part.stroke || "none",
+    "stroke-width": part.stroke_width || 1,
+    opacity: part.opacity === undefined ? 1 : part.opacity,
+  };
+  if (kind === "rect") return el("rect", Object.assign(attrs, {
+    x: cx + (part.dx || 0) - (part.w || 0) / 2,
+    y: cy + (part.dy || 0) - (part.h || 0) / 2,
+    width: part.w, height: part.h, rx: part.rx || 0,
+  }));
+  if (kind === "circle") return el("circle", Object.assign(attrs, {
+    cx: cx + (part.dx || 0), cy: cy + (part.dy || 0), r: part.r || 3,
+  }));
+  if (kind === "ellipse") return el("ellipse", Object.assign(attrs, {
+    cx: cx + (part.dx || 0), cy: cy + (part.dy || 0),
+    rx: part.rx || 3, ry: part.ry || 3,
+  }));
+  if (kind === "line") return el("line", Object.assign(attrs, {
+    x1: cx + part.x1, y1: cy + part.y1, x2: cx + part.x2, y2: cy + part.y2,
+    stroke: part.stroke || "#3B4A5E", "stroke-width": part.stroke_width || 1.2,
+    "stroke-linecap": "round",
+  }));
+  if (kind === "path") return el("path", Object.assign(attrs, {
+    d: part.d || "", transform: `translate(${cx} ${cy})`,
+    "stroke-linecap": "round", "stroke-linejoin": "round",
+  }));
   return null;
 }
 
 function drawShape(shape) {
   const kind = shape.kind || "rect";
+  const attrs = {
+    fill: shape.fill || "#E3E8EF", stroke: shape.stroke || "#3B4A5E",
+    "stroke-width": shape.stroke_width || 1.6,
+  };
   let body;
-  if (kind === "rect") {
-    body = el("rect", {
-      x: shape.x - (shape.w || 0) / 2, y: shape.y - (shape.h || 0) / 2,
-      width: shape.w, height: shape.h, rx: shape.rx || 2,
-      fill: shape.fill || "#E2E8F0", stroke: shape.stroke || "#1F4E79",
-      "stroke-width": shape.stroke_width || 1.6,
-    });
-  } else if (kind === "circle") {
-    body = el("circle", {
-      cx: shape.x, cy: shape.y, r: shape.r || 6,
-      fill: shape.fill || "#E2E8F0", stroke: shape.stroke || "#1F4E79",
-      "stroke-width": shape.stroke_width || 1.6,
-    });
-  } else if (kind === "path") {
-    body = el("polyline", {
-      points: (shape.points || []).map(p => p.join(",")).join(" "),
-      fill: "none", stroke: shape.stroke || "#E8873A",
-      "stroke-width": shape.width || 3,
-      "stroke-linecap": "round", "stroke-linejoin": "round",
-      "stroke-dasharray": shape.dash || null,
-      opacity: shape.opacity === undefined ? 1 : shape.opacity,
-    });
-  } else {
-    return null;
-  }
-  body.setAttribute("class", "body");
-  if (shape.opacity !== undefined && kind !== "path") {
-    body.setAttribute("opacity", shape.opacity);
-  }
-
-  if (shape.parts && shape.parts.length) {
-    const group = el("g", {});
-    group.appendChild(body);
-    shape.parts.forEach(part => {
-      const node = drawPart(part, shape.x, shape.y);
-      if (node) group.appendChild(node);
-    });
-    group.setAttribute("class", "body");
-    body.removeAttribute("class");
-    if (shape.angle) {
-      group.setAttribute("transform",
-        `rotate(${shape.angle} ${shape.x} ${shape.y})`);
-    }
-    return group;
-  }
-  if (shape.angle && kind === "rect") {
-    body.setAttribute("transform",
-      `rotate(${shape.angle} ${shape.x} ${shape.y})`);
-  }
-  return body;
+  if (kind === "rect") body = el("rect", Object.assign(attrs, {
+    x: shape.x - (shape.w || 0) / 2, y: shape.y - (shape.h || 0) / 2,
+    width: shape.w, height: shape.h, rx: shape.rx === undefined ? 2 : shape.rx,
+  }));
+  else if (kind === "circle") body = el("circle", Object.assign(attrs, {
+    cx: shape.x, cy: shape.y, r: shape.r || 6,
+  }));
+  else if (kind === "ellipse") body = el("ellipse", Object.assign(attrs, {
+    cx: shape.x, cy: shape.y, rx: shape.rx || 6, ry: shape.ry || 6,
+  }));
+  else if (kind === "path") body = el("polyline", {
+    points: (shape.points || []).map(p => p.join(",")).join(" "),
+    fill: "none", stroke: shape.stroke || "#E8873A", "stroke-width": shape.width || 3,
+    "stroke-linecap": "round", "stroke-linejoin": "round",
+    "stroke-dasharray": shape.dash || null,
+    opacity: shape.opacity === undefined ? 1 : shape.opacity,
+  });
+  else return null;
+  if (shape.opacity !== undefined && kind !== "path") body.setAttribute("opacity", shape.opacity);
+  const group = el("g", {class: kind === "path" ? "beam" : "body",
+    "data-node-id": kind === "path" ? null : shape.id});
+  group.appendChild(body);
+  (shape.parts || []).forEach(part => {
+    const primitive = drawPart(part, shape.x, shape.y);
+    if (primitive) group.appendChild(primitive);
+  });
+  if (shape.angle && kind !== "path") group.setAttribute("transform",
+    `rotate(${shape.angle} ${shape.x} ${shape.y})`);
+  return group;
 }
 
-// A faint breadboard grid. Purely atmosphere -- it says "optical table" at a
-// glance -- and it is explicitly NOT a scale: display units are not millimetres.
-function drawGrid(stage, spec) {
+function drawGrid(spec) {
   const pitch = spec.grid;
   if (!pitch) return;
   const dots = [];
   for (let x = pitch; x < spec.width; x += pitch) {
-    for (let y = pitch; y < spec.height; y += pitch) {
-      dots.push(`M${x} ${y}h0.9`);
-    }
+    for (let y = pitch; y < spec.height; y += pitch) dots.push(`M${x} ${y}h0.5`);
   }
   stage.appendChild(el("path", {
     d: dots.join(""), stroke: spec.grid_color || "#CBD5E1",
-    "stroke-width": 1.6, "stroke-linecap": "round", opacity: 0.5,
+    "stroke-width": 1.2, "stroke-linecap": "round", opacity: 0.38,
+    "pointer-events": "none",
   }));
 }
 
+function labelFor(shape) {
+  const node = el("text", {
+    x: shape.x + (shape.label_dx || 0),
+    y: shape.y + (shape.label_dy == null ? -10 : shape.label_dy),
+    class: "label" + (shape.clickable ? " clickable-label" : ""),
+    "text-anchor": shape.label_anchor || "middle", "aria-hidden": "true",
+    "data-node-id": shape.id,
+  });
+  // Inline style overrides the shared default for explicit side labels.
+  node.style.textAnchor = shape.label_anchor || "middle";
+  node.textContent = shape.label;
+  if (shape.clickable) node.addEventListener("click", event => {
+    event.stopPropagation();
+    if (Date.now() >= suppressClickUntil) activate(shape);
+  });
+  return node;
+}
+
+function glyphBounds(shape) {
+  const w = shape.w || (shape.rx || shape.r || 8) * 2;
+  const h = shape.h || (shape.ry || shape.r || 8) * 2;
+  const angle = (shape.angle || 0) * Math.PI / 180;
+  return {
+    w: Math.abs(w * Math.cos(angle)) + Math.abs(h * Math.sin(angle)),
+    h: Math.abs(w * Math.sin(angle)) + Math.abs(h * Math.cos(angle)),
+  };
+}
+
+function activate(shape) {
+  selected = shape.id;
+  saveView();
+  stage.querySelectorAll(".hit").forEach(node => {
+    const active = node.dataset.opticId === shape.id;
+    node.classList.toggle("selected", active);
+    node.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+  emit({kind: "optic", id: shape.id});
+}
+
 function render(spec) {
-  const stage = document.getElementById("stage");
+  const focused = document.activeElement && document.activeElement.dataset.opticId;
+  const left = viewport.scrollLeft, top = viewport.scrollTop;
   while (stage.firstChild) stage.removeChild(stage.firstChild);
-
-  const width = spec.width || 900;
-  const height = spec.height || 360;
+  const width = spec.width || 900, height = spec.height || 360;
   stage.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  stage.setAttribute("preserveAspectRatio", "xMidYMid meet");
-
-  if (spec.background) {
-    stage.appendChild(el("rect", {
-      x: 0, y: 0, width: width, height: height,
-      fill: spec.background, rx: 6,
-    }));
-  }
-  drawGrid(stage, spec);
-
-  // Full-area target underneath everything: a click that hits no optic is a
-  // point on the table, which is how instrument heads get placed.
-  const empty = el("rect", {id: "empty", x: 0, y: 0, width: width, height: height});
+  stage.setAttribute("preserveAspectRatio", "xMinYMin meet");
+  stage.appendChild(el("rect", {x: 0, y: 0, width, height,
+    fill: spec.background || "#FFFFFF", "pointer-events": "none"}));
+  drawGrid(spec);
+  const empty = el("rect", {id: "empty", x: 0, y: 0, width, height});
   stage.appendChild(empty);
-
+  const pointTargets = [empty];
+  const labels = [];
   (spec.shapes || []).forEach(shape => {
     const body = drawShape(shape);
     if (!body) return;
     if (!shape.clickable) {
-      body.setAttribute("class", "body beam");
+      if (shape.kind !== "path" && shape.id) {
+        const title = el("title", {});
+        title.textContent = shape.title || shape.label || shape.id;
+        body.appendChild(title);
+        body.style.pointerEvents = "visiblePainted";
+        pointTargets.push(body);
+      }
       stage.appendChild(body);
-      if (shape.label) stage.appendChild(labelFor(shape));
+      if (shape.label) labels.push(labelFor(shape));
       return;
     }
-    const group = el("g", {class: "hit" + (shape.id === selected ? " selected" : "")});
+    const group = el("g", {
+      class: "hit" + (shape.id === selected ? " selected" : ""),
+      role: "button", tabindex: "0", "aria-label": shape.label || shape.id,
+      "aria-pressed": shape.id === selected ? "true" : "false",
+      "data-optic-id": shape.id,
+    });
+    const bounds = glyphBounds(shape);
+    group.appendChild(el("rect", {
+      x: shape.x - Math.max(bounds.w + 4, 28) / 2,
+      y: shape.y - Math.max(bounds.h + 4, 28) / 2,
+      width: Math.max(bounds.w + 4, 28), height: Math.max(bounds.h + 4, 28),
+      fill: "transparent", "pointer-events": "all", rx: 3, class: "hit-target",
+    }));
     group.appendChild(body);
-    if (shape.label) group.appendChild(labelFor(shape));
+    group.appendChild(el("rect", {
+      x: shape.x - bounds.w / 2 - 4, y: shape.y - bounds.h / 2 - 4,
+      width: bounds.w + 8, height: bounds.h + 8, rx: 4, class: "focus-ring",
+    }));
     const title = el("title", {});
     title.textContent = shape.title || shape.label || shape.id;
     group.appendChild(title);
     group.addEventListener("click", event => {
       event.stopPropagation();
-      selected = shape.id;
-      render(lastSpec);
-      emit({kind: "optic", id: shape.id});
+      if (Date.now() >= suppressClickUntil) activate(shape);
     });
+    group.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault(); event.stopPropagation(); activate(shape);
+      }
+    });
+    group.addEventListener("focus", () => group.scrollIntoView({block: "nearest", inline: "nearest"}));
     stage.appendChild(group);
+    if (shape.label) labels.push(labelFor(shape));
   });
-
+  // One final label layer keeps text unrotated and independent of muted glyphs.
+  labels.forEach(label => stage.appendChild(label));
   if (spec.probe) {
     const probe = el("g", {class: "probe"});
-    probe.appendChild(el("circle", {
-      cx: spec.probe[0], cy: spec.probe[1], r: 7,
-      fill: "none", stroke: "#0F766E", "stroke-width": 2,
-    }));
-    probe.appendChild(el("line", {
-      x1: spec.probe[0] - 11, y1: spec.probe[1],
-      x2: spec.probe[0] + 11, y2: spec.probe[1],
-      stroke: "#0F766E", "stroke-width": 1.4,
-    }));
-    probe.appendChild(el("line", {
-      x1: spec.probe[0], y1: spec.probe[1] - 11,
-      x2: spec.probe[0], y2: spec.probe[1] + 11,
-      stroke: "#0F766E", "stroke-width": 1.4,
-    }));
+    probe.appendChild(el("circle", {cx: spec.probe[0], cy: spec.probe[1], r: 7,
+      fill: "none", stroke: "var(--g-accent)", "stroke-width": 2}));
+    [[-11, 0, 11, 0], [0, -11, 0, 11]].forEach(([x1, y1, x2, y2]) =>
+      probe.appendChild(el("line", {x1: spec.probe[0] + x1, y1: spec.probe[1] + y1,
+        x2: spec.probe[0] + x2, y2: spec.probe[1] + y2,
+        stroke: "var(--g-accent)", "stroke-width": 1.4})));
     stage.appendChild(probe);
   }
-
-  empty.addEventListener("click", event => {
+  const placeProbe = event => {
+    if (Date.now() < suppressClickUntil) return;
     const point = toSpecCoords(stage, event);
     selected = null;
+    stage.querySelectorAll(".hit.selected").forEach(node => {
+      node.classList.remove("selected"); node.setAttribute("aria-pressed", "false");
+    });
+    saveView();
     emit({kind: "point", x: point.x, y: point.y});
-  });
-
+  };
+  pointTargets.forEach(target => target.addEventListener("click", placeProbe));
+  applyView();
+  viewport.scrollLeft = left; viewport.scrollTop = top;
+  if (focused) {
+    const target = Array.from(stage.querySelectorAll(".hit")).find(node => node.dataset.opticId === focused);
+    if (target) target.focus({preventScroll: true});
+  }
   reportHeight();
 }
 
-function labelFor(shape) {
-  const node = el("text", {
-    x: shape.x, y: shape.y + (shape.label_dy === undefined ? -10 : shape.label_dy),
-    class: "label" + (shape.clickable ? "" : " label-muted"),
-  });
-  node.textContent = shape.label;
-  return node;
-}
-
-// Screen pixels -> spec coordinates, so a click means the same thing no matter
-// how the browser scaled the SVG.
+// Inverse CTM includes SVG scaling, viewport scrolling and browser zoom.
 function toSpecCoords(svg, event) {
   const point = svg.createSVGPoint();
-  point.x = event.clientX;
-  point.y = event.clientY;
+  point.x = event.clientX; point.y = event.clientY;
   const local = point.matrixTransform(svg.getScreenCTM().inverse());
   return {x: Math.round(local.x * 100) / 100, y: Math.round(local.y * 100) / 100};
 }
 
-// ---------------------------------------------------------------------------
-// Wiring
-// ---------------------------------------------------------------------------
-let lastSpec = {};
+function saveView() {
+  viewState[viewKey] = {mode, left: viewport.scrollLeft, top: viewport.scrollTop};
+  try { sessionStorage.setItem("sabes-table-view", JSON.stringify(viewState)); }
+  catch (_) { /* View controls still work when storage is unavailable. */ }
+}
+function applyView() {
+  const width = lastSpec.width || 900, height = lastSpec.height || 360;
+  const available = Math.max(1, viewport.clientWidth);
+  lastAvailableWidth = available;
+  let screenHeight = 900;
+  try { screenHeight = window.parent.innerHeight || screenHeight; } catch (_) {}
+  const limit = Math.max(260, Math.min(760, screenHeight * .78));
+  scale = mode === "fit" ? Math.min(available / width, limit / height) : Number(mode);
+  stage.style.width = `${width * scale}px`;
+  stage.style.height = `${height * scale}px`;
+  viewport.style.height = `${Math.min(height * scale + 2, limit)}px`;
+  viewport.classList.toggle("can-pan", width * scale > available + 1 || height * scale > limit);
+  document.getElementById("fit").setAttribute("aria-pressed", mode === "fit" ? "true" : "false");
+  document.getElementById("actual").setAttribute("aria-pressed", mode === 1 ? "true" : "false");
+  document.getElementById("zoom-value").textContent = `${Math.round(scale * 100)}%`;
+  document.getElementById("zoom-out").disabled = scale <= .25;
+  document.getElementById("zoom-in").disabled = scale >= 2;
+  reportHeight();
+}
+function changeZoom(next) {
+  const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / scale;
+  const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / scale;
+  mode = next === "fit" ? "fit" : Math.min(2, Math.max(.25, Number(next)));
+  applyView();
+  viewport.scrollLeft = mode === "fit" ? 0 : centerX * scale - viewport.clientWidth / 2;
+  viewport.scrollTop = mode === "fit" ? 0 : centerY * scale - viewport.clientHeight / 2;
+  saveView();
+}
+document.getElementById("fit").addEventListener("click", () => changeZoom("fit"));
+document.getElementById("actual").addEventListener("click", () => changeZoom(1));
+document.getElementById("zoom-in").addEventListener("click", () => changeZoom(scale * 1.25));
+document.getElementById("zoom-out").addEventListener("click", () => changeZoom(scale / 1.25));
+viewport.addEventListener("scroll", saveView, {passive: true});
+viewport.addEventListener("pointerdown", event => {
+  if (event.button !== 0) return;
+  drag = {id: event.pointerId, x: event.clientX, y: event.clientY,
+    left: viewport.scrollLeft, top: viewport.scrollTop,
+    mouse: event.pointerType === "mouse", moved: false};
+});
+viewport.addEventListener("pointermove", event => {
+  if (!drag || event.pointerId !== drag.id) return;
+  if (drag.mouse && event.buttons === 0) { finishDrag(); return; }
+  if (Math.hypot(event.clientX - drag.x, event.clientY - drag.y) > 5) drag.moved = true;
+  if (!drag.moved) return;
+  suppressClickUntil = Date.now() + 300;
+  if (drag.mouse && viewport.classList.contains("can-pan")) {
+    viewport.classList.add("panning");
+    viewport.setPointerCapture(event.pointerId);
+    viewport.scrollLeft = drag.left - (event.clientX - drag.x);
+    viewport.scrollTop = drag.top - (event.clientY - drag.y);
+    event.preventDefault();
+  }
+});
+function finishDrag() {
+  if (drag && drag.moved) suppressClickUntil = Date.now() + 300;
+  drag = null; viewport.classList.remove("panning"); saveView();
+}
+viewport.addEventListener("pointerup", finishDrag);
+viewport.addEventListener("pointercancel", finishDrag);
+viewport.addEventListener("lostpointercapture", finishDrag);
+viewport.addEventListener("keydown", event => {
+  if (event.target !== viewport) return;
+  const directions = {ArrowLeft: [-60, 0], ArrowRight: [60, 0], ArrowUp: [0, -60], ArrowDown: [0, 60]};
+  if (directions[event.key]) {
+    event.preventDefault(); viewport.scrollBy(...directions[event.key]);
+  }
+});
 
 window.addEventListener("message", event => {
   if (!event.data || event.data.type !== "streamlit:render") return;
   const args = event.data.args || {};
+  applyTheme(args);
+  const nextKey = args.view_key || "optical-table";
+  let restore = null;
+  if (nextKey !== viewKey || !Object.keys(lastSpec).length) {
+    viewKey = nextKey;
+    const saved = viewState[viewKey] || {};
+    mode = saved.mode || "fit";
+    restore = saved;
+  }
   lastSpec = args.spec || {};
   if (args.selected !== undefined) selected = args.selected;
   render(lastSpec);
+  if (restore) {
+    viewport.scrollLeft = restore.left || 0; viewport.scrollTop = restore.top || 0;
+  }
 });
 
-// Height has to be re-reported whenever the drawing's own size changes, not
-// just on window resize. A component that mounts inside a hidden Streamlit tab
-// measures zero, so without this the canvas stays collapsed to a few pixels
-// until something else happens to trigger a resize.
-let lastHeight = 0;
-
 function reportHeight() {
-  const stage = document.getElementById("stage");
-  if (!stage) return;
-  const height = Math.ceil(stage.getBoundingClientRect().height);
+  if (lastSpec.width && Math.abs(viewport.clientWidth - lastAvailableWidth) > 1) {
+    applyView();
+    return;
+  }
+  const height = Math.ceil(document.querySelector(".toolbar").getBoundingClientRect().height + viewport.getBoundingClientRect().height);
   if (height > 0 && height !== lastHeight) {
-    lastHeight = height;
-    setHeight(height + 4);
+    lastHeight = height; setHeight(height + 4);
   }
 }
-
 window.addEventListener("resize", reportHeight);
-
-if (window.ResizeObserver) {
-  new ResizeObserver(reportHeight).observe(document.body);
-}
-
+window.addEventListener("resize", () => applyView());
+if (window.ResizeObserver) new ResizeObserver(reportHeight).observe(document.body);
+if (document.fonts) document.fonts.ready.then(reportHeight);
 send("streamlit:componentReady", {apiVersion: 1});
 </script>
 </body>

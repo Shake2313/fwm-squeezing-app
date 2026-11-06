@@ -9,6 +9,7 @@ nothing is allowed to derive one from the other. The setup drawings are
 schematics, so a pixel distance is not a metre distance, and letting them mix
 would corrupt every beam size downstream without anything looking wrong.
 """
+import math
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -28,6 +29,32 @@ from sabes.layout import parts, table  # noqa: E402
 @pytest.fixture(scope="module")
 def chain():
     return build_source_chain()
+
+
+def test_steering_mirror_glyphs_match_the_drawn_reflection():
+    """Schematic face orientation must agree with its attached beam corner.
+
+    D-mirrors use an abstract separation glyph; this checks the unambiguous
+    steering and SQL-injection corners, not mechanical laboratory angles.
+    """
+    for part in layout.LAYOUTS:
+        for node in part.nodes:
+            if not (node.id.startswith("m_") or node.id.startswith("flip_sql_")):
+                continue
+            incoming, = (link for link in part.links if link.b == node.id)
+            outgoing, = (link for link in part.links if link.a == node.id)
+            before, center = part.points(incoming)[-2:]
+            origin, after = part.points(outgoing)[:2]
+            kin = (center[0] - before[0], center[1] - before[1])
+            kout = (after[0] - origin[0], after[1] - origin[1])
+            kin = tuple(value / math.hypot(*kin) for value in kin)
+            kout = tuple(value / math.hypot(*kout) for value in kout)
+            tangent = (math.cos(math.radians(node.angle)),
+                       math.sin(math.radians(node.angle)))
+            along = sum(a * b for a, b in zip(kin, tangent))
+            reflected = tuple(2 * along * face - incident
+                              for face, incident in zip(tangent, kin))
+            assert reflected == pytest.approx(kout, abs=1e-12), node.id
 
 
 # ------------------------------------------------------- structural integrity
@@ -63,19 +90,33 @@ def test_negative_and_mistyped_path_lengths_are_rejected():
 
 # --------------------------------------------- the two coordinate systems
 
-def test_display_coordinates_do_not_determine_path_lengths():
-    """A schematic has no single scale, and this proves it does not need one.
+def test_display_coordinates_do_not_determine_path_lengths(chain):
+    """Rescaling the complete sketch must not alter detector geometry.
 
-    If display distance and optical path were the same thing, every link would
-    share one metres-per-unit ratio. They do not, by more than an order of
-    magnitude, which is exactly why `path_m` is stored rather than measured off
-    the drawing.
+    Different schematic spacing is allowed; the physical distances and the
+    resulting spot sizes must survive that intervention unchanged.
     """
     from sabes.layout.probe import display_scale_m_per_unit
 
-    ratios = list(display_scale_m_per_unit(parts.PART2).values())
-    assert len(ratios) >= 6
-    assert max(ratios) / min(ratios) > 10.0
+    part = parts.PART2
+    stretched = replace(
+        part, width=part.width * 3, height=part.height * 3,
+        nodes=tuple(replace(node, x=node.x * 3, y=node.y * 3)
+                    for node in part.nodes),
+        links=tuple(replace(
+            link, via=tuple((x * 3, y * 3) for x, y in link.via),
+            a_offset=tuple(value * 3 for value in link.a_offset),
+            b_offset=tuple(value * 3 for value in link.b_offset))
+                    for link in part.links))
+    before = display_scale_m_per_unit(part)
+    after = display_scale_m_per_unit(stretched)
+    assert len(before) >= 6
+    assert after == pytest.approx({route: ratio / 3
+                                   for route, ratio in before.items()})
+    assert parts.cell_to_dmirror_m(stretched) == parts.cell_to_dmirror_m(part)
+    assert parts.cell_to_lens_m(stretched) == parts.cell_to_lens_m(part)
+    assert detection.geometry(chain, SetupSettings(), layout=stretched) == \
+        detection.geometry(chain, SetupSettings(), layout=part)
 
 
 def test_path_lengths_carry_provenance_and_the_nominal_ones_are_visible():
@@ -140,10 +181,12 @@ def test_crossing_angle_uses_the_measured_table_distance():
 def test_beam_at_returns_the_right_arm_not_just_the_right_stage_name(chain):
     """Both arms have a stage called 'at cell'; keying on the name alone would
     hand the pump's segment the seed's beam."""
-    on_pump = layout.beam_at(parts.PART2, 300, 256, chain)
+    pump_points = parts.PART2.points(parts.PART2.link_between("pbs_in", "cell"))
+    on_pump = layout.beam_at(parts.PART2, *_lerp(pump_points[0], pump_points[1], 0.5), chain)
     assert on_pump is not None and on_pump.beam_name == layout.BEAM_PUMP
     assert on_pump.power_w > 0.1                      # hundreds of mW
-    on_seed = layout.beam_at(parts.PART2, 500, 60, chain)
+    seed_points = parts.PART2.points(parts.PART2.link_between("seed_l1", "seed_l2"))
+    on_seed = layout.beam_at(parts.PART2, *_lerp(seed_points[0], seed_points[1], 0.5), chain)
     assert on_seed is not None and on_seed.beam_name == layout.BEAM_SEED
     assert on_seed.power_w < 0.01
 
@@ -161,7 +204,8 @@ def test_beam_at_propagates_the_mode_to_the_probed_point(chain):
 
 def test_beam_at_returns_nothing_on_empty_table(chain):
     """Most of a table has no beam on it, and that is an answer, not a failure."""
-    assert layout.beam_at(parts.PART2, 620, 380, chain) is None
+    assert layout.beam_at(parts.PART2, parts.PART2.width - 8,
+                          parts.PART2.height - 8, chain) is None
 
 
 def test_beam_at_respects_the_pick_tolerance(chain):
@@ -183,9 +227,12 @@ def test_beam_at_respects_the_pick_tolerance(chain):
 
 def test_segments_without_a_length_do_not_fake_propagation(chain):
     """No length means nothing to propagate along; report the entry state."""
-    reading = layout.beam_at(parts.PART2, 250, 200, chain)
-    if reading is not None and reading.link.path_m is None:
-        assert reading.distance_along_m == 0.0
+    link = parts.PART2.link_between("m_seed_a", "gtp_seed")
+    points = parts.PART2.points(link)
+    reading = layout.beam_at(parts.PART2, *_lerp(points[0], points[1], 0.5), chain)
+    assert reading is not None and reading.link == link
+    assert reading.link.path_m is None
+    assert reading.distance_along_m == 0.0
 
 
 # ---------------------------------------------------------- clickability

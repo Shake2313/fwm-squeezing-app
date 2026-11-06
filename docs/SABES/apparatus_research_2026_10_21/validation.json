@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-21",
+  "timezone": "Asia/Seoul",
+  "origin": "ai_execution_verification",
+  "source_file_count": 79,
+  "original_source_hash_changes": [],
+  "runtime_snapshot_hash_changes": [],
+  "missing_markdown_links": [],
+  "json_files_valid": [
+    "drive_source_metadata.json",
+    "lab_sources_text.json",
+    "lab_sources_manifest.json",
+    "sabes_current_inventory.json",
+    "sabes_implementation_inventory.json",
+    "sabes_inventory_summary.json"
+  ],
+  "pytest": {
+    "command": "python -m pytest -q",
+    "exit_code": 0,
+    "passed": 2494,
+    "skipped": 3,
+    "warnings": 11,
+    "duration_seconds": 903.39,
+    "result_source": "exec session57612 completion"
+  },
+  "scope": "Research documents and read-only extraction/export helpers. No SABES runtime/default/calibration edits; no new apparatus measurements or physics certificate."
+}

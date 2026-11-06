@@ -22,15 +22,17 @@ exist. Clicking follows `Node.clickable`, independently of this status.
 """
 import math
 
+from gabes_ui.theme import LIGHT
+
 from ..components import canvas as canvas_module
 from .table import (BEAM_COMMON, BEAM_CONJUGATE, BEAM_PROBE, BEAM_PUMP,
                     BEAM_REFERENCE, BEAM_SEED)
 
 # --- palette -------------------------------------------------------------
-TABLE_BG = "#F1F5F9"
-GRID_COLOR = "#CBD5E1"
-INK = "#1E293B"
-MUTED_INK = "#94A3B8"
+TABLE_BG = LIGHT["surface"]
+GRID_COLOR = LIGHT["line"]
+INK = LIGHT["ink-3"]
+MUTED_INK = LIGHT["muted"]
 
 BEAM_STYLE = {
     BEAM_COMMON: {"stroke": "#E8873A", "dash": None},
@@ -41,11 +43,11 @@ BEAM_STYLE = {
     BEAM_REFERENCE: {"stroke": "#F0A868", "dash": "3 4"},
 }
 
-GLASS = "#E9D5FF"
-CUBE = "#F3D9F5"
-METAL = "#BFDBFE"
-VAPOUR = "#FDE9C9"
-DARK = "#1F2937"
+GLASS = LIGHT["accent-soft"]
+CUBE = "#F0F5F9"
+METAL = "#D9E4EC"
+VAPOUR = "#FFF5E6"
+DARK = LIGHT["fill-soft"]
 
 # --- beam thickness ------------------------------------------------------
 #: Power that maps to `WIDTH_AT_REF`, and pixels gained per decade above it.
@@ -112,8 +114,10 @@ def _parts_for(glyph, node, active):
                  "x2": half_w, "y2": half_h, "stroke": ink,
                  "stroke_width": 1.3}]
     if glyph == "waveplate":
-        return [{"kind": "line", "x1": 0, "y1": -half_h + 2,
-                 "x2": 0, "y2": half_h - 2, "stroke": ink, "stroke_width": 1.0}]
+        return [{"kind": "line", "x1": -half_w + 2, "y1": dy - 2,
+                 "x2": half_w - 2, "y2": dy + 2,
+                 "stroke": ink, "stroke_width": 0.9}
+                for dy in (-half_h * 0.35, half_h * 0.35)]
     if glyph == "etalon":
         return [{"kind": "line", "x1": dx, "y1": -half_h, "x2": dx,
                  "y2": half_h, "stroke": ink, "stroke_width": 1.1}
@@ -127,25 +131,36 @@ def _parts_for(glyph, node, active):
                  "stroke_width": 0.8}
                 for dy in (-half_h * 0.4, 0.0, half_h * 0.4)]
     if glyph == "isolator":
-        return [{"kind": "line", "x1": -4, "y1": 0, "x2": 4, "y2": 0,
-                 "stroke": "#F8FAFC", "stroke_width": 1.6}]
+        return [{"kind": "line", "x1": a, "y1": b, "x2": c, "y2": d,
+                 "stroke": ink, "stroke_width": 1.3}
+                for a, b, c, d in ((-5, 0, 5, 0), (1, -4, 5, 0), (1, 4, 5, 0))]
+    if glyph == "cell":
+        return [{"kind": "line", "x1": dx, "y1": -half_h + 3,
+                 "x2": dx, "y2": half_h - 3,
+                 "stroke": "#B69B75", "stroke_width": 1.3}
+                for dx in (-half_w + 7, half_w - 7)]
     if glyph == "detector":
-        return [{"kind": "rect", "dx": -node.w * 0.28, "w": node.w * 0.3,
-                 "h": node.h * 0.55, "fill": "#64748B", "rx": 1}]
+        levels = (-node.h / 4, node.h / 4) if node.id == "bpd" else (0,)
+        return [{"kind": "rect", "dx": -half_w + 3, "dy": dy,
+                 "w": 6, "h": 13, "fill": LIGHT["accent-ink"], "rx": 1}
+                for dy in levels]
     if glyph == "collimator":
-        return [{"kind": "rect", "dx": node.w * 0.34, "w": node.w * 0.28,
-                 "h": node.h * 0.34, "fill": "#4ADE80", "rx": 1}]
+        return [{"kind": "line", "x1": -half_w + 5, "y1": dy,
+                 "x2": half_w - 5, "y2": dy, "stroke": ink,
+                 "stroke_width": 1.0}
+                for dy in (-half_h * 0.45, half_h * 0.45)]
     if glyph == "dmirror":
         return [{"kind": "line", "x1": -node.w / 2, "y1": 0,
-                 "x2": 0, "y2": 0, "stroke": "#F8FAFC", "stroke_width": 2.2}]
+                 "x2": half_w, "y2": 0, "stroke": LIGHT["accent-ink"],
+                 "stroke_width": 1.7}]
     return []
 
 
 _FILL = {
-    "cube": CUBE, "waveplate": GLASS, "etalon": "#E2E8F0", "lens": GLASS,
-    "iris": "#CBD5E1", "polarizer": "#DDD6FE", "mirror": METAL,
+    "cube": CUBE, "waveplate": GLASS, "etalon": LIGHT["rail"], "lens": GLASS,
+    "iris": METAL, "polarizer": GLASS, "mirror": METAL,
     "dmirror": METAL, "cell": VAPOUR, "collimator": DARK, "detector": DARK,
-    "box": DARK, "isolator": "#334155",
+    "box": DARK, "isolator": LIGHT["surface"],
 }
 
 
@@ -156,25 +171,35 @@ def node_shape(node, *, selected=False):
     detailed = not node.component_model_pending
     fill = _FILL.get(glyph, "#E2E8F0")
     stroke = INK if detailed else MUTED_INK
+    w, h = (10.0, 34.0) if glyph == "lens" else (node.w, node.h)
+    radians = math.radians(node.angle)
+    extent_y = abs(w * math.sin(radians)) + abs(h * math.cos(radians))
     common = dict(
         label=node.display_label or None,
         title=(node.note or node.label or node.id) + (
             "" if detailed else "  (* detailed component model not yet implemented)"),
         fill=fill,
-        stroke="#0F766E" if selected else stroke,
-        stroke_width=2.6 if selected else (1.5 if detailed else 1.0),
+        stroke=LIGHT["accent"] if selected else stroke,
+        stroke_width=2.6 if selected else 1.4,
         clickable=node.clickable,
-        label_dy=-(node.h / 2.0) - 5.0,
+        label_dy=(-extent_y / 2 - 10 if node.label_dy is None else node.label_dy),
     )
-    if node.shape == "circle":
+    if glyph == "lens":
+        shape = canvas_module.rect(node.id, node.x, node.y, w, h,
+                                   angle=node.angle, **common)
+        shape.update(kind="ellipse", rx=w / 2, ry=h / 2)
+    elif node.shape == "circle":
         shape = canvas_module.circle(node.id, node.x, node.y,
                                      max(node.w, node.h) / 2.0, **common)
     else:
         shape = canvas_module.rect(node.id, node.x, node.y, node.w, node.h,
                                    angle=node.angle, **common)
     shape["parts"] = _parts_for(glyph, node, detailed)
+    shape["angle"] = node.angle
+    shape["label_dx"] = node.label_dx
+    shape["label_anchor"] = node.label_anchor
     if not detailed:
-        shape["opacity"] = 0.55
+        shape["opacity"] = 0.8
     return shape
 
 
@@ -187,24 +212,24 @@ def _link_power(chain, link, twin_states, resolve):
 def build_spec(layout, chain, *, selected=None, probe=None, twin_states=None):
     """A canvas spec for one layout, with beam widths from the live chain.
 
-    Beams are drawn first so optics sit on top of them, and each beam gets a
-    translucent underlay a couple of pixels wider -- the cheapest way to read as
-    light rather than as wire, with no SVG filters involved.
+    Beams are drawn first so optics sit on top of them. A single clean stroke
+    keeps closely spaced routes distinct without adding glow or extra width.
     """
     from .probe import resolve_link_beam
 
     shapes = []
-    for link in layout.links:
+    # Reference routes are alternatives. Keep the normal FWM colour legible on
+    # collection segments shared with SQL; probing still uses Layout.links order.
+    drawing_links = sorted(layout.links, key=lambda link: link.beam != BEAM_REFERENCE)
+    for link in drawing_links:
         style = BEAM_STYLE.get(link.beam, BEAM_STYLE[BEAM_COMMON])
         power = _link_power(chain, link, twin_states, resolve_link_beam)
         width = beam_width(power) if power is not None else WIDTH_MIN
         points = layout.points(link)
         shapes.append(canvas_module.beam(
-            points, stroke=style["stroke"], width=width + 2.5,
-            dash=style["dash"], opacity=0.18))
-        shapes.append(canvas_module.beam(
             points, stroke=style["stroke"], width=width, dash=style["dash"],
-            opacity=1.0 if power is not None else 0.45))
+            opacity=(0.6 if link.beam == BEAM_REFERENCE else 1.0)
+            if power is not None else 0.45))
 
     for node in layout.nodes:
         shapes.append(node_shape(node, selected=(node.id == selected)))

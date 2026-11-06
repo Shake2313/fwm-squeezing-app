@@ -69,6 +69,9 @@ class Node:
     params: Tuple[str, ...] = ()     # settings fields this optic owns
     transmission_key: str = ""       # calibration coefficient, "" = not tracked
     note: str = ""
+    label_dx: float = 0.0            # schematic label placement, never geometry
+    label_dy: Optional[float] = None
+    label_anchor: str = "middle"
 
     @property
     def clickable(self):
@@ -101,6 +104,8 @@ class Link:
     via: Tuple[Tuple[float, float], ...] = ()
     carries: str = ""
     note: str = ""
+    a_offset: Tuple[float, float] = (0.0, 0.0)  # display ports, not path lengths
+    b_offset: Tuple[float, float] = (0.0, 0.0)
 
     def __post_init__(self):
         if self.path_m is not None and self.path_m < 0.0:
@@ -171,7 +176,11 @@ class Layout:
         """Display polyline for a link: start, waypoints, end."""
         start = self.node(link.a)
         end = self.node(link.b)
-        return ((start.x, start.y),) + tuple(link.via) + ((end.x, end.y),)
+        return (
+            ((start.x + link.a_offset[0], start.y + link.a_offset[1]),)
+            + tuple(link.via)
+            + ((end.x + link.b_offset[0], end.y + link.b_offset[1]),)
+        )
 
     def path_length_m(self, *node_ids, default=None):
         """Summed optical path along a chain of nodes.

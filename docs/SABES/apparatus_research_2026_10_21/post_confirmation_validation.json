@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-21",
+  "sabes_runtime_sha_changes": [],
+  "all_local_json_valid": true,
+  "required_notions_terms_present": {
+    "LDC501": true,
+    "DSOX1204A": true,
+    "DSA875": true,
+    "TC200": true,
+    "CCM1-PBS252/M": true,
+    "PM-0S5-10-PFA-PFA-780-UL": true,
+    "앞27.17µW / 뒤26.53µW": true,
+    "23 inch": true,
+    "cold spot": true,
+    "N–SMA": true
+  },
+  "memory_baseline": "2026-10-16",
+  "waveform_contextual_reminder_saved": true,
+  "ledger_last_record": "SABES-NOTION-2026-10-21-UPDATE"
+}

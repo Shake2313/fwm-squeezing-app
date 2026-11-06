@@ -1,0 +1,50 @@
+{
+  "provenance": "AI verification artifact; checks preserve baseline model rather than establish experimental measurements",
+  "baseline_commit": "bff9ca9e5014a680eef5e9e44ba7099a2ed0bee6",
+  "checked_at_utc": "2026-10-22T11:17:28.212486+00:00",
+  "checks": {
+    "node_and_ordered_link_physics": true,
+    "routes": true,
+    "route_transmissions": true,
+    "distances_m": true,
+    "default_stages": true,
+    "default_detection_geometry": true,
+    "physical_source_hashes": true
+  },
+  "all_passed": true,
+  "counts": {
+    "nodes": 68,
+    "ordered_links": 69,
+    "source_stages": 28,
+    "physical_source_hashes": 8
+  },
+  "distances_m": {
+    "CELL_TO_DMIRROR_M": 0.5842,
+    "DMIRROR_TO_IRIS_M": 0.1,
+    "IRIS_TO_LENS_M": 0.2158,
+    "cell_to_dmirror_m": 0.5842,
+    "cell_to_lens_m": 0.9
+  },
+  "detector_display_ports": {
+    "probe": [
+      1045,
+      290
+    ],
+    "conj": [
+      1045,
+      370
+    ]
+  },
+  "physical_source_sha256": {
+    "sabes/beamline.py": "0019153b9ec0e93ebc076b97d0fa0866e6f27f48009e51724920e9327a32d94e",
+    "sabes/bridge.py": "d18aa25d6eace46d66c3c1bbffd37b6dab13d5b344e9d2f6fc85f27759a245f0",
+    "sabes/detection.py": "4138aaaf736d9611352d6baaec7c85f3adfef6384aa985dc6eecc846c188e019",
+    "sabes/beamstate.py": "63af9b161ec8ed08fc801bb1c1af6e845d6ba62eecd255d951316b3b3d80ca28",
+    "sabes/devices.py": "245f88162195a601c7c83826f039838634d235895432222ace11c40f63e7ef87",
+    "sabes/calibration.py": "3d9574a57b6db4f484b672fbbee7804c9990b3eb9d124bb3fae212e87e744bf1",
+    "sabes/calibration_sim2025.json": "b71267e1763c8fb58561163670fa3c8f2af7168b587772662189787e94045c90",
+    "sabes/layout/probe.py": "5dec9c9853a4999e314070972d4e03775ad8ef6b87a0412aa9650aa57972aebe"
+  },
+  "regression_result": "Assigned layout/instrument/apparatus tests:73 passed in3.42s. Parent separately reported135 related checks passed after final display refinements.",
+  "review": "Display ports feed the same Layout.points used by drawing and beam probing; SVGinverseCTM keeps scroll/zoom coordinates consistent. No physics invariant changed."
+}

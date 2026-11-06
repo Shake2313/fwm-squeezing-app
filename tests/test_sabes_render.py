@@ -125,7 +125,12 @@ def test_glyph_parts_stay_inside_the_clickable_group(chain):
     spec = layout.build_spec(parts.PART2, chain)
     by_id = {s["id"]: s for s in _shapes(spec) if s.get("id")}
     assert by_id["pbs_in"]["parts"], "a PBS needs its diagonal"
-    assert by_id["cell"]["parts"] == []
+    assert len(by_id["cell"]["parts"]) == 2, "cell windows remain visible"
+    assert by_id["seed_l1"]["kind"] == "ellipse", "a lens is not an aperture"
+    assert by_id["seed_l1"]["ry"] > by_id["seed_l1"]["rx"]
+    ports = by_id["bpd"]["parts"]
+    assert len(ports) == 2
+    assert ports[0]["dy"] < ports[1]["dy"], "balanced detector has two inputs"
     for shape in _shapes(spec):
         for part in shape.get("parts", []):
             assert part["kind"] in ("rect", "circle", "line")

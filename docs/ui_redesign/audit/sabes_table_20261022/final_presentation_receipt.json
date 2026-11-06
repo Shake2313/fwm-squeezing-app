@@ -1,0 +1,24 @@
+{
+  "provenance": "AI verification of final schematic-only mirror cleanup",
+  "checked_at_utc": "2026-10-22T11:47:45.788228+00:00",
+  "own_sources_changed_after_full_suite": [
+    "sabes/layout/parts.py",
+    "tests/test_sabes_layout.py"
+  ],
+  "parts_change_verified_as_only_11_display_tilts": true,
+  "added_regression": "Steering and SQL mirror tangents must reflect incoming drawn segment to outgoing drawn segment; abstract D-mirrors excluded",
+  "final_command": "python -m pytest -q <all tests/test_sabes*.py> tests/test_docs_consistency.py",
+  "final_result": "250 passed in 48.30s",
+  "final_sha256": {
+    "sabes/layout/parts.py": "8826f92119a02d7c1627403afd00b190325330292d77eeea70cba32486b4b216",
+    "tests/test_sabes_layout.py": "330aabd98fce6d8fed47a9ed1db9ba73887488d8ed59043d13f593fecab79cf4"
+  },
+  "other_changed_sources_preserved": [
+    "gabes/schemes/fwm.py",
+    "gabes_ui/controls.py",
+    "streamlit_app.py",
+    "tests/test_fwm_measured_gain_integration.py"
+  ],
+  "final_docs_check": "4 passed in 0.40s after audit/log updates",
+  "scoped_diff_check": "passed"
+}

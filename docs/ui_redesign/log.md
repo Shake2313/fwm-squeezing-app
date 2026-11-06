@@ -2,6 +2,17 @@
 
 최신이 위. 항목 = 날짜 · 단계 · 한 일 · 측정/검증 · 남은 일·주의.
 
+## 2026-11-06 · SABES 잔여 작업 마감
+
+직접 사용자 요청: 남은 SABES 작업을 일괄 커밋·푸시하고 현재 작업 상태 마감.
+
+### ⟦AI⟧ 반영·검증
+
+- 광학 테이블 마감·이벤트 보정·관련 테스트, 조사/근거/인벤토리·기존 audit 보존. 상단 카드 변경은 기존 커밋 유지.
+- SABES 13개 파일 **246 통과**(28.08s). 다른 작업과 분리한 커밋 후보 검증·범위는 [마감 기록](audit/sabes_close_20261106/summary.md).
+- stale SABES 삭제 인덱스2개 정정, PID/브라우저 임시파일은 로컬 보존·ignore. 공통 엔진·타 스킴과 다른 staged 작업 보존. 전체/GC 회귀 생략.
+
+
 ## 2026-11-05 · 새 3단계 리드버그 지도·출력/온도·유한 IF 감도
 
 직접 사용자 요청. 공용 지도·선택 체계를 리드버그 EIT/AT와 기존 분석에 적용.
@@ -330,17 +341,6 @@ Custom 분율만 표시하며 이름을 ⁸⁵Rb fraction (Natural 0.7217)로 �
 - 상단 변경·해당 문서/audit만 분리. 이전 광학 테이블·이벤트 변경과 다른 staged 작업 보존. 계산 경로 무변경으로 전체 수치 회귀·GC 생략.
 - [검수 기록](audit/sabes_readout_review_20261023/summary.md).
 
-## 2026-10-22 · SABES 상단 요약 감량
-
-직접 사용자 요청: 잡음 수준·Gain G_s/G_c·Detector clearance 세 카드. 나머지는 상세 탭·상태 배지로 이동, 잘못된 라벨 수정.
-
-### ⟦AI⟧ 구현·검증
-
-- `Noise level [dB]`는 계산 NF의 dB 값. Gain 두 값은 probe/seed G_s·conjugate G_c 순서로 묶고 `Pump gain` 제거.
-- 제목 옆 모델 상태 배지. Detection에 선형 NF·계산 NF·algebraic floor·기존 RIN 진단, Power budget에 잔류 carrier 비율과 적용 범위 보존.
-- 계산 경로·입력·수치 변경 없음. 1440px 한 줄 세 카드, 390/320px 세로 배치. 720px 화면 포함 카드 잘림·문서 가로 overflow 없음. 접힌 사이드바 열기 버튼과 제목 겹침 방지.
-- [UI audit](audit/sabes_readout_20261022/summary.md): 전체 `python -m pytest -q` **2707 통과·3 skip**, 1191.07s. 최종 제목 여백 CSS 적용 후 관련31개 통과. 화면·수치·로그 수집 범위 기록.
-
 ## 2026-10-23 · 자기광학 코드 리뷰·수정
 
 직접 사용자 요청: 자기광학만 코드 리뷰, 발견 사항1회 수정 후 문제 없으면 현재 브랜치 커밋·푸시.
@@ -398,6 +398,17 @@ Custom 분율만 표시하며 이름을 ⁸⁵Rb fraction (Natural 0.7217)로 �
 - [UI audit](audit/fwm_conjugate_20261022/summary.md): desktop/phone 정상, FWM Advanced 높이1652→1588px.
   [Calibration OFF 화면](../../output/playwright/fwm_conjugate_20261022/calibration_off.png)에서 두 곡선·범례 확인, 실제 브라우저 오류0.
 
+## 2026-10-22 · SABES 상단 요약 감량
+
+직접 사용자 요청: 잡음 수준·Gain G_s/G_c·Detector clearance 세 카드. 나머지는 상세 탭·상태 배지로 이동, 잘못된 라벨 수정.
+
+### ⟦AI⟧ 구현·검증
+
+- `Noise level [dB]`는 계산 NF의 dB 값. Gain 두 값은 probe/seed G_s·conjugate G_c 순서로 묶고 `Pump gain` 제거.
+- 제목 옆 모델 상태 배지. Detection에 선형 NF·계산 NF·algebraic floor·기존 RIN 진단, Power budget에 잔류 carrier 비율과 적용 범위 보존.
+- 계산 경로·입력·수치 변경 없음. 1440px 한 줄 세 카드, 390/320px 세로 배치. 720px 화면 포함 카드 잘림·문서 가로 overflow 없음. 접힌 사이드바 열기 버튼과 제목 겹침 방지.
+- [UI audit](audit/sabes_readout_20261022/summary.md): 전체 `python -m pytest -q` **2707 통과·3 skip**, 1191.07s. 최종 제목 여백 CSS 적용 후 관련31개 통과. 화면·수치·로그 수집 범위 기록.
+
 ## 2026-10-22 · DEFAULTS·설정 저장
 
 직접 사용자 요청: 중복 lab reference 제거, 두 기본값 드롭다운 전환, 이름 붙인 브라우저·로컬 저장/가져오기.
@@ -416,6 +427,20 @@ Custom 분율만 표시하며 이름을 ⁸⁵Rb fraction (Natural 0.7217)로 �
   임시 검증 복사본 중복 수집은 `pytest.ini`의 output 제외로 해결.
 - 실제 브라우저: 저장·새로고침 후 목록 복원·선택·로컬 다운로드·가져오기·같은 수치의 사용자 이름 유지 확인.
   [검증 receipt](../../output/playwright/fwm_defaults_20261022/validation.json), [저장 메뉴](../../output/playwright/fwm_defaults_20261022/save_options.png).
+
+## 2026-10-22 · SABES 광학 테이블 마감
+
+직접 사용자 요청: 정한 디자인 규약을 실제 테이블에 적용. 라벨 겹침·잘림 해결, 옵틱 기호·광로 정리.
+
+### ⟦AI⟧ 반영·검증
+
+- Part1/Part2 display 좌표·label anchor 재배치. 광로 정렬, 입력 PBS 되짚기 제거, CL 위치 정리, BPD 두 입력 포트 분리.
+- 기존 console 토큰·Plex 글꼴 적용. 렌즈·waveplate·PBS·cell·iris·detector 기호 통일. SQL 대체 경로는 공유 구간의 FWM 빔 색을 가리지 않도록 먼저 그림.
+- Fit·100%·확대/이동, 키보드 선택·포커스·터치 이동 제공. Part 재진입 첫 클릭이 무시되던 event counter 충돌은 iframe instance와 seq를 함께 비교해 해결.
+- [UI audit](audit/sabes_table_20261022/summary.md): 두 Part의 라벨27개씩 잘림·라벨 간·glyph/beam 겹침0건. 1440×900·390×844 및 브라우저200% 등가 viewport 검증.
+- 68 node·69 link 의미 계약, 28 source stage, 경로 손실·거리·검출 geometry·물리 소스8개 보존.
+- 전체2627 통과·3 skip(1110.05s). 이후11개 steering/SQL mirror의 표시 기울기와 반사 방향 검사를 마무리하고 SABES·문서250개 통과(48.30s). 마지막 화면 bounds도 충돌0건.
+- 기본 pytest는 다른 작업의 output 내 테스트 사본까지 수집해 충돌. `--ignore=output`으로 정식 검사. 실행 중 비관련4개 소스 변경·최종 기호 변경은 audit receipt에 구분·보존.
 
 ## 2026-10-22 · SABES 디자인 규약·모델 별표
 

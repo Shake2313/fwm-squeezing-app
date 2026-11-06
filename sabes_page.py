@@ -495,9 +495,11 @@ def _handle_canvas_event(event, part_key):
     if not event:
         return False
     seen = _key(f"seq_{part_key}")
-    if st.session_state.get(seen) == event.get("seq"):
+    # Switching table parts remounts the iframe and restarts its counter.
+    token = (event.get("instance"), event.get("seq"))
+    if st.session_state.get(seen) == token:
         return False
-    st.session_state[seen] = event.get("seq")
+    st.session_state[seen] = token
     if event.get("kind") == canvas_module.KIND_OPTIC:
         st.session_state[_key("selected")] = event.get("id")
         st.session_state[_key(f"inspect_{part_key}")] = event.get("id")

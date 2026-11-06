@@ -52,13 +52,19 @@ def test_sql_bypass_is_carrier_reference_and_not_generated_twin_light():
     assert probe.total_power_w == pytest.approx(conjugate.total_power_w)
     assert sum(left.conjugate() * right for left, right in
                zip(probe.jones, conjugate.jones)) == pytest.approx(0.0)
-    on_bypass = beam_at(parts.PART2, 400, 420, chain)
+    bypass_points = parts.PART2.points(
+        parts.PART2.link_between("m_sql_bypass", "hwp_sql"))
+    on_bypass = beam_at(parts.PART2,
+                        *_midpoint(bypass_points[0], bypass_points[1]), chain)
     assert on_bypass is not None
     assert on_bypass.beam_name == BEAM_REFERENCE
     assert on_bypass.power_w == pytest.approx(bypass_w)
     # Drawing the alternative route must not select SQL at a shared normal
     # collection stroke when no detector switching state has been supplied.
-    on_collection = beam_at(parts.PART2, 850, 214, chain)
+    collection_points = parts.PART2.points(
+        parts.PART2.link_between("flip_sql_probe", "lens_probe"))
+    on_collection = beam_at(parts.PART2,
+                            *_midpoint(collection_points[0], collection_points[1]), chain)
     assert on_collection is not None
     assert on_collection.beam_name == "probe"
 
@@ -178,16 +184,19 @@ def test_profiler_at_dmirror_matches_detector_geometry(arm, suffix):
     chain = build_source_chain(settings)
     calibration = default_calibration().with_value("cell_length_mm", 20.0)
     geom = geometry(chain, settings, calibration=calibration)
-    mirror = parts.PART2.node(f"dm_{suffix}")
-    reading = beam_at(parts.PART2, mirror.x, mirror.y, chain,
+    mirror_point = parts.PART2.points(
+        parts.PART2.link_between("pbs_out", f"dm_{suffix}"))[-1]
+    reading = beam_at(parts.PART2, *mirror_point, chain,
                       calibration=calibration)
     assert reading.beam_name == arm
     assert reading.radius_m == pytest.approx(geom.twin_radius_at_dmirror_m)
     assert "cell-centre" in reading.mode_scope
 
 
-@pytest.mark.parametrize("arm", ("probe", "conjugate"))
-def test_profiler_at_detector_matches_focused_spot_and_active_defocus(arm):
+@pytest.mark.parametrize("arm,suffix", (("probe", "probe"),
+                                       ("conjugate", "conj")))
+def test_profiler_at_distinct_detector_ports_matches_focused_spot_and_defocus(
+        arm, suffix):
     settings = SetupSettings()
     chain = build_source_chain(settings)
     detector = DetectionSettings(probe_lens_focal_mm=140.0,
@@ -195,15 +204,23 @@ def test_profiler_at_detector_matches_focused_spot_and_active_defocus(arm):
                                  pd_defocus_mm=7.0)
     calibration = default_calibration().with_value("cell_length_mm", 20.0)
     geom = geometry(chain, settings, detector, calibration)
-    # Both eyes share one detector glyph. Suppress the other twin stroke to
-    # inspect each arm at that exact endpoint without a geometric tie.
-    other_arm = "conjugate" if arm == "probe" else "probe"
-    arm_layout = replace(parts.PART2, links=tuple(
-        link for link in parts.PART2.links if link.beam != other_arm))
-    bpd = arm_layout.node("bpd")
-    reading = beam_at(arm_layout, bpd.x, bpd.y, chain,
+    # The two real eyes remain separately probeable in the complete drawing.
+    # Neither suppressing the other arm nor a geometric tie at the box centre
+    # may be needed to obtain the correct post-lens beam.
+    ports = {side: parts.PART2.points(
+        parts.PART2.link_between(f"lens_{side}", "bpd"))[-1]
+        for side in ("probe", "conj")}
+    assert ports["probe"] != ports["conj"]
+    reading = beam_at(parts.PART2, *ports[suffix], chain,
                       calibration=calibration, detection=detector)
+    assert reading is not None
     assert reading.beam_name == arm
+    assert (reading.link.a, reading.link.b) == (f"lens_{suffix}", "bpd")
+    assert reading.fraction_along == pytest.approx(1.0)
     expected = next(value for value in geom.arms if value.name == arm)
     assert reading.radius_m == pytest.approx(expected.spot_radius_m)
     assert "post-lens waist" in reading.mode_scope
+
+
+def _midpoint(start, end):
+    return tuple((a + b) / 2.0 for a, b in zip(start, end))

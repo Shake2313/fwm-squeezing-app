@@ -38,9 +38,22 @@ def seed_offset():
     return -SetupSettings().eom_frequency_hz
 
 
-def _beam(chain, part, x, y):
+def _beam(chain, part, a, b, fraction=0.5):
+    points = part.points(part.link_between(a, b))
+    spans = [np.linalg.norm(np.subtract(end, start))
+             for start, end in zip(points, points[1:])]
+    remaining = fraction * sum(spans)
+    for start, end, span in zip(points, points[1:], spans):
+        if remaining <= span:
+            amount = remaining / span if span else 0.0
+            x, y = np.add(start, amount * np.subtract(end, start))
+            break
+        remaining -= span
+    else:
+        x, y = points[-1]
     reading = layout.beam_at(part, x, y, chain)
     assert reading is not None, f"no beam at ({x}, {y})"
+    assert (reading.link.a, reading.link.b) == (a, b)
     return reading.beam
 
 
@@ -90,8 +103,8 @@ def test_shot_noise_follows_the_square_root_of_power():
 
 def test_the_wavemeter_reports_one_dominant_frequency(chain, seed_offset):
     meter = I.Wavemeter(wanted_offset_hz=seed_offset)
-    after_eom = meter.measure(_beam(chain, layout.PART1, 350, 190))
-    after_chain = meter.measure(_beam(chain, layout.PART1, 366, 292))
+    after_eom = meter.measure(_beam(chain, layout.PART1, "eom", "f220_eom_out"))
+    after_chain = meter.measure(_beam(chain, layout.PART1, "etalon_3", "gt_seed"))
 
     assert np.isnan(after_eom.quantity("Optical frequency").value)
     assert any("same largest power" in warning for warning in after_eom.warnings)
@@ -124,7 +137,7 @@ def test_the_wavemeter_warns_when_the_dominant_line_misses_the_target(
 def test_a_power_meter_cannot_tell_the_wanted_line_from_the_rest(chain,
                                                                 seed_offset):
     """Which is exactly why purity needs its own instrument."""
-    beam = _beam(chain, layout.PART1, 350, 190)
+    beam = _beam(chain, layout.PART1, "eom", "f220_eom_out")
     reading = I.PowerMeter(wanted_offset_hz=seed_offset).measure(beam)
     total = reading.quantity("Total power").value / 1e3
     assert total == pytest.approx(beam.total_power_w, rel=1e-9)
@@ -135,7 +148,8 @@ def test_a_power_meter_cannot_tell_the_wanted_line_from_the_rest(chain,
 def test_the_profiler_reports_the_size_here_not_the_waist(chain):
     """Confusing the two is how a beam gets clipped on something that looked
     comfortable in a design note."""
-    reading = I.BeamProfiler().measure(_beam(chain, layout.PART2, 745, 214))
+    reading = I.BeamProfiler().measure(
+        _beam(chain, layout.PART2, "dm_probe", "iris_probe"))
     here = reading.quantity("1/e² radius here").value
     waist = reading.quantity("Waist w₀").value
     assert here > waist
@@ -144,7 +158,8 @@ def test_the_profiler_reports_the_size_here_not_the_waist(chain):
 
 
 def test_the_profiler_profile_is_a_normalised_gaussian(chain):
-    trace = I.BeamProfiler().measure(_beam(chain, layout.PART2, 300, 256)).trace
+    trace = I.BeamProfiler().measure(
+        _beam(chain, layout.PART2, "pbs_in", "cell")).trace
     peak = trace.series["intensity"].max()
     assert peak == pytest.approx(1.0, abs=1e-9)
     assert trace.series["intensity"][0] < 0.01
@@ -317,7 +332,7 @@ def test_pump_rin_is_unapplied_until_explicitly_supplied(chain):
 
 def test_only_the_two_reconstructed_readings_are_marked_synthesised(chain,
                                                                     seed_offset):
-    beam = _beam(chain, layout.PART1, 350, 190)
+    beam = _beam(chain, layout.PART1, "eom", "f220_eom_out")
     signal = I.Photodiode().convert(beam)
     computed = [
         I.PowerMeter(wanted_offset_hz=seed_offset).measure(beam),
