@@ -5,7 +5,31 @@ reuse existing atomic/polarization calculations, and state the approximations
 and range of validity.
 
 Choose **Polarization squeezing (PSR)** in GABES, or open the app with
-`?scheme=psr`. **Scan axis** switches between a polarization-quadrature phase
+`?scheme=psr`. Under **Calculation**, choose **Rb87 D1 RF squeezing** for
+the narrowband orthogonal-polarization noise of a uniform, single-velocity cell.
+The analysis-frequency scan shows the minimum and maximum noise and the
+minimum-noise angle. Select **Quadrature phase** to see both orthogonal traces
+at the specified RF. The [S2 model and validation](s2.md) gives the pump
+conditions, normalization, approximation range and Python example.
+
+Choose **Rb87 D1 propagated RF squeezing** to update pump intensity and Jones
+polarization through the cell, with a fresh saturated atom and noise kernel
+at each segment. Select single-velocity or Maxwell atoms and inspect the
+**Pump propagation** figure using the figure selector.
+[S4 propagation, convergence and validation](s4.md).
+
+Choose **Rb87 D1 thermal RF squeezing** to average the saturated atomic response
+and both ordered noise kernels over independent Maxwell velocity classes.
+Velocity resolution, cutoff and output-noise convergence are checked before
+display. [S3 thermal integration, performance and validation](s3.md).
+
+Choose **Rb87 D1 steady state** for the
+saturated 16-level atom at a specified pump detuning and axial velocity.
+The two panels show ground and excited Zeeman populations. Local absorption,
+the excited fraction and the density matrix are available in the result bundle.
+See the [S0 conventions, S1 equations and weak-field comparison](s0_s1.md).
+
+In **Conditional squeezing**, **Scan axis** switches between a polarization-quadrature phase
 scan at fixed optical detuning and minimum/maximum noise versus optical
 detuning. Both plots show the 0 dB shot-noise level. The two phase traces are
 orthogonal Stokes quadratures, with a 90° phase offset and 180° period; the
@@ -18,7 +42,7 @@ After-cell transmission and detector efficiency default to 95% each. The
 atomic excess-noise assumption defaults to zero and is labelled as omitted
 on screen. This default is not an experimental calibration.
 
-## ⟦AI⟧ Model implemented
+## ⟦AI⟧ Conditional squeezing model
 
 The atomic part in [`gabes/psr.py`](../../gabes/psr.py) calls the existing
 [`magneto_multilevel.multilevel_response`](../../gabes/magneto_multilevel.py).
@@ -70,7 +94,7 @@ conditional model. Zero input intensity, zero detected throughput or zero
 transmitted carrier makes the measured Stokes readout unavailable; it does
 not display an invented measured vacuum level.
 
-## ⟦AI⟧ Applicability and omitted physics
+## ⟦AI⟧ Applicability of the conditional squeezing model
 
 - Optical excitation is adiabatically eliminated in the weak-excitation
   approximation; ground optical pumping and Zeeman coherences remain. Ground
@@ -165,6 +189,12 @@ spot check reached 0.40%. This supports the illustrative default, without
 certifying velocity convergence throughout the controls' ranges.
 
 ## References
+
+The [2026-11-02 model review and implementation plan](model_review_2026-11-02.md) maps the
+literature evidence to current limitations, reusable atomic/noise components,
+and proposed staged validation. [S0 and S1](s0_s1.md) cover the measurement
+conventions and local mean state. [S2](s2.md) adds the finite-frequency
+Langevin response and homodyne detection.
 
 The [PSR literature database](../../references/psr_experiments/README.md) collects
 27 full-text-checked theory, experiment, noise, spatial-mode and sensing papers,

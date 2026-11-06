@@ -1,0 +1,616 @@
+{
+  "provenance": "⟦AI⟧ Numerical implementation benchmark; not experimental validation",
+  "created_at": "2026-11-05T21:07:24.338677+09:00",
+  "environment": {
+    "python": "3.14.2",
+    "numpy": "2.4.1",
+    "scipy": "1.17.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "git_head": "56989ba5aff3e7b4add4cdb8200634e27998ac00",
+    "source_state": "working tree; HEAD alone does not identify uncommitted sources",
+    "source_sha256": {
+      "gabes/psr_full_obe.py": "13ac43b4f5962b08c9f146d133935797c480135881ce13f637b766e9207b087e",
+      "gabes/psr_spectrum.py": "5b165e190e50d73a3ba78408f63859200a57e9268b043c781d25c46fbf80f5c4",
+      "gabes/psr_thermal.py": "bb01b3e44efc9f33dc36831d39bae4bf7658a402faa8fc7496d1412612670666",
+      "gabes/psr_homodyne.py": "22f7f3fa0bd7dcc14485367a1bfab9ebd1ed41c01dbc6a3e2a4e3256f153e5c7",
+      "gabes/magneto_multilevel.py": "a3796246c8bff730d4e3bb96d3f1ec8321b14b54fc70d0c22ee28a54da012eaf",
+      "gabes/species.py": "c9bdaaae211c277fbb2ec767579d8dd8b5db72e5407647447cc5e04278db809f",
+      "gabes/core.py": "60ecc9ca3dd578c2c90ed941b141289123f5eecb7ffea608004c4a60e59e04a8",
+      "tools/benchmark_psr_thermal.py": "40f0f72a693259ee9861305b6008cc317b1ffe0c20c4b34dbde0ffbd429b35c0"
+    }
+  },
+  "command": {
+    "rf_points": 1,
+    "reference_order": 20,
+    "reference_method": "optimized",
+    "max_order": 10
+  },
+  "conditions": {
+    "detuning_mhz": 400.0,
+    "intensity_mw_cm2": 12.5,
+    "temp_c": 70.0,
+    "ground_relaxation_hz": 100000.0,
+    "density_m3": 1e+16,
+    "rf_hz": [
+      -400000.0,
+      400000.0
+    ],
+    "cell_length_m": 0.025,
+    "detection_efficiency": 0.9025,
+    "adaptive_cutoffs_sigma": [
+      6.0,
+      7.0
+    ],
+    "reference_cutoff_sigma": 7.0,
+    "rtol": 0.005,
+    "atol_per_m": 1e-06
+  },
+  "memory_measure": "tracemalloc peak allocations during each measured call, excluding pre-existing inputs; not process RSS",
+  "atomic": {
+    "direct": {
+      "elapsed_seconds": 0.028115299995988607,
+      "peak_traced_allocation_bytes": 10639667,
+      "retained_traced_allocation_bytes": 21825
+    },
+    "optimized": {
+      "elapsed_seconds": 0.011740699992515147,
+      "peak_traced_allocation_bytes": 4281949,
+      "retained_traced_allocation_bytes": 22033
+    },
+    "comparison": {
+      "drift": {
+        "max_absolute": 1.0400413805416836e-13,
+        "relative_frobenius": 1.357307086717018e-15
+      },
+      "noise_greater_by_reservoir": {
+        "max_absolute": 2.2668512771181235e-14,
+        "relative_frobenius": 3.794801778165623e-16
+      },
+      "noise_lesser_by_reservoir": {
+        "max_absolute": 1.1220430644286958e-13,
+        "relative_frobenius": 1.6289060440052399e-15
+      }
+    },
+    "direct_audit": {
+      "maximum_commutator_relative_residual": 3.9397616397478073e-16,
+      "noise_greater_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 4.673421293437945e-16,
+        "minimum_eigenvalue": 0.05735445795584436,
+        "minimum_relative_eigenvalue": 0.0022365603662287525
+      },
+      "noise_lesser_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 4.634218530820981e-16,
+        "minimum_eigenvalue": 0.057354457955843735,
+        "minimum_relative_eigenvalue": 0.0022365603662286037
+      },
+      "passed": true
+    },
+    "optimized_audit": {
+      "maximum_commutator_relative_residual": 2.88213066552277e-16,
+      "noise_greater_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 4.673421293437945e-16,
+        "minimum_eigenvalue": 0.057354457955846885,
+        "minimum_relative_eigenvalue": 0.0022365603662287525
+      },
+      "noise_lesser_by_reservoir": {
+        "passed": true,
+        "maximum_hermiticity_relative_residual": 4.673421293437945e-16,
+        "minimum_eigenvalue": 0.05735445795584458,
+        "minimum_relative_eigenvalue": 0.002236560366228582
+      },
+      "passed": true
+    }
+  },
+  "thermal": {
+    "adaptive": {
+      "measurement": {
+        "elapsed_seconds": 37.11504399997648,
+        "peak_traced_allocation_bytes": 12875343,
+        "retained_traced_allocation_bytes": 6900508
+      },
+      "performance": {
+        "method": "optimized",
+        "elapsed_seconds": 37.11501249996945,
+        "class_evaluations": 1900,
+        "max_class_evaluations": 10000,
+        "retained_integral_bytes": 12800,
+        "atomic_storage": "one velocity class; full atomic arrays are not retained"
+      },
+      "convergence": {
+        "converged": true,
+        "status": "kernels, cutoff, covariance and noise extrema converged",
+        "order": {
+          "passed": true,
+          "checks": {
+            "drift": {
+              "max_absolute": 0.00018865631888914644,
+              "max_scaled": 0.40996146617169493
+            },
+            "greater": {
+              "max_absolute": 0.0005045379459729382,
+              "max_scaled": 0.20658654698848422
+            },
+            "lesser": {
+              "max_absolute": 0.0005045379459729382,
+              "max_scaled": 0.20658654698848422
+            },
+            "mean_polarization": {
+              "max_absolute": 2.1626486333600142e-11,
+              "max_scaled": 9.481306371626647e-09
+            }
+          }
+        },
+        "cutoff": {
+          "passed": true,
+          "checks": {
+            "drift": {
+              "max_absolute": 3.171907756913419e-08,
+              "max_scaled": 4.5825562340529135e-06
+            },
+            "greater": {
+              "max_absolute": 2.8291450071549207e-08,
+              "max_scaled": 2.959755762678985e-06
+            },
+            "lesser": {
+              "max_absolute": 2.8291450071549207e-08,
+              "max_scaled": 2.959755762678985e-06
+            },
+            "mean_polarization": {
+              "max_absolute": 1.5840000702992336e-09,
+              "max_scaled": 6.94444290571913e-07
+            }
+          }
+        },
+        "rtol": 0.005,
+        "atol_per_m": 1e-06,
+        "propagation_assessed": true,
+        "interval_order": 10,
+        "cutoff_sigma": 7.0,
+        "omitted_maxwell_probability": 2.55962508777167e-12,
+        "requested_cutoff_sigma": 6.0,
+        "extended_cutoff_sigma": 7.0,
+        "estimate_kind": "successive quadrature differences, not a rigorous error bound",
+        "length_m": 0.025,
+        "detection_efficiency": 0.9025,
+        "output_checks": [
+          {
+            "detection_efficiency": 0.9025,
+            "interval_order": 10,
+            "cutoff_sigma": 6.0,
+            "checks": {
+              "covariance": {
+                "max_absolute": 2.279062579901847e-05,
+                "max_scaled": 0.29584964631523636
+              },
+              "minimum_variance": {
+                "max_absolute": 1.2425527562420768e-07,
+                "max_scaled": 2.4659370753359385e-05
+              },
+              "maximum_variance": {
+                "max_absolute": 2.2953737925712758e-05,
+                "max_scaled": 0.004434276105052623
+              },
+              "minimum_db": {
+                "max_absolute": 5.365362609061064e-07,
+                "max_scaled": 0.00010730725218122128
+              },
+              "maximum_db": {
+                "max_absolute": 9.647652812166951e-05,
+                "max_scaled": 0.019295305624333903
+              }
+            },
+            "passed": true
+          },
+          {
+            "detection_efficiency": 1.0,
+            "interval_order": 10,
+            "cutoff_sigma": 6.0,
+            "checks": {
+              "covariance": {
+                "max_absolute": 2.5252770968320348e-05,
+                "max_scaled": 0.3196305780032716
+              },
+              "minimum_variance": {
+                "max_absolute": 1.376789757756569e-07,
+                "max_scaled": 2.7306502612507653e-05
+              },
+              "maximum_variance": {
+                "max_absolute": 2.5433504626803938e-05,
+                "max_scaled": 0.004896317898932321
+              },
+              "minimum_db": {
+                "max_absolute": 5.941315791985202e-07,
+                "max_scaled": 0.00011882631583970404
+              },
+              "maximum_db": {
+                "max_absolute": 0.00010652857919682401,
+                "max_scaled": 0.021305715839364803
+              }
+            },
+            "passed": true
+          },
+          {
+            "detection_efficiency": 0.9025,
+            "interval_order": 10,
+            "cutoff_sigma": 7.0,
+            "checks": {
+              "covariance": {
+                "max_absolute": 1.444402375483378e-10,
+                "max_scaled": 1.560787031579362e-06
+              },
+              "minimum_variance": {
+                "max_absolute": 1.0037926045924905e-10,
+                "max_scaled": 1.9921002890003988e-08
+              },
+              "maximum_variance": {
+                "max_absolute": 1.4350076682489998e-10,
+                "max_scaled": 2.7722549237875354e-08
+              },
+              "minimum_db": {
+                "max_absolute": 4.3343927058625553e-10,
+                "max_scaled": 8.66878541172511e-08
+              },
+              "maximum_db": {
+                "max_absolute": 6.03152722211675e-10,
+                "max_scaled": 1.20630544442335e-07
+              }
+            },
+            "passed": true
+          },
+          {
+            "detection_efficiency": 1.0,
+            "interval_order": 10,
+            "cutoff_sigma": 7.0,
+            "checks": {
+              "covariance": {
+                "max_absolute": 1.6004442215944437e-10,
+                "max_scaled": 1.686446748509578e-06
+              },
+              "minimum_variance": {
+                "max_absolute": 1.1122347487457773e-10,
+                "max_scaled": 2.2059464815092524e-08
+              },
+              "maximum_variance": {
+                "max_absolute": 1.5900347705155582e-10,
+                "max_scaled": 3.0611220996120645e-08
+              },
+              "minimum_db": {
+                "max_absolute": 4.799671285415918e-10,
+                "max_scaled": 9.599342570831837e-08
+              },
+              "maximum_db": {
+                "max_absolute": 6.659963969202209e-10,
+                "max_scaled": 1.331992793840442e-07
+              }
+            },
+            "passed": true
+          }
+        ],
+        "variance_atol": 1e-05,
+        "db_atol": 0.005,
+        "passed": true
+      },
+      "readout": {
+        "frequencies_hz": [
+          400000.0
+        ],
+        "minimum_db": [
+          0.025000431199940214
+        ],
+        "maximum_db": [
+          0.14211239958235652
+        ],
+        "minimum_variance": [
+          1.0057731628623914
+        ],
+        "maximum_variance": [
+          1.0332638610085254
+        ],
+        "min_angle_deg": [
+          1.2864697105441962
+        ],
+        "covariance": [
+          [
+            [
+              1.0057870197805416,
+              -0.0006170448443369663
+            ],
+            [
+              -0.0006170448443369663,
+              1.0332500040903752
+            ]
+          ]
+        ],
+        "local_audit": {
+          "maximum_commutator_relative_residual": 6.184631118574167e-16,
+          "noise_greater_by_reservoir": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 5.345756084430482e-16,
+            "minimum_eigenvalue": 0.033210241512940886,
+            "minimum_relative_eigenvalue": 0.01630834378806753
+          },
+          "noise_lesser_by_reservoir": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 5.345756084430482e-16,
+            "minimum_eigenvalue": 0.03321024151294091,
+            "minimum_relative_eigenvalue": 0.016308343788067496
+          },
+          "passed": true
+        },
+        "transfer_audit": {
+          "maximum_commutator_relative_residual": 1.454040152693789e-17,
+          "noise_greater": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.835005098945593e-16,
+            "minimum_eigenvalue": 0.0036821201248181104,
+            "minimum_relative_eigenvalue": 0.02298497878153619
+          },
+          "noise_lesser": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.827707239335094e-16,
+            "minimum_eigenvalue": 0.003682120124818119,
+            "minimum_relative_eigenvalue": 0.022984978781536245
+          },
+          "passed": true
+        }
+      },
+      "optical_depth": 0.007632306362887059,
+      "history": [
+        {
+          "interval_order": 4,
+          "cutoff_sigma": 6.0,
+          "class_count": 200,
+          "elapsed_seconds": 3.764111900003627,
+          "omitted_maxwell_probability": 1.9731752900754032e-09
+        },
+        {
+          "interval_order": 6,
+          "cutoff_sigma": 6.0,
+          "class_count": 300,
+          "elapsed_seconds": 5.648633699980564,
+          "omitted_maxwell_probability": 1.9731752900754032e-09
+        },
+        {
+          "interval_order": 8,
+          "cutoff_sigma": 6.0,
+          "class_count": 400,
+          "elapsed_seconds": 7.572220399975777,
+          "omitted_maxwell_probability": 1.9731752900754032e-09
+        },
+        {
+          "interval_order": 10,
+          "cutoff_sigma": 6.0,
+          "class_count": 500,
+          "elapsed_seconds": 9.487227399949916,
+          "omitted_maxwell_probability": 1.9731752900754032e-09
+        },
+        {
+          "interval_order": 10,
+          "cutoff_sigma": 7.0,
+          "class_count": 500,
+          "elapsed_seconds": 10.622228400083259,
+          "omitted_maxwell_probability": 2.55962508777167e-12
+        }
+      ]
+    },
+    "reference": {
+      "measurement": {
+        "elapsed_seconds": 20.76152689999435,
+        "peak_traced_allocation_bytes": 19471422,
+        "retained_traced_allocation_bytes": 2754282
+      },
+      "performance": {
+        "method": "optimized",
+        "elapsed_seconds": 20.761493899975903,
+        "class_evaluations": 1000,
+        "max_class_evaluations": 10000,
+        "retained_integral_bytes": 2560,
+        "atomic_storage": "one velocity class; full atomic arrays are not retained"
+      },
+      "convergence": {
+        "converged": false,
+        "status": "unassessed direct quadrature",
+        "order": null,
+        "cutoff": null,
+        "rtol": 0.005,
+        "atol_per_m": 1e-06,
+        "propagation_assessed": false,
+        "interval_order": 20,
+        "cutoff_sigma": 7.0,
+        "omitted_maxwell_probability": 2.55962508777167e-12,
+        "requested_cutoff_sigma": 7.0,
+        "extended_cutoff_sigma": 8.0,
+        "estimate_kind": "successive quadrature differences, not a rigorous error bound"
+      },
+      "readout": {
+        "frequencies_hz": [
+          400000.0
+        ],
+        "minimum_db": [
+          0.024999296228051762
+        ],
+        "maximum_db": [
+          0.14212375798387586
+        ],
+        "minimum_variance": [
+          1.00577290001675
+        ],
+        "maximum_variance": [
+          1.0332665633779188
+        ],
+        "min_angle_deg": [
+          1.2862373187449805
+        ],
+        "covariance": [
+          [
+            [
+              1.0057867534239835,
+              -0.0006169999983718704
+            ],
+            [
+              -0.0006169999983718704,
+              1.0332527099706852
+            ]
+          ]
+        ],
+        "local_audit": {
+          "maximum_commutator_relative_residual": 3.4063225675138605e-16,
+          "noise_greater_by_reservoir": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.460069491954535e-16,
+            "minimum_eigenvalue": 0.03321024148746399,
+            "minimum_relative_eigenvalue": 0.01630806638791526
+          },
+          "noise_lesser_by_reservoir": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.460069491954535e-16,
+            "minimum_eigenvalue": 0.033210241487464015,
+            "minimum_relative_eigenvalue": 0.01630806638791523
+          },
+          "passed": true
+        },
+        "transfer_audit": {
+          "maximum_commutator_relative_residual": 5.554066116939874e-17,
+          "noise_greater": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.033897538754774e-16,
+            "minimum_eigenvalue": 0.0036821201226230654,
+            "minimum_relative_eigenvalue": 0.022984493231208922
+          },
+          "noise_lesser": {
+            "passed": true,
+            "maximum_hermiticity_relative_residual": 4.0312235139790033e-16,
+            "minimum_eigenvalue": 0.0036821201226230698,
+            "minimum_relative_eigenvalue": 0.02298449323120895
+          },
+          "passed": true
+        }
+      }
+    },
+    "comparison": {
+      "kernels": {
+        "drift": {
+          "max_absolute": 3.553149559011039e-05,
+          "relative_frobenius": 2.1229168673521222e-05
+        },
+        "noise_greater_by_reservoir": {
+          "max_absolute": 6.70580689630107e-05,
+          "relative_frobenius": 2.4389387879927108e-05
+        },
+        "noise_lesser_by_reservoir": {
+          "max_absolute": 6.70580689630107e-05,
+          "relative_frobenius": 2.43893878799271e-05
+        }
+      },
+      "mean": {
+        "chi_probe": {
+          "max_absolute": 1.5560892810267536e-19,
+          "relative_frobenius": 1.3485637178090538e-12
+        },
+        "alpha_per_m": {
+          "max_absolute": 1.197320020907e-12,
+          "relative_frobenius": 3.921881420843501e-12
+        },
+        "excited_fraction": {
+          "max_absolute": 1.6526493715196544e-15,
+          "relative_frobenius": 3.920344406665329e-12
+        }
+      },
+      "readout": {
+        "minimum_db": {
+          "max_absolute": 1.1349718884515192e-06,
+          "relative_frobenius": 4.540015359224253e-05
+        },
+        "maximum_db": {
+          "max_absolute": 1.1358401519334649e-05,
+          "relative_frobenius": 7.9919090801295e-05
+        },
+        "minimum_variance": {
+          "max_absolute": 2.6284564147438516e-07,
+          "relative_frobenius": 2.61336969280051e-07
+        },
+        "maximum_variance": {
+          "max_absolute": 2.7023693933703186e-06,
+          "relative_frobenius": 2.615365181793774e-06
+        },
+        "covariance": {
+          "max_absolute": 2.705880310038822e-06,
+          "relative_frobenius": 1.8861253356937663e-06
+        }
+      }
+    }
+  },
+  "source_equivalence_amendment": {
+    "provenance": "⟦AI⟧ 2026-11-05 post-measurement equivalence audit; numerical measurements unchanged.",
+    "path": "gabes/magneto_multilevel.py",
+    "measured_sha256": "a3796246c8bff730d4e3bb96d3f1ec8321b14b54fc70d0c22ee28a54da012eaf",
+    "current_sha256": "44c0dde20f9c9a39f272bb932881c91902d3828de4affafb47839db4c5fdefd4",
+    "change": "Compute identical optical resonance centers once in the original loop and reuse the list for extra RF knots. No arithmetic or iteration order changes to nodes and weights.",
+    "measured_source_reconstruction": "Reversing only this center reuse with CRLF bytes reproduces the measured source SHA exactly.",
+    "comparisons": 20,
+    "result": "bit-identical nodes, weights and sigma; maximum absolute difference zero",
+    "benchmark_grids": {
+      "isotope": "Rb87",
+      "line": "D1",
+      "temp_k": 343.15,
+      "detuning_mhz": 400,
+      "extra_shifts_mhz": [
+        -0.4,
+        0.4
+      ],
+      "order_cutoff_pairs": [
+        [
+          4,
+          6
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          20,
+          7
+        ]
+      ]
+    },
+    "ui_grids": {
+      "isotope": "Rb87",
+      "line": "D1",
+      "temp_k": 343.15,
+      "detuning_mhz": -900,
+      "extra_shifts_mhz": [
+        -12,
+        12
+      ],
+      "orders": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14
+      ],
+      "cutoffs_sigma": [
+        6,
+        7
+      ]
+    },
+    "independent_review": "24 additional grid cases across Rb87 D1 and Rb85 D2, two detunings, two orders, and three cutoff/RF settings also bit-identical."
+  }
+}

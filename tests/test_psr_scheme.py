@@ -30,6 +30,63 @@ def parameters(**changes):
     return values
 
 
+def test_full_obe_view_uses_one_velocity_and_exports_the_plotted_atomic_state(monkeypatch):
+    import matplotlib.pyplot as plt
+    import streamlit as st
+
+    scheme = schemes.get("psr")
+    params = parameters(calculation=psr_scheme.FULL_OBE, obe_detuning_mhz=350.,
+                        obe_intensity_mw_cm2=30., obe_velocity_m_s=18.,
+                        obe_ellipticity_deg=7., obe_azimuth_deg=15.,
+                        isotope="Rb85", line="D2", doppler=True)
+    monkeypatch.setattr(psr_scheme, "compute_psr_response",
+                        lambda *a, **kw: pytest.fail("full-OBE mode ran a weak-field scan"))
+    raw = scheme.compute({key: params[key] for key in scheme.recompute_keys()})
+    # Exercise Streamlit's input hasher, as the real observables cache does.
+    @st.cache_data(show_spinner=False)
+    def cached_susceptibility(point):
+        return point["chi_probe"]
+
+    assert cached_susceptibility(raw) == raw["chi_probe"]
+    assert raw["conditions"]["isotope"] == "Rb87" and raw["conditions"]["line"] == "D1"
+    assert raw["conditions"]["velocity_m_s"] == 18.
+    assert raw["conditions"]["effective_detuning_mhz"] < 350.
+    assert raw["rho"].shape == (16, 16)
+    headless = scheme.headless_observables(raw, params)
+    assert headless["figure"] is None and "phase_scan" not in headless["psr_readout"]
+    view = scheme.observables(raw, params)
+    try:
+        assert view["metrics"] == headless["metrics"]
+        traces = collect_view_plot_payloads(view, view["figure"])
+        for axes, population in zip(view["figure"].axes, ("ground_populations", "excited_populations")):
+            np.testing.assert_allclose(np.concatenate([line.get_ydata() for line in axes.lines]),
+                                       raw[population])
+        payload = build_export_payload(scheme=scheme, raw=raw, params=params, view=view,
+                                       plot_payloads=traces, comparison_payload=None,
+                                       cache_version=scheme.cache_version, readout_cache_version="test")
+        exported = json.loads(json.dumps(payload, allow_nan=False))
+        assert exported["params"]["isotope"] == "Rb87" and exported["params"]["line"] == "D1"
+        assert not exported["params"]["doppler"] and "detuning_mhz" not in exported["params"]
+        assert exported["params"]["obe_detuning_mhz"] == 350.
+        assert exported["saved_control_state"] == params
+        assert exported["raw"]["excited_fraction"] == pytest.approx(sum(raw["excited_populations"]))
+        assert exported["view"]["psr_readout"]["measurement_conventions"]["convention_id"]
+        np.testing.assert_allclose(exported["raw"]["rho"]["imag"], raw["rho"].imag)
+        view["figure"].canvas.draw()
+    finally:
+        plt.close(view["figure"])
+
+
+def test_default_conditional_reference_survives_shared_polarization_conventions():
+    scheme = schemes.get("psr")
+    params = scheme.defaults()
+    assert params["calculation"] == psr_scheme.CONDITIONAL
+    raw = atomic_psr.compute_psr_response([params["detuning_mhz"]], velocity_order=6)
+    view = scheme.headless_observables(raw, params)["psr_readout"]
+    assert view["selected_point"]["minimum_db"] == pytest.approx(-1.378237616, abs=3e-8)
+    assert view["selected_point"]["maximum_db"] == pytest.approx(1.479265415, abs=3e-8)
+
+
 def direct_response(raw, selected):
     """Independent backend call at the selected frequency, with frozen inputs."""
     c = raw["conditions"]

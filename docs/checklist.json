@@ -1,4 +1,32 @@
 {
+  "_psr_staged_model_2026_11_05": {
+    "provenance": "⟦AI⟧ Implementation record for explicit user requests S0/S1, S2, S3 and S4.",
+    "status": "S0-S4-implemented",
+    "source": "docs/psr/model_review_2026-11-02.md",
+    "implementation": [
+      "docs/psr/s0_s1.md",
+      "docs/psr/s2.md",
+      "docs/psr/s3.md",
+      "docs/psr/s4.md"
+    ],
+    "s3_scope": "Independent Rb87 D1 Maxwell classes. Average local drift and both ordered noise kernels before uniform-pump propagation. Optical saturation retained. Empirical quadrature, tail and output-noise convergence required for UI display.",
+    "s3_numerical_policy": "Optional optimized reset Gram and signed-RF symmetry preserve the direct S2 method. Shared quadrature defaults remain bit-identical. Quick/Balanced/Fine have finite class budgets; failure never substitutes a noise curve.",
+    "validation": "docs/psr/s3_benchmark.json",
+    "pending": [
+      {
+        "stage": "S5",
+        "scope": "Geometry and spatial overlap, input technical noise, finite detection band and electronics."
+      },
+      {
+        "stage": "S6",
+        "scope": "Experiment-specific B fields, seed, isotope/line and transport extensions."
+      }
+    ],
+    "pending_status": "S5-S6 remain planned follow-up; not implemented by the S4 request.",
+    "s4_scope": "Explicit user request implemented: evolve pump intensity and Jones polarization along z, recompute local saturated atoms and ordered noise, compose shared field segments; validate uniform limit and longitudinal refinement.",
+    "s4_validation": "docs/psr/s4_benchmark.json",
+    "s4_numerical_scope": "Local Maxwell kernel/cutoff checks plus accumulated output checks on a fixed candidate mean path. This is an empirical error estimate, not a rigorous fully coupled velocity/z bound."
+  },
   "_comment": "⟦AI⟧ GABES work registry. Daily-report reconciliation2026-10-19 covers55reports after08-07. Historical completed contracts and the FWM/SABES reconstruction remain scoped; current review evidence and explicit P1/P2/P3 followups are linked below.",
   "_scientific_publication_policy": {
     "policy": "docs/grand_challenge/publication_policy.md",

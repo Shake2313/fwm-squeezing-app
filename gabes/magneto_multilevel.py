@@ -114,26 +114,44 @@ def _polarization(qwp_deg):
     return {1: (ex-1j*ey)/math.sqrt(2), -1: (ex+1j*ey)/math.sqrt(2)}
 
 
-def velocity_quadrature(atom, laser_from_centroid_mhz, temp_k, *, order=6, doppler=True):
+def velocity_quadrature(atom, laser_from_centroid_mhz, temp_k, *, order=6, doppler=True,
+                        cutoff_sigma=6.0, extra_shifts_mhz=()):
     """Resonance-centered composite Gauss-Legendre Maxwell quadrature.
 
     Integration variable is optical Doppler shift kv/(2*pi), in MHz. Knots
     bracket every allowed hyperfine optical resonance and its Lorentzian
     wings, in addition to a coarse Gaussian grid. No low-order Hermite grid
-    is used. The omitted Gaussian tail outside +/-6 sigma is reported.
+    is used. The default domain is +/-6 sigma. Callers report their cutoff.
     ``order`` is nodes per interval, not the resulting velocity count.
+    Optional RF shifts add resonance knots without changing the optical frame.
+    The default cutoff and empty shifts preserve the historical grid exactly.
     """
     if not doppler:
         return np.array([0.0]), np.array([1.0]), 0.0
     sigma = atom.frequency_hz/constants.C_LIGHT * math.sqrt(constants.KB*temp_k/atom.mass) / 1e6
     hwhm = atom.gamma/(2*species.MHZ)
-    lo, hi = -6*sigma, 6*sigma
+    cutoff_sigma = float(cutoff_sigma)
+    shifts = np.asarray(extra_shifts_mhz, dtype=float).ravel()
+    if not np.isfinite(cutoff_sigma) or cutoff_sigma <= 0 or not np.isfinite(shifts).all():
+        raise ValueError("finite positive Maxwell cutoff and finite extra shifts required")
+    lo, hi = -cutoff_sigma*sigma, cutoff_sigma*sigma
     knots = list(np.linspace(lo, hi, 13))
+    resonances = []
     for bi, block in enumerate(atom.ground_slices):
         strength = sum(np.sum(atom.dipoles[q][block]**2, axis=0) for q in (-1, 0, 1))
         for energy in np.unique(atom.excited_energy_mhz[strength > 1e-15]):
             center = laser_from_centroid_mhz - (energy-atom.ground_energy_mhz[bi])
+            resonances.append(center)
             for scale in (-32, -8, -2, -0.5, 0, 0.5, 2, 8, 32):
+                value = center + scale*hwhm
+                if lo < value < hi:
+                    knots.append(value)
+    # Additional optical-sideband resonances need their own narrow core.
+    # Reuse the natural-line stencil, with the original zero shift omitted.
+    for shift in np.unique(shifts[shifts != 0.]):
+        for resonance in resonances:
+            center = resonance + shift
+            for scale in (-2, -0.5, 0, 0.5, 2):
                 value = center + scale*hwhm
                 if lo < value < hi:
                     knots.append(value)
@@ -143,7 +161,7 @@ def velocity_quadrature(atom, laser_from_centroid_mhz, temp_k, *, order=6, doppl
     center = (knots[1:]+knots[:-1])/2
     x = (center[:, None] + half[:, None]*nodes).ravel()
     w = (half[:, None]*weights).ravel() * np.exp(-0.5*(x/sigma)**2)/(math.sqrt(2*np.pi)*sigma)
-    # Conditional finite-tail measure; normalization differs by <2e-9.
+    # Conditional finite-tail measure; the default omitted mass is <2e-9.
     w /= w.sum()
     return x, w, sigma
 

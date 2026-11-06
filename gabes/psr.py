@@ -8,11 +8,10 @@ finite-RF atomic response, optical saturation, or Langevin diffusion is added.
 """
 from __future__ import annotations
 
-import math
-
 import numpy as np
 
 from . import constants, magneto_multilevel, species
+from .psr_conventions import circular_to_jones, stokes_rates
 
 
 DEFAULT_INTENSITY_MW_CM2 = 0.1
@@ -46,19 +45,7 @@ def _stokes_rates(qwp_deg, chi_plus, chi_minus, wave_number_per_m):
     ep, em = polarization[1], polarization[-1]
     dep = 0.5j * wave_number_per_m * chi_plus * ep
     dem = 0.5j * wave_number_per_m * chi_minus * em
-    x, y = (ep + em) / math.sqrt(2), 1j * (ep - em) / math.sqrt(2)
-    dx, dy = (dep + dem) / math.sqrt(2), 1j * (dep - dem) / math.sqrt(2)
-    s0 = abs(x)**2 + abs(y)**2
-    s1, s2, s3 = abs(x)**2 - abs(y)**2, 2 * (x.conjugate()*y).real, 2 * (x.conjugate()*y).imag
-    ds0 = 2 * (x.conjugate()*dx + y.conjugate()*dy).real
-    ds1 = 2 * (x.conjugate()*dx - y.conjugate()*dy).real
-    cross_derivative = dx.conjugate()*y + x.conjugate()*dy
-    ds2, ds3 = 2 * cross_derivative.real, 2 * cross_derivative.imag
-    helicity = s3 / s0
-    epsilon = 0.5 * math.asin(float(np.clip(helicity, -1., 1.)))
-    azimuth_rate = 0.5 * (s1*ds2 - s2*ds1) / (s1*s1 + s2*s2)
-    ellipticity_rate = 0.5 * (ds3*s0 - s3*ds0) / (s0*s0*math.sqrt(1-helicity*helicity))
-    return epsilon, float(azimuth_rate), float(ellipticity_rate), float(-ds0/s0)
+    return stokes_rates(circular_to_jones(ep, em), circular_to_jones(dep, dem))
 
 
 def compute_psr_response(

@@ -5,12 +5,17 @@ from functools import lru_cache
 import numpy as np
 
 from ..psr import compute_psr_response
+from ..psr_conventions import jones_from_angles, measurement_conventions
+from ..psr_full_obe import solve_psr_pump
 from ..psr_noise import psr_gaussian_readout
 from .base import ParamSpec, Scheme
+from . import psr_rf
 
 
 PHASE_VIEW = "Quadrature phase scan"
 DETUNING_VIEW = "Optical detuning"
+CONDITIONAL = "Conditional squeezing"
+FULL_OBE = "Rb87 D1 steady state"
 SCAN_LIMIT_MHZ = 1500.0
 _ATOMIC_INPUTS = (
     "isotope", "line", "intensity_mw_cm2", "temp_c", "cell_length_m",
@@ -53,50 +58,126 @@ class PSRScheme(Scheme):
     name = "psr"
     cluster = "C — Magneto-optics"
     title = "Polarization squeezing (PSR)"
-    caption = ("A linearly polarized carrier drives atomic self-rotation. "
-               "The orthogonal vacuum polarization follows an effective shear-and-loss model.")
+    caption = ("Explore polarization squeezing, the saturated ⁸⁷Rb D1 atomic state, "
+               "and its single-velocity or thermal RF noise spectrum.")
     supports_headless_observables = True
-    cache_version = "psr-direct-selected-point-v2"
+    cache_version = "psr-longitudinal-langevin-rf-v1"
 
     def param_schema(self):
+        weak = {"calculation": CONDITIONAL}
+        full = {"calculation": (FULL_OBE, psr_rf.PROPAGATED_RF_MODEL)}
+        propagated = {"calculation": psr_rf.PROPAGATED_RF_MODEL}
+        single = {"calculation": (FULL_OBE, psr_rf.RF_MODEL)}
+        microscopic = {"calculation": (FULL_OBE, *psr_rf.RF_MODELS)}
+        squeezing = {"calculation": (CONDITIONAL, *psr_rf.RF_MODELS)}
+        rf = {"calculation": psr_rf.RF_MODELS}
         return [
+            ParamSpec("calculation", "Calculation", "Model", CONDITIONAL,
+                      choices=(CONDITIONAL, FULL_OBE, *psr_rf.RF_MODELS)),
             ParamSpec("isotope", "Atom / Isotope", "Atomic", "Rb87",
-                      choices=("Rb87", "Rb85"),
+                      choices=("Rb87", "Rb85"), visible_if=weak,
                       atom_menu=(("Rb", "87", "Rb87", {}), ("Rb", "85", "Rb85", {}))),
-            ParamSpec("line", "Transition line", "Atomic", "D1", choices=("D1", "D2")),
+            ParamSpec("line", "Transition line", "Atomic", "D1", choices=("D1", "D2"), visible_if=weak),
             ParamSpec("intensity_mw_cm2", "Carrier intensity", "Light", .1, 0., 10., .01,
-                      unit="mW/cm²", help="Uniform local intensity; weak optical excitation is assumed."),
+                      unit="mW/cm²", visible_if=weak, help="Uniform local intensity; weak optical excitation is assumed."),
+            ParamSpec("obe_intensity_mw_cm2", "Pump intensity", "Light", .1, 0., 100000., .001,
+                      unit="mW/cm²", visible_if=microscopic, help="Entrance intensity in the propagated model; local intensity in the uniform models."),
+            ParamSpec("obe_detuning_mhz", "Pump detuning", "Light", -900., -2000., 2000., .1,
+                      unit="MHz", visible_if=microscopic, help="Laser frequency relative to the F = 2 optical centroid."),
+            ParamSpec("obe_ellipticity_deg", "Pump ellipticity angle", "Light", 0., -45., 45., .1,
+                      unit="°", visible_if=full, help="Zero gives linear polarization. ±45° gives circular polarization."),
+            ParamSpec("obe_azimuth_deg", "Pump azimuth", "Light", 0., -90., 90., .1,
+                      unit="°", visible_if=full, advanced=True),
+            ParamSpec("obe_velocity_m_s", "Axial atomic velocity", "Atomic", 0., -600., 600., .1,
+                      unit="m/s", visible_if=single, help="Positive velocity follows the light and lowers the frequency seen by the atom."),
+            ParamSpec("prop_velocity_model", "Velocity distribution", "Atomic", "single",
+                      choices=("single", "thermal"), choice_labels={"single": "Single velocity", "thermal": "Maxwell thermal"},
+                      visible_if=propagated,
+                      help="Thermal propagation repeats the converged velocity integral along the cell and can take several minutes."),
+            ParamSpec("prop_velocity_m_s", "Axial atomic velocity", "Atomic", 0., -600., 600., .1,
+                      unit="m/s", visible_if={**propagated, "prop_velocity_model": "single"}),
+            ParamSpec("propagation_accuracy", "Length integration", "Numerics", "Balanced",
+                      choices=("Quick", "Balanced", "Fine"), advanced=True, visible_if=propagated,
+                      help="Doubles the cell partition and compares the output pump, transfer and noise ellipse."),
+            ParamSpec("prop_thermal_accuracy", "Thermal integration", "Numerics", "Balanced",
+                      choices=("Quick", "Balanced", "Fine"), advanced=True,
+                      visible_if={**propagated, "prop_velocity_model": "thermal"}),
             ParamSpec("temp_c", "Temperature", "Cell", 70., 20., 150., 1., unit="°C"),
-            ParamSpec("cell_mm", "Cell length", "Cell", 75., 0., 200., 1., unit="mm"),
+            ParamSpec("cell_mm", "Cell length", "Cell", 75., 0., 200., 1., unit="mm", visible_if=squeezing),
             ParamSpec("relaxation_hz", "Ground-state reset rate", "Cell", 1000., 10., 100000., 10.,
                       unit="s⁻¹", help="Isotropic transit replacement; this rate has no 2π conversion."),
             ParamSpec("view", "Scan axis", "Readout", PHASE_VIEW,
-                      choices=(PHASE_VIEW, DETUNING_VIEW), control="required_segmented", recompute=False),
+                      choices=(PHASE_VIEW, DETUNING_VIEW), control="required_segmented", recompute=False, visible_if=weak),
+            ParamSpec("rf_view", "Scan axis", "Readout", psr_rf.RF_VIEW,
+                      choices=(psr_rf.RF_VIEW, psr_rf.PHASE_VIEW), control="required_segmented",
+                      recompute=False, visible_if=rf),
+            ParamSpec("rf_frequency_mhz", "Analysis frequency", "Readout", 1.2, .001, 10., .001,
+                      unit="MHz", visible_if=rf,
+                      help="The phase scan uses this RF. The spectrum samples one decade on either side."),
             ParamSpec("detuning_mhz", "Optical detuning", "Readout", -900.,
-                      -SCAN_LIMIT_MHZ, SCAN_LIMIT_MHZ, 25., unit="MHz", recompute=False,
+                      -SCAN_LIMIT_MHZ, SCAN_LIMIT_MHZ, 25., unit="MHz", recompute=False, visible_if=weak,
                       help="Relative to the upper ground-F optical line-strength centroid. "
                            "The selected atomic response is solved directly and cached; fixed during the phase scan."),
             ParamSpec("after_cell_eff_pct", "After-cell transmission", "Detection", 95.,
-                      0., 100., 1., unit="%", recompute=False),
+                      0., 100., 1., unit="%", recompute=False, visible_if=squeezing),
             ParamSpec("qe_pct", "Detector efficiency", "Detection", 95.,
-                      0., 100., 1., unit="%", recompute=False),
+                      0., 100., 1., unit="%", recompute=False, visible_if=squeezing),
             ParamSpec("excess_noise_per_od", "Assumed atomic excess noise", "Noise model", 0.,
-                      0., 20., .1, recompute=False,
+                      0., 20., .1, recompute=False, visible_if=weak,
                       help="Dimensionless isotropic diffusion per absorption OD. Zero omits atomic "
                            "excess noise; it is not a prediction that the atoms are noiseless."),
             ParamSpec("doppler", "Doppler averaging", "Atomic", True,
-                      control="checkbox", advanced=True),
+                      control="checkbox", advanced=True, visible_if=weak),
             ParamSpec("resolution", "Resolution", "Numerics", "Balanced",
-                      choices=("Quick", "Balanced", "Fine"), advanced=True,
+                      choices=("Quick", "Balanced", "Fine"), advanced=True, visible_if=weak,
                       help="41 / 81 / 161 optical points and velocity quadrature order 4 / 6 / 10. "
                            "Compare resolutions before interpreting narrow features."),
+            ParamSpec("thermal_accuracy", "Thermal integration", "Numerics", "Balanced",
+                      choices=("Quick", "Balanced", "Fine"), advanced=True,
+                      visible_if={"calculation": psr_rf.THERMAL_RF_MODEL},
+                      help="Refines the velocity integral of both response and atomic noise. "
+                           "Convergence and the Maxwell-tail check are reported with the result."),
             ParamSpec("finite_difference_deg", "Ellipticity derivative step", "Numerics", .05,
-                      .01, .5, .01, unit="deg", advanced=True,
+                      .01, .5, .01, unit="deg", advanced=True, visible_if=weak,
                       help="Symmetric ±h and ±h/2 responses check the local linearization."),
         ]
 
     def info(self):
-        return """**Conditional PSR polarization squeezing**
+        return """**Rb87 D1 propagated RF squeezing**
+
+The pump intensity and Jones polarization evolve along the cell. Each segment
+recomputes the saturated atomic response and both ordered Langevin noise kernels,
+using a single axial velocity or independent Maxwell classes. The segments use
+the shared field propagation and composition engines. Noise is measured in the
+polarization orthogonal to the actual output carrier. Length refinement and,
+for a thermal medium, local velocity convergence must pass before noise is shown.
+The Pump propagation figure shows the intensity and
+polarization trajectory. This is a local steady-state medium, without atomic
+transport memory along the pump gradient or transverse spatial modes.
+
+**Rb87 D1 RF squeezing**
+
+The saturated atom supplies the frequency-dependent response and Langevin noise
+of both polarizations. A bright x-polarized carrier and vacuum in y enter a
+uniform thin cell. The analysis-frequency view shows the minimum and maximum
+noise and the minimum-noise phase. The phase scan uses the selected RF and a
+local oscillator referenced to the output carrier. This mode uses a single
+velocity class and narrowband detection. **Rb87 D1 thermal RF squeezing**
+averages the same drift and both ordered noise kernels over the one-dimensional
+Maxwell velocity distribution before propagation. Thermal integration checks
+velocity resolution, the truncated tail and the output noise ellipse.
+Both modes use a uniform pump and require
+|αL| ≤ 0.3. Optical transmission and detector efficiency act after the cell.
+
+**Rb87 D1 atomic steady state**
+
+At one pump detuning and axial velocity, the full optical Bloch equations
+give the populations of the 16 hyperfine and Zeeman sublevels, the optical
+coherences, and local absorption. Vary the local pump intensity to explore
+optical pumping and saturation. Temperature sets the pure-isotope vapor density.
+This zero-field calculation describes the mean atomic state.
+
+**Conditional PSR polarization squeezing**
 
 The existing Rb multihyperfine/Zeeman response supplies the small-ellipticity
 self-rotation slope **g = d(dψ/dz)/dε** and absorption **α** at zero magnetic
@@ -142,8 +223,45 @@ develop the PSR squeezing mechanism;
 include the atomic noise needed for a microscopic prediction.
 """
 
+    def _active_atomic_params(self, params):
+        active = {}
+        for spec in self.param_schema():
+            visible = all(params.get(key) in (allowed if isinstance(allowed, (tuple, list)) else (allowed,))
+                          for key, allowed in (spec.visible_if or {}).items())
+            if spec.recompute and visible:
+                active[spec.name] = params[spec.name]
+        thermal = (params["calculation"] == psr_rf.THERMAL_RF_MODEL or
+                   (params["calculation"] == psr_rf.PROPAGATED_RF_MODEL and params["prop_velocity_model"] == "thermal"))
+        return dict(active, isotope="Rb87", line="D1", doppler=thermal)
+
     def compute(self, params):
         p = dict(self.defaults(), **params)
+        if p["calculation"] in psr_rf.RF_MODELS:
+            result = psr_rf.compute_rf(p)
+            result["active_params"] = self._active_atomic_params(p)
+            return result
+        if p["calculation"] == FULL_OBE:
+            state = solve_psr_pump(
+                p["obe_detuning_mhz"], intensity_mw_cm2=p["obe_intensity_mw_cm2"],
+                velocity_m_s=p["obe_velocity_m_s"], temp_c=p["temp_c"],
+                ground_relaxation_hz=p["relaxation_hz"],
+                jones_xy=jones_from_angles(np.deg2rad(p["obe_azimuth_deg"]),
+                                           np.deg2rad(p["obe_ellipticity_deg"])))
+            # Keep the solved density matrix in the result bundle. The large
+            # reusable generator and reservoir operators belong to the Python API.
+            result = dict(kind="psr_full_obe", active_params=self._active_atomic_params(p), **{key: state[key] for key in (
+                "model_id", "conditions", "rho", "ground_populations", "excited_populations",
+                "ground_levels", "excited_levels", "polarization_xy_c_m2",
+                "excited_fraction", "alpha_per_m",
+                "azimuth_rate_per_m", "ellipticity_rate_per_m", "diagnostics")})
+            # Streamlit supports complex ndarrays but cannot hash a Python
+            # complex scalar in the raw input to its observables cache.
+            for key in ("chi_plus", "chi_minus", "chi_probe"):
+                value = state[key]
+                result[key] = None if value is None else {"real": value.real, "imag": value.imag}
+            return result
+        if p["calculation"] != CONDITIONAL:
+            raise ValueError(f"Unknown PSR calculation {p['calculation']!r}")
         count, order = {"Quick": (41, 4), "Balanced": (81, 6), "Fine": (161, 10)}.get(
             p["resolution"], (41, 4))
         doppler = p["doppler"]
@@ -157,6 +275,10 @@ include the atomic noise needed for a microscopic prediction.
             velocity_order=order, ellipticity_step_deg=p["finite_difference_deg"])
 
     def observables(self, raw, params, include_figures=True):
+        if raw.get("kind") == "psr_rf":
+            return psr_rf.rf_view(raw, dict(self.defaults(), **params), include_figures)
+        if raw.get("kind") == "psr_full_obe":
+            return self._steady_state_view(raw, include_figures)
         p = dict(self.defaults(), **params)
         axis = np.asarray(raw["detunings_mhz"])
         eta = p["after_cell_eff_pct"]*p["qe_pct"]/10000.
@@ -234,7 +356,8 @@ include the atomic noise needed for a microscopic prediction.
 
         noise_assumption = ("Atomic excess noise omitted" if excess == 0 else
                             f"Assumed atomic excess noise: {excess:g} per OD")
-        readout = dict(selected_point=point, phase_scan=phase, spectrum=spectrum,
+        readout = dict(measurement_conventions=measurement_conventions(),
+                       selected_point=point, phase_scan=phase, spectrum=spectrum,
                        detection_efficiency=eta, excess_noise_per_od=excess,
                        noise_assumption=noise_assumption, model_scope=raw["model_scope"],
                        approximation_thresholds=raw["approximation_thresholds"],
@@ -279,6 +402,55 @@ include the atomic noise needed for a microscopic prediction.
         )
         return dict(metrics=metrics, hero_count=2, figure=fig, psr_readout=readout,
                     tables=[dict(title="PSR assumptions and applicability", markdown=detail)])
+
+    @staticmethod
+    def _steady_state_view(raw, include_figures):
+        conditions = raw["conditions"]
+        health = raw["diagnostics"]
+        susceptibility = complex(raw["chi_probe"]["real"], raw["chi_probe"]["imag"])
+        metrics = [
+            dict(label="Excited population", value=f"{100*raw['excited_fraction']:.5g}%",
+                 tier="hero", help="Fraction of all atoms in the D1 excited manifold."),
+            dict(label="Local absorption α", value=f"{raw['alpha_per_m']:.5g} m⁻¹", tier="hero"),
+            dict(label="Atom-frame detuning", value=f"{conditions['effective_detuning_mhz']:.4g} MHz",
+                 tier="secondary"),
+            dict(label="Steady state", value=health["solver_status"], kind="status"),
+        ]
+        table = (
+            "| Atomic steady state | Value |\n|---|---|\n"
+            "| Atom | ⁸⁷Rb D1, 8 ground and 8 excited sublevels |\n"
+            "| Observable | Local mean atomic response at one axial velocity and zero magnetic field |\n"
+            f"| Complex carrier susceptibility | {susceptibility:.6g} |\n"
+            f"| Density matrix trace error | {health['trace_error']:.3g} |\n"
+            f"| Hermiticity error | {health['hermiticity_error']:.3g} |\n"
+            f"| Minimum density eigenvalue | {health['min_eigenvalue']:.3g} |\n"
+            f"| Relative steady-state residual | {health['steady_state_relative_residual']:.3g} |\n"
+        )
+        for label, key in (("Local rotation dψ/dz", "azimuth_rate_per_m"),
+                           ("Local ellipticity change dε/dz", "ellipticity_rate_per_m")):
+            rate = raw[key]
+            value = f"{rate:.5g} rad/m" if np.isfinite(rate) else "undefined at circular polarization"
+            table += f"| {label} | {value} |\n"
+        fig = None
+        if include_figures:
+            import matplotlib.pyplot as plt
+            fig, axes = plt.subplots(1, 2, figsize=(8, 4), sharex=True)
+            for axis, title, sublevels, populations in (
+                (axes[0], "Ground state (5S1/2)", raw["ground_levels"], raw["ground_populations"]),
+                (axes[1], "Excited state (5P1/2)", raw["excited_levels"], raw["excited_populations"]),
+            ):
+                for f in sorted({f for f, m in sublevels}):
+                    indices = [i for i, (level_f, _) in enumerate(sublevels) if level_f == f]
+                    axis.plot([sublevels[i][1] for i in indices], np.asarray(populations)[indices],
+                              marker="o", label=f"F = {f}")
+                axis.set(title=title, xlabel="Magnetic sublevel mF", ylabel="Fraction of all atoms",
+                         xticks=[-2, -1, 0, 1, 2])
+                axis.legend()
+            fig.tight_layout()
+        return dict(metrics=metrics, hero_count=2, figure=fig, export_params=raw["active_params"],
+                    psr_readout=dict(model_id=raw["model_id"], conditions=conditions,
+                                     measurement_conventions=measurement_conventions()),
+                    tables=[dict(title="Atomic populations and solver checks", markdown=table)])
 
     @staticmethod
     def _figure(spectrum, phase, point, view):
