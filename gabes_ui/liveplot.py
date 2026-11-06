@@ -10,7 +10,6 @@ import hashlib
 from io import BytesIO
 import json
 import logging
-from pathlib import Path
 
 import numpy as np
 import streamlit as st
@@ -18,19 +17,19 @@ import matplotlib as mpl
 from matplotlib.colors import to_hex
 
 from gabes.plot_style import apply_gabes_plot_style
-from .component_runtime import missing_apptest_component
+from .component_runtime import missing_apptest_component, spectrum_component_js
 
-_ASSETS = Path(__file__).resolve().parents[1] / "assets" / "ui"
 _COMPONENT = st.components.v2.component(
     "gabes_live_plot",
     html='<div class="lp"><output class="lp-status" aria-live="polite"></output>'
          '<div class="lp-stage"><img alt="Spectrum" />'
-         '<svg aria-label="Interactive spectrum"></svg></div>'
+         '<svg aria-hidden="true"></svg></div>'
          '<div class="lp-controls"></div></div>',
     css="""
     .lp{width:100%;font:13px var(--g-font-sans,sans-serif);color:var(--g-ink-2,#334155)}
     .lp-stage{position:relative;line-height:0;margin-inline:auto}.lp-stage img{width:100%;display:block}
-    .lp-stage svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:ew-resize}
+    .lp-stage svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:ew-resize;
+      user-select:none;-webkit-user-select:none}
     .lp-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px;margin-top:8px}
     .lp-controls label{display:grid;grid-template-columns:1fr 90px;gap:4px 8px;align-items:center}
     .lp-controls input[type=range]{grid-column:1/-1;width:100%;accent-color:#0284c7;margin:0}
@@ -41,7 +40,7 @@ _COMPONENT = st.components.v2.component(
     .lp[aria-busy=true] .lp-status{color:var(--g-accent,#0284c7)}
     @media(max-width:600px){.lp-controls{grid-template-columns:1fr}}
     """,
-    js=(_ASSETS / "liveplot.js").read_text(encoding="utf-8"),
+    js=spectrum_component_js("liveplot.js"),
 )
 _MOUNTABLE = True
 
@@ -203,7 +202,7 @@ def _preview_context(data, comparison, interaction_context=None):
 
 
 def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False, gain_digits=6,
-                     interaction_context=None):
+                     interaction_context=None, description="Spectrum"):
     global _MOUNTABLE
     if not _MOUNTABLE:
         return False
@@ -230,6 +229,7 @@ def render_live_plot(fig, scheme_name, comparison=None, *, canonical_noise=False
     context = _preview_context(data, comparison, interaction_context)
     data["context"] = context
     data["gain_digits"] = gain_digits
+    data["description"] = description
     component_key = f"live-plot-{scheme_name}"
     acknowledgement = st.session_state.get(component_key + "-ack", {})
     data["ack"] = (acknowledgement.get("n", 0)

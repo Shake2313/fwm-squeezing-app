@@ -35,3 +35,28 @@ plt.close(fig)
         assert app.session_state["comparison"]["alignment_revision"] == revision
         app.run(timeout=20)
         assert app.session_state["comparison"]["alignment_revision"] == revision
+
+def test_condition_comparison_roundtrip_preserves_alignment_and_clearable_session_file(monkeypatch):
+    from types import SimpleNamespace
+    from gabes_ui import plotcard
+
+    data = b"0,1\n1,0"
+    upload = SimpleNamespace(name="trace.csv", size=len(data), getvalue=lambda: data)
+    state = {"sas___csv_upload": upload, "sas___overlay": True,
+             "sas___csv_reverse": True, "sas___csv_x_shift": -0.75,
+             "sas___csv_apply": True}
+    monkeypatch.setattr(plotcard.st, "session_state", state)
+    plotcard.remember_overlay_for_comparison("sas", entering=True)
+    for key in ("sas___csv_upload", "sas___overlay", "sas___csv_reverse",
+                "sas___csv_x_shift", "sas___csv_apply"):
+        del state[key]
+    plotcard.remember_overlay_for_comparison("sas", entering=False)
+    assert state["sas___overlay"] and state["sas___csv_reverse"]
+    assert state["sas___csv_x_shift"] == -0.75
+    assert "sas___csv_apply" not in state
+    assert state["sas___csv_retained_file"] == ("trace.csv", data)
+    assert plotcard._overlay_upload_key("sas") != "sas___csv_upload"
+    plotcard._forget_retained_csv("sas")
+    plotcard.remember_overlay_for_comparison("sas", entering=True)
+    plotcard.remember_overlay_for_comparison("sas", entering=False)
+    assert "sas___csv_retained_file" not in state

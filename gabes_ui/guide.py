@@ -27,7 +27,15 @@ export default function(component) {
   const { parentElement, data } = component;
   const btn = parentElement.querySelector("button");
   if (!btn) return;
+  const label = data.label || "Guide";
+  btn.querySelector(".lbl").textContent = label;
+  if (data.anchor) {
+    btn.setAttribute("aria-label", label);
+    btn.title = "첫 OD/SAS 스펙트럼 실습을 새 창에서 엽니다";
+    btn.querySelector(".lbl").style.cssText = "position:static;width:auto;height:auto;clip-path:none;";
+  }
   const url = (data && data.url) || "app/static/GABES_User_Guide.html";
+  const anchor = data.anchor ? "#" + encodeURIComponent(data.anchor) : "";
   btn.onclick = async () => {
     btn.setAttribute("aria-busy", "true");
     try {
@@ -35,9 +43,9 @@ export default function(component) {
       if (!response.ok) throw new Error("Guide could not be loaded");
       const text = await response.text();
       const blobUrl = URL.createObjectURL(new Blob([text], { type: "text/html" }));
-      if (!window.open(blobUrl, "_blank")) window.open(url, "_blank");
+      if (!window.open(blobUrl + anchor, "_blank")) window.open(url + anchor, "_blank");
     } catch (_e) {
-      window.open(url, "_blank");
+      window.open(url + anchor, "_blank");
     } finally {
       btn.removeAttribute("aria-busy");
     }
@@ -48,6 +56,6 @@ export default function(component) {
 _GUIDE_BUTTON = st.components.v2.component("gabes_guide_button", html=_HTML, css=_CSS, js=_JS)
 
 
-def guide_button(url, key="gabes_guide"):
+def guide_button(url, key="gabes_guide", *, label="Guide", anchor=None):
     """Mount the launcher in the current container."""
-    return _GUIDE_BUTTON(key=key, data={"url": url}, width="content")
+    return _GUIDE_BUTTON(key=key, data={"url": url, "label": label, "anchor": anchor}, width="content")

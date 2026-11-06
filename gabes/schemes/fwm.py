@@ -3939,6 +3939,17 @@ class FWMScheme(Scheme):
     caption = ("Seeded ⁸⁵Rb D1 mean-field Squeezing indicator and spontaneous "
                "biphoton estimates.")
 
+    def atom_conditions(self, params):
+        if params.get("mode", MODE_SEEDED) != MODE_BIPHOTON:
+            fixed = {"Atom": "Rb", "Isotope": "85", "Transition line": "D1"}
+        else:
+            topology = topology_from_params(params)
+            atom = topology.isotope_name.rstrip("0123456789")
+            fixed = {"Atom": atom, "Isotope": topology.isotope_name[len(atom):]}
+            if topology.name != TOPOLOGY_DIAMOND:
+                fixed["Transition line"] = "D2"
+        return dict(fields=("temp_c", "cell_mm", "biphoton_temp_c", "biphoton_cell_mm"), fixed=fixed)
+
     def param_schema(self):
         seeded = {"mode": MODE_SEEDED}
         biphoton = {"mode": MODE_BIPHOTON}

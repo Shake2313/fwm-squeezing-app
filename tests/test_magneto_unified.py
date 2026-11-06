@@ -85,7 +85,7 @@ def test_regime_defaults_are_sidebar_snapshots_without_topbar_choices(monkeypatc
         loaded = defaults._params(sc)
         assert loaded == by_name[name]["params"]
         assert loaded["scan_axis"] == FIELD_SCAN
-        assert loaded["signal_type"] == (ROTATION if name == "NMOR" else TRANSMISSION)
+        assert loaded["signal_type"] == ROTATION
         assert loaded["cell_type"] == (BUFFER if name == "Hanle" else PARAFFIN)
         assert loaded["qwp_deg"] == 0.
 
@@ -103,8 +103,8 @@ def test_both_readout_defaults_use_the_unified_backend(backend):
     assert len(backend) == 2
 
 
-@pytest.mark.parametrize("mode,signal", [(None, ROTATION), ("hanle", TRANSMISSION),
-                                        ("eia", TRANSMISSION), ("nmor", ROTATION)])
+@pytest.mark.parametrize("mode,signal", [(None, ROTATION), ("hanle", ROTATION),
+                                        ("eia", ROTATION), ("nmor", ROTATION)])
 def test_every_public_alias_uses_the_same_backend(mode, signal, backend):
     sc = UnifiedMagnetoScheme(mode)
     params = dict(sc.defaults(), doppler="off", scan_points=11)
@@ -131,7 +131,8 @@ def test_both_axes_share_conditions_and_identical_operating_point(backend):
     selected = list(oview["x"]).index(600.)
     assert bview["transmission"][op] == oview["transmission"][selected]
     assert bview["rotation_slope_rad_per_t"][op] == oview["rotation_slope_rad_per_t"][selected]
-    assert bview["sensitivity"]["field_asd_t_per_sqrt_hz"][op] == oview["sensitivity"]["field_asd_t_per_sqrt_hz"][selected]
+    for budget in ("rotation_sensitivity", "transmission_sensitivity"):
+        assert bview[budget]["field_asd_t_per_sqrt_hz"][op] == oview[budget]["field_asd_t_per_sqrt_hz"][selected]
     assert backend[-1][1]["b_x_ut"] == pytest.approx(0., abs=1e-18)
     assert backend[-1][1]["b_y_ut"] == pytest.approx(.001)
 
@@ -162,7 +163,8 @@ def test_optical_axis_uses_analytic_slopes_without_finite_difference_gaps(backen
         assert np.isfinite(ax.lines[0].get_ydata()).all()
     view["figure"].canvas.draw()
     payload = collect_view_plot_payloads(view, view["figure"])
-    assert len(payload[0]["traces"]) >= 3
+    assert len(view["figure"].axes) == 2
+    assert len(payload[0]["traces"]) >= 2
     json.dumps(data, allow_nan=False)
     import matplotlib.pyplot as plt
     plt.close(view["figure"])
@@ -171,7 +173,7 @@ def test_optical_axis_uses_analytic_slopes_without_finite_difference_gaps(backen
 def test_true_zero_response_remains_explicitly_unavailable(monkeypatch):
     def zero(delta, **conditions):
         result = fake_response(delta, **conditions)
-        result["rotation_slope_rad_per_t"] = np.zeros_like(result["rotation_slope_rad_per_t"])
+        result["transmission_slope_per_t"] = np.zeros_like(result["transmission_slope_per_t"])
         return result
     monkeypatch.setattr(unified.magneto_multilevel, "multilevel_response", zero)
     sc = UnifiedMagnetoScheme()
@@ -180,7 +182,7 @@ def test_true_zero_response_remains_explicitly_unavailable(monkeypatch):
     assert data["optimum_index"] is None
     assert all(v is None for v in data["sensitivity"]["field_asd_t_per_sqrt_hz"])
     assert all("zero magnetic slope" in value for value in data["sensitivity"]["status"])
-    assert all(value == 0 for value in data["rotation_slope_rad_per_t"])
+    assert all(value == 0 for value in data["transmission_slope_per_t"])
 
 
 def test_circular_input_retains_transmission_response_and_suppresses_rotation(backend):
@@ -188,7 +190,9 @@ def test_circular_input_retains_transmission_response_and_suppresses_rotation(ba
     p = dict(sc.defaults(), qwp_deg=45., signal_type=TRANSMISSION, scan_points=11)
     raw = sc.compute(p)
     data = sc.headless_observables(raw, p)["magneto_readout"]
-    assert all(data["sensitivity"]["valid"])
+    assert data["signal_type"] == ROTATION
+    assert not any(data["sensitivity"]["valid"])
+    assert all(data["transmission_sensitivity"]["valid"])
     assert not any(data["rotation_sensitivity"]["valid"])
     assert all(value is not None for value in data["transmission_slope_per_t"])
     assert len(backend) == 1
@@ -219,7 +223,8 @@ def test_large_signal_and_local_nonlinearity_never_mask_analytic_asd(backend, mo
     def curved(delta, *, b_ut, **conditions):
         result = fake_response(delta, b_ut=b_ut, **conditions)
         # Keep this deliberately outside the 5% boundary under readout scaling.
-        result["rotation_rad"] += 1.1e30*(np.asarray(b_ut)[:, None]*1e-6)**3
+        result["transmission"] += 1.1e27*(np.asarray(b_ut)[:, None]*1e-6)**3
+        result["optical_depth"] = -np.log(result["transmission"])
         return result
     monkeypatch.setattr(unified.magneto_multilevel, "multilevel_response", curved)
     curved_raw = sc.compute(p)
@@ -240,3 +245,60 @@ def test_real_small_multilevel_pipeline_for_both_axes(axis):
     assert raw["model"] == "Budker multihyperfine"
     assert np.isfinite(view["magneto_readout"]["transmission"]).all()
     assert all(view["magneto_readout"]["slope_valid"])
+
+
+@pytest.mark.parametrize("axis, expected", [(FIELD_SCAN, ROTATION), (OPTICAL_SCAN, TRANSMISSION)])
+def test_scan_axis_overrides_legacy_signal_in_every_readout(axis, expected, backend):
+    sc = UnifiedMagnetoScheme()
+    legacy = TRANSMISSION if expected == ROTATION else ROTATION
+    p = dict(sc.defaults(), scan_axis=axis, signal_type=legacy, scan_points=11, detuning_points=3)
+    raw = sc.compute(p)
+    # The committed raw axis also wins over stale readout-only parameters.
+    view = sc.observables(raw, dict(p, scan_axis=OPTICAL_SCAN if axis == FIELD_SCAN else FIELD_SCAN))
+    data = view["magneto_readout"]
+    assert data["signal_type"] == expected
+    budget = data["rotation_sensitivity" if expected == ROTATION else "transmission_sensitivity"]
+    assert data["sensitivity"] == budget
+    assert sc.normalize_params(p)["signal_type"] == expected
+    assert view["figure"].axes[0].get_ylabel().startswith("Polarization rotation" if expected == ROTATION else "Transmission")
+    import matplotlib.pyplot as plt
+    plt.close(view["figure"])
+
+
+def test_controls_live_in_advanced_or_workspace_and_signal_is_hidden():
+    sc = UnifiedMagnetoScheme()
+    specs = {spec.name: spec for spec in sc.param_schema()}
+    assert specs["signal_type"].hidden
+    assert all(specs[key].advanced for key in
+               ("show_shot_noise", "scan_points", "detuning_points", "density_mode", "density_cm3"))
+    assert "qwp_deg" in sc.workspace_inputs
+    assert sc.model_comparison_controls == ("comparison_mode",)
+    assert not specs["comparison_mode"].recompute
+    assert sc.atom_conditions(sc.defaults())["fields"] == ("isotope", "line", "temp_c", "cell_mm", "cell_type")
+
+
+@pytest.mark.parametrize("axis", [FIELD_SCAN, OPTICAL_SCAN])
+def test_shot_noise_toggle_changes_visible_figure_and_metrics_without_solving(axis, backend):
+    sc = UnifiedMagnetoScheme()
+    p = dict(sc.defaults(), scan_axis=axis, scan_points=11, detuning_points=3)
+    raw = sc.compute(p)
+    on = sc.observables(raw, p)
+    with patch.object(unified.magneto_multilevel, "multilevel_response", side_effect=AssertionError("readout solved")):
+        off = sc.observables(raw, dict(p, show_shot_noise=False))
+    assert on["magneto_readout"]["shot_noise"]["enabled"]
+    assert not off["magneto_readout"]["shot_noise"]["enabled"]
+    assert any("sensitivity" in item["label"].lower() for item in on["metrics"])
+    assert not any("sensitivity" in item["label"].lower() or "SNR" in item["label"] for item in off["metrics"])
+    assert "| Optimum |" not in off["tables"][0]["markdown"]
+    assert all(line.get_label() != "Sampled optimum" for ax in off["figure"].axes for line in ax.lines)
+    if axis == OPTICAL_SCAN:
+        assert len(on["figure"].axes) == 3
+        assert len(off["figure"].axes) == 2
+        assert "ASD" in on["figure"].axes[-1].get_ylabel()
+    else:
+        labels = lambda view: [line.get_label() for line in view["figure"].axes[0].lines]
+        assert "Shot noise (simulated)" in labels(on)
+        assert "Shot noise (simulated)" not in labels(off)
+    import matplotlib.pyplot as plt
+    plt.close(on["figure"])
+    plt.close(off["figure"])

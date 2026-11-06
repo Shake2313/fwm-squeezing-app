@@ -310,8 +310,8 @@ def test_replaced_html_cleanup_does_not_retire_reclaimed_interaction():
     node = shutil.which("node")
     if not node:
         pytest.skip("Node.js is needed to exercise the live plot lifecycle")
-    asset = Path(liveplot.__file__).resolve().parents[1] / "assets/ui/liveplot.js"
-    url = "data:text/javascript;base64," + base64.b64encode(asset.read_bytes()).decode()
+    source = liveplot.spectrum_component_js("liveplot.js")
+    url = "data:text/javascript;base64," + base64.b64encode(source.encode()).decode()
     script = r'''
 import assert from 'node:assert/strict';
 import mountPlot, {interactionForComponent, releaseGesture} from MODULE_URL;

@@ -118,7 +118,8 @@ globalThis.MutationObserver = class {
 };
 function element() {
   return { hidden:false, textContent:'', value:'', style:{}, selectionStart:0, selectionEnd:0,
-    classList:{toggle(){},add(){},remove(){}}, setAttribute(){},removeAttribute(){},
+    classList:{toggle(){},add(){},remove(){}}, attributes:{},
+    setAttribute(name,v){this.attributes[name]=v},removeAttribute(name){delete this.attributes[name]},
     setPointerCapture(){},hasPointerCapture(){return false},releasePointerCapture(){},
     getBoundingClientRect(){return {left:0,width:100}},
     focus(){this.focused=true},select(){},
@@ -155,12 +156,28 @@ assert.equal(next.children.get('.sf-input').selectionStart,4);
 assert.equal(sent.length,0);
 next.children.get('.sf-input').onkeydown(event({key:'Enter'}));
 assert.equal(sent.at(-1).t,'1200 uW');
+assert.equal(next.children.get('.sf-value').focused,true);
 next.dispose();next.root.isConnected=false;
 // A rejected text response still acknowledges its request and restores the knob.
 let rejected=mount('draft',{ack:1,value:0.6,text:'0.6',note:'expected mW'});
 assert.equal(rejected.root._sf.pending,0);
 assert.equal(rejected.children.get('.sf-num').textContent,'0.6');
 rejected.dispose();rejected.root.isConnected=false;
+// A valid entry finer than one step is readable and resettable. Blurring
+// the editor (Tab) commits without taking focus back from the next control.
+const fine=mount('precise',{value:0.50789,text:'0.50789'});
+const knob=fine.children.get('.sf-value'),editor=fine.children.get('.sf-input');
+assert.equal(knob.attributes['aria-valuetext'],'0.50789 mW');
+assert.equal(fine.children.get('.sf-reset').hidden,false);
+knob.onkeydown(event({key:'Enter'}));
+assert.equal(editor.attributes['aria-label'],'Power, mW');
+editor.value='0.42';editor.onblur();
+assert.equal(sent.at(-1).t,'0.42');
+assert.notEqual(knob.focused,true);
+knob.onkeydown(event({key:'Enter'}));
+editor.onkeydown(event({key:'Escape'}));
+assert.equal(knob.focused,true);
+fine.dispose();fine.root.isConnected=false;
 // Release reaches the new render after the element that captured it is removed.
 first=mount('pointer');
 first.children.get('.sf-track').onpointerdown(event());

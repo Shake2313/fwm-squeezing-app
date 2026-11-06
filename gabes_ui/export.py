@@ -198,7 +198,8 @@ def app_revision():
 
 
 def build_export_payload(*, scheme, raw, params, view, plot_payloads,
-                         comparison_payload, cache_version, readout_cache_version):
+                         comparison_payload, cache_version, readout_cache_version,
+                         model_comparison=None):
     return {
         "generated_at_utc": datetime.utcnow().isoformat() + "Z",
         "app_revision": app_revision(),
@@ -244,19 +245,23 @@ def build_export_payload(*, scheme, raw, params, view, plot_payloads,
                 if isinstance(item, dict)
             ],
             "comparison": to_json_primitive(comparison_payload),
+            **({"model_comparison": to_json_primitive(model_comparison)}
+               if model_comparison is not None else {}),
         },
         "plots": to_json_primitive(plot_payloads),
     }
 
 
 def render_export(container, *, scheme, raw, params, view, plot_payloads,
-                  comparison_payload, cache_version, readout_cache_version):
+                  comparison_payload, cache_version, readout_cache_version,
+                  model_comparison=None):
     """Download buttons for the bundle, all curves, and each curve."""
     def bundle_bytes():
         payload = build_export_payload(
             scheme=scheme, raw=raw, params=params, view=view,
             plot_payloads=plot_payloads, comparison_payload=comparison_payload,
             cache_version=cache_version, readout_cache_version=readout_cache_version,
+            model_comparison=model_comparison,
         )
         return json.dumps(payload, indent=2, ensure_ascii=False,
                           allow_nan=False).encode("utf-8")
@@ -264,7 +269,10 @@ def render_export(container, *, scheme, raw, params, view, plot_payloads,
     timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
     scheme_token = _safe_token(scheme.name or "gabes", "gabes")
     with container:
-        st.caption("Arrays, parameters and provenance behind this render.")
+        st.caption("The JSON includes the model comparison and selected point. "
+                   "The CSV curves use the current model conditions."
+                   if model_comparison is not None else
+                   "Arrays, parameters and provenance behind this render.")
         st.download_button(
             "Result bundle (JSON)",
             data=bundle_bytes,

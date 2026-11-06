@@ -429,6 +429,9 @@ class LambdaScheme(Scheme):
     cache_version = "physical-units-v5-exact-maxwell"
     defaults_version = "physical-units-v3"
     supports_headless_observables = True
+    model_comparison_parameter = "coupling_power_mw"
+    model_comparison_controls = ("lambda_compare",)
+    workspace_inputs = ("coupling_power_mw",)
 
     _TITLE = {
         "eit": "Electromagnetically induced transparency (EIT)",
@@ -472,6 +475,15 @@ class LambdaScheme(Scheme):
         """Effective regime: pinned (alias instance) or the merged `view` knob."""
         return self.mode or str(params.get("view", "eit")).lower()
 
+    def atom_conditions(self, params):
+        fields = ("species", "line", "temp_c", "cell_mm", "buffer_ground_relax_khz")
+        return dict(fields=tuple(name for name in fields if name not in self.comparison_input_names(params)),
+                    line="line")
+
+    def comparison_input_names(self, params):
+        from .lambda_comparison import comparison_key
+        return tuple(dict.fromkeys(("coupling_power_mw", comparison_key(params))))
+
     def param_schema(self):
         d = self._DEF[self.mode or "eit"]
         specs = []
@@ -483,6 +495,10 @@ class LambdaScheme(Scheme):
                      "doublet (split ≈ Ω_c). CPT: narrow two-photon dark resonance. "
                      "One Λ engine — the presets set textbook values for each."))
         specs += [
+            ParamSpec("lambda_compare", "Compare", "Comparison", "Coupling power",
+                      choices=("Coupling power", "Ground relaxation", "Beam angle", "Detuning map"),
+                      recompute=False,
+                      help="Compare one physical control. Detuning map uses Δp × Δc; other CPT views use δ = Δp − Δc."),
             ParamSpec("species", "Atom", "Atomic", "Rb (natural)",
                       choices=tuple(species.SPECIES_ORDER) + (LAMBDA_GENERIC,),
                       atom_menu=LAMBDA_ATOM_MENU,
@@ -641,6 +657,11 @@ class LambdaScheme(Scheme):
                     beam_angle_mrad=float(params.get("beam_angle_mrad", 0.0)),
                     two_photon_k_ratio=two_photon_k_ratio)
 
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        from .lambda_comparison import coupling_comparison
+        return coupling_comparison(self, params, resolve_raw=resolve_raw,
+                                   current_raw=current_raw, current_view=current_view)
+
     def observables(self, raw, params, include_figures=True):
         m = self._mode(params)
         x = raw["scan"] / (2 * np.pi) / 1e6                      # MHz
@@ -680,7 +701,14 @@ class LambdaScheme(Scheme):
             ("Buffer ground relax / 2π", f"{raw['buffer_ground_relax_khz']:.3f} kHz"),
             ("N", f"{raw['N']:.3e} /m³"),
         ])
-        return dict(metrics=metrics, figure=fig, tables=[derived])
+        readout = dict(
+            x_mhz=x, transmission=T_trans, absorption_per_m=alpha,
+            dispersion=np.real(xphys), center_mhz=float(center),
+            coupling_rabi_mhz=float(raw["coupling_rabi_mhz"]),
+            coupling_power_mw=float(raw["coupling_power_mw"]),
+            regime=m,
+        )
+        return dict(metrics=metrics, figure=fig, tables=[derived], lambda_readout=readout)
 
     def _metrics(self, mode, x, alpha, T_trans, xphys, ic, center, raw, params):
         if mode == "at":
@@ -715,19 +743,26 @@ class LambdaScheme(Scheme):
                          help="No pair of absorption maxima with resolvable central "
                               "contrast exists in the displayed spectrum.", tier="hero"),
                     dict(label="AT splitting", value="—",
+                         numeric_value=None, unit="MHz",
                          help="Withheld because the spectrum does not contain a "
                               "resolved Autler-Townes doublet."),
                     dict(label="Expected ≈ Ω_c", value=f"{expected:.1f} MHz",
+                         numeric_value=float(expected), unit="MHz",
                          help="Coupling Rabi frequency Ω_c/2π."),
                     dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}",
+                         numeric_value=float(T_trans[ic]), unit="1",
                          tier="hero"),
                 ]
             return [
                 dict(label="AT splitting", value=f"{split:.1f} MHz",
+                     numeric_value=float(split), unit="MHz",
+                     sample_positions=[float(x[il]), float(x[ir])],
                      help="Separation of the two absorption maxima.", tier="hero"),
                 dict(label="Expected ≈ Ω_c", value=f"{expected:.1f} MHz",
+                     numeric_value=float(expected), unit="MHz",
                      help="Coupling Rabi frequency Ω_c/2π."),
                 dict(label="Transmission at center", value=f"{T_trans[ic]:.3f}",
+                     numeric_value=float(T_trans[ic]), unit="1",
                      tier="hero"),
             ]
         # EIT / CPT: transparency at two-photon resonance + dark-resonance width.
@@ -738,10 +773,12 @@ class LambdaScheme(Scheme):
         width_valid = np.isfinite(win_fwhm) and win_fwhm > 0
         metrics = [
             dict(label="Transmission at resonance", value=f"{T_trans[ic]:.3f}",
+                 numeric_value=float(T_trans[ic]), unit="1",
                  help="Probe transmission at two-photon resonance (transparency).",
                  tier="hero"),
             dict(label="Window FWHM",
                  value=(f"{win_fwhm*scale:.2f} {unit}" if width_valid else "—"),
+                 numeric_value=float(win_fwhm*scale) if width_valid else None, unit=unit,
                  help=("Width of the transparency feature." if width_valid else
                        "Withheld because no finite half-height crossings were found."),
                  **({"tier": "hero"} if width_valid else {})),

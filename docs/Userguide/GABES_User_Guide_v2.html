@@ -32,7 +32,9 @@ code,kbd,.mono{font-family:"JetBrains Mono","SFMono-Regular","Consolas","D2Codin
 .wrap{max-width:var(--maxw); margin:0 auto; padding:0 clamp(16px,3vw,36px)}
 .layout{display:grid; grid-template-columns:252px minmax(0,1fr); gap:42px;
   align-items:start; padding-top:34px; padding-bottom:80px}
-@media(max-width:920px){.layout{grid-template-columns:1fr; gap:0}}
+@media(max-width:920px){.layout{grid-template-columns:minmax(0,1fr); gap:0}}
+.layout main{min-width:0}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
 /* ---------- hero ---------- */
 .hero{background:var(--surface); border-bottom:1px solid var(--border)}
@@ -78,6 +80,8 @@ nav.toc li a{display:flex; gap:9px; padding:5px 8px; border-radius:7px;
 nav.toc li a::before{content:counter(toc); color:var(--faint);
   font-variant-numeric:tabular-nums; font-weight:700; min-width:1.1em}
 nav.toc li a:hover{background:var(--grid); color:var(--ink); text-decoration:none}
+nav.toc li a.toc-sub{margin-left:1.1em}
+nav.toc li a.toc-sub::before{content:"↳"}
 
 /* ---------- sections ---------- */
 section{scroll-margin-top:20px; margin-bottom:8px}
@@ -124,6 +128,10 @@ hr.soft{border:none; border-top:1px solid var(--border); margin:34px 0}
   font-family:"STIX Two Math","Cambria Math","Latin Modern Math",Georgia,serif;
   font-size:1.12rem; color:var(--ink); overflow-x:auto}
 .eq .lbl{float:right; color:var(--faint); font-size:0.8rem; font-style:italic; font-family:inherit}
+@media(max-width:680px){
+  .eq{white-space:nowrap; text-align:start}
+  .eq .lbl{float:none; display:block; margin-top:4px}
+}
 .var{font-style:italic}
 sub,sup{font-size:0.72em; line-height:0}
 
@@ -136,6 +144,13 @@ figure figcaption b{color:var(--ink); font-weight:680}
 .fig-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
 @media(max-width:680px){.fig-2{grid-template-columns:1fr}}
 .fig-2 figure{margin:0}
+.first-spectrum{margin-top:30px; scroll-margin-top:12px}
+.first-spectrum h3{margin-bottom:6px}
+.first-spectrum ol{padding-inline-start:1.45em}
+.first-spectrum li{margin:.48em 0}
+.first-spectrum figure{padding:8px 8px 4px}
+.first-spectrum .conditions{font-size:.94rem; color:var(--muted)}
+#od-sas{scroll-margin-top:14px}
 
 /* ---------- scheme blocks ---------- */
 .scheme .head{display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-bottom:2px}
@@ -203,6 +218,9 @@ figure figcaption b{color:var(--ink); font-weight:680}
   background:#EAF8F5; border:1px solid #C7EBE3}
 
 /* ---------- table ---------- */
+.table-wrap{max-width:100%; overflow-x:auto}
+.table-wrap:focus-visible,.eq:focus-visible{outline:2px solid var(--cyan); outline-offset:2px}
+@media(max-width:680px){.table-wrap .tbl{min-width:36rem}}
 .tbl{width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem;
   background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden}
 .tbl th,.tbl td{padding:10px 13px; text-align:left; border-bottom:1px solid var(--grid); vertical-align:top}
@@ -266,6 +284,8 @@ footer .foot-right{text-align:right; line-height:1.5}
 @media print{
   body{background:#fff} .layout{display:block; padding-top:10px}
   nav.toc{display:none} figure,section,.card{box-shadow:none; break-inside:avoid}
+  .first-spectrum{break-before:page;break-inside:avoid}
+  .first-spectrum .fig-2{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -310,7 +330,7 @@ footer .foot-right{text-align:right; line-height:1.5}
     </p>
     <div class="hero-stats">
       <div class="s"><b><a href="#schemes">실험 구도</a></b><span>관측하려는 현상에 맞는 스킴 찾기</span></div>
-      <div class="s"><b><a href="#ui">조건 탐색</a></b><span>컨트롤과 플롯 사용법</span></div>
+      <div class="s"><b><a href="#first-spectrum">첫 스펙트럼</a></b><span>같은 셀에서 펌프를 끄고 켜 보기 · <a href="#ui">화면 사용법</a></span></div>
       <div class="s"><b><a href="#workflow">CSV 비교</a></b><span>측정 데이터와 계산 결과 맞추기</span></div>
       <div class="s"><b><a href="#limits">해석 범위</a></b><span>스킴별 근사와 검증 조건 확인</span></div>
     </div>
@@ -326,7 +346,7 @@ footer .foot-right{text-align:right; line-height:1.5}
     <h4>차례</h4>
     <ol>
       <li><a href="#about">GABES란 무엇인가</a></li>
-      <li><a href="#start">빠른 시작</a></li>
+      <li><a href="#start">빠른 시작</a><a class="toc-sub" href="#first-spectrum">첫 스펙트럼 실습</a></li>
       <li><a href="#ui">화면 사용법</a></li>
       <li><a href="#schemes">Scheme별 기능</a></li>
       <li><a href="#speed">왜 빠른가</a></li>
@@ -351,7 +371,7 @@ footer .foot-right{text-align:right; line-height:1.5}
     풀게 됩니다. GABES가 푸는 것도 바로 그것으로, 회전틀에서의 리우빌 방정식의
     <b>정상상태</b>입니다.
   </p>
-  <div class="eq">
+  <div class="eq" tabindex="0" role="region" aria-label="정상상태 리우빌 방정식">
     <span class="var">ρ̇</span> = &minus;(<span class="var">i</span>/<span class="var">ℏ</span>)[<span class="var">H</span>, <span class="var">ρ</span>] + 𝓛[<span class="var">ρ</span>] = 0
     <span class="lbl">trace(ρ) = 1 로 닫습니다</span>
   </div>
@@ -421,7 +441,7 @@ footer .foot-right{text-align:right; line-height:1.5}
 <!-- ===== 2. QUICK START ===== -->
 <section id="start">
   <div class="sec-head"><span class="sec-num">02</span><h2>빠른 시작</h2></div>
-  <p class="sec-sub">설치 없이 웹에서 바로 써 볼 수 있고, 로컬 실행도 한 줄입니다.</p>
+  <p class="sec-sub">앱을 열었다면 <a href="#first-spectrum">첫 스펙트럼 실습</a>으로 이동하세요.</p>
 
   <div class="launch-row">
     <a class="launch" href="https://fwm-squeezing-app-bedekxcpwge62hjdkvelw8.streamlit.app/"
@@ -456,6 +476,41 @@ streamlit run streamlit_app.py</pre>
     FWM 백엔드의 이전 호환용 CLI는 <code>archive/fwm_obe.py</code>에 보관되어 있으며,
     더 이상 저장소 루트의 진입점으로 제공되지 않습니다. 일반적인 사용에는 Streamlit UI를 권장합니다.
   </p>
+
+  <article class="first-spectrum" id="first-spectrum" aria-labelledby="first-spectrum-title">
+    <h3 id="first-spectrum-title">첫 스펙트럼 · 펌프를 켜면 어느 주파수의 투과율이 달라질까요?</h3>
+    <p class="conditions"><b>고정 조건</b>　천연 Rb D1 · 40 °C · 셀 길이 75 mm · 프로브 0 µW(약한 프로브 근사) ·
+      주파수 표본 1,401개. 펌프 출력만 바꿉니다.</p>
+    <ol class="body">
+      <li>상단 <b>Scheme</b>에서 <b>Absorption spectroscopy</b>를 고릅니다. <b>OD</b>를 눌러
+        펌프가 0 mW일 때의 넓은 흡수 골을 보고, <b>SAS</b>를 눌러 0.5 mW일 때 골 안의 좁은 투과 피크를 찾습니다.</li>
+      <li>기본 화면 <b>Model spectra</b>에서 <b>Doppler group</b> 옆의 <b>Pump power</b>에 <b>0.5 mW</b>,
+        <b>Probe power</b>에 <b>0 µW</b>를 입력합니다. Enter를 누르거나 다른 입력란으로 이동하면 반영됩니다.
+        <b>Doppler group → ⁸⁷Rb F=2</b>를 선택하면
+        녹색 구간이 이 전이군으로 이동합니다. 아래 두 그래프는 같은 구간의 투과율 T와 광학 깊이 OD를 보여 줍니다.</li>
+      <li><b>Sample frequency (MHz)</b>에 <code>-3000</code>을 입력합니다. 가장 가까운 계산 표본인
+        약 −2996.93 MHz에서 펌프 켬 <b>T(on) ≈ 0.882</b>, 펌프 끔 <b>T(off) ≈ 0.522</b>입니다.
+        이 점에 마우스를 올려 두 곡선의 값을 함께 읽어 보세요. 같은 표본에서 광학 깊이 <b>OD = −ln T</b>는
+        펌프를 켰을 때 약 <b>0.126</b>, 껐을 때 약 <b>0.651</b>입니다.</li>
+    </ol>
+    <div class="fig-2">
+      <figure>
+        <img src="userguide_assets/first-spectrum-overview.png" alt="같은 셀에서 계산한 전체 투과율. 펌프를 끈 파선의 넓은 흡수 골에, 펌프를 켠 실선의 좁은 피크가 겹친다. 왼쪽 음영은 확대할 루비듐 87 F=2 그룹이다.">
+        <figcaption><b>A　전체 주파수.</b> 실선은 펌프 켬, 파선은 펌프 끔입니다. 음영은 ⁸⁷Rb F=2 확대 구간입니다.</figcaption>
+      </figure>
+      <figure>
+        <img src="userguide_assets/first-spectrum-zoom.png" alt="루비듐 87 F=2 확대 그림. 약 −2996.93 MHz의 두 원은 같은 주파수에서 켬 0.882와 끔 0.522를 표시한다.">
+        <figcaption><b>B　투과율 확대.</b> 세로 점선 위의 두 원은 같은 주파수에서 펌프를 켰을 때와 껐을 때의 T입니다.</figcaption>
+      </figure>
+    </div>
+    <p><b>선폭을 보고하기 전</b>　<b>Selected sample</b> 근처의 대표 선폭은 전체 스펙트럼의 판독값입니다.
+      이 예에서는 18.87 MHz 안에 2.3 표본 간격이 있어 판정 기준인 6에 못 미칩니다.
+      <b>resolution-limited</b>가 보이면 <b>Scan points</b>를 늘려 다시 계산한 뒤 폭과 판정을 비교하세요.
+      화면만 확대하면 표본 간격은 그대로입니다.</p>
+    <p><b>다음 관찰</b>　전체 그래프에서 녹색 구간을 끌면 판독선도 함께 이동합니다. 점선만 끌면 구간 안에서 주파수를 고를 수 있습니다.
+      구간 바깥을 클릭하면 그 위치로 이동하고, 구간의 양 끝을 끌면 확대 폭이 바뀝니다. 두 허용 전이의 중점인 <b>CO 후보</b>와 실제 피크를 비교해 보세요.
+      <a href="#od-sas">§04 OD/SAS 설명</a> · <a href="#od-probe-scope">§07 근사와 검증 범위</a></p>
+  </article>
 </section>
 
 <hr class="soft">
@@ -465,21 +520,25 @@ streamlit run streamlit_app.py</pre>
   <div class="sec-head"><span class="sec-num">03</span><h2>화면 사용법</h2></div>
   <p class="sec-sub">"scheme 선택 → 파라미터 조정 → 결과 확인"의 단순한 흐름입니다.</p>
 
-  <p>
-    GABES의 화면은 고정된 슬라이더 벽이 아닙니다. 선택한 물리 scheme이 필요한 컨트롤만
-    선언하면, 앱이 그 컨트롤과 플롯을 자동으로 그립니다. 그래서 화면에는 지금 보는 현상에
-    관계있는 노브만 나타납니다.
-  </p>
+  <p>여섯 스킴 모두 메인 화면의 <b>Conditions → Atom</b> 팝오버에서 원자와 셀 조건을 확인합니다.
+    지원하는 원자·동위원소·전이선·셀 종류를 한곳에서 선택하고, 온도(<b>°C</b>)와 셀 길이(<b>mm</b>)는 숫자로
+    직접 입력합니다. 선택은 즉시, 숫자는 Enter 또는 포커스 이동으로 반영됩니다.
+    각 스킴과 계산 모드가 지원하는 항목만 나타나며, 원자·전이가 고정된 모델에서는 해당 값을 읽기 전용으로 표시합니다.</p>
+  <p>OD/SAS의 <b>Custom</b> 동위원소 구성에서는 <b>⁸⁵Rb fraction (Natural 0.7217)</b>이 나타납니다.
+    Doppler 온도를 분리하거나 Rydberg의 온도 모형을 바꾸면 그 조건에 맞는 온도 입력이 Atom 안에 나타납니다.
+    <b>Doppler group</b> 옆에서 펌프와 프로브 출력을 입력하고, <b>Advanced</b>에서 계산 표본 수 등을 조정합니다.
+    <b>Experimental CSV (legacy)</b>에서는 오실로스코프 CSV와 모델 투과율을 정렬하여 비교합니다.
+    FWM도 공통 원자·온도·셀 조건은 메인의 Atom에서 조정하며, 나머지 기존 컨트롤은 사이드바에서 사용합니다.</p>
 
   <div class="pipe">
     <div class="step"><div class="n">STEP 1</div><div class="t">Scheme 선택</div>
       <div class="d">상단의 Scheme 선택에서 실험·물리 구도를 고릅니다. 컨트롤과 플롯이 함께 바뀝니다.</div></div>
     <div class="step"><div class="n">STEP 2</div><div class="t">Default 불러오기</div>
       <div class="d">검증된 동작점을 먼저 적용합니다. 처음엔 숫자보다 line shape과 scale을 봅니다.</div></div>
-    <div class="step"><div class="n">STEP 3</div><div class="t">주요 노브 조정</div>
+    <div class="step"><div class="n">STEP 3</div><div class="t">실험 조건 조정</div>
       <div class="d">온도·세기·detuning·B 스캔처럼 실험에서 실제로 움직이는 값을 조정합니다.</div></div>
     <div class="step"><div class="n">STEP 4</div><div class="t">읽기</div>
-      <div class="d">상단 metric 카드(투과·OD·이득·FWHM·회전 등)와 그 아래 플롯·파생량 표를 확인합니다.</div></div>
+      <div class="d">OD/SAS는 같은 주파수의 투과율과 광학 깊이를 읽습니다. 다른 스킴에서는 그래프와 함께 이득·선폭·회전 등 해당 관측량을 확인합니다.</div></div>
   </div>
 
   <h3>Recompute 노브와 navigate 노브</h3>
@@ -491,9 +550,8 @@ streamlit run streamlit_app.py</pre>
   </p>
   <div class="callout note">
     <span class="tag">탐색 요령</span>
-    <p>슬라이더를 움직였을 때 즉시 반응하면 navigate 노브이고, 잠깐
-      "<i>Solving Bloch equations…</i>"가 뜨면 recompute 노브입니다. 넓게 둘러볼 때는 navigate
-      노브로, 정밀 조정은 recompute 노브로 하는 편이 가장 쾌적합니다.</p>
+    <p>OD/SAS에서 주파수 위치나 확대 범위를 옮길 때에는 이미 계산된 스펙트럼을 읽습니다.
+      원자나 빔의 세기를 새 값으로 적용하면 그 조건의 스펙트럼을 계산합니다.</p>
   </div>
 
   <h3>Advanced / numerics</h3>
@@ -509,8 +567,9 @@ streamlit run streamlit_app.py</pre>
 <!-- ===== 4. SCHEMES ===== -->
 <section id="schemes">
   <div class="sec-head"><span class="sec-num">04</span><h2>Scheme별 기능</h2></div>
-  <p class="sec-sub">현재 다섯 개의 scheme(엔진 클러스터)이 있습니다. 아래 그림은 모두 GABES가 직접 계산해 출력한 실제 스펙트럼입니다.</p>
+  <p class="sec-sub">상단 Scheme 메뉴에서 여섯 가지 실험 구도를 선택할 수 있습니다. 아래 표는 메뉴 순서대로 각 구도의 관측량과 조정할 조건을 보여 줍니다.</p>
 
+  <div class="table-wrap" role="region" aria-label="여섯 스킴의 관측량과 조정 조건" tabindex="0">
   <table class="tbl">
     <thead><tr><th>Scheme</th><th>주요 물리</th><th>주요 출력</th><th>먼저 만질 노브</th></tr></thead>
     <tbody>
@@ -527,19 +586,24 @@ streamlit run streamlit_app.py</pre>
         <td>EIT 선폭, RF AT 분리, 광학 분산</td>
         <td>EIT/AT 모드, 결합 Rabi, LO Rabi, 마이크로파 detuning</td></tr>
       <tr><td><b>Hanle / EIA / NMOR</b></td>
-        <td>⁸⁷Rb D1 Zeeman 다양체, 영자기장 근처 투과·자기광학 회전</td>
-        <td>Hanle 특징, NMOR 회전, B 폭, 셀·완화 파생량</td>
-        <td>신호 종류, 셀 종류, 전이, 세기, QWP 각도, B 스캔폭</td></tr>
+        <td>⁸⁵Rb·⁸⁷Rb D1·D2 다중 hyperfine/Zeeman 응답</td>
+        <td>자기장별 회전, 광학 이조별 투과·기울기, QWP·D선 비교</td>
+        <td>스캔축, 셀 종류, 전이선, 세기, QWP 각도, Compare</td></tr>
       <tr><td><b>FWM</b><br>Squeezing / Biphoton</td>
         <td>⁸⁵Rb D1 double-Λ 씨앗형 mean-field 전달, 범용 SFWM 짝광자 추정</td>
         <td>씨앗·켤레 이득, Squeezing Degree,
           g²<sub>SI</sub>, CAR, 발생률</td>
         <td>모드, 1·2광자 detuning, 온도, 펌프/씨앗 세기, 검출 효율, 위상정합 각도</td></tr>
+      <tr><td><a href="#psr"><b>Polarization squeezing (PSR)</b></a></td>
+        <td>편광 자기회전과 검출 편광의 잡음, 포화 원자의 정상상태</td>
+        <td>검출 위상별 편광 잡음, 하위준위 점유율, RF 분석 주파수별 잡음과 최적 위상</td>
+        <td>계산 모드, 광학 이조, 광세기, 잡음 가정 또는 RF 분석 주파수</td></tr>
     </tbody>
   </table>
+  </div>
 
   <!-- A: OD/SAS -->
-  <div class="scheme" style="margin-top:30px">
+  <div class="scheme" id="od-sas" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>흡수 분광 (OD / SAS)</h3></div>
     <p class="out">역행 펌프가 있는 프로브 흡수입니다. 펌프를 0으로 내리면 Doppler 넓힘 OD가 되고,
       펌프를 올리면 Doppler-free Lamb dip과 crossover가 같은 스펙트럼 위에 나타납니다.
@@ -591,11 +655,60 @@ streamlit run streamlit_app.py</pre>
   </p>
 
   <!-- A: Lambda -->
-  <div class="scheme" style="margin-top:30px">
+  <div class="scheme" id="lambda" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>Λ 결맞음 (EIT / AT / CPT)</h3></div>
     <p class="out">하나의 Λ 엔진을 세 영역으로 보여 줍니다. 결합장이 약하면 EIT 투명창,
-      강하면 Autler–Townes 이중선(간격 ≈ <span class="var">Ω<sub>c</sub></span>), 좁은 2광자 스캔에서는
+      강하면 Autler–Townes 이중선(주파수 간격 ≈ <span class="var">Ω<sub>c</sub>/2π</span>), 좁은 2광자 스캔에서는
       CPT 암흑공명을 봅니다. Rb/Cs D-line 매질, 물리 단위(MHz/kHz) 컨트롤을 씁니다.</p>
+    <ol>
+      <li>상단에서 <b>EIT / AT / CPT</b> 영역을 고릅니다. 메인 <b>Conditions → Atom</b>에서
+        원자·전이선·온도·셀 조건을 조정하고, 빔 조건은 옆 팝오버에서 고릅니다. 아래 <b>Coupling power</b>는
+        직접 입력하고 Enter 또는 포커스 이동으로 확정합니다.</li>
+      <li><b>Compare</b>에서 <b>Coupling power</b>, <b>Ground relaxation</b>, <b>Beam angle</b>,
+        <b>Detuning map</b>을 고릅니다. 현재 비교하는 변수는 그래프 위에서 직접 입력합니다.
+        다른 조건은 고정되며, 결합 출력 비교는 EIT·AT에서 대수 간격의 9조건, CPT에서 소수 조건의 곡선을 먼저 제공합니다.
+        허용 범위와 현재 값에 따라 조건을 조정하며 P = 0도 원래 값을 보존합니다.</li>
+      <li><b>EIT·AT</b>는 지도를 기본으로 엽니다. <b>Map vertical axis</b>에서 결합 출력(mW)과
+        유효 <b>Ω<sub>c</sub>/2π (MHz)</b> 좌표를 바꿔도 해를 다시 구하지 않습니다.
+        빔 지름과 Rabi anchor가 정하는 같은 조건의 좌표 변환입니다. <b>Quantity</b>에서 T·OD·Re χ를 고르고,
+        정밀 단면은 T 또는 OD와 같은 해의 분산을 나란히 읽습니다.
+        AT의 표시는 두 <b>흡수 최대점(투과 최소점)</b>이며 추출 간격과 입력 Ω<sub>c</sub>/2π 기준을 함께 비교합니다.</li>
+      <li><b>CPT</b>는 <b>2광자 이조 δ = Δ<sub>p</sub> − Δ<sub>c</sub> (kHz)</b>의 확대 단면으로 시작합니다.
+        아래의 <b>대비·FWHM·대비/FWHM</b>은 같은 비교 변수 축을 공유합니다.
+        대비는 <b>T(δ = 0) − min T</b>이며 각 조건의 전체 스캔 최솟값을 배경으로 사용합니다.
+        대비/FWHM은 스펙트럼 품질 지표이며 시계 안정도나 Allan deviation이 아닙니다.</li>
+      <li><b>Detuning map</b>은 모든 영역에서 광학 이조 <b>Δ<sub>p</sub> × Δ<sub>c</sub> (MHz)</b>를 표시합니다.
+        점선 대각선은 <b>Δ<sub>p</sub> = Δ<sub>c</sub></b>인 2광자 공명입니다.
+        행 선택은 Coupling detuning 입력과 단면을 함께 바꾸며, 이 지도는 CPT의 δ(kHz) 축과 구별합니다.</li>
+    </ol>
+    <p id="shared-spectrum-navigation"><b>공통 그래프 조작</b>　전체 그래프의 녹색 구간을 끌면 확대 구간과 점선이 함께 이동합니다.
+      양 끝을 끌어 폭을 바꾸고, 점선만 끌면 구간 안에서 판독점을 고릅니다. 바깥을 클릭하면 구간이 그 위치로 이동합니다.
+      드래그 중에는 미리보기를 보여 주고 놓을 때 선택을 확정합니다. Escape는 진행 중 조작을 취소합니다.
+      마우스를 올리면 각 곡선의 가장 가까운 <b>실제 계산 표본</b>과 값을 보여 줍니다.
+      조건별 격자가 다르면 표시된 주파수도 조금 다를 수 있으며, 툴팁은 곡선 사이를 보간하지 않습니다.</p>
+    <p><b>공통 조건 지도</b>　Λ·리드버그·Magneto의 모델 비교에서 <b>Map</b>을 누르면
+      현재 계산된 조건을 지도로 읽습니다. <b>Quantity</b>는 표시할 물리량,
+      <b>Selected condition</b>은 정밀 단면과 대표 지표를 보여줄 조건입니다.
+      지도에서 클릭하거나 끌어 선택하면 해당 조건의 숫자 입력·단면·판독표가 함께 바뀝니다.
+      위·아래 방향키는 계산된 조건, 좌·우 방향키는 실제 표본을 선택합니다.
+      빈 칸은 결측·계산 범위 밖·아직 계산하지 않은 조건이며 수치 0과 다릅니다.</p>
+    <p><b>Condition scan</b>에서 비교 변수의 <b>From</b>·<b>To</b>와
+      <b>Uniform samples</b>(2–41개)를 입력하면 확정 후 자동으로 조건별 계산을 진행합니다.
+      지정한 균일 격자에 스캔 시작 시점의 정확한 조건을 함께 보존하므로 실제 조건 수가 하나 더 많을 수 있습니다.
+      원래 주파수 해상도는 바뀌지 않습니다. <b>Cancel scan</b>은 후속 조건을 중단하고 완료된 행을 남기며,
+      <b>Resume scan</b>은 같은 요청의 남은 조건을 이어서 계산합니다.
+      진행 중인 한 조건의 계산은 마무리될 수 있습니다.
+      숫자로 연속 스캔할 수 있는 비교 변수에서만 이 입력이 표시됩니다.</p>
+    <p>조건 선택으로 비교 범위가 자동으로 따라 움직이지 않습니다. 현재 계산된 조건의 재선택에는 보관된 해를 사용합니다.
+      <b>Show all observables</b>를 켜면 다른 물리량의 표본도 펼쳐 볼 수 있습니다.
+      대표 선폭·최적점은 전체 스캔에서 얻은 값이며 현재 판독 커서와 구분합니다.
+      JSON에는 선택한 조건·물리량·표시 방식과 스캔의 요청·완료 상태가,
+      CSV에는 각 곡선의 원래 좌표·값과 빈 표본이 보존됩니다.</p>
+    <p class="out"><b>폭을 읽을 때</b>　이 비교의 EIT·CPT FWHM은 기존 표본에서 읽은 근사 폭입니다.
+      <b>resolution-limited</b>는 폭 안의 표본 간격이 6개 미만,
+      <b>scan-edge-limited</b>는 양쪽 반높이 교차를 스캔이 충분히 감싸지 못한 경우이며 폭과 대비/FWHM을 비웁니다.
+      <b>unresolved</b>는 분해된 특징을 찾지 못했다는 뜻이며 0 폭·0 간격을 뜻하지 않습니다.
+      화면 확대는 표본을 늘리지 않으므로 폭을 보고하기 전 계산 격자와 스캔 범위를 점검하세요.</p>
   </div>
   <div class="fig-2">
     <figure>
@@ -606,12 +719,12 @@ streamlit run streamlit_app.py</pre>
     <figure>
       <img src="userguide_assets/at.png" alt="Autler-Townes 이중선">
       <figcaption><b>AT (강한 결합).</b> 같은 Λ 엔진에서 결합 Rabi를 키우면 흡수선이 간격
-        ≈ <span class="var">Ω<sub>c</sub></span>의 이중선으로 벌어집니다(이중 분산 동반).</figcaption>
+        ≈ <span class="var">Ω<sub>c</sub>/2π</span>의 이중선으로 벌어집니다(이중 분산 동반).</figcaption>
     </figure>
   </div>
 
   <!-- A: Rydberg -->
-  <div class="scheme" style="margin-top:30px">
+  <div class="scheme" id="rydberg" style="margin-top:30px">
     <div class="head"><span class="cl a">A · Absorption</span><h3>Rydberg-EIT 전기계측</h3></div>
     <p class="out">⁸⁵Rb 5S–5P–40D 사다리와 37&nbsp;GHz 40D–39F RF 다리를 다룹니다.
       AT 스펙트럼의 fitted RF Rabi로 장을 환산하며, 단순 피크 분리는 optical line pulling의
@@ -622,6 +735,42 @@ streamlit run streamlit_app.py</pre>
       이 opacity는 <b>UNCALIBRATED</b>이며 온도·프로브 파워 sweep은 <b>PREDICTED</b>입니다.
       기본 ±50% opacity 범위는 가정 시나리오로, 실측 불확도나 신뢰구간이 아닙니다.
       각 시나리오의 예측값·최적점과 출처를 함께 확인할 수 있습니다.</p>
+    <ol>
+      <li><b>Conditions → Atom</b>에서 고정된 ⁸⁵Rb D2 전이와 셀·온도 조건을 확인합니다.
+        RF장 진폭의 <b>RMS / Peak</b> 규약과 검출 조건은 옆 팝오버에서 선택합니다.
+        아래 <b>Probe power</b>·<b>Coupling power</b>·<b>Microwave Rabi Ω_RF</b>에는 단위를 확인하며 직접 입력합니다.
+        선택은 즉시, 숫자는 Enter 또는 포커스 이동으로 반영됩니다.</li>
+      <li><b>EIT</b>의 기본 지도는 광학 이조 × <b>Probe power</b>입니다.
+        <b>Compare</b>에서 Coupling power·Temperature·Residual width로 바꿀 수 있습니다.
+        출력에 따른 <b>대비·FWHM·투과 특징 진폭</b>을 같은 제어 축으로 읽습니다.
+        대비는 공명 투과율과 ±5 MHz 안의 최솟값 차이이고, 진폭은 <b>입사 Probe power × 대비</b>(µW)입니다.
+        검출 경로 효율을 곱한 전력과 구별하세요.
+        <b>Show residual-width comparison</b>은 선택 조건의 잔류 Zeeman 곡선과 성능 추세를 함께 보여 줍니다.
+        잔류 폭이 0이면 같은 보조 곡선을 중복하지 않습니다.</li>
+      <li><b>AT</b>에서는 RF 꺼짐, <b>Ω<sub>RF</sub>/2π = 1, 3.7, 7.4 MHz</b>와 현재 입력값을 비교합니다.
+        광학 <b>투과 최대점</b>의 간격과 입력 RF Rabi를 구별하고, 입력 RF에서 환산한 장과
+        피크 간격으로 추정한 장이 얼마나 다른지 봅니다. RF가 강한 곡선은 더 넓은 원래 스캔을 유지합니다.
+        Compare에서 RF detuning·Probe power·Coupling power·Temperature·IF frequency도 선택할 수 있습니다.</li>
+      <li><b>Temperature</b> 비교는 Atom 팝오버의 온도 정의를 유지합니다.
+        <b>Linked</b>에서는 연결 온도를, <b>Separated</b>에서는 <b>Temperature scan</b>으로 유효 기체 온도와
+        cold-spot 온도 중 하나를 바꿉니다. 나머지 온도와 히터 설정을 고정하며 히터 설정을 기체 온도로 바꾸지 않습니다.</li>
+      <li>AT 안의 <b>Sensitivity</b>에서 같은 조건의 <b>유한 IF 응답 크기·위상, PSN/총 잡음 등가 전기장</b>을 봅니다.
+        감도는 양수 로그 축이며 <b>작을수록 좋습니다</b>. 위상은 −180°~180°로 감고 경계에서 선을 끊습니다.
+        <b>Inspect sampled optimum</b>은 현재 조건에서 계산한 최선점으로 판독 커서만 이동합니다.
+        표는 커서의 실제 표본, 조건 판독부는 최선점, 아래 추세는 계산한 비교 조건들 사이의 결과입니다.
+        빈 원은 선택 조건, 마름모는 계산한 조건 중 최적점을 표시합니다.</li>
+    </ol>
+    <p><b>계산 범위</b>　Doppler를 켠 유한 IF 응답은 기존 계산이 수행한 static-slope 표본점에서만 표시합니다.
+      이때 응답·감도 지도와 단면은 점으로 표시하고 미계산 구간을 채우거나 연결하지 않습니다.
+      전체 이조 구간의 최적점으로 해석하지 마세요. <b>Show assumed opacity scenarios</b>는
+      성능 추세에 가정한 opacity 시나리오를 별도 곡선으로 펼칩니다. 계산 불가 값은 비워 두며 신뢰구간으로 부르지 않습니다.</p>
+    <p class="out"><b>장 환산 범위</b>　RF 꺼짐은 피크 간격 기반 장 추정의 <b>not applicable</b>,
+      유한 RF에서 두 피크를 찾지 못하면 <b>unresolved</b>입니다. 피크 추정에는 optical line pulling을 보정하지 않은
+      이상적 두 준위 환산을 사용하므로 full-spectrum fitted RF Rabi를 우선합니다.
+      정현파에서 Peak = √2 × RMS이며 규약 변경은 표시 장 진폭만 바꾸고 광학 스펙트럼은 바꾸지 않습니다.
+      기존 검출기 보정은 전류와 장에 같은 진폭 규약을 사용하므로 <b>응답도와 잡음 등가 장 ASD는 규약 전환에 불변</b>입니다.
+      유한 IF 감도는 정적 투과 기울기와 다른 계산이며, 조건부 모델 예측입니다.
+      <a href="#shared-spectrum-navigation">공통 확대·표본 판독</a>으로 같은 영역을 확인하세요.</p>
   </div>
   <figure>
     <img src="userguide_assets/rydberg.png" alt="Rydberg 캐스케이드 EIT의 마이크로파 AT 분리">
@@ -631,27 +780,60 @@ streamlit run streamlit_app.py</pre>
   </figure>
 
   <!-- C: Magneto -->
-  <div class="scheme" style="margin-top:30px">
+  <div class="scheme" id="magneto" style="margin-top:30px">
     <div class="head"><span class="cl c">C · Magneto-optics</span><h3>Hanle / EIA / NMOR</h3></div>
-    <p class="out">⁸⁷Rb D1 Zeeman 다양체의 영자기장 근처 응답입니다. 바닥상태 결맞음에서 오는
+    <p class="out">⁸⁵Rb·⁸⁷Rb D1·D2의 다중 hyperfine/Zeeman 응답입니다. 바닥상태 결맞음에서 오는
       영자기장 투과 dip/peak인 <b>Hanle</b> 효과(EIA 변형 포함)와 편광면 회전인 <b>NMOR</b>을
-      한 엔진으로 다룹니다. 프로브 타원율(QWP), 잔류 횡장, 셀 완화가 특징의 부호를 결정합니다.</p>
+      한 엔진으로 다룹니다. QWP 각도, 잔류 횡장, 셀 완화에 따른 차이를 계산 곡선에서 확인합니다.</p>
+    <ol>
+      <li><b>Conditions → Atom</b>에서 동위원소·전이선·셀 종류를 고르고 온도와 셀 길이를 입력합니다.
+        <b>Scan axis</b>가 <b>Magnetic field</b>이면 주 신호는 회전(<b>mrad</b>),
+        <b>Optical detuning</b>이면 투과율(<b>%</b>)로 자동 결정됩니다.
+        아래의 <b>QWP angle (°)</b>, <b>Beam intensity</b>,
+        <b>Physical longitudinal bias</b>를 직접 조정합니다.</li>
+      <li>그래프 아래 <b>Compare → Polarization angle</b>은 나머지 조건을 고정한 채
+        <b>QWP 0°, 9°, 18°, 27°, 36°, 45°</b>와 현재 각도의 투과율을 비교합니다.
+        QWP는 λ/4 파장판의 각도이며 0°에서 선편광, 45°에서 원형편광입니다. 선편광 방향각을 돌리는 조작과 구별하세요.
+        현재 모델의 회전은 <b>선편광 입사에서만 지원</b>합니다. 타원·원형편광의 회전은 unavailable이며 투과율을 읽습니다.
+        각도 비교의 <b>Separate transmission curves</b>(기본 켜짐)는 같은 T 눈금으로 곡선을 세로로 나누어 표시하며,
+        끄면 원래 T를 겹쳐 보고 마우스 판독·표·CSV는 두 보기 모두 오프셋 없는 실제 계산값을 유지합니다.</li>
+      <li><b>Compare → Transition</b>은 <b>D1 / D2</b> 가지를 각자의 원래 계산 격자에서 비교합니다.
+        각 가지의 전체 hyperfine 준위를 유지하며, 특정 F→F′ 쌍만 떼어낸 계산이 아닙니다.
+        광학 이조의 영점은 각 가지에서 선택한 바닥 F 성분의 선세기 가중 중심입니다.</li>
+      <li>자기장 스캔의 가로축은 명령한 종방향 자기장(<b>µT</b>), 광학 스캔에서는 이조(<b>MHz</b>)입니다.
+        <b>Command B = 0</b>과 <b>B<sub>z</sub> = 0</b>을 구별하세요.
+        B<sub>z</sub> = B<sub>command</sub> + bias이므로 종방향 영점은 명령축의 −bias입니다.
+        잔류 횡장이 있으면 이 위치도 전체 자기장 벡터의 영점은 아닙니다.
+        <a href="#shared-spectrum-navigation">공통 확대·표본 판독</a>으로 특징과 날개를 비교합니다.</li>
+    </ol>
+    <p class="out"><b>Advanced → Show shot noise</b>를 켜면 광자 샷 잡음에 해당하는 자기장 ASD
+      (<b>fT/√Hz</b>) 곡선과 감도 판독값을 표시합니다. 끄면 이 잡음 표시와 판독값을 숨깁니다.
+      원자 잡음·기술 잡음을 제외한 한계이며 총 잡음 감도를 뜻하지 않습니다.
+      자기장 스캔의 비교 수치는 명령 영점에서, 광학 스캔의 감도는 계산한 이조 표본 중 최선의 점에서 읽습니다.
+      후자는 판독 커서 위치나 연속·전역 최적점과 다릅니다. 이조·스캔 끝·격자 판정과 셀·전파·해의 수렴 상태를 함께 확인하세요.</p>
+    <p class="out">편광별 투과 비교는 <a href="https://journals.aps.org/pra/abstract/10.1103/PhysRevA.81.023416">Yu 등,
+      <i>Phys. Rev. A</i> <b>81</b>, 023416 (2010)</a>이 보고한 선편광 CPT 투과에서 원형편광 LCA로의 변화를
+      정성적으로 참고합니다. Fig. 4는 Ne 50 Torr 셀의 QWP 각도 비교, Fig. 5는 같은 ⁸⁷Rb D1 안의
+      F=1→F′=1·2 및 F=2→F′=1·2 비교, Fig. 6은 버퍼 가스 없는 셀의 QWP 각도 비교입니다.
+      Fig. 5의 위 두 곡선은 ×10, Fig. 6(b)는 ×100 확대되어 있습니다.
+      현재 GABES의 D1/D2 비교는 Fig. 5의 초미세 전이 비교와 다르며, 세로 분리는 가산 오프셋만 사용합니다.
+      논문의 수치나 선폭을 재현한 결과는 아닙니다.</p>
   </div>
   <figure>
     <img src="userguide_assets/hanle.png" alt="파라핀 셀의 영자기장 Hanle 투과 피크">
     <figcaption><b>Hanle 투과.</b> 파라핀 코팅 셀에서 넓은 transit 받침 위로 영자기장에 솟는
       좁은 Ramsey형 투과 피크입니다. QWP 각도와 잔류 횡장을 바꾸면 같은 자리가 EIA/MIA형
-      흡수로 뒤집히기도 하며, NMOR 읽기를 고르면 영점 교차 회전 신호로 바뀝니다.</figcaption>
+      흡수로 뒤집히기도 합니다. 자기장 스캔에서는 선편광 입사의 회전을 주 신호로 읽습니다.
+      이 그림은 투과 특징을 보여 주는 예시입니다.</figcaption>
   </figure>
 
   <!-- Magneto readout conventions -->
   <p style="color:var(--muted);font-size:0.92rem">
-    실제 장은 B<sub>physical</sub> = B<sub>command</sub> + B<sub>zero offset</sub>입니다.
-    중앙 투과·폭·선편광 회전/slope는 실제 영점을 기준으로 읽고 명령 영점은 별도로 표시합니다.
-    스캔이 실제 영점을 놓치거나 국소 격자 검사가 불충분하면 해당 주 수치는 unavailable 또는
-    nonconverged로 표시합니다. 이 검사는 전체 스캔·실험 가시성 인증이 아닙니다.
+    <b>Ground-F frequency reference</b>는 광학 이조의 기준 성분을 고릅니다. 두 바닥 hyperfine 다양체와
+    열린 광펌핑 경로는 계산에 남습니다. 서로 다른 바닥 F 사이의 coherence는 secular 근사로 생략하며,
+    광학 들뜬 상태를 소거한 약한 여기의 유효 모형입니다.
     <b>Ground pure dephasing</b>은 바닥상태 population을 보존하며 coherence만 감쇠합니다.
-    선택한 닫힌 hyperfine 쌍 밖의 누설·repump·excited-hyperfine 간섭은 포함하지 않습니다.
+    회전과 투과율의 단위가 다르므로 같은 좌표에서 각각의 축과 상태를 확인하세요.
   </p>
 
   <!-- D: FWM -->
@@ -673,7 +855,10 @@ streamlit run streamlit_app.py</pre>
 
   <div class="callout note">
     <span class="tag">FWM 컨트롤 경계</span>
-    <p>씨앗형 FWM에서는 <b>Seed power</b>, <b>Seed classical noise a</b>,
+    <p>메인 <b>Conditions → Atom</b>에서 선택한 모드의 원자·전이 정보를 확인하고 온도와 셀 길이를
+      직접 입력합니다. 씨앗형 모델은 ⁸⁵Rb D1이며, Biphoton의 원자·전이는 선택한 topology에 따릅니다.
+      나머지 기존 FWM 컨트롤은 사이드바에 있습니다.
+      씨앗형 FWM에서는 <b>Seed power</b>, <b>Seed classical noise a</b>,
       <b>After-cell optical efficiency</b>, <b>Detector quantum efficiency</b>를 조절합니다.
       shot RIN <b>b</b>와 양팔 total efficiency는 계산값으로 표시합니다.
       EOM carrier·sideband를 직접 설정하는 실험 구성은 SABES에서 다룹니다.
@@ -697,6 +882,36 @@ streamlit run streamlit_app.py</pre>
       2차원 non-collinear Raman-Doppler 폭을 계산합니다. 121&nbsp;°C, 0.32°에서 rms 폭은
       1.380&nbsp;MHz이며 격자/cutoff 수렴 검사를 통과했습니다. 다만 production finite-seed
       스캔은 여전히 1차원입니다. 이 기준 경로와 <a href="#fwm-limits">잡음 해석 범위</a>는 구분합니다.</p>
+  </div>
+
+  <div class="scheme" id="psr" style="margin-top:30px">
+    <div class="head"><span class="cl c">C · Magneto-optics</span><h3>편광 스퀴징 (PSR)</h3></div>
+    <p class="out"><b>Calculation</b>에서 관심 있는 관측량을 고릅니다. <b>Conditional squeezing</b>은
+      ⁸⁵Rb·⁸⁷Rb의 D1·D2선에서 편광 자기회전과 흡수를 계산하고, 가정한 원자 과잉 잡음과 검출 손실을 적용합니다.
+      검출 위상에 따른 편광 잡음은 샷 노이즈를 0&nbsp;dB로 표시합니다.
+      과잉 잡음 입력이 0이면 그 항을 생략한 조건의 예측입니다.</p>
+    <p class="out"><b>Rb87 D1 steady state</b>는 한 원자 속도와 펌프 이조에서 16개 하위준위의 점유율과 국소 흡수를 계산합니다.
+      <b>Rb87 D1 RF squeezing</b>은 선택한 단일 속도군과 균일한 얇은 셀에서 RF 분석 주파수에 따른 최소·최대 잡음과
+      최소 잡음의 검출 위상을 보여 줍니다.</p>
+    <ol>
+      <li><b>Conditions → Calculation</b>에서 계산 종류를 고릅니다. <b>Atom</b>에서 해당 모드가 지원하는
+        원자·전이선·온도·셀 조건을 확인하고, 검출·잡음 가정은 옆 팝오버에서 선택합니다.
+        아래에 나타나는 <b>Carrier intensity</b> 또는 <b>Local pump intensity</b>는 직접 입력합니다.
+        세 계산의 가정과 가로축은 서로 다르므로 축 이름과 단위를 먼저 확인하세요.</li>
+      <li><b>Conditional squeezing</b>은 같은 원자 응답에 대해 가정한 과잉 잡음 <b>n<sub>ex</sub> = 0, 1, 2</b>와
+        현재값을 비교합니다. 광학 이조별 최소·최대 잡음 또는 분석 위상별 두 직교 Stokes 잡음을 봅니다.
+        <b>0 dB</b>는 해당 편광 사분면의 샷 잡음입니다. n<sub>ex</sub> = 0은 과잉 확산 항을 생략한 가정이며,
+        원자 잡음이 없다는 검증이 아닙니다.</li>
+      <li><b>Rb87 D1 steady state</b>는 현재 국소 세기의 <b>0.5배·1배·2배</b>를 허용 범위 안에서 비교합니다.
+        16개 바닥·들뜬 하위준위의 점유율과 국소 흡수계수 <b>α (m⁻¹)</b>를 함께 읽습니다.
+        가로축은 하위준위이며 연속 주파수가 아닙니다. 이 결과에 셀 전파는 포함하지 않습니다.</li>
+      <li><b>Rb87 D1 RF squeezing</b>은 RF 주파수(<b>MHz</b>, 로그 눈금)별 최소·최대 잡음과
+        별도 최적 위상 패널을 함께 읽습니다. 위상 보기에서는 두 직교 Stokes 잡음을 비교합니다.
+        선택한 한 축방향 속도군과 균일·비고갈 펌프 근사는 그대로 유지됩니다.</li>
+    </ol>
+    <p class="out"><a href="#shared-spectrum-navigation">공통 확대·표본 판독</a>으로 관심 구간을 살펴보세요.
+      계산이 불가능하거나 유효하지 않은 표본은 선의 빈 구간으로 남습니다. 빈 구간을 0 dB로 읽지 말고
+      판독값의 상태·이유와 계산 범위를 확인하세요. 잡음 가정만 바꾸는 비교는 동일한 원자 응답을 사용합니다.</p>
   </div>
 
   <div class="callout">
@@ -751,7 +966,7 @@ streamlit run streamlit_app.py</pre>
   </div>
 
   <h3>핵심 식</h3>
-  <div class="eq">
+  <div class="eq" tabindex="0" role="region" aria-label="속도에 따른 리우빌 연산자">
     <span class="var">L</span><sub>0</sub>(<span class="var">Δ<sub>eff</sub></span>) = <span class="var">L</span><sub>0</sub>(0) &minus; <span class="var">Δ<sub>eff</sub></span> · <span class="var">S<sub>v</sub></span>,
     &nbsp;&nbsp; <span class="var">Δ<sub>eff</sub></span> = <span class="var">Δ</span> &minus; <span class="var">k·v</span>
   </div>
@@ -796,6 +1011,7 @@ streamlit run streamlit_app.py</pre>
     바꾸는 대부분의 조작에서 무거운 풀이가 아예 다시 돌지 않기 때문입니다. 한 scheme의 전체
     재계산은 대략 다음 수준입니다.
   </p>
+  <div class="table-wrap" role="region" aria-label="스킴별 재계산 시간 예시" tabindex="0">
   <table class="tbl">
     <thead><tr><th>Scheme</th><th>한 번의 전체 재계산</th><th>내용</th></tr></thead>
     <tbody>
@@ -805,6 +1021,7 @@ streamlit run streamlit_app.py</pre>
       <tr><td>FWM 집중 창</td><td class="num">~1–14 s</td><td>solver detail에 따른 N<sub>F</sub>=3 응답 + 전체 스캔 N<sub>F</sub>=2 수렴 비교 + Maxwell–Bloch 전파</td></tr>
     </tbody>
   </table>
+  </div>
   <p style="color:var(--muted);font-size:0.9rem">
     측정값은 일반 노트북 CPU 기준의 한 예시이며 하드웨어에 따라 달라집니다. 요점은 절대 시간이
     아니라 비용 구조입니다. 중첩 속도적분이 사라지고, 대부분의 노브 조작에서 재풀이가 일어나지
@@ -858,10 +1075,11 @@ streamlit run streamlit_app.py</pre>
   <div class="sec-head"><span class="sec-num">07</span><h2>한계와 해석상의 주의</h2></div>
   <p class="sec-sub">아직 베타입니다. 무엇이 근사이고 무엇이 검증됐는지 함께 적어 둡니다.</p>
 
+  <div class="table-wrap" role="region" aria-label="스킴별 계산 범위와 해석 조건" tabindex="0">
   <table class="tbl">
     <thead><tr><th>영역</th><th>현재 모델의 성격</th><th>주의점</th></tr></thead>
     <tbody>
-      <tr><td>OD / SAS</td>
+      <tr id="od-probe-scope"><td>OD / SAS</td>
         <td>hyperfine 다양체, CG 분기 붕괴, transit relaxation을 포함한 OBE 기반 모델</td>
         <td>유한 프로브의 pump-off·무버퍼·단일온도 천연 Rb D2 경로는 제공된 계산기와 회귀
           일치하지만 실험 검증 자료는 없습니다. 동시 유한 pump/probe는 passivity 제한을 포함한
@@ -871,8 +1089,9 @@ streamlit run streamlit_app.py</pre>
         <td>스칼라 D-line 매질 위의 Λ 엔진</td>
         <td>실제 편광·Zeeman 세부구조까지 자동 포함하는 full 모델은 아닙니다.</td></tr>
       <tr><td>Magneto-optics</td>
-        <td>⁸⁷Rb D1 Zeeman 다양체와 light/dark 또는 buffer 완화 모델</td>
-        <td>셀 벽·잔류장·optical pumping의 실제 복잡도는 실험별 조정이 필요합니다.</td></tr>
+        <td>⁸⁵Rb·⁸⁷Rb D1·D2 다중 hyperfine 유효 모형과 light/dark 또는 buffer 완화</td>
+        <td>균일한 약한 광학 여기에서 계산합니다. 셀 길이 방향의 자기일관 광전파,
+          buffer-gas 압력 넓힘과 확산은 포함하지 않습니다. 타원·원형편광의 회전은 미지원입니다.</td></tr>
       <tr><td>씨앗형 FWM</td>
         <td>⁸⁵Rb D1 double-Λ mean-field 이득과 Squeezing Degree</td>
         <td><a href="#fwm-limits">씨앗형 FWM 해석 범위</a>: 절대 이득, 조건부 NF, production 1-D와
@@ -880,8 +1099,13 @@ streamlit run streamlit_app.py</pre>
       <tr><td>짝광자 SFWM</td>
         <td>Rb/Cs 문헌 기준 또는 Generic diamond 가정 template의 source estimate</td>
         <td>완전한 양자-Langevin 전파/잡음 계산으로 해석하면 안 됩니다.</td></tr>
+      <tr><td><a href="#psr">편광 스퀴징 (PSR)</a></td>
+        <td>조건부 가우스 편광 잡음, ⁸⁷Rb D1 정상상태 및 단일 속도군 RF 응답</td>
+        <td>조건부 잡음은 입력한 과잉 잡음과 검출 효율에 따라 달라집니다.
+          RF 결과는 단일 속도군의 좁은 검출 대역과 균일한 펌프의 적용 범위(|αL| ≤ 0.3)에서 읽습니다.</td></tr>
     </tbody>
   </table>
+  </div>
 
   <div class="callout warn" id="fwm-limits">
     <span class="tag">씨앗형 FWM 해석 범위</span>
@@ -957,7 +1181,8 @@ streamlit run streamlit_app.py</pre>
         Preston, <i>Am. J. Phys.</i> <b>64</b>, 1432 (1996).</li>
       <li>Magneto: Lee &amp; Moon, <i>JOSA B</i> <b>30</b>, 2301 (2013);
         Moon &amp; Kim, <i>Opt. Express</i> <b>22</b>, 18604 (2014);
-        Yu, Lee &amp; Moon, <i>Phys. Rev. A</i> <b>81</b>, 023416 (2010).</li>
+        <a href="https://journals.aps.org/pra/abstract/10.1103/PhysRevA.81.023416">Yu, Lee, Bae, Noh &amp; Moon,
+        <i>Phys. Rev. A</i> <b>81</b>, 023416 (2010)</a> — 편광별 투과 비교의 정성적 참고 문헌.</li>
       <li>FWM 실험 참고값: G. Sim, H. Kim, H. S. Moon, <i>Sci. Rep.</i> <b>15</b>, 7727 (2025)
         (측정된 ⁸⁵Rb 최적점: Δ 0.9&nbsp;GHz, δ −8&nbsp;MHz, 121&nbsp;°C → 이득 ≈ 15,
         IDS −7.8&nbsp;dB; 현재 모델의 재현 주장이 아님).</li>

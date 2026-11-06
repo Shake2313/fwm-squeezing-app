@@ -38,21 +38,38 @@ def brand_html(icon_svg, variant):
 def render_regime_selector(scheme_name, sp, scheme_obj):
     """The scheme's regime/mode switch, shown in the top bar."""
     key = skey(scheme_name, sp.name)
+    widget_key = skey(scheme_name, f"_{sp.name}_control")
     last_key = skey(scheme_name, f"_{sp.name}_last")
     options = list(sp.choices or ())
     labels = getattr(sp, "choice_labels", None) or {}
-    if st.session_state.get(key) in options:
-        st.session_state[last_key] = st.session_state[key]
+    current = st.session_state.get(key)
+    if current not in options:
+        current = st.session_state.get(last_key, sp.default)
+    if current not in options:
+        current = sp.default
+    # Canonical parameters must survive the widget cleanup when a scheme is
+    # hidden. Refresh the widget from them so presets and existing sessions
+    # restore the selection without applying a default set during rendering.
+    if widget_key not in st.session_state:
+        # A running session may still bind the canonical key to the previous
+        # widget. Deleting it once removes that stale widget ownership.
+        st.session_state.pop(key, None)
+    st.session_state[key] = current
+    st.session_state[last_key] = current
+    st.session_state[widget_key] = current
 
     def _changed():
-        # A segmented control can be clicked off; keep a regime selected.
-        if st.session_state.get(key) not in options:
-            st.session_state[key] = st.session_state.get(last_key, sp.default)
+        picked = st.session_state.get(widget_key)
+        # Clearing the selected toggle restores it and preserves custom inputs.
+        if picked not in options:
+            st.session_state[widget_key] = st.session_state[key]
+            return
+        st.session_state[key] = picked
         if getattr(sp, "applies_defaults", False):
             apply_recommended_defaults(scheme_name, scheme_obj, key)
 
     st.segmented_control(
-        sp.label, options, key=key, help=sp.help or None, on_change=_changed,
+        sp.label, options, key=widget_key, help=sp.help or None, on_change=_changed,
         format_func=lambda value: clean_choice_label(labels.get(value, value)),
         label_visibility="collapsed",
     )

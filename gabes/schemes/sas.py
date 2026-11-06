@@ -41,7 +41,7 @@ import numpy as np
 from .. import atoms, constants, doppler, kernels, observables, probe_saturation, species
 from ..constants import GAMMA, K_VEC
 from .. import core
-from ..lineshape import subdoppler_feature
+from ..lineshape import MIN_SUBDOPPLER_SAMPLES_PER_FWHM, subdoppler_feature
 from .base import ParamSpec, Scheme
 
 PROBE_RABI = 1e-3                       # weak probe, in units of Γ
@@ -228,11 +228,25 @@ class SASScheme(Scheme):
     cache_version = "8"            # configurable Rb composition + stable centroid
     defaults_version = "5"         # µW probe control + expanded visibility
     supports_headless_observables = True
+    model_comparison_parameter = "pump_power_mw"
+    workspace_inputs = ("pump_power_mw", "probe_power_uw")
+    model_comparison_controls = ("species", "rb85_fraction", "line", "temp_c", "cell_mm", "probe_power_uw")
     caption = ("Absorption with a counter-propagating pump and optional finite-power "
                "probe saturation for the built-in alkali D lines. Pump off → "
                "linear Doppler-broadened OD (thermal 85Rb D1 hyperfine scale); "
                "pump on → Doppler-free saturated-absorption Lamb dips and crossovers "
                "with hyperfine optical pumping. ⁸⁵Rb / ⁸⁷Rb / ¹³³Cs · D1/D2 or natural Rb.")
+
+    def atom_conditions(self, params):
+        cell = []
+        if params.get("paraffin_coated", False):
+            cell.append("Paraffin")
+        if params.get("ne_pressure_torr", 0.) > 0:
+            cell.append("Buffer")
+        return dict(fields=("species", "rb_composition", "rb85_fraction", "line", "temp_c", "cell_mm",
+                            "constrain_doppler_temp", "doppler_temp_c", "paraffin_coated", "ne_pressure_torr"),
+                    line="line", cell=" ".join(cell),
+                    labels={"rb85_fraction": "⁸⁵Rb fraction (Natural 0.7217)"})
 
     def param_schema(self):
         return [
@@ -302,8 +316,9 @@ class SASScheme(Scheme):
                       "classes) only. The vapor density still follows the cell "
                       "temperature. Ignored while the tie above is on."),
             ParamSpec(
-                "paraffin_coated", "Paraffin-coated cell", "Cell & beams", False,
-                advanced=True, control="checkbox",
+                "paraffin_coated", "Cell type", "Cell & beams", False,
+                advanced=True, choices=(False, True),
+                choice_labels={False: "Uncoated", True: "Paraffin coated"},
                 visible_if={"species": tuple(species.SPECIES_ORDER)},
                 help="Preserve ground-hyperfine population between velocity-randomized "
                      "beam passages using a nominal coated-cell reservoir. This changes "
@@ -421,6 +436,11 @@ class SASScheme(Scheme):
     # =================================================================
     # compute  (dispatch)
     # =================================================================
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        from .sas_comparison import pump_power_comparison
+        return pump_power_comparison(self, params, resolve_raw=resolve_raw,
+                                     current_raw=current_raw, current_view=current_view)
+
     def compute(self, params):
         if params.get("species", "Rb (natural)") == GENERIC:
             return self._compute_generic(params)
@@ -860,6 +880,7 @@ class SASScheme(Scheme):
                 })
 
         feature = subdoppler_feature(x, T_trans) if pump_on else None
+        optical_readout["resolution"] = _feature_resolution(feature, 1000.0, "whole_spectrum")
         peak_metric, depth_metric = _attenuation_peak_metrics(optical_readout)
         broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
@@ -983,6 +1004,7 @@ class SASScheme(Scheme):
             subdoppler_feature(x, T_trans, search_window=feature_window)
             if pump_on else None
         )
+        optical_readout["resolution"] = _feature_resolution(feature, 1.0, "model_feature_window")
         peak_metric, depth_metric = _attenuation_peak_metrics(optical_readout)
         broad_metric = _gaussian_doppler_metric(raw["dopp_fwhm"], raw)
         if pump_on:
@@ -1060,9 +1082,11 @@ def _attenuation_peak_metrics(readout):
     return (
         dict(label=f"{prefix} absorbance A10",
              value=f"{np.nanmax(readout['decadic_absorbance']):.2f}",
+             delta="A₁₀ = −log₁₀(T)",
              help=f"Decadic absorbance A10 = −log₁₀(T) = τ / ln(10), dimensionless. {scope}"),
         dict(label=f"{prefix} optical depth tau",
              value=f"{np.nanmax(readout['optical_depth']):.2f}",
+             delta="τ = −ln(T)",
              help=f"Optical depth τ = −ln(T) = α_eff L, dimensionless. {scope}"),
     )
 
@@ -1404,6 +1428,20 @@ def _gaussian_doppler_metric(dopp_fwhm, raw=None):
     )
 
 
+def _feature_resolution(feature, mhz_per_x, scope):
+    def measured(value, scale=1.0):
+        return float(value * scale) if np.isfinite(value) else None
+
+    return {
+        "status": feature.status if feature else "not applicable",
+        "scope": scope,
+        "reason": feature.reason if feature else "Pump off; no sub-Doppler linewidth.",
+        "center_mhz": measured(feature.center, mhz_per_x) if feature else None,
+        "width_mhz": measured(feature.fwhm, mhz_per_x) if feature else None,
+        "samples_per_fwhm": measured(feature.samples_per_fwhm) if feature else None,
+    }
+
+
 def _subdoppler_metrics(feature, mhz_per_x):
     """User-facing resolution diagnostics for a :class:`SubdopplerFeature`."""
     status = dict(
@@ -1420,6 +1458,9 @@ def _subdoppler_metrics(feature, mhz_per_x):
         dict(
             label="Sub-Doppler FWHM",
             value=f"{feature.fwhm * scale:.2f} MHz",
+            delta=(f"{feature.samples_per_fwhm:.1f} samples/FWHM · "
+                   f"minimum {MIN_SUBDOPPLER_SAMPLES_PER_FWHM:g}"),
+            status=status,
             help=f"Interpolated residual half-height width near "
                  f"{feature.center * scale:+.1f} MHz; report the linewidth only "
                  "when the SAS resolution status is resolved.",
@@ -1435,7 +1476,7 @@ def _subdoppler_metrics(feature, mhz_per_x):
             label="Samples / FWHM",
             value=f"{feature.samples_per_fwhm:.1f}",
             help="Interpolated FWHM divided by the local median sample spacing; "
-                 "at least 6 is required for resolved status.",
+                 f"at least {MIN_SUBDOPPLER_SAMPLES_PER_FWHM:g} is required for resolved status.",
         ),
         dict(
             label="Scan-edge distance",

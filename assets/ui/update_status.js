@@ -31,7 +31,21 @@ export default function({parentElement, data}) {
   };
   const onInput=()=> {state.localPhase='syncing';paint();};
   let wasRunning=app?.getAttribute('data-test-script-state')==='running';
-  const observer=new MutationObserver(()=> {
+  // Keep the native Streamlit image and its full-screen control. The plot and
+  // its description can arrive on separate deltas during a fragment rerun.
+  const labelNativePlot=()=> {
+    const card=app?.querySelector?.('.st-key-gabes_plotcard');
+    if(!card) return;
+    const description=card.querySelector('[data-spectrum-alt]')?.dataset.spectrumAlt;
+    const image=card.querySelector('.st-key-gabes_plotstage [data-testid="stImage"] img');
+    if(image && description && image.alt!==description) image.alt=description;
+  };
+  const observer=new MutationObserver((records)=> {
+    if(records?.length && records.every(record=>record.type==='childList')) {
+      if(records.some(record=>record.target.closest?.('.st-key-gabes_plotcard'))) labelNativePlot();
+      return;
+    }
+    labelNativePlot();
     const running=app?.getAttribute('data-test-script-state')==='running';
     // A graph owns its preview/queue until its own ready event. Ordinary
     // controls are acknowledged when Streamlit completes the script.
@@ -46,7 +60,8 @@ export default function({parentElement, data}) {
   });
   window.addEventListener('gabes-plot-status',onPlot);
   window.addEventListener('gabes-input-commit',onInput);
-  if(app) observer.observe(app,{attributes:true,attributeFilter:['data-test-script-state']});
+  if(app) observer.observe(app,{attributes:true,attributeFilter:['data-test-script-state','data-spectrum-alt'],childList:true,subtree:true});
+  labelNativePlot();
   paint();
   const cleanup=()=> {
     observer.disconnect();

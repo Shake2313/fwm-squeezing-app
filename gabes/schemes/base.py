@@ -104,6 +104,24 @@ class Scheme(ABC):
     # pure and their return (metrics / figure / tables) is picklable.
     cache_observables: bool = True
     supports_headless_observables: bool = False
+    model_comparison_parameter: str | None = None
+    model_comparison_controls: tuple[str, ...] = ()
+    workspace_inputs: tuple[str, ...] = ()
+
+    def comparison_input_names(self, params: dict) -> tuple[str, ...]:
+        """Physical editors beside a comparison, optionally varying with its axis."""
+        return self.workspace_inputs
+
+    def comparison_control_names(self, params: dict) -> tuple[str, ...]:
+        return self.model_comparison_controls
+
+    def atom_conditions(self, params: dict) -> dict:
+        """Supported common Atom-popover fields and fixed model identity."""
+        return {}
+
+    def normalize_params(self, params: dict) -> dict:
+        """Resolve declared dependent controls without changing solver inputs."""
+        return params
 
     @abstractmethod
     def param_schema(self) -> list:
@@ -123,6 +141,14 @@ class Scheme(ABC):
 
     def extra_views(self) -> list:
         return []
+
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        """Optional model-condition comparison, separate from experimental CSV alignment.
+
+        The caller provides the normal cached solve and may supply the committed
+        raw/view at `params`. Schemes define the observable, axes and diagnostics.
+        """
+        return None
 
     @abstractmethod
     def compute(self, params: dict) -> dict:

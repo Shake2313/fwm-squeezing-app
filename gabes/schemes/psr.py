@@ -61,7 +61,14 @@ class PSRScheme(Scheme):
     caption = ("Explore polarization squeezing, the saturated ⁸⁷Rb D1 atomic state, "
                "and its single-velocity or thermal RF noise spectrum.")
     supports_headless_observables = True
+    model_comparison_parameter = "calculation"
+    workspace_inputs = ("intensity_mw_cm2", "obe_intensity_mw_cm2")
     cache_version = "psr-longitudinal-langevin-rf-v1"
+
+    def atom_conditions(self, params):
+        fixed = ({} if params.get("calculation", CONDITIONAL) == CONDITIONAL else
+                 {"Atom": "Rb", "Isotope": "87", "Transition line": "D1"})
+        return dict(fields=("isotope", "line", "temp_c", "cell_mm"), line="line", fixed=fixed)
 
     def param_schema(self):
         weak = {"calculation": CONDITIONAL}
@@ -233,6 +240,11 @@ include the atomic noise needed for a microscopic prediction.
         thermal = (params["calculation"] == psr_rf.THERMAL_RF_MODEL or
                    (params["calculation"] == psr_rf.PROPAGATED_RF_MODEL and params["prop_velocity_model"] == "thermal"))
         return dict(active, isotope="Rb87", line="D1", doppler=thermal)
+
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        from .polarization_comparison import psr_comparison
+        return psr_comparison(self, params, resolve_raw=resolve_raw,
+                              current_raw=current_raw, current_view=current_view)
 
     def compute(self, params):
         p = dict(self.defaults(), **params)

@@ -6,7 +6,12 @@
 SABES에도 같은 시각 규약 적용. 광학 테이블의 glyph·광로·라벨·모델 표시·화면 검수 기준은 [SABES 디자인 규칙](../SABES/design_rules.md), 사용자 결정은 D13 참조.
 
 ## 현재 상태
-- 방향 확정: **시안 B · Instrument console** + IBM Plex Sans/Mono + ScrubField 정밀 입력 (`decisions.md` D1–D3).
+- ⟦AI⟧ 2026-11-05 세 뷰 개선안의 **새 1단계 공용 지도·선택 체계 완료**: Map/Curves, 조건·단면·입력·판독 연동, 네이티브 행 스캔과 캐시·중단/재개. [단계 계획](plan.md), [검증 기록](audit/common_map_stage1_2026_11_05.md). 아래의 기존 G05–G08 완료 이력과 구별한다.
+- ⟦AI⟧ 같은 계획의 **2단계 Λ 뷰 완료**: EIT/AT 지도·T/OD·분산, AT 네이티브 피크, CPT 대비/폭/대비÷폭, Δp×Δc 이조 지도와 추가 비교 축. [검증 기록](audit/lambda_stage2_2026_11_05.md).
+- ⟦AI⟧ **3단계 리드버그 뷰 완료**: EIT 출력 지도·잔류 폭 비교, AT RF 지도·피크/장 환산, 출력·온도 분석, Spectra/Sensitivity와 네이티브 유한 IF 크기·위상·PSN/총 ASD 연결. [검증 기록](audit/rydberg_stage3_2026_11_05.md). 새 4–5단계는 대기한다.
+- 다변수 그래프 3단계 **G05–G08 적용**: Λ·Rydberg·Magneto·PSR의 조건 비교와 공용 탐색, 가이드 연결 완료. 실행 범위·검증은 최신 개발 로그 참조.
+- 공통 Atom 팝오버를 6개 스킴에 적용. Magneto는 자동 Signal과 편광각·D1/D2 비교로 개편. 입력·표시·모델 범위는 [D18](decisions.md#d18) 참조.
+- 조작 방향: 메인 화면의 **Conditions** 팝오버와 단위가 붙은 직접 입력으로 옮기고, 사이드바와 변수 슬라이더를 점진적으로 줄인다. OD/SAS 기본 화면과 이어지는 스킴 작업은 [D17](decisions.md#d17)을 따른다. 기존 셸·타이포그래피의 설계 이력은 D1–D3에 있다.
 - 이름 붙인 설정: **DEFAULTS** 드롭다운·브라우저/로컬 저장·가져오기 반영 (`decisions.md` D14, 2026-10-22).
 - 진행 단계: P0 · P1(`4cb011f`) · P2 셸(`7a95e9e`) · P3 ScrubField 완료. 다음: **P4 readout 계약**.
 - 푸시: P0–P3 네 커밋 `origin/main`에 반영 (2026-09-23, 사용자 승인). 이후에도 단계마다 승인 받고 커밋·푸시.
@@ -46,9 +51,9 @@ SABES에도 같은 시각 규약 적용. 광학 테이블의 glyph·광로·라�
 ## ui_audit DOM 계약 (리디자인 중 유지, 바꾸면 도구도 같은 커밋에서 수정)
 - `stApp`의 `data-test-script-state` 속성 (Streamlit 제공).
 - scheme 전환기 = `role=combobox`, `aria-label`에 "Scheme" 포함; 옵션 = `role=option`, 텍스트 = scheme title.
-- 메인 plot = `stMain` 안 최대 `img`/`iframe`/`canvas` (인라인 컴포넌트 shadow root 포함).
-- control rail = Streamlit sidebar.
-- Advanced 토글 = sidebar 안 summary/button, 텍스트 "Advanced…" 또는 "Show advanced".
+- 메인 plot은 `stMain`의 `img`, `iframe`, `canvas`, OD/SAS overview의 `.mc-overview svg` 중 가장 큰 그림으로 측정. 인라인 컴포넌트의 shadow root 포함.
+- OD/SAS는 메인 화면의 `.st-key-gabes_conditions`에서 조건과 Advanced 팝오버를 제공. 사이드바 왕복 측정은 `N/A`.
+- 사이드바가 있는 스킴은 데스크톱·모바일에서 실제 열기·닫기를 검사. Advanced 토글은 sidebar 안 "Advanced controls", "Show advanced" 또는 "Hide advanced"를 포함하는 summary/button.
 - 숫자 knob(ScrubField)은 **shadow DOM 안**(`.stBidiComponent` 호스트 → `.sf`). 일반 `document.querySelector`로 안 잡힘 —
   DOM을 훑는 도구는 `el.shadowRoot`를 재귀로 들어가야 함. 값 = `[role=spinbutton]`.
 

@@ -1,5 +1,18 @@
 """Recognize a missing v2 registry only in Streamlit's test runner."""
 import sys
+from pathlib import Path
+
+
+def spectrum_component_js(asset_name):
+    """Bundle common pointer handling with a Streamlit v2 inline ES module."""
+    assets = Path(__file__).resolve().parents[1] / "assets" / "ui"
+    names = ["spectrum_gestures.js"]
+    if asset_name in {"model_compare.js", "spectral_compare.js"}:
+        names.append("spectrum_plot.js")
+    if asset_name == "spectral_compare.js":
+        names.append("spectrum_map.js")
+    names.append(asset_name)
+    return "\n".join((assets / name).read_text(encoding="utf-8") for name in names)
 
 
 def missing_apptest_component(error, component_name):

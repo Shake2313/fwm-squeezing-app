@@ -151,11 +151,13 @@ def test_decay_branching_sums_and_values():
     assert abs(br[e2][1] - 7.0 / 9.0) < 1e-6          # → Fg=3
 
 
-def test_paraffin_checkbox_schema_is_advanced_and_recomputes():
+def test_cell_type_choice_preserves_boolean_coating_and_recomputes():
     spec = {item.name: item for item in SAS.param_schema()}["paraffin_coated"]
     assert spec.default is False
     assert spec.advanced
-    assert spec.control == "checkbox"
+    assert spec.label == "Cell type"
+    assert spec.choices == (False, True)
+    assert spec.choice_labels == {False: "Uncoated", True: "Paraffin coated"}
     assert spec.recompute
     assert GENERIC not in spec.visible_if["species"]
 
@@ -408,6 +410,7 @@ def test_observables_render_species():
 
 
 def test_default_underresolved_feature_reports_diagnostics_instead_of_lock_hero():
+    from gabes_ui.readout import partition_readout, present_metrics
     p = _params()
     raw = SAS.compute(p)
     x = raw["scan"] / (2 * np.pi) / 1e9
@@ -424,6 +427,11 @@ def test_default_underresolved_feature_reports_diagnostics_instead_of_lock_hero(
     assert "Lock Slope" not in labels and "Lock Detuning" not in labels
     assert {"Sub-Doppler FWHM", "Half-height edges", "Samples / FWHM",
             "Scan-edge distance"}.issubset(labels)
+    display = present_metrics(view["metrics"], scheme_name="sas")
+    width, = partition_readout(display, hero_count=1)[0]
+    assert width["label"] == "Sub-Doppler FWHM"
+    assert width["status"]["value"] == feature.status
+    assert f"{feature.samples_per_fwhm:.1f} samples/FWHM · minimum 6" == width["delta"]
 
 
 def test_pump_on_unresolved_feature_makes_status_hero_and_hides_envelope_slope():

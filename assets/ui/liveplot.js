@@ -73,6 +73,7 @@ export default function(component) {
   const stage=root.querySelector('.lp-stage'), svg=root.querySelector('svg');
   const status=root.querySelector('output'), controls=root.querySelector('.lp-controls');
   const img=root.querySelector('img');
+  img.alt=d.description||'Spectrum';
   if(img.getAttribute('src')!==d.image)img.src=d.image;
   stage.style.width=`min(100%, calc(var(--g-plot-height, calc(100dvh - 22rem)) * ${d.width/d.height}))`;
   stage.style.aspectRatio=`${d.width} / ${d.height}`;
@@ -198,46 +199,29 @@ export default function(component) {
     inputs[spec.name]=[number,range];
   }
   const inAxis=e=> {
-    const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)*d.width/r.width,y=(e.clientY-r.top)*d.height/r.height;
+    const {x,y}=spectrumPointer(svg,e,d.width,d.height);
     return d.axes.findIndex(a=>x>=a.left&&x<=a.left+a.width&&y>=a.top&&y<=a.top+a.height);
   };
-  function move(e) {
-    if(!state.drag || e.pointerId!==state.drag.pointerId)return;
-    const r=svg.getBoundingClientRect(),a=state.drag.axis;
-    const dx=(e.clientX-state.drag.x)*d.width/r.width/a.width*(a.xlim[1]-a.xlim[0]);
+  function move(drag,e) {
+    const {x}=spectrumPointer(svg,e,d.width,d.height),a=drag.axis;
+    const dx=(x-drag.x)/a.width*(a.xlim[1]-a.xlim[0]);
     if(d.kind==='alignment') {
       const spec=d.controls.find(s=>s.name==='shift');
-      state.values.shift=Math.min(spec.max,Math.max(spec.min,state.drag.value+dx));
+      state.values.shift=Math.min(spec.max,Math.max(spec.min,drag.value+dx));
       inputs.shift.forEach(el=>el.value=state.values.shift);
     } else {
-      const x=(e.clientX-r.left)*d.width/r.width;
       state.values.tpd=Math.min(a.xlim[1],Math.max(a.xlim[0],a.xlim[0]+(x-a.left)/a.width*(a.xlim[1]-a.xlim[0])));
     }
-    state.previewing=true;schedule();
+    state.previewing=true;paint();
   }
-  svg.onpointerdown=e=> {
-    if(e.button!==0)return;
-    const index=inAxis(e);if(index<0)return;
-    svg.setPointerCapture(e.pointerId);
-    state.drag={x:e.clientX,value:state.values.shift,axis:d.axes[index],pointerId:e.pointerId};
-    state.previewing=true;
-    if(d.kind==='cursor')move(e);
-  };
-  const pointerUp=e=> {
-    if(!state.drag || e.pointerId!==state.drag.pointerId)return;
-    move(e);state.drag=null;
-    if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);
-    commit();
-  };
-  const pointerCancel=e=> {
-    if(!state.drag || e.pointerId!==state.drag.pointerId)return;
-    state.drag=null;cancel();
-  };
-  // A component HTML replacement can remove the SVG holding pointer capture.
-  // Window listeners let an already active gesture finish on its new wrapper.
-  window.addEventListener('pointermove',move,true);
-  window.addEventListener('pointerup',pointerUp,true);
-  window.addEventListener('pointercancel',pointerCancel,true);
+  const stopPointer = bindSpectrumGesture(svg,state,{
+    begin(e) {
+      const index=inAxis(e);
+      if(index<0)return null;
+      return {x:spectrumPointer(svg,e,d.width,d.height).x, value:state.values.shift, axis:d.axes[index]};
+    },
+    preview:move, commit:()=>commit(), cancel
+  });
   const onPreview=e=> {
     if(e.detail?.key!==d.event_key)return;
     if(e.detail.discard) {
@@ -254,9 +238,7 @@ export default function(component) {
   window.addEventListener('gabes-preview',onPreview);
   const cleanup=()=> {
     window.removeEventListener('gabes-preview',onPreview);
-    window.removeEventListener('pointermove',move,true);
-    window.removeEventListener('pointerup',pointerUp,true);
-    window.removeEventListener('pointercancel',pointerCancel,true);
+    stopPointer();
     if(state.frame){cancelAnimationFrame(state.frame);state.frame=0;}
   };
   state.cleanup=cleanup;

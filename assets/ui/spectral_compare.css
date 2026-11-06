@@ -1,0 +1,53 @@
+.sc .sc-heading{margin:.4rem 0 .55rem}.sc .sc-heading h3{font-size:1rem}
+.sc .sc-heading p{margin-top:.25rem}
+.sc .sc-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}
+.sc .sc-panels>div,.sc .sc-summary>div{min-width:0}
+.sc .sc-panels>div:only-child{grid-column:1/-1}
+.sc .sc-panels>.sc-panel-wide{grid-column:1/-1}
+.sc .sc-separate{display:flex;align-items:center;gap:.4rem;margin:.25rem 0 .7rem;font-weight:500;font-size:.83rem}
+.sc .sc-panel-note{line-height:1.45;margin:.35rem 0 .65rem}
+.sc .sc-range{display:flex;flex-wrap:wrap;align-items:end;gap:.45rem;margin:.35rem 0 .65rem}
+.sc .sc-range label{display:grid;gap:.2rem}.sc .sc-range input{width:8rem;max-width:100%}
+.sc .sc-range button{height:35px}.sc .sc-range+p{margin:.35rem 0}
+.sc .sc-scroll{overflow-x:auto;max-width:100%;margin:.5rem 0}
+.sc .sc-samples{min-width:260px}.sc .sc-samples :is(td,th){font-size:.74rem;padding:.3rem .2rem}
+.sc .sc-native-note{margin:.4rem 0 .75rem}
+.sc .sc-sample-status{display:block;color:#795014;line-height:1.35;overflow-wrap:anywhere}
+.sc .sc-sample-reasons p,.sc .sc-scope-note{margin:.4rem 0;font-size:.78rem;line-height:1.45}
+.sc .sc-scopes pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.73rem;max-height:22rem;overflow:auto}
+.sc .sc-metric small{display:block;line-height:1.4;color:var(--mc-muted);margin:.15rem 0 .3rem}
+.sc .sc-panel-legend{font-size:.72rem;margin-top:0}
+.sc .sc-readout-title{font-size:1rem;margin:.7rem 0 .35rem}
+.sc .sc-metric{border-top:1px solid var(--mc-edge);padding:.35rem 0}
+.sc .sc-metric h4{font-size:.82rem}.sc .sc-metric ul{padding:0;margin:.2rem 0;list-style:none}
+.sc .sc-metric li{font-size:.77rem;padding:.1rem 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sc .sc-notes p{font-size:.78rem;line-height:1.5;margin:.45rem 0}
+.sc .mc-layout{grid-template-columns:minmax(0,2.5fr) minmax(270px,1fr)}
+.sc .mc-reader{border-left:1px solid var(--mc-edge)}
+.sc .mc-legend{margin:.3rem 0 .6rem}
+.sc .mc-range{font-size:.8rem}
+.sc .sc-explore-controls{display:flex;flex-wrap:wrap;align-items:end;gap:.55rem;margin:.6rem 0}
+.sc .sc-explore-controls label{display:grid;gap:.2rem;font-size:.8rem;min-width:0}
+.sc .sc-explore-controls select{width:100%;max-width:30rem;background:var(--mc-bg,#fff);color:var(--mc-ink,#203b39);border:1px solid var(--mc-edge);border-radius:5px;padding:.4rem;font:inherit}
+.sc .sc-view-switch{display:flex;gap:.15rem}
+.sc .sc-view-switch button[aria-pressed=true]{border-color:#07655e;background:#deeee8;color:#164a42}
+.sc .sc-view-switch button:disabled{opacity:.5}
+.sc .sc-all-values{display:flex;gap:.35rem;align-items:center;font-size:.8rem;margin:.45rem 0}
+.sc .sc-selected-row{background:#deeee8;font-weight:600}
+.sc .sc-metric p{margin:.2rem 0;font-variant-numeric:tabular-nums}
+.sc .sc-map-surface{position:relative;min-width:0}
+.sc .sc-map-surface canvas{display:block;width:100%;height:auto}
+.sc .sc-map-surface svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}
+.sc .sc-map-key{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;font-size:.75rem;margin:.15rem 0}
+.sc .sc-map-key i{display:block;width:8rem;height:.6rem;border:1px solid var(--mc-edge)}
+.sc .sc-map-figure .mc-tooltip{max-width:min(260px,90%)}
+.sc .sc-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.7rem;margin-top:.7rem}
+.sc .sc-summary-grid .sc-panel-note{font-size:.75rem}
+.sc .sc-options{display:flex;flex-wrap:wrap;gap:.6rem;font-size:.8rem;margin:.45rem 0}
+.sc .sc-options label{display:flex;gap:.35rem;align-items:center}
+.sc .sc-profile-note{font-size:.82rem;line-height:1.5;max-width:80ch;margin:.4rem 0}
+.sc .sc-profiles{margin:.6rem 0}
+.sc .sc-optimum{margin:0 0 .6rem}
+.sc :is(select,button,svg):focus-visible{outline:2px solid #07655e;outline-offset:2px}
+@container(max-width:900px){.sc .mc-layout{grid-template-columns:minmax(0,1fr)}.sc .mc-reader{border-left:0;border-top:1px solid var(--mc-edge);padding:.5rem 0 0}}
+@container(max-width:570px){.sc .sc-panels{grid-template-columns:minmax(0,1fr)}}

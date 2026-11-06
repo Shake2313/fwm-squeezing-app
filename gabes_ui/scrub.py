@@ -36,7 +36,7 @@ def state_key(key):
 _HTML = """<div class="sf">
   <div class="sf-head">
     <span class="sf-label"></span>
-    <button class="sf-reset" type="button" tabindex="-1" hidden></button>
+    <button class="sf-reset" type="button" hidden></button>
     <span class="sf-value" role="spinbutton" tabindex="0"><span
       class="sf-num"></span><span class="sf-unit"></span></span>
     <input class="sf-input" type="text" inputmode="decimal" autocomplete="off"
@@ -73,12 +73,12 @@ _CSS = """
   text-align:right;padding:.1rem .3rem;border:1px solid var(--g-accent,#0284C7);
   border-radius:4px;background:var(--g-surface,#fff);}
 .sf-input:focus{outline:none;}
-.sf-reset{flex:0 0 auto;width:12px;height:12px;padding:0;margin:0;border:0;
+.sf-reset{flex:0 0 auto;width:24px;height:24px;padding:0;margin:0;border:0;
   border-radius:50%;background:transparent;cursor:pointer;position:relative;
   align-self:center;}
-.sf-reset::before{content:"";position:absolute;inset:3px;border-radius:50%;
+.sf-reset::before{content:"";position:absolute;inset:8px;border-radius:50%;
   background:var(--g-accent,#0284C7);}
-.sf-reset:hover::before{inset:1px;}
+.sf-reset:hover,.sf-reset:focus-visible{background:var(--g-fill-soft,#EDF1F5);}
 .sf-reset:focus-visible{outline:2px solid var(--g-accent,#0284C7);outline-offset:1px;}
 .sf-rail{display:flex;align-items:center;gap:.35rem;height:12px;}
 .sf-end{flex:0 0 auto;font-size:.65rem;line-height:1;color:var(--g-muted,#5B6B80);
@@ -149,23 +149,26 @@ export default function (component) {
     if (max != null && v > max) v = max;
     return tidy(v);
   };
-  const show = (v) => data.decimals > 0 ? v.toFixed(data.decimals) : String(tidy(v));
+  const show = (v) => {
+    const formatted = data.decimals > 0 ? v.toFixed(data.decimals) : String(tidy(v));
+    return Number(formatted) === v ? formatted : String(v);
+  };
 
   // `text` comes from Python, which spells out a typed value finer than the
   // format (1.234567 under "%.2f"); a value the browser just moved is on the
   // step grid, so the format is exact for it.
   function paint(v, text) {
     S.shown = v;
-    if (!S.editing) el.num.textContent = text != null ? text : show(v);
+    const shown = text ?? show(v);
+    if (!S.editing) el.num.textContent = shown;
     el.value.setAttribute("aria-valuenow", String(v));
-    el.value.setAttribute("aria-valuetext", show(v) + (data.unit ? " " + data.unit : ""));
+    el.value.setAttribute("aria-valuetext", shown + (data.unit ? " " + data.unit : ""));
     if (hasRange) {
       const pct = Math.max(0, Math.min(1, (v - min) / span)) * 100;
       el.fill.style.width = pct + "%";
       el.knob.style.left = pct + "%";
     }
-    const off = data.default != null && Math.abs(v - data.default) > (step ? step / 2 : 1e-12);
-    el.reset.hidden = !off;
+    el.reset.hidden = data.default == null || v === data.default;
   }
 
   function send(payload) {
@@ -208,20 +211,26 @@ export default function (component) {
     el.help.textContent = data.help;
     el.help.hidden = false;
     el.value.setAttribute("aria-describedby", "sf-help");
+    el.input.setAttribute("aria-describedby", "sf-help");
   } else {
     // A label too long for the rail is clipped; hovering must still reveal it.
     const clipped = el.label.scrollWidth > el.label.clientWidth + 1;
     if (clipped) el.label.title = data.label || "";
     else el.label.removeAttribute("title");
     el.help.hidden = true;
+    el.value.removeAttribute("aria-describedby");
+    el.input.removeAttribute("aria-describedby");
   }
   el.unit.textContent = data.unit || "";
   el.endL.textContent = (data.ends && data.ends[0]) || "";
   el.endR.textContent = (data.ends && data.ends[1]) || "";
-  el.value.setAttribute("aria-label", data.label + (data.unit ? ", " + data.unit : ""));
+  const controlName = data.label + (data.unit ? ", " + data.unit : "");
+  el.value.setAttribute("aria-label", controlName);
+  el.input.setAttribute("aria-label", controlName);
   if (min != null) el.value.setAttribute("aria-valuemin", String(min));
   if (max != null) el.value.setAttribute("aria-valuemax", String(max));
-  el.reset.title = "Reset to " + (data.defaultText || "default");
+  el.reset.title = "Reset " + data.label + " to " + (data.defaultText || "default")
+    + (data.unit ? " " + data.unit : "");
   el.reset.setAttribute("aria-label", el.reset.title);
   el.note.textContent = data.note || "";
   el.note.hidden = !data.note;
@@ -243,14 +252,15 @@ export default function (component) {
     el.input.focus();
     el.input.select();
   }
-  function endEdit(commit) {
+  function endEdit(commit, returnFocus = false) {
     if (!S.editing) return;
     S.editing = false;
     el.input.hidden = true;
     el.value.hidden = false;
     S.draft = el.input.value;
+    if (returnFocus) el.value.focus({ preventScroll: true });
     if (commit) send({ t: S.draft });
-    else { paint(data.value, data.text); el.value.focus(); }
+    else paint(data.value, data.text);
   }
   const saveDraft = () => {
     S.draft = el.input.value;
@@ -259,8 +269,8 @@ export default function (component) {
   el.input.oninput = saveDraft;
   el.input.onselect = saveDraft;
   el.input.onkeydown = (e) => {
-    if (e.key === "Enter") { e.preventDefault(); endEdit(true); }
-    else if (e.key === "Escape") { e.preventDefault(); endEdit(false); }
+    if (e.key === "Enter") { e.preventDefault(); endEdit(true, true); }
+    else if (e.key === "Escape") { e.preventDefault(); endEdit(false, true); }
   };
   el.input.onblur = () => {
     // Removing HTML is not the user's request to commit an unfinished draft.
@@ -386,7 +396,11 @@ export default function (component) {
     S.keyTimer = setTimeout(() => send({ v: S.shown }), 160);
   };
 
-  el.reset.onclick = (e) => { e.preventDefault(); send({ r: true }); };
+  el.reset.onclick = (e) => {
+    e.preventDefault();
+    el.value.focus({ preventScroll: true });
+    send({ r: true });
+  };
   const onPlot = e => {
     if (!data.previewKey || e.detail?.eventKey !== data.previewKey) return;
     S.previewOwner = e.detail.owner;

@@ -1,4 +1,19 @@
 {
+  "_ui_figure_research_2026_11_05": {
+    "provenance": "⟦AI⟧ User requested browser-based figure research for Rydberg and Lambda graph design.",
+    "status": "stages-1-to-3-implemented-stages-4-5-pending",
+    "source": "docs/ui_redesign/audit/rydberg_lambda_figures_2026_11_05.md",
+    "design_proposal": "docs/ui_redesign/three_scheme_view_proposal_2026_11_05.md",
+    "proposal_scope": "User explicitly requested stages 1 common map/selection, 2 Lambda views, and 3 Rydberg EIT/AT maps, power/temperature analysis and finite-IF sensitivity. Stages 4-5 remain pending.",
+    "evidence": "Six papers, fourteen figures visually inspected via publisher figure viewers and Chrome PDF.",
+    "recommendation": "Linked 2D maps, native 1D cuts, and performance trends; reuse existing arrays and sweeps before adding physics.",
+    "implementation": "Stages 1-3 implemented: common maps/selection/scans/export, Lambda views, and Rydberg native spectra and conditional finite-IF sensitivity. Existing scientific calculations/defaults preserved. Magneto stage 4 and integration stage 5 remain pending.",
+    "stage_1_evidence": "docs/ui_redesign/audit/common_map_stage1_2026_11_05.md",
+    "stage_2_implementation": "Lambda: EIT/AT native maps, power/Rabi display coordinates, T/OD and dispersion cuts, existing-extractor AT peak positions, CPT contrast/FWHM/quality panels, ground-relaxation and beam-angle comparisons, and optical Delta-p x Delta-c maps with two-photon resonance guide. No solver or original numerical defaults changed.",
+    "stage_2_evidence": "docs/ui_redesign/audit/lambda_stage2_2026_11_05.md",
+    "stage_3_implementation": "Rydberg: EIT probe-power map and residual comparison; AT RF spectra, native transmission peaks and field estimates; probe/coupling/linked-or-separated-temperature/RF-detuning/IF controls; client Spectra/Sensitivity profiles, actual IF response and wrapped phase, PSN/total ASD, opacity scenarios, and separate inspected vs sampled-optimum points. Sparse Doppler response retains its own coordinates and gaps. No solver, physical presets or 801-point optical grids changed.",
+    "stage_3_evidence": "docs/ui_redesign/audit/rydberg_stage3_2026_11_05.md"
+  },
   "_psr_staged_model_2026_11_05": {
     "provenance": "⟦AI⟧ Implementation record for explicit user requests S0/S1, S2, S3 and S4.",
     "status": "S0-S4-implemented",

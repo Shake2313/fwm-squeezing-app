@@ -16,6 +16,7 @@ Run with:
 import matplotlib
 matplotlib.use("Agg")          # headless server backend (no GUI / Tk)
 import streamlit as st
+from contextlib import nullcontext
 from pathlib import Path
 
 from gabes import schemes
@@ -28,6 +29,7 @@ from gabes_ui.controls import (
     current_params, param_visible, render_derived_params, render_rail, skey,
 )
 from gabes_ui.defaults import render_defaults
+from gabes_ui.dropdowns import render_dropdown_policy
 from gabes_ui.guide import guide_button
 from gabes_ui.plotcard import PLOT_LOCK, render_more, render_plot_section
 from gabes_ui.readout import (
@@ -71,7 +73,7 @@ st.set_page_config(page_title="GABES — Atomic Bloch Equation Solver",
                    page_icon=ICON_SVG, layout="wide")
 
 
-READOUT_CACHE_VERSION = "hero-ribbon-v8-magneto-noise-guards-20261023"
+READOUT_CACHE_VERSION = "v17-rydberg-workspace-20261105"
 
 
 def _inject_css():
@@ -82,6 +84,7 @@ def _inject_css():
 
 
 _inject_css()
+render_dropdown_policy()
 
 
 # ----------------------------------------------------------------------
@@ -100,6 +103,21 @@ def _cached_observables(scheme_name, raw, param_items, cache_version):
     # construction to avoid layout-time parser crashes.
     with PLOT_LOCK:
         return schemes.get(scheme_name).observables(raw, dict(param_items))
+
+
+@st.cache_data(show_spinner=False, max_entries=8)
+def _cached_model_comparison(scheme_name, param_items, cache_version, readout_version,
+                             _current_raw, _current_view):
+    """Cache small sweeps by committed inputs; reuse the active single-condition solve."""
+    active_scheme = schemes.get(scheme_name)
+    solve_keys = active_scheme.recompute_keys()
+
+    def resolve_raw(condition):
+        items = tuple(sorted((key, condition[key]) for key in solve_keys))
+        return _cached_compute(scheme_name, items, cache_version)
+
+    return active_scheme.model_comparison(dict(param_items), resolve_raw=resolve_raw,
+                                          current_raw=_current_raw, current_view=_current_view)
 
 
 # ----------------------------------------------------------------------
@@ -134,8 +152,6 @@ if st.query_params.get("app") == SABES_QUERY_VALUE:
 # ----------------------------------------------------------------------
 # The rail's brand band and the top bar share one 52 px line; the top-bar copy
 # of the brand shows only while the sidebar is collapsed (phone, or folded).
-st.sidebar.markdown(brand_html(ICON_SVG, "gabes-brand--rail"), unsafe_allow_html=True)
-
 all_schemes = schemes.all_schemes()
 titles = [s.title for s in all_schemes]
 apply_scheme_link(st.session_state, st.query_params, all_schemes)
@@ -156,6 +172,7 @@ with topbar:
     def _scheme_changed():
         selected = all_schemes[titles.index(st.session_state["_scheme_choice"])]
         st.query_params["scheme"] = selected.name
+        st.query_params.pop("compare", None)
         st.session_state["_scheme_link_applied"] = selected.name
 
     choice = st.selectbox("Scheme", titles, key="_scheme_choice", format_func=scheme_label,
@@ -181,8 +198,17 @@ else:
         # values to the browser when they become visible again.
         st.session_state[key] = st.session_state.get(key, sp.default)
 
-# Load named defaults before registering the top-bar mode and rail controls.
-render_defaults(st.sidebar, scheme)
+# Reserve the main instrument above saved settings, but mount the defaults
+# store before any editable parameter widgets so preset callbacks stay atomic.
+is_sas = scheme.name == "sas"
+has_spectra = scheme.model_comparison_parameter is not None
+if has_spectra:
+    workspace = st.container(key="gabes_sas_workspace")
+    render_defaults(st.expander("Saved settings", icon=":material/bookmarks:"), scheme)
+else:
+    workspace = nullcontext()
+    st.sidebar.markdown(brand_html(ICON_SVG, "gabes-brand--rail"), unsafe_allow_html=True)
+    render_defaults(st.sidebar, scheme)
 
 # The regime/mode switch moves to the top bar: the first segmented control that
 # applies a recommended default set (FWM Mode, Λ/Rydberg/magneto Regime).
@@ -229,52 +255,112 @@ with about:
         st.markdown(info)
 
 
-# ----------------------------------------------------------------------
-# Control rail
-# ----------------------------------------------------------------------
-derived_slots = {}
-params = render_rail(
-    st.sidebar, scheme, specs, skip=(regime_spec,), derived_slots=derived_slots)
+def render_spectra():
+    comparing = has_spectra and st.query_params.get("compare") != "0"
+    derived_slots = {}
+    if has_spectra:
+        from gabes_ui.conditions import render_conditions, render_power_inputs
+
+        view_key = skey(scheme.name, "_spectra_view")
+        model_label = "Model spectra"
+        csv_label = "Experimental CSV (legacy)" if is_sas else "Single-condition details"
+        st.session_state[view_key] = model_label if comparing else csv_label
+
+        def change_view():
+            picked = st.session_state[view_key]
+            if picked is None:
+                return
+            entering = picked == model_label
+            if is_sas:
+                plotcard.remember_overlay_for_comparison(scheme.name, entering=entering)
+            if entering:
+                st.query_params.pop("compare", None)
+            else:
+                st.query_params["compare"] = "0"
+
+        with st.container(horizontal=True, vertical_alignment="center", gap="small",
+                          key="gabes_comparison_actions"):
+            st.segmented_control("Spectrum view", [model_label, csv_label], key=view_key,
+                                 on_change=change_view, label_visibility="collapsed")
+            if is_sas:
+                guide_button(GUIDE_URL, key="sas_first_spectrum", label="First spectrum",
+                             anchor="first-spectrum")
+            render_update_status(scheme.name)
+        params = render_conditions(scheme, specs)
+        if not comparing:
+            params = render_power_inputs(scheme, specs)
+    else:
+        from gabes_ui.conditions import render_atom_conditions
+        with st.container(key="gabes_conditions"):
+            st.html('<h3 class="gabes-conditions-heading">Conditions</h3>')
+            grouped = render_atom_conditions(scheme, specs)
+        params = render_rail(st.sidebar, scheme, specs,
+                             skip=(regime_spec, *(sp for sp in specs if sp.name in grouped)),
+                             derived_slots=derived_slots)
+        render_update_status(scheme.name)
+
+    recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
+    cache_version = scheme.cache_version
+    from gabes_ui.spectral_sweep import cancel_inactive_sweeps, reusable_solution
+    cancel_inactive_sweeps(st.session_state, scheme.name)
+    retained = reusable_solution(st.session_state.get("spectral-workspace-"+scheme.name),
+                                 scheme, params, READOUT_CACHE_VERSION) if comparing else None
+    raw = retained[0] if retained is not None else _cached_compute(scheme.name, recompute_items, cache_version)
+    param_items = tuple(sorted(params.items()))
+    if comparing:
+        view = retained[1] if retained is not None and retained[1] is not None else scheme.headless_observables(raw, params)
+    elif scheme.cache_observables:
+        view = _cached_observables(scheme.name, raw, param_items, (cache_version, READOUT_CACHE_VERSION))
+    else:
+        with PLOT_LOCK:
+            view = scheme.observables(raw, params)
+    render_derived_params(derived_slots, view.get("sidebar_readouts", {}))
+
+    if comparing:
+        from gabes_ui.model_compare_section import comparison_context, render_comparison
+
+        from gabes_ui.spectral_sweep import reusable_dataset
+        comparison = reusable_dataset(st.session_state.get("spectral-workspace-"+scheme.name),
+                                      scheme, params, READOUT_CACHE_VERSION)
+        if comparison is None:
+            with st.spinner("Preparing spectra…"):
+                comparison = _cached_model_comparison(scheme.name, param_items, cache_version,
+                                                      READOUT_CACHE_VERSION, raw, view)
+        if comparison["schema"] == "gabes-spectral-comparison-v1":
+            from gabes_ui.spectral_compare import render_spectral_section
+            def resolve_condition(condition):
+                items = tuple(sorted((k, condition[k]) for k in scheme.recompute_keys()))
+                return _cached_compute(scheme.name, items, cache_version)
+            render_spectral_section(comparison, scheme=scheme, raw=raw, params=params,
+                                    view=view, readout_version=READOUT_CACHE_VERSION,
+                                    resolve_raw=resolve_condition)
+        else:
+            render_comparison(comparison, comparison_context(scheme, params, comparison["schema"]),
+                              scheme=scheme, raw=raw, params=params, view=view,
+                              readout_version=READOUT_CACHE_VERSION)
+        return
+
+    spec_by_name = {sp.name: sp for sp in specs}
+    if is_sas:
+        render_plot_section(dict(view, experimental_workspace=True), scheme, spec_by_name, raw, params,
+                            cache_version, READOUT_CACHE_VERSION)
+        return
+
+    metrics = present_metrics(view.get("metrics", []), scheme_name=scheme.name, raw=raw)
+    if metrics:
+        heroes, secondary, statuses, overflow = partition_readout(
+            metrics, hero_count=view.get("hero_count") or 2)
+        with st.container(horizontal=True, vertical_alignment="center", gap="small",
+                          key="gabes_readout"):
+            st.markdown(strip_html(heroes, secondary, statuses,
+                                   compact_statuses=scheme.name == "magneto"), unsafe_allow_html=True)
+            if overflow:
+                with st.popover(f"+{len(overflow)} more", type="tertiary"):
+                    st.markdown(metrics_table_markdown(metrics))
+
+    render_plot_section(view, scheme, spec_by_name, raw, params, cache_version, READOUT_CACHE_VERSION)
+    render_more(view, scheme, params, cache_version)
 
 
-# ----------------------------------------------------------------------
-# Compute (cached) + observables
-# ----------------------------------------------------------------------
-recompute_items = tuple(sorted((k, params[k]) for k in scheme.recompute_keys()))
-cache_version = getattr(scheme, "cache_version", "1")
-render_update_status(scheme.name)
-raw = _cached_compute(scheme.name, recompute_items, cache_version)
-param_items = tuple(sorted(params.items()))
-if getattr(scheme, "cache_observables", False):
-    view = _cached_observables(
-        scheme.name, raw, param_items,
-        (cache_version, READOUT_CACHE_VERSION),
-    )
-else:
-    with PLOT_LOCK:
-        view = scheme.observables(raw, params)
-
-render_derived_params(derived_slots, view.get("sidebar_readouts", {}))
-
-
-# ----------------------------------------------------------------------
-# Readout strip → plot card → More
-# ----------------------------------------------------------------------
-metrics = present_metrics(view.get("metrics", []), scheme_name=scheme.name, raw=raw)
-if metrics:
-    heroes, secondary, statuses, overflow = partition_readout(
-        metrics, hero_count=view.get("hero_count") or 2)
-    with st.container(horizontal=True, vertical_alignment="center", gap="small",
-                      key="gabes_readout"):
-        st.markdown(strip_html(heroes, secondary, statuses,
-                               compact_statuses=scheme.name == "magneto"), unsafe_allow_html=True)
-        if overflow:
-            with st.popover(f"+{len(overflow)} more", type="tertiary"):
-                st.markdown(metrics_table_markdown(metrics))
-
-spec_by_name = {sp.name: sp for sp in specs}
-render_plot_section(
-    view, scheme, spec_by_name, raw, params, cache_version, READOUT_CACHE_VERSION,
-)
-
-render_more(view, scheme, params, cache_version)
+with workspace:
+    render_spectra()

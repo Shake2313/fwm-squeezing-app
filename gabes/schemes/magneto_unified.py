@@ -14,6 +14,17 @@ FIELD_SCAN = "Magnetic field"
 OPTICAL_SCAN = "Optical detuning"
 TRANSMISSION = "Transmission"
 ROTATION = "NMOR rotation"
+POLARIZATION_COMPARISON = "Polarization angle"
+TRANSITION_COMPARISON = "Transition"
+
+
+def signal_for_axis(axis):
+    """The scan coordinate selects its primary observable."""
+    if axis == FIELD_SCAN:
+        return ROTATION
+    if axis == OPTICAL_SCAN:
+        return TRANSMISSION
+    raise ValueError("scan_axis must be Magnetic field or Optical detuning")
 PARAFFIN = "Paraffin coated cell"
 BUFFER = "Buffer gas cell"
 LINEARITY_STEP_UT = 1e-6
@@ -149,9 +160,12 @@ class UnifiedMagnetoScheme(Scheme):
     caption = ("Rb D1/D2 Hanle transmission and nonlinear magneto-optical rotation, "
                "using a shared multihyperfine Budker-based model for magnetic-field "
                "and optical-detuning scans.")
-    cache_version = "budker-unified-v3-optical-operators"
-    defaults_version = "budker-unified-v1"
+    cache_version = "budker-unified-v4-polarization-comparison"
+    defaults_version = "budker-unified-v2-axis-readout"
     supports_headless_observables = True
+    model_comparison_parameter = "qwp_deg"
+    model_comparison_controls = ("comparison_mode",)
+    workspace_inputs = ("qwp_deg", "intensity_mw_cm2", "b_offset_ut")
 
     def __init__(self, mode=None):
         if mode not in (None, "hanle", "eia", "nmor"):
@@ -159,17 +173,27 @@ class UnifiedMagnetoScheme(Scheme):
         self.mode = mode
         self.name = mode or "magneto"
 
+    def normalize_params(self, params):
+        """Upgrade old saved Signal choices to the axis-selected readout."""
+        return {**params, "signal_type": signal_for_axis(params.get("scan_axis", FIELD_SCAN))}
+
+    def atom_conditions(self, params):
+        return {"fields": ("isotope", "line", "temp_c", "cell_mm", "cell_type"),
+                "line": "line", "cell": "Buffer" if params["cell_type"] == BUFFER else "Paraffin"}
+
     def param_schema(self):
         field = {"scan_axis": FIELD_SCAN}
         optical = {"scan_axis": OPTICAL_SCAN}
         paraffin = {"cell_type": PARAFFIN}
-        signal = TRANSMISSION if self.mode in ("hanle", "eia") else ROTATION
         return [
             ParamSpec("scan_axis", "Scan axis", "Readout", FIELD_SCAN,
                       choices=(FIELD_SCAN, OPTICAL_SCAN), control="segmented",
                       help="Both axes use the same multihyperfine atomic model and conditions."),
-            ParamSpec("signal_type", "Signal", "Readout", signal,
-                      choices=(TRANSMISSION, ROTATION), control="segmented", recompute=False),
+            ParamSpec("signal_type", "Signal", "Readout", ROTATION,
+                      choices=(TRANSMISSION, ROTATION), recompute=False, hidden=True),
+            ParamSpec("comparison_mode", "Compare", "Readout", POLARIZATION_COMPARISON,
+                      choices=(POLARIZATION_COMPARISON, TRANSITION_COMPARISON),
+                      control="segmented", recompute=False),
             ParamSpec("isotope", "Isotope", "Atomic", "Rb85", choices=("Rb85", "Rb87"),
                       atom_menu=(("Rb", "85", "Rb85", {}), ("Rb", "87", "Rb87", {})),
                       help="Isotopically pure vapor."),
@@ -180,14 +204,15 @@ class UnifiedMagnetoScheme(Scheme):
             ParamSpec("cell_type", "Cell type", "Cell & beams", PARAFFIN,
                       choices=(PARAFFIN, BUFFER), control="segmented"),
             ParamSpec("intensity_mw_cm2", "Beam intensity", "Fields", 1., 0.01, 20., .01, "mW/cm²"),
-            ParamSpec("qwp_deg", "Probe polarization (QWP angle)", "Fields", 45. if self.mode == "eia" else 0.,
-                      0., 45., .5, "deg", endpoints=("linear", "circular")),
+            ParamSpec("qwp_deg", "QWP angle", "Fields", 45. if self.mode == "eia" else 0.,
+                      0., 45., .5, "°", endpoints=("linear", "circular"),
+                      help="Quarter-wave plate orientation for initially linear light: 0° is linear and 45° is circular."),
             ParamSpec("laser_detuning_mhz", "Laser detuning", "Detunings", 0., -6000., 6000., 5., "MHz",
                       visible_if=field, help="From the selected ground-F component's line-strength centroid."),
             ParamSpec("detuning_max_mhz", "Optical detuning ±", "Detunings", 1200., 1., 6000., 10., "MHz", visible_if=optical),
-            ParamSpec("detuning_points", "Optical scan samples", "Numerics", 49, 3, 201, 2, visible_if=optical),
+            ParamSpec("detuning_points", "Optical scan samples", "Numerics", 49, 3, 201, 2, visible_if=optical, advanced=True),
             ParamSpec("b_max_ut", "B scan ±", "Fields", .001, .00001, 500., .00001, "µT", visible_if=field, format="%.5f"),
-            ParamSpec("scan_points", "B scan samples", "Numerics", 81, 11, 401, 2, visible_if=field),
+            ParamSpec("scan_points", "B scan samples", "Numerics", 81, 11, 401, 2, visible_if=field, advanced=True),
             ParamSpec("b_offset_ut", "Physical longitudinal bias", "Fields", 0., -50., 50., .00001, "µT", format="%.5f",
                       help="B_physical = B_command + bias; optical scans use this physical field."),
             ParamSpec("residual_transverse_b_ut", "Residual transverse B", "Fields", .0001 if self.mode == "eia" else 0.,
@@ -195,9 +220,9 @@ class UnifiedMagnetoScheme(Scheme):
             ParamSpec("transverse_field_angle_deg", "Transverse B angle", "Fields", 0., 0., 180., 1., "deg", advanced=True),
             ParamSpec("temp_c", "Temperature", "Cell & beams", 20., 0., 120., 1., "°C"),
             ParamSpec("cell_mm", "Cell length", "Cell & beams", 100., .5, 200., .5, "mm", recompute=False),
-            ParamSpec("density_mode", "Vapor density", "Cell & beams", "manual", choices=("manual", "vapor"), recompute=False),
+            ParamSpec("density_mode", "Vapor density", "Cell & beams", "manual", choices=("manual", "vapor"), recompute=False, advanced=True),
             ParamSpec("density_cm3", "Manual isotope density", "Cell & beams", 4.5e9, 0., 1e12, 1e8, "cm⁻³",
-                      visible_if={"density_mode": "manual"}, recompute=False,
+                      visible_if={"density_mode": "manual"}, recompute=False, advanced=True,
                       help="Selected isotope density; abundance is not applied again."),
             ParamSpec("gamma_out_hz", "Light-region exit rate", "Atomic", 5e4, 0., 2e5, 100., "s⁻¹", advanced=True, visible_if=paraffin),
             ParamSpec("gamma_in_hz", "Dark-region return rate", "Atomic", 20., 0., 1000., 1., "s⁻¹", advanced=True, visible_if=paraffin),
@@ -210,7 +235,7 @@ class UnifiedMagnetoScheme(Scheme):
             ParamSpec("doppler", "Doppler average", "Numerics", "on", choices=("on", "off"), advanced=True),
             ParamSpec("velocity_points", "Velocity quadrature order", "Numerics", 6, 2, 20, 1, advanced=True,
                       help="Order per resonance-centered interval; velocity convergence is assessed separately."),
-            ParamSpec("show_shot_noise", "Show shot noise", "Detection", True, control="checkbox", recompute=False),
+            ParamSpec("show_shot_noise", "Show shot noise", "Detection", True, control="checkbox", recompute=False, advanced=True),
             ParamSpec("beam_diameter_mm", "Effective beam diameter", "Detection", 3., .1, 20., .1, "mm", recompute=False, advanced=True),
             ParamSpec("detection_efficiency", "Detection efficiency", "Detection", .8, .01, 1., .01, recompute=False, advanced=True),
             ParamSpec("noise_bandwidth_hz", "Noise bandwidth (ENBW)", "Detection", 1., .1, 1e6, .1, "Hz", recompute=False, advanced=True),
@@ -223,7 +248,7 @@ class UnifiedMagnetoScheme(Scheme):
         # never select another atomic engine or populate the top-bar selector.
         regimes = dict(
             scan_axis=FIELD_SCAN, isotope="Rb87", line="D1", ground_center="upper",
-            signal_type=TRANSMISSION, cell_type=PARAFFIN, temp_c=25., cell_mm=10.,
+            cell_type=PARAFFIN, temp_c=25., cell_mm=10.,
             density_mode="vapor", beam_diameter_mm=2., laser_detuning_mhz=-407.24,
             b_offset_ut=0., qwp_deg=0., scan_points=121,
             ground_relaxation_hz=1., pure_dephasing_hz=0.,
@@ -238,7 +263,7 @@ class UnifiedMagnetoScheme(Scheme):
             Preset("Hanle", dict(regimes, cell_type=BUFFER, intensity_mw_cm2=.8, b_max_ut=5.,
                    ground_relaxation_hz=2e4, pure_dephasing_hz=2e3,
                    residual_transverse_b_ut=0.), help=help_text),
-            Preset("NMOR", dict(regimes, signal_type=ROTATION, intensity_mw_cm2=.7, b_max_ut=.2,
+            Preset("NMOR", dict(regimes, intensity_mw_cm2=.7, b_max_ut=.2,
                    gamma_out_hz=5e4, wall_relaxation_hz=1/.005,
                    residual_transverse_b_ut=.02), help=help_text),
         ]
@@ -257,6 +282,11 @@ class UnifiedMagnetoScheme(Scheme):
                 "- Reiter and Sørensen, *PRA* **85**, 032111 (2012), https://arxiv.org/abs/1112.2806.\n\n"
                 "Field sensitivity uses an analytic derivative of the steady-state equations. Photon "
                 "shot noise, finite-amplitude linearity and experimental total noise remain distinct.")
+
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        from .polarization_comparison import magneto_comparison
+        return magneto_comparison(self, params, resolve_raw=resolve_raw,
+                                  current_raw=current_raw, current_view=current_view)
 
     def compute(self, params):
         p = dict(self.defaults(), **params)
@@ -331,7 +361,10 @@ class UnifiedMagnetoScheme(Scheme):
         if atomic["diagnostics"].get("solver_status") == "steady-state validation failed":
             valid = np.zeros_like(valid)
         linear = atomic.get("rotation_status", "").startswith("linear-input")
+        # Ignore persisted legacy signal_type values: cached raw declares its axis.
+        p["signal_type"] = signal_for_axis(raw["scan_axis"])
         rotation_view = p["signal_type"] == ROTATION
+        show_noise = bool(p["show_shot_noise"])
         settings = dict(frequency_hz=atomic["frequency_hz"],
             intensity_mw_cm2=raw["conditions"]["intensity_mw_cm2"],
             beam_diameter_mm=float(p["beam_diameter_mm"]), efficiency=float(p["detection_efficiency"]),
@@ -367,7 +400,7 @@ class UnifiedMagnetoScheme(Scheme):
             bandwidth_hz=settings["bandwidth_hz"], linear_input=linear)
         noise["enabled"] = bool(p["show_shot_noise"])
         readout = _json(dict(
-            model=raw["model"], scan_axis=raw["scan_axis"], x=x,
+            model=raw["model"], scan_axis=raw["scan_axis"], signal_type=p["signal_type"], x=x,
             x_unit="MHz" if optical else "µT", detunings_mhz=raw["detunings_mhz"],
             command_b_ut=raw["command_b_ut"], physical_b_ut=raw["physical_b_ut"],
             physical_bias_ut=float(p["b_offset_ut"]), detuning_reference=reference,
@@ -393,14 +426,18 @@ class UnifiedMagnetoScheme(Scheme):
             propagation_status=propagation_status, max_optical_depth=max_od,
         ))
         selected_asd = float(asd[chosen]) if chosen is not None and available[chosen] else None
-        if optical:
+        signal_value = theta[op]*1e3 if rotation_view else T[op]
+        signal_metric = dict(
+            label="Rotation at declared bias" if rotation_view else "Transmission at optical reference",
+            value="unavailable" if not np.isfinite(signal_value) else
+                  f"{signal_value:.4g}"+(" mrad" if rotation_view else ""), tier="hero")
+        if optical and show_noise:
             heroes = [dict(label="Best photon-limited sensitivity", value="unavailable" if selected_asd is None else f"{selected_asd*1e15:.3g} fT/√Hz", tier="hero"),
                       dict(label="Best optical detuning", value="unavailable" if best is None else f"{x[best]:+.4g} MHz", tier="hero")]
         else:
-            signal_value = theta[op]*1e3 if rotation_view else T[op]
-            heroes = [dict(label="Rotation at declared bias" if rotation_view else "Transmission at declared bias",
-                           value="unavailable" if not np.isfinite(signal_value) else f"{signal_value:.4g}"+(" mrad" if rotation_view else ""), tier="hero"),
-                      dict(label="PSN magnetic sensitivity", value="unavailable" if selected_asd is None else f"{selected_asd*1e15:.3g} fT/√Hz", tier="hero")]
+            heroes = [signal_metric]
+            if show_noise:
+                heroes.append(dict(label="PSN magnetic sensitivity", value="unavailable" if selected_asd is None else f"{selected_asd*1e15:.3g} fT/√Hz", tier="hero"))
         for metric in heroes:
             if metric["value"] == "unavailable":
                 metric["kind"] = "status"
@@ -416,13 +453,16 @@ class UnifiedMagnetoScheme(Scheme):
             dict(label="Signal linearity", value=sensitivity["signal_linearity_status"], kind="status"),
             dict(label="Rotation readout status", value=atomic["rotation_status"], kind="status"),
         ]
-        if chosen is not None and sensitivity["signal_to_noise_ratio"][chosen] is not None:
+        if not show_noise:
+            metrics = [metric for metric in metrics if metric["label"] not in
+                       ("Optimum status", "Signal linearity")]
+        if show_noise and chosen is not None and sensitivity["signal_to_noise_ratio"][chosen] is not None:
             metrics.append(dict(label="Small-field SNR", value=f"{sensitivity['signal_to_noise_ratio'][chosen]:.3g} ×",
                                 help="Quasistatic estimate for the declared RMS field, shown only when the finite-amplitude check passes at the declared bias; atomic bandwidth is not validated."))
-        if improvement is not None:
+        if show_noise and improvement is not None:
             metrics.append(dict(label="SNR relative to centroid", value=f"{improvement:.3g} ×"))
         fig = self._figure(raw, p, x, T, theta, slope_theta if rotation_view else slope_t, asd, valid,
-                           best, reference, noise) if include_figures else None
+                           best if show_noise else None, reference, noise) if include_figures else None
         rows = [("Atomic model", "Budker multihyperfine effective-operator model"),
             ("Isotope / line", f"{atomic['isotope']} {atomic['line']}"),
             ("Detuning zero", reference),
@@ -431,6 +471,8 @@ class UnifiedMagnetoScheme(Scheme):
             ("Physical bias", f"{p['b_offset_ut']:.6g} µT"),
             ("Magnetic slope", "analytic steady-state response; no finite-difference masking"),
             ("Optimum", optimum_status), ("Propagation", propagation_status)]
+        if not show_noise:
+            rows = [row for row in rows if row[0] != "Optimum"]
         notes = ("Both scan axes use the same multihyperfine Hamiltonian, optical pumping and cell dynamics. "
             "The frequency reference selects a ground-component centroid, not a truncated transition. "
             "Sensitivity is photon-noise ASD divided by the local analytic magnetic responsivity. "
@@ -439,23 +481,26 @@ class UnifiedMagnetoScheme(Scheme):
             "omits self-consistent optical propagation, optical Zeeman shifts/linear Faraday background and "
             "technical/electronic/atomic noise. Optical-detuning and velocity convergence are separate checks. "
             "Rotation for elliptical/circular input is unsupported; use the transmission readout.")
-        return dict(metrics=metrics, hero_count=2, figure=fig, magneto_readout=readout,
+        return dict(metrics=metrics, hero_count=len(heroes), figure=fig, magneto_readout=readout,
                     tables=[derived_table(rows), {"title": "Notes", "markdown": notes}])
 
     @staticmethod
     def _figure(raw, p, x, T, theta, slope, asd, valid, best, reference, noise):
         import matplotlib.pyplot as plt
         optical = raw["scan_axis"] == OPTICAL_SCAN
-        rotation = p["signal_type"] == ROTATION
-        fig, axes = plt.subplots(3 if optical else 1, 1, sharex=True,
-                                 figsize=(8.5, 8.) if optical else (8.5, 4.6), squeeze=False)
+        rotation = signal_for_axis(raw["scan_axis"]) == ROTATION
+        show_noise = bool(p["show_shot_noise"])
+        panel_count = (3 if show_noise else 2) if optical else 1
+        fig, axes = plt.subplots(panel_count, 1, sharex=True,
+                                 figsize=(8.5, 2.6*panel_count+1.), squeeze=False)
         axes = axes[:, 0]
         if optical:
-            lines = [(np.where(valid, slope*1e-6, np.nan), "Rotation slope" if rotation else "Transmission slope",
-                      "rad/uT" if rotation else "1/uT"),
-                     (T, "Transmission", "1"), (asd*1e15, "Photon-limited field ASD", "fT/sqrt(Hz)")]
+            lines = [(T, "Transmission", "1"),
+                     (np.where(valid, slope*1e-6, np.nan), "Transmission slope", "1/uT")]
+            if show_noise:
+                lines.append((asd*1e15, "Photon-limited field ASD", "fT/sqrt(Hz)"))
         else:
-            lines = [(theta*1e3 if rotation else T, "NMOR rotation" if rotation else "Transmission", "mrad" if rotation else "1")]
+            lines = [(theta*1e3 if rotation else T, "Polarization rotation" if rotation else "Transmission", "mrad" if rotation else "1")]
         for ax, (values, label, unit) in zip(axes, lines):
             line, = ax.plot(x, values, "-", lw=1.8, label=label)
             line._gabes_export_metadata = dict(quantity=label, y_unit=unit,
@@ -471,7 +516,7 @@ class UnifiedMagnetoScheme(Scheme):
                     ax.plot(x[invalid], np.full(invalid.size, .03), "x", color="#D97706",
                             transform=ax.get_xaxis_transform(), label="Unavailable response")
             ax.legend(loc="best", fontsize=8)
-        if optical and np.any(np.isfinite(asd)):
+        if optical and show_noise and np.any(np.isfinite(asd)):
             axes[-1].set_yscale("log")
         if not optical and noise["enabled"]:
             trace = np.asarray(noise["rotation_reference_trace_rad"] if rotation else noise["transmission_reference_trace"], float)

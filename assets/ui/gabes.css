@@ -631,14 +631,13 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 .st-key-gabes_plotstage { min-height: 220px; }
 .st-key-gabes_plotfocus_note { min-height: 1.4rem; }
 
-/* Phone: the top bar is two short rows and scrolls away; the plot head keeps
-   tabs and tools, drops the caption. */
+/* Phone: let plot controls wrap, then keep the model caption by the plot. */
 @media (max-width: 640px) {
   [data-testid="stLayoutWrapper"]:has(> .st-key-gabes_topbar) {
     position: static;
   }
 
-  .st-key-gabes_topbar {
+  [data-testid="stAppViewContainer"]:has([data-testid="stSidebar"]) .st-key-gabes_topbar {
     padding-left: 3rem;   /* clear the sidebar's expand button */
   }
 
@@ -677,11 +676,36 @@ button[data-testid="stBaseButton-tertiary"]:hover {
 
   .st-key-gabes_plothead {
     flex-wrap: wrap;
+    row-gap: 0.3rem;
+  }
+
+  .st-key-gabes_plothead > [data-testid="stLayoutWrapper"]:has(.st-key-gabes_plottools) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .st-key-gabes_plottools {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100% !important;
+    row-gap: 0.25rem;
   }
 
   .st-key-gabes_plothead > [data-testid="stElementContainer"]:has(.g-plot-caption) {
-    display: none;
+    order: 3;
+    flex: 1 1 100%;
   }
+
+  .g-plot-caption {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+.st-key-gabes-dropdown-policy { display: none; }
+[data-testid="stSelectbox"] input[role="combobox"][readonly] {
+  caret-color: transparent;
+  cursor: pointer;
 }
 
 /* ---- Narrow desktop: a rotated monitor, or a half-width window ---- */
@@ -756,4 +780,37 @@ button[data-testid="stBaseButton-tertiary"]:hover {
   .st-key-gabes_plotcard {
     padding-block: clamp(0.25rem, 1.2vh, 1rem);
   }
+}
+.st-key-gabes_conditions h3.gabes-conditions-heading {
+  font-size: .87rem;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 0;
+  margin: 0;
+}
+.st-key-gabes_conditions { gap: .42rem; }
+.st-key-gabes_conditions_options { flex-wrap: wrap; gap: .4rem .45rem; }
+.st-key-gabes_conditions_options [data-testid="stPopoverButton"] {
+  background: var(--g-surface, #fff);
+  border: 1px solid var(--g-line-strong, #bac9c8);
+  border-radius: 5px;
+  min-height: 35px;
+  padding: .28rem .5rem;
+  color: var(--g-ink, #20333c);
+}
+.st-key-gabes_conditions_options [data-testid="stPopoverButton"] p {
+  font-size: .87rem;
+  line-height: 1.35;
+}
+.st-key-gabes_conditions_options [data-testid="stPopoverButton"]:focus-visible {
+  outline: 3px solid var(--g-accent, #0876a4); outline-offset: 2px;
+}
+
+.st-key-gabes_spectrum_toolbar label p {
+  font-size: .87rem;
+  font-weight: 600;
+}
+.st-key-gabes_spectrum_toolbar [data-testid="stTextInput"] input {
+  background: var(--g-surface, #fff);
+  font-variant-numeric: tabular-nums;
 }

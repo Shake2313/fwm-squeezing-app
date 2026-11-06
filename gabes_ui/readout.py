@@ -21,6 +21,10 @@ def scheme_label(title):
 def present_metrics(metrics, *, scheme_name, raw=None):
     """Display-only qualifications; never rewrite model/export descriptors."""
     items = [dict(m) for m in metrics]
+    if scheme_name == "sas" and any(
+            m.get("label") == "Sub-Doppler FWHM" and m.get("status") for m in items):
+        # The width now carries both checks in its own cell.
+        return [m for m in items if m.get("label") not in {"Samples / FWHM", "SAS resolution"}]
     if scheme_name != "fwm":
         return items
     gain_supported = bool((raw or {}).get("claim_gate", {}).get("quantitative_gain_supported"))
@@ -172,7 +176,8 @@ def metrics_table_markdown(metrics):
     """Every metric with its help text, for the "all metrics" popover."""
     rows = ["| Metric | Value | Note |", "|---|---|---|"]
     for m in metrics:
-        note = " ".join(str(x) for x in (m.get("delta"), m.get("help")) if x)
+        status = m.get("status") or {}
+        note = " ".join(str(x) for x in (m.get("delta"), status.get("value"), m.get("help")) if x)
         cells = (str(m.get("label", "")), str(m.get("value", "")), note)
         rows.append("| " + " | ".join(c.replace("|", "\\|").replace("\n", " ") for c in cells) + " |")
     return "\n".join(rows)

@@ -110,6 +110,9 @@ class RydbergEITScheme(Scheme):
     cache_version = "rydberg-eit-v8-cp-optical-detunings"
     defaults_version = "rydberg-eit-v7-optical-detunings"
     supports_headless_observables = True
+    model_comparison_parameter = "lo_rabi_mhz"
+    workspace_inputs = ("probe_power_uw", "coupling_power_mw", "lo_rabi_mhz")
+    model_comparison_controls = ("eit_compare", "at_compare", "temperature_compare")
     _superhet_atomic_cache_lock = threading.RLock()
 
     REFERENCE_SENSITIVITY_NV_CM_SQRT_HZ = 12.5
@@ -171,9 +174,34 @@ class RydbergEITScheme(Scheme):
         sam_antenna_max_dimension_m=0.10,
     )
 
+    def atom_conditions(self, params):
+        fields = ("cell_mm", "temperature_model", "temp_c", "heater_setpoint_c",
+                  "effective_temp_c", "cold_spot_temp_c")
+        return dict(fields=tuple(name for name in fields if name not in self.comparison_input_names(params)),
+                    fixed={"Atom": "Rb", "Isotope": "85", "Transition line": "D2"})
+
+    def comparison_input_names(self, params):
+        from .rydberg_comparison import comparison_key
+        return tuple(dict.fromkeys((*self.workspace_inputs, comparison_key(params))))
+
+    def comparison_control_names(self, params):
+        selector = "eit_compare" if params.get("view", "EIT") == "EIT" else "at_compare"
+        return (selector,) + (("temperature_compare",) if params.get(selector) == "Temperature"
+                             and params.get("temperature_model") == "Separated" else ())
+
     def param_schema(self):
         r = self._REF
         return [
+            ParamSpec("eit_compare", "Compare", "Comparison", "Probe power",
+                      choices=("Probe power", "Coupling power", "Temperature", "Residual width"),
+                      recompute=False, visible_if={"view": "EIT"}),
+            ParamSpec("at_compare", "Compare", "Comparison", "RF Rabi",
+                      choices=("RF Rabi", "RF detuning", "Probe power", "Coupling power", "Temperature", "IF frequency"),
+                      recompute=False, visible_if={"view": "AT electrometry"}),
+            ParamSpec("temperature_compare", "Temperature scan", "Comparison", "Effective vapor temperature",
+                      choices=("Effective vapor temperature", "Cold-spot temperature"), recompute=False,
+                      visible_if={"temperature_model": "Separated"},
+                      help="In Separated mode these are distinct physical temperatures. Heater setpoint stays fixed."),
             ParamSpec("view", "Regime", "Regime", "EIT",
                       choices=("EIT", "AT electrometry"), control="segmented",
                       applies_defaults=True,
@@ -240,6 +268,7 @@ class RydbergEITScheme(Scheme):
                            "This is a calibration parameter, not a measured Gold Rabi rate."),
             ParamSpec("lo_rabi_mhz", "Microwave Rabi Ω_RF", "Fields",
                       r["lo_rabi_mhz"], 0.0, 20.0, 0.1, "MHz",
+                      visible_if={"view": "AT electrometry"},
                       help="Rydberg 40D -> 39F dressing Rabi frequency Ω_RF/2π."),
             ParamSpec("mw_detuning_mhz", "Microwave detuning", "Detunings",
                       r["mw_detuning_mhz"], -20.0, 20.0, 0.1, "MHz"),
@@ -455,6 +484,12 @@ class RydbergEITScheme(Scheme):
         if view == "EIT":
             vals["lo_rabi_mhz"] = 0.0
         return vals
+
+    def model_comparison(self, params, *, resolve_raw, current_raw=None, current_view=None):
+        from .rydberg_comparison import spectral_comparison
+
+        return spectral_comparison(self, params, resolve_raw=resolve_raw,
+                                   current_raw=current_raw, current_view=current_view)
 
     def recommended_defaults(self, params):
         return {
@@ -1074,6 +1109,13 @@ class RydbergEITScheme(Scheme):
             params, float(raw["scan"][best_index]))
         return dict(
             response_detuning_mhz=x[indices],
+            current_phasors_a_per_v_m=current_phasors,
+            psn_field_asd_v_m_per_sqrt_hz=np.asarray([
+                candidate[4].psn_field_asd_v_m_per_sqrt_hz if candidate is not None else np.inf
+                for candidate in candidates]),
+            technical_field_asd_v_m_per_sqrt_hz=np.asarray([
+                candidate[4].technical_field_asd_v_m_per_sqrt_hz if candidate is not None else np.inf
+                for candidate in candidates]),
             scan_axis=self._scan_axis(params),
             transmission_phasor_per_angular_rabi=transmission_phasor_per_rabi,
             optimum_index=best_index,
@@ -1160,6 +1202,7 @@ class RydbergEITScheme(Scheme):
         at_split_mhz = None
         at_field_v_m = None
         at_split_field_estimate_v_m = None
+        at_peak_positions_mhz = []
         superhet = None
         sam = self._sam_calibration(params)
         if raw["lo_rabi_mhz"] > 0:
@@ -1180,6 +1223,7 @@ class RydbergEITScheme(Scheme):
             at_resolved = len(peaks) >= 2
             if at_resolved:
                 xs = sorted(p[0] for p in sorted(peaks, key=lambda p: p[1])[-2:])
+                at_peak_positions_mhz = list(xs)
                 at_split_mhz = xs[1] - xs[0]
                 metrics.append(dict(label="RF AT splitting", value=f"{at_split_mhz:.2f} MHz",
                                     help="Separation of the two tallest dressed peaks."))
@@ -1417,6 +1461,7 @@ class RydbergEITScheme(Scheme):
             prediction_status="PREDICTED",
             superhet=superhet, effective_atoms=self._effective_atom_number(raw, params),
             at_split_mhz=at_split_mhz, at_field_v_m=at_field_v_m,
+            at_peak_positions_mhz=at_peak_positions_mhz,
             at_split_field_estimate_v_m=at_split_field_estimate_v_m, sam=sam)
 
     def observables(self, raw, params, include_figures=True):
@@ -1565,6 +1610,10 @@ class RydbergEITScheme(Scheme):
         return dict(
             metrics=ro["metrics"], figure=fig, tables=tables,
             rydberg_readout=ro["rydberg_readout"],
+            rydberg_spectrum=dict(x=ro["x"], transmission=ro["T_trans"],
+                                  dispersion=np.real(ro["xphys"]),
+                                  at_peak_positions_mhz=ro["at_peak_positions_mhz"],
+                                  finite_if=ro["superhet"]),
             effective_opacity=ro["effective_opacity"],
             prediction_status="PREDICTED",
             comparison=comparison)

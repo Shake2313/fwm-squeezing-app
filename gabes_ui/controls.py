@@ -25,13 +25,13 @@ def skey(scheme_name, pname):
 
 def current_params(scheme_name, scheme_obj):
     """Live value of every param knob from session_state, falling back to defaults."""
-    return {
+    return scheme_obj.normalize_params({
         sp.name: (_required_selection(scheme_name, sp)
                   if sp.control == "required_segmented" else
                   st.session_state.get(skey(scheme_name, sp.name), sp.default))
         for sp in scheme_obj.param_schema()
         if sp.control != "derived_slider"
-    }
+    })
 
 
 def _required_selection(scheme_name, sp):
@@ -96,6 +96,13 @@ def _is_integer_knob(sp):
     return bool(numbers) and all(isinstance(v, int) for v in numbers)
 
 
+def selected_atom_row(rows, value, parameter_value):
+    """Resolve the atom/isotope row, including shared stored values for natural and custom Rb."""
+    return next((row for row in rows if row[2] == value
+                 and all(parameter_value(name) == v for name, v in row[3].items())),
+                next((row for row in rows if row[2] == value), rows[0]))
+
+
 def _render_atom_menu(container, scheme_name, sp, scheme_obj=None):
     """Atom and Isotope selectors for one stored choice (`ParamSpec.atom_menu`).
 
@@ -113,10 +120,7 @@ def _render_atom_menu(container, scheme_name, sp, scheme_obj=None):
         return st.session_state.get(skey(scheme_name, name), defaults.get(name))
 
     value = st.session_state.get(key, sp.default)
-    current = next(
-        (row for row in rows if row[2] == value
-         and all(state(name) == v for name, v in row[3].items())),
-        next((row for row in rows if row[2] == value), rows[0]))
+    current = selected_atom_row(rows, value, state)
 
     def write(row):
         st.session_state[key] = row[2]
@@ -308,7 +312,7 @@ def render_rail(container, scheme, specs, skip=(), derived_slots=None):
         if sp.control != "derived_slider" and sp.name not in params:
             params[sp.name] = st.session_state.get(
                 skey(scheme.name, sp.name), sp.default)
-    return params
+    return scheme.normalize_params(params)
 
 
 def render_derived_params(derived_slots, readouts):

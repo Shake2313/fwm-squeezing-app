@@ -16,9 +16,10 @@ DOM contract the redesign must keep (or update here in the same commit):
   * the scheme switcher is a role=combobox whose aria-label contains "Scheme",
     reachable with the sidebar closed (top bar), and its options are
     role=option elements whose text is the scheme title;
-  * the main plot is the largest img / iframe / canvas inside stMain,
-    including inline components' shadow roots;
-  * the control rail is Streamlit's sidebar (stSidebar / stSidebarContent);
+  * plot candidates inside stMain include the OD/SAS .mc-overview SVG as
+    well as img / iframe / canvas, including component shadow roots;
+  * schemes with a rail use Streamlit's sidebar (stSidebar / stSidebarContent);
+    OD/SAS uses inline .st-key-gabes_conditions instead;
   * the advanced toggle is a sidebar summary/button whose text contains
     "Advanced controls", "Show advanced" or "Hide advanced".
 """
@@ -238,7 +239,7 @@ JS_READY = r"""
   if (!app) return {ready: false, state: 'noapp'};
   const state = app.getAttribute('data-test-script-state');
   const main = document.querySelector('[data-testid="stMain"]');
-  const big = main ? deep(main, 'img,iframe,canvas').filter(e => {
+  const big = main ? deep(main, '.mc-overview svg,img,iframe,canvas').filter(e => {
     const r = e.getBoundingClientRect(); return r.width * r.height > 40000; }) : [];
   const spinning = !!document.querySelector('[data-testid="stSpinner"]');
   const sw = [...document.querySelectorAll('[role="combobox"]')]
@@ -261,7 +262,7 @@ JS_MEASURE = r"""
   const rail = document.querySelector('[data-testid="stSidebarContent"]')
             || document.querySelector('[data-testid="stSidebar"]');
   const sidebar = document.querySelector('[data-testid="stSidebar"]');
-  const cands = main ? deep(main, 'img,iframe,canvas')
+  const cands = main ? deep(main, '.mc-overview svg,img,iframe,canvas')
     .map(e => ({e, r: e.getBoundingClientRect()}))
     .filter(o => o.r.width > 0 && o.r.height > 0) : [];
   cands.sort((a, b) => b.r.width * b.r.height - a.r.width * a.r.height);
@@ -295,7 +296,7 @@ JS_MEASURE = r"""
     viewport: [vw, vh],
     plot,
     main_scroll_height: main ? main.scrollHeight : null,
-    rail_open: railOpen,
+    rail_open: sidebar ? railOpen : null,
     rail_scroll_height: rail && railOpen ? rail.scrollHeight : null,
     // scrollHeight never drops below the viewport, so a rail that now fits on
     // one screen reads as a flat 900 px. This is what the controls occupy.
@@ -352,6 +353,7 @@ JS_ADVANCED_TOGGLE = r"""
 JS_SIDEBAR = r"""
 ((want) => {
   const sb = document.querySelector('[data-testid="stSidebar"]');
+  if (!sb && document.querySelector('.st-key-gabes_conditions')) return 'not applicable';
   const open = !!sb && sb.getAttribute('aria-expanded') !== 'false' && sb.getBoundingClientRect().width > 60;
   if (sb && open === want) return 'ok';
   const selector = want ? '[data-testid="stExpandSidebarButton"]' :
@@ -374,7 +376,9 @@ async def set_sidebar(cdp, want):
     while time.monotonic() < deadline:
         target = await cdp.js(JS_SIDEBAR + f"({str(want).lower()})")
         if target == "ok":
-            return
+            return True
+        if target == "not applicable":
+            return None
         # The close control moves while the mobile rail animates into view.
         if target and target == previous and not clicked:
             await cdp.click(*target)
@@ -382,6 +386,14 @@ async def set_sidebar(cdp, want):
         previous = target
         await asyncio.sleep(0.1)
     raise RuntimeError(f"Sidebar could not be {'opened' if want else 'closed'} by pointer")
+
+
+async def sidebar_roundtrip(cdp, *, end_open):
+    if await set_sidebar(cdp, not end_open) is None:
+        return "N/A"
+    await set_sidebar(cdp, end_open)
+    await asyncio.sleep(0.8)
+    return True
 
 
 def _center_js(selector_expr):
@@ -471,10 +483,7 @@ async def run_audit(url, out_dir, browser):
                 results[row["name"]]["ready_ms_desktop"] = await wait_ready(
                     cdp, expect_title=row["title"], min_wait=1.0)
             log(f"desktop: {row['title']}")
-            await set_sidebar(cdp, False)
-            await set_sidebar(cdp, True)
-            await asyncio.sleep(0.8)
-            results[row["name"]]["sidebar_roundtrip_desktop"] = True
+            results[row["name"]]["sidebar_roundtrip_desktop"] = await sidebar_roundtrip(cdp, end_open=True)
             results[row["name"]]["desktop"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_desktop.png")
             if row["n_advanced_controls"] and await cdp.js(JS_ADVANCED_TOGGLE):
@@ -496,10 +505,7 @@ async def run_audit(url, out_dir, browser):
             if idx:
                 await switch_scheme(cdp, row["title"])
                 await wait_ready(cdp, expect_title=row["title"], min_wait=1.0)
-            await set_sidebar(cdp, True)
-            await set_sidebar(cdp, False)
-            await asyncio.sleep(0.8)
-            results[row["name"]]["sidebar_roundtrip_mobile"] = True
+            results[row["name"]]["sidebar_roundtrip_mobile"] = await sidebar_roundtrip(cdp, end_open=False)
             log(f"mobile: {row['title']}")
             results[row["name"]]["mobile"] = await cdp.js(JS_MEASURE)
             await screenshot(cdp, out_dir / f"{row['name']}_mobile.png")

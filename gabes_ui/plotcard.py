@@ -114,6 +114,46 @@ def _diagnostic_value(obj, *names, default=None):
     return default
 
 
+_OVERLAY_PREFERENCES = (
+    "_overlay", "_csv_auto_correct", "_csv_show_raw", "_csv_calibration_mode",
+    "_csv_dark_signal", "_csv_reference_signal", "_csv_detector_gain", "_csv_detector_offset",
+    "_csv_x_scale", "_csv_x_multiplier", "_csv_x_shift", "_csv_reverse", "_csv_invert",
+    "_csv_y_scale", "_csv_y_offset",
+)
+
+
+def _overlay_upload_key(scheme_name):
+    epoch = st.session_state.get(skey(scheme_name, "_csv_upload_epoch"), 0)
+    return skey(scheme_name, f"_csv_upload_{epoch}" if epoch else "_csv_upload")
+
+
+def remember_overlay_for_comparison(scheme_name, *, entering):
+    """Streamlit drops hidden widgets; keep a session-only copy across model comparison."""
+    state = st.session_state
+    saved_key = skey(scheme_name, "_model_return_overlay")
+    if entering:
+        keys = (skey(scheme_name, name) for name in _OVERLAY_PREFERENCES)
+        state[saved_key] = {key: state[key] for key in keys if key in state}
+        uploaded = state.get(_overlay_upload_key(scheme_name))
+        if uploaded is not None and uploaded.size <= MAX_FILE_BYTES:
+            state[skey(scheme_name, "_csv_retained_file")] = (uploaded.name, uploaded.getvalue())
+    else:
+        for key, value in state.pop(saved_key, {}).items():
+            state[key] = value
+        if skey(scheme_name, "_csv_retained_file") in state:
+            # A remounted native uploader can have an empty browser file list
+            # while Python still sees its previous UploadedFile. Give the new
+            # picker a fresh identity and let the visible retained-file control
+            # own the previous file and its removal.
+            epoch_key = skey(scheme_name, "_csv_upload_epoch")
+            state[epoch_key] = state.get(epoch_key, 0) + 1
+
+
+def _forget_retained_csv(scheme_name):
+    st.session_state.pop(skey(scheme_name, "_csv_retained_file"), None)
+    st.session_state.pop(skey(scheme_name, "_csv_fingerprint"), None)
+
+
 def _render_experimental_comparison(view, scheme_name, panel):
     """Render a scheme-declared CSV panel into `panel` and overlay its trace.
 
@@ -151,7 +191,9 @@ def _render_experimental_comparison(view, scheme_name, panel):
         uploaded = panel.file_uploader(
             "Oscilloscope CSV",
             type=("csv",),
-            key=skey(scheme_name, "_csv_upload"),
+            key=_overlay_upload_key(scheme_name),
+            on_change=_forget_retained_csv,
+            args=(scheme_name,),
             help="A and B are read as arbitrary units; no header is required.",
             **uploader_options,
         )
@@ -215,10 +257,16 @@ def _render_experimental_comparison(view, scheme_name, panel):
                 key=skey(scheme_name, "_csv_detector_offset"),
                 help="Signal value corresponding to zero transmission.",
             )
-        if uploaded is None:
-            return
-
-        csv_bytes = uploaded.getvalue()
+        if uploaded is not None:
+            filename, csv_bytes = uploaded.name, uploaded.getvalue()
+        else:
+            retained = st.session_state.get(skey(scheme_name, "_csv_retained_file"))
+            if retained is None:
+                return
+            filename, csv_bytes = retained
+            panel.button("Remove retained CSV", key=skey(scheme_name, "_csv_remove_retained"),
+                         on_click=_forget_retained_csv, args=(scheme_name,),
+                         help="Remove the file kept in this session during model comparison.")
         fingerprint = hashlib.sha256(csv_bytes).hexdigest()
         fingerprint_key = skey(scheme_name, "_csv_fingerprint")
         scale_key = skey(scheme_name, "_csv_x_scale")
@@ -430,7 +478,7 @@ def _render_experimental_comparison(view, scheme_name, panel):
             "duplicate_rows", default="?"
         )
         panel.caption(
-            f"{uploaded.name}: {valid_rows} numeric A/B rows · "
+            f"{filename}: {valid_rows} numeric A/B rows · "
             f"{len(detuning)} unique detuning points · {merged_rows} duplicates "
             f"merged · {ignored_rows} rows ignored"
         )
@@ -513,7 +561,7 @@ def _render_experimental_comparison(view, scheme_name, panel):
         return {
             "enabled": True,
             "kind": "experimental_csv_overlay",
-            "overlay_filename": uploaded.name,
+            "overlay_filename": filename,
             "source_fingerprint_sha256": fingerprint,
             "alignment_revision": st.session_state.get(
                 skey(scheme_name, "_csv_alignment_revision"), 0),
@@ -592,6 +640,40 @@ def _pop_figure_title(fig, *, clear=True):
     return "  ·  ".join(parts)
 
 
+def _plot_description(fig, scheme, selected, caption, params, metrics):
+    """Describe the selected figure using its plotted axes and existing readout."""
+    parts = [getattr(scheme, "title", scheme.name)]
+    if selected != "Plot":
+        parts.append(selected)
+    if caption:
+        parts.append(" ".join(caption.split()))
+    for getter, label in (("get_xlabel", "Horizontal"), ("get_ylabel", "Vertical")):
+        axes = dict.fromkeys(getattr(ax, getter)() for ax in fig.axes)
+        labels = ", ".join(text for text in axes if text)
+        if labels:
+            parts.append(f"{label}: {labels}")
+    if scheme.name == "fwm" and params:
+        if params.get("mode") == "Biphoton":
+            parts.append(str(params.get("topology", "Biphoton")))
+        else:
+            if "tpd" in params:
+                parts.append(f"Selected two-photon detuning {params['tpd']:g} MHz")
+            if "pump_mw" in params:
+                parts.append(f"Pump {params['pump_mw']:g} mW")
+    if scheme.name == "sas" and params:
+        parts.extend(str(params[k]) for k in ("species", "line") if k in params)
+        if "pump_power_mw" in params:
+            pump = params["pump_power_mw"]
+            parts.append(f"Pump {pump:g} mW")
+            if pump == 0:
+                parts.append("Pump off: Doppler absorption background")
+            else:
+                status = next((m["value"] for m in metrics if m.get("label") == "SAS resolution"), None)
+                if status:
+                    parts.append(f"Sub-Doppler feature: {status}")
+    return ". ".join(parts)
+
+
 def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
     """Plot views as tabs, overlay/export tools, figure. Returns (comparison
     payload, plot payloads, export popover) for the export step."""
@@ -642,6 +724,8 @@ def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
             st.session_state[last_key] = selected
         page_fig = dict(pages)[selected]
         caption = _pop_figure_title(page_fig, clear=False)
+        description = _plot_description(page_fig, scheme, selected, caption, params,
+                                        view.get("metrics", ()))
         # Mount the caption before the image; never leave an empty placeholder
         # while a new figure is rendered and sent to the browser.
         if caption:
@@ -674,14 +758,16 @@ def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
             window = saved[1]
         else:
             st.session_state.pop(window_key, None)
-        overlay_on = bool(view.get("comparison")) and st.toggle(
-            "Overlay data", key=skey(scheme.name, "_overlay"))
+        overlay_on = bool(view.get("comparison")) and (
+            view.get("experimental_workspace") or st.toggle("Overlay data", key=skey(scheme.name, "_overlay")))
         export_box = st.popover("Export", icon=":material/download:", type="tertiary")
 
     with card:
         plot_area = st.container()
         if overlay_on:
-            panel = st.expander("Overlay settings · upload, calibrate and fit", expanded=True)
+            label = ("Experimental CSV · upload, calibrate and fit" if view.get("experimental_workspace")
+                     else "Overlay settings · upload, calibrate and fit")
+            panel = st.expander(label, expanded=True)
             comparison_payload = _render_experimental_comparison(view, scheme.name, panel)
         else:
             comparison_payload = None
@@ -697,7 +783,10 @@ def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
         elif window is not None:
             focus_note = f"{window.description} · Original samples; zoom does not improve resolution."
         with st.container(key="gabes_plotfocus_note"):
-            st.caption(focus_note)
+            # Native pyplot images in Streamlit 1.54 use the array index as alt.
+            # The browser binds this description without replacing the zoomable image.
+            st.caption(f'<span data-spectrum-alt="{escape(description, quote=True)}">'
+                       f'{escape(focus_note)}</span>', unsafe_allow_html=True)
         for control_name in view.get("figure_controls", []):
             control_spec = spec_by_name.get(control_name)
             if control_spec is not None:
@@ -709,7 +798,7 @@ def render_plot_card(view, scheme, spec_by_name, raw=None, params=None):
                 live = render_live_plot(page_fig, scheme.name, comparison_payload,
                                         canonical_noise=bool(raw and "T_canonical_small_signal" in raw),
                                         gain_digits=6 if (raw or {}).get("claim_gate", {}).get("quantitative_gain_supported") else 3,
-                                        interaction_context=interaction_context)
+                                        interaction_context=interaction_context, description=description)
             if live:
                 _close_fig(page_fig)
             else:
