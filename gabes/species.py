@@ -169,6 +169,67 @@ SPECIES_ORDER = ["Rb (natural)", "⁸⁵Rb", "⁸⁷Rb", "¹³³Cs"]
 
 
 # =====================================================================
+# Planned elements: Na and K (data only)
+# =====================================================================
+# 향후 추가 예정, 아직 아님 — planned, not yet supported (user decision
+# 2026-11-06, checklist `od-sas-isotope-fraction-and-element-coverage`).
+# These records stay out of ISOTOPES, SPECIES and SPECIES_ORDER, so no scheme
+# or UI control can select them, and number_density() rejects them. Before
+# offering an element: wire PLANNED_VAPOR_PRESSURE into number_density, source a
+# self-broadening coefficient (BETA_SELF is the Rb value) and the collisional
+# entries the checklist item lists, and validate a pump-off OD spectrum.
+#
+# Sources
+#   Na: D. A. Steck, "Sodium D Line Data", rev. 2.3.4 (8 August 2025),
+#       Tables 2-6 (mass, abundance, I, D1/D2 frequency and Γ, A/B, g_J, g_I).
+#   K:  T. G. Tiecke, "Properties of Potassium", v1.0 (February 2010),
+#       Tables 1, 3-10 (abundance, mass, I, per-isotope D1/D2 frequency, D2 Γ,
+#       A/B, g_J(S), g_I). g_J of 4P1/2 and 4P3/2 are the Russell-Saunders
+#       2/3 and 4/3: Tiecke lists no measurement. D1 Γ/2π = 5.956 MHz is from
+#       R. K. Hanley et al., arXiv:1506.06651 (2015), §4.1; the Tiecke v1.0
+#       D1 table repeats the D2 lifetime 26.37 ns.
+NA23 = Isotope(
+    name="Na23", label="²³Na", I=1.5, mass=22.989_769_280_7 * _AMU, abundance=1.0,
+    A_S=885.813_064_40, A_P12=94.44, A_P32=18.534, B_P32=2.724,
+    nu_D1=508.333_195_8e12, nu_D2=508.848_716_2e12,
+    gamma_D1_mhz=9.765, gamma_D2_mhz=9.7946,
+    gJ_S=2.002_296_00, gJ_P12=0.665_81, gJ_P32=1.334_20, g_I=-0.000_804_610_80)
+
+K39 = Isotope(
+    name="K39", label="³⁹K", I=1.5, mass=38.963_706_68 * _AMU, abundance=0.932_581,
+    A_S=230.859_860_1, A_P12=27.775, A_P32=6.093, B_P32=2.786,
+    nu_D1=389.286_058_716e12, nu_D2=391.016_170_03e12,
+    gamma_D1_mhz=5.956, gamma_D2_mhz=6.035,
+    gJ_S=2.002_294_21, gJ_P12=2.0 / 3.0, gJ_P32=4.0 / 3.0, g_I=-0.000_141_934_89)
+
+K40 = Isotope(
+    name="K40", label="⁴⁰K", I=4.0, mass=39.963_998_48 * _AMU, abundance=0.000_117,
+    A_S=-285.730_8, A_P12=-34.523, A_P32=-7.585, B_P32=-3.445,
+    nu_D1=389.286_184_353e12, nu_D2=391.016_296_050e12,
+    gamma_D1_mhz=5.956, gamma_D2_mhz=6.035,
+    gJ_S=2.002_294_21, gJ_P12=2.0 / 3.0, gJ_P32=4.0 / 3.0, g_I=0.000_176_490)
+
+K41 = Isotope(
+    name="K41", label="⁴¹K", I=1.5, mass=40.961_825_76 * _AMU, abundance=0.067_302,
+    A_S=127.006_935_2, A_P12=15.245, A_P32=3.363, B_P32=3.351,
+    nu_D1=389.286_294_205e12, nu_D2=391.016_406_21e12,
+    gamma_D1_mhz=5.956, gamma_D2_mhz=6.035,
+    gJ_S=2.002_294_21, gJ_P12=2.0 / 3.0, gJ_P32=4.0 / 3.0, g_I=-0.000_077_906_00)
+
+PLANNED_ISOTOPES = {iso.name: iso for iso in (NA23, K39, K40, K41)}
+
+# Vapor pressure log10 P = a - b/T [T in K], per phase, in the source's unit.
+PLANNED_VAPOR_PRESSURE = {
+    "Na": dict(unit="torr", solid=(2.881 + 5.298, 5603.0), liquid=(2.881 + 4.704, 5377.0),
+               melting_k=273.15 + 97.80, valid_k=(298.0, 700.0),
+               source="Steck, Sodium D Line Data rev. 2.3.4, eq. (1); ±5 % over 298-700 K"),
+    "K": dict(unit="mbar", solid=(7.9667, 4646.0), liquid=(7.4077, 4453.0),
+              melting_k=336.8, valid_k=(298.0, 600.0),
+              source="Tiecke, Properties of Potassium v1.0, eq. (1)"),
+}
+
+
+# =====================================================================
 # Number density (CRC / Steck vapor-pressure fits)
 # =====================================================================
 def _density_from_logP(log10_P_torr, T):
@@ -193,6 +254,8 @@ def number_density(iso, T):
     fit the AutoOD-validated OD scheme uses, so the pump-off limit matches the lab
     tool's absolute scale. Cs uses the Steck liquid-phase fit.
     """
+    if iso.name in PLANNED_ISOTOPES:
+        raise ValueError(f"{iso.name} is planned, not yet supported (no vapor-pressure fit wired).")
     if iso.name.startswith("Rb"):
         return rb_vapor_pressure_pa(T) / (constants.KB * T)
     logP = 8.22127 - 4006.048 / T - 0.00060194 * T - 0.19623 * np.log10(T)

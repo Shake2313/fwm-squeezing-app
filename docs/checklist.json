@@ -3909,6 +3909,7 @@
       "priority": "P2",
       "effort": "large",
       "status": "needs_decision",
+      "user_decision": "User decision 2026-11-06: the first supported geometry is a finite cylinder with a quenching (polarization-destroying) wall; the lowest diffusion mode sets the rate, validated against the analytic cylinder limit within 5 % before it is exposed as a default. ⟦AI⟧ Still open: the diffusion and spin-destruction coefficient sources and the maximum propagated uncertainty.",
       "depends_on": [
         "magneto-dynamics-semantics"
       ],
@@ -4168,6 +4169,7 @@
       "priority": "P1",
       "effort": "medium",
       "status": "ready",
+      "user_decision_2026_11_06": "User decision 2026-11-06: judge the Rydberg linewidth, AT and sensitivity readouts with the SAS sub-Doppler rule: at least one feature FWHM between a half-height edge and the scan edge, at least six sample intervals per FWHM, and an optimum that moves by at most 5 % over the final two deterministic refinements. Low transmission or contrast is judged only from a calibrated detector-noise SNR; without one the status is 'not assessed'. ⟦AI⟧ Reuse lineshape.MIN_SUBDOPPLER_EDGE_CLEARANCE_FWHM and MIN_SUBDOPPLER_SAMPLES_PER_FWHM; implement after the in-flight gabes/schemes/rydberg.py work.",
       "user_decision": "User decision 2026-11-04: keep the numeric linewidth and sensitivity readouts and attach a validity status (for example unresolved, scan-edge-limited, low contrast, near-zero transmitted power), as the SAS sub-Doppler readout does; do not withhold values on an arbitrary transmission cutoff.",
       "decision_required": [
         "Choose the policy for minimum transmitted power/contrast: detector-noise-derived when calibration exists, and an explicit not-assessed state otherwise.",
@@ -6211,7 +6213,8 @@
       ],
       "priority": "P2",
       "effort": "medium",
-      "status": "needs_decision",
+      "status": "parked",
+      "user_decision": "User decision 2026-11-06: Na and K will be added later. For now prepare the data only, keep them out of the front end, and mark them in comments as planned, not yet supported (향후 추가 예정, 아직 아님). ⟦AI⟧ Prepared: species.NA23, K39, K40, K41 in PLANNED_ISOTOPES (Steck Sodium D Line Data rev. 2.3.4; Tiecke Properties of Potassium v1.0; K D1 Γ/2π 5.956 MHz from Hanley et al. arXiv:1506.06651), PLANNED_VAPOR_PRESSURE, and a number_density guard; tests/test_planned_species.py checks them against the sources. Before offering an element: wire the vapor pressure into number_density, source self-broadening and collisional coefficients, add the species menu and isotope weights, and validate a pump-off OD spectrum.",
       "decision_required": [
         "Which additional elements, if any, belong in GABES scope; each new element needs sourced hyperfine constants, line data, a vapor-pressure fit with a validity range, and saturation and collisional entries."
       ],
@@ -8320,7 +8323,7 @@
       "priority": "P3",
       "effort": "small",
       "status": "ready",
-      "value_decision": "User decision 2026-11-05: adopt the exact SI h = 6.62607015e-34 with HBAR = h/(2 pi) everywhere (option a). ⟦AI⟧ constants defines PLANCK as the exact value and HBAR from it; fwm.responsivity_AW and SABES then call gabes.detection (hc/e = PLANCK*C_LIGHT/e) instead of 1239.841984. Every hbar-dependent result moves by about +6.1e-10 relative, FWM/SABES responsivities by +2.7e-10; tests/baseline_focused.npz is recaptured and the pins in tests/test_detection.py and tests/test_atomic_data.py follow. It lands as its own commit after the in-flight gabes/schemes/fwm.py and sabes/ work, alongside the Steck atomic-constant commit of atomic-data-legacy-value-unification. Still open: whether the FWM qe_pct preset (0.58*1239.8/795) keeps its 1239.8 rounding.",
+      "value_decision": "User decision 2026-11-05: adopt the exact SI h = 6.62607015e-34 with HBAR = h/(2 pi) everywhere (option a). ⟦AI⟧ constants defines PLANCK as the exact value and HBAR from it; fwm.responsivity_AW and SABES then call gabes.detection (hc/e = PLANCK*C_LIGHT/e) instead of 1239.841984. Every hbar-dependent result moves by about +6.1e-10 relative, FWM/SABES responsivities by +2.7e-10; tests/baseline_focused.npz is recaptured and the pins in tests/test_detection.py and tests/test_atomic_data.py follow. It lands as its own commit after the in-flight gabes/schemes/fwm.py and sabes/ work, alongside the Steck atomic-constant commit of atomic-data-legacy-value-unification. User decision 2026-11-06: the FWM '2026-10-13 experiment' qe_pct preset uses the exact hc/e (0.58 A/W at 795 nm: 90.4508 % -> 90.4539 %) in the same commit.",
       "problem": "⟦AI⟧ Consolidation item 7 found three Planck values. (1) constants.PLANCK = 2*pi*HBAR with HBAR = 1.054571817e-34 (rounded): 6.6260701459e-34, 6.13e-10 below the exact SI h = 6.62607015e-34; used by the Rydberg responsivity, magneto photon flux, the closed two-level I_sat and, through HBAR, every hbar omega. (2) hc/e = 1239.841984 eV nm in fwm.responsivity_AW and SABES (detection.py, instruments/base.py): 3.45e-10 above 2*pi*HBAR*c/e and 2.7e-10 below the exact hc/e = 1239.84198433 eV nm. (3) The FWM default qe_pct = 0.58*1239.8/795 rounds hc/e to 1239.8 (-3.4e-5); it converts a 0.58 A/W responsivity into a QE preset.",
       "decision_required": [
         "Adopt the exact SI h = 6.62607015e-34 with HBAR = h/(2 pi) everywhere (moves every hbar-dependent result by about 6e-10 relative; FWM baseline recapture), or keep the rounded HBAR and route FWM/SABES through constants.PLANCK*c/e (moves their responsivity by -3.45e-10), or keep the split documented.",
